@@ -194,6 +194,7 @@ const ChatWithHistoryWrapWithCheckToken: FC<ChatWithHistoryWrapProps> = ({
   const [initialized, setInitialized] = useState(false)
   const [appUnavailable, setAppUnavailable] = useState<boolean>(false)
   const [isUnknownReason, setIsUnknownReason] = useState<boolean>(false)
+  const [hasToken, setHasToken] = useState<boolean>(true)
 
   useAsyncEffect(async () => {
     if (!initialized) {
@@ -216,18 +217,21 @@ const ChatWithHistoryWrapWithCheckToken: FC<ChatWithHistoryWrapProps> = ({
   }, [])
 
   // ------------------------ start You must log in to access your account extend ------------------------
-  const consoleToken = searchParams.get('console_token')
-  const consoleTokenFromLocalStorage = localStorage?.getItem('console_token')
-
-  if (!(consoleToken || consoleTokenFromLocalStorage)) {
-    if (window !== undefined && window.location !== undefined)
-      localStorage?.setItem('redirect_url', window.location.href)
-    router.replace('/signin')
-    return null
-  }
+  // fix: window is not defined
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const consoleToken = searchParams.get('console_token')
+      const consoleTokenFromLocalStorage = localStorage.getItem('console_token')
+      if (!(consoleToken || consoleTokenFromLocalStorage)) {
+        localStorage.setItem('redirect_url', window.location.href)
+        router.replace('/signin')
+        setHasToken(false)
+      }
+    }
+  }, [router, searchParams])
   // ------------------------ end You must log in to access your account extend ------------------------
 
-  if (!initialized)
+  if (!initialized || !hasToken)
     return null
 
   if (appUnavailable)
