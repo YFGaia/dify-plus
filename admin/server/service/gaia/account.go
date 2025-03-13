@@ -24,16 +24,8 @@ import (
 // @return info request.GetUserInfoByUserName, err error
 func IsUserPasswordValid(passwd string) (err error) {
 	var matched bool
-	if matched, err = regexp.MatchString("^[A-Za-z0-9]{6,32}$", passwd); err != nil || !matched {
-		return errors.New("请使用6-32位最少包含一个字母数字组合的密码")
-	}
-	if matched, err = regexp.MatchString("[A-Za-z]", passwd); err != nil || !matched {
-		err = errors.New("请使用6-32位最少包含一个字母数字组合的密码")
-		return
-	}
-	if matched, err = regexp.MatchString("[0-9]", passwd); err != nil || !matched {
-		err = errors.New("请使用6-32位最少包含一个字母数字组合的密码")
-		return
+	if matched, err = regexp.MatchString("^(?=.*[a-zA-Z])(?=.*\\d).{8,}$", passwd); err != nil || !matched {
+		return errors.New("请使用最少8位且最少有一个字母数字组合的密码")
 	}
 	return nil
 }
