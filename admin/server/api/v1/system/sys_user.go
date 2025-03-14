@@ -149,7 +149,7 @@ func (b *BaseApi) Register(c *gin.Context) {
 		return
 	}
 	if err = gaia.IsUserPasswordValid(r.Password); err != nil {
-		response.FailWithMessage("请使用6-32位最少包含一个字母数字组合的密码", c)
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	// Extend: Start admin init
@@ -194,7 +194,7 @@ func (b *BaseApi) ChangePassword(c *gin.Context) {
 	}
 	uid := utils.GetUserID(c)
 	if err = gaia.IsUserPasswordValid(req.Password); err != nil {
-		response.FailWithMessage("请使用6-32位最少包含一个字母数字组合的密码", c)
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	u := &system.SysUser{GVA_MODEL: global.GVA_MODEL{ID: uid}, Password: req.Password}
@@ -489,7 +489,7 @@ func (b *BaseApi) ResetPassword(c *gin.Context) {
 		return
 	}
 	if err = gaia.IsUserPasswordValid(user.Password); err != nil {
-		response.FailWithMessage("请使用6-32位最少包含一个字母数字组合的密码", c)
+		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	err = userService.ResetPassword(user.ID, user.Password)

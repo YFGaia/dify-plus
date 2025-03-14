@@ -418,8 +418,8 @@ const resetPasswordFunc = (row) => {
   ElMessageBox.prompt(`是否修改 ${row.nickName} 密码`, '请注意', {
     confirmButtonText: '修改',
     cancelButtonText: '取消',
-    inputPattern: /^[0-9a-zA-Z\\!@#$]{6,26}$/,
-    inputErrorMessage: '设置6~26个字的密码，组成字符为0-9a-zA-Z!@#$',
+    inputPattern: /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/,
+    inputErrorMessage: '设置8~26个字的密码，至少包含一个英文一个数字',
   }).then(async ({value}) => {
     const res = await resetPassword({
       Password: value.trim(),
@@ -494,7 +494,7 @@ const rules = ref({
   ],
   email: [
     { required: true, message: '请输入用户邮箱', trigger: 'blur' },
-    { pattern: /^([0-9A-Za-z\-_.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/g, message: '请输入正确的邮箱', trigger: 'blur' },
+    { pattern: /^[\w\.!#$%&'*+\-/=?^_`{|}~]+@([\w-]+\.)+[\w-]{2,}$/g, message: '请输入正确的邮箱', trigger: 'blur' },
   ],
   authorityId: [
     { required: true, message: '请选择用户角色', trigger: 'blur' }
