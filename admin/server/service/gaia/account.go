@@ -23,10 +23,21 @@ import (
 // @param: passwd
 // @return info request.GetUserInfoByUserName, err error
 func IsUserPasswordValid(passwd string) (err error) {
-	var matched bool
-	if matched, err = regexp.MatchString("^(?=.*[a-zA-Z])(?=.*\\d).{8,}$", passwd); err != nil || !matched {
+	// Check if the string is at least 8 characters long
+	if len(passwd) < 8 {
 		return errors.New("请使用最少8位且最少有一个字母数字组合的密码")
 	}
+
+	// Check if the string contains at least one letter
+	if containsLetter := regexp.MustCompile(`[a-zA-Z]`).MatchString(passwd); !containsLetter {
+		return errors.New("请最少最少有一个字母组合的密码")
+	}
+
+	// Check if the string contains at least one digit
+	if containsLetter := regexp.MustCompile(`\d`).MatchString(passwd); !containsLetter {
+		return errors.New("请最少最少有一个数字组合的密码")
+	}
+
 	return nil
 }
 
