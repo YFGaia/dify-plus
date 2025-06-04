@@ -1165,7 +1165,7 @@ networks:
     driver: bridge
     internal: true
 
-# 设置mysql，redis持久化保存
+# Set up mysql and redis persistence
 volumes:
   db:
   redis:
