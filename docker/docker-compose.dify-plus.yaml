@@ -594,7 +594,7 @@ services:
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
     ports:
-      - 6379:6379
+      - "${EXPOSE_REDIS_PORT:-6379}:6379"
 
   # The DifySandbox
   sandbox:
