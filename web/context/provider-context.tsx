@@ -17,6 +17,7 @@ import {
 } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { Model, ModelProvider } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { RETRIEVE_METHOD } from '@/types/app'
+import type { BasicPlan } from '@/app/components/billing/type'
 import { Plan, type UsagePlanInfo } from '@/app/components/billing/type'
 import { fetchCurrentPlanInfo } from '@/service/billing'
 import { parseCurrentPlan } from '@/app/components/billing/utils'
@@ -34,7 +35,7 @@ type ProviderContextState = {
   supportRetrievalMethods: RETRIEVE_METHOD[]
   isAPIKeySet: boolean
   plan: {
-    type: Plan
+    type: BasicPlan
     usage: UsagePlanInfo
     total: UsagePlanInfo
   }
@@ -47,6 +48,19 @@ type ProviderContextState = {
   enableEducationPlan: boolean
   isEducationWorkspace: boolean
   isEducationAccount: boolean
+  allowRefreshEducationVerify: boolean
+  educationAccountExpireAt: number | null
+  isLoadingEducationAccountInfo: boolean
+  isFetchingEducationAccountInfo: boolean
+  webappCopyrightEnabled: boolean
+  licenseLimit: {
+    workspace_members: {
+      size: number
+      limit: number
+    }
+  },
+  refreshLicenseLimit: () => void
+  isAllowTransferWorkspace: boolean
 }
 const ProviderContext = createContext<ProviderContextState>({
   modelProviders: [],
@@ -80,6 +94,19 @@ const ProviderContext = createContext<ProviderContextState>({
   enableEducationPlan: false,
   isEducationWorkspace: false,
   isEducationAccount: false,
+  allowRefreshEducationVerify: false,
+  educationAccountExpireAt: null,
+  isLoadingEducationAccountInfo: false,
+  isFetchingEducationAccountInfo: false,
+  webappCopyrightEnabled: false,
+  licenseLimit: {
+    workspace_members: {
+      size: 0,
+      limit: 0,
+    },
+  },
+  refreshLicenseLimit: noop,
+  isAllowTransferWorkspace: false,
 })
 
 export const useProviderContext = () => useContext(ProviderContext)
@@ -106,10 +133,18 @@ export const ProviderContextProvider = ({
   const [enableReplaceWebAppLogo, setEnableReplaceWebAppLogo] = useState(false)
   const [modelLoadBalancingEnabled, setModelLoadBalancingEnabled] = useState(false)
   const [datasetOperatorEnabled, setDatasetOperatorEnabled] = useState(false)
+  const [webappCopyrightEnabled, setWebappCopyrightEnabled] = useState(false)
+  const [licenseLimit, setLicenseLimit] = useState({
+    workspace_members: {
+      size: 0,
+      limit: 0,
+    },
+  })
 
   const [enableEducationPlan, setEnableEducationPlan] = useState(false)
   const [isEducationWorkspace, setIsEducationWorkspace] = useState(false)
-  const { data: isEducationAccount } = useEducationStatus(!enableEducationPlan)
+  const { data: educationAccountInfo, isLoading: isLoadingEducationAccountInfo, isFetching: isFetchingEducationAccountInfo } = useEducationStatus(!enableEducationPlan)
+  const [isAllowTransferWorkspace, setIsAllowTransferWorkspace] = useState(false)
 
   const fetchPlan = async () => {
     try {
@@ -134,6 +169,12 @@ export const ProviderContextProvider = ({
         setModelLoadBalancingEnabled(true)
       if (data.dataset_operator_enabled)
         setDatasetOperatorEnabled(true)
+      if (data.webapp_copyright_enabled)
+        setWebappCopyrightEnabled(true)
+      if (data.workspace_members)
+        setLicenseLimit({ workspace_members: data.workspace_members })
+      if (data.is_allow_transfer_workspace)
+        setIsAllowTransferWorkspace(data.is_allow_transfer_workspace)
     }
     catch (error) {
       console.error('Failed to fetch plan info:', error)
@@ -190,7 +231,15 @@ export const ProviderContextProvider = ({
       datasetOperatorEnabled,
       enableEducationPlan,
       isEducationWorkspace,
-      isEducationAccount: isEducationAccount?.result || false,
+      isEducationAccount: educationAccountInfo?.is_student || false,
+      allowRefreshEducationVerify: educationAccountInfo?.allow_refresh || false,
+      educationAccountExpireAt: educationAccountInfo?.expire_at || null,
+      isLoadingEducationAccountInfo,
+      isFetchingEducationAccountInfo,
+      webappCopyrightEnabled,
+      licenseLimit,
+      refreshLicenseLimit: fetchPlan,
+      isAllowTransferWorkspace,
     }}>
       {children}
     </ProviderContext.Provider>

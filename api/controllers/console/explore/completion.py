@@ -1,8 +1,7 @@
 import logging
-from datetime import UTC, datetime
 
-from flask_login import current_user  # type: ignore
-from flask_restful import reqparse  # type: ignore
+from flask_login import current_user
+from flask_restx import reqparse
 from werkzeug.exceptions import InternalServerError, NotFound
 
 import services
@@ -28,6 +27,7 @@ from core.errors.error import (
 from core.model_runtime.errors.invoke import InvokeError
 from extensions.ext_database import db
 from libs import helper
+from libs.datetime_utils import naive_utc_now
 from libs.helper import uuid_value
 from models.model import AppMode
 from services.app_generate_service import AppGenerateService
@@ -35,6 +35,8 @@ from services.errors.llm import InvokeRateLimitError
 from services.app_generate_service_extend import (
     AppGenerateServiceExtend,  # Extend: App Center - Recommended list sorted by usage frequency
 )
+
+logger = logging.getLogger(__name__)
 
 
 # define completion api for user
@@ -56,7 +58,7 @@ class CompletionApi(InstalledAppResource):
         streaming = args["response_mode"] == "streaming"
         args["auto_generate_name"] = False
 
-        installed_app.last_used_at = datetime.now(UTC).replace(tzinfo=None)
+        installed_app.last_used_at = naive_utc_now()
         db.session.commit()
 
         try:
@@ -75,7 +77,7 @@ class CompletionApi(InstalledAppResource):
         except services.errors.conversation.ConversationCompletedError:
             raise ConversationCompletedError()
         except services.errors.app_model_config.AppModelConfigBrokenError:
-            logging.exception("App model config broken.")
+            logger.exception("App model config broken.")
             raise AppUnavailableError()
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
@@ -88,7 +90,7 @@ class CompletionApi(InstalledAppResource):
         except ValueError as e:
             raise e
         except Exception:
-            logging.exception("internal server error.")
+            logger.exception("internal server error.")
             raise InternalServerError()
 
 
@@ -122,7 +124,7 @@ class ChatApi(InstalledAppResource):
 
         args["auto_generate_name"] = False
 
-        installed_app.last_used_at = datetime.now(UTC).replace(tzinfo=None)
+        installed_app.last_used_at = naive_utc_now()
         db.session.commit()
 
         try:
@@ -141,7 +143,7 @@ class ChatApi(InstalledAppResource):
         except services.errors.conversation.ConversationCompletedError:
             raise ConversationCompletedError()
         except services.errors.app_model_config.AppModelConfigBrokenError:
-            logging.exception("App model config broken.")
+            logger.exception("App model config broken.")
             raise AppUnavailableError()
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
@@ -156,7 +158,7 @@ class ChatApi(InstalledAppResource):
         except ValueError as e:
             raise e
         except Exception:
-            logging.exception("internal server error.")
+            logger.exception("internal server error.")
             raise InternalServerError()
 
 

@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { type PluginDeclaration, TaskStatus } from '../../../types'
 import Card from '../../../card'
 import { pluginManifestToCardPluginProps } from '../../utils'
@@ -12,6 +12,8 @@ import { useInstallPackageFromLocal, usePluginTaskList } from '@/service/use-plu
 import useCheckInstalled from '@/app/components/plugins/install-plugin/hooks/use-check-installed'
 import { uninstallPlugin } from '@/service/plugins'
 import Version from '../../base/version'
+import { useAppContext } from '@/context/app-context'
+import { gte } from 'semver'
 
 const i18nPrefix = 'plugin.installModal'
 
@@ -46,7 +48,6 @@ const Installed: FC<Props> = ({
   useEffect(() => {
     if (hasInstalled && uniqueIdentifier === installedInfoPayload.uniqueIdentifier)
       onInstalled()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasInstalled])
 
   const [isInstalling, setIsInstalling] = React.useState(false)
@@ -103,6 +104,13 @@ const Installed: FC<Props> = ({
     }
   }
 
+  const { langGeniusVersionInfo } = useAppContext()
+  const isDifyVersionCompatible = useMemo(() => {
+    if (!langGeniusVersionInfo.current_version)
+      return true
+    return gte(langGeniusVersionInfo.current_version, payload.meta.minimum_dify_version ?? '0.0.0')
+  }, [langGeniusVersionInfo.current_version, payload.meta.minimum_dify_version])
+
   return (
     <>
       <div className='flex flex-col items-start justify-center gap-4 self-stretch px-6 py-3'>
@@ -114,6 +122,11 @@ const Installed: FC<Props> = ({
               components={{ trustSource: <span className='system-md-semibold' /> }}
             />
           </p>
+          {!isDifyVersionCompatible && (
+            <p className='system-md-regular flex items-center gap-1 text-text-warning'>
+              {t('plugin.difyVersionNotCompatible', { minimalDifyVersion: payload.meta.minimum_dify_version })}
+            </p>
+          )}
         </div>
         <div className='flex flex-wrap content-start items-start gap-1 self-stretch rounded-2xl bg-background-section-burn p-2'>
           <Card

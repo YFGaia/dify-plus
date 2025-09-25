@@ -8,19 +8,23 @@ import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 import {
   getFilesInLogs,
 } from '@/app/components/base/file-uploader/utils'
+import { Theme } from '@/types/app'
+import useTheme from '@/hooks/use-theme'
 import './style.css'
 import { noop } from 'lodash-es'
+import { basePath } from '@/utils/var'
 
 // load file from local instead of cdn https://github.com/suren-atoyan/monaco-react/issues/482
-loader.config({ paths: { vs: '/vs' } })
+loader.config({ paths: { vs: `${basePath}/vs` } })
 
 const CODE_EDITOR_LINE_HEIGHT = 18
 
 export type Props = {
+  nodeId?: string
   value?: string | object
   placeholder?: React.JSX.Element | string
   onChange?: (value: string) => void
-  title?: React.JSX.Element
+  title?: string | React.JSX.Element
   language: CodeLanguage
   headerRight?: React.JSX.Element
   readOnly?: boolean
@@ -43,16 +47,8 @@ export const languageMap = {
   [CodeLanguage.json]: 'json',
 }
 
-const DEFAULT_THEME = {
-  base: 'vs',
-  inherit: true,
-  rules: [],
-  colors: {
-    'editor.background': '#F2F4F7', // #00000000 transparent. But it will has a blue border
-  },
-}
-
 const CodeEditor: FC<Props> = ({
+  nodeId,
   value = '',
   placeholder = '',
   onChange = noop,
@@ -76,7 +72,7 @@ const CodeEditor: FC<Props> = ({
   const [isMounted, setIsMounted] = React.useState(false)
   const minHeight = height || 200
   const [editorContentHeight, setEditorContentHeight] = useState(56)
-
+  const { theme: appTheme } = useTheme()
   const valueRef = useRef(value)
   useEffect(() => {
     valueRef.current = value
@@ -114,27 +110,7 @@ const CodeEditor: FC<Props> = ({
       setIsFocus(false)
     })
 
-    monaco.editor.defineTheme('default-theme', DEFAULT_THEME)
-
-    monaco.editor.defineTheme('blur-theme', {
-      base: 'vs',
-      inherit: true,
-      rules: [],
-      colors: {
-        'editor.background': '#F2F4F7',
-      },
-    })
-
-    monaco.editor.defineTheme('focus-theme', {
-      base: 'vs',
-      inherit: true,
-      rules: [],
-      colors: {
-        'editor.background': '#ffffff',
-      },
-    })
-
-    monaco.editor.setTheme('default-theme') // Fix: sometimes not load the default theme
+    monaco.editor.setTheme(appTheme === Theme.light ? 'light' : 'vs-dark') // Fix: sometimes not load the default theme
 
     onMount?.(editor, monaco)
     setIsMounted(true)
@@ -146,17 +122,16 @@ const CodeEditor: FC<Props> = ({
     try {
       return JSON.stringify(value as object, null, 2)
     }
-    catch (e) {
+    catch {
       return value as string
     }
   })()
 
-  const theme = (() => {
-    if (noWrapper)
-      return 'default-theme'
-
-    return isFocus ? 'focus-theme' : 'blur-theme'
-  })()
+  const theme = useMemo(() => {
+    if (appTheme === Theme.light)
+      return 'light'
+    return 'vs-dark'
+  }, [appTheme])
 
   const main = (
     <>
@@ -167,6 +142,7 @@ const CodeEditor: FC<Props> = ({
         language={languageMap[language] || 'javascript'}
         theme={isMounted ? theme : 'default-theme'} // sometimes not load the default theme
         value={outPutValue}
+        loading={<span className='text-text-primary'>Loading...</span>}
         onChange={handleEditorChange}
         // https://microsoft.github.io/monaco-editor/typedoc/interfaces/editor.IEditorOptions.html
         options={{
@@ -201,6 +177,7 @@ const CodeEditor: FC<Props> = ({
         </div>
         : (
           <Base
+            nodeId={nodeId}
             className='relative'
             title={title}
             value={outPutValue}

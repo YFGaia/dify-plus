@@ -5,14 +5,13 @@ from __future__ import annotations
 from typing import Any, Optional
 
 from core.model_manager import ModelInstance
-from core.model_runtime.model_providers.__base.tokenizers.gpt2_tokenzier import GPT2Tokenizer
+from core.model_runtime.model_providers.__base.tokenizers.gpt2_tokenizer import GPT2Tokenizer
 from core.rag.splitter.text_splitter import (
     TS,
     Collection,
     Literal,
     RecursiveCharacterTextSplitter,
     Set,
-    TokenTextSplitter,
     Union,
 )
 
@@ -39,15 +38,13 @@ class EnhanceRecursiveCharacterTextSplitter(RecursiveCharacterTextSplitter):
             else:
                 return [GPT2Tokenizer.get_num_tokens(text) for text in texts]
 
-        if issubclass(cls, TokenTextSplitter):
-            extra_kwargs = {
-                "model_name": embedding_model_instance.model if embedding_model_instance else "gpt2",
-                "allowed_special": allowed_special,
-                "disallowed_special": disallowed_special,
-            }
-            kwargs = {**kwargs, **extra_kwargs}
+        def _character_encoder(texts: list[str]) -> list[int]:
+            if not texts:
+                return []
 
-        return cls(length_function=_token_encoder, **kwargs)
+            return [len(text) for text in texts]
+
+        return cls(length_function=_character_encoder, **kwargs)
 
 
 class FixedRecursiveCharacterTextSplitter(EnhanceRecursiveCharacterTextSplitter):
@@ -96,6 +93,7 @@ class FixedRecursiveCharacterTextSplitter(EnhanceRecursiveCharacterTextSplitter)
                 splits = text.split()
             else:
                 splits = text.split(separator)
+                splits = [item + separator if i < len(splits) else item for i, item in enumerate(splits)]
         else:
             splits = list(text)
         splits = [s for s in splits if (s not in {"", "\n"})]
@@ -103,7 +101,7 @@ class FixedRecursiveCharacterTextSplitter(EnhanceRecursiveCharacterTextSplitter)
         _good_splits_lengths = []  # cache the lengths of the splits
         _separator = "" if self._keep_separator else separator
         s_lens = self._length_function(splits)
-        if _separator != "":
+        if separator != "":
             for s, s_len in zip(splits, s_lens):
                 if s_len < self._chunk_size:
                     _good_splits.append(s)

@@ -4,7 +4,7 @@ import { RiArrowRightSLine } from '@remixicon/react'
 import type { MarketplaceCollection } from '../types'
 import CardWrapper from './card-wrapper'
 import type { Plugin } from '@/app/components/plugins/types'
-import { getLanguage } from '@/i18n/language'
+import { getLanguage } from '@/i18n-config/language'
 import cn from '@/utils/classnames'
 import type { SearchParamsFromCollection } from '@/app/components/plugins/marketplace/types'
 import { useMixedTranslation } from '@/app/components/plugins/marketplace/hooks'
@@ -32,7 +32,9 @@ const ListWithCollection = ({
   return (
     <>
       {
-        marketplaceCollections.map(collection => (
+        marketplaceCollections.filter((collection) => {
+          return marketplaceCollectionPluginsMap[collection.name]?.length
+        }).map(collection => (
           <div
             key={collection.name}
             className='py-3'

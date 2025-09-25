@@ -1,13 +1,13 @@
 import copy
-import datetime
 import logging
 from typing import Optional
 
-from flask_login import current_user  # type: ignore
+from flask_login import current_user
 
 from core.rag.index_processor.constant.built_in_field import BuiltInField, MetadataDataSource
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
+from libs.datetime_utils import naive_utc_now
 from models.dataset import Dataset, DatasetMetadata, DatasetMetadataBinding
 from services.dataset_service import DocumentService
 from services.entities.knowledge_entities.knowledge_entities import (
@@ -15,14 +15,22 @@ from services.entities.knowledge_entities.knowledge_entities import (
     MetadataOperationData,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class MetadataService:
     @staticmethod
     def create_metadata(dataset_id: str, metadata_args: MetadataArgs) -> DatasetMetadata:
+        # check if metadata name is too long
+        if len(metadata_args.name) > 255:
+            raise ValueError("Metadata name cannot exceed 255 characters.")
+
         # check if metadata name already exists
-        if DatasetMetadata.query.filter_by(
-            tenant_id=current_user.current_tenant_id, dataset_id=dataset_id, name=metadata_args.name
-        ).first():
+        if (
+            db.session.query(DatasetMetadata)
+            .filter_by(tenant_id=current_user.current_tenant_id, dataset_id=dataset_id, name=metadata_args.name)
+            .first()
+        ):
             raise ValueError("Metadata name already exists.")
         for field in BuiltInField:
             if field.value == metadata_args.name:
@@ -40,32 +48,43 @@ class MetadataService:
 
     @staticmethod
     def update_metadata_name(dataset_id: str, metadata_id: str, name: str) -> DatasetMetadata:  # type: ignore
+        # check if metadata name is too long
+        if len(name) > 255:
+            raise ValueError("Metadata name cannot exceed 255 characters.")
+
         lock_key = f"dataset_metadata_lock_{dataset_id}"
         # check if metadata name already exists
-        if DatasetMetadata.query.filter_by(
-            tenant_id=current_user.current_tenant_id, dataset_id=dataset_id, name=name
-        ).first():
+        if (
+            db.session.query(DatasetMetadata)
+            .filter_by(tenant_id=current_user.current_tenant_id, dataset_id=dataset_id, name=name)
+            .first()
+        ):
             raise ValueError("Metadata name already exists.")
         for field in BuiltInField:
             if field.value == name:
                 raise ValueError("Metadata name already exists in Built-in fields.")
         try:
             MetadataService.knowledge_base_metadata_lock_check(dataset_id, None)
-            metadata = DatasetMetadata.query.filter_by(id=metadata_id).first()
+            metadata = db.session.query(DatasetMetadata).filter_by(id=metadata_id).first()
             if metadata is None:
                 raise ValueError("Metadata not found.")
             old_name = metadata.name
             metadata.name = name
             metadata.updated_by = current_user.id
-            metadata.updated_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+            metadata.updated_at = naive_utc_now()
 
             # update related documents
-            dataset_metadata_bindings = DatasetMetadataBinding.query.filter_by(metadata_id=metadata_id).all()
+            dataset_metadata_bindings = (
+                db.session.query(DatasetMetadataBinding).filter_by(metadata_id=metadata_id).all()
+            )
             if dataset_metadata_bindings:
                 document_ids = [binding.document_id for binding in dataset_metadata_bindings]
                 documents = DocumentService.get_document_by_ids(document_ids)
                 for document in documents:
-                    doc_metadata = copy.deepcopy(document.doc_metadata)
+                    if not document.doc_metadata:
+                        doc_metadata = {}
+                    else:
+                        doc_metadata = copy.deepcopy(document.doc_metadata)
                     value = doc_metadata.pop(old_name, None)
                     doc_metadata[name] = value
                     document.doc_metadata = doc_metadata
@@ -73,7 +92,7 @@ class MetadataService:
             db.session.commit()
             return metadata  # type: ignore
         except Exception:
-            logging.exception("Update metadata name failed")
+            logger.exception("Update metadata name failed")
         finally:
             redis_client.delete(lock_key)
 
@@ -82,25 +101,30 @@ class MetadataService:
         lock_key = f"dataset_metadata_lock_{dataset_id}"
         try:
             MetadataService.knowledge_base_metadata_lock_check(dataset_id, None)
-            metadata = DatasetMetadata.query.filter_by(id=metadata_id).first()
+            metadata = db.session.query(DatasetMetadata).filter_by(id=metadata_id).first()
             if metadata is None:
                 raise ValueError("Metadata not found.")
             db.session.delete(metadata)
 
             # deal related documents
-            dataset_metadata_bindings = DatasetMetadataBinding.query.filter_by(metadata_id=metadata_id).all()
+            dataset_metadata_bindings = (
+                db.session.query(DatasetMetadataBinding).filter_by(metadata_id=metadata_id).all()
+            )
             if dataset_metadata_bindings:
                 document_ids = [binding.document_id for binding in dataset_metadata_bindings]
                 documents = DocumentService.get_document_by_ids(document_ids)
                 for document in documents:
-                    doc_metadata = copy.deepcopy(document.doc_metadata)
+                    if not document.doc_metadata:
+                        doc_metadata = {}
+                    else:
+                        doc_metadata = copy.deepcopy(document.doc_metadata)
                     doc_metadata.pop(metadata.name, None)
                     document.doc_metadata = doc_metadata
                     db.session.add(document)
             db.session.commit()
             return metadata
         except Exception:
-            logging.exception("Delete metadata failed")
+            logger.exception("Delete metadata failed")
         finally:
             redis_client.delete(lock_key)
 
@@ -121,7 +145,6 @@ class MetadataService:
         lock_key = f"dataset_metadata_lock_{dataset.id}"
         try:
             MetadataService.knowledge_base_metadata_lock_check(dataset.id, None)
-            dataset.built_in_field_enabled = True
             db.session.add(dataset)
             documents = DocumentService.get_working_documents_by_dataset_id(dataset.id)
             if documents:
@@ -137,9 +160,10 @@ class MetadataService:
                     doc_metadata[BuiltInField.source.value] = MetadataDataSource[document.data_source_type].value
                     document.doc_metadata = doc_metadata
                     db.session.add(document)
+            dataset.built_in_field_enabled = True
             db.session.commit()
         except Exception:
-            logging.exception("Enable built-in field failed")
+            logger.exception("Enable built-in field failed")
         finally:
             redis_client.delete(lock_key)
 
@@ -150,13 +174,15 @@ class MetadataService:
         lock_key = f"dataset_metadata_lock_{dataset.id}"
         try:
             MetadataService.knowledge_base_metadata_lock_check(dataset.id, None)
-            dataset.built_in_field_enabled = False
             db.session.add(dataset)
             documents = DocumentService.get_working_documents_by_dataset_id(dataset.id)
             document_ids = []
             if documents:
                 for document in documents:
-                    doc_metadata = copy.deepcopy(document.doc_metadata)
+                    if not document.doc_metadata:
+                        doc_metadata = {}
+                    else:
+                        doc_metadata = copy.deepcopy(document.doc_metadata)
                     doc_metadata.pop(BuiltInField.document_name.value, None)
                     doc_metadata.pop(BuiltInField.uploader.value, None)
                     doc_metadata.pop(BuiltInField.upload_date.value, None)
@@ -165,9 +191,10 @@ class MetadataService:
                     document.doc_metadata = doc_metadata
                     db.session.add(document)
                     document_ids.append(document.id)
+            dataset.built_in_field_enabled = False
             db.session.commit()
         except Exception:
-            logging.exception("Disable built-in field failed")
+            logger.exception("Disable built-in field failed")
         finally:
             redis_client.delete(lock_key)
 
@@ -193,7 +220,7 @@ class MetadataService:
                 db.session.add(document)
                 db.session.commit()
                 # deal metadata binding
-                DatasetMetadataBinding.query.filter_by(document_id=operation.document_id).delete()
+                db.session.query(DatasetMetadataBinding).filter_by(document_id=operation.document_id).delete()
                 for metadata_value in operation.metadata_list:
                     dataset_metadata_binding = DatasetMetadataBinding(
                         tenant_id=current_user.current_tenant_id,
@@ -205,7 +232,7 @@ class MetadataService:
                     db.session.add(dataset_metadata_binding)
                 db.session.commit()
             except Exception:
-                logging.exception("Update documents metadata failed")
+                logger.exception("Update documents metadata failed")
             finally:
                 redis_client.delete(lock_key)
 
@@ -230,9 +257,9 @@ class MetadataService:
                     "id": item.get("id"),
                     "name": item.get("name"),
                     "type": item.get("type"),
-                    "count": DatasetMetadataBinding.query.filter_by(
-                        metadata_id=item.get("id"), dataset_id=dataset.id
-                    ).count(),
+                    "count": db.session.query(DatasetMetadataBinding)
+                    .filter_by(metadata_id=item.get("id"), dataset_id=dataset.id)
+                    .count(),
                 }
                 for item in dataset.doc_metadata or []
                 if item.get("id") != "built-in"

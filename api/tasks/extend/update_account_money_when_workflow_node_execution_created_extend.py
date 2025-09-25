@@ -12,15 +12,15 @@ from extensions.ext_database import db
 from models.account import Account
 from models.account_money_extend import AccountMoneyExtend
 from models.api_token_money_extend import ApiTokenMessageJoinsExtend, ApiTokenMoneyExtend
-from models.enums import CreatedByRole
+from models.enums import CreatorUserRole
 from models.model_extend import EndUserAccountJoinsExtend
-from models.workflow import WorkflowNodeExecution
+from models.workflow import WorkflowNodeExecutionModel
 
 
 @shared_task(queue="extend_high", bind=True, max_retries=3)
 def update_account_money_when_workflow_node_execution_created_extend(self, workflow_node_execution_dict: dict):
     """ """
-    workflowNodeExecution = WorkflowNodeExecution(**workflow_node_execution_dict)
+    workflowNodeExecution = WorkflowNodeExecutionModel(**workflow_node_execution_dict)
     # 非大模型则跳过
     if workflowNodeExecution.node_type != NodeType.LLM.value:
         return
@@ -41,7 +41,7 @@ def update_account_money_when_workflow_node_execution_created_extend(self, workf
         # web应用的请求，created_by记录的是登录账号的ID，可以拿这个ID来扣钱
         # API调用，created_by记录的是节点登录账号ID，真正需要扣钱的在关联表EndUserAccountJoinsExtend，需要多做一层查询
         payerId = workflowNodeExecution.created_by  # 付钱的ID
-        if workflowNodeExecution.created_by_role == CreatedByRole.END_USER.value:
+        if workflowNodeExecution.created_by_role == CreatorUserRole.END_USER.value:
             account = db.session.query(Account).filter(Account.id == workflowNodeExecution.created_by).first()
             if not account:
                 end_user_account_joins = (

@@ -18,7 +18,6 @@ from controllers.console.app.error import (
 from controllers.console.explore.wraps import InstalledAppResource
 from core.errors.error import ModelCurrentlyNotSupportError, ProviderTokenNotInitError, QuotaExceededError
 from core.model_runtime.errors.invoke import InvokeError
-from models.model import AppMode
 from services.audio_service import AudioService
 from services.errors.audio import (
     AudioTooLargeServiceError,
@@ -26,6 +25,8 @@ from services.errors.audio import (
     ProviderNotSupportSpeechToTextServiceError,
     UnsupportedAudioTypeServiceError,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ChatAudioApi(InstalledAppResource):
@@ -39,7 +40,7 @@ class ChatAudioApi(InstalledAppResource):
 
             return response
         except services.errors.app_model_config.AppModelConfigBrokenError:
-            logging.exception("App model config broken.")
+            logger.exception("App model config broken.")
             raise AppUnavailableError()
         except NoAudioUploadedServiceError:
             raise NoAudioUploadedError()
@@ -60,13 +61,13 @@ class ChatAudioApi(InstalledAppResource):
         except ValueError as e:
             raise e
         except Exception as e:
-            logging.exception("internal server error.")
+            logger.exception("internal server error.")
             raise InternalServerError()
 
 
 class ChatTextApi(InstalledAppResource):
     def post(self, installed_app):
-        from flask_restful import reqparse  # type: ignore
+        from flask_restx import reqparse
 
         app_model = installed_app.app
         try:
@@ -79,22 +80,12 @@ class ChatTextApi(InstalledAppResource):
 
             message_id = args.get("message_id", None)
             text = args.get("text", None)
-            if (
-                app_model.mode in {AppMode.ADVANCED_CHAT.value, AppMode.WORKFLOW.value}
-                and app_model.workflow
-                and app_model.workflow.features_dict
-            ):
-                text_to_speech = app_model.workflow.features_dict.get("text_to_speech")
-                voice = args.get("voice") or text_to_speech.get("voice")
-            else:
-                try:
-                    voice = args.get("voice") or app_model.app_model_config.text_to_speech_dict.get("voice")
-                except Exception:
-                    voice = None
-            response = AudioService.transcript_tts(app_model=app_model, message_id=message_id, voice=voice, text=text)
+            voice = args.get("voice", None)
+
+            response = AudioService.transcript_tts(app_model=app_model, text=text, voice=voice, message_id=message_id)
             return response
         except services.errors.app_model_config.AppModelConfigBrokenError:
-            logging.exception("App model config broken.")
+            logger.exception("App model config broken.")
             raise AppUnavailableError()
         except NoAudioUploadedServiceError:
             raise NoAudioUploadedError()
@@ -115,5 +106,5 @@ class ChatTextApi(InstalledAppResource):
         except ValueError as e:
             raise e
         except Exception as e:
-            logging.exception("internal server error.")
+            logger.exception("internal server error.")
             raise InternalServerError()

@@ -175,7 +175,6 @@ const ConfigContent: FC<Props> = ({
       ...datasetConfigs,
       reranking_enable: enable,
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentRerankModel, datasetConfigs, onChange])
 
   return (
@@ -368,8 +367,8 @@ const ConfigContent: FC<Props> = ({
             provider={model?.provider}
             completionParams={model?.completion_params}
             modelId={model?.name}
-            setModel={onSingleRetrievalModelChange as any}
-            onCompletionParamsChange={onSingleRetrievalModelParamsChange as any}
+            setModel={onSingleRetrievalModelChange}
+            onCompletionParamsChange={onSingleRetrievalModelParamsChange}
             hideDebugWithMultipleModel
             debugWithMultipleModel={false}
           />

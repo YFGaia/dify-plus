@@ -22,8 +22,8 @@ from core.model_runtime.schema_validators.model_credential_schema_validator impo
 from core.model_runtime.schema_validators.provider_credential_schema_validator import ProviderCredentialSchemaValidator
 from core.plugin.entities.plugin import ModelProviderID
 from core.plugin.entities.plugin_daemon import PluginModelProviderEntity
-from core.plugin.manager.asset import PluginAssetManager
-from core.plugin.manager.model import PluginModelManager
+from core.plugin.impl.asset import PluginAssetManager
+from core.plugin.impl.model import PluginModelClient
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class ModelProviderFactory:
         self.provider_position_map = {}
 
         self.tenant_id = tenant_id
-        self.plugin_model_manager = PluginModelManager()
+        self.plugin_model_manager = PluginModelClient()
 
         if not self.provider_position_map:
             # get the path of current classes
@@ -201,7 +201,7 @@ class ModelProviderFactory:
         return filtered_credentials
 
     def get_model_schema(
-        self, *, provider: str, model_type: ModelType, model: str, credentials: dict
+        self, *, provider: str, model_type: ModelType, model: str, credentials: dict | None
     ) -> AIModelEntity | None:
         """
         Get model schema
@@ -256,11 +256,6 @@ class ModelProviderFactory:
 
         # scan all providers
         plugin_model_provider_entities = self.get_plugin_model_providers()
-
-        # convert provider_configs to dict
-        provider_credentials_dict = {}
-        for provider_config in provider_configs:
-            provider_credentials_dict[provider_config.provider] = provider_config.credentials
 
         # traverse all model_provider_extensions
         providers = []

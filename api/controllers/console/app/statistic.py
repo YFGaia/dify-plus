@@ -2,17 +2,19 @@ from datetime import datetime
 from decimal import Decimal
 
 import pytz
+import sqlalchemy as sa
 from flask import jsonify
-from flask_login import current_user  # type: ignore
-from flask_restful import Resource, reqparse  # type: ignore
+from flask_login import current_user
+from flask_restx import Resource, reqparse
 
 from controllers.console import api
 from controllers.console.app.wraps import get_app_model
 from controllers.console.wraps import account_initialization_required, setup_required
+from core.app.entities.app_invoke_entities import InvokeFrom
 from extensions.ext_database import db
 from libs.helper import DatetimeString
 from libs.login import login_required
-from models.model import AppMode
+from models import AppMode, Message
 
 
 class DailyMessageStatistic(Resource):
@@ -65,7 +67,7 @@ WHERE
         response_data = []
 
         with db.engine.begin() as conn:
-            rs = conn.execute(db.text(sql_query), arg_dict)
+            rs = conn.execute(sa.text(sql_query), arg_dict)
             for i in rs:
                 response_data.append({"date": str(i.date), "message_count": i.message_count})
 
@@ -86,56 +88,71 @@ class DailyConversationStatistic(Resource):
         parser.add_argument("account", type=bool, location="args")  # Extend added a new app personal expenses page
         args = parser.parse_args()
 
-        sql_query = """SELECT
-    DATE(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date,
-    COUNT(DISTINCT messages.conversation_id) AS conversation_count
-FROM
-    messages
-WHERE
-    app_id = :app_id"""
-        arg_dict = {"tz": account.timezone, "app_id": app_model.id}
+        timezone = pytz.timezone(account.timezone)
+        utc_timezone = pytz.utc
+
+        stmt = (
+            sa.select(
+                sa.func.date(
+                    sa.func.date_trunc("day", sa.text("created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz"))
+                ).label("date"),
+                sa.func.count(sa.distinct(Message.conversation_id)).label("conversation_count"),
+            )
+            .select_from(Message)
+            .where(Message.app_id == app_model.id, Message.invoke_from != InvokeFrom.DEBUGGER.value)
+        )
 
         # Extend Start: added a new app personal expenses page
         if args.account is not None and args.account:
-            sql_query = """SELECT date(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date, 
-            count(distinct messages.conversation_id) AS conversation_count FROM messages where app_id = :app_id AND (
-            from_account_id = :user_id OR from_end_user_id IN (SELECT DISTINCT(id) FROM end_users WHERE 
-            external_user_id = :user_id))
-        """
-            arg_dict = {"tz": account.timezone, "app_id": app_model.id, "user_id": account.id}
+            stmt = (
+                select(
+                    func.date(
+                        func.date_trunc("day", text("created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz"))
+                    ).label("date"),
+                    func.count(distinct(Message.conversation_id)).label("conversation_count")
+                )
+                .select_from(Message)
+                .where(
+                    Message.app_id == app_model.id,
+                    or_(
+                        Message.from_account_id == account.id,
+                        Message.from_end_user_id.in_(
+                            select(EndUser.id)
+                            .where(EndUser.external_user_id == account.id)
+                            .distinct()
+                        )
+                    )
+                )
+                .group_by(
+                    func.date(
+                        func.date_trunc("day", text("created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz"))
+                    )
+                )
+                .params(tz=account.timezone)  # 绑定参数
+            )
         # Extend Stop: added a new app personal expenses page
-
-        timezone = pytz.timezone(account.timezone)
-        utc_timezone = pytz.utc
 
         if args["start"]:
             start_datetime = datetime.strptime(args["start"], "%Y-%m-%d %H:%M")
             start_datetime = start_datetime.replace(second=0)
-
             start_datetime_timezone = timezone.localize(start_datetime)
             start_datetime_utc = start_datetime_timezone.astimezone(utc_timezone)
-
-            sql_query += " AND created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
+            stmt = stmt.where(Message.created_at >= start_datetime_utc)
 
         if args["end"]:
             end_datetime = datetime.strptime(args["end"], "%Y-%m-%d %H:%M")
             end_datetime = end_datetime.replace(second=0)
-
             end_datetime_timezone = timezone.localize(end_datetime)
             end_datetime_utc = end_datetime_timezone.astimezone(utc_timezone)
+            stmt = stmt.where(Message.created_at < end_datetime_utc)
 
-            sql_query += " AND created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += " GROUP BY date ORDER BY date"
+        stmt = stmt.group_by("date").order_by("date")
 
         response_data = []
-
         with db.engine.begin() as conn:
-            rs = conn.execute(db.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append({"date": str(i.date), "conversation_count": i.conversation_count})
+            rs = conn.execute(stmt, {"tz": account.timezone})
+            for row in rs:
+                response_data.append({"date": str(row.date), "conversation_count": row.conversation_count})
 
         return jsonify({"data": response_data})
 
@@ -190,7 +207,7 @@ WHERE
         response_data = []
 
         with db.engine.begin() as conn:
-            rs = conn.execute(db.text(sql_query), arg_dict)
+            rs = conn.execute(sa.text(sql_query), arg_dict)
             for i in rs:
                 response_data.append({"date": str(i.date), "terminal_count": i.terminal_count})
 
@@ -223,14 +240,14 @@ WHERE
 
         # Extend Start: added a new app personal expenses page
         if args.account is not None and args.account:
-            sql_query = """SELECT 
-            DATE(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date, 
-            (SUM(messages.message_tokens) + SUM(messages.answer_tokens)) AS token_count, 
-            SUM(total_price) AS total_price 
-            FROM 
-                messages 
-            where 
-                app_id = :app_id 
+            sql_query = """SELECT
+            DATE(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date,
+            (SUM(messages.message_tokens) + SUM(messages.answer_tokens)) AS token_count,
+            SUM(total_price) AS total_price
+            FROM
+                messages
+            where
+                app_id = :app_id
             AND (from_account_id = :user_id OR from_end_user_id IN (
                 SELECT DISTINCT(id) FROM end_users WHERE external_user_id = :user_id))
             """
@@ -265,7 +282,7 @@ WHERE
         response_data = []
 
         with db.engine.begin() as conn:
-            rs = conn.execute(db.text(sql_query), arg_dict)
+            rs = conn.execute(sa.text(sql_query), arg_dict)
             for i in rs:
                 response_data.append(
                     {"date": str(i.date), "token_count": i.token_count, "total_price": i.total_price, "currency": "USD"}
@@ -307,10 +324,10 @@ FROM
 
         # Extend Start: added a new app personal expenses page
         if args.account is not None and args.account:
-            sql_query = """SELECT date(DATE_TRUNC('day', c.created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date, 
+            sql_query = """SELECT date(DATE_TRUNC('day', c.created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date,
             AVG(subquery.message_count) AS interactions FROM (SELECT m.conversation_id, COUNT(m.id) AS message_count
             FROM conversations c JOIN messages m ON c.id = m.conversation_id
-            WHERE c.override_model_configs IS NULL AND c.app_id = :app_id AND (c.from_account_id = :user_id OR 
+            WHERE c.override_model_configs IS NULL AND c.app_id = :app_id AND (c.from_account_id = :user_id OR
             c.from_end_user_id IN (SELECT DISTINCT(id) FROM end_users WHERE external_user_id = :user_id))"""
             arg_dict = {"tz": account.timezone, "app_id": app_model.id, "user_id": account.id}
         # Extend Stop: added a new app personal expenses page
@@ -352,7 +369,7 @@ ORDER BY
         response_data = []
 
         with db.engine.begin() as conn:
-            rs = conn.execute(db.text(sql_query), arg_dict)
+            rs = conn.execute(sa.text(sql_query), arg_dict)
             for i in rs:
                 response_data.append(
                     {"date": str(i.date), "interactions": float(i.interactions.quantize(Decimal("0.01")))}
@@ -415,7 +432,7 @@ WHERE
         response_data = []
 
         with db.engine.begin() as conn:
-            rs = conn.execute(db.text(sql_query), arg_dict)
+            rs = conn.execute(sa.text(sql_query), arg_dict)
             for i in rs:
                 response_data.append(
                     {
@@ -453,7 +470,7 @@ WHERE
         # Extend Start: added a new app personal expenses page
         if args.account is not None and args.account:
             sql_query = """
-            SELECT date(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date, 
+            SELECT date(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date,
             AVG(provider_response_latency) as latency FROM messages
             WHERE app_id = :app_id AND (from_account_id = :user_id OR from_end_user_id IN (
             SELECT DISTINCT(id) FROM end_users WHERE external_user_id = :user_id))
@@ -489,7 +506,7 @@ WHERE
         response_data = []
 
         with db.engine.begin() as conn:
-            rs = conn.execute(db.text(sql_query), arg_dict)
+            rs = conn.execute(sa.text(sql_query), arg_dict)
             for i in rs:
                 response_data.append({"date": str(i.date), "latency": round(i.latency * 1000, 4)})
 
@@ -549,7 +566,7 @@ WHERE
         response_data = []
 
         with db.engine.begin() as conn:
-            rs = conn.execute(db.text(sql_query), arg_dict)
+            rs = conn.execute(sa.text(sql_query), arg_dict)
             for i in rs:
                 response_data.append({"date": str(i.date), "tps": round(i.tokens_per_second, 4)})
 

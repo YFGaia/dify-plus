@@ -1,4 +1,4 @@
-![cover-v5-optimized](https://github.com/langgenius/dify/assets/13230914/f9e19af5-61ba-4119-b926-d10c4c06ebab)
+![cover-v5-optimized](./images/GitHub_README_if.png)
 
 <p align="center">
   📌 <a href="https://dify.ai/blog/introducing-dify-workflow-file-upload-a-demo-on-ai-podcast">介紹 Dify 工作流程檔案上傳功能：重現 Google NotebookLM Podcast</a>
@@ -8,7 +8,7 @@
   <a href="https://cloud.dify.ai">Dify 雲端服務</a> ·
   <a href="https://docs.dify.ai/getting-started/install-self-hosted">自行託管</a> ·
   <a href="https://docs.dify.ai">說明文件</a> ·
-  <a href="https://udify.app/chat/22L1zSxg6yW1cWQg">企業諮詢</a>
+  <a href="https://dify.ai/pricing">產品方案概覽</a>
 </p>
 
 <p align="center">
@@ -86,8 +86,6 @@ docker compose up -d
 **1. 工作流程**：
 在視覺化畫布上建立和測試強大的 AI 工作流程，利用以下所有功能及更多。
 
-https://github.com/langgenius/dify/assets/13230914/356df23e-1604-483d-80a6-9517ece318aa
-
 **2. 全面的模型支援**：
 無縫整合來自數十個推理提供商和自託管解決方案的數百個專有/開源 LLM，涵蓋 GPT、Mistral、Llama3 和任何與 OpenAI API 兼容的模型。您可以在[此處](https://docs.dify.ai/getting-started/readme/model-providers)找到支援的模型提供商完整列表。
 
@@ -108,85 +106,18 @@ https://github.com/langgenius/dify/assets/13230914/356df23e-1604-483d-80a6-9517e
 **7. 後端即服務**：
 Dify 的所有功能都提供相應的 API，因此您可以輕鬆地將 Dify 整合到您自己的業務邏輯中。
 
-## 功能比較
-
-<table style="width: 100%;">
-  <tr>
-    <th align="center">功能</th>
-    <th align="center">Dify.AI</th>
-    <th align="center">LangChain</th>
-    <th align="center">Flowise</th>
-    <th align="center">OpenAI Assistants API</th>
-  </tr>
-  <tr>
-    <td align="center">程式設計方法</td>
-    <td align="center">API + 應用導向</td>
-    <td align="center">Python 代碼</td>
-    <td align="center">應用導向</td>
-    <td align="center">API 導向</td>
-  </tr>
-  <tr>
-    <td align="center">支援的 LLM 模型</td>
-    <td align="center">豐富多樣</td>
-    <td align="center">豐富多樣</td>
-    <td align="center">豐富多樣</td>
-    <td align="center">僅限 OpenAI</td>
-  </tr>
-  <tr>
-    <td align="center">RAG 引擎</td>
-    <td align="center">✅</td>
-    <td align="center">✅</td>
-    <td align="center">✅</td>
-    <td align="center">✅</td>
-  </tr>
-  <tr>
-    <td align="center">代理功能</td>
-    <td align="center">✅</td>
-    <td align="center">✅</td>
-    <td align="center">❌</td>
-    <td align="center">✅</td>
-  </tr>
-  <tr>
-    <td align="center">工作流程</td>
-    <td align="center">✅</td>
-    <td align="center">❌</td>
-    <td align="center">✅</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td align="center">可觀察性</td>
-    <td align="center">✅</td>
-    <td align="center">✅</td>
-    <td align="center">❌</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td align="center">企業級功能 (SSO/存取控制)</td>
-    <td align="center">✅</td>
-    <td align="center">❌</td>
-    <td align="center">❌</td>
-    <td align="center">❌</td>
-  </tr>
-  <tr>
-    <td align="center">本地部署</td>
-    <td align="center">✅</td>
-    <td align="center">✅</td>
-    <td align="center">✅</td>
-    <td align="center">❌</td>
-  </tr>
-</table>
-
 ## 使用 Dify
 
 - **雲端服務 </br>**
   我們提供 [Dify Cloud](https://dify.ai) 服務，任何人都可以零配置嘗試。它提供與自部署版本相同的所有功能，並在沙盒計劃中包含 200 次免費 GPT-4 調用。
 
 - **自託管 Dify 社區版</br>**
-  使用這份[快速指南](#快速開始)在您的環境中快速運行 Dify。
+  使用這份[快速指南](#%E5%BF%AB%E9%80%9F%E9%96%8B%E5%A7%8B)在您的環境中快速運行 Dify。
   使用我們的[文檔](https://docs.dify.ai)獲取更多參考和深入指導。
 
 - **企業/組織版 Dify</br>**
-  我們提供額外的企業中心功能。[通過這個聊天機器人記錄您的問題](https://udify.app/chat/22L1zSxg6yW1cWQg)或[發送電子郵件給我們](mailto:business@dify.ai?subject=[GitHub]Business%20License%20Inquiry)討論企業需求。</br>
+  我們提供額外的企業中心功能。[通過這個聊天機器人記錄您的問題](https://udify.app/chat/22L1zSxg6yW1cWQg)或[發送電子郵件給我們](mailto:business@dify.ai?subject=%5BGitHub%5DBusiness%20License%20Inquiry)討論企業需求。</br>
+
   > 對於使用 AWS 的初創企業和小型企業，請查看 [AWS Marketplace 上的 Dify Premium](https://aws.amazon.com/marketplace/pp/prodview-t22mebxzwjhu6)，並一鍵部署到您自己的 AWS VPC。這是一個經濟實惠的 AMI 產品，可選擇使用自定義徽標和品牌創建應用。
 
 ## 保持領先
@@ -199,12 +130,13 @@ Dify 的所有功能都提供相應的 API，因此您可以輕鬆地將 Dify �
 
 如果您需要自定義配置，請參考我們的 [.env.example](docker/.env.example) 文件中的註釋，並在您的 `.env` 文件中更新相應的值。此外，根據您特定的部署環境和需求，您可能需要調整 `docker-compose.yaml` 文件本身，例如更改映像版本、端口映射或卷掛載。進行任何更改後，請重新運行 `docker-compose up -d`。您可以在[這裡](https://docs.dify.ai/getting-started/install-self-hosted/environments)找到可用環境變數的完整列表。
 
-如果您想配置高可用性設置，社區貢獻的 [Helm Charts](https://helm.sh/) 和 YAML 文件允許在 Kubernetes 上部署 Dify。
+如果您想配置高可用性設置，社區貢獻的 [Helm Charts](https://helm.sh/) 和 Kubernetes 資源清單（YAML）允許在 Kubernetes 上部署 Dify。
 
 - [由 @LeoQuote 提供的 Helm Chart](https://github.com/douban/charts/tree/master/charts/dify)
 - [由 @BorisPolonsky 提供的 Helm Chart](https://github.com/BorisPolonsky/dify-helm)
 - [由 @Winson-030 提供的 YAML 文件](https://github.com/Winson-030/dify-kubernetes)
 - [由 @wyy-holding 提供的 YAML 文件](https://github.com/wyy-holding/dify-k8s)
+- [🚀 NEW! YAML 檔案（支援 Dify v1.6.0）by @Zhoneym](https://github.com/Zhoneym/DifyAI-Kubernetes)
 
 ### 使用 Terraform 進行部署
 
@@ -224,18 +156,31 @@ Dify 的所有功能都提供相應的 API，因此您可以輕鬆地將 Dify �
 
 ### AWS
 
-- [由 @KevinZhao 提供的 AWS CDK](https://github.com/aws-samples/solution-for-deploying-dify-on-aws)
+- [由 @KevinZhao 提供的 AWS CDK (EKS based)](https://github.com/aws-samples/solution-for-deploying-dify-on-aws)
+- [由 @tmokmss 提供的 AWS CDK (ECS based)](https://github.com/aws-samples/dify-self-hosted-on-aws)
+
+#### 使用 阿里云计算巢進行部署
+
+[阿里云](https://computenest.console.aliyun.com/service/instance/create/default?type=user&ServiceName=Dify%E7%A4%BE%E5%8C%BA%E7%89%88)
+
+#### 使用 阿里雲數據管理DMS 進行部署
+
+透過 [阿里雲數據管理DMS](https://www.alibabacloud.com/help/en/dms/dify-in-invitational-preview/)，一鍵將 Dify 部署至阿里雲
+
+#### 使用 Azure Devops Pipeline 部署到AKS
+
+使用[Azure Devops Pipeline Helm Chart by @LeoZhang](https://github.com/Ruiruiz30/Dify-helm-chart-AKS) 將 Dify 一鍵部署到 AKS
 
 ## 貢獻
 
-對於想要貢獻程式碼的開發者，請參閱我們的[貢獻指南](https://github.com/langgenius/dify/blob/main/CONTRIBUTING.md)。
+對於想要貢獻程式碼的開發者，請參閱我們的[貢獻指南](https://github.com/langgenius/dify/blob/main/CONTRIBUTING_TW.md)。
 同時，也請考慮透過在社群媒體和各種活動與會議上分享 Dify 來支持我們。
 
-> 我們正在尋找貢獻者協助將 Dify 翻譯成中文和英文以外的語言。如果您有興趣幫忙，請查看 [i18n README](https://github.com/langgenius/dify/blob/main/web/i18n/README.md) 獲取更多資訊，並在我們的 [Discord 社群伺服器](https://discord.gg/8Tpq4AcN9c) 的 `global-users` 頻道留言給我們。
+> 我們正在尋找貢獻者協助將 Dify 翻譯成中文和英文以外的語言。如果您有興趣幫忙，請查看 [i18n README](https://github.com/langgenius/dify/blob/main/web/i18n-config/README.md) 獲取更多資訊，並在我們的 [Discord 社群伺服器](https://discord.gg/8Tpq4AcN9c) 的 `global-users` 頻道留言給我們。
 
 ## 社群與聯絡方式
 
-- [Github Discussion](https://github.com/langgenius/dify/discussions)：最適合分享反饋和提問。
+- [GitHub Discussion](https://github.com/langgenius/dify/discussions)：最適合分享反饋和提問。
 - [GitHub Issues](https://github.com/langgenius/dify/issues)：最適合報告使用 Dify.AI 時遇到的問題和提出功能建議。請參閱我們的[貢獻指南](https://github.com/langgenius/dify/blob/main/CONTRIBUTING.md)。
 - [Discord](https://discord.gg/FngNHpbcY7)：最適合分享您的應用程式並與社群互動。
 - [X(Twitter)](https://twitter.com/dify_ai)：最適合分享您的應用程式並與社群互動。

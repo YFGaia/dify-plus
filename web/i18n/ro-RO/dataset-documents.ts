@@ -28,6 +28,8 @@ const translation = {
       delete: 'Șterge',
       enableWarning: 'Fișierul arhivat nu poate fi activat',
       sync: 'Sincronizează',
+      pause: 'Pauză',
+      resume: 'Reia',
     },
     index: {
       enable: 'Activează',
@@ -340,7 +342,6 @@ const translation = {
     keywords: 'Cuvinte cheie',
     addKeyWord: 'Adăugați un cuvânt cheie',
     keywordError: 'Lungimea maximă a cuvântului cheie este de 20 de caractere',
-    characters: 'caractere',
     hitCount: 'Număr de rezultate',
     vectorHash: 'Vector hash: ',
     questionPlaceholder: 'adăugați întrebarea aici',
@@ -360,6 +361,7 @@ const translation = {
     characters_one: 'caracter',
     regenerationSuccessTitle: 'Regenerare finalizată',
     editedAt: 'Editat la',
+    dateTimeFormat: 'MM/DD/YYYY h:mm',
     addChunk: 'Adăugați o bucată',
     chunk: 'Bucată',
     chunks_one: 'BUCATĂ',
@@ -389,6 +391,8 @@ const translation = {
     regeneratingTitle: 'Regenerarea bucăților secundare',
     addChildChunk: 'Adăugați o bucată copil',
     searchResults_other: 'REZULTATELE',
+    keywordDuplicate: 'Cuvântul cheie există deja',
+    keywordEmpty: 'Cuvântul cheie nu poate fi gol',
   },
 }
 

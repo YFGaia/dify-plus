@@ -28,6 +28,8 @@ const translation = {
       delete: 'Excluir',
       enableWarning: 'O arquivo arquivado não pode ser habilitado',
       sync: 'Sincronizar',
+      resume: 'Retomar',
+      pause: 'Pausa',
     },
     index: {
       enable: 'Habilitar',
@@ -340,7 +342,6 @@ const translation = {
     keywords: 'Palavras-chave',
     addKeyWord: 'Adicionar palavra-chave',
     keywordError: 'O comprimento máximo da palavra-chave é 20',
-    characters: 'caracteres',
     hitCount: 'Contagem de recuperação',
     vectorHash: 'Hash do vetor: ',
     questionPlaceholder: 'adicionar pergunta aqui',
@@ -374,6 +375,7 @@ const translation = {
     regeneratingMessage: 'Isso pode demorar um pouco, por favor aguarde...',
     edited: 'EDIÇÃO',
     editedAt: 'Editado em',
+    dateTimeFormat: 'DD/MM/YYYY HH:mm',
     expandChunks: 'Expandir pedaços',
     collapseChunks: 'Recolher partes',
     regenerationConfirmMessage: 'A regeneração de partes filhas substituirá as partes filhas atuais, incluindo partes editadas e partes recém-adicionadas. A regeneração não pode ser desfeita.',
@@ -389,6 +391,8 @@ const translation = {
     newChildChunk: 'Novo pedaço filho',
     characters_one: 'personagem',
     parentChunk: 'Pedaço pai',
+    keywordEmpty: 'A palavra-chave não pode estar vazia',
+    keywordDuplicate: 'A palavra-chave já existe',
   },
 }
 

@@ -70,7 +70,7 @@ const HitTestingPage: FC<Props> = ({ datasetId }: Props) => {
   const [isShowModifyRetrievalModal, setIsShowModifyRetrievalModal] = useState(false)
   const [isShowRightPanel, { setTrue: showRightPanel, setFalse: hideRightPanel, set: setShowRightPanel }] = useBoolean(!isMobile)
   const renderHitResults = (results: HitTesting[] | ExternalKnowledgeBaseHitTesting[]) => (
-    <div className='flex h-full flex-col rounded-t-2xl bg-background-body px-4 py-3'>
+    <div className='flex h-full flex-col rounded-tl-2xl bg-background-body px-4 py-3'>
       <div className='mb-2 shrink-0 pl-2 font-semibold leading-6 text-text-primary'>
         {t('datasetHitTesting.hit.title', { num: results.length })}
       </div>
@@ -93,7 +93,7 @@ const HitTestingPage: FC<Props> = ({ datasetId }: Props) => {
   )
 
   const renderEmptyState = () => (
-    <div className='flex h-full flex-col items-center justify-center rounded-t-2xl bg-background-body px-4 py-3'>
+    <div className='flex h-full flex-col items-center justify-center rounded-tl-2xl bg-background-body px-4 py-3'>
       <div className={cn(docStyle.commonIcon, docStyle.targetIcon, '!h-14 !w-14 !bg-text-quaternary')} />
       <div className='mt-3 text-[13px] text-text-quaternary'>
         {t('datasetHitTesting.hit.emptyTip')}
@@ -137,7 +137,7 @@ const HitTestingPage: FC<Props> = ({ datasetId }: Props) => {
               <>
                 <div className='grow overflow-y-auto'>
                   <table className={'w-full border-collapse border-0 text-[13px] leading-4 text-text-secondary '}>
-                    <thead className='sticky top-0 h-7 text-xs  font-medium uppercase leading-7 text-text-tertiary'>
+                    <thead className='sticky top-0 h-7 text-xs  font-medium uppercase leading-7 text-text-tertiary backdrop-blur-[5px]'>
                       <tr>
                         <td className='w-[128px] rounded-l-lg bg-background-section-burn pl-3'>{t('datasetHitTesting.table.header.source')}</td>
                         <td className='bg-background-section-burn'>{t('datasetHitTesting.table.header.text')}</td>
@@ -176,11 +176,11 @@ const HitTestingPage: FC<Props> = ({ datasetId }: Props) => {
               <RecordsEmpty />
             )}
       </div>
-      <FloatRightContainer panelClassname='!justify-start !overflow-y-auto' showClose isMobile={isMobile} isOpen={isShowRightPanel} onClose={hideRightPanel} footer={null}>
+      <FloatRightContainer panelClassName='!justify-start !overflow-y-auto' showClose isMobile={isMobile} isOpen={isShowRightPanel} onClose={hideRightPanel} footer={null}>
         <div className='flex flex-col pt-3'>
           {/* {renderHitResults(generalResultData)} */}
           {submitLoading
-            ? <div className='flex h-full flex-col rounded-t-2xl bg-background-body px-4 py-3'>
+            ? <div className='flex h-full flex-col rounded-tl-2xl bg-background-body px-4 py-3'>
               <CardSkelton />
             </div>
             : (
@@ -197,7 +197,7 @@ const HitTestingPage: FC<Props> = ({ datasetId }: Props) => {
           }
         </div>
       </FloatRightContainer>
-      <Drawer unmount={true} isOpen={isShowModifyRetrievalModal} onClose={() => setIsShowModifyRetrievalModal(false)} footer={null} mask={isMobile} panelClassname='mt-16 mx-2 sm:mr-2 mb-3 !p-0 !max-w-[640px] rounded-xl'>
+      <Drawer unmount={true} isOpen={isShowModifyRetrievalModal} onClose={() => setIsShowModifyRetrievalModal(false)} footer={null} mask={isMobile} panelClassName='mt-16 mx-2 sm:mr-2 mb-3 !p-0 !max-w-[640px] rounded-xl'>
         <ModifyRetrievalModal
           indexMethod={currentDataset?.indexing_technique || ''}
           value={retrievalConfig}

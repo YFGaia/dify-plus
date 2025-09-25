@@ -1,6 +1,8 @@
 import logging
 from typing import cast
 
+from sqlalchemy import select
+
 from core.app.apps.base_app_queue_manager import AppQueueManager
 from core.app.apps.base_app_runner import AppRunner
 from core.app.apps.completion.app_config_manager import CompletionAppConfig
@@ -35,8 +37,8 @@ class CompletionAppRunner(AppRunner):
         """
         app_config = application_generate_entity.app_config
         app_config = cast(CompletionAppConfig, app_config)
-
-        app_record = db.session.query(App).filter(App.id == app_config.app_id).first()
+        stmt = select(App).where(App.id == app_config.app_id)
+        app_record = db.session.scalar(stmt)
         if not app_record:
             raise ValueError("App not found")
 
@@ -53,20 +55,6 @@ class CompletionAppRunner(AppRunner):
             else None
         )
         image_detail_config = image_detail_config or ImagePromptMessageContent.DETAIL.LOW
-
-        # Pre-calculate the number of tokens of the prompt messages,
-        # and return the rest number of tokens by model context token size limit and max token size limit.
-        # If the rest number of tokens is not enough, raise exception.
-        # Include: prompt template, inputs, query(optional), files(optional)
-        # Not Include: memory, external data, dataset context
-        self.get_pre_calculate_rest_tokens(
-            app_record=app_record,
-            model_config=application_generate_entity.model_conf,
-            prompt_template_entity=app_config.prompt_template,
-            inputs=inputs,
-            files=files,
-            query=query,
-        )
 
         # organize all inputs and template to prompt messages
         # Include: prompt template, inputs, query(optional), files(optional)

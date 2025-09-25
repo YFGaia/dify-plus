@@ -39,6 +39,26 @@ class RedisConfig(BaseSettings):
         default=False,
     )
 
+    REDIS_SSL_CERT_REQS: str = Field(
+        description="SSL certificate requirements (CERT_NONE, CERT_OPTIONAL, CERT_REQUIRED)",
+        default="CERT_NONE",
+    )
+
+    REDIS_SSL_CA_CERTS: Optional[str] = Field(
+        description="Path to the CA certificate file for SSL verification",
+        default=None,
+    )
+
+    REDIS_SSL_CERTFILE: Optional[str] = Field(
+        description="Path to the client certificate file for SSL authentication",
+        default=None,
+    )
+
+    REDIS_SSL_KEYFILE: Optional[str] = Field(
+        description="Path to the client private key file for SSL authentication",
+        default=None,
+    )
+
     REDIS_USE_SENTINEL: Optional[bool] = Field(
         description="Enable Redis Sentinel mode for high availability",
         default=False,
@@ -82,4 +102,14 @@ class RedisConfig(BaseSettings):
     REDIS_CLUSTERS_PASSWORD: Optional[str] = Field(
         description="Password for Redis Clusters authentication (if required)",
         default=None,
+    )
+
+    REDIS_SERIALIZATION_PROTOCOL: int = Field(
+        description="Redis serialization protocol (RESP) version",
+        default=3,
+    )
+
+    REDIS_ENABLE_CLIENT_SIDE_CACHE: bool = Field(
+        description="Enable client side cache in redis",
+        default=False,
     )

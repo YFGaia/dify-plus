@@ -101,7 +101,7 @@ class ModelInstance:
     @overload
     def invoke_llm(
         self,
-        prompt_messages: list[PromptMessage],
+        prompt_messages: Sequence[PromptMessage],
         model_parameters: Optional[dict] = None,
         tools: Sequence[PromptMessageTool] | None = None,
         stop: Optional[list[str]] = None,
@@ -158,8 +158,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, LargeLanguageModel):
             raise Exception("Model type instance is not LargeLanguageModel")
-
-        self.model_type_instance = cast(LargeLanguageModel, self.model_type_instance)
         return cast(
             Union[LLMResult, Generator],
             self._round_robin_invoke(
@@ -177,7 +175,7 @@ class ModelInstance:
         )
 
     def get_llm_num_tokens(
-        self, prompt_messages: list[PromptMessage], tools: Optional[list[PromptMessageTool]] = None
+        self, prompt_messages: Sequence[PromptMessage], tools: Optional[Sequence[PromptMessageTool]] = None
     ) -> int:
         """
         Get number of tokens for llm
@@ -188,8 +186,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, LargeLanguageModel):
             raise Exception("Model type instance is not LargeLanguageModel")
-
-        self.model_type_instance = cast(LargeLanguageModel, self.model_type_instance)
         return cast(
             int,
             self._round_robin_invoke(
@@ -214,8 +210,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, TextEmbeddingModel):
             raise Exception("Model type instance is not TextEmbeddingModel")
-
-        self.model_type_instance = cast(TextEmbeddingModel, self.model_type_instance)
         return cast(
             TextEmbeddingResult,
             self._round_robin_invoke(
@@ -237,8 +231,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, TextEmbeddingModel):
             raise Exception("Model type instance is not TextEmbeddingModel")
-
-        self.model_type_instance = cast(TextEmbeddingModel, self.model_type_instance)
         return cast(
             list[int],
             self._round_robin_invoke(
@@ -269,8 +261,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, RerankModel):
             raise Exception("Model type instance is not RerankModel")
-
-        self.model_type_instance = cast(RerankModel, self.model_type_instance)
         return cast(
             RerankResult,
             self._round_robin_invoke(
@@ -295,8 +285,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, ModerationModel):
             raise Exception("Model type instance is not ModerationModel")
-
-        self.model_type_instance = cast(ModerationModel, self.model_type_instance)
         return cast(
             bool,
             self._round_robin_invoke(
@@ -318,8 +306,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, Speech2TextModel):
             raise Exception("Model type instance is not Speech2TextModel")
-
-        self.model_type_instance = cast(Speech2TextModel, self.model_type_instance)
         return cast(
             str,
             self._round_robin_invoke(
@@ -343,8 +329,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, TTSModel):
             raise Exception("Model type instance is not TTSModel")
-
-        self.model_type_instance = cast(TTSModel, self.model_type_instance)
         return cast(
             Iterable[bytes],
             self._round_robin_invoke(
@@ -404,8 +388,6 @@ class ModelInstance:
         """
         if not isinstance(self.model_type_instance, TTSModel):
             raise Exception("Model type instance is not TTSModel")
-
-        self.model_type_instance = cast(TTSModel, self.model_type_instance)
         return self.model_type_instance.get_tts_model_voices(
             model=self.model, credentials=self.credentials, language=language
         )
@@ -535,14 +517,22 @@ class LBModelManager:
 
             if dify_config.DEBUG:
                 logger.info(
-                    f"Model LB\nid: {config.id}\nname:{config.name}\n"
-                    f"tenant_id: {self._tenant_id}\nprovider: {self._provider}\n"
-                    f"model_type: {self._model_type.value}\nmodel: {self._model}"
+                    """Model LB
+id: %s
+name:%s
+tenant_id: %s
+provider: %s
+model_type: %s
+model: %s""",
+                    config.id,
+                    config.name,
+                    self._tenant_id,
+                    self._provider,
+                    self._model_type.value,
+                    self._model,
                 )
 
             return config
-
-        return None
 
     def cooldown(self, config: ModelLoadBalancingConfiguration, expire: int = 60) -> None:
         """

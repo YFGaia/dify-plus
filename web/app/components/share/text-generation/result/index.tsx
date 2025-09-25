@@ -21,6 +21,7 @@ import { TEXT_GENERATION_TIMEOUT_MS } from '@/config'
 import {
   getFilesInLogs,
 } from '@/app/components/base/file-uploader/utils'
+import { formatBooleanInputs } from '@/utils/model-config'
 
 export type IResultProps = {
   isWorkflow: boolean
@@ -101,7 +102,7 @@ const Result: FC<IResultProps> = ({
   })
 
   const handleFeedback = async (feedback: FeedbackType) => {
-    await updateFeedback({ url: `/messages/${messageId}/feedbacks`, body: { rating: feedback.rating } }, isInstalledApp, installedAppInfo?.id)
+    await updateFeedback({ url: `/messages/${messageId}/feedbacks`, body: { rating: feedback.rating, content: feedback.content } }, isInstalledApp, installedAppInfo?.id)
     setFeedback(feedback)
   }
 
@@ -124,7 +125,9 @@ const Result: FC<IResultProps> = ({
     }
 
     let hasEmptyInput = ''
-    const requiredVars = prompt_variables?.filter(({ key, name, required }) => {
+    const requiredVars = prompt_variables?.filter(({ key, name, required, type }) => {
+      if(type === 'boolean')
+        return false // boolean input is not required
       const res = (!key || !key.trim()) || (!name || !name.trim()) || (required || required === undefined || required === null)
       return res
     }) || [] // compatible with old version
@@ -158,7 +161,7 @@ const Result: FC<IResultProps> = ({
       return
 
     const data: Record<string, any> = {
-      inputs,
+      inputs: formatBooleanInputs(promptConfig?.prompt_variables, inputs),
     }
     if (visionConfig.enabled && completionFiles && completionFiles?.length > 0) {
       data.files = completionFiles.map((item) => {
@@ -218,7 +221,7 @@ const Result: FC<IResultProps> = ({
                 ...data,
                 status: NodeRunningStatus.Running,
                 expand: true,
-              } as any)
+              })
             }))
           },
           onIterationNext: () => {
@@ -237,7 +240,7 @@ const Result: FC<IResultProps> = ({
               draft.tracing[iterationsIndex] = {
                 ...data,
                 expand: !!data.error,
-              } as any
+              }
             }))
           },
           onLoopStart: ({ data }) => {
@@ -247,7 +250,7 @@ const Result: FC<IResultProps> = ({
                 ...data,
                 status: NodeRunningStatus.Running,
                 expand: true,
-              } as any)
+              })
             }))
           },
           onLoopNext: () => {
@@ -266,7 +269,7 @@ const Result: FC<IResultProps> = ({
               draft.tracing[loopsIndex] = {
                 ...data,
                 expand: !!data.error,
-              } as any
+              }
             }))
           },
           onNodeStarted: ({ data }) => {
@@ -282,7 +285,7 @@ const Result: FC<IResultProps> = ({
                 ...data,
                 status: NodeRunningStatus.Running,
                 expand: true,
-              } as any)
+              })
             }))
           },
           onNodeFinished: ({ data }) => {
@@ -302,7 +305,7 @@ const Result: FC<IResultProps> = ({
                     : {}),
                   ...data,
                   expand: !!data.error,
-                } as any
+                }
               }
             }))
           },

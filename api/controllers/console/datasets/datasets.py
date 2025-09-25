@@ -1,7 +1,7 @@
-import flask_restful  # type: ignore
+import flask_restx
 from flask import request
-from flask_login import current_user  # type: ignore  # type: ignore
-from flask_restful import Resource, marshal, marshal_with, reqparse  # type: ignore
+from flask_login import current_user
+from flask_restx import Resource, marshal, marshal_with, reqparse
 from werkzeug.exceptions import Forbidden, NotFound
 
 import services
@@ -22,6 +22,7 @@ from core.model_runtime.entities.model_entities import ModelType
 from core.plugin.entities.plugin import ModelProviderID
 from core.provider_manager import ProviderManager
 from core.rag.datasource.vdb.vector_type import VectorType
+from core.rag.extractor.entity.datasource_type import DatasourceType
 from core.rag.extractor.entity.extract_setting import ExtractSetting
 from core.rag.retrieval.retrieval_methods import RetrievalMethod
 from extensions.ext_database import db
@@ -41,7 +42,7 @@ def _validate_name(name):
 
 
 def _validate_description_length(description):
-    if len(description) > 400:
+    if description and len(description) > 400:
         raise ValueError("Description cannot exceed 400 characters.")
     return description
 
@@ -113,7 +114,7 @@ class DatasetListApi(Resource):
         )
         parser.add_argument(
             "description",
-            type=str,
+            type=_validate_description_length,
             nullable=True,
             required=False,
             default="",
@@ -210,10 +211,6 @@ class DatasetApi(Resource):
                 data["embedding_available"] = False
         else:
             data["embedding_available"] = True
-
-        if data.get("permission") == "partial_members":
-            part_users_list = DatasetPermissionService.get_dataset_partial_member_list(dataset_id_str)
-            data.update({"partial_member_list": part_users_list})
 
         return data, 200
 
@@ -416,7 +413,7 @@ class DatasetIndexingEstimateApi(Resource):
             file_ids = args["info_list"]["file_info_list"]["file_ids"]
             file_details = (
                 db.session.query(UploadFile)
-                .filter(UploadFile.tenant_id == current_user.current_tenant_id, UploadFile.id.in_(file_ids))
+                .where(UploadFile.tenant_id == current_user.current_tenant_id, UploadFile.id.in_(file_ids))
                 .all()
             )
 
@@ -426,7 +423,9 @@ class DatasetIndexingEstimateApi(Resource):
             if file_details:
                 for file_detail in file_details:
                     extract_setting = ExtractSetting(
-                        datasource_type="upload_file", upload_file=file_detail, document_model=args["doc_form"]
+                        datasource_type=DatasourceType.FILE.value,
+                        upload_file=file_detail,
+                        document_model=args["doc_form"],
                     )
                     extract_settings.append(extract_setting)
         elif args["info_list"]["data_source_type"] == "notion_import":
@@ -435,7 +434,7 @@ class DatasetIndexingEstimateApi(Resource):
                 workspace_id = notion_info["workspace_id"]
                 for page in notion_info["pages"]:
                     extract_setting = ExtractSetting(
-                        datasource_type="notion_import",
+                        datasource_type=DatasourceType.NOTION.value,
                         notion_info={
                             "notion_workspace_id": workspace_id,
                             "notion_obj_id": page["page_id"],
@@ -449,7 +448,7 @@ class DatasetIndexingEstimateApi(Resource):
             website_info_list = args["info_list"]["website_info_list"]
             for url in website_info_list["urls"]:
                 extract_setting = ExtractSetting(
-                    datasource_type="website_crawl",
+                    datasource_type=DatasourceType.WEBSITE.value,
                     website_info={
                         "provider": website_info_list["provider"],
                         "job_id": website_info_list["job_id"],
@@ -521,24 +520,43 @@ class DatasetIndexingStatusApi(Resource):
         dataset_id = str(dataset_id)
         documents = (
             db.session.query(Document)
-            .filter(Document.dataset_id == dataset_id, Document.tenant_id == current_user.current_tenant_id)
+            .where(Document.dataset_id == dataset_id, Document.tenant_id == current_user.current_tenant_id)
             .all()
         )
         documents_status = []
         for document in documents:
-            completed_segments = DocumentSegment.query.filter(
-                DocumentSegment.completed_at.isnot(None),
-                DocumentSegment.document_id == str(document.id),
-                DocumentSegment.status != "re_segment",
-            ).count()
-            total_segments = DocumentSegment.query.filter(
-                DocumentSegment.document_id == str(document.id), DocumentSegment.status != "re_segment"
-            ).count()
-            document.completed_segments = completed_segments
-            document.total_segments = total_segments
-            documents_status.append(marshal(document, document_status_fields))
+            completed_segments = (
+                db.session.query(DocumentSegment)
+                .where(
+                    DocumentSegment.completed_at.isnot(None),
+                    DocumentSegment.document_id == str(document.id),
+                    DocumentSegment.status != "re_segment",
+                )
+                .count()
+            )
+            total_segments = (
+                db.session.query(DocumentSegment)
+                .where(DocumentSegment.document_id == str(document.id), DocumentSegment.status != "re_segment")
+                .count()
+            )
+            # Create a dictionary with document attributes and additional fields
+            document_dict = {
+                "id": document.id,
+                "indexing_status": document.indexing_status,
+                "processing_started_at": document.processing_started_at,
+                "parsing_completed_at": document.parsing_completed_at,
+                "cleaning_completed_at": document.cleaning_completed_at,
+                "splitting_completed_at": document.splitting_completed_at,
+                "completed_at": document.completed_at,
+                "paused_at": document.paused_at,
+                "error": document.error,
+                "stopped_at": document.stopped_at,
+                "completed_segments": completed_segments,
+                "total_segments": total_segments,
+            }
+            documents_status.append(marshal(document_dict, document_status_fields))
         data = {"data": documents_status}
-        return data
+        return data, 200
 
 
 class DatasetApiKeyApi(Resource):
@@ -553,7 +571,7 @@ class DatasetApiKeyApi(Resource):
     def get(self):
         keys = (
             db.session.query(ApiToken)
-            .filter(ApiToken.type == self.resource_type, ApiToken.tenant_id == current_user.current_tenant_id)
+            .where(ApiToken.type == self.resource_type, ApiToken.tenant_id == current_user.current_tenant_id)
             .all()
         )
         return {"items": keys}
@@ -569,12 +587,12 @@ class DatasetApiKeyApi(Resource):
 
         current_key_count = (
             db.session.query(ApiToken)
-            .filter(ApiToken.type == self.resource_type, ApiToken.tenant_id == current_user.current_tenant_id)
+            .where(ApiToken.type == self.resource_type, ApiToken.tenant_id == current_user.current_tenant_id)
             .count()
         )
 
         if current_key_count >= self.max_keys:
-            flask_restful.abort(
+            flask_restx.abort(
                 400,
                 message=f"Cannot create more than {self.max_keys} API keys for this resource type.",
                 code="max_keys_exceeded",
@@ -605,7 +623,7 @@ class DatasetApiDeleteApi(Resource):
 
         key = (
             db.session.query(ApiToken)
-            .filter(
+            .where(
                 ApiToken.tenant_id == current_user.current_tenant_id,
                 ApiToken.type == self.resource_type,
                 ApiToken.id == api_key_id,
@@ -614,9 +632,9 @@ class DatasetApiDeleteApi(Resource):
         )
 
         if key is None:
-            flask_restful.abort(404, message="API key not found")
+            flask_restx.abort(404, message="API key not found")
 
-        db.session.query(ApiToken).filter(ApiToken.id == api_key_id).delete()
+        db.session.query(ApiToken).where(ApiToken.id == api_key_id).delete()
         db.session.commit()
 
         return {"result": "success"}, 204
@@ -657,6 +675,7 @@ class DatasetRetrievalSettingApi(Resource):
                 | VectorType.ELASTICSEARCH
                 | VectorType.ELASTICSEARCH_JA
                 | VectorType.PGVECTOR
+                | VectorType.VASTBASE
                 | VectorType.TIDB_ON_QDRANT
                 | VectorType.LINDORM
                 | VectorType.COUCHBASE
@@ -664,7 +683,10 @@ class DatasetRetrievalSettingApi(Resource):
                 | VectorType.OPENGAUSS
                 | VectorType.OCEANBASE
                 | VectorType.TABLESTORE
+                | VectorType.HUAWEI_CLOUD
                 | VectorType.TENCENT
+                | VectorType.MATRIXONE
+                | VectorType.CLICKZETTA
             ):
                 return {
                     "retrieval_method": [
@@ -705,11 +727,15 @@ class DatasetRetrievalSettingMockApi(Resource):
                 | VectorType.ELASTICSEARCH_JA
                 | VectorType.COUCHBASE
                 | VectorType.PGVECTOR
+                | VectorType.VASTBASE
                 | VectorType.LINDORM
                 | VectorType.OPENGAUSS
                 | VectorType.OCEANBASE
                 | VectorType.TABLESTORE
                 | VectorType.TENCENT
+                | VectorType.HUAWEI_CLOUD
+                | VectorType.MATRIXONE
+                | VectorType.CLICKZETTA
             ):
                 return {
                     "retrieval_method": [

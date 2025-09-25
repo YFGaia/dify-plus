@@ -1,6 +1,6 @@
 import logging
 
-from flask_login import current_user  # type: ignore
+from flask_login import current_user
 
 from configs import dify_config
 from extensions.ext_database import db
@@ -28,7 +28,7 @@ class WorkspaceService:
         # Get role of user
         tenant_account_join = (
             db.session.query(TenantAccountJoin)
-            .filter(TenantAccountJoin.tenant_id == tenant.id, TenantAccountJoin.account_id == current_user.id)
+            .where(TenantAccountJoin.tenant_id == tenant.id, TenantAccountJoin.account_id == current_user.id)
             .first()
         )
         assert tenant_account_join is not None, "TenantAccountJoin not found"
@@ -42,7 +42,7 @@ class WorkspaceService:
         tenant_info["tenant_extend"] = (super_admin_tenant_id == tenant.id)
         # ----------------------- 二开部分Stop 添加用户权限 - ----------------------
 
-        can_replace_logo = FeatureService.get_features(tenant_info["id"]).can_replace_logo
+        can_replace_logo = FeatureService.get_features(tenant.id).can_replace_logo
 
         if can_replace_logo and TenantService.has_roles(tenant, [TenantAccountRole.OWNER, TenantAccountRole.ADMIN]):
             base_url = dify_config.FILES_URL

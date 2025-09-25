@@ -1,12 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react' // 二开部份，新增useEffect
-import { useRouter } from 'next/navigation'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import useSWR from 'swr'
 import { useDebounceFn } from 'ahooks'
-import Toast from '../../base/toast'
 import s from './style.module.css'
 import TagFilter from '@/app/components/base/tag-management/filter' // 二开部份
 import cn from '@/utils/classnames'
@@ -15,17 +13,15 @@ import type { App } from '@/models/explore'
 import Category from '@/app/components/explore/category'
 import AppCard from '@/app/components/explore/app-card'
 import { fetchAppDetail, fetchAppList } from '@/service/explore'
-import { importDSL } from '@/service/apps'
 import { useTabSearchParams } from '@/hooks/use-tab-searchparams'
 import CreateAppModal from '@/app/components/explore/create-app-modal'
 import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
 import Loading from '@/app/components/base/loading'
-import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
-import { useAppContext } from '@/context/app-context'
-import { getRedirection } from '@/utils/app-redirection'
-// import Input from '@/app/components/base/input' // TODO 这里合并0.12.1版本时候多出来的未使用的，要看看二开部分对这个影响
-import { DSLImportMode } from '@/models/app'
-import { usePluginDependencies } from '@/app/components/workflow/plugin-dependency/hooks'
+import {
+  DSLImportMode,
+} from '@/models/app'
+import { useImportDSL } from '@/hooks/use-import-dsl'
+import DSLConfirmModal from '@/app/components/app/create-from-dsl-modal/dsl-confirm-modal'
 import SearchInput from '@/app/components/base/search-input' // Extend: Explore Add Search
 
 type AppsProps = {
@@ -41,8 +37,6 @@ const Apps = ({
   onSuccess,
 }: AppsProps) => {
   const { t } = useTranslation()
-  const { isCurrentWorkspaceEditor } = useAppContext()
-  const { push } = useRouter()
   const { hasEditPermission } = useContext(ExploreContext)
   const allCategoriesEn = t('explore.apps.allCategories', { lng: 'en' })
 
@@ -60,7 +54,6 @@ const Apps = ({
   //   handleSearch()
   // }
   // extend: stop
-
   const [currentType, setCurrentType] = useState<string>('')
   const [currCategory, setCurrCategory] = useTabSearchParams({
     defaultTab: allCategoriesEn,
@@ -158,43 +151,16 @@ const Apps = ({
   }
   // -------------- stop: Filter List Extension ---------------
 
-  // const filteredList = useMemo(() => {
-  //   if (currCategory === allCategoriesEn) {
-  //     if (!currentType)
-  //       return allList
-  //     else if (currentType === 'chatbot')
-  //       return allList.filter(item => (item.app.mode === 'chat' || item.app.mode === 'advanced-chat'))
-  //     else if (currentType === 'agent')
-  //       return allList.filter(item => (item.app.mode === 'agent-chat'))
-  //     else
-  //       return allList.filter(item => (item.app.mode === 'workflow'))
-  //   }
-  //   else {
-  //     if (!currentType)
-  //       return allList.filter(item => item.category === currCategory)
-  //     else if (currentType === 'chatbot')
-  //       return allList.filter(item => (item.app.mode === 'chat' || item.app.mode === 'advanced-chat') && item.category === currCategory)
-  //     else if (currentType === 'agent')
-  //       return allList.filter(item => (item.app.mode === 'agent-chat') && item.category === currCategory)
-  //     else
-  //       return allList.filter(item => (item.app.mode === 'workflow') && item.category === currCategory)
-  //   }
-  // }, [currentType, currCategory, allCategoriesEn, allList])
-  //
-  // const searchFilteredList = useMemo(() => {
-  //   if (!searchKeywords || !filteredList || filteredList.length === 0)
-  //     return filteredList
-  //
-  //   const lowerCaseSearchKeywords = searchKeywords.toLowerCase()
-  //
-  //   return filteredList.filter(item =>
-  //     item.app && item.app.name && item.app.name.toLowerCase().includes(lowerCaseSearchKeywords),
-  //   )
-  // }, [searchKeywords, filteredList])
-
   const [currApp, setCurrApp] = React.useState<App | null>(null)
   const [isShowCreateModal, setIsShowCreateModal] = React.useState(false)
-  const { handleCheckPluginDependencies } = usePluginDependencies()
+
+  const {
+    handleImportDSL,
+    handleImportDSLConfirm,
+    versions,
+    isFetching,
+  } = useImportDSL()
+  const [showDSLConfirmModal, setShowDSLConfirmModal] = useState(false)
   const onCreate: CreateAppModalProps['onConfirm'] = async ({
     name,
     icon_type,
@@ -202,35 +168,33 @@ const Apps = ({
     icon_background,
     description,
   }) => {
-    const { export_data, mode } = await fetchAppDetail(
+    const { export_data } = await fetchAppDetail(
       currApp?.app.id as string,
     )
-    try {
-      const app = await importDSL({
-        mode: DSLImportMode.YAML_CONTENT,
-        yaml_content: export_data,
-        name,
-        icon_type,
-        icon,
-        icon_background,
-        description,
-      })
-      setIsShowCreateModal(false)
-      Toast.notify({
-        type: 'success',
-        message: t('app.newApp.appCreated'),
-      })
-      if (onSuccess)
-        onSuccess()
-      if (app.app_id)
-        await handleCheckPluginDependencies(app.app_id)
-      localStorage.setItem(NEED_REFRESH_APP_LIST_KEY, '1')
-      getRedirection(isCurrentWorkspaceEditor, { id: app.app_id!, mode }, push)
+    const payload = {
+      mode: DSLImportMode.YAML_CONTENT,
+      yaml_content: export_data,
+      name,
+      icon_type,
+      icon,
+      icon_background,
+      description,
     }
-    catch (e) {
-      Toast.notify({ type: 'error', message: t('app.newApp.appCreateFailed') })
-    }
+    await handleImportDSL(payload, {
+      onSuccess: () => {
+        setIsShowCreateModal(false)
+      },
+      onPending: () => {
+        setShowDSLConfirmModal(true)
+      },
+    })
   }
+
+  const onConfirmDSL = useCallback(async () => {
+    await handleImportDSLConfirm({
+      onSuccess,
+    })
+  }, [handleImportDSLConfirm, onSuccess])
 
   if (!categories || categories.length === 0) {
     return (
@@ -305,9 +269,20 @@ const Apps = ({
           appDescription={currApp?.app.description || ''}
           show={isShowCreateModal}
           onConfirm={onCreate}
+          confirmDisabled={isFetching}
           onHide={() => setIsShowCreateModal(false)}
         />
       )}
+      {
+        showDSLConfirmModal && (
+          <DSLConfirmModal
+            versions={versions}
+            onCancel={() => setShowDSLConfirmModal(false)}
+            onConfirm={onConfirmDSL}
+            confirmDisabled={isFetching}
+          />
+        )
+      }
     </div>
   )
 }

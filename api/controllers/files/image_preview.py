@@ -1,16 +1,17 @@
 from urllib.parse import quote
 
 from flask import Response, request
-from flask_restful import Resource, reqparse  # type: ignore
+from flask_restx import Resource, reqparse
 from werkzeug.exceptions import NotFound
 
 import services
-from controllers.files import api
-from controllers.files.error import UnsupportedFileTypeError
+from controllers.common.errors import UnsupportedFileTypeError
+from controllers.files import files_ns
 from services.account_service import TenantService
 from services.file_service import FileService
 
 
+@files_ns.route("/<uuid:file_id>/image-preview")
 class ImagePreviewApi(Resource):
     """
     Deprecated
@@ -39,6 +40,7 @@ class ImagePreviewApi(Resource):
         return Response(generator, mimetype=mimetype)
 
 
+@files_ns.route("/<uuid:file_id>/file-preview")
 class FilePreviewApi(Resource):
     def get(self, file_id):
         file_id = str(file_id)
@@ -70,16 +72,31 @@ class FilePreviewApi(Resource):
             direct_passthrough=True,
             headers={},
         )
+        # add Accept-Ranges header for audio/video files
+        if upload_file.mime_type in [
+            "audio/mpeg",
+            "audio/wav",
+            "audio/mp4",
+            "audio/ogg",
+            "audio/flac",
+            "audio/aac",
+            "video/mp4",
+            "video/webm",
+            "video/quicktime",
+            "audio/x-m4a",
+        ]:
+            response.headers["Accept-Ranges"] = "bytes"
         if upload_file.size > 0:
             response.headers["Content-Length"] = str(upload_file.size)
         if args["as_attachment"]:
             encoded_filename = quote(upload_file.name)
             response.headers["Content-Disposition"] = f"attachment; filename*=UTF-8''{encoded_filename}"
-        response.headers["Content-Type"] = "application/octet-stream"
+            response.headers["Content-Type"] = "application/octet-stream"
 
         return response
 
 
+@files_ns.route("/workspaces/<uuid:workspace_id>/webapp-logo")
 class WorkspaceWebappLogoApi(Resource):
     def get(self, workspace_id):
         workspace_id = str(workspace_id)
@@ -98,8 +115,3 @@ class WorkspaceWebappLogoApi(Resource):
             raise UnsupportedFileTypeError()
 
         return Response(generator, mimetype=mimetype)
-
-
-api.add_resource(ImagePreviewApi, "/files/<uuid:file_id>/image-preview")
-api.add_resource(FilePreviewApi, "/files/<uuid:file_id>/file-preview")
-api.add_resource(WorkspaceWebappLogoApi, "/files/workspaces/<uuid:workspace_id>/webapp-logo")

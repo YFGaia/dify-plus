@@ -76,6 +76,7 @@ class ParagraphIndexProcessor(BaseIndexProcessor):
         if dataset.indexing_technique == "high_quality":
             vector = Vector(dataset)
             vector.create(documents)
+            with_keywords = False
         if with_keywords:
             keywords_list = kwargs.get("keywords_list")
             keyword = Keyword(dataset)
@@ -91,6 +92,7 @@ class ParagraphIndexProcessor(BaseIndexProcessor):
                 vector.delete_by_ids(node_ids)
             else:
                 vector.delete()
+            with_keywords = False
         if with_keywords:
             keyword = Keyword(dataset)
             if node_ids:
@@ -121,7 +123,7 @@ class ParagraphIndexProcessor(BaseIndexProcessor):
         for result in results:
             metadata = result.metadata
             metadata["score"] = result.score
-            if result.score > score_threshold:
+            if result.score >= score_threshold:
                 doc = Document(page_content=result.page_content, metadata=metadata)
                 docs.append(doc)
         return docs

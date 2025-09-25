@@ -1,7 +1,7 @@
 import logging
 
 from flask import request
-from flask_restful import Resource, reqparse  # type: ignore
+from flask_restx import Resource, reqparse
 from werkzeug.exceptions import InternalServerError
 
 import services
@@ -31,6 +31,8 @@ from services.errors.audio import (
     UnsupportedAudioTypeServiceError,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class ChatMessageAudioApi(Resource):
     @setup_required
@@ -49,7 +51,7 @@ class ChatMessageAudioApi(Resource):
 
             return response
         except services.errors.app_model_config.AppModelConfigBrokenError:
-            logging.exception("App model config broken.")
+            logger.exception("App model config broken.")
             raise AppUnavailableError()
         except NoAudioUploadedServiceError:
             raise NoAudioUploadedError()
@@ -70,7 +72,7 @@ class ChatMessageAudioApi(Resource):
         except ValueError as e:
             raise e
         except Exception as e:
-            logging.exception("Failed to handle post request to ChatMessageAudioApi")
+            logger.exception("Failed to handle post request to ChatMessageAudioApi")
             raise InternalServerError()
 
 
@@ -80,8 +82,6 @@ class ChatMessageTextApi(Resource):
     @account_initialization_required
     @get_app_model
     def post(self, app_model: App):
-        from werkzeug.exceptions import InternalServerError
-
         try:
             parser = reqparse.RequestParser()
             parser.add_argument("message_id", type=str, location="json")
@@ -92,26 +92,14 @@ class ChatMessageTextApi(Resource):
 
             message_id = args.get("message_id", None)
             text = args.get("text", None)
-            if (
-                app_model.mode in {AppMode.ADVANCED_CHAT.value, AppMode.WORKFLOW.value}
-                and app_model.workflow
-                and app_model.workflow.features_dict
-            ):
-                text_to_speech = app_model.workflow.features_dict.get("text_to_speech")
-                if text_to_speech is None:
-                    raise ValueError("TTS is not enabled")
-                voice = args.get("voice") or text_to_speech.get("voice")
-            else:
-                try:
-                    if app_model.app_model_config is None:
-                        raise ValueError("AppModelConfig not found")
-                    voice = args.get("voice") or app_model.app_model_config.text_to_speech_dict.get("voice")
-                except Exception:
-                    voice = None
-            response = AudioService.transcript_tts(app_model=app_model, text=text, message_id=message_id, voice=voice)
+            voice = args.get("voice", None)
+
+            response = AudioService.transcript_tts(
+                app_model=app_model, text=text, voice=voice, message_id=message_id, is_draft=True
+            )
             return response
         except services.errors.app_model_config.AppModelConfigBrokenError:
-            logging.exception("App model config broken.")
+            logger.exception("App model config broken.")
             raise AppUnavailableError()
         except NoAudioUploadedServiceError:
             raise NoAudioUploadedError()
@@ -132,7 +120,7 @@ class ChatMessageTextApi(Resource):
         except ValueError as e:
             raise e
         except Exception as e:
-            logging.exception("Failed to handle post request to ChatMessageTextApi")
+            logger.exception("Failed to handle post request to ChatMessageTextApi")
             raise InternalServerError()
 
 
@@ -174,7 +162,7 @@ class TextModesApi(Resource):
         except ValueError as e:
             raise e
         except Exception as e:
-            logging.exception("Failed to handle get request to TextModesApi")
+            logger.exception("Failed to handle get request to TextModesApi")
             raise InternalServerError()
 
 

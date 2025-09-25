@@ -6,7 +6,7 @@ import PluginTypeSwitch from './plugin-type-switch'
 import ListWrapper from './list/list-wrapper'
 import type { SearchParams } from './types'
 import { getMarketplaceCollectionsAndPlugins } from './utils'
-import { TanstackQueryIniter } from '@/context/query-client'
+import { TanstackQueryInitializer } from '@/context/query-client'
 
 type MarketplaceProps = {
   locale: string
@@ -17,6 +17,7 @@ type MarketplaceProps = {
   pluginTypeSwitchClassName?: string
   intersectionContainerId?: string
   scrollContainerId?: string
+  showSearchParams?: boolean
 }
 const Marketplace = async ({
   locale,
@@ -27,6 +28,7 @@ const Marketplace = async ({
   pluginTypeSwitchClassName,
   intersectionContainerId,
   scrollContainerId,
+  showSearchParams = true,
 }: MarketplaceProps) => {
   let marketplaceCollections: any = []
   let marketplaceCollectionPluginsMap = {}
@@ -37,11 +39,12 @@ const Marketplace = async ({
   }
 
   return (
-    <TanstackQueryIniter>
+    <TanstackQueryInitializer>
       <MarketplaceContextProvider
         searchParams={searchParams}
         shouldExclude={shouldExclude}
         scrollContainerId={scrollContainerId}
+        showSearchParams={showSearchParams}
       >
         <Description locale={locale} />
         <IntersectionLine intersectionContainerId={intersectionContainerId} />
@@ -53,6 +56,7 @@ const Marketplace = async ({
           locale={locale}
           className={pluginTypeSwitchClassName}
           searchBoxAutoAnimate={searchBoxAutoAnimate}
+          showSearchParams={showSearchParams}
         />
         <ListWrapper
           locale={locale}
@@ -61,7 +65,7 @@ const Marketplace = async ({
           showInstallButton={showInstallButton}
         />
       </MarketplaceContextProvider>
-    </TanstackQueryIniter>
+    </TanstackQueryInitializer>
   )
 }
 

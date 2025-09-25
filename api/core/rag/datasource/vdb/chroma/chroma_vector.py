@@ -57,9 +57,9 @@ class ChromaVector(BaseVector):
             self.add_texts(texts, embeddings, **kwargs)
 
     def create_collection(self, collection_name: str):
-        lock_name = "vector_indexing_lock_{}".format(collection_name)
+        lock_name = f"vector_indexing_lock_{collection_name}"
         with redis_client.lock(lock_name, timeout=20):
-            collection_exist_cache_key = "vector_indexing_{}".format(self._collection_name)
+            collection_exist_cache_key = f"vector_indexing_{self._collection_name}"
             if redis_client.get(collection_exist_cache_key):
                 return
             self._client.get_or_create_collection(collection_name)
@@ -120,7 +120,7 @@ class ChromaVector(BaseVector):
             distance = distances[index]
             metadata = dict(metadatas[index])
             score = 1 - distance
-            if score > score_threshold:
+            if score >= score_threshold:
                 metadata["score"] = score
                 doc = Document(
                     page_content=documents[index],

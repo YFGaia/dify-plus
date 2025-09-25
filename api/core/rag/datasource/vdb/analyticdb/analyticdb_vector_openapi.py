@@ -192,8 +192,8 @@ class AnalyticdbVectorOpenAPI:
             collection=self._collection_name,
             metrics=self.config.metrics,
             include_values=True,
-            vector=None,
-            content=None,
+            vector=None,  # ty: ignore [invalid-argument-type]
+            content=None,  # ty: ignore [invalid-argument-type]
             top_k=1,
             filter=f"ref_doc_id='{id}'",
         )
@@ -211,7 +211,7 @@ class AnalyticdbVectorOpenAPI:
             namespace=self.config.namespace,
             namespace_password=self.config.namespace_password,
             collection=self._collection_name,
-            collection_data=None,
+            collection_data=None,  # ty: ignore [invalid-argument-type]
             collection_data_filter=f"ref_doc_id IN {ids_str}",
         )
         self._client.delete_collection_data(request)
@@ -225,13 +225,19 @@ class AnalyticdbVectorOpenAPI:
             namespace=self.config.namespace,
             namespace_password=self.config.namespace_password,
             collection=self._collection_name,
-            collection_data=None,
+            collection_data=None,  # ty: ignore [invalid-argument-type]
             collection_data_filter=f"metadata_ ->> '{key}' = '{value}'",
         )
         self._client.delete_collection_data(request)
 
     def search_by_vector(self, query_vector: list[float], **kwargs: Any) -> list[Document]:
         from alibabacloud_gpdb20160503 import models as gpdb_20160503_models
+
+        document_ids_filter = kwargs.get("document_ids_filter")
+        where_clause = ""
+        if document_ids_filter:
+            document_ids = ", ".join(f"'{id}'" for id in document_ids_filter)
+            where_clause += f"metadata_->>'document_id' IN ({document_ids})"
 
         score_threshold = kwargs.get("score_threshold") or 0.0
         request = gpdb_20160503_models.QueryCollectionDataRequest(
@@ -243,14 +249,14 @@ class AnalyticdbVectorOpenAPI:
             include_values=kwargs.pop("include_values", True),
             metrics=self.config.metrics,
             vector=query_vector,
-            content=None,
+            content=None,  # ty: ignore [invalid-argument-type]
             top_k=kwargs.get("top_k", 4),
-            filter=None,
+            filter=where_clause,
         )
         response = self._client.query_collection_data(request)
         documents = []
         for match in response.body.matches.match:
-            if match.score > score_threshold:
+            if match.score >= score_threshold:
                 metadata = json.loads(match.metadata.get("metadata_"))
                 metadata["score"] = match.score
                 doc = Document(
@@ -265,6 +271,11 @@ class AnalyticdbVectorOpenAPI:
     def search_by_full_text(self, query: str, **kwargs: Any) -> list[Document]:
         from alibabacloud_gpdb20160503 import models as gpdb_20160503_models
 
+        document_ids_filter = kwargs.get("document_ids_filter")
+        where_clause = ""
+        if document_ids_filter:
+            document_ids = ", ".join(f"'{id}'" for id in document_ids_filter)
+            where_clause += f"metadata_->>'document_id' IN ({document_ids})"
         score_threshold = float(kwargs.get("score_threshold") or 0.0)
         request = gpdb_20160503_models.QueryCollectionDataRequest(
             dbinstance_id=self.config.instance_id,
@@ -274,15 +285,15 @@ class AnalyticdbVectorOpenAPI:
             collection=self._collection_name,
             include_values=kwargs.pop("include_values", True),
             metrics=self.config.metrics,
-            vector=None,
+            vector=None,  # ty: ignore [invalid-argument-type]
             content=query,
             top_k=kwargs.get("top_k", 4),
-            filter=None,
+            filter=where_clause,
         )
         response = self._client.query_collection_data(request)
         documents = []
         for match in response.body.matches.match:
-            if match.score > score_threshold:
+            if match.score >= score_threshold:
                 metadata = json.loads(match.metadata.get("metadata_"))
                 metadata["score"] = match.score
                 doc = Document(

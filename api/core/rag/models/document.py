@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from typing import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ChildDocument(BaseModel):
@@ -15,7 +15,7 @@ class ChildDocument(BaseModel):
     """Arbitrary metadata about the page content (e.g., source, relationships to other
         documents, etc.).
     """
-    metadata: dict = {}
+    metadata: dict = Field(default_factory=dict)
 
 
 class Document(BaseModel):
@@ -28,7 +28,7 @@ class Document(BaseModel):
     """Arbitrary metadata about the page content (e.g., source, relationships to other
         documents, etc.).
     """
-    metadata: dict = {}
+    metadata: dict = Field(default_factory=dict)
 
     provider: Optional[str] = "dify"
 
@@ -45,12 +45,11 @@ class BaseDocumentTransformer(ABC):
         .. code-block:: python
 
             class EmbeddingsRedundantFilter(BaseDocumentTransformer, BaseModel):
+                model_config = ConfigDict(arbitrary_types_allowed=True)
+
                 embeddings: Embeddings
                 similarity_fn: Callable = cosine_similarity
                 similarity_threshold: float = 0.95
-
-                class Config:
-                    arbitrary_types_allowed = True
 
                 def transform_documents(
                     self, documents: Sequence[Document], **kwargs: Any

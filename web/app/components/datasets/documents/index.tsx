@@ -24,11 +24,18 @@ import IndexFailed from '@/app/components/datasets/common/document-status-with-a
 import { useProviderContext } from '@/context/provider-context'
 import cn from '@/utils/classnames'
 import { useDocumentList, useInvalidDocumentDetailKey, useInvalidDocumentList } from '@/service/knowledge/use-document'
+import { useIndexStatus } from './list'
 import { useInvalid } from '@/service/use-base'
 import { useChildSegmentListKey, useSegmentListKey } from '@/service/knowledge/use-segment'
+import useDocumentListQueryState from './hooks/use-document-list-query-state'
 import useEditDocumentMetadata from '../metadata/hooks/use-edit-dataset-metadata'
 import DatasetMetadataDrawer from '../metadata/metadata-dataset/dataset-metadata-drawer'
 import StatusWithAction from '../common/document-status-with-action/status-with-action'
+import { useDocLink } from '@/context/i18n'
+import { useFetchDefaultProcessRule } from '@/service/knowledge/use-create-dataset'
+import { SimpleSelect } from '../../base/select'
+import StatusItem from './detail/completed/status-item'
+import type { Item } from '@/app/components/base/select'
 
 const FolderPlusIcon = ({ className }: React.SVGProps<SVGElement>) => {
   return <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className ?? ''}>
@@ -68,7 +75,7 @@ const EmptyElement: FC<{ canAdd: boolean; onClick: () => void; type?: 'upload' |
       <div className={s.emptyTip}>
         {t(`datasetDocuments.list.empty.${type}.tip`)}
       </div>
-      {type === 'upload' && canAdd && <Button onClick={onClick} className={s.addFileBtn}>
+      {type === 'upload' && canAdd && <Button onClick={onClick} className={s.addFileBtn} variant='secondary-accent'>
         <PlusIcon className={s.plusIcon} />{t('datasetDocuments.list.addFile')}
       </Button>}
     </div>
@@ -80,16 +87,22 @@ type IDocumentsProps = {
 }
 
 export const fetcher = (url: string) => get(url, {}, {})
-const DEFAULT_LIMIT = 10
 
 const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
   const { t } = useTranslation()
+  const docLink = useDocLink()
   const { plan } = useProviderContext()
   const isFreePlan = plan.type === 'sandbox'
   const [inputValue, setInputValue] = useState<string>('') // the input value
   const [searchValue, setSearchValue] = useState<string>('')
-  const [currPage, setCurrPage] = React.useState<number>(0)
-  const [limit, setLimit] = useState<number>(DEFAULT_LIMIT)
+  const [statusFilter, setStatusFilter] = useState<Item>({ value: 'all', name: 'All Status' })
+  const DOC_INDEX_STATUS_MAP = useIndexStatus()
+
+  // Use the new hook for URL state management
+  const { query, updateQuery } = useDocumentListQueryState()
+  const [currPage, setCurrPage] = React.useState<number>(query.page - 1) // Convert to 0-based index
+  const [limit, setLimit] = useState<number>(query.limit)
+
   const router = useRouter()
   const { dataset } = useDatasetDetailContext()
   const [notionPageSelectorModalVisible, setNotionPageSelectorModalVisible] = useState(false)
@@ -98,8 +111,58 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
   const isDataSourceWeb = dataset?.data_source_type === DataSourceType.WEB
   const isDataSourceFile = dataset?.data_source_type === DataSourceType.FILE
   const embeddingAvailable = !!dataset?.embedding_available
-
   const debouncedSearchValue = useDebounce(searchValue, { wait: 500 })
+
+  const statusFilterItems: Item[] = useMemo(() => [
+    { value: 'all', name: 'All Status' },
+    { value: 'queuing', name: DOC_INDEX_STATUS_MAP.queuing.text },
+    { value: 'indexing', name: DOC_INDEX_STATUS_MAP.indexing.text },
+    { value: 'paused', name: DOC_INDEX_STATUS_MAP.paused.text },
+    { value: 'error', name: DOC_INDEX_STATUS_MAP.error.text },
+    { value: 'available', name: DOC_INDEX_STATUS_MAP.available.text },
+    { value: 'enabled', name: DOC_INDEX_STATUS_MAP.enabled.text },
+    { value: 'disabled', name: DOC_INDEX_STATUS_MAP.disabled.text },
+    { value: 'archived', name: DOC_INDEX_STATUS_MAP.archived.text },
+  ], [DOC_INDEX_STATUS_MAP, t])
+
+  // Initialize search value from URL on mount
+  useEffect(() => {
+    if (query.keyword) {
+      setInputValue(query.keyword)
+      setSearchValue(query.keyword)
+    }
+  }, []) // Only run on mount
+
+  // Sync local state with URL query changes
+  useEffect(() => {
+    setCurrPage(query.page - 1)
+    setLimit(query.limit)
+    if (query.keyword !== searchValue) {
+      setInputValue(query.keyword)
+      setSearchValue(query.keyword)
+    }
+  }, [query])
+
+  // Update URL when pagination changes
+  const handlePageChange = (newPage: number) => {
+    setCurrPage(newPage)
+    updateQuery({ page: newPage + 1 }) // Convert to 1-based index
+  }
+
+  // Update URL when limit changes
+  const handleLimitChange = (newLimit: number) => {
+    setLimit(newLimit)
+    setCurrPage(0) // Reset to first page when limit changes
+    updateQuery({ limit: newLimit, page: 1 })
+  }
+
+  // Update URL when search changes
+  useEffect(() => {
+    if (debouncedSearchValue !== query.keyword) {
+      setCurrPage(0) // Reset to first page when search changes
+      updateQuery({ keyword: debouncedSearchValue, page: 1 })
+    }
+  }, [debouncedSearchValue, query.keyword, updateQuery])
 
   const { data: documentsRes, isFetching: isListLoading } = useDocumentList({
     datasetId,
@@ -119,7 +182,6 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
       if (totalPages < currPage + 1)
         setCurrPage(totalPages === 0 ? 0 : totalPages - 1)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [documentsRes])
 
   const invalidDocumentDetail = useInvalidDocumentDetailKey()
@@ -133,7 +195,6 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
       invalidChunkList()
       invalidChildChunkList()
     }, 5000)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const documentsWithProgress = useMemo(() => {
@@ -177,6 +238,8 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
     router.push(`/datasets/${datasetId}/documents/create`)
   }
 
+  const fetchDefaultProcessRuleMutation = useFetchDefaultProcessRule()
+
   const handleSaveNotionPageSelected = async (selectedPages: NotionPage[]) => {
     const workspacesMap = groupBy(selectedPages, 'workspace_id')
     const workspaces = Object.keys(workspacesMap).map((workspaceId) => {
@@ -185,6 +248,7 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
         pages: workspacesMap[workspaceId],
       }
     })
+    const { rules } = await fetchDefaultProcessRuleMutation.mutateAsync('/datasets/process-rule')
     const params = {
       data_source: {
         type: dataset?.data_source_type,
@@ -208,7 +272,7 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
       },
       indexing_technique: dataset?.indexing_technique,
       process_rule: {
-        rules: {},
+        rules,
         mode: ProcessMode.general,
       },
     } as CreateDocumentReq
@@ -225,6 +289,13 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
 
   const documentsList = isDataSourceNotion ? documentsWithProgress?.data : documentsRes?.data
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+
+  // Clear selection when search changes to avoid confusion
+  useEffect(() => {
+    if (searchValue !== query.keyword)
+      setSelectedIds([])
+  }, [searchValue, query.keyword])
+
   const { run: handleSearch } = useDebounceFn(() => {
     setSearchValue(inputValue)
   }, { wait: 500 })
@@ -260,7 +331,8 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
           <a
             className='flex items-center text-text-accent'
             target='_blank'
-            href='https://docs.dify.ai/guides/knowledge-base/integrate-knowledge-within-application'>
+            href={docLink('/guides/knowledge-base/integrate-knowledge-within-application')}
+          >
             <span>{t('datasetDocuments.list.learnMore')}</span>
             <RiExternalLinkLine className='h-3 w-3' />
           </a>
@@ -268,14 +340,28 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
       </div>
       <div className='flex flex-1 flex-col px-6 py-4'>
         <div className='flex flex-wrap items-center justify-between'>
-          <Input
-            showLeftIcon
-            showClearIcon
-            wrapperClassName='!w-[200px]'
-            value={inputValue}
-            onChange={e => handleInputChange(e.target.value)}
-            onClear={() => handleInputChange('')}
-          />
+          <div className='flex items-center gap-2'>
+            <SimpleSelect
+              placeholder={t('datasetDocuments.list.table.header.status')}
+              onSelect={(item) => {
+                setStatusFilter(item)
+              }}
+              items={statusFilterItems}
+              defaultValue={statusFilter.value}
+              wrapperClassName='w-[160px] h-8'
+              renderOption={({ item, selected }) => <StatusItem item={item} selected={selected} />}
+              optionClassName='p-0'
+              notClearable
+            />
+            <Input
+              showLeftIcon
+              showClearIcon
+              wrapperClassName='!w-[200px]'
+              value={inputValue}
+              onChange={e => handleInputChange(e.target.value)}
+              onClear={() => handleInputChange('')}
+            />
+          </div>
           <div className='flex !h-8 items-center justify-center gap-2'>
             {!isFreePlan && <AutoDisabledDocument datasetId={datasetId} />}
             <IndexFailed datasetId={datasetId} />
@@ -318,12 +404,14 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
               onUpdate={handleUpdate}
               selectedIds={selectedIds}
               onSelectedIdChange={setSelectedIds}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
               pagination={{
                 total,
                 limit,
-                onLimitChange: setLimit,
+                onLimitChange: handleLimitChange,
                 current: currPage,
-                onChange: setCurrPage,
+                onChange: handlePageChange,
               }}
               onManageMetadata={showEditMetadataModal}
             />

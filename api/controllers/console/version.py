@@ -2,12 +2,14 @@ import json
 import logging
 
 import requests
-from flask_restful import Resource, reqparse  # type: ignore
+from flask_restx import Resource, reqparse
 from packaging import version
 
 from configs import dify_config
 
 from . import api
+
+logger = logging.getLogger(__name__)
 
 
 class VersionApi(Resource):
@@ -18,7 +20,7 @@ class VersionApi(Resource):
         check_update_url = dify_config.CHECK_UPDATE_URL
 
         result = {
-            "version": dify_config.CURRENT_VERSION,
+            "version": dify_config.project.version,
             "release_date": "",
             "release_notes": "",
             "can_auto_update": False,
@@ -32,9 +34,9 @@ class VersionApi(Resource):
             return result
 
         try:
-            response = requests.get(check_update_url, {"current_version": args.get("current_version")})
+            response = requests.get(check_update_url, {"current_version": args.get("current_version")}, timeout=(3, 10))
         except Exception as error:
-            logging.warning("Check update version error: {}.".format(str(error)))
+            logger.warning("Check update version error: %s.", str(error))
             result["version"] = args.get("current_version")
             return result
 
@@ -55,7 +57,7 @@ def _has_new_version(*, latest_version: str, current_version: str) -> bool:
         # Compare versions
         return latest > current
     except version.InvalidVersion:
-        logging.warning(f"Invalid version format: latest={latest_version}, current={current_version}")
+        logger.warning("Invalid version format: latest=%s, current=%s", latest_version, current_version)
         return False
 
 

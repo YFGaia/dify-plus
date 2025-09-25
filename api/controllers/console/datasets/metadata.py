@@ -1,5 +1,7 @@
-from flask_login import current_user  # type: ignore  # type: ignore
-from flask_restful import Resource, marshal_with, reqparse  # type: ignore
+from typing import Literal
+
+from flask_login import current_user
+from flask_restx import Resource, marshal_with, reqparse
 from werkzeug.exceptions import NotFound
 
 from controllers.console import api
@@ -14,18 +16,6 @@ from services.entities.knowledge_entities.knowledge_entities import (
 from services.metadata_service import MetadataService
 
 
-def _validate_name(name):
-    if not name or len(name) < 1 or len(name) > 40:
-        raise ValueError("Name must be between 1 to 40 characters.")
-    return name
-
-
-def _validate_description_length(description):
-    if len(description) > 400:
-        raise ValueError("Description cannot exceed 400 characters.")
-    return description
-
-
 class DatasetMetadataCreateApi(Resource):
     @setup_required
     @login_required
@@ -34,8 +24,8 @@ class DatasetMetadataCreateApi(Resource):
     @marshal_with(dataset_metadata_fields)
     def post(self, dataset_id):
         parser = reqparse.RequestParser()
-        parser.add_argument("type", type=str, required=True, nullable=True, location="json")
-        parser.add_argument("name", type=str, required=True, nullable=True, location="json")
+        parser.add_argument("type", type=str, required=True, nullable=False, location="json")
+        parser.add_argument("name", type=str, required=True, nullable=False, location="json")
         args = parser.parse_args()
         metadata_args = MetadataArgs(**args)
 
@@ -68,7 +58,7 @@ class DatasetMetadataApi(Resource):
     @marshal_with(dataset_metadata_fields)
     def patch(self, dataset_id, metadata_id):
         parser = reqparse.RequestParser()
-        parser.add_argument("name", type=str, required=True, nullable=True, location="json")
+        parser.add_argument("name", type=str, required=True, nullable=False, location="json")
         args = parser.parse_args()
 
         dataset_id_str = str(dataset_id)
@@ -94,7 +84,7 @@ class DatasetMetadataApi(Resource):
         DatasetService.check_dataset_permission(dataset, current_user)
 
         MetadataService.delete_metadata(dataset_id_str, metadata_id_str)
-        return 200
+        return {"result": "success"}, 204
 
 
 class DatasetMetadataBuiltInFieldApi(Resource):
@@ -112,7 +102,7 @@ class DatasetMetadataBuiltInFieldActionApi(Resource):
     @login_required
     @account_initialization_required
     @enterprise_license_required
-    def post(self, dataset_id, action):
+    def post(self, dataset_id, action: Literal["enable", "disable"]):
         dataset_id_str = str(dataset_id)
         dataset = DatasetService.get_dataset(dataset_id_str)
         if dataset is None:
@@ -139,7 +129,7 @@ class DocumentMetadataEditApi(Resource):
         DatasetService.check_dataset_permission(dataset, current_user)
 
         parser = reqparse.RequestParser()
-        parser.add_argument("operation_data", type=list, required=True, nullable=True, location="json")
+        parser.add_argument("operation_data", type=list, required=True, nullable=False, location="json")
         args = parser.parse_args()
         metadata_args = MetadataOperationData(**args)
 

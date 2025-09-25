@@ -2,12 +2,12 @@ import threading
 from typing import Optional
 
 import pytz
-from flask_login import current_user  # type: ignore
+from flask_login import current_user
 
 import contexts
 from core.app.app_config.easy_ui_based_app.agent.manager import AgentConfigManager
-from core.plugin.manager.agent import PluginAgentManager
-from core.plugin.manager.exc import PluginDaemonClientSideError
+from core.plugin.impl.agent import PluginAgentClient
+from core.plugin.impl.exc import PluginDaemonClientSideError
 from core.tools.tool_manager import ToolManager
 from extensions.ext_database import db
 from models.account import Account
@@ -25,7 +25,7 @@ class AgentService:
 
         conversation: Conversation | None = (
             db.session.query(Conversation)
-            .filter(
+            .where(
                 Conversation.id == conversation_id,
                 Conversation.app_id == app_model.id,
             )
@@ -37,7 +37,7 @@ class AgentService:
 
         message: Optional[Message] = (
             db.session.query(Message)
-            .filter(
+            .where(
                 Message.id == message_id,
                 Message.conversation_id == conversation_id,
             )
@@ -52,12 +52,10 @@ class AgentService:
         if conversation.from_end_user_id:
             # only select name field
             executor = (
-                db.session.query(EndUser, EndUser.name).filter(EndUser.id == conversation.from_end_user_id).first()
+                db.session.query(EndUser, EndUser.name).where(EndUser.id == conversation.from_end_user_id).first()
             )
         else:
-            executor = (
-                db.session.query(Account, Account.name).filter(Account.id == conversation.from_account_id).first()
-            )
+            executor = db.session.query(Account, Account.name).where(Account.id == conversation.from_account_id).first()
 
         if executor:
             executor = executor.name
@@ -161,7 +159,7 @@ class AgentService:
         """
         List agent providers
         """
-        manager = PluginAgentManager()
+        manager = PluginAgentClient()
         return manager.fetch_agent_strategy_providers(tenant_id)
 
     @classmethod
@@ -169,7 +167,7 @@ class AgentService:
         """
         Get agent provider
         """
-        manager = PluginAgentManager()
+        manager = PluginAgentClient()
         try:
             return manager.fetch_agent_strategy_provider(tenant_id, provider_name)
         except PluginDaemonClientSideError as e:

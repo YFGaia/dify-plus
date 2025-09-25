@@ -14,10 +14,11 @@ import Loading from '../components/base/loading'
 import classNames from '@/utils/classnames'
 import Button from '@/app/components/base/button'
 
-import { fetchInitValidateStatus, fetchSetupStatus, setup } from '@/service/common'
+import { fetchInitValidateStatus, fetchSetupStatus, login, setup } from '@/service/common'
 import type { InitValidateStatusResponse, SetupStatusResponse } from '@/models/common'
-
-const validPassword = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/
+import useDocumentTitle from '@/hooks/use-document-title'
+import { useDocLink } from '@/context/i18n'
+import { validPassword } from '@/config'
 
 const accountFormSchema = z.object({
   email: z
@@ -33,7 +34,9 @@ const accountFormSchema = z.object({
 type AccountFormValues = z.infer<typeof accountFormSchema>
 
 const InstallForm = () => {
+  useDocumentTitle('')
   const { t } = useTranslation()
+  const docLink = useDocLink()
   const router = useRouter()
   const [showPassword, setShowPassword] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
@@ -51,12 +54,32 @@ const InstallForm = () => {
   })
 
   const onSubmit: SubmitHandler<AccountFormValues> = async (data) => {
+    // First, setup the admin account
     await setup({
       body: {
         ...data,
       },
     })
-    router.push('/signin')
+
+    // Then, automatically login with the same credentials
+    const loginRes = await login({
+      url: '/login',
+      body: {
+        email: data.email,
+        password: data.password,
+      },
+    })
+
+    // Store tokens and redirect to apps if login successful
+    if (loginRes.result === 'success') {
+      localStorage.setItem('console_token', loginRes.data.access_token)
+      localStorage.setItem('refresh_token', loginRes.data.refresh_token)
+      router.replace('/apps')
+    }
+    else {
+      // Fallback to signin page if auto-login fails
+      router.replace('/signin')
+    }
   }
 
   const handleSetting = async () => {
@@ -80,12 +103,12 @@ const InstallForm = () => {
     fetchSetupStatus().then((res: SetupStatusResponse) => {
       if (res.step === 'finished') {
         localStorage.setItem('setup_status', 'finished')
-        window.location.href = '/signin'
+        router.push('/signin')
       }
       else {
         fetchInitValidateStatus().then((res: InitValidateStatusResponse) => {
           if (res.status === 'not_started')
-            window.location.href = '/init'
+            router.push('/init')
         })
       }
       setLoading(false)
@@ -172,7 +195,7 @@ const InstallForm = () => {
               <Link
                 className='text-text-accent'
                 target='_blank' rel='noopener noreferrer'
-                href={'https://docs.dify.ai/user-agreement/open-source'}
+                href={docLink('/policies/open-source')}
               >{t('login.license.link')}</Link>
             </div>
           </div>

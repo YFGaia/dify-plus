@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import type { ChangeEvent, FC, KeyboardEvent } from 'react'
-import { } from 'use-context-selector'
 import { useTranslation } from 'react-i18next'
 import AutosizeInput from 'react-18-input-autosize'
 import { RiAddLine, RiCloseLine } from '@remixicon/react'
@@ -15,6 +14,7 @@ type TagInputProps = {
   customizedConfirmKey?: 'Enter' | 'Tab'
   isInWorkflow?: boolean
   placeholder?: string
+  required?: boolean
 }
 
 const TagInput: FC<TagInputProps> = ({
@@ -25,6 +25,7 @@ const TagInput: FC<TagInputProps> = ({
   customizedConfirmKey = 'Enter',
   isInWorkflow,
   placeholder,
+  required = false,
 }) => {
   const { t } = useTranslation()
   const { notify } = useToastContext()
@@ -40,6 +41,30 @@ const TagInput: FC<TagInputProps> = ({
     onChange(copyItems)
   }
 
+  const handleNewTag = useCallback((value: string) => {
+    const valueTrimmed = value.trim()
+    if (!valueTrimmed) {
+      if (required)
+        notify({ type: 'error', message: t('datasetDocuments.segment.keywordEmpty') })
+      return
+    }
+
+    if ((items.find(item => item === valueTrimmed))) {
+      notify({ type: 'error', message: t('datasetDocuments.segment.keywordDuplicate') })
+      return
+    }
+
+    if (valueTrimmed.length > 20) {
+      notify({ type: 'error', message: t('datasetDocuments.segment.keywordError') })
+      return
+    }
+
+    onChange([...items, valueTrimmed])
+    setTimeout(() => {
+      setValue('')
+    })
+  }, [items, onChange, notify, t, required])
+
   const handleKeyDown = (e: KeyboardEvent) => {
     if (isSpecialMode && e.key === 'Enter')
       setValue(`${value}↵`)
@@ -48,29 +73,17 @@ const TagInput: FC<TagInputProps> = ({
       if (isSpecialMode)
         e.preventDefault()
 
-      const valueTrimmed = value.trim()
-      if (!valueTrimmed || (items.find(item => item === valueTrimmed)))
-        return
-
-      if (valueTrimmed.length > 20) {
-        notify({ type: 'error', message: t('datasetDocuments.segment.keywordError') })
-        return
-      }
-
-      onChange([...items, valueTrimmed])
-      setTimeout(() => {
-        setValue('')
-      })
+      handleNewTag(value)
     }
   }
 
   const handleBlur = () => {
-    setValue('')
+    handleNewTag(value)
     setFocused(false)
   }
 
   return (
-    <div className={cn('flex flex-wrap', !isInWorkflow && 'min-w-[200px]', isSpecialMode ? 'rounded-lg bg-gray-100 pb-1 pl-1' : '')}>
+    <div className={cn('flex flex-wrap', !isInWorkflow && 'min-w-[200px]', isSpecialMode ? 'rounded-lg bg-components-input-bg-normal pb-1 pl-1' : '')}>
       {
         (items || []).map((item, index) => (
           <div
@@ -93,7 +106,7 @@ const TagInput: FC<TagInputProps> = ({
           <div className={cn('group/tag-add mt-1 flex items-center gap-x-0.5', !isSpecialMode ? 'rounded-md border border-dashed border-divider-deep px-1.5' : '')}>
             {!isSpecialMode && !focused && <RiAddLine className='h-3.5 w-3.5 text-text-placeholder group-hover/tag-add:text-text-secondary' />}
             <AutosizeInput
-              inputClassName={cn('appearance-none caret-[#295EFF] outline-none placeholder:text-text-placeholder group-hover/tag-add:placeholder:text-text-secondary', isSpecialMode ? 'bg-transparent' : '')}
+              inputClassName={cn('appearance-none text-text-primary caret-[#295EFF] outline-none placeholder:text-text-placeholder group-hover/tag-add:placeholder:text-text-secondary', isSpecialMode ? 'bg-transparent' : '')}
               className={cn(
                 !isInWorkflow && 'max-w-[300px]',
                 isInWorkflow && 'max-w-[146px]',

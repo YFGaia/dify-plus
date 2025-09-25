@@ -6,6 +6,17 @@ from controllers.console.app.error import AppNotFoundError
 from extensions.ext_database import db
 from libs.login import current_user
 from models import App, AppMode
+from models.account import Account
+
+
+def _load_app_model(app_id: str) -> Optional[App]:
+    assert isinstance(current_user, Account)
+    app_model = (
+        db.session.query(App)
+        .where(App.id == app_id, App.tenant_id == current_user.current_tenant_id, App.status == "normal")
+        .first()
+    )
+    return app_model
 
 
 def get_app_model(view: Optional[Callable] = None, *, mode: Union[AppMode, list[AppMode], None] = None):
@@ -20,18 +31,12 @@ def get_app_model(view: Optional[Callable] = None, *, mode: Union[AppMode, list[
 
             del kwargs["app_id"]
 
-            app_model = (
-                db.session.query(App)
-                .filter(App.id == app_id, App.tenant_id == current_user.current_tenant_id, App.status == "normal")
-                .first()
-            )
+            app_model = _load_app_model(app_id)
 
             if not app_model:
                 raise AppNotFoundError()
 
             app_mode = AppMode.value_of(app_model.mode)
-            if app_mode == AppMode.CHANNEL:
-                raise AppNotFoundError()
 
             if mode is not None:
                 if isinstance(mode, list):

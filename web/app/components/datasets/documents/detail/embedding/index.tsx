@@ -15,6 +15,7 @@ import { RETRIEVE_METHOD } from '@/types/app'
 import cn from '@/utils/classnames'
 import Divider from '@/app/components/base/divider'
 import { ToastContext } from '@/app/components/base/toast'
+import type { IndexingStatusResponse } from '@/models/datasets'
 import { ProcessMode, type ProcessRuleResponse } from '@/models/datasets'
 import type { CommonResponse } from '@/models/common'
 import { asyncRunSafe, sleep } from '@/utils'
@@ -100,7 +101,6 @@ const RuleDetail: FC<IRuleDetailProps> = React.memo(({
         break
     }
     return value
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sourceData])
 
   return <div className='py-3'>
@@ -166,7 +166,7 @@ const EmbeddingDetail: FC<IEmbeddingDetailProps> = ({
   const localDatasetId = dstId ?? datasetId
   const localDocumentId = docId ?? documentId
 
-  const [indexingStatusDetail, setIndexingStatusDetail] = useState<any>(null)
+  const [indexingStatusDetail, setIndexingStatusDetail] = useState<IndexingStatusResponse | null>(null)
   const fetchIndexingStatus = async () => {
     const status = await doFetchIndexingStatus({ datasetId: localDatasetId, documentId: localDocumentId })
     setIndexingStatusDetail(status)
@@ -193,11 +193,10 @@ const EmbeddingDetail: FC<IEmbeddingDetailProps> = ({
       await sleep(2500)
       await startQueryStatus()
     }
-    catch (e) {
+    catch {
       await sleep(2500)
       await startQueryStatus()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stopQueryStatus])
 
   useEffect(() => {
@@ -287,7 +286,7 @@ const EmbeddingDetail: FC<IEmbeddingDetailProps> = ({
         {/* progress bar */}
         <div className={cn(
           'flex h-2 w-full items-center overflow-hidden rounded-md border border-components-progress-bar-border',
-          isEmbedding ? 'bg-components-progress-bar-bg bg-opacity-50' : 'bg-components-progress-bar-bg',
+          isEmbedding ? 'bg-components-progress-bar-bg/50' : 'bg-components-progress-bar-bg',
         )}>
           <div
             className={cn(

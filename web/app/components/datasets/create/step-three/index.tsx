@@ -39,7 +39,7 @@ const StepThree = ({ datasetId, datasetName, indexingType, creationCache, retrie
                   </div>
                 </div>
               </div>
-              <hr className="my-6 h-[1px] border-0 bg-divider-subtle" />
+              <hr className="my-6 h-px border-0 bg-divider-subtle" />
             </>
           )}
           {datasetId && (
@@ -52,8 +52,8 @@ const StepThree = ({ datasetId, datasetName, indexingType, creationCache, retrie
             datasetId={datasetId || creationCache?.dataset?.id || ''}
             batchId={creationCache?.batch || ''}
             documents={creationCache?.documents as FullDocumentDetail[]}
-            indexingType={indexingType || creationCache?.dataset?.indexing_technique}
-            retrievalMethod={retrievalMethod || creationCache?.dataset?.retrieval_model?.search_method}
+            indexingType={creationCache?.dataset?.indexing_technique || indexingType}
+            retrievalMethod={creationCache?.dataset?.retrieval_model_dict?.search_method || retrievalMethod}
           />
         </div>
       </div>

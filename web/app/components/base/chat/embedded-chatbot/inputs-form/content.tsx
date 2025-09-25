@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { memo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEmbeddedChatbotContext } from '../context'
 import Input from '@/app/components/base/input'
@@ -6,6 +6,9 @@ import Textarea from '@/app/components/base/textarea'
 import { PortalSelect } from '@/app/components/base/select'
 import { FileUploaderInAttachmentWrapper } from '@/app/components/base/file-uploader'
 import { InputVarType } from '@/app/components/workflow/types'
+import BoolInput from '@/app/components/workflow/nodes/_base/components/before-run-form/bool-input'
+import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
+import CodeEditor from '@/app/components/workflow/nodes/_base/components/editor/code-editor'
 
 type Props = {
   showTip?: boolean
@@ -24,7 +27,6 @@ const InputsFormContent = ({ showTip }: Props) => {
     handleNewConversationInputsChange,
   } = useEmbeddedChatbotContext()
   const inputsFormValue = currentConversationId ? currentConversationInputs : newConversationInputs
-  const readonly = !!currentConversationId
 
   const handleFormChange = useCallback((variable: string, value: any) => {
     setCurrentConversationInputs({
@@ -37,16 +39,20 @@ const InputsFormContent = ({ showTip }: Props) => {
     })
   }, [newConversationInputsRef, handleNewConversationInputsChange, currentConversationInputs, setCurrentConversationInputs])
 
+  const visibleInputsForms = inputsForms.filter(form => form.hide !== true)
+
   return (
     <div className='space-y-4'>
-      {inputsForms.map(form => (
+      {visibleInputsForms.map(form => (
         <div key={form.variable} className='space-y-1'>
-          <div className='flex h-6 items-center gap-1'>
-            <div className='system-md-semibold text-text-secondary'>{form.label}</div>
-            {!form.required && (
-              <div className='system-xs-regular text-text-tertiary'>{t('appDebug.variableTable.optional')}</div>
-            )}
-          </div>
+          {form.type !== InputVarType.checkbox && (
+            <div className='flex h-6 items-center gap-1'>
+              <div className='system-md-semibold text-text-secondary'>{form.label}</div>
+              {!form.required && (
+                <div className='system-xs-regular text-text-tertiary'>{t('appDebug.variableTable.optional')}</div>
+              )}
+            </div>
+          )}
           {form.type === InputVarType.textInput && (
             <Input
               value={inputsFormValue?.[form.variable] || ''}
@@ -69,10 +75,18 @@ const InputsFormContent = ({ showTip }: Props) => {
               placeholder={form.label}
             />
           )}
+          {form.type === InputVarType.checkbox && (
+            <BoolInput
+              name={form.label}
+              value={inputsFormValue?.[form.variable]}
+              required={form.required}
+              onChange={value => handleFormChange(form.variable, value)}
+            />
+          )}
           {form.type === InputVarType.select && (
             <PortalSelect
               popupClassName='w-[200px]'
-              value={inputsFormValue?.[form.variable]}
+              value={inputsFormValue?.[form.variable] ?? form.default ?? ''}
               items={form.options.map((option: string) => ({ value: option, name: option }))}
               onSelect={item => handleFormChange(form.variable, item.value as string)}
               placeholder={form.label}
@@ -104,6 +118,18 @@ const InputsFormContent = ({ showTip }: Props) => {
               }}
             />
           )}
+          {form.type === InputVarType.jsonObject && (
+            <CodeEditor
+              language={CodeLanguage.json}
+              value={inputsFormValue?.[form.variable] || ''}
+              onChange={v => handleFormChange(form.variable, v)}
+              noWrapper
+              className='bg h-[80px] overflow-y-auto rounded-[10px] bg-components-input-bg-normal p-1'
+              placeholder={
+                <div className='whitespace-pre'>{form.json_schema}</div>
+              }
+            />
+          )}
         </div>
       ))}
       {showTip && (
@@ -113,4 +139,4 @@ const InputsFormContent = ({ showTip }: Props) => {
   )
 }
 
-export default InputsFormContent
+export default memo(InputsFormContent)

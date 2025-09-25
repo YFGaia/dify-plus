@@ -3,8 +3,8 @@ import uuid
 from contextlib import contextmanager
 from typing import Any
 
-import psycopg2.extras  # type: ignore
-import psycopg2.pool  # type: ignore
+import psycopg2.extras
+import psycopg2.pool
 from pydantic import BaseModel, model_validator
 
 from core.rag.models.document import Document
@@ -98,18 +98,26 @@ class AnalyticdbVectorBySql:
         try:
             cur.execute(f"CREATE DATABASE {self.databaseName}")
         except Exception as e:
-            if "already exists" in str(e):
-                return
-            raise e
+            if "already exists" not in str(e):
+                raise e
         finally:
             cur.close()
             conn.close()
         self.pool = self._create_connection_pool()
         with self._get_cursor() as cur:
+            conn = cur.connection
+            try:
+                cur.execute("CREATE EXTENSION IF NOT EXISTS zhparser;")
+            except Exception as e:
+                conn.rollback()
+                raise RuntimeError(
+                    "Failed to create zhparser extension. Please ensure it is available in your AnalyticDB."
+                ) from e
             try:
                 cur.execute("CREATE TEXT SEARCH CONFIGURATION zh_cn (PARSER = zhparser)")
                 cur.execute("ALTER TEXT SEARCH CONFIGURATION zh_cn ADD MAPPING FOR n,v,a,i,e,l,x WITH simple")
             except Exception as e:
+                conn.rollback()
                 if "already exists" not in str(e):
                     raise e
             cur.execute(
@@ -139,21 +147,25 @@ class AnalyticdbVectorBySql:
                 )
                 if embedding_dimension is not None:
                     index_name = f"{self._collection_name}_embedding_idx"
-                    cur.execute(f"ALTER TABLE {self.table_name} ALTER COLUMN vector SET STORAGE PLAIN")
-                    cur.execute(
-                        f"CREATE INDEX {index_name} ON {self.table_name} USING ann(vector) "
-                        f"WITH(dim='{embedding_dimension}', distancemeasure='{self.config.metrics}', "
-                        f"pq_enable=0, external_storage=0)"
-                    )
-                    cur.execute(f"CREATE INDEX ON {self.table_name} USING gin(to_tsvector)")
+                    try:
+                        cur.execute(f"ALTER TABLE {self.table_name} ALTER COLUMN vector SET STORAGE PLAIN")
+                        cur.execute(
+                            f"CREATE INDEX {index_name} ON {self.table_name} USING ann(vector) "
+                            f"WITH(dim='{embedding_dimension}', distancemeasure='{self.config.metrics}', "
+                            f"pq_enable=0, external_storage=0)"
+                        )
+                        cur.execute(f"CREATE INDEX ON {self.table_name} USING gin(to_tsvector)")
+                    except Exception as e:
+                        if "already exists" not in str(e):
+                            raise e
             redis_client.set(collection_exist_cache_key, 1, ex=3600)
 
     def add_texts(self, documents: list[Document], embeddings: list[list[float]], **kwargs):
         values = []
         id_prefix = str(uuid.uuid4()) + "_"
         sql = f"""
-                INSERT INTO {self.table_name} 
-                (id, ref_doc_id, vector, page_content, metadata_, to_tsvector) 
+                INSERT INTO {self.table_name}
+                (id, ref_doc_id, vector, page_content, metadata_, to_tsvector)
                 VALUES (%s, %s, %s, %s, %s, to_tsvector('zh_cn',  %s));
             """
         for i, doc in enumerate(documents):
@@ -177,9 +189,11 @@ class AnalyticdbVectorBySql:
             return cur.fetchone() is not None
 
     def delete_by_ids(self, ids: list[str]) -> None:
+        if not ids:
+            return
         with self._get_cursor() as cur:
             try:
-                cur.execute(f"DELETE FROM {self.table_name} WHERE ref_doc_id IN %s", (tuple(ids),))
+                cur.execute(f"DELETE FROM {self.table_name} WHERE ref_doc_id = ANY(%s)", (ids,))
             except Exception as e:
                 if "does not exist" not in str(e):
                     raise e
@@ -214,8 +228,8 @@ class AnalyticdbVectorBySql:
             )
             documents = []
             for record in cur:
-                id, vector, score, page_content, metadata = record
-                if score > score_threshold:
+                _, vector, score, page_content, metadata = record
+                if score >= score_threshold:
                     metadata["score"] = score
                     doc = Document(
                         page_content=page_content,
@@ -236,17 +250,17 @@ class AnalyticdbVectorBySql:
             where_clause += f"AND metadata_->>'document_id' IN ({document_ids})"
         with self._get_cursor() as cur:
             cur.execute(
-                f"""SELECT id, vector, page_content, metadata_, 
+                f"""SELECT id, vector, page_content, metadata_,
                 ts_rank(to_tsvector, to_tsquery_from_text(%s, 'zh_cn'), 32) AS score
                 FROM {self.table_name}
                 WHERE to_tsvector@@to_tsquery_from_text(%s, 'zh_cn') {where_clause}
-                ORDER BY score DESC
+                ORDER BY score DESC, id DESC
                 LIMIT {top_k}""",
                 (f"'{query}'", f"'{query}'"),
             )
             documents = []
             for record in cur:
-                id, vector, page_content, metadata, score = record
+                _, vector, page_content, metadata, score = record
                 metadata["score"] = score
                 doc = Document(
                     page_content=page_content,

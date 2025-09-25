@@ -58,6 +58,7 @@ from .app import (
     conversation_variables,
     ding_talk_extend,  # Extend: DingTalk Related APIs
     generator,
+    mcp_server,
     message,
     model_config,
     ops_trace,
@@ -66,12 +67,13 @@ from .app import (
     statistic,
     workflow,
     workflow_app_log,
+    workflow_draft_variable,
     workflow_run,
     workflow_statistic,
 )
 
 # Import auth controllers
-from .auth import activate, data_source_bearer_auth, data_source_oauth, forgot_password, login, oauth, register_extend # 二开部分: 新增用户（调用dify注册接口）
+from .auth import activate, data_source_bearer_auth, data_source_oauth, forgot_password, login, oauth, oauth_server, register_extend # 二开部分: 新增用户（调用dify注册接口）
 
 # Import billing controllers
 from .billing import billing, compliance

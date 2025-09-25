@@ -2,12 +2,29 @@ from collections.abc import Mapping, Sequence
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from core.model_runtime.entities.llm_entities import LLMResult
+from core.model_runtime.entities.llm_entities import LLMResult, LLMUsage
 from core.model_runtime.utils.encoders import jsonable_encoder
+from core.rag.entities.citation_metadata import RetrievalSourceMetadata
 from core.workflow.entities.node_entities import AgentNodeStrategyInit
-from models.workflow import WorkflowNodeExecutionStatus
+from core.workflow.entities.workflow_node_execution import WorkflowNodeExecutionMetadataKey, WorkflowNodeExecutionStatus
+
+
+class AnnotationReplyAccount(BaseModel):
+    id: str
+    name: str
+
+
+class AnnotationReply(BaseModel):
+    id: str
+    account: AnnotationReplyAccount
+
+
+class TaskStateMetadata(BaseModel):
+    annotation_reply: AnnotationReply | None = None
+    retriever_resources: Sequence[RetrievalSourceMetadata] = Field(default_factory=list)
+    usage: LLMUsage | None = None
 
 
 class TaskState(BaseModel):
@@ -15,7 +32,7 @@ class TaskState(BaseModel):
     TaskState entity
     """
 
-    metadata: dict = {}
+    metadata: TaskStateMetadata = Field(default_factory=TaskStateMetadata)
 
 
 class EasyUITaskState(TaskState):
@@ -125,7 +142,7 @@ class MessageEndStreamResponse(StreamResponse):
 
     event: StreamEvent = StreamEvent.MESSAGE_END
     id: str
-    metadata: dict = {}
+    metadata: dict = Field(default_factory=dict)
     files: Optional[Sequence[Mapping[str, Any]]] = None
 
 
@@ -148,6 +165,7 @@ class MessageReplaceStreamResponse(StreamResponse):
 
     event: StreamEvent = StreamEvent.MESSAGE_REPLACE
     answer: str
+    reason: str
 
 
 class AgentThoughtStreamResponse(StreamResponse):
@@ -188,8 +206,7 @@ class WorkflowStartStreamResponse(StreamResponse):
 
         id: str
         workflow_id: str
-        sequence_number: int
-        inputs: dict
+        inputs: Mapping[str, Any]
         created_at: int
 
     event: StreamEvent = StreamEvent.WORKFLOW_STARTED
@@ -209,9 +226,8 @@ class WorkflowFinishStreamResponse(StreamResponse):
 
         id: str
         workflow_id: str
-        sequence_number: int
         status: str
-        outputs: Optional[dict] = None
+        outputs: Optional[Mapping[str, Any]] = None
         error: Optional[str] = None
         elapsed_time: float
         total_tokens: int
@@ -243,9 +259,9 @@ class NodeStartStreamResponse(StreamResponse):
         title: str
         index: int
         predecessor_node_id: Optional[str] = None
-        inputs: Optional[dict] = None
+        inputs: Optional[Mapping[str, Any]] = None
         created_at: int
-        extras: dict = {}
+        extras: dict = Field(default_factory=dict)
         parallel_id: Optional[str] = None
         parallel_start_node_id: Optional[str] = None
         parent_parallel_id: Optional[str] = None
@@ -300,13 +316,13 @@ class NodeFinishStreamResponse(StreamResponse):
         title: str
         index: int
         predecessor_node_id: Optional[str] = None
-        inputs: Optional[dict] = None
-        process_data: Optional[dict] = None
-        outputs: Optional[dict] = None
+        inputs: Optional[Mapping[str, Any]] = None
+        process_data: Optional[Mapping[str, Any]] = None
+        outputs: Optional[Mapping[str, Any]] = None
         status: str
         error: Optional[str] = None
         elapsed_time: float
-        execution_metadata: Optional[dict] = None
+        execution_metadata: Optional[Mapping[WorkflowNodeExecutionMetadataKey, Any]] = None
         created_at: int
         finished_at: int
         files: Optional[Sequence[Mapping[str, Any]]] = []
@@ -369,13 +385,13 @@ class NodeRetryStreamResponse(StreamResponse):
         title: str
         index: int
         predecessor_node_id: Optional[str] = None
-        inputs: Optional[dict] = None
-        process_data: Optional[dict] = None
-        outputs: Optional[dict] = None
+        inputs: Optional[Mapping[str, Any]] = None
+        process_data: Optional[Mapping[str, Any]] = None
+        outputs: Optional[Mapping[str, Any]] = None
         status: str
         error: Optional[str] = None
         elapsed_time: float
-        execution_metadata: Optional[dict] = None
+        execution_metadata: Optional[Mapping[WorkflowNodeExecutionMetadataKey, Any]] = None
         created_at: int
         finished_at: int
         files: Optional[Sequence[Mapping[str, Any]]] = []
@@ -487,7 +503,7 @@ class IterationNodeStartStreamResponse(StreamResponse):
         node_type: str
         title: str
         created_at: int
-        extras: dict = {}
+        extras: dict = Field(default_factory=dict)
         metadata: Mapping = {}
         inputs: Mapping = {}
         parallel_id: Optional[str] = None
@@ -515,7 +531,7 @@ class IterationNodeNextStreamResponse(StreamResponse):
         index: int
         created_at: int
         pre_iteration_output: Optional[Any] = None
-        extras: dict = {}
+        extras: dict = Field(default_factory=dict)
         parallel_id: Optional[str] = None
         parallel_start_node_id: Optional[str] = None
         parallel_mode_run_id: Optional[str] = None
@@ -574,7 +590,7 @@ class LoopNodeStartStreamResponse(StreamResponse):
         node_type: str
         title: str
         created_at: int
-        extras: dict = {}
+        extras: dict = Field(default_factory=dict)
         metadata: Mapping = {}
         inputs: Mapping = {}
         parallel_id: Optional[str] = None
@@ -602,7 +618,7 @@ class LoopNodeNextStreamResponse(StreamResponse):
         index: int
         created_at: int
         pre_loop_output: Optional[Any] = None
-        extras: dict = {}
+        extras: dict = Field(default_factory=dict)
         parallel_id: Optional[str] = None
         parallel_start_node_id: Optional[str] = None
         parallel_mode_run_id: Optional[str] = None
@@ -748,7 +764,7 @@ class ChatbotAppBlockingResponse(AppBlockingResponse):
         conversation_id: str
         message_id: str
         answer: str
-        metadata: dict = {}
+        metadata: dict = Field(default_factory=dict)
         created_at: int
 
     data: Data
@@ -768,7 +784,7 @@ class CompletionAppBlockingResponse(AppBlockingResponse):
         mode: str
         message_id: str
         answer: str
-        metadata: dict = {}
+        metadata: dict = Field(default_factory=dict)
         created_at: int
 
     data: Data
@@ -787,7 +803,7 @@ class WorkflowAppBlockingResponse(AppBlockingResponse):
         id: str
         workflow_id: str
         status: str
-        outputs: Optional[dict] = None
+        outputs: Optional[Mapping[str, Any]] = None
         error: Optional[str] = None
         elapsed_time: float
         total_tokens: int

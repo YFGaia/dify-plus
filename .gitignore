@@ -46,6 +46,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
+coverage.json
 *.cover
 *.py,cover
 .hypothesis/
@@ -122,10 +123,12 @@ venv.bak/
 # mkdocs documentation
 /site
 
-# mypy
+# type checking
 .mypy_cache/
 .dmypy.json
 dmypy.json
+pyrightconfig.json
+!api/pyrightconfig.json
 
 # Pyre type checker
 .pyre/
@@ -178,6 +181,7 @@ docker/volumes/pgvecto_rs/data/*
 docker/volumes/couchbase/*
 docker/volumes/oceanbase/*
 docker/volumes/plugin_daemon/*
+docker/volumes/matrixone/*
 !docker/volumes/oceanbase/init.d
 
 docker/nginx/conf.d/default.conf
@@ -191,12 +195,13 @@ sdks/python-client/dist
 sdks/python-client/dify_client.egg-info
 
 .vscode/*
-!.vscode/launch.json
-pyrightconfig.json
+!.vscode/launch.json.template
+!.vscode/README.md
 api/.vscode
+# vscode Code History Extension
+.history
 
 .idea/
-.vscode
 
 # pnpm
 /.pnpm-store
@@ -207,5 +212,13 @@ plugins.jsonl
 # mise
 mise.toml
 
-# 二开新增 
+# 二开新增
 docker/volumes/admin-server/*
+
+# Next.js build output
+.next/
+
+# AI Assistant
+.roo/
+api/.env.backup
+/clickzetta

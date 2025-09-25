@@ -24,21 +24,14 @@ const translation = {
     contractSales: 'Skontaktuj się z działem sprzedaży',
     contractOwner: 'Skontaktuj się z zarządcą zespołu',
     startForFree: 'Zacznij za darmo',
-    getStartedWith: 'Rozpocznij z ',
     contactSales: 'Kontakt z działem sprzedaży',
     talkToSales: 'Porozmawiaj z działem sprzedaży',
     modelProviders: 'Dostawcy modeli',
-    teamMembers: 'Członkowie zespołu',
     buildApps: 'Twórz aplikacje',
     vectorSpace: 'Przestrzeń wektorowa',
-    vectorSpaceBillingTooltip:
-      'Każdy 1MB może przechowywać około 1,2 miliona znaków z wektoryzowanych danych (szacowane na podstawie OpenAI Embeddings, różni się w zależności od modelu).',
     vectorSpaceTooltip:
       'Przestrzeń wektorowa jest systemem pamięci długoterminowej wymaganym dla LLM, aby zrozumieć Twoje dane.',
-    documentsUploadQuota: 'Limit przesyłanych dokumentów',
     documentProcessingPriority: 'Priorytet przetwarzania dokumentów',
-    documentProcessingPriorityTip:
-      'Dla wyższego priorytetu przetwarzania dokumentów, ulepsz swój plan.',
     documentProcessingPriorityUpgrade:
       'Przetwarzaj więcej danych z większą dokładnością i w szybszym tempie.',
     priority: {
@@ -75,6 +68,7 @@ const translation = {
       title: 'Limity kredytów wiadomości',
       tooltip:
         'Limity wywołań wiadomości dla różnych planów używających modeli OpenAI (z wyjątkiem gpt4). Wiadomości przekraczające limit będą korzystać z twojego klucza API OpenAI.',
+      titlePerMonth: '{{count,number}} wiadomości/miesiąc',
     },
     annotatedResponse: {
       title: 'Limity kredytów na adnotacje',
@@ -86,30 +80,78 @@ const translation = {
     receiptInfo:
       'Tylko właściciel zespołu i administrator zespołu mogą subskrybować i przeglądać informacje o rozliczeniach',
     annotationQuota: 'Przydział adnotacji',
+    documents: '{{count,number}} Dokumentów Wiedzy',
+    apiRateLimit: 'Limit liczby wywołań API',
+    documentsTooltip: 'Kwota dotycząca liczby dokumentów importowanych z Źródła Danych Wiedzy.',
+    unlimitedApiRate: 'Brak limitu liczby zapytań API',
+    annualBilling: 'Roczne rozliczenie',
+    getStarted: 'Zacznij',
+    freeTrialTip: 'bezpłatny okres próbny 200 wywołań OpenAI.',
+    comparePlanAndFeatures: 'Porównaj plany i funkcje',
+    freeTrialTipPrefix: 'Zarejestruj się i zdobądź',
+    teamMember_other: '{{count,number}} członków zespołu',
+    teamWorkspace: '{{count,number}} Zespół Workspace',
+    apiRateLimitUnit: '{{count,number}}/dzień',
+    cloud: 'Usługa chmurowa',
+    teamMember_one: '{{count,number}} Członek zespołu',
+    priceTip: 'na przestrzeń roboczą/',
+    self: 'Samo-hostowane',
+    apiRateLimitTooltip: 'Limit aktywności API dotyczy wszystkich żądań składanych za pośrednictwem API Dify, w tym generowania tekstu, rozmów czatowych, wykonywania przepływów pracy i przetwarzania dokumentów.',
+    freeTrialTipSuffix: 'Nie jest wymagana karta kredytowa',
+    documentsRequestQuota: '{{count,number}}/min Limit wiedzy na żądanie',
+    documentsRequestQuotaTooltip: 'Określa całkowitą liczbę działań, jakie przestrzeń robocza może wykonać na minutę w ramach bazy wiedzy, w tym tworzenie zbiorów danych, usuwanie, aktualizacje, przesyłanie dokumentów, modyfikacje, archiwizowanie i zapytania do bazy wiedzy. Ta metryka jest używana do oceny wydajności zapytań do bazy wiedzy. Na przykład, jeśli użytkownik Sandbox wykona 10 kolejnych testów w ciągu jednej minuty, jego przestrzeń robocza zostanie tymczasowo ograniczona w wykonywaniu następujących działań przez następną minutę: tworzenie zbiorów danych, usuwanie, aktualizacje oraz przesyłanie lub modyfikacje dokumentów.',
   },
   plans: {
     sandbox: {
       name: 'Sandbox',
       description: '200 razy darmowa próba GPT',
-      includesTitle: 'Zawiera:',
+      for: 'Darmowy okres próbny podstawowych funkcji',
     },
     professional: {
       name: 'Profesjonalny',
       description:
         'Dla osób fizycznych i małych zespołów, aby odblokować więcej mocy w przystępnej cenie.',
-      includesTitle: 'Wszystko w darmowym planie, plus:',
+      for: 'Dla niezależnych deweloperów/małych zespołów',
     },
     team: {
       name: 'Zespół',
       description:
         'Współpracuj bez ograniczeń i ciesz się najwyższą wydajnością.',
-      includesTitle: 'Wszystko w planie Profesjonalnym, plus:',
+      for: 'Dla średniej wielkości zespołów',
     },
     enterprise: {
       name: 'Przedsiębiorstwo',
       description:
         'Uzyskaj pełne możliwości i wsparcie dla systemów o kluczowym znaczeniu dla misji.',
       includesTitle: 'Wszystko w planie Zespołowym, plus:',
+      features: {
+      },
+      priceTip: 'Tylko roczne fakturowanie',
+      btnText: 'Skontaktuj się z działem sprzedaży',
+      for: 'Dla dużych zespołów',
+      price: 'Niestety, nie mogę przetłumaczyć tego tekstu bez konkretnego zdania do przetłumaczenia.',
+    },
+    community: {
+      features: {
+      },
+      includesTitle: 'Darmowe funkcje:',
+      name: 'Społeczność',
+      price: 'Darmowy',
+      description: 'Dla użytkowników indywidualnych, małych zespołów lub projektów niekomercyjnych',
+      btnText: 'Rozpocznij pracę z społecznością',
+      for: 'Dla użytkowników indywidualnych, małych zespołów lub projektów niekomercyjnych',
+    },
+    premium: {
+      features: {
+      },
+      description: 'Dla średnich organizacji i zespołów',
+      for: 'Dla średnich organizacji i zespołów',
+      name: 'Premium',
+      priceTip: 'Oparte na rynku chmurowym',
+      btnText: 'Uzyskaj premium w',
+      price: 'Skalowalny',
+      comingSoon: 'Wsparcie dla Microsoft Azure i Google Cloud wkrótce dostępne',
+      includesTitle: 'Wszystko z Community, plus:',
     },
   },
   vectorSpace: {
@@ -117,14 +159,26 @@ const translation = {
     fullSolution: 'Ulepsz swój plan, aby uzyskać więcej miejsca.',
   },
   apps: {
-    fullTipLine1: 'Ulepsz swój plan, aby',
-    fullTipLine2: 'tworzyć więcej aplikacji.',
+    fullTip1des: 'Osiągnąłeś limit tworzenia aplikacji w tym planie.',
+    fullTip1: 'Zaktualizuj, aby stworzyć więcej aplikacji',
+    fullTip2: 'Osiągnięto limit planu',
+    contactUs: 'Skontaktuj się z nami',
+    fullTip2des: 'Zaleca się usunięcie nieaktywnych aplikacji, aby zwolnić miejsce, lub skontaktowanie się z nami.',
   },
   annotatedResponse: {
     fullTipLine1: 'Ulepsz swój plan, aby',
     fullTipLine2: 'adnotować więcej rozmów.',
     quotaTitle: 'Limit adnotacji odpowiedzi',
   },
+  usagePage: {
+    vectorSpace: 'Magazynowanie danych wiedzy',
+    teamMembers: 'Członkowie zespołu',
+    documentsUploadQuota: 'Limit przesyłania dokumentów',
+    buildApps: 'Twórz aplikacje',
+    annotationQuota: 'Kwota aneksji',
+    vectorSpaceTooltip: 'Dokumenty z trybem indeksowania o wysokiej jakości będą zużywać zasoby magazynu danych wiedzy. Gdy magazyn danych wiedzy osiągnie limit, nowe dokumenty nie będą przesyłane.',
+  },
+  teamMembers: 'Członkowie zespołu',
 }
 
 export default translation

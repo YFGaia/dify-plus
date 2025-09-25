@@ -9,13 +9,12 @@ from core.memory.token_buffer_memory import TokenBufferMemory
 from core.model_runtime.entities import (
     AssistantPromptMessage,
     PromptMessage,
-    PromptMessageContent,
     PromptMessageRole,
     SystemPromptMessage,
     TextPromptMessageContent,
     UserPromptMessage,
 )
-from core.model_runtime.entities.message_entities import ImagePromptMessageContent
+from core.model_runtime.entities.message_entities import ImagePromptMessageContent, PromptMessageContentUnionTypes
 from core.prompt.entities.advanced_prompt_entities import ChatModelMessage, CompletionModelPromptTemplate, MemoryConfig
 from core.prompt.prompt_transform import PromptTransform
 from core.prompt.utils.prompt_template_parser import PromptTemplateParser
@@ -125,12 +124,12 @@ class AdvancedPromptTransform(PromptTransform):
             prompt = Jinja2Formatter.format(prompt, prompt_inputs)
 
         if files:
-            prompt_message_contents: list[PromptMessageContent] = []
-            prompt_message_contents.append(TextPromptMessageContent(data=prompt))
+            prompt_message_contents: list[PromptMessageContentUnionTypes] = []
             for file in files:
                 prompt_message_contents.append(
                     file_manager.to_prompt_message_content(file, image_detail_config=image_detail_config)
                 )
+            prompt_message_contents.append(TextPromptMessageContent(data=prompt))
 
             prompt_messages.append(UserPromptMessage(content=prompt_message_contents))
         else:
@@ -159,7 +158,7 @@ class AdvancedPromptTransform(PromptTransform):
 
             if prompt_item.edition_type == "basic" or not prompt_item.edition_type:
                 if self.with_variable_tmpl:
-                    vp = VariablePool()
+                    vp = VariablePool.empty()
                     for k, v in inputs.items():
                         if k.startswith("#"):
                             vp.add(k[1:-1].split("."), v)
@@ -197,16 +196,17 @@ class AdvancedPromptTransform(PromptTransform):
 
             query = parser.format(prompt_inputs)
 
+        prompt_message_contents: list[PromptMessageContentUnionTypes] = []
         if memory and memory_config:
             prompt_messages = self._append_chat_histories(memory, memory_config, prompt_messages, model_config)
 
             if files and query is not None:
-                prompt_message_contents: list[PromptMessageContent] = []
-                prompt_message_contents.append(TextPromptMessageContent(data=query))
                 for file in files:
                     prompt_message_contents.append(
                         file_manager.to_prompt_message_content(file, image_detail_config=image_detail_config)
                     )
+                prompt_message_contents.append(TextPromptMessageContent(data=query))
+
                 prompt_messages.append(UserPromptMessage(content=prompt_message_contents))
             else:
                 prompt_messages.append(UserPromptMessage(content=query))
@@ -216,27 +216,27 @@ class AdvancedPromptTransform(PromptTransform):
                 last_message = prompt_messages[-1] if prompt_messages else None
                 if last_message and last_message.role == PromptMessageRole.USER:
                     # get last user message content and add files
-                    prompt_message_contents = [TextPromptMessageContent(data=cast(str, last_message.content))]
                     for file in files:
                         prompt_message_contents.append(
                             file_manager.to_prompt_message_content(file, image_detail_config=image_detail_config)
                         )
+                    prompt_message_contents.append(TextPromptMessageContent(data=cast(str, last_message.content)))
 
                     last_message.content = prompt_message_contents
                 else:
-                    prompt_message_contents = [TextPromptMessageContent(data="")]  # not for query
                     for file in files:
                         prompt_message_contents.append(
                             file_manager.to_prompt_message_content(file, image_detail_config=image_detail_config)
                         )
+                    prompt_message_contents.append(TextPromptMessageContent(data=""))
 
                     prompt_messages.append(UserPromptMessage(content=prompt_message_contents))
             else:
-                prompt_message_contents = [TextPromptMessageContent(data=query)]
                 for file in files:
                     prompt_message_contents.append(
                         file_manager.to_prompt_message_content(file, image_detail_config=image_detail_config)
                     )
+                prompt_message_contents.append(TextPromptMessageContent(data=query))
 
                 prompt_messages.append(UserPromptMessage(content=prompt_message_contents))
         elif query:

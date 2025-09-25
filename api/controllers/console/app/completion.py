@@ -1,7 +1,8 @@
 import logging
 
-import flask_login  # type: ignore
-from flask_restful import Resource, reqparse  # type: ignore
+import flask_login
+from flask import request
+from flask_restx import Resource, reqparse
 from werkzeug.exceptions import InternalServerError, NotFound
 
 import services
@@ -25,6 +26,7 @@ from core.errors.error import (
     ProviderTokenNotInitError,
     QuotaExceededError,
 )
+from core.helper.trace_id_helper import get_external_trace_id
 from core.model_runtime.errors.invoke import InvokeError
 from libs import helper
 from libs.helper import uuid_value
@@ -32,6 +34,8 @@ from libs.login import login_required
 from models.model import AppMode
 from services.app_generate_service import AppGenerateService
 from services.errors.llm import InvokeRateLimitError
+
+logger = logging.getLogger(__name__)
 
 
 # define completion message api for user
@@ -67,7 +71,7 @@ class CompletionMessageApi(Resource):
         except services.errors.conversation.ConversationCompletedError:
             raise ConversationCompletedError()
         except services.errors.app_model_config.AppModelConfigBrokenError:
-            logging.exception("App model config broken.")
+            logger.exception("App model config broken.")
             raise AppUnavailableError()
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
@@ -80,7 +84,7 @@ class CompletionMessageApi(Resource):
         except ValueError as e:
             raise e
         except Exception as e:
-            logging.exception("internal server error.")
+            logger.exception("internal server error.")
             raise InternalServerError()
 
 
@@ -118,6 +122,10 @@ class ChatMessageApi(Resource):
         streaming = args["response_mode"] != "blocking"
         args["auto_generate_name"] = False
 
+        external_trace_id = get_external_trace_id(request)
+        if external_trace_id:
+            args["external_trace_id"] = external_trace_id
+
         account = flask_login.current_user
 
         try:
@@ -131,7 +139,7 @@ class ChatMessageApi(Resource):
         except services.errors.conversation.ConversationCompletedError:
             raise ConversationCompletedError()
         except services.errors.app_model_config.AppModelConfigBrokenError:
-            logging.exception("App model config broken.")
+            logger.exception("App model config broken.")
             raise AppUnavailableError()
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
@@ -146,7 +154,7 @@ class ChatMessageApi(Resource):
         except ValueError as e:
             raise e
         except Exception as e:
-            logging.exception("internal server error.")
+            logger.exception("internal server error.")
             raise InternalServerError()
 
 

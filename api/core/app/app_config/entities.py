@@ -97,6 +97,7 @@ class VariableEntityType(StrEnum):
     EXTERNAL_DATA_TOOL = "external_data_tool"
     FILE = "file"
     FILE_LIST = "file-list"
+    CHECKBOX = "checkbox"
 
 
 class VariableEntity(BaseModel):
@@ -104,11 +105,13 @@ class VariableEntity(BaseModel):
     Variable Entity.
     """
 
+    # `variable` records the name of the variable in user inputs.
     variable: str
     label: str
     description: str = ""
     type: VariableEntityType
     required: bool = False
+    hide: bool = False
     max_length: Optional[int] = None
     options: Sequence[str] = Field(default_factory=list)
     allowed_file_types: Sequence[FileType] = Field(default_factory=list)
@@ -146,6 +149,8 @@ SupportedComparisonOperator = Literal[
     "is not",
     "empty",
     "not empty",
+    "in",
+    "not in",
     # for number
     "=",
     "≠",
@@ -163,7 +168,7 @@ class ModelConfig(BaseModel):
     provider: str
     name: str
     mode: LLMMode
-    completion_params: dict[str, Any] = {}
+    completion_params: dict[str, Any] = Field(default_factory=dict)
 
 
 class Condition(BaseModel):

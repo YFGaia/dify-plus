@@ -22,7 +22,7 @@ class APIBasedExtensionRequestor:
         :param params: the request params
         :return: the response json
         """
-        headers = {"Content-Type": "application/json", "Authorization": "Bearer {}".format(self.api_key)}
+        headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"}
 
         url = self.api_endpoint
 
@@ -43,14 +43,12 @@ class APIBasedExtensionRequestor:
                 timeout=self.timeout,
                 proxies=proxies,
             )
-        except requests.exceptions.Timeout:
+        except requests.Timeout:
             raise ValueError("request timeout")
-        except requests.exceptions.ConnectionError:
+        except requests.ConnectionError:
             raise ValueError("request connection error")
 
         if response.status_code != 200:
-            raise ValueError(
-                "request error, status_code: {}, content: {}".format(response.status_code, response.text[:100])
-            )
+            raise ValueError(f"request error, status_code: {response.status_code}, content: {response.text[:100]}")
 
         return cast(dict, response.json())

@@ -8,8 +8,9 @@ const textareaVariants = cva(
   {
     variants: {
       size: {
-        regular: 'px-3 radius-md system-sm-regular',
-        large: 'px-4 radius-lg system-md-regular',
+        small: 'py-1 rounded-md system-xs-regular',
+        regular: 'px-3 rounded-md system-sm-regular',
+        large: 'px-4 rounded-lg system-md-regular',
       },
     },
     defaultVariants: {
@@ -38,7 +39,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           destructive && 'border-components-input-border-destructive bg-components-input-bg-destructive text-components-input-text-filled hover:border-components-input-border-destructive hover:bg-components-input-bg-destructive focus:border-components-input-border-destructive focus:bg-components-input-bg-destructive',
           className,
         )}
-        value={value}
+        value={value ?? ''}
         onChange={onChange}
         disabled={disabled}
         {...props}

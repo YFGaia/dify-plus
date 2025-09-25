@@ -83,17 +83,17 @@ class TiDBVector(BaseVector):
         self._dimension = 1536
 
     def create(self, texts: list[Document], embeddings: list[list[float]], **kwargs):
-        logger.info("create collection and add texts, collection_name: " + self._collection_name)
+        logger.info("create collection and add texts, collection_name: %s", self._collection_name)
         self._create_collection(len(embeddings[0]))
         self.add_texts(texts, embeddings)
         self._dimension = len(embeddings[0])
         pass
 
     def _create_collection(self, dimension: int):
-        logger.info("_create_collection, collection_name " + self._collection_name)
-        lock_name = "vector_indexing_lock_{}".format(self._collection_name)
+        logger.info("_create_collection, collection_name %s", self._collection_name)
+        lock_name = f"vector_indexing_lock_{self._collection_name}"
         with redis_client.lock(lock_name, timeout=20):
-            collection_exist_cache_key = "vector_indexing_{}".format(self._collection_name)
+            collection_exist_cache_key = f"vector_indexing_{self._collection_name}"
             if redis_client.get(collection_exist_cache_key):
                 return
             tidb_dist_func = self._get_distance_func()
@@ -187,13 +187,12 @@ class TiDBVector(BaseVector):
     def search_by_vector(self, query_vector: list[float], **kwargs: Any) -> list[Document]:
         top_k = kwargs.get("top_k", 4)
         score_threshold = float(kwargs.get("score_threshold") or 0.0)
-        filter = kwargs.get("filter")
         distance = 1 - score_threshold
 
         query_vector_str = ", ".join(format(x) for x in query_vector)
         query_vector_str = "[" + query_vector_str + "]"
         logger.debug(
-            f"_collection_name: {self._collection_name}, score_threshold: {score_threshold}, distance: {distance}"
+            "_collection_name: %s, score_threshold: %s, distance: %s", self._collection_name, score_threshold, distance
         )
 
         docs = []
@@ -206,9 +205,9 @@ class TiDBVector(BaseVector):
 
         with Session(self._engine) as session:
             select_statement = sql_text(f"""
-                SELECT meta, text, distance 
+                SELECT meta, text, distance
                 FROM (
-                  SELECT 
+                  SELECT
                     meta,
                     text,
                     {tidb_dist_func}(vector, :query_vector_str) AS distance

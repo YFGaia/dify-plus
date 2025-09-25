@@ -3,15 +3,12 @@ from collections.abc import Callable
 
 import pytest
 
-# import monkeypatch
-from _pytest.monkeypatch import MonkeyPatch
-
-from core.plugin.manager.model import PluginModelManager
+from core.plugin.impl.model import PluginModelClient
 from tests.integration_tests.model_runtime.__mock.plugin_model import MockModelClass
 
 
 def mock_plugin_daemon(
-    monkeypatch: MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> Callable[[], None]:
     """
     mock openai module
@@ -23,9 +20,9 @@ def mock_plugin_daemon(
     def unpatch() -> None:
         monkeypatch.undo()
 
-    monkeypatch.setattr(PluginModelManager, "invoke_llm", MockModelClass.invoke_llm)
-    monkeypatch.setattr(PluginModelManager, "fetch_model_providers", MockModelClass.fetch_model_providers)
-    monkeypatch.setattr(PluginModelManager, "get_model_schema", MockModelClass.get_model_schema)
+    monkeypatch.setattr(PluginModelClient, "invoke_llm", MockModelClass.invoke_llm)
+    monkeypatch.setattr(PluginModelClient, "fetch_model_providers", MockModelClass.fetch_model_providers)
+    monkeypatch.setattr(PluginModelClient, "get_model_schema", MockModelClass.get_model_schema)
 
     return unpatch
 
@@ -34,7 +31,7 @@ MOCK = os.getenv("MOCK_SWITCH", "false").lower() == "true"
 
 
 @pytest.fixture
-def setup_model_mock(monkeypatch):
+def setup_model_mock(monkeypatch: pytest.MonkeyPatch):
     if MOCK:
         unpatch = mock_plugin_daemon(monkeypatch)
 

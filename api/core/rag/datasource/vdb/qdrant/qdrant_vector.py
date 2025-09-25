@@ -3,7 +3,7 @@ import os
 import uuid
 from collections.abc import Generator, Iterable, Sequence
 from itertools import islice
-from typing import TYPE_CHECKING, Any, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import qdrant_client
 from flask import current_app
@@ -18,6 +18,7 @@ from qdrant_client.http.models import (
     TokenizerType,
 )
 from qdrant_client.local.qdrant_local import QdrantLocal
+from sqlalchemy import select
 
 from configs import dify_config
 from core.rag.datasource.vdb.field import Field
@@ -46,6 +47,8 @@ class QdrantConfig(BaseModel):
     root_path: Optional[str] = None
     grpc_port: int = 6334
     prefer_grpc: bool = False
+    replication_factor: int = 1
+    write_consistency_factor: int = 1
 
     def to_qdrant_params(self):
         if self.endpoint and self.endpoint.startswith("path:"):
@@ -93,9 +96,9 @@ class QdrantVector(BaseVector):
             self.add_texts(texts, embeddings, **kwargs)
 
     def create_collection(self, collection_name: str, vector_size: int):
-        lock_name = "vector_indexing_lock_{}".format(collection_name)
+        lock_name = f"vector_indexing_lock_{collection_name}"
         with redis_client.lock(lock_name, timeout=20):
-            collection_exist_cache_key = "vector_indexing_{}".format(self._collection_name)
+            collection_exist_cache_key = f"vector_indexing_{self._collection_name}"
             if redis_client.get(collection_exist_cache_key):
                 return
             collection_name = collection_name or uuid.uuid4().hex
@@ -119,11 +122,14 @@ class QdrantVector(BaseVector):
                     max_indexing_threads=0,
                     on_disk=False,
                 )
+
                 self._client.create_collection(
                     collection_name=collection_name,
                     vectors_config=vectors_config,
                     hnsw_config=hnsw_config,
                     timeout=int(self._client_config.timeout),
+                    replication_factor=self._client_config.replication_factor,
+                    write_consistency_factor=self._client_config.write_consistency_factor,
                 )
 
                 # create group_id payload index
@@ -326,6 +332,12 @@ class QdrantVector(BaseVector):
     def search_by_vector(self, query_vector: list[float], **kwargs: Any) -> list[Document]:
         from qdrant_client.http import models
 
+        score_threshold = float(kwargs.get("score_threshold") or 0.0)
+        if score_threshold >= 1:
+            # return empty list because some versions of qdrant may response with 400 bad request，
+            # and at the same time, the score_threshold with value 1 may be valid for other vector stores
+            return []
+
         filter = models.Filter(
             must=[
                 models.FieldCondition(
@@ -350,7 +362,7 @@ class QdrantVector(BaseVector):
             limit=kwargs.get("top_k", 4),
             with_payload=True,
             with_vectors=True,
-            score_threshold=float(kwargs.get("score_threshold") or 0.0),
+            score_threshold=score_threshold,
         )
         docs = []
         for result in results:
@@ -358,8 +370,7 @@ class QdrantVector(BaseVector):
                 continue
             metadata = result.payload.get(Field.METADATA_KEY.value) or {}
             # duplicate check score threshold
-            score_threshold = float(kwargs.get("score_threshold") or 0.0)
-            if result.score > score_threshold:
+            if result.score >= score_threshold:
                 metadata["score"] = result.score
                 doc = Document(
                     page_content=result.payload.get(Field.CONTENT_KEY.value, ""),
@@ -416,7 +427,6 @@ class QdrantVector(BaseVector):
 
     def _reload_if_needed(self):
         if isinstance(self._client, QdrantLocal):
-            self._client = cast(QdrantLocal, self._client)
             self._client._load()
 
     @classmethod
@@ -436,15 +446,12 @@ class QdrantVector(BaseVector):
 class QdrantVectorFactory(AbstractVectorFactory):
     def init_vector(self, dataset: Dataset, attributes: list, embeddings: Embeddings) -> QdrantVector:
         if dataset.collection_binding_id:
-            dataset_collection_binding = (
-                db.session.query(DatasetCollectionBinding)
-                .filter(DatasetCollectionBinding.id == dataset.collection_binding_id)
-                .one_or_none()
-            )
+            stmt = select(DatasetCollectionBinding).where(DatasetCollectionBinding.id == dataset.collection_binding_id)
+            dataset_collection_binding = db.session.scalars(stmt).one_or_none()
             if dataset_collection_binding:
                 collection_name = dataset_collection_binding.collection_name
             else:
-                raise ValueError("Dataset Collection Bindings is not exist!")
+                raise ValueError("Dataset Collection Bindings does not exist!")
         else:
             if dataset.index_struct_dict:
                 class_prefix: str = dataset.index_struct_dict["vector_store"]["class_prefix"]
@@ -466,5 +473,6 @@ class QdrantVectorFactory(AbstractVectorFactory):
                 timeout=dify_config.QDRANT_CLIENT_TIMEOUT,
                 grpc_port=dify_config.QDRANT_GRPC_PORT,
                 prefer_grpc=dify_config.QDRANT_GRPC_ENABLED,
+                replication_factor=dify_config.QDRANT_REPLICATION_FACTOR,
             ),
         )

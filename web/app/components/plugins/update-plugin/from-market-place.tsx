@@ -1,7 +1,6 @@
 'use client'
 import type { FC } from 'react'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { RiInformation2Line } from '@remixicon/react'
 import { useTranslation } from 'react-i18next'
 import Card from '@/app/components/plugins/card'
 import Modal from '@/app/components/base/modal'
@@ -14,13 +13,18 @@ import { updateFromMarketPlace } from '@/service/plugins'
 import checkTaskStatus from '@/app/components/plugins/install-plugin/base/check-task-status'
 import { usePluginTaskList } from '@/service/use-plugins'
 import Toast from '../../base/toast'
+import DowngradeWarningModal from './downgrade-warning'
+import { useInvalidateReferenceSettings, useRemoveAutoUpgrade } from '@/service/use-plugins'
+import cn from '@/utils/classnames'
 
 const i18nPrefix = 'plugin.upgrade'
 
 type Props = {
   payload: UpdateFromMarketPlacePayload
+  pluginId: string
   onSave: () => void
   onCancel: () => void
+  isShowDowngradeWarningModal?: boolean
 }
 
 enum UploadStep {
@@ -31,8 +35,10 @@ enum UploadStep {
 
 const UpdatePluginModal: FC<Props> = ({
   payload,
+  pluginId,
   onSave,
   onCancel,
+  isShowDowngradeWarningModal,
 }) => {
   const {
     originalPackageInfo,
@@ -103,61 +109,75 @@ const UpdatePluginModal: FC<Props> = ({
     if (uploadStep === UploadStep.installed)
       onSave()
   }, [onSave, uploadStep, check, originalPackageInfo.id, handleRefetch, targetPackageInfo.id])
-  const usedInAppInfo = useMemo(() => {
-    return (
-      <div className='flex items-center justify-center gap-0.5 px-0.5'>
-        <div className='system-xs-medium text-text-warning'>{t(`${i18nPrefix}.usedInApps`, { num: 3 })}</div>
-        {/* show the used apps */}
-        <RiInformation2Line className='h-4 w-4 text-text-tertiary' />
-      </div>
-    )
-  }, [t])
+
+  const { mutateAsync } = useRemoveAutoUpgrade()
+  const invalidateReferenceSettings = useInvalidateReferenceSettings()
+  const handleExcludeAndDownload = async () => {
+    await mutateAsync({
+      plugin_id: pluginId,
+    })
+    invalidateReferenceSettings()
+    handleConfirm()
+  }
+  const doShowDowngradeWarningModal = isShowDowngradeWarningModal && uploadStep === UploadStep.notStarted
+
   return (
     <Modal
       isShow={true}
       onClose={onCancel}
-      className='min-w-[560px]'
+      className={cn('min-w-[560px]', doShowDowngradeWarningModal && 'min-w-[640px]')}
       closable
-      title={t(`${i18nPrefix}.${uploadStep === UploadStep.installed ? 'successfulTitle' : 'title'}`)}
+      title={!doShowDowngradeWarningModal && t(`${i18nPrefix}.${uploadStep === UploadStep.installed ? 'successfulTitle' : 'title'}`)}
     >
-      <div className='system-md-regular mb-2 mt-3 text-text-secondary'>
-        {t(`${i18nPrefix}.description`)}
-      </div>
-      <div className='flex flex-wrap content-start items-start gap-1 self-stretch rounded-2xl bg-background-section-burn p-2'>
-        <Card
-          installed={uploadStep === UploadStep.installed}
-          payload={pluginManifestToCardPluginProps({
-            ...originalPackageInfo.payload,
-            icon: icon!,
-          })}
-          className='w-full'
-          titleLeft={
-            <>
-              <Badge className='mx-1' size="s" state={BadgeState.Warning}>
-                {`${originalPackageInfo.payload.version} -> ${targetPackageInfo.version}`}
-              </Badge>
-              {false && usedInAppInfo}
-            </>
-          }
+      {doShowDowngradeWarningModal && (
+        <DowngradeWarningModal
+          onCancel={onCancel}
+          onJustDowngrade={handleConfirm}
+          onExcludeAndDowngrade={handleExcludeAndDownload}
         />
-      </div>
-      <div className='flex items-center justify-end gap-2 self-stretch pt-5'>
-        {uploadStep === UploadStep.notStarted && (
-          <Button
-            onClick={handleCancel}
-          >
-            {t('common.operation.cancel')}
-          </Button>
-        )}
-        <Button
-          variant='primary'
-          loading={uploadStep === UploadStep.upgrading}
-          onClick={handleConfirm}
-          disabled={uploadStep === UploadStep.upgrading}
-        >
-          {configBtnText}
-        </Button>
-      </div>
+      )}
+      {!doShowDowngradeWarningModal && (
+        <>
+          <div className='system-md-regular mb-2 mt-3 text-text-secondary'>
+            {t(`${i18nPrefix}.description`)}
+          </div>
+          <div className='flex flex-wrap content-start items-start gap-1 self-stretch rounded-2xl bg-background-section-burn p-2'>
+            <Card
+              installed={uploadStep === UploadStep.installed}
+              payload={pluginManifestToCardPluginProps({
+                ...originalPackageInfo.payload,
+                icon: icon!,
+              })}
+              className='w-full'
+              titleLeft={
+                <>
+                  <Badge className='mx-1' size="s" state={BadgeState.Warning}>
+                    {`${originalPackageInfo.payload.version} -> ${targetPackageInfo.version}`}
+                  </Badge>
+                </>
+              }
+            />
+          </div>
+          <div className='flex items-center justify-end gap-2 self-stretch pt-5'>
+            {uploadStep === UploadStep.notStarted && (
+              <Button
+                onClick={handleCancel}
+              >
+                {t('common.operation.cancel')}
+              </Button>
+            )}
+            <Button
+              variant='primary'
+              loading={uploadStep === UploadStep.upgrading}
+              onClick={handleConfirm}
+              disabled={uploadStep === UploadStep.upgrading}
+            >
+              {configBtnText}
+            </Button>
+          </div>
+        </>
+      )}
+
     </Modal>
   )
 }

@@ -32,6 +32,7 @@ class LindormVectorStoreConfig(BaseModel):
     username: Optional[str] = None
     password: Optional[str] = None
     using_ugc: Optional[bool] = False
+    request_timeout: Optional[float] = 1.0  # timeout units: s
 
     @model_validator(mode="before")
     @classmethod
@@ -88,7 +89,7 @@ class LindormVectorStore(BaseVector):
         timeout: int = 60,
         **kwargs,
     ):
-        logger.info(f"Total documents to add: {len(documents)}")
+        logger.info("Total documents to add: %s", len(documents))
         uuids = self._get_uuids(documents)
 
         total_docs = len(documents)
@@ -146,7 +147,7 @@ class LindormVectorStore(BaseVector):
                     time.sleep(0.5)
 
             except Exception:
-                logger.exception(f"Failed to process batch {batch_num + 1}")
+                logger.exception("Failed to process batch %s", batch_num + 1)
                 raise
 
     def get_ids_by_metadata_field(self, key: str, value: str):
@@ -179,7 +180,7 @@ class LindormVectorStore(BaseVector):
 
         # 1. First check if collection exists
         if not self._client.indices.exists(index=self._collection_name):
-            logger.warning(f"Collection {self._collection_name} does not exist")
+            logger.warning("Collection %s does not exist", self._collection_name)
             return
 
         # 2. Batch process deletions
@@ -195,7 +196,7 @@ class LindormVectorStore(BaseVector):
                     }
                 )
             else:
-                logger.warning(f"DELETE BY ID: ID {id} does not exist in the index.")
+                logger.warning("DELETE BY ID: ID %s does not exist in the index.", id)
 
         # 3. Perform bulk deletion if there are valid documents to delete
         if actions:
@@ -208,9 +209,9 @@ class LindormVectorStore(BaseVector):
                     doc_id = delete_error.get("_id")
 
                     if status == 404:
-                        logger.warning(f"Document not found for deletion: {doc_id}")
+                        logger.warning("Document not found for deletion: %s", doc_id)
                     else:
-                        logger.exception(f"Error deleting document: {error}")
+                        logger.exception("Error deleting document: %s", error)
 
     def delete(self) -> None:
         if self._using_ugc:
@@ -224,7 +225,7 @@ class LindormVectorStore(BaseVector):
                 self._client.indices.delete(index=self._collection_name, params={"timeout": 60})
                 logger.info("Delete index success")
             else:
-                logger.warning(f"Index '{self._collection_name}' does not exist. No deletion performed.")
+                logger.warning("Index '%s' does not exist. No deletion performed.", self._collection_name)
 
     def text_exists(self, id: str) -> bool:
         try:
@@ -251,12 +252,12 @@ class LindormVectorStore(BaseVector):
         query = default_vector_search_query(query_vector=query_vector, k=top_k, filters=filters, **kwargs)
 
         try:
-            params = {}
+            params = {"timeout": self._client_config.request_timeout}
             if self._using_ugc:
-                params["routing"] = self._routing
+                params["routing"] = self._routing  # type: ignore
             response = self._client.search(index=self._collection_name, body=query, params=params)
         except Exception:
-            logger.exception(f"Error executing vector search, query: {query}")
+            logger.exception("Error executing vector search, query: %s", query)
             raise
 
         docs_and_scores = []
@@ -274,7 +275,7 @@ class LindormVectorStore(BaseVector):
         docs = []
         for doc, score in docs_and_scores:
             score_threshold = kwargs.get("score_threshold", 0.0) or 0.0
-            if score > score_threshold:
+            if score >= score_threshold:
                 if doc.metadata is not None:
                     doc.metadata["score"] = score
                 docs.append(doc)
@@ -304,8 +305,8 @@ class LindormVectorStore(BaseVector):
             routing=routing,
             routing_field=self._routing_field,
         )
-
-        response = self._client.search(index=self._collection_name, body=full_text_query)
+        params = {"timeout": self._client_config.request_timeout}
+        response = self._client.search(index=self._collection_name, body=full_text_query, params=params)
         docs = []
         for hit in response["hits"]["hits"]:
             docs.append(
@@ -323,10 +324,10 @@ class LindormVectorStore(BaseVector):
         with redis_client.lock(lock_name, timeout=20):
             collection_exist_cache_key = f"vector_indexing_{self._collection_name}"
             if redis_client.get(collection_exist_cache_key):
-                logger.info(f"Collection {self._collection_name} already exists.")
+                logger.info("Collection %s already exists.", self._collection_name)
                 return
             if self._client.indices.exists(index=self._collection_name):
-                logger.info(f"{self._collection_name.lower()} already exists.")
+                logger.info("%s already exists.", self._collection_name.lower())
                 redis_client.set(collection_exist_cache_key, 1, ex=3600)
                 return
             if len(self.kwargs) == 0 and len(kwargs) != 0:
@@ -554,6 +555,7 @@ class LindormVectorStoreFactory(AbstractVectorFactory):
             username=dify_config.LINDORM_USERNAME,
             password=dify_config.LINDORM_PASSWORD,
             using_ugc=dify_config.USING_UGC_INDEX,
+            request_timeout=dify_config.LINDORM_QUERY_TIMEOUT,
         )
         using_ugc = dify_config.USING_UGC_INDEX
         if using_ugc is None:

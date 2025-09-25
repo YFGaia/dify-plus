@@ -85,7 +85,6 @@ const ModelParameterModal: FC<ModelParameterModalProps> = ({
   renderTrigger,
   readonly,
   isInWorkflow,
-  scope = 'text-generation',
 }) => {
   const { t } = useTranslation()
   const { isAPIKeySet } = useProviderContext()
@@ -207,7 +206,7 @@ const ModelParameterModal: FC<ModelParameterModalProps> = ({
               </div>
               {
                 !!parameterRules.length && (
-                  <div className='my-3 h-[1px] bg-divider-subtle' />
+                  <div className='my-3 h-px bg-divider-subtle' />
                 )
               }
               {

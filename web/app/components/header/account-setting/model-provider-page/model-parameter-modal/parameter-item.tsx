@@ -36,7 +36,7 @@ const ParameterItem: FC<ParameterItemProps> = ({
     if (parameterRule.type === 'int' || parameterRule.type === 'float')
       defaultValue = isNullOrUndefined(parameterRule.default) ? (parameterRule.min || 0) : parameterRule.default
     else if (parameterRule.type === 'string' || parameterRule.type === 'text')
-      defaultValue = parameterRule.options?.length ? (parameterRule.default || '') : (parameterRule.default || '')
+      defaultValue = parameterRule.default || ''
     else if (parameterRule.type === 'boolean')
       defaultValue = !isNullOrUndefined(parameterRule.default) ? parameterRule.default : false
     else if (parameterRule.type === 'tag')
@@ -89,8 +89,8 @@ const ParameterItem: FC<ParameterItemProps> = ({
     numberInputRef.current!.value = `${num}`
   }
 
-  const handleRadioChange = (v: number) => {
-    handleInputChange(v === 1)
+  const handleRadioChange = (v: boolean) => {
+    handleInputChange(v)
   }
 
   const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -130,8 +130,6 @@ const ParameterItem: FC<ParameterItemProps> = ({
           step = 1
         else if (parameterRule.max < 1000)
           step = 10
-        else if (parameterRule.max < 10000)
-          step = 100
       }
 
       return (
@@ -187,11 +185,11 @@ const ParameterItem: FC<ParameterItemProps> = ({
       return (
         <Radio.Group
           className='flex w-[178px] items-center'
-          value={renderValue ? 1 : 0}
+          value={renderValue as boolean}
           onChange={handleRadioChange}
         >
-          <Radio value={1} className='w-[83px]'>True</Radio>
-          <Radio value={0} className='w-[83px]'>False</Radio>
+          <Radio value={true} className='w-[83px]'>True</Radio>
+          <Radio value={false} className='w-[83px]'>False</Radio>
         </Radio.Group>
       )
     }
@@ -236,6 +234,7 @@ const ParameterItem: FC<ParameterItemProps> = ({
             onChange={handleTagChange}
             customizedConfirmKey='Tab'
             isInWorkflow={isInWorkflow}
+            required={parameterRule.required}
           />
         </div>
       )

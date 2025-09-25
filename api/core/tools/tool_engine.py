@@ -1,3 +1,4 @@
+import contextlib
 import json
 from collections.abc import Generator, Iterable
 from copy import deepcopy
@@ -29,10 +30,10 @@ from core.tools.errors import (
     ToolProviderCredentialValidationError,
     ToolProviderNotFoundError,
 )
-from core.tools.utils.message_transformer import ToolFileMessageTransformer
+from core.tools.utils.message_transformer import ToolFileMessageTransformer, safe_json_value
 from core.tools.workflow_as_tool.tool import WorkflowTool
 from extensions.ext_database import db
-from models.enums import CreatedByRole
+from models.enums import CreatorUserRole
 from models.model import Message, MessageFile
 
 
@@ -69,10 +70,8 @@ class ToolEngine:
             if parameters and len(parameters) == 1:
                 tool_parameters = {parameters[0].name: tool_parameters}
             else:
-                try:
+                with contextlib.suppress(Exception):
                     tool_parameters = json.loads(tool_parameters)
-                except Exception:
-                    pass
                 if not isinstance(tool_parameters, dict):
                     raise ValueError(f"tool_parameters should be a dict, but got a string: {tool_parameters}")
 
@@ -246,8 +245,9 @@ class ToolEngine:
                     + "you do not need to create it, just tell the user to check it now."
                 )
             elif response.type == ToolInvokeMessage.MessageType.JSON:
-                result = json.dumps(
-                    cast(ToolInvokeMessage.JsonMessage, response.message).json_object, ensure_ascii=False
+                result += json.dumps(
+                    safe_json_value(cast(ToolInvokeMessage.JsonMessage, response.message).json_object),
+                    ensure_ascii=False,
                 )
             else:
                 result += str(response.message)
@@ -269,20 +269,18 @@ class ToolEngine:
                 if response.meta.get("mime_type"):
                     mimetype = response.meta.get("mime_type")
                 else:
-                    try:
+                    with contextlib.suppress(Exception):
                         url = URL(cast(ToolInvokeMessage.TextMessage, response.message).text)
                         extension = url.suffix
                         guess_type_result, _ = guess_type(f"a{extension}")
                         if guess_type_result:
                             mimetype = guess_type_result
-                    except Exception:
-                        pass
 
                 if not mimetype:
                     mimetype = "image/jpeg"
 
                 yield ToolInvokeMessageBinary(
-                    mimetype=response.meta.get("mime_type", "image/jpeg"),
+                    mimetype=response.meta.get("mime_type", mimetype),
                     url=cast(ToolInvokeMessage.TextMessage, response.message).text,
                 )
             elif response.type == ToolInvokeMessage.MessageType.BLOB:
@@ -339,9 +337,9 @@ class ToolEngine:
                 url=message.url,
                 upload_file_id=tool_file_id,
                 created_by_role=(
-                    CreatedByRole.ACCOUNT
+                    CreatorUserRole.ACCOUNT
                     if invoke_from in {InvokeFrom.EXPLORE, InvokeFrom.DEBUGGER}
-                    else CreatedByRole.END_USER
+                    else CreatorUserRole.END_USER
                 ),
                 created_by=user_id,
             )
