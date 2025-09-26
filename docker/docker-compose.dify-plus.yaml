@@ -573,7 +573,7 @@ services:
     volumes:
       - ./volumes/db/data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD', 'pg_isready']
+      test: [ 'CMD', 'pg_isready' ]
       interval: 1s
       timeout: 3s
       retries: 30
@@ -592,7 +592,7 @@ services:
     # Set the redis password when startup redis server.
     command: redis-server --requirepass ${REDIS_PASSWORD:-difyai123456}
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: [ 'CMD', 'redis-cli', 'ping' ]
     ports:
       - 6379:6379
 
@@ -615,7 +615,7 @@ services:
       - ./volumes/sandbox/dependencies:/dependencies
       - ./volumes/sandbox/conf:/conf
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8194/health']
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8194/health' ]
     networks:
       - ssrf_proxy_network
 
@@ -1189,7 +1189,7 @@ networks:
     driver: bridge
     internal: true
 
-# 设置mysql，redis持久化保存
+# Set up mysql and redis persistence
 volumes:
   db:
   redis:
