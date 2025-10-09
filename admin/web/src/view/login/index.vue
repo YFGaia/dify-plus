@@ -1,29 +1,48 @@
+<!-- 二开部分：重新设计看起来更现代化的登陆页面 -->
 <template>
   <div
     id="userLayout"
-    class="w-full h-full relative"
+    class="w-full h-full relative min-h-screen bg-slate-50 dark:bg-[#0a0a1a] overflow-hidden"
   >
-    <div
-      class="rounded-lg flex items-center justify-evenly w-full h-full md:w-screen md:h-screen md:bg-[#194bfb] bg-white"
-    >
-      <div class="md:w-3/5 w-10/12 h-full flex items-center justify-evenly">
-        <div class="oblique h-[130%] w-3/5 bg-white dark:bg-slate-900 transform -rotate-12 absolute -ml-52" />
-        <!-- 分割斜块 -->
-        <div class="z-[999] pt-12 pb-10 md:w-96 w-full  rounded-lg flex flex-col justify-between box-border">
-          <div>
-            <div class="flex items-center justify-center">
+    <!-- 动态背景层 -->
+    <div class="absolute inset-0 z-0 overflow-hidden">
+      <!-- 流动渐变背景 -->
+      <div class="absolute inset-0 bg-gradient-to-br from-[#667eea] via-[#764ba2] to-[#6b46c1] animate-gradient-flow" />
+      
+      <!-- 抽象几何装饰 -->
+      <div class="absolute top-1/4 -right-20 w-96 h-96 bg-white/10 rounded-full blur-[100px]" />
+      <div class="absolute bottom-1/3 -left-32 w-80 h-80 bg-purple-300/20 rounded-3xl rotate-45 blur-[80px]" />
+      
+      <!-- 动态粒子 -->
+      <div class="absolute inset-0 opacity-20 particle-network" />
+    </div>
 
+    <!-- 主内容容器 -->
+    <div class="relative z-10 flex items-center justify-center w-full h-screen p-4">
+      <!-- 玻璃拟态面板 -->
+      <div class="w-full max-w-md rounded-2xl backdrop-blur-xl bg-white/90 dark:bg-[rgba(15,15,35,0.9)] shadow-2xl border border-white/20">
+        <div class="z-[999] pt-12 pb-10 px-8 rounded-xl flex flex-col justify-between box-border">
+          <div>
+            <!-- Logo区域 -->
+            <div class="flex items-center justify-center mb-8">
               <img
-                class="w-24"
+                class="w-28 transition-transform hover:scale-105"
                 :src="$GIN_VUE_ADMIN.appLogo"
-                alt
+                alt="App Logo"
               >
             </div>
-            <div class="mb-9">
-              <p class="text-center text-4xl font-bold">{{ $GIN_VUE_ADMIN.appName }}</p>
-              <p class="text-center text-sm font-normal text-gray-500 mt-2.5">A management platform for Dify-Plus
+            
+            <!-- 标题区域 -->
+            <div class="mb-10 text-center">
+              <h1 class="text-4xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                {{ $GIN_VUE_ADMIN.appName }}
+              </h1>
+              <p class="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+                A management platform for Dify-Plus
               </p>
             </div>
+
+            <!-- 表单区域 -->
             <el-form
               ref="loginForm"
               :model="loginFormData"
@@ -31,142 +50,107 @@
               :validate-on-rule-change="false"
               @keyup.enter="submitForm"
             >
-              <!--  新增是否已经初始化判断 Begin -->
-              <template
-                v-if="showInit"
-              >
-                <el-form-item
-                  prop="username"
-                  class="mb-6"
-                >
+              <!-- 初始化判断 -->
+              <template v-if="showInit">
+                <!-- 用户名输入 -->
+                <el-form-item prop="username" class="mb-6">
                   <el-input
                     v-model="loginFormData.username"
                     size="large"
-                    placeholder="请输入dify的第一个帐号,即为管理员帐号"
+                    placeholder="请输入管理员账号"
                     suffix-icon="user"
+                    class="[&>.el-input__wrapper]:shadow-none [&>.el-input__wrapper]:rounded-lg [&>.el-input__wrapper]:bg-slate-50/50"
                   />
                 </el-form-item>
-                <el-form-item
-                  prop="password"
-                  class="mb-6"
-                >
+
+                <!-- 密码输入 -->
+                <el-form-item prop="password" class="mb-6">
                   <el-input
                     v-model="loginFormData.password"
                     show-password
                     size="large"
                     type="password"
                     placeholder="请输入密码"
+                    class="[&>.el-input__wrapper]:shadow-none [&>.el-input__wrapper]:rounded-lg [&>.el-input__wrapper]:bg-slate-50/50"
                   />
                 </el-form-item>
-                <el-form-item
-                  v-if="loginFormData.openCaptcha"
-                  prop="captcha"
-                  class="mb-6"
-                >
-                  <div class="flex w-full justify-between">
+
+                <!-- 验证码区域 -->
+                <el-form-item v-if="loginFormData.openCaptcha" prop="captcha" class="mb-6">
+                  <div class="flex gap-3 w-full">
                     <el-input
                       v-model="loginFormData.captcha"
-                      placeholder="请输入验证码"
+                      placeholder="验证码"
                       size="large"
-                      class="flex-1 mr-5"
+                      class="flex-1 [&>.el-input__wrapper]:shadow-none [&>.el-input__wrapper]:rounded-lg [&>.el-input__wrapper]:bg-slate-50/50"
                     />
-                    <div class="w-1/3 h-11 bg-[#c3d4f2] rounded">
+                    <div class="w-1/3 overflow-hidden rounded-lg border border-slate-200/50 cursor-pointer">
                       <img
                         v-if="picPath"
-                        class="w-full h-full"
+                        class="w-full h-11 object-cover hover:opacity-90 transition-opacity"
                         :src="picPath"
-                        alt="请输入验证码"
+                        alt="验证码"
                         @click="loginVerify()"
                       >
                     </div>
                   </div>
                 </el-form-item>
+
+                <!-- 登录按钮 -->
                 <el-form-item class="mb-6">
                   <el-button
-                    class="shadow shadow-active h-11 w-full"
-                    type="primary"
+                    class="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 
+                           text-white font-semibold shadow-lg shadow-blue-500/30 border-0 transition-all"
                     size="large"
                     @click="submitForm"
-                  >登 录</el-button>
+                  >
+                    登 录
+                  </el-button>
                 </el-form-item>
               </template>
-              <!--  新增是否已经初始化判断 End -->
-              <el-form-item
-                v-else
-                class="mb-6"
-              >
+
+              <!-- 初始化按钮 -->
+              <el-form-item v-else class="mb-6">
                 <el-button
-                  class="shadow shadow-active h-11 w-full"
-                  type="primary"
+                  class="w-full h-11 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 
+                         text-white font-semibold shadow-lg shadow-blue-500/30 border-0"
                   size="large"
                   @click="checkInit"
-                >前往初始化</el-button>
-
+                >
+                  前往初始化
+                </el-button>
               </el-form-item>
-              <!--  新增OA登录 Begin -->
+
+              <!-- OA登录 -->
               <el-form-item class="mb-6">
                 <el-button
-                  class="shadow shadow-blue-600 h-11 w-full"
-                  type="primary"
+                  class="w-full h-11 rounded-lg bg-gradient-to-r from-slate-600 to-slate-500 hover:from-slate-500 hover:to-slate-400
+                         text-white font-semibold shadow-lg shadow-slate-500/20 border-0"
                   size="large"
                   disabled
                   @click="oaLoginJump"
                 >
-                  Oauth2 登录(敬请期待)
+                  OAuth2 登录 (敬请期待)
                 </el-button>
               </el-form-item>
-              <!--  新增OA登录 End -->
             </el-form>
           </div>
         </div>
       </div>
-<!--      <div class="hidden md:block w-1/2 h-full float-right bg-[#194bfb]"><img-->
-<!--        class="h-full"-->
-<!--        src="@/assets/login_right_banner.jpg"-->
-<!--        alt="banner"-->
-<!--      ></div>-->
     </div>
 
-    <BottomInfo class="left-0 right-0 absolute bottom-3 mx-auto  w-full z-20">
-      <div class="links items-center justify-center gap-2 hidden md:flex">
-        <a
-          href="https://www.gin-vue-admin.com/"
-          target="_blank"
-        >
-          <img
-            src="@/assets/docs.png"
-            class="w-8 h-8"
-            alt="文档"
-          >
-        </a>
-        <a
-          href="https://support.qq.com/product/371961"
-          target="_blank"
-        >
-          <img
-            src="@/assets/kefu.png"
-            class="w-8 h-8"
-            alt="客服"
-          >
-        </a>
-        <a
-          href="https://github.com/flipped-aurora/gin-vue-admin"
-          target="_blank"
-        >
-          <img
-            src="@/assets/github.png"
-            class="w-8 h-8"
-            alt="github"
-          >
-        </a>
-        <a
-          href="https://space.bilibili.com/322210472"
-          target="_blank"
-        >
-          <img
-            src="@/assets/video.png"
-            class="w-8 h-8"
-            alt="视频站"
+    <!-- 底部链接 -->
+    <BottomInfo class="absolute bottom-3 left-0 right-0 mx-auto w-full z-20">
+      <div class="flex items-center justify-center gap-4 md:gap-6">
+        <a v-for="(link, index) in socialLinks" 
+           :key="index"
+           :href="link.url" 
+           target="_blank"
+           class="p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors">
+          <img 
+            :src="link.icon" 
+            class="w-6 h-6 md:w-7 md:h-7" 
+            :alt="link.alt"
           >
         </a>
       </div>
@@ -174,7 +158,41 @@
   </div>
 </template>
 
+<style>
+
+/* 动态渐变动画 */
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-flow {
+  background-size: 200% 200%;
+  animation: gradient-flow 15s ease infinite;
+}
+
+/* 粒子效果 */
+.particle-network::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 30%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 35%);
+  pointer-events: none;
+}
+
+/* 暗黑模式适配 */
+.dark .particle-network::after {
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(0,0,0,0.2) 0%, transparent 30%),
+    radial-gradient(circle at 80% 70%, rgba(0,0,0,0.15) 0%, transparent 35%);
+}
+</style>
+
 <script setup>
+
 import { captcha } from '@/api/user'
 import { checkDB } from '@/api/initdb'
 import BottomInfo from '@/components/bottomInfo/bottomInfo.vue'
@@ -309,5 +327,7 @@ const oaLoginJump = () => {
   console.log(jumpUrl)
   window.location.href = jumpUrl
 }
+
+
 
 </script>
