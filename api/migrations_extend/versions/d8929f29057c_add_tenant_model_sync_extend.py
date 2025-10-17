@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.engine.reflection import Inspector
 
-from models import db, types
+from models import types
 
 # revision identifiers, used by Alembic.
 revision = '003_tenant_model_sync_extend'

@@ -883,7 +883,7 @@ class WorkflowAppLog(Base):
             else:
                 from models.model import EndUser
                 end_user = db.session.query(EndUser).filter(EndUser.id == self.created_by).first()
-                if end_user is not None and len(end_user.external_user_id) > 0:
+                if end_user is not None and end_user.external_user_id is not None and len(end_user.external_user_id) > 0:
                     user: Account = db.session.query(Account).filter(Account.id == end_user.external_user_id).first()
                     if user:
                         return {

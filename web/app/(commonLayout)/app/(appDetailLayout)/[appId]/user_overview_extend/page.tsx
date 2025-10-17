@@ -3,12 +3,15 @@ import React, { useState } from 'react'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import { useTranslation } from 'react-i18next'
+import type { PeriodParams } from '@/app/components/app/overview/app-chart'
 import {
-  PeriodParams,
+  AvgSessionInteractions,
+  AvgUserInteractions,
+  ConversationsChart,
+  CostChart,
   WorkflowCostChart,
   WorkflowMessagesChart,
-} from '@/app/components/app/overview/appChart'
-import { AvgSessionInteractions, AvgUserInteractions, ConversationsChart, CostChart } from '@/app/components/app/overview/appChart'
+} from '@/app/components/app/overview/app-chart'
 
 import type { Item } from '@/app/components/base/select'
 import { SimpleSelect } from '@/app/components/base/select'
@@ -65,7 +68,7 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
 
   return (
     <div>
-      <div className='flex flex-row items-center mt-8 mb-4 text-gray-900 text-base'>
+      <div className='mb-4 mt-8 flex flex-row items-center text-base text-gray-900'>
         <span className='mr-3'>{t('appOverview.analysis.title')}</span>
         <SimpleSelect
           items={Object.entries(TIME_PERIOD_MAPPING).map(([k, v]) => ({ value: k, name: t(`appLog.filter.period.${v.name}`) }))}
@@ -77,18 +80,18 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
       {model === 'workflow' && (
         <>
           {/* Extend: Workflow personal detection error */}
-          <div className='grid gap-6 grid-cols-1 xl:grid-cols-2 w-full mb-6'>
+          <div className='mb-6 grid w-full grid-cols-1 gap-6 xl:grid-cols-2'>
             <WorkflowMessagesChart period={period} id={appId}/>
             <WorkflowCostChart period={period} id={appId}/>
           </div>
-          <div className='grid gap-6 grid-cols-1 xl:grid-cols-2 w-full mb-6'>
+          <div className='mb-6 grid w-full grid-cols-1 gap-6 xl:grid-cols-2'>
             <AvgUserInteractions period={period} id={appId}/>
           </div>
         </>
       )}
       {model !== 'workflow' && (
         <>
-          <div className='grid gap-6 grid-cols-1 xl:grid-cols-2 w-full mb-6'>
+          <div className='mb-6 grid w-full grid-cols-1 gap-6 xl:grid-cols-2'>
             <ConversationsChart period={period} id={appId}/>
             {model !== 'completion' && (isChatApp
               ? (
@@ -98,7 +101,7 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
                 <AvgUserInteractions period={period} id={appId}/>
               ))}
           </div>
-          <div className='grid gap-6 grid-cols-1 xl:grid-cols-2 w-full mb-6'>
+          <div className='mb-6 grid w-full grid-cols-1 gap-6 xl:grid-cols-2'>
             <CostChart period={period} id={appId}/>
           </div>
         </>

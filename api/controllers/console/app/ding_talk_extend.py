@@ -1,9 +1,9 @@
 from flask import redirect, request
-from flask_restful import Resource, reqparse
+from flask_restx import Resource
 
 from controllers.console.app.error_extend import DingTalkNotExist
-from services.ding_talk_extend import DingTalkService
 from controllers.console.wraps import setup_required
+from services.ding_talk_extend import DingTalkService
 
 from .. import api
 

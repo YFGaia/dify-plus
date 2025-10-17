@@ -38,7 +38,6 @@ func Gorm() *gorm.DB {
 func RegisterTables() {
 	db := global.GVA_DB
 	err := db.AutoMigrate(
-
 		system.SysApi{},
 		system.SysIgnoreApi{},
 		system.SysUser{},
@@ -68,6 +67,9 @@ func RegisterTables() {
 		gaia.AppRequestTestBatch{},
 		gaia.AppRequestTest{},
 		gaia.SystemIntegration{},   // Extend System Integration
+		gaia.ForwardingExtend{},    // Extend Forwarding Extend
+		gaia.BatchWorkflow{},       // Extend Batch Workflow
+		gaia.BatchWorkflowTask{},   // Extend Batch Workflow Task
 		system.SysUserGlobalCode{}, // Extend Global Code
 		// Extend gaia model
 	)

@@ -138,8 +138,7 @@ class WorkflowRunApi(Resource):
             500: "Internal server error",
         }
     )
-    @validate_app_token
-    @service_api_ns.marshal_with(build_workflow_run_model(service_api_ns))
+    @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
     def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # 二开部分End - 密钥额度限制，api_token
         """Execute a workflow.
 
@@ -154,6 +153,11 @@ class WorkflowRunApi(Resource):
         external_trace_id = get_external_trace_id(request)
         if external_trace_id:
             args["external_trace_id"] = external_trace_id
+        
+        # ------------------- 二开部分Begin - 密钥额度限制 -------------------
+        args["api_token"] = api_token
+        # # ------------------- 二开部分End - 密钥额度限制 -------------------
+        
         streaming = args.get("response_mode") == "streaming"
 
         try:
@@ -196,7 +200,7 @@ class WorkflowRunByIdApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, workflow_id: str):
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken, workflow_id: str):
         """Run specific workflow by ID.
 
         Executes a specific workflow version identified by its ID.

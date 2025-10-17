@@ -9,6 +9,7 @@ type ApiGroup struct {
 	SystemApi
 	TestApi
 	SystemOAuth2Api
+	BatchWorkflowApi
 }
 
 var (

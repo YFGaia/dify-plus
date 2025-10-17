@@ -17,6 +17,7 @@ const actionButtonVariants = cva(
     variants: {
       size: {
         xs: 'action-btn-xs',
+        sm: 'action-btn-sm',
         m: 'action-btn-m',
         l: 'action-btn-l',
         xl: 'action-btn-xl',
@@ -29,7 +30,7 @@ const actionButtonVariants = cva(
 )
 
 export type ActionButtonProps = {
-  size?: 'xs' | 's' | 'm' | 'l' | 'xl'
+  size?: 'xs' | 'sm' | 'm' | 'l' | 'xl'
   state?: ActionButtonState
   styleCss?: CSSProperties
 } & React.ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof actionButtonVariants>

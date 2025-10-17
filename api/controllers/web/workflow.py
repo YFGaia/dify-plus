@@ -29,10 +29,10 @@ from core.model_runtime.errors.invoke import InvokeError
 from libs import helper
 from models.model import App, AppMode, EndUser
 from services.app_generate_service import AppGenerateService
-from services.errors.llm import InvokeRateLimitError
 from services.app_generate_service_extend import (
     AppGenerateServiceExtend,  # Extend: App Center - Recommended list sorted by usage frequency
 )
+from services.errors.llm import InvokeRateLimitError
 
 logger = logging.getLogger(__name__)
 

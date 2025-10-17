@@ -160,6 +160,7 @@ system:
     use-strict-auth: false
     user_default-group-id: "888"
     docker-run: true
+    work_flow_number: 100
 tencent-cos:
     bucket: xxxxx-10005608
     region: ap-shanghai

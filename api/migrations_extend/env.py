@@ -1,10 +1,10 @@
 import logging
 import os
-from logging.config import fileConfig
 import sys
+from logging.config import fileConfig
+
 from alembic import context
 from flask import current_app
-from sqlalchemy import engine_from_config, pool
 
 USE_TWOPHASE = False
 
@@ -40,6 +40,7 @@ def get_engine_url():
 config.set_main_option('sqlalchemy.url', get_engine_url())
 
 from models import db
+
 target_metadata = db.Model.metadata
 
 # other values from the config, defined by the needs of env.py,

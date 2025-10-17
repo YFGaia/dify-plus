@@ -9,11 +9,11 @@ from libs.file_utils import search_file_upwards
 
 from .deploy import DeploymentConfig
 from .enterprise import EnterpriseFeatureConfig
+from .extend import ExtendConfig  # 二开部分 新增配置
 from .extra import ExtraServiceConfig
 from .feature import FeatureConfig
 from .middleware import MiddlewareConfig
 from .observability import ObservabilityConfig
-from .extend import ExtendConfig # 二开部分 新增配置
 from .packaging import PackagingInfo
 from .remote_settings_sources import RemoteSettingsSource, RemoteSettingsSourceConfig, RemoteSettingsSourceName
 from .remote_settings_sources.apollo import ApolloSettingsSource

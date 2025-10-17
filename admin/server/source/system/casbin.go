@@ -293,6 +293,48 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		{Ptype: "p", V0: "888", V1: "/gaia/system/oauth2", V2: "GET"},
 		{Ptype: "p", V0: "888", V1: "/gaia/system/oauth2", V2: "POST"},
 		// Extend Stop: oauth2
+
+		// Extend Start: batch workflow
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/processing", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/:id", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/:id/tasks", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/:id/progress", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/:id/stop", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/:id/retry", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/:id/retry-failed", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/:id/resume", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/workflow/batch/:id/download", V2: "GET"},
+
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/processing", V2: "POST"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/:id", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/:id/tasks", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/:id/progress", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/:id/stop", V2: "POST"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/:id/retry", V2: "POST"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/:id/retry-failed", V2: "POST"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/:id/resume", V2: "POST"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/workflow/batch/:id/download", V2: "GET"},
+
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/processing", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/:id", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/:id/tasks", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/:id/progress", V2: "GET"},
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/:id/stop", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/:id/retry", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/:id/retry-failed", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/:id/resume", V2: "POST"},
+		{Ptype: "p", V0: "9528", V1: "/gaia/workflow/batch/:id/download", V2: "GET"},
+
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/processing", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/:id", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/:id/tasks", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/:id/progress", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/:id/stop", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/:id/retry", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/:id/retry-failed", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/:id/resume", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: "/gaia/workflow/batch/:id/download", V2: "GET"},
+		// Extend Stop: batch workflow
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, "Casbin 表 ("+i.InitializerName()+") 数据初始化失败!")

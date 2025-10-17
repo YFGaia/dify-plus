@@ -67,6 +67,14 @@ const nextConfig = {
       },
     ]
   },
+  async rewrites() {
+    return [
+      {
+        source: '/admin/:path*',
+        destination: 'http://127.0.0.1:8888/:path*',
+      },
+    ]
+  },
   output: 'standalone',
 }
 

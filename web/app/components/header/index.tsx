@@ -68,8 +68,8 @@ const Header = () => {
             </div>
             <AccountDropdown />
           </div>
+          <AccountMoneyExtend />{/*  // 二开部分 - 额度限制 */}
         </div>
-        <AccountMoneyExtend />{/*  // 二开部分 - 额度限制 */}
         <div className='my-1 flex items-center justify-center space-x-1'>
           {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />}
           {!isCurrentWorkspaceDatasetOperator && <AppNav />}
@@ -97,8 +97,8 @@ const Header = () => {
           <WorkplaceSelector />
         </WorkspaceProvider>
         {enableBilling ? <PlanBadge allowHover sandboxAsUpgrade plan={plan.type} onClick={handlePlanClick} /> : <LicenseNav />}
+        <AccountMoneyExtend />{/*  // 二开部分 - 额度限制 */}
       </div>
-      <AccountMoneyExtend />{/*  // 二开部分 - 额度限制 */}
       <div className='flex items-center space-x-2'>
         {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />}
         {!isCurrentWorkspaceDatasetOperator && <AppNav />}

@@ -18,7 +18,6 @@ from libs.oauth import GitHubOAuth, GoogleOAuth, OaOAuth, OAuthUserInfo
 from models import Account
 from models.account import AccountStatus
 from services.account_service import AccountService, RegisterService, TenantService
-from services.account_service_extend import TenantExtendService
 from services.errors.account import AccountNotFoundError, AccountRegisterError
 from services.errors.workspace import WorkSpaceNotAllowedCreateError, WorkSpaceNotFoundError
 from services.feature_service import FeatureService

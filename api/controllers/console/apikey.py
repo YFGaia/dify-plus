@@ -5,8 +5,10 @@ from flask import request  # 二开部分 - 密钥额度限制
 from flask_login import current_user
 from flask_restx import Resource, fields, marshal_with
 from sqlalchemy import select
-from sqlalchemy.orm import Session
-from sqlalchemy.orm import aliased  # 二开部分 - 密钥额度限制
+from sqlalchemy.orm import (
+    Session,
+    aliased,  # 二开部分 - 密钥额度限制
+)
 from werkzeug.exceptions import Forbidden
 
 from extensions.ext_database import db

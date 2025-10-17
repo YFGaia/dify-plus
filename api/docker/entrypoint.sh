@@ -31,11 +31,18 @@ if [[ "${MODE}" == "worker" ]]; then
   else
     CONCURRENCY_OPTION="-c ${CELERY_WORKER_AMOUNT:-1}"
   fi
-
+  ## 二开部分，额度计算移动到新的队列中
   exec celery -A app.celery worker -P ${CELERY_WORKER_CLASS:-gevent} $CONCURRENCY_OPTION \
     --max-tasks-per-child ${MAX_TASKS_PER_CHILD:-50} --loglevel ${LOG_LEVEL:-INFO} \
-    -Q ${CELERY_QUEUES:-dataset,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,extend_high,extend_low}
-
+    -Q ${CELERY_QUEUES:-mail,ops_trace,app_deletion,plugin,workflow_storage,conversation}
+  ## 二开部分，额度计算移动到新的队列中
+## 二开部分，额度计算
+elif [[ "${MODE}" == "worker-gaia" ]]; then
+  exec celery -A app.celery worker -P gevent -c 1 -Q extend_high,extend_low --loglevel INFO
+## 二开部分，单一运行的知识库，多容器执行会导致卡住问题
+elif [[ "${MODE}" == "worker-dataset" ]]; then
+  exec celery -A app.celery worker -P gevent -c 1 -Q dataset --prefetch-multiplier=1 --loglevel INFO
+## 二开部分，end
 elif [[ "${MODE}" == "beat" ]]; then
   exec celery -A app.celery beat --loglevel ${LOG_LEVEL:-INFO}
 else

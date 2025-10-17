@@ -1,21 +1,22 @@
 import json
 import logging
-import time
 import secrets
+import time
+
 import requests
-from pypinyin import lazy_pinyin
 from alibabacloud_dingtalk.oauth2_1_0 import models as dingtalkoauth_2__1__0_models
 from alibabacloud_dingtalk.oauth2_1_0.client import Client as dingtalkoauth2_1_0Client
 from alibabacloud_tea_openapi import models as open_api_models
 from alibabacloud_tea_util.client import Client as UtilClient
 from flask import request
+from pypinyin import lazy_pinyin
 
 from configs import dify_config
 from extensions.ext_database import db
 from libs.helper import extract_remote_ip
-from models.account import Account, AccountIntegrate
+from models.account import Account
+from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend
 from services.account_service import AccountService, RegisterService, TenantService
-from models.system_extend import SystemIntegrationExtend, SystemIntegrationClassify
 from services.account_service_extend import TenantExtendService
 
 logger = logging.getLogger(__name__)
@@ -146,7 +147,7 @@ class DingTalkService:
         if err != "":
             return "", f"Failed to obtain token: {err}"
         response = requests.get(
-            f"https://api.dingtalk.com/v1.0/contact/users/me",
+            "https://api.dingtalk.com/v1.0/contact/users/me",
             headers={ "x-acs-dingtalk-access-token": userToken },
         )
         # Check the response status code

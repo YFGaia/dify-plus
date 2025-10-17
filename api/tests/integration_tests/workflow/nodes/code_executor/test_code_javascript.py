@@ -1,7 +1,5 @@
 from textwrap import dedent
 
-from sympy import false
-
 from core.helper.code_executor.code_executor import CodeExecutor, CodeLanguage
 from core.helper.code_executor.javascript.javascript_code_provider import JavascriptCodeProvider
 from core.helper.code_executor.javascript.javascript_transformer import NodeJsTemplateTransformer

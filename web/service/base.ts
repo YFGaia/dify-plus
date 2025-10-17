@@ -64,6 +64,7 @@ export type IOnLoopFinished = (workflowFinished: LoopFinishedResponse) => void
 export type IOnAgentLog = (agentLog: AgentLogResponse) => void
 
 export type IOtherOptions = {
+  isAdminAPI?: boolean // extend: admin
   isPublicAPI?: boolean
   isMarketplaceAPI?: boolean
   bodyStringify?: boolean

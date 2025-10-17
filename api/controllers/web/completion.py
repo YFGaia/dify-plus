@@ -1,7 +1,7 @@
 import logging
 
 from flask import request  # ----------------- start You must log in to access your account extend ---------------
-from flask_restful import reqparse  # type: ignore
+from flask_restx import reqparse  # type: ignore
 from werkzeug.exceptions import InternalServerError, NotFound
 
 import services
@@ -59,7 +59,7 @@ def is_end_login(end_user):
             if end_user.external_user_id is None:
                 end_user.external_user_id = decoded.get("user_id")
     except:
-        logging.error("load_logged_in_account error")
+        logging.exception("load_logged_in_account error")
         pass
     # no login
     return user_info

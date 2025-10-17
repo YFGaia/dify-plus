@@ -38,6 +38,7 @@ const getStringConfig = (envVar: string | undefined, dataAttrKey: DatasetAttr, d
   return defaultValue
 }
 
+export const API_ADMIN = getStringConfig(process.env.NEXT_PUBLIC_ADMIN_API_URL, DatasetAttr.DATA_ADMIN_API_PREFIX, '/admin/api')
 export const API_PREFIX = getStringConfig(process.env.NEXT_PUBLIC_API_PREFIX, DatasetAttr.DATA_API_PREFIX, 'http://localhost:5001/console/api')
 export const PUBLIC_API_PREFIX = getStringConfig(process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX, DatasetAttr.DATA_PUBLIC_API_PREFIX, 'http://localhost:5001/api')
 export const MARKETPLACE_API_PREFIX = getStringConfig(process.env.NEXT_PUBLIC_MARKETPLACE_API_PREFIX, DatasetAttr.DATA_MARKETPLACE_API_PREFIX, 'http://localhost:5002/api')

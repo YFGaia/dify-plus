@@ -2,7 +2,7 @@ import type { AfterResponseHook, BeforeErrorHook, BeforeRequestHook, Hooks } fro
 import ky from 'ky'
 import type { IOtherOptions } from './base'
 import Toast from '@/app/components/base/toast'
-import { API_PREFIX, MARKETPLACE_API_PREFIX, PUBLIC_API_PREFIX } from '@/config'
+import {API_ADMIN, API_PREFIX, MARKETPLACE_API_PREFIX, PUBLIC_API_PREFIX} from '@/config'
 import { getInitialTokenV2, isTokenV1 } from '@/app/components/share/utils'
 import { getProcessedSystemVariablesFromUrlParams } from '@/app/components/base/chat/utils'
 
@@ -124,6 +124,7 @@ export const baseOptions: RequestInit = {
 async function base<T>(url: string, options: FetchOptionType = {}, otherOptions: IOtherOptions = {}): Promise<T> {
   const { params, body, headers, ...init } = Object.assign({}, baseOptions, options)
   const {
+    isAdminAPI = false, // extend: admin
     isPublicAPI = false,
     isMarketplaceAPI = false,
     bodyStringify = true,
@@ -135,6 +136,8 @@ async function base<T>(url: string, options: FetchOptionType = {}, otherOptions:
   let base: string
   if (isMarketplaceAPI)
     base = MARKETPLACE_API_PREFIX
+  else if (isAdminAPI)
+    base = API_ADMIN // extend: admin
   else if (isPublicAPI)
     base = PUBLIC_API_PREFIX
   else

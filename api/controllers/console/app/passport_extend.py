@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 
 from flask import request
-from flask_restful import Resource
+from flask_restx import Resource
 from werkzeug.exceptions import NotFound, Unauthorized
 
 from configs import dify_config

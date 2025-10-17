@@ -7,11 +7,13 @@ import {
   RiErrorWarningFill,
 } from '@remixicon/react'
 import { useBoolean } from 'ahooks'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation' // Extend: Batch import
 import TabHeader from '../../base/tab-header'
 import MenuDropdown from './menu-dropdown'
 import RunBatch from './run-batch'
 import ResDownload from './run-batch/res-download'
+import BatchProgress from './run-batch/batch-progress' // Extend: Batch import
+import Pagination from '@/app/components/base/pagination' // Extend: Batch import
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import RunOnce from '@/app/components/share/text-generation/run-once'
 import { fetchSavedMessage as doFetchSavedMessage, removeMessage, saveMessage } from '@/service/share'
@@ -37,6 +39,7 @@ import { Resolution, TransferMethod } from '@/types/app'
 import { useAppFavicon } from '@/hooks/use-app-favicon'
 import DifyLogo from '@/app/components/base/logo/dify-logo'
 import cn from '@/utils/classnames'
+import { downloadBatchApi, fetchBatchWorkflowListApi, processExcelUploadApi } from '@/service/web-extend' // Extend: Batch import
 import { AccessMode } from '@/models/access-control'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import useDocumentTitle from '@/hooks/use-document-title'
@@ -81,6 +84,7 @@ const TextGeneration: FC<IMainProps> = ({
   const mode = searchParams.get('mode') || 'create'
   const [currentTab, setCurrentTab] = useState<string>(['create', 'batch'].includes(mode) ? mode : 'create')
 
+  const router = useRouter() // extend
   // Notice this situation isCallBatchAPI but not in batch tab
   const [isCallBatchAPI, setIsCallBatchAPI] = useState(false)
   const isInBatchTab = currentTab === 'batch'
@@ -148,6 +152,84 @@ const TextGeneration: FC<IMainProps> = ({
     doSetAllTaskList(taskList)
     allTaskListRef.current = taskList
   }
+  // Extend: Start Batch import
+  // 每页5个任务
+  const batchJobsLimit = 5
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(1)
+  // 批量处理相关状态
+  const [batchJobs, setBatchJobs] = useState<Array<{
+    id: string
+    fileName: string
+    createdAt: string
+    status: string
+    totalRows: number
+    processedRows: number
+    error?: string
+  }>>([])
+
+  const [totalBatchJobs, setTotalBatchJobs] = useState(0)
+  const [isLoadingBatchJobs, setIsLoadingBatchJobs] = useState(false)
+
+  // 从后端获取批量工作流列表
+  const loadBatchWorkflows = async () => {
+    if (!appId || currentTab !== 'batch') return
+
+    setIsLoadingBatchJobs(true)
+    try {
+      const result = await fetchBatchWorkflowListApi(installedAppInfo?.id, currentPage, batchJobsLimit)
+      if (result) {
+        // 转换数据格式以兼容现有组件
+        const convertedJobs = result.items.map(item => ({
+          id: item.id,
+          fileName: item.file_name,
+          createdAt: item.created_at,
+          status: item.status,
+          totalRows: item.total_rows,
+          processedRows: item.processed_rows,
+          error: item.error, // 添加错误信息
+        }))
+        setBatchJobs(convertedJobs)
+        setTotalBatchJobs(result.total)
+      }
+    }
+    catch (error) {
+      console.error('Failed to load batch workflows:', error)
+    }
+    finally {
+      setIsLoadingBatchJobs(false)
+    }
+  }
+
+  // 加载批量工作流列表
+  useEffect(() => {
+    loadBatchWorkflows()
+  }, [appId, currentTab, currentPage, installedAppInfo?.id])
+
+  // 自动刷新批量工作流列表（每3秒）
+  useEffect(() => {
+    if (currentTab !== 'batch' || batchJobs.length === 0)
+      return
+
+    // 检查是否有进行中的任务
+    const hasActiveJobs = batchJobs.some(job =>
+      job.status === 'pending' || job.status === 'processing',
+    )
+
+    if (!hasActiveJobs)
+      return
+
+    const refreshInterval = setInterval(() => {
+      loadBatchWorkflows()
+    }, 3000) // 每3秒刷新一次
+
+    return () => clearInterval(refreshInterval)
+  }, [currentTab, batchJobs, appId, installedAppInfo?.id, currentPage])
+
+  // 计算分页数据 - 现在数据已经是从后端分页获取的，不需要再切片
+  const paginatedBatchJobs = batchJobs
+  // Extend: Stop Batch import
+
   const pendingTaskList = allTaskList.filter(task => task.status === TaskStatus.pending)
   const noPendingTask = pendingTaskList.length === 0
   const showTaskList = allTaskList.filter(task => task.status !== TaskStatus.pending)
@@ -319,8 +401,76 @@ const TextGeneration: FC<IMainProps> = ({
     setControlStopResponding(Date.now())
 
     // eslint-disable-next-line ts/no-use-before-define
-    showResultPanel()
+    doShowResultPanel() // Extend: Batch import
   }
+  // Extend: Start Batch import
+  // 处理批量上传
+  const handleBatchUpload = async (originalFile: File, data: string[][], originalFileName?: string) => {
+    if (!checkBatchInputs(data))
+      return
+
+    try {
+      // 创建key-name映射
+      const keyNameMapping: Record<string, string> = {}
+      promptConfig?.prompt_variables.forEach((variable) => {
+        keyNameMapping[variable.name] = variable.key
+      })
+
+      // 直接使用原始文件
+      const result = await processExcelUploadApi(originalFile, installedAppInfo?.id || '', appId, keyNameMapping)
+      if (result === null) {
+        // API调用失败，错误信息已经在processExcelUploadApi中显示
+        return
+      }
+      // 添加到批量任务列表 - 最新的任务显示在顶部
+      setBatchJobs(prev => [{
+        id: result.id,
+        fileName: originalFileName || originalFile.name,
+        createdAt: new Date().toISOString(),
+        status: 'pending',
+        totalRows: 0,
+        processedRows: 0,
+        error: undefined,
+      }, ...prev])
+
+      // 显示结果面板
+      // eslint-disable-next-line ts/no-use-before-define
+      doShowResultPanel()
+      notify({ type: 'success', message: t('extend.batchWorkflow.batchUploadSuccess') })
+    }
+    catch (error) {
+      console.error('批量上传失败:', error)
+      notify({ type: 'error', message: t('extend.batchWorkflow.batchUploadFailed') })
+    }
+  }
+
+  // 下载批量处理结果
+  const handleBatchDownload = async (batchId: string) => {
+    try {
+      const blob = await downloadBatchApi(batchId)
+      if (blob) {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `batch_results_${batchId}.csv`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      }
+    }
+    catch (error) {
+      console.error('下载失败:', error)
+      notify({ type: 'error', message: t('extend.batchWorkflow.downloadFailed') })
+    }
+  }
+  // 处理重试成功回调
+  const handleRetrySuccess = () => {
+    // 重试成功后，重新加载批量工作流列表
+    loadBatchWorkflows()
+    console.log('批量任务重试成功，已刷新列表')
+  }
+  // Extend: Stop Batch import
   const handleCompleted = (completionRes: string, taskId?: number, isSuccess?: boolean) => {
     const allTaskListLatest = getLatestTaskList()
     const batchCompletionResLatest = getBatchCompletionRes()
@@ -479,15 +629,72 @@ const TextGeneration: FC<IMainProps> = ({
       <div className={cn(
         'flex h-0 grow flex-col overflow-y-auto',
         isPC && 'px-14 py-8',
-        isPC && isCallBatchAPI && 'pt-0',
+        isPC && (isCallBatchAPI || (isInBatchTab && batchJobs.length > 0)) && 'pt-0',
         !isPC && 'p-0 pb-2',
       )}>
-        {!isCallBatchAPI ? renderRes() : renderBatchRes()}
-        {!noPendingTask && (
+        {!isCallBatchAPI && !(isInBatchTab && batchJobs.length > 0) ? renderRes() : (
+          <>
+            {isCallBatchAPI && renderBatchRes()}
+            {isInBatchTab && batchJobs.length > 0 && (
+              <div className="space-y-4">
+                {/* 数据保留提示 */}
+                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+                  <div className="text-sm text-yellow-800">
+                    <strong>{t('extend.batchWorkflow.dataRetentionNotice')}:</strong> {t('extend.batchWorkflow.dataRetentionDescription')}
+                  </div>
+                </div>
+
+                {/* //extend start 批量任务列表 */}
+                <div className="space-y-4">
+                  {isLoadingBatchJobs ? (
+                    <div className="flex justify-center py-8">
+                      <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                    </div>
+                  ) : paginatedBatchJobs.length > 0 ? (
+                    paginatedBatchJobs.map(job => (
+                      <BatchProgress
+                        key={job.id}
+                        fileName={job.fileName}
+                        batchId={job.id}
+                        workflowId={appId}
+                        jobData={job}
+                        onDownload={() => handleBatchDownload(job.id)}
+                        onRetrySuccess={handleRetrySuccess}
+                      />
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-gray-500">
+                      暂无批量处理任务
+                    </div>
+                  )}
+                </div>
+                {/* // extend stop 批量任务列表 */}
+
+                {/* 分页控件 */}
+                {totalBatchJobs > batchJobsLimit && (
+                  <div className="mt-6 flex justify-center">
+                    <Pagination
+                      current={currentPage}
+                      onChange={(page) => {
+                        setCurrentPage(page)
+                        // extend
+                      }}
+                      total={totalBatchJobs}
+                      limit={batchJobsLimit}
+                      className="w-auto"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+        {!noPendingTask && isCallBatchAPI && (
           <div className='mt-4'>
             <Loading type='area' />
           </div>
         )}
+        { /* // Extend: Stop Batch import */ }
       </div>
       {isCallBatchAPI && allFailedTaskList.length > 0 && (
         <div className='absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-components-panel-border bg-components-panel-bg-blur p-3 shadow-lg backdrop-blur-sm'>
@@ -556,7 +763,26 @@ const TextGeneration: FC<IMainProps> = ({
                 : []),
             ]}
             value={currentTab}
-            onChange={setCurrentTab}
+            onChange={(tab) => {
+              // Extend: Start Batch import
+
+              // 当从批量模式切换回单次运行时，重置批量相关状态
+              if (currentTab === 'batch' && tab === 'create') {
+                setIsCallBatchAPI(false)
+                setAllTaskList([])
+                setCurrGroupNum(0)
+                // 只清空显示状态，保留localStorage以便再次切换回批量时恢复
+                setBatchJobs([])
+              }
+
+              // 当从单次运行切换到批量模式时，清理单次运行的结果
+              if (currentTab === 'create' && tab === 'batch') {
+                setResultExisted(false)
+                setControlStopResponding(Date.now()) // 停止可能正在进行的单次运行
+              }
+              setCurrentTab(tab)
+            }}
+            // Extend: Stop Batch import
           />
         </div>
         {/* form */}
@@ -581,7 +807,10 @@ const TextGeneration: FC<IMainProps> = ({
             <RunBatch
               vars={promptConfig.prompt_variables}
               onSend={handleRunBatch}
+              onBatchSend={handleBatchUpload}// Extend: Batch import
               isAllFinished={allTasksRun}
+              isInstalledApp={isInstalledApp}// Extend: Batch import
+              installedAppInfo={installedAppInfo}// Extend: Batch import
             />
           </div>
           {currentTab === 'saved' && (
@@ -633,7 +862,7 @@ const TextGeneration: FC<IMainProps> = ({
               if (isShowResultPanel)
                 hideResultPanel()
               else
-                showResultPanel()
+                doShowResultPanel()// Extend: Batch import
             }}
           >
             <div className='h-1 w-8 cursor-grab rounded bg-divider-solid' />

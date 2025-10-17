@@ -14,6 +14,19 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 )
 
+// Extend: Override JWT signing key from environment variable
+// This ensures admin-server uses the same JWT signing key as the API server
+func overrideJWTSigningKeyFromEnv() {
+	// Check JWT_SIGNING_KEY first, then fall back to SECRET_KEY
+	if jwtKey := os.Getenv("JWT_SIGNING_KEY"); jwtKey != "" {
+		global.GVA_CONFIG.JWT.SigningKey = jwtKey
+		fmt.Printf("JWT signing key overridden from JWT_SIGNING_KEY environment variable\n")
+	} else if secretKey := os.Getenv("SECRET_KEY"); secretKey != "" {
+		global.GVA_CONFIG.JWT.SigningKey = secretKey
+		fmt.Printf("JWT signing key overridden from SECRET_KEY environment variable\n")
+	}
+}
+
 // Viper //
 // 优先级: 命令行 > 环境变量 > 默认值
 // Author [SliverHorn](https://github.com/SliverHorn)
@@ -60,10 +73,15 @@ func Viper(path ...string) *viper.Viper {
 		if err = v.Unmarshal(&global.GVA_CONFIG); err != nil {
 			fmt.Println(err)
 		}
+		// Extend: Override JWT signing key from environment variable
+		overrideJWTSigningKeyFromEnv()
 	})
 	if err = v.Unmarshal(&global.GVA_CONFIG); err != nil {
 		panic(err)
 	}
+
+	// Extend: Override JWT signing key from environment variable after initial load
+	overrideJWTSigningKeyFromEnv()
 
 	// root 适配性 根据root位置去找到对应迁移位置,保证root路径有效
 	global.GVA_CONFIG.AutoCode.Root, _ = filepath.Abs("..")

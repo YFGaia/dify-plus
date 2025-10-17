@@ -38,21 +38,21 @@ const AccountMoneyExtend = () => {
 
   // 根据警示级别设置颜色
   const alertColorClass = isRedAlert
-    ? 'text-red-500'
+    ? 'text-text-destructive'
     : isYellowAlert
-      ? 'text-yellow-500'
-      : 'text-gray-700'
+      ? 'text-text-warning'
+      : 'text-text-secondary'
 
   return (
     <div
       rel='noopener noreferrer'
-      className='flex items-center overflow-hidden rounded-md border border-gray-200 text-xs leading-[18px]'
+      className='flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]'
     >
-      <div className='flex items-center bg-gray-100 px-2 py-1 font-medium'>
+      <div className='flex items-center bg-background-default-dimmed px-2 py-1 font-medium text-text-secondary'>
         额度
       </div>
-      <div className='flex items-center border-l border-gray-200 bg-white px-2 py-1.5'>
-        <span className='mr-1 text-gray-600'>已用:</span>
+      <div className='flex items-center border-l border-divider-regular bg-background-default px-2 py-1.5'>
+        <span className='mr-1 text-text-tertiary'>已用:</span>
         <span
           className={cn(
             'font-bold transition-all duration-300',
@@ -62,8 +62,8 @@ const AccountMoneyExtend = () => {
         >
           ¥{usedRMB}
         </span>
-        <span className='mx-1 text-gray-400'>/</span>
-        <span className='text-gray-500'>
+        <span className='mx-1 text-text-quaternary'>/</span>
+        <span className='text-text-tertiary'>
           ¥{totalRMB.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
         </span>
       </div>

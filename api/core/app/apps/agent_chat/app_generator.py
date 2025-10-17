@@ -26,8 +26,8 @@ from extensions.ext_database import db
 from factories import file_factory
 from libs.flask_utils import preserve_flask_contexts
 from models import Account, App, EndUser
-from services.conversation_service import ConversationService
 from models.api_token_money_extend import ApiTokenMessageJoinsExtend  # 二开部分End - 密钥额度限制
+from services.conversation_service import ConversationService
 
 logger = logging.getLogger(__name__)
 

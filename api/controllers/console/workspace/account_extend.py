@@ -1,5 +1,5 @@
 from flask_login import current_user
-from flask_restful import Resource, marshal_with
+from flask_restx import Resource, marshal_with
 
 from configs import dify_config
 from controllers.console import api

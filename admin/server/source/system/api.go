@@ -207,6 +207,19 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "应用集成配置", Method: "GET", Path: "/gaia/system/oauth2", Description: "设置OAuth2配置"},
 		{ApiGroup: "应用集成配置", Method: "POST", Path: "/gaia/system/oauth2", Description: "获取OAuth2集成配置"},
 		// Extend Stop: oauth2
+
+		// Extend Start: batch workflow
+		{ApiGroup: "批量处理工作流", Method: "POST", Path: "/gaia/workflow/batch/processing", Description: "创建批量处理"},
+		{ApiGroup: "批量处理工作流", Method: "GET", Path: "/gaia/workflow/batch/list", Description: "获取最近30天的批量工作流列表"},
+		{ApiGroup: "批量处理工作流", Method: "GET", Path: "/gaia/workflow/batch/:id", Description: "获取批量处理信息"},
+		{ApiGroup: "批量处理工作流", Method: "GET", Path: "/gaia/workflow/batch/:id/tasks", Description: "获取任务列表"},
+		{ApiGroup: "批量处理工作流", Method: "GET", Path: "/gaia/workflow/batch/:id/progress", Description: "获取进度信息"},
+		{ApiGroup: "批量处理工作流", Method: "POST", Path: "/gaia/workflow/batch/:id/stop", Description: "停止批量处理"},
+		{ApiGroup: "批量处理工作流", Method: "POST", Path: "/gaia/workflow/batch/:id/retry", Description: "重试批量处理（重新开始所有任务）"},
+		{ApiGroup: "批量处理工作流", Method: "POST", Path: "/gaia/workflow/batch/:id/retry-failed", Description: "仅重试失败的任务"},
+		{ApiGroup: "批量处理工作流", Method: "POST", Path: "/gaia/workflow/batch/:id/resume", Description: "恢复批量处理"},
+		{ApiGroup: "批量处理工作流", Method: "GET", Path: "/gaia/workflow/batch/:id/download", Description: "下载结果"},
+		// Extend Stop: batch workflow
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, sysModel.SysApi{}.TableName()+"表数据初始化失败!")

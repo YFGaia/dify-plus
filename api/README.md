@@ -65,6 +65,7 @@
 
    ```bash
    uv run flask db upgrade
+   uv run flask extend_db upgrade
    ```
 
 1. Start backend

@@ -153,6 +153,9 @@ def init_app(app: DifyApp) -> Celery:
         }
 
     # ---------------------------- 二开部分 Begin ----------------------------
+    # 导入扩展的 Celery 任务
+    imports.append("tasks.extend.update_account_money_when_workflow_node_execution_created_extend")
+    
     # 每月1号00:00，重置账号额度
     imports.append("schedule.update_account_used_quota_extend")
     beat_schedule["update_account_used_quota_extend"] = {
@@ -163,7 +166,7 @@ def init_app(app: DifyApp) -> Celery:
     imports.append("schedule.update_api_token_daily_used_quota_task_extend")
     beat_schedule["update_api_token_daily_used_quota_task_extend"] = {
         "task": "schedule.update_api_token_daily_used_quota_task_extend.update_api_token_daily_used_quota_task_extend",
-        "schedule": crontab(days=1),
+        "schedule": crontab(hour=0, minute=0),
     }
     # 每月1号00:00，重置密钥月额度
     imports.append("schedule.update_api_token_monthly_used_quota_task_extend")

@@ -6,4 +6,5 @@ type ServiceGroup struct {
 	QuotaService
 	TenantsService
 	TestService
+	BatchWorkflowService
 }

@@ -8,6 +8,7 @@ type RouterGroup struct {
 	TenantsRouter
 	SystemRouter
 	TestRouter
+	WorkflowRouter
 }
 
 var (
@@ -18,3 +19,4 @@ var systemOAuth2Api = api.ApiGroupApp.GaiaApiGroup.SystemOAuth2Api
 var systemApi = api.ApiGroupApp.GaiaApiGroup.SystemApi
 var quotaApi = api.ApiGroupApp.GaiaApiGroup.QuotaApi
 var testApi = api.ApiGroupApp.GaiaApiGroup.TestApi
+var batchWorkflowApi = api.ApiGroupApp.GaiaApiGroup.BatchWorkflowApi

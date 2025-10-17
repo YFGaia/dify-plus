@@ -1,8 +1,12 @@
-from Crypto.Util.Padding import unpad
-from Crypto.Cipher import Blowfish
-from configs import dify_config
-from .engine import db
 import base64
+
+from Crypto.Cipher import Blowfish
+from Crypto.Util.Padding import unpad
+
+from configs import dify_config
+
+from .engine import db
+
 
 class SystemIntegrationClassify:
     SYSTEM_INTEGRATION_DINGTALK = 1 # 钉钉

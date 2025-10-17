@@ -1,16 +1,16 @@
-import json # extend: oauth2
-import re # extend: oauth2
+import json  # extend: oauth2
+import re  # extend: oauth2
 from enum import StrEnum
 
+from flask import request  # extend: oauth2
 from pydantic import BaseModel, ConfigDict, Field
 
 from configs import dify_config
-from extensions.ext_database import db # extend: oauth2
-from flask import request # extend: oauth2
-from extensions.ext_redis import redis_client # extend: oauth2
+from extensions.ext_database import db  # extend: oauth2
+from extensions.ext_redis import redis_client  # extend: oauth2
+from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend  # Extend DingTalk third-party login
 from services.billing_service import BillingService
 from services.enterprise.enterprise_service import EnterpriseService
-from models.system_extend import SystemIntegrationExtend, SystemIntegrationClassify # Extend DingTalk third-party login
 
 
 class SubscriptionModel(BaseModel):

@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia"
@@ -10,6 +11,9 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gofrs/uuid/v5"
 )
+
+// 全局互斥锁，防止SyncUser并发执行
+var syncUserMutex sync.Mutex
 
 //@author: [piexlmax](https://github.com/piexlmax)
 //@function: Register
@@ -47,6 +51,10 @@ func (userService *UserExtendService) OaLogin(u *system.SysUser) (userInter *sys
 // @param: u *model.SysUser
 // @return: err error, userInter *model.SysUser
 func (userService *UserExtendService) SyncUser() {
+	// 使用互斥锁防止并发执行
+	syncUserMutex.Lock()
+	defer syncUserMutex.Unlock()
+	
 	// init
 	var err error
 	var isInit = true

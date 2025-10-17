@@ -13,11 +13,11 @@ import cn from '@/utils/classnames'
 import { Csv as CSVIcon } from '@/app/components/base/icons/src/public/files'
 
 export type Props = {
-  onParsed: (data: string[][]) => void
+  onParsed: (data: string[][], originalFile?: File) => void
 }
 // 二开部分 - Begin 自定义CSVReader
 type CCProps = {
-  onUploadAccepted: (results: any) => void
+  onUploadAccepted: (results: any, file?: File) => void
   onDragOver: (event: DragEvent) => void
   onDragLeave: (event: DragEvent) => void
   children: (props: any) => React.ReactElement
@@ -57,7 +57,6 @@ const CustomCSVReader: React.FC<CCProps> = ({
         encoding = 'gbk'
       // Extend stop: 处理可能的误判，将 ISO-8859-2 视为 GBK
 
-      console.log('encoding: ', encoding)
       // 重新用检测到的编码读取文件内容
       const correctReader = new FileReader()
 
@@ -66,8 +65,9 @@ const CustomCSVReader: React.FC<CCProps> = ({
 
         // 使用 PapaParse 解析 CSV 文件
         Papa.parse(text, {
-          complete: (results) => {
-            onUploadAccepted(results)
+          // eslint-disable-next-line sonarjs/no-nested-functions
+          complete: (results: any) => {
+            onUploadAccepted(results, file)
           },
         })
       }
@@ -144,8 +144,9 @@ const CSVReader: FC<Props> = ({
   const [zoneHover, setZoneHover] = useState(false)
   return (
     <CustomCSVReader // 二开部分 - 自定义CSVReader
-      onUploadAccepted={(results: any) => {
-        onParsed(results.data)
+      onUploadAccepted={(results: any, file?: File) => {
+        console.log('CSV Reader - 文件上传:', file ? file.name : 'no file')
+        onParsed(results.data, file)
         setZoneHover(false)
       }}
       onDragOver={(event: DragEvent) => {

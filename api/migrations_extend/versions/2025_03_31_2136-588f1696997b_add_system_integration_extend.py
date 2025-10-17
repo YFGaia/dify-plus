@@ -5,11 +5,9 @@ Revises: 009_api_token_money_extend
 Create Date: 2025-03-31 21:36:03.818117
 
 """
-from alembic import op
-from models import db, types
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '010_system_integration_extend'

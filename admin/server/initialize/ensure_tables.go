@@ -66,6 +66,9 @@ func (e *ensureTables) MigrateTable(ctx context.Context) (context.Context, error
 		gaia.AppRequestTestBatch{},
 		gaia.AppRequestTest{},
 		gaia.SystemIntegration{},     // Extend System Integration
+		gaia.ForwardingExtend{},      // Extend Forwarding Extend
+		gaia.BatchWorkflow{},         // Extend Batch Workflow
+		gaia.BatchWorkflowTask{},     // Extend Batch Workflow Task
 		sysModel.SysUserGlobalCode{}, // Extend Global Code
 		// Extend gaia model
 	}
@@ -112,6 +115,9 @@ func (e *ensureTables) TableCreated(ctx context.Context) bool {
 		gaia.AppRequestTestBatch{},
 		gaia.AppRequestTest{},
 		gaia.SystemIntegration{},     // Extend System Integration
+		gaia.ForwardingExtend{},      // Extend Forwarding Extend
+		gaia.BatchWorkflow{},         // Extend Batch Workflow
+		gaia.BatchWorkflowTask{},     // Extend Batch Workflow Task
 		sysModel.SysUserGlobalCode{}, // Extend Global Code
 		// Extend gaia model
 	}

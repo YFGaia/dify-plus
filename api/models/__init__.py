@@ -68,8 +68,8 @@ from .provider import (
     TenantDefaultModel,
     TenantPreferredModelProvider,
 )
-from .system_extend import SystemIntegrationExtend # Extend System Integration
 from .source import DataSourceApiKeyAuthBinding, DataSourceOauthBinding
+from .system_extend import SystemIntegrationExtend  # Extend System Integration
 from .task import CeleryTask, CeleryTaskSet
 from .tools import (
     ApiToolProvider,
@@ -152,6 +152,7 @@ __all__ = [
     "RecommendedApp",
     "SavedMessage",
     "Site",
+    "SystemIntegrationExtend", # Extend System Integration
     "Tag",
     "TagBinding",
     "Tenant",
@@ -179,5 +180,4 @@ __all__ = [
     "WorkflowToolProvider",
     "WorkflowType",
     "db",
-    "SystemIntegrationExtend", # Extend System Integration
 ]

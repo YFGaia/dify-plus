@@ -44,6 +44,12 @@ func SetToken(c *gin.Context, token string, maxAge int) {
 func GetToken(c *gin.Context) string {
 	// Extend Start: Admin and Gaia JWT
 	token, _ := c.Cookie("x-token")
+	if len(token) == 0 {
+		token = c.Request.Header.Get("Authorization")
+	}
+	if len(token) > 7 && token[0:7] == "Bearer " {
+		token = token[7:]
+	}
 	if token == "" {
 		j := NewJWT()
 		token, _ = c.Cookie("x-token")
@@ -65,20 +71,39 @@ func GetClaims(c *gin.Context) (*systemReq.CustomClaims, error) {
 	if err != nil {
 		global.GVA_LOG.Error("从Gin的Context中获取从jwt解析信息失败, 请检查请求头是否存在x-token且claims是否为规定结构")
 	}
+	// 判断是否dify的token
+	if claims.Username == "" {
+		var user system.SysUser
+		var account gaia.Account
+		if err = global.GVA_DB.Where("uuid=?", claims.UserId).First(&user).Error; err == nil {
+			claims.BaseClaims.ID = user.ID
+			claims.Username = user.Username
+			claims.AuthorityId = user.AuthorityId
+		} else if err = global.GVA_DB.Where("id=?", claims.UserId).First(&account).Error; err == nil {
+			if err = global.GVA_DB.Where("email=?", account.Email).First(&user).Error; err == nil {
+				claims.AuthorityId = user.AuthorityId
+				claims.Username = user.Username
+				claims.BaseClaims.ID = user.ID
+				user.UUID = account.ID
+				global.GVA_DB.Save(&user)
+			}
+		}
+	}
 	return claims, err
 }
 
 // GetUserID 从Gin的Context中获取从jwt解析出来的用户ID
 func GetUserID(c *gin.Context) uint {
-	if claims, exists := c.Get("claims"); !exists {
-		if cl, err := GetClaims(c); err != nil {
-			return 0
-		} else {
-			return cl.BaseClaims.ID
-		}
-	} else {
+	if claims, exists := c.Get("claims"); exists {
 		waitUse := claims.(*systemReq.CustomClaims)
-		return waitUse.BaseClaims.ID
+		if waitUse.BaseClaims.ID != 0 {
+			return waitUse.BaseClaims.ID
+		}
+	}
+	if cl, err := GetClaims(c); err != nil {
+		return 0
+	} else {
+		return cl.BaseClaims.ID
 	}
 }
 

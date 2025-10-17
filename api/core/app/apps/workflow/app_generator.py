@@ -3,7 +3,7 @@ import logging
 import threading
 import uuid
 from collections.abc import Generator, Mapping, Sequence
-from typing import Any, Literal, Optional, Union, overload, cast # 二开部分 - 密钥额度限制，新增cast
+from typing import Any, Literal, Optional, Union, cast, overload  # 二开部分 - 密钥额度限制，新增cast
 
 from flask import Flask, current_app
 from pydantic import ValidationError
@@ -34,7 +34,14 @@ from core.workflow.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader
 from extensions.ext_database import db
 from factories import file_factory
 from libs.flask_utils import preserve_flask_contexts
-from models import Account, ApiToken, App, EndUser, Workflow, WorkflowNodeExecutionTriggeredFrom  # 二开部分 - 密钥额度限制，新增ApiToken
+from models import (  # 二开部分 - 密钥额度限制，新增ApiToken
+    Account,
+    ApiToken,
+    App,
+    EndUser,
+    Workflow,
+    WorkflowNodeExecutionTriggeredFrom,
+)
 from models.enums import WorkflowRunTriggeredFrom
 from services.workflow_draft_variable_service import DraftVarLoader, WorkflowDraftVariableService
 
@@ -156,7 +163,6 @@ class WorkflowAppGenerator(BaseAppGenerator):
             call_depth=call_depth,
             trace_manager=trace_manager,
             workflow_execution_id=workflow_run_id,
-            extras=extras,
             extras=extras,  # 二开部分 - 密钥额度限制
         )
 

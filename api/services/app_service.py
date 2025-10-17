@@ -19,7 +19,14 @@ from events.app_event import app_was_created
 from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
 from models.account import Account
-from models.model import App, AppMode, AppModelConfig, Site, AppStatisticsExtend, RecommendedApp # Extend: App Center - Recommended list sorted by usage frequency
+from models.model import (  # Extend: App Center - Recommended list sorted by usage frequency
+    App,
+    AppMode,
+    AppModelConfig,
+    AppStatisticsExtend,
+    RecommendedApp,
+    Site,
+)
 from models.tools import ApiToolProvider
 from services.enterprise.enterprise_service import EnterpriseService
 from services.feature_service import FeatureService

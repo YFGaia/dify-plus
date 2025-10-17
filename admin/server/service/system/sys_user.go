@@ -39,9 +39,22 @@ var UserServiceApp = new(UserService)
 // @return: err error, userInter *model.SysUser
 func (userService *UserService) Register(u system.SysUser, token string) (userInter system.SysUser, err error) {
 	var user system.SysUser
+	// 首先检查email是否已注册
 	if !errors.Is(global.GVA_DB.Where("email = ?", u.Email).First(&user).Error, gorm.ErrRecordNotFound) {
+		global.GVA_LOG.Info(fmt.Sprintf("用户email已存在: %s", u.Email))
 		return userInter, errors.New("用户名已注册")
 	}
+	
+	// 如果传入了UUID，检查UUID是否已存在
+	if u.UUID != uuid.Nil {
+		var existingUser system.SysUser
+		if !errors.Is(global.GVA_DB.Where("uuid = ?", u.UUID).First(&existingUser).Error, gorm.ErrRecordNotFound) {
+			global.GVA_LOG.Info(fmt.Sprintf("用户UUID已存在: %s, email: %s", u.UUID, u.Email))
+			// UUID已存在，返回已存在的用户而不是报错（用于SyncUser场景）
+			return existingUser, nil
+		}
+	}
+	
 	global.GVA_LOG.Debug("注册用户信息:", zap.Any("1", 1))
 
 	// Extend Start: Gaia Register User
@@ -50,9 +63,18 @@ func (userService *UserService) Register(u system.SysUser, token string) (userIn
 	}
 	// Extend Stop: Gaia Register User
 
+	// 再次检查email是否已注册（防止并发创建）
+	if !errors.Is(global.GVA_DB.Where("email = ?", u.Email).First(&user).Error, gorm.ErrRecordNotFound) {
+		global.GVA_LOG.Info(fmt.Sprintf("并发检测：用户email已被创建: %s", u.Email))
+		return user, nil
+	}
+
 	// 否则 附加uuid 密码hash加密 注册
 	u.Password = utils.BcryptHash(u.Password)
-	u.UUID = uuid.Must(uuid.NewV4())
+	// 如果没有设置UUID，才生成新的UUID
+	if u.UUID == uuid.Nil {
+		u.UUID = uuid.Must(uuid.NewV4())
+	}
 	err = global.GVA_DB.Create(&u).Error
 	return u, err
 }

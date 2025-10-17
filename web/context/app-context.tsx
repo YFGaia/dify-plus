@@ -94,8 +94,8 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
       try {
         const result = await userProfileResponse.json()
       // ----------------------- 二开部分Start 添加用户权限 - ----------------------
-      result.admin_extend = currentWorkspaceResponse?.admin_extend || false
-      result.tenant_extend = currentWorkspaceResponse?.tenant_extend || false
+        result.admin_extend = currentWorkspaceResponse?.admin_extend || false
+        result.tenant_extend = currentWorkspaceResponse?.tenant_extend || false
       // # ----------------------- 二开部分Start 添加用户权限 - ----------------------
         setUserProfile(result)
         const current_version = userProfileResponse.headers.get('x-version')
@@ -112,11 +112,11 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
     else if (userProfileError && userProfile.id === '') {
       setUserProfile(userProfilePlaceholder)
     }
-  }, [userProfileResponse, userProfileError, userProfile.id])
+  }, [userProfileResponse, userProfileError, userProfile.id, currentWorkspaceResponse])
 
   useEffect(() => {
     updateUserProfileAndVersion()
-  }, [updateUserProfileAndVersion, userProfileResponse])
+  }, [updateUserProfileAndVersion, userProfileResponse, currentWorkspaceResponse])
 
   useEffect(() => {
     if (currentWorkspaceResponse)

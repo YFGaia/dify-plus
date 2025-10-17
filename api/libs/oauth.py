@@ -4,9 +4,10 @@ from dataclasses import dataclass
 from typing import Optional
 
 import requests
+
 from configs import dify_config  # Extend OAuto third-party login
 from extensions.ext_database import db  # Extend OAuto third-party login
-from models.system_extend import SystemIntegrationExtend, SystemIntegrationClassify  # Extend OAuto third-party login
+from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend  # Extend OAuto third-party login
 
 
 @dataclass

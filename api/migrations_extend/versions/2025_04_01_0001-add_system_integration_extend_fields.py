@@ -5,11 +5,9 @@ Revises: 010_system_integration_extend
 Create Date: 2025-04-01 00:01:00.000000
 
 """
-from alembic import op
-from models import db, types
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '011_system_integration_fields'

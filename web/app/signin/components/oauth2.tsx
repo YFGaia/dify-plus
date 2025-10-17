@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import style from '../page.module.css'
 import Button from '@/app/components/base/button'
 import classNames from '@/utils/classnames'
-import { apiPrefix } from '@/config'
+import { API_PREFIX } from '@/config'
 
 export default function OAuth2() {
   const { t } = useTranslation()
@@ -12,7 +12,7 @@ export default function OAuth2() {
 
   /* Extend: start 钉钉快捷登录按钮 */
   const OAuth2Login = () => {
-    router.replace(`${apiPrefix}/oauth/login/oauth2`)
+    router.replace(`${API_PREFIX}/oauth/login/oauth2`)
   }
 
   return <>
@@ -24,7 +24,7 @@ export default function OAuth2() {
           <span className={
             classNames(
               style.oauth2Icon,
-              'w-5 h-5 mr-2',
+              'mr-2 h-5 w-5',
             )
           }
           />

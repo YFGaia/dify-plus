@@ -30,6 +30,10 @@
         @apply p-0 w-4 h-4 rounded
     }
 
+    .action-btn-sm {
+        @apply px-2 py-1 h-7 min-w-[60px] rounded-md text-xs
+    }
+
     .action-btn.action-btn-active {
         @apply text-text-accent bg-state-accent-active hover:bg-state-accent-active-alt
     }

@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 import jwt
 from flask import request
-from flask_restful import Resource, reqparse
+from flask_restx import Resource, reqparse
 
 from configs import dify_config
 from controllers.console import api

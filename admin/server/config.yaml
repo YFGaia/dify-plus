@@ -10,7 +10,7 @@ captcha:
   open-captcha: 0
   open-captcha-timeout: 3600
 jwt:
-  signing-key:
+  signing-key: sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U
   expires-time: 1d
   buffer-time: 1d
   issuer: CLOUD
@@ -61,6 +61,7 @@ system:
   use-mongo: false
   use-strict-auth: false
   user_default-group-id: "888"
+  work_flow_number: 100
 zap:
   level: info
   prefix: '[gaia/server]'

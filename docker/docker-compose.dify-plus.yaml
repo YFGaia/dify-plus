@@ -11,6 +11,10 @@ x-shared-env: &shared-api-worker-env
   APP_API_URL: ${APP_API_URL:-}
   APP_WEB_URL: ${APP_WEB_URL:-}
   FILES_URL: ${FILES_URL:-}
+  INTERNAL_FILES_URL: ${INTERNAL_FILES_URL:-}
+  LANG: ${LANG:-en_US.UTF-8}
+  LC_ALL: ${LC_ALL:-en_US.UTF-8}
+  PYTHONIOENCODING: ${PYTHONIOENCODING:-utf-8}
   LOG_LEVEL: ${LOG_LEVEL:-INFO}
   LOG_FILE: ${LOG_FILE:-/app/logs/server.log}
   LOG_FILE_MAX_SIZE: ${LOG_FILE_MAX_SIZE:-20}
@@ -19,6 +23,7 @@ x-shared-env: &shared-api-worker-env
   LOG_TZ: ${LOG_TZ:-UTC}
   DEBUG: ${DEBUG:-false}
   FLASK_DEBUG: ${FLASK_DEBUG:-false}
+  ENABLE_REQUEST_LOGGING: ${ENABLE_REQUEST_LOGGING:-False}
   SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
   INIT_PASSWORD: ${INIT_PASSWORD:-}
   DEPLOY_ENV: ${DEPLOY_ENV:-PRODUCTION}
@@ -43,14 +48,20 @@ x-shared-env: &shared-api-worker-env
   CELERY_MIN_WORKERS: ${CELERY_MIN_WORKERS:-}
   API_TOOL_DEFAULT_CONNECT_TIMEOUT: ${API_TOOL_DEFAULT_CONNECT_TIMEOUT:-10}
   API_TOOL_DEFAULT_READ_TIMEOUT: ${API_TOOL_DEFAULT_READ_TIMEOUT:-60}
+  ENABLE_WEBSITE_JINAREADER: ${ENABLE_WEBSITE_JINAREADER:-true}
+  ENABLE_WEBSITE_FIRECRAWL: ${ENABLE_WEBSITE_FIRECRAWL:-true}
+  ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
   DB_USERNAME: ${DB_USERNAME:-postgres}
   DB_PASSWORD: ${DB_PASSWORD:-difyai123456}
   DB_HOST: ${DB_HOST:-db}
   DB_PORT: ${DB_PORT:-5432}
   DB_DATABASE: ${DB_DATABASE:-dify}
   SQLALCHEMY_POOL_SIZE: ${SQLALCHEMY_POOL_SIZE:-30}
+  SQLALCHEMY_MAX_OVERFLOW: ${SQLALCHEMY_MAX_OVERFLOW:-10}
   SQLALCHEMY_POOL_RECYCLE: ${SQLALCHEMY_POOL_RECYCLE:-3600}
   SQLALCHEMY_ECHO: ${SQLALCHEMY_ECHO:-false}
+  SQLALCHEMY_POOL_PRE_PING: ${SQLALCHEMY_POOL_PRE_PING:-false}
+  SQLALCHEMY_POOL_USE_LIFO: ${SQLALCHEMY_POOL_USE_LIFO:-false}
   POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS:-100}
   POSTGRES_SHARED_BUFFERS: ${POSTGRES_SHARED_BUFFERS:-128MB}
   POSTGRES_WORK_MEM: ${POSTGRES_WORK_MEM:-4MB}
@@ -61,6 +72,10 @@ x-shared-env: &shared-api-worker-env
   REDIS_USERNAME: ${REDIS_USERNAME:-}
   REDIS_PASSWORD: ${REDIS_PASSWORD:-difyai123456}
   REDIS_USE_SSL: ${REDIS_USE_SSL:-false}
+  REDIS_SSL_CERT_REQS: ${REDIS_SSL_CERT_REQS:-CERT_NONE}
+  REDIS_SSL_CA_CERTS: ${REDIS_SSL_CA_CERTS:-}
+  REDIS_SSL_CERTFILE: ${REDIS_SSL_CERTFILE:-}
+  REDIS_SSL_KEYFILE: ${REDIS_SSL_KEYFILE:-}
   REDIS_DB: ${REDIS_DB:-0}
   REDIS_USE_SENTINEL: ${REDIS_USE_SENTINEL:-false}
   REDIS_SENTINELS: ${REDIS_SENTINELS:-}
@@ -72,15 +87,21 @@ x-shared-env: &shared-api-worker-env
   REDIS_CLUSTERS: ${REDIS_CLUSTERS:-}
   REDIS_CLUSTERS_PASSWORD: ${REDIS_CLUSTERS_PASSWORD:-}
   CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://:difyai123456@redis:6379/1}
+  CELERY_BACKEND: ${CELERY_BACKEND:-redis}
   BROKER_USE_SSL: ${BROKER_USE_SSL:-false}
   CELERY_USE_SENTINEL: ${CELERY_USE_SENTINEL:-false}
   CELERY_SENTINEL_MASTER_NAME: ${CELERY_SENTINEL_MASTER_NAME:-}
+  CELERY_SENTINEL_PASSWORD: ${CELERY_SENTINEL_PASSWORD:-}
   CELERY_SENTINEL_SOCKET_TIMEOUT: ${CELERY_SENTINEL_SOCKET_TIMEOUT:-0.1}
   WEB_API_CORS_ALLOW_ORIGINS: ${WEB_API_CORS_ALLOW_ORIGINS:-*}
   CONSOLE_CORS_ALLOW_ORIGINS: ${CONSOLE_CORS_ALLOW_ORIGINS:-*}
   STORAGE_TYPE: ${STORAGE_TYPE:-opendal}
   OPENDAL_SCHEME: ${OPENDAL_SCHEME:-fs}
   OPENDAL_FS_ROOT: ${OPENDAL_FS_ROOT:-storage}
+  CLICKZETTA_VOLUME_TYPE: ${CLICKZETTA_VOLUME_TYPE:-user}
+  CLICKZETTA_VOLUME_NAME: ${CLICKZETTA_VOLUME_NAME:-}
+  CLICKZETTA_VOLUME_TABLE_PREFIX: ${CLICKZETTA_VOLUME_TABLE_PREFIX:-dataset_}
+  CLICKZETTA_VOLUME_DIFY_PREFIX: ${CLICKZETTA_VOLUME_DIFY_PREFIX:-dify_km}
   S3_ENDPOINT: ${S3_ENDPOINT:-}
   S3_REGION: ${S3_REGION:-us-east-1}
   S3_BUCKET_NAME: ${S3_BUCKET_NAME:-difyai}
@@ -127,6 +148,7 @@ x-shared-env: &shared-api-worker-env
   SUPABASE_API_KEY: ${SUPABASE_API_KEY:-your-access-key}
   SUPABASE_URL: ${SUPABASE_URL:-your-server-url}
   VECTOR_STORE: ${VECTOR_STORE:-weaviate}
+  VECTOR_INDEX_NAME_PREFIX: ${VECTOR_INDEX_NAME_PREFIX:-Vector_index}
   WEAVIATE_ENDPOINT: ${WEAVIATE_ENDPOINT:-http://weaviate:8080}
   WEAVIATE_API_KEY: ${WEAVIATE_API_KEY:-WVF5YThaHlkYwhGUSmCRgsX3tD5ngdN8pkih}
   QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
@@ -134,11 +156,14 @@ x-shared-env: &shared-api-worker-env
   QDRANT_CLIENT_TIMEOUT: ${QDRANT_CLIENT_TIMEOUT:-20}
   QDRANT_GRPC_ENABLED: ${QDRANT_GRPC_ENABLED:-false}
   QDRANT_GRPC_PORT: ${QDRANT_GRPC_PORT:-6334}
+  QDRANT_REPLICATION_FACTOR: ${QDRANT_REPLICATION_FACTOR:-1}
   MILVUS_URI: ${MILVUS_URI:-http://host.docker.internal:19530}
+  MILVUS_DATABASE: ${MILVUS_DATABASE:-}
   MILVUS_TOKEN: ${MILVUS_TOKEN:-}
   MILVUS_USER: ${MILVUS_USER:-}
   MILVUS_PASSWORD: ${MILVUS_PASSWORD:-}
   MILVUS_ENABLE_HYBRID_SEARCH: ${MILVUS_ENABLE_HYBRID_SEARCH:-False}
+  MILVUS_ANALYZER_PARAMS: ${MILVUS_ANALYZER_PARAMS:-}
   MYSCALE_HOST: ${MYSCALE_HOST:-myscale}
   MYSCALE_PORT: ${MYSCALE_PORT:-8123}
   MYSCALE_USER: ${MYSCALE_USER:-default}
@@ -159,6 +184,13 @@ x-shared-env: &shared-api-worker-env
   PGVECTOR_MAX_CONNECTION: ${PGVECTOR_MAX_CONNECTION:-5}
   PGVECTOR_PG_BIGM: ${PGVECTOR_PG_BIGM:-false}
   PGVECTOR_PG_BIGM_VERSION: ${PGVECTOR_PG_BIGM_VERSION:-1.2-20240606}
+  VASTBASE_HOST: ${VASTBASE_HOST:-vastbase}
+  VASTBASE_PORT: ${VASTBASE_PORT:-5432}
+  VASTBASE_USER: ${VASTBASE_USER:-dify}
+  VASTBASE_PASSWORD: ${VASTBASE_PASSWORD:-Difyai123456}
+  VASTBASE_DATABASE: ${VASTBASE_DATABASE:-dify}
+  VASTBASE_MIN_CONNECTION: ${VASTBASE_MIN_CONNECTION:-1}
+  VASTBASE_MAX_CONNECTION: ${VASTBASE_MAX_CONNECTION:-5}
   PGVECTO_RS_HOST: ${PGVECTO_RS_HOST:-pgvecto-rs}
   PGVECTO_RS_PORT: ${PGVECTO_RS_PORT:-5432}
   PGVECTO_RS_USER: ${PGVECTO_RS_USER:-postgres}
@@ -181,6 +213,11 @@ x-shared-env: &shared-api-worker-env
   TIDB_VECTOR_USER: ${TIDB_VECTOR_USER:-}
   TIDB_VECTOR_PASSWORD: ${TIDB_VECTOR_PASSWORD:-}
   TIDB_VECTOR_DATABASE: ${TIDB_VECTOR_DATABASE:-dify}
+  MATRIXONE_HOST: ${MATRIXONE_HOST:-matrixone}
+  MATRIXONE_PORT: ${MATRIXONE_PORT:-6001}
+  MATRIXONE_USER: ${MATRIXONE_USER:-dump}
+  MATRIXONE_PASSWORD: ${MATRIXONE_PASSWORD:-111}
+  MATRIXONE_DATABASE: ${MATRIXONE_DATABASE:-dify}
   TIDB_ON_QDRANT_URL: ${TIDB_ON_QDRANT_URL:-http://127.0.0.1}
   TIDB_ON_QDRANT_API_KEY: ${TIDB_ON_QDRANT_API_KEY:-dify}
   TIDB_ON_QDRANT_CLIENT_TIMEOUT: ${TIDB_ON_QDRANT_CLIENT_TIMEOUT:-20}
@@ -213,9 +250,13 @@ x-shared-env: &shared-api-worker-env
   RELYT_DATABASE: ${RELYT_DATABASE:-postgres}
   OPENSEARCH_HOST: ${OPENSEARCH_HOST:-opensearch}
   OPENSEARCH_PORT: ${OPENSEARCH_PORT:-9200}
+  OPENSEARCH_SECURE: ${OPENSEARCH_SECURE:-true}
+  OPENSEARCH_VERIFY_CERTS: ${OPENSEARCH_VERIFY_CERTS:-true}
+  OPENSEARCH_AUTH_METHOD: ${OPENSEARCH_AUTH_METHOD:-basic}
   OPENSEARCH_USER: ${OPENSEARCH_USER:-admin}
   OPENSEARCH_PASSWORD: ${OPENSEARCH_PASSWORD:-admin}
-  OPENSEARCH_SECURE: ${OPENSEARCH_SECURE:-true}
+  OPENSEARCH_AWS_REGION: ${OPENSEARCH_AWS_REGION:-ap-southeast-1}
+  OPENSEARCH_AWS_SERVICE: ${OPENSEARCH_AWS_SERVICE:-aoss}
   TENCENT_VECTOR_DB_URL: ${TENCENT_VECTOR_DB_URL:-http://127.0.0.1}
   TENCENT_VECTOR_DB_API_KEY: ${TENCENT_VECTOR_DB_API_KEY:-dify}
   TENCENT_VECTOR_DB_TIMEOUT: ${TENCENT_VECTOR_DB_TIMEOUT:-30}
@@ -229,6 +270,14 @@ x-shared-env: &shared-api-worker-env
   ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME:-elastic}
   ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD:-elastic}
   KIBANA_PORT: ${KIBANA_PORT:-5601}
+  ELASTICSEARCH_USE_CLOUD: ${ELASTICSEARCH_USE_CLOUD:-false}
+  ELASTICSEARCH_CLOUD_URL: ${ELASTICSEARCH_CLOUD_URL:-YOUR-ELASTICSEARCH_CLOUD_URL}
+  ELASTICSEARCH_API_KEY: ${ELASTICSEARCH_API_KEY:-YOUR-ELASTICSEARCH_API_KEY}
+  ELASTICSEARCH_VERIFY_CERTS: ${ELASTICSEARCH_VERIFY_CERTS:-False}
+  ELASTICSEARCH_CA_CERTS: ${ELASTICSEARCH_CA_CERTS:-}
+  ELASTICSEARCH_REQUEST_TIMEOUT: ${ELASTICSEARCH_REQUEST_TIMEOUT:-100000}
+  ELASTICSEARCH_RETRY_ON_TIMEOUT: ${ELASTICSEARCH_RETRY_ON_TIMEOUT:-True}
+  ELASTICSEARCH_MAX_RETRIES: ${ELASTICSEARCH_MAX_RETRIES:-10}
   BAIDU_VECTOR_DB_ENDPOINT: ${BAIDU_VECTOR_DB_ENDPOINT:-http://127.0.0.1:5287}
   BAIDU_VECTOR_DB_CONNECTION_TIMEOUT_MS: ${BAIDU_VECTOR_DB_CONNECTION_TIMEOUT_MS:-30000}
   BAIDU_VECTOR_DB_ACCOUNT: ${BAIDU_VECTOR_DB_ACCOUNT:-root}
@@ -246,6 +295,7 @@ x-shared-env: &shared-api-worker-env
   LINDORM_URL: ${LINDORM_URL:-http://lindorm:30070}
   LINDORM_USERNAME: ${LINDORM_USERNAME:-lindorm}
   LINDORM_PASSWORD: ${LINDORM_PASSWORD:-lindorm}
+  LINDORM_QUERY_TIMEOUT: ${LINDORM_QUERY_TIMEOUT:-1}
   OCEANBASE_VECTOR_HOST: ${OCEANBASE_VECTOR_HOST:-oceanbase}
   OCEANBASE_VECTOR_PORT: ${OCEANBASE_VECTOR_PORT:-2881}
   OCEANBASE_VECTOR_USER: ${OCEANBASE_VECTOR_USER:-root@test}
@@ -262,12 +312,28 @@ x-shared-env: &shared-api-worker-env
   OPENGAUSS_MIN_CONNECTION: ${OPENGAUSS_MIN_CONNECTION:-1}
   OPENGAUSS_MAX_CONNECTION: ${OPENGAUSS_MAX_CONNECTION:-5}
   OPENGAUSS_ENABLE_PQ: ${OPENGAUSS_ENABLE_PQ:-false}
+  HUAWEI_CLOUD_HOSTS: ${HUAWEI_CLOUD_HOSTS:-https://127.0.0.1:9200}
+  HUAWEI_CLOUD_USER: ${HUAWEI_CLOUD_USER:-admin}
+  HUAWEI_CLOUD_PASSWORD: ${HUAWEI_CLOUD_PASSWORD:-admin}
   UPSTASH_VECTOR_URL: ${UPSTASH_VECTOR_URL:-https://xxx-vector.upstash.io}
   UPSTASH_VECTOR_TOKEN: ${UPSTASH_VECTOR_TOKEN:-dify}
   TABLESTORE_ENDPOINT: ${TABLESTORE_ENDPOINT:-https://instance-name.cn-hangzhou.ots.aliyuncs.com}
   TABLESTORE_INSTANCE_NAME: ${TABLESTORE_INSTANCE_NAME:-instance-name}
   TABLESTORE_ACCESS_KEY_ID: ${TABLESTORE_ACCESS_KEY_ID:-xxx}
   TABLESTORE_ACCESS_KEY_SECRET: ${TABLESTORE_ACCESS_KEY_SECRET:-xxx}
+  TABLESTORE_NORMALIZE_FULLTEXT_BM25_SCORE: ${TABLESTORE_NORMALIZE_FULLTEXT_BM25_SCORE:-false}
+  CLICKZETTA_USERNAME: ${CLICKZETTA_USERNAME:-}
+  CLICKZETTA_PASSWORD: ${CLICKZETTA_PASSWORD:-}
+  CLICKZETTA_INSTANCE: ${CLICKZETTA_INSTANCE:-}
+  CLICKZETTA_SERVICE: ${CLICKZETTA_SERVICE:-api.clickzetta.com}
+  CLICKZETTA_WORKSPACE: ${CLICKZETTA_WORKSPACE:-quick_start}
+  CLICKZETTA_VCLUSTER: ${CLICKZETTA_VCLUSTER:-default_ap}
+  CLICKZETTA_SCHEMA: ${CLICKZETTA_SCHEMA:-dify}
+  CLICKZETTA_BATCH_SIZE: ${CLICKZETTA_BATCH_SIZE:-100}
+  CLICKZETTA_ENABLE_INVERTED_INDEX: ${CLICKZETTA_ENABLE_INVERTED_INDEX:-true}
+  CLICKZETTA_ANALYZER_TYPE: ${CLICKZETTA_ANALYZER_TYPE:-chinese}
+  CLICKZETTA_ANALYZER_MODE: ${CLICKZETTA_ANALYZER_MODE:-smart}
+  CLICKZETTA_VECTOR_DISTANCE_FUNCTION: ${CLICKZETTA_VECTOR_DISTANCE_FUNCTION:-cosine_distance}
   UPLOAD_FILE_SIZE_LIMIT: ${UPLOAD_FILE_SIZE_LIMIT:-15}
   UPLOAD_FILE_BATCH_LIMIT: ${UPLOAD_FILE_BATCH_LIMIT:-5}
   ETL_TYPE: ${ETL_TYPE:-dify}
@@ -276,6 +342,7 @@ x-shared-env: &shared-api-worker-env
   SCARF_NO_ANALYTICS: ${SCARF_NO_ANALYTICS:-true}
   PROMPT_GENERATION_MAX_TOKENS: ${PROMPT_GENERATION_MAX_TOKENS:-512}
   CODE_GENERATION_MAX_TOKENS: ${CODE_GENERATION_MAX_TOKENS:-1024}
+  PLUGIN_BASED_TOKEN_COUNTING_ENABLED: ${PLUGIN_BASED_TOKEN_COUNTING_ENABLED:-false}
   MULTIMODAL_SEND_FORMAT: ${MULTIMODAL_SEND_FORMAT:-base64}
   UPLOAD_IMAGE_FILE_SIZE_LIMIT: ${UPLOAD_IMAGE_FILE_SIZE_LIMIT:-10}
   UPLOAD_VIDEO_FILE_SIZE_LIMIT: ${UPLOAD_VIDEO_FILE_SIZE_LIMIT:-100}
@@ -285,6 +352,8 @@ x-shared-env: &shared-api-worker-env
   API_SENTRY_TRACES_SAMPLE_RATE: ${API_SENTRY_TRACES_SAMPLE_RATE:-1.0}
   API_SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
   WEB_SENTRY_DSN: ${WEB_SENTRY_DSN:-}
+  PLUGIN_SENTRY_ENABLED: ${PLUGIN_SENTRY_ENABLED:-false}
+  PLUGIN_SENTRY_DSN: ${PLUGIN_SENTRY_DSN:-}
   NOTION_INTEGRATION_TYPE: ${NOTION_INTEGRATION_TYPE:-public}
   NOTION_CLIENT_SECRET: ${NOTION_CLIENT_SECRET:-}
   NOTION_CLIENT_ID: ${NOTION_CLIENT_ID:-}
@@ -299,9 +368,12 @@ x-shared-env: &shared-api-worker-env
   SMTP_PASSWORD: ${SMTP_PASSWORD:-}
   SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
   SMTP_OPPORTUNISTIC_TLS: ${SMTP_OPPORTUNISTIC_TLS:-false}
+  SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
   INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH: ${INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH:-4000}
   INVITE_EXPIRY_HOURS: ${INVITE_EXPIRY_HOURS:-72}
   RESET_PASSWORD_TOKEN_EXPIRY_MINUTES: ${RESET_PASSWORD_TOKEN_EXPIRY_MINUTES:-5}
+  CHANGE_EMAIL_TOKEN_EXPIRY_MINUTES: ${CHANGE_EMAIL_TOKEN_EXPIRY_MINUTES:-5}
+  OWNER_TRANSFER_TOKEN_EXPIRY_MINUTES: ${OWNER_TRANSFER_TOKEN_EXPIRY_MINUTES:-5}
   CODE_EXECUTION_ENDPOINT: ${CODE_EXECUTION_ENDPOINT:-http://sandbox:8194}
   CODE_EXECUTION_API_KEY: ${CODE_EXECUTION_API_KEY:-dify-sandbox}
   CODE_MAX_NUMBER: ${CODE_MAX_NUMBER:-9223372036854775807}
@@ -322,17 +394,28 @@ x-shared-env: &shared-api-worker-env
   MAX_VARIABLE_SIZE: ${MAX_VARIABLE_SIZE:-204800}
   WORKFLOW_PARALLEL_DEPTH_LIMIT: ${WORKFLOW_PARALLEL_DEPTH_LIMIT:-3}
   WORKFLOW_FILE_UPLOAD_LIMIT: ${WORKFLOW_FILE_UPLOAD_LIMIT:-10}
+  WORKFLOW_NODE_EXECUTION_STORAGE: ${WORKFLOW_NODE_EXECUTION_STORAGE:-rdbms}
+  CORE_WORKFLOW_EXECUTION_REPOSITORY: ${CORE_WORKFLOW_EXECUTION_REPOSITORY:-core.repositories.sqlalchemy_workflow_execution_repository.SQLAlchemyWorkflowExecutionRepository}
+  CORE_WORKFLOW_NODE_EXECUTION_REPOSITORY: ${CORE_WORKFLOW_NODE_EXECUTION_REPOSITORY:-core.repositories.sqlalchemy_workflow_node_execution_repository.SQLAlchemyWorkflowNodeExecutionRepository}
+  API_WORKFLOW_RUN_REPOSITORY: ${API_WORKFLOW_RUN_REPOSITORY:-repositories.sqlalchemy_api_workflow_run_repository.DifyAPISQLAlchemyWorkflowRunRepository}
+  API_WORKFLOW_NODE_EXECUTION_REPOSITORY: ${API_WORKFLOW_NODE_EXECUTION_REPOSITORY:-repositories.sqlalchemy_api_workflow_node_execution_repository.DifyAPISQLAlchemyWorkflowNodeExecutionRepository}
+  WORKFLOW_LOG_CLEANUP_ENABLED: ${WORKFLOW_LOG_CLEANUP_ENABLED:-false}
+  WORKFLOW_LOG_RETENTION_DAYS: ${WORKFLOW_LOG_RETENTION_DAYS:-30}
+  WORKFLOW_LOG_CLEANUP_BATCH_SIZE: ${WORKFLOW_LOG_CLEANUP_BATCH_SIZE:-100}
   HTTP_REQUEST_NODE_MAX_BINARY_SIZE: ${HTTP_REQUEST_NODE_MAX_BINARY_SIZE:-10485760}
   HTTP_REQUEST_NODE_MAX_TEXT_SIZE: ${HTTP_REQUEST_NODE_MAX_TEXT_SIZE:-1048576}
   HTTP_REQUEST_NODE_SSL_VERIFY: ${HTTP_REQUEST_NODE_SSL_VERIFY:-True}
+  RESPECT_XFORWARD_HEADERS_ENABLED: ${RESPECT_XFORWARD_HEADERS_ENABLED:-false}
   SSRF_PROXY_HTTP_URL: ${SSRF_PROXY_HTTP_URL:-http://ssrf_proxy:3128}
   SSRF_PROXY_HTTPS_URL: ${SSRF_PROXY_HTTPS_URL:-http://ssrf_proxy:3128}
   LOOP_NODE_MAX_COUNT: ${LOOP_NODE_MAX_COUNT:-100}
   MAX_TOOLS_NUM: ${MAX_TOOLS_NUM:-10}
   MAX_PARALLEL_LIMIT: ${MAX_PARALLEL_LIMIT:-10}
-  MAX_ITERATIONS_NUM: ${MAX_ITERATIONS_NUM:-5}
+  MAX_ITERATIONS_NUM: ${MAX_ITERATIONS_NUM:-99}
   TEXT_GENERATION_TIMEOUT_MS: ${TEXT_GENERATION_TIMEOUT_MS:-60000}
-  PGUSER: ${PGUSER:-${DB_USERNAME}}
+  ALLOW_UNSAFE_DATA_SCHEME: ${ALLOW_UNSAFE_DATA_SCHEME:-false}
+  MAX_TREE_DEPTH: ${MAX_TREE_DEPTH:-50}
+  POSTGRES_USER: ${POSTGRES_USER:-${DB_USERNAME}}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-${DB_PASSWORD}}
   POSTGRES_DB: ${POSTGRES_DB:-${DB_DATABASE}}
   PGDATA: ${PGDATA:-/var/lib/postgresql/data/pgdata}
@@ -432,7 +515,9 @@ x-shared-env: &shared-api-worker-env
   ENDPOINT_URL_TEMPLATE: ${ENDPOINT_URL_TEMPLATE:-http://localhost/e/{hook_id}}
   MARKETPLACE_ENABLED: ${MARKETPLACE_ENABLED:-true}
   MARKETPLACE_API_URL: ${MARKETPLACE_API_URL:-https://marketplace.dify.ai}
-  FORCE_VERIFYING_SIGNATURE: ${FORCE_VERIFYING_SIGNATURE:-true}
+  FORCE_VERIFYING_SIGNATURE: ${FORCE_VERIFYING_SIGNATURE:-false}
+  PLUGIN_STDIO_BUFFER_SIZE: ${PLUGIN_STDIO_BUFFER_SIZE:-1024}
+  PLUGIN_STDIO_MAX_BUFFER_SIZE: ${PLUGIN_STDIO_MAX_BUFFER_SIZE:-5242880}
   PLUGIN_PYTHON_ENV_INIT_TIMEOUT: ${PLUGIN_PYTHON_ENV_INIT_TIMEOUT:-120}
   PLUGIN_MAX_EXECUTION_TIMEOUT: ${PLUGIN_MAX_EXECUTION_TIMEOUT:-600}
   PIP_MIRROR_URL: ${PIP_MIRROR_URL:-}
@@ -443,9 +528,10 @@ x-shared-env: &shared-api-worker-env
   PLUGIN_PACKAGE_CACHE_PATH: ${PLUGIN_PACKAGE_CACHE_PATH:-plugin_packages}
   PLUGIN_MEDIA_CACHE_PATH: ${PLUGIN_MEDIA_CACHE_PATH:-assets}
   PLUGIN_STORAGE_OSS_BUCKET: ${PLUGIN_STORAGE_OSS_BUCKET:-}
-  PLUGIN_S3_USE_AWS_MANAGED_IAM: ${PLUGIN_S3_USE_AWS_MANAGED_IAM:-}
+  PLUGIN_S3_USE_AWS: ${PLUGIN_S3_USE_AWS:-false}
+  PLUGIN_S3_USE_AWS_MANAGED_IAM: ${PLUGIN_S3_USE_AWS_MANAGED_IAM:-false}
   PLUGIN_S3_ENDPOINT: ${PLUGIN_S3_ENDPOINT:-}
-  PLUGIN_S3_USE_PATH_STYLE: ${PLUGIN_S3_USE_PATH_STYLE:-}
+  PLUGIN_S3_USE_PATH_STYLE: ${PLUGIN_S3_USE_PATH_STYLE:-false}
   PLUGIN_AWS_ACCESS_KEY: ${PLUGIN_AWS_ACCESS_KEY:-}
   PLUGIN_AWS_SECRET_KEY: ${PLUGIN_AWS_SECRET_KEY:-}
   PLUGIN_AWS_REGION: ${PLUGIN_AWS_REGION:-}
@@ -454,11 +540,49 @@ x-shared-env: &shared-api-worker-env
   PLUGIN_TENCENT_COS_SECRET_KEY: ${PLUGIN_TENCENT_COS_SECRET_KEY:-}
   PLUGIN_TENCENT_COS_SECRET_ID: ${PLUGIN_TENCENT_COS_SECRET_ID:-}
   PLUGIN_TENCENT_COS_REGION: ${PLUGIN_TENCENT_COS_REGION:-}
+  PLUGIN_ALIYUN_OSS_REGION: ${PLUGIN_ALIYUN_OSS_REGION:-}
+  PLUGIN_ALIYUN_OSS_ENDPOINT: ${PLUGIN_ALIYUN_OSS_ENDPOINT:-}
+  PLUGIN_ALIYUN_OSS_ACCESS_KEY_ID: ${PLUGIN_ALIYUN_OSS_ACCESS_KEY_ID:-}
+  PLUGIN_ALIYUN_OSS_ACCESS_KEY_SECRET: ${PLUGIN_ALIYUN_OSS_ACCESS_KEY_SECRET:-}
+  PLUGIN_ALIYUN_OSS_AUTH_VERSION: ${PLUGIN_ALIYUN_OSS_AUTH_VERSION:-v4}
+  PLUGIN_ALIYUN_OSS_PATH: ${PLUGIN_ALIYUN_OSS_PATH:-}
+  PLUGIN_VOLCENGINE_TOS_ENDPOINT: ${PLUGIN_VOLCENGINE_TOS_ENDPOINT:-}
+  PLUGIN_VOLCENGINE_TOS_ACCESS_KEY: ${PLUGIN_VOLCENGINE_TOS_ACCESS_KEY:-}
+  PLUGIN_VOLCENGINE_TOS_SECRET_KEY: ${PLUGIN_VOLCENGINE_TOS_SECRET_KEY:-}
+  PLUGIN_VOLCENGINE_TOS_REGION: ${PLUGIN_VOLCENGINE_TOS_REGION:-}
+  ENABLE_OTEL: ${ENABLE_OTEL:-false}
+  OTLP_TRACE_ENDPOINT: ${OTLP_TRACE_ENDPOINT:-}
+  OTLP_METRIC_ENDPOINT: ${OTLP_METRIC_ENDPOINT:-}
+  OTLP_BASE_ENDPOINT: ${OTLP_BASE_ENDPOINT:-http://localhost:4318}
+  OTLP_API_KEY: ${OTLP_API_KEY:-}
+  OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
+  OTEL_EXPORTER_TYPE: ${OTEL_EXPORTER_TYPE:-otlp}
+  OTEL_SAMPLING_RATE: ${OTEL_SAMPLING_RATE:-0.1}
+  OTEL_BATCH_EXPORT_SCHEDULE_DELAY: ${OTEL_BATCH_EXPORT_SCHEDULE_DELAY:-5000}
+  OTEL_MAX_QUEUE_SIZE: ${OTEL_MAX_QUEUE_SIZE:-2048}
+  OTEL_MAX_EXPORT_BATCH_SIZE: ${OTEL_MAX_EXPORT_BATCH_SIZE:-512}
+  OTEL_METRIC_EXPORT_INTERVAL: ${OTEL_METRIC_EXPORT_INTERVAL:-60000}
+  OTEL_BATCH_EXPORT_TIMEOUT: ${OTEL_BATCH_EXPORT_TIMEOUT:-10000}
+  OTEL_METRIC_EXPORT_TIMEOUT: ${OTEL_METRIC_EXPORT_TIMEOUT:-30000}
+  ALLOW_EMBED: ${ALLOW_EMBED:-false}
+  QUEUE_MONITOR_THRESHOLD: ${QUEUE_MONITOR_THRESHOLD:-200}
+  QUEUE_MONITOR_ALERT_EMAILS: ${QUEUE_MONITOR_ALERT_EMAILS:-}
+  QUEUE_MONITOR_INTERVAL: ${QUEUE_MONITOR_INTERVAL:-30}
+  SWAGGER_UI_ENABLED: ${SWAGGER_UI_ENABLED:-true}
+  SWAGGER_UI_PATH: ${SWAGGER_UI_PATH:-/swagger-ui.html}
+  ENABLE_CLEAN_EMBEDDING_CACHE_TASK: ${ENABLE_CLEAN_EMBEDDING_CACHE_TASK:-true}
+  ENABLE_CLEAN_UNUSED_DATASETS_TASK: ${ENABLE_CLEAN_UNUSED_DATASETS_TASK:-true}
+  ENABLE_CREATE_TIDB_SERVERLESS_TASK: ${ENABLE_CREATE_TIDB_SERVERLESS_TASK:-true}
+  ENABLE_UPDATE_TIDB_SERVERLESS_STATUS_TASK: ${ENABLE_UPDATE_TIDB_SERVERLESS_STATUS_TASK:-true}
+  ENABLE_CLEAN_MESSAGES: ${ENABLE_CLEAN_MESSAGES:-true}
+  ENABLE_MAIL_CLEAN_DOCUMENT_NOTIFY_TASK: ${ENABLE_MAIL_CLEAN_DOCUMENT_NOTIFY_TASK:-true}
+  ENABLE_DATASETS_QUEUE_MONITOR: ${ENABLE_DATASETS_QUEUE_MONITOR:-true}
+  ENABLE_CHECK_UPGRADABLE_PLUGIN_TASK: ${ENABLE_CHECK_UPGRADABLE_PLUGIN_TASK:-true}
 
 services:
   # API service
   api:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.2.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
     restart: always
     environment:
       # Use the shared environment variables.
@@ -487,7 +611,7 @@ services:
   # worker service
   # The Celery worker for processing the queue.
   worker:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.2.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
     restart: always
     environment:
       # Use the shared environment variables.
@@ -509,10 +633,60 @@ services:
       - ssrf_proxy_network
       - default
 
+  # worker-gaia service
+  # The Celery worker-gaia for processing the queue.
+  worker-gaia:
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
+    restart: always
+    environment:
+      # Use the shared environment variables.
+      <<: *shared-api-worker-env
+      # Startup mode, 'worker-gaia' starts the Celery worker-gaia for processing the queue.
+      MODE: worker-gaia
+      SENTRY_DSN: ${API_SENTRY_DSN:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${API_SENTRY_TRACES_SAMPLE_RATE:-1.0}
+      SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
+      PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
+      INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      # Mount the storage directory to the container, for storing user files.
+      - ./volumes/app/storage:/app/api/storage
+    networks:
+      - ssrf_proxy_network
+      - default
+
+  # worker-dataset service
+  # The Celery worker-dataset for processing the queue.
+  worker-dataset:
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
+    restart: always
+    environment:
+      # Use the shared environment variables.
+      <<: *shared-api-worker-env
+      # Startup mode, 'worker-dataset' starts the Celery worker-dataset for processing the queue.
+      MODE: worker-dataset
+      SENTRY_DSN: ${API_SENTRY_DSN:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${API_SENTRY_TRACES_SAMPLE_RATE:-1.0}
+      SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
+      PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
+      INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
+    depends_on:
+      - db
+      - redis
+    volumes:
+      # Mount the storage directory to the container, for storing user files.
+      - ./volumes/app/storage:/app/api/storage
+    networks:
+      - ssrf_proxy_network
+      - default
+
   # beat service
   # The Celery worker for schedule tasks.
   beat:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.2.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
     restart: always
     environment:
       # Use the shared environment variables.
@@ -536,7 +710,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.2.0
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.8.1
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -545,6 +719,8 @@ services:
       NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED:-0}
       TEXT_GENERATION_TIMEOUT_MS: ${TEXT_GENERATION_TIMEOUT_MS:-60000}
       CSP_WHITELIST: ${CSP_WHITELIST:-}
+      ALLOW_EMBED: ${ALLOW_EMBED:-false}
+      ALLOW_UNSAFE_DATA_SCHEME: ${ALLOW_UNSAFE_DATA_SCHEME:-false}
       MARKETPLACE_API_URL: ${MARKETPLACE_API_URL:-https://marketplace.dify.ai}
       MARKETPLACE_URL: ${MARKETPLACE_URL:-https://marketplace.dify.ai}
       TOP_K_MAX_VALUE: ${TOP_K_MAX_VALUE:-}
@@ -553,14 +729,18 @@ services:
       LOOP_NODE_MAX_COUNT: ${LOOP_NODE_MAX_COUNT:-100}
       MAX_TOOLS_NUM: ${MAX_TOOLS_NUM:-10}
       MAX_PARALLEL_LIMIT: ${MAX_PARALLEL_LIMIT:-10}
-      MAX_ITERATIONS_NUM: ${MAX_ITERATIONS_NUM:-5}
+      MAX_ITERATIONS_NUM: ${MAX_ITERATIONS_NUM:-99}
+      MAX_TREE_DEPTH: ${MAX_TREE_DEPTH:-50}
+      ENABLE_WEBSITE_JINAREADER: ${ENABLE_WEBSITE_JINAREADER:-true}
+      ENABLE_WEBSITE_FIRECRAWL: ${ENABLE_WEBSITE_FIRECRAWL:-true}
+      ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
 
   # The postgres database.
   db:
     image: ccr.ccs.tencentyun.com/yfgaia/postgres:15-alpine
     restart: always
     environment:
-      PGUSER: ${PGUSER:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-difyai123456}
       POSTGRES_DB: ${POSTGRES_DB:-dify}
       PGDATA: ${PGDATA:-/var/lib/postgresql/data/pgdata}
@@ -573,10 +753,20 @@ services:
     volumes:
       - ./volumes/db/data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD', 'pg_isready']
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-h",
+          "db",
+          "-U",
+          "${POSTGRES_USER:-postgres}",
+          "-d",
+          "${POSTGRES_DB:-dify}",
+        ]
       interval: 1s
       timeout: 3s
-      retries: 30
+      retries: 60
     ports:
       - 5432:5432
 
@@ -592,13 +782,17 @@ services:
     # Set the redis password when startup redis server.
     command: redis-server --requirepass ${REDIS_PASSWORD:-difyai123456}
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test:
+        [
+          "CMD-SHELL",
+          "redis-cli -a ${REDIS_PASSWORD:-difyai123456} ping | grep -q PONG",
+        ]
     ports:
       - 6379:6379
 
   # The DifySandbox
   sandbox:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-sandbox:0.2.11
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-sandbox:0.2.12
     restart: always
     environment:
       # The DifySandbox configurations
@@ -611,6 +805,7 @@ services:
       HTTP_PROXY: ${SANDBOX_HTTP_PROXY:-http://ssrf_proxy:3128}
       HTTPS_PROXY: ${SANDBOX_HTTPS_PROXY:-http://ssrf_proxy:3128}
       SANDBOX_PORT: ${SANDBOX_PORT:-8194}
+      PIP_MIRROR_URL: ${PIP_MIRROR_URL:-}
     volumes:
       - ./volumes/sandbox/dependencies:/dependencies
       - ./volumes/sandbox/conf:/conf
@@ -621,7 +816,7 @@ services:
 
   # plugin daemon
   plugin_daemon:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plugin-daemon:0.0.7-local
+    image: langgenius/dify-plugin-daemon:0.2.0-local
     restart: always
     environment:
       # Use the shared environment variables.
@@ -636,9 +831,11 @@ services:
       PLUGIN_REMOTE_INSTALLING_HOST: ${PLUGIN_DEBUGGING_HOST:-0.0.0.0}
       PLUGIN_REMOTE_INSTALLING_PORT: ${PLUGIN_DEBUGGING_PORT:-5003}
       PLUGIN_WORKING_PATH: ${PLUGIN_WORKING_PATH:-/app/storage/cwd}
-      FORCE_VERIFYING_SIGNATURE: ${FORCE_VERIFYING_SIGNATURE:-true}
+      FORCE_VERIFYING_SIGNATURE: ${FORCE_VERIFYING_SIGNATURE:-false}
       PYTHON_ENV_INIT_TIMEOUT: ${PLUGIN_PYTHON_ENV_INIT_TIMEOUT:-120}
       PLUGIN_MAX_EXECUTION_TIMEOUT: ${PLUGIN_MAX_EXECUTION_TIMEOUT:-600}
+      PLUGIN_STDIO_BUFFER_SIZE: ${PLUGIN_STDIO_BUFFER_SIZE:-1024}
+      PLUGIN_STDIO_MAX_BUFFER_SIZE: ${PLUGIN_STDIO_MAX_BUFFER_SIZE:-5242880}
       PIP_MIRROR_URL: ${PIP_MIRROR_URL:-}
       PLUGIN_STORAGE_TYPE: ${PLUGIN_STORAGE_TYPE:-local}
       PLUGIN_STORAGE_LOCAL_ROOT: ${PLUGIN_STORAGE_LOCAL_ROOT:-/app/storage}
@@ -647,22 +844,36 @@ services:
       PLUGIN_MEDIA_CACHE_PATH: ${PLUGIN_MEDIA_CACHE_PATH:-assets}
       PLUGIN_STORAGE_OSS_BUCKET: ${PLUGIN_STORAGE_OSS_BUCKET:-}
       S3_USE_AWS_MANAGED_IAM: ${PLUGIN_S3_USE_AWS_MANAGED_IAM:-false}
+      S3_USE_AWS: ${PLUGIN_S3_USE_AWS:-false}
       S3_ENDPOINT: ${PLUGIN_S3_ENDPOINT:-}
       S3_USE_PATH_STYLE: ${PLUGIN_S3_USE_PATH_STYLE:-false}
       AWS_ACCESS_KEY: ${PLUGIN_AWS_ACCESS_KEY:-}
-      PAWS_SECRET_KEY: ${PLUGIN_AWS_SECRET_KEY:-}
+      AWS_SECRET_KEY: ${PLUGIN_AWS_SECRET_KEY:-}
       AWS_REGION: ${PLUGIN_AWS_REGION:-}
       AZURE_BLOB_STORAGE_CONNECTION_STRING: ${PLUGIN_AZURE_BLOB_STORAGE_CONNECTION_STRING:-}
       AZURE_BLOB_STORAGE_CONTAINER_NAME: ${PLUGIN_AZURE_BLOB_STORAGE_CONTAINER_NAME:-}
       TENCENT_COS_SECRET_KEY: ${PLUGIN_TENCENT_COS_SECRET_KEY:-}
       TENCENT_COS_SECRET_ID: ${PLUGIN_TENCENT_COS_SECRET_ID:-}
       TENCENT_COS_REGION: ${PLUGIN_TENCENT_COS_REGION:-}
+      ALIYUN_OSS_REGION: ${PLUGIN_ALIYUN_OSS_REGION:-}
+      ALIYUN_OSS_ENDPOINT: ${PLUGIN_ALIYUN_OSS_ENDPOINT:-}
+      ALIYUN_OSS_ACCESS_KEY_ID: ${PLUGIN_ALIYUN_OSS_ACCESS_KEY_ID:-}
+      ALIYUN_OSS_ACCESS_KEY_SECRET: ${PLUGIN_ALIYUN_OSS_ACCESS_KEY_SECRET:-}
+      ALIYUN_OSS_AUTH_VERSION: ${PLUGIN_ALIYUN_OSS_AUTH_VERSION:-v4}
+      ALIYUN_OSS_PATH: ${PLUGIN_ALIYUN_OSS_PATH:-}
+      VOLCENGINE_TOS_ENDPOINT: ${PLUGIN_VOLCENGINE_TOS_ENDPOINT:-}
+      VOLCENGINE_TOS_ACCESS_KEY: ${PLUGIN_VOLCENGINE_TOS_ACCESS_KEY:-}
+      VOLCENGINE_TOS_SECRET_KEY: ${PLUGIN_VOLCENGINE_TOS_SECRET_KEY:-}
+      VOLCENGINE_TOS_REGION: ${PLUGIN_VOLCENGINE_TOS_REGION:-}
+      SENTRY_ENABLED: ${PLUGIN_SENTRY_ENABLED:-false}
+      SENTRY_DSN: ${PLUGIN_SENTRY_DSN:-}
     ports:
       - "${EXPOSE_PLUGIN_DEBUGGING_PORT:-5003}:${PLUGIN_DEBUGGING_PORT:-5003}"
     volumes:
       - ./volumes/plugin_daemon:/app/storage
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   # ssrf_proxy server
   # for more information, please refer to
@@ -699,8 +910,8 @@ services:
       - ./certbot/update-cert.template.txt:/update-cert.template.txt
       - ./certbot/docker-entrypoint.sh:/docker-entrypoint.sh
     environment:
-      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
-      - CERTBOT_DOMAIN=${CERTBOT_DOMAIN}
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL:-your_email@example.com}
+      - CERTBOT_DOMAIN=${CERTBOT_DOMAIN:-your_domain.com}
       - CERTBOT_OPTIONS=${CERTBOT_OPTIONS:-}
     entrypoint: [ '/docker-entrypoint.sh' ]
     command: [ 'tail', '-f', '/dev/null' ]
@@ -813,6 +1024,30 @@ services:
       retries: 10
       start_period: 30s
       timeout: 10s
+
+  # get image from https://www.vastdata.com.cn/
+  vastbase:
+    image: vastdata/vastbase-vector
+    profiles:
+      - vastbase
+    restart: always
+    environment:
+      - VB_DBCOMPATIBILITY=PG
+      - VB_DB=dify
+      - VB_USERNAME=dify
+      - VB_PASSWORD=Difyai123456
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./vastbase/lic:/home/vastbase/vastbase/lic
+      - ./vastbase/data:/home/vastbase/data
+      - ./vastbase/backup:/home/vastbase/backup
+      - ./vastbase/backup_log:/home/vastbase/backup_log
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
 
   # The pgvector vector database.
   pgvector:
@@ -1038,6 +1273,18 @@ services:
     ports:
       - ${OPENGAUSS_PORT:-6600}:${OPENGAUSS_PORT:-6600}
 
+  # Matrixone vector store.
+  matrixone:
+    hostname: matrixone
+    image: matrixorigin/matrixone:2.1.1
+    profiles:
+      - matrixone
+    restart: always
+    volumes:
+      - ./volumes/matrixone/data:/mo-data
+    ports:
+      - ${MATRIXONE_PORT:-6001}:${MATRIXONE_PORT:-6001}
+
   # MyScale vector database
   myscale:
     container_name: myscale
@@ -1128,8 +1375,10 @@ services:
 
   # Extend - admin-web
   admin-web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-web:1.2.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-web:1.8.1
     restart: always
+    ports:
+      - '8081:8081'
     depends_on:
       - admin-server
     command: [ 'nginx-debug', '-g', 'daemon off;' ]
@@ -1138,8 +1387,12 @@ services:
 
   # Extend - admin-server
   admin-server:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.2.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.8.1
     restart: always
+    environment:
+      # JWT signing key must match API's SECRET_KEY for token compatibility
+      JWT_SIGNING_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
+      SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
     ports:
       - '8888:8888'
     depends_on:
@@ -1158,7 +1411,7 @@ services:
 
   # Extend - sandbox-full
   sandbox-full:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-sandbox-full:0.0.7
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-sandbox-full:1.2.2
     restart: always
     environment:
       # The DifySandbox configurations

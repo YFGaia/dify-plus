@@ -1383,10 +1383,10 @@ def extend_db_heads():
 def _run_alembic_command_extend(command, *args):
     """运行 alembic 命令"""
     import os
-    import sys
-    from flask import current_app
-    from alembic.config import Config
+
     from alembic import command as alembic_command
+    from alembic.config import Config
+    from flask import current_app
 
     # 获取 api 目录的绝对路径
     api_dir = os.path.abspath(os.path.dirname(__file__))

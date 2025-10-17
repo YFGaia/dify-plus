@@ -14,6 +14,9 @@ from core.app.entities.queue_entities import (
     QueueNodeSucceededEvent,
 )
 from core.app.task_pipeline.exc import WorkflowRunNotFoundError
+from core.model_runtime.utils.encoders import jsonable_encoder
+
+# 二开部分Start - 密钥额度限制
 from core.ops.entities.trace_entity import TraceTaskName
 from core.ops.ops_trace_manager import TraceQueueManager, TraceTask
 from core.workflow.entities.workflow_execution import WorkflowExecution, WorkflowExecutionStatus, WorkflowType
@@ -29,12 +32,10 @@ from core.workflow.system_variable import SystemVariable
 from core.workflow.workflow_entry import WorkflowEntry
 from libs.datetime_utils import naive_utc_now
 from libs.uuid_utils import uuidv7
-
-# 二开部分Start - 密钥额度限制
-from core.model_runtime.utils.encoders import jsonable_encoder
 from tasks.extend.update_account_money_when_workflow_node_execution_created_extend import (
     update_account_money_when_workflow_node_execution_created_extend,
 )
+
 # 二开部分End - 密钥额度限制
 
 @dataclass
@@ -196,8 +197,9 @@ class WorkflowCycleManager:
         self._workflow_node_execution_repository.save(domain_execution)
 
         # 二开部分Begin - 额度限制
-        workflow_node_execution_dict = jsonable_encoder(domain_execution)  # 转化为json字典
-        update_account_money_when_workflow_node_execution_created_extend.delay(workflow_node_execution_dict)
+        # 异步任务计算费用并更新账户额度，将对象转换为字典传递
+        domain_execution_dict = jsonable_encoder(domain_execution)
+        update_account_money_when_workflow_node_execution_created_extend.delay(domain_execution_dict)
         # 二开部分End - 额度限制
         return domain_execution
 
