@@ -31,15 +31,23 @@ def update_account_money_when_workflow_node_execution_created_extend(
     # 非大模型则跳过
     if workflow_node_execution_dict.get("node_type") != NodeType.LLM.value:
         return
-    
+
     node_id = workflow_node_execution_dict.get("id")
     logging.info(click.style("工作流节点ID： {}".format(node_id), fg="cyan"))
 
-    # 拿到费用
-    outputs_str = workflow_node_execution_dict.get("outputs")
-    outputs = json.loads(outputs_str) if outputs_str else {}
-    total_price = Decimal(outputs.get("usage", {}).get("total_price", 0))
-    currency = outputs.get("usage", {}).get("currency", "USD")
+    # 拿到费用 - 从 outputs 字段获取费用信息（参考原始代码）
+    outputs = workflow_node_execution_dict.get("outputs", {})
+
+    # 如果 outputs 是字符串，则解析 JSON；如果已经是字典，则直接使用
+    if isinstance(outputs, str):
+        outputs = json.loads(outputs) if outputs else {}
+    elif not isinstance(outputs, dict):
+        outputs = {}
+
+    usage = outputs.get("usage", {})
+    total_price = Decimal(usage.get("total_price", 0))
+    currency = usage.get("currency", "USD")
+
     if total_price == 0:
         return
     price = float(total_price) if currency == "USD" else (
@@ -116,6 +124,3 @@ def update_account_money_when_workflow_node_execution_created_extend(
                         f"{format(price)} 异常报错，60秒后进行重试，", fg="red")
         )
         raise self.retry(exc=e, countdown=60)
-
-
-
