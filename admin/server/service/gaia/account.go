@@ -128,12 +128,6 @@ func RegisterUser(u system.SysUser, token string) (err error) {
 	global.GVA_LOG.Debug("注册用户信息:", zap.Any("1", 1))
 	var acc gaia.Account
 	if err = global.GVA_DB.Where("email=?", u.Email).First(&acc).Error; err == nil {
-		// 用户已存在，更新密码
-		global.GVA_LOG.Info(fmt.Sprintf("account %s already exists, updating password", acc.Name))
-		global.GVA_DB.Model(&acc).Updates(&map[string]interface{}{
-			"password":      passwordHashed,
-			"password_salt": salt,
-		})
 		return nil
 	}
 	// 默认以root执行
