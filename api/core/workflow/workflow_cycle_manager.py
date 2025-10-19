@@ -202,8 +202,10 @@ class WorkflowCycleManager:
         domain_execution_dict = jsonable_encoder(domain_execution)
 
         # 添加用户信息到字典中
-        domain_execution_dict['created_by'] = self._application_generate_entity.user_id
-        domain_execution_dict['created_by_role'] = 'account'  # 工作流通常由账户用户调用
+        domain_execution_dict['created_by'] = getattr(self, '_user_id', self._application_generate_entity.user_id)
+        domain_execution_dict['created_by_role'] = getattr(self, '_created_by_role', None)
+        if domain_execution_dict['created_by_role']:
+            domain_execution_dict['created_by_role'] = domain_execution_dict['created_by_role'].value
 
         update_account_money_when_workflow_node_execution_created_extend.delay(domain_execution_dict)
         # 二开部分End - 额度限制
