@@ -40,8 +40,8 @@ const AppCard = ({
   }
 
   return (
-    <div className={cn('group flex col-span-1 bg-white border-2 border-solid border-transparent rounded-lg shadow-sm min-h-[160px] flex flex-col transition-all duration-200 ease-in-out cursor-pointer hover:shadow-lg')}>
-      <div className='flex pt-[14px] px-[14px] pb-3 h-[66px] items-center gap-3 grow-0 shrink-0'>
+    <div className={cn('group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:shadow-lg')}>
+      <div className='flex h-[66px] shrink-0 grow-0 items-center gap-3 px-[14px] pb-3 pt-[14px]'>
         <div className='relative shrink-0'>
           <AppIcon
             size='large'
@@ -50,7 +50,7 @@ const AppCard = ({
             background={app.app.icon_background}
             imageUrl={app.app.icon_url}
           />
-          <span className='absolute bottom-[-3px] right-[-3px] w-4 h-4 p-0.5 bg-white rounded border-[0.5px] border-[rgba(0,0,0,0.02)] shadow-sm'>
+          <span className='absolute bottom-[-3px] right-[-3px] w-4 h-4 p-0.5 rounded border-[0.5px] border-[rgba(0,0,0,0.02)] shadow-sm'>
             {appBasicInfo.mode === 'advanced-chat' && (
               <ChatBot className='w-3 h-3 text-[#1570EF]' />
             )}
@@ -69,7 +69,7 @@ const AppCard = ({
           </span>
         </div>
         <div className='grow w-0 py-[1px]'>
-          <div className='flex items-center text-sm leading-5 font-semibold text-gray-800'>
+          <div className='flex items-center text-sm font-semibold leading-5 text-text-secondary'>
             <div className='truncate' title={appBasicInfo.name}>{appBasicInfo.name}</div>
           </div>
           <div className='flex items-center text-[10px] leading-[18px] text-gray-500 font-medium'>

@@ -36,7 +36,6 @@ from tasks.extend.update_account_money_when_workflow_node_execution_created_exte
     update_account_money_when_workflow_node_execution_created_extend,
 )
 
-
 # 二开部分End - 密钥额度限制
 
 @dataclass
@@ -200,13 +199,13 @@ class WorkflowCycleManager:
         # 二开部分Begin - 额度限制
         # 异步任务计算费用并更新账户额度，将对象转换为字典传递
         domain_execution_dict = jsonable_encoder(domain_execution)
-
+        
         # 添加用户信息到字典中
         domain_execution_dict['created_by'] = getattr(self, '_user_id', self._application_generate_entity.user_id)
         domain_execution_dict['created_by_role'] = getattr(self, '_created_by_role', None)
         if domain_execution_dict['created_by_role']:
             domain_execution_dict['created_by_role'] = domain_execution_dict['created_by_role'].value
-
+        
         update_account_money_when_workflow_node_execution_created_extend.delay(domain_execution_dict)
         # 二开部分End - 额度限制
         return domain_execution
@@ -215,9 +214,9 @@ class WorkflowCycleManager:
         self,
         *,
         event: QueueNodeFailedEvent
-               | QueueNodeInIterationFailedEvent
-               | QueueNodeInLoopFailedEvent
-               | QueueNodeExceptionEvent,
+        | QueueNodeInIterationFailedEvent
+        | QueueNodeInLoopFailedEvent
+        | QueueNodeExceptionEvent,
     ) -> WorkflowNodeExecution:
         """
         Workflow node execution failed
@@ -361,7 +360,7 @@ class WorkflowCycleManager:
             node_exec
             for node_exec in self._node_execution_cache.values()
             if node_exec.workflow_execution_id == workflow_execution_id
-               and node_exec.status == WorkflowNodeExecutionStatus.RUNNING
+            and node_exec.status == WorkflowNodeExecutionStatus.RUNNING
         ]
 
         for node_execution in running_node_executions:

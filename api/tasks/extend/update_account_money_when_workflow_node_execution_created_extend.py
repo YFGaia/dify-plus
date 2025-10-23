@@ -124,3 +124,6 @@ def update_account_money_when_workflow_node_execution_created_extend(
                         f"{format(price)} 异常报错，60秒后进行重试，", fg="red")
         )
         raise self.retry(exc=e, countdown=60)
+
+
+

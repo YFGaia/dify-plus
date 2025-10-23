@@ -37,6 +37,10 @@ func Gorm() *gorm.DB {
 
 func RegisterTables() {
 	db := global.GVA_DB
+
+	// 在注册表之前，清理重复的 email 数据
+	system.CleanDuplicateEmails()
+
 	err := db.AutoMigrate(
 		system.SysApi{},
 		system.SysIgnoreApi{},

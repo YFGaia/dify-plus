@@ -73,6 +73,8 @@ class OAuthCallback(Resource):
         if not oauth_provider:
             return {"error": "Invalid provider"}, 400
 
+        # extend: 兼容casdoor
+        id_token = None
         code = request.args.get("code")
         state = request.args.get("state")
         # Fallback: some providers may return tokens directly in query (implicit/hybrid flow)
@@ -95,12 +97,38 @@ class OAuthCallback(Resource):
             invite_token = state
 
         try:
-            token = token_from_query or oauth_provider.get_access_token(code)  # type: ignore[arg-type]
+            if token_from_query is not None:
+                token = token_from_query
+            else:
+                # Extend: Start 兼容casdoor
+                response_json = oauth_provider.get_access_token(code)
+                token = response_json.get("access_token")
+                if not token:
+                    return {"error": f"Error in OAuth: {response_json}"}, 502
+                id_token = response_json.get("id_token")
+                # Extend: Stop 兼容casdoor
+            # 检查token是否有效
+            if not token or token.strip() == "":
+                logger.error("OAuth2 access token is empty for provider %s", provider)
+                return {"error": "OAuth2 access token is empty or invalid"}, 400
+
             user_info = oauth_provider.get_user_info(token)
         except requests.RequestException as e:
             error_text = e.response.text if e.response else str(e)
-            logger.exception("An error occurred during the OAuth process with %s: %s", provider, error_text)
-            return {"error": "OAuth process failed"}, 400
+            error_status = e.response.status_code if e.response else "Unknown"
+            logger.exception("An error occurred during the OAuth process with %s (Status: %s): %s",
+                           provider, error_status, error_text)
+
+            # 提供更具体的错误信息
+            if error_status == 401:
+                return {"error": f"OAuth2 authentication failed (401 Unauthorized): {error_text}"}, 400
+            elif error_status == 400:
+                return {"error": f"OAuth2 bad request (400): {error_text}"}, 400
+            else:
+                return {"error": f"OAuth process failed (Status: {error_status}): {error_text}"}, 400
+        except ValueError as e:
+            logger.exception("OAuth2 configuration error for provider %s: %s", provider, str(e))
+            return {"error": f"OAuth2 configuration error: {str(e)}"}, 400
 
         if invite_token and RegisterService.is_valid_invite_token(invite_token):
             invitation = RegisterService._get_invitation_by_token(token=invite_token)
@@ -146,9 +174,10 @@ class OAuthCallback(Resource):
             account=account,
             ip_address=extract_remote_ip(request),
         )
-
+        # extend: 兼容casdoor
         return redirect(
-            f"{dify_config.CONSOLE_WEB_URL}?access_token={token_pair.access_token}&refresh_token={token_pair.refresh_token}"
+            f"{dify_config.CONSOLE_WEB_URL}?access_token={token_pair.access_token}"
+            f"&refresh_token={token_pair.refresh_token}&id_token={id_token}"
         )
 
 

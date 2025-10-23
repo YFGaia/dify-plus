@@ -130,10 +130,6 @@ class WorkflowAppGenerateTaskPipeline:
             workflow_node_execution_repository=workflow_node_execution_repository,
         )
 
-        # 将用户信息传递给工作流周期管理器
-        self._workflow_cycle_manager._user_id = self._user_id
-        self._workflow_cycle_manager._created_by_role = self._created_by_role
-
         self._workflow_response_converter = WorkflowResponseConverter(
             application_generate_entity=application_generate_entity,
             user=user,
@@ -673,10 +669,10 @@ class WorkflowAppGenerateTaskPipeline:
         if isinstance(
             event,
             (
-                    QueueNodeFailedEvent,
-                    QueueNodeInIterationFailedEvent,
-                    QueueNodeInLoopFailedEvent,
-                    QueueNodeExceptionEvent,
+                QueueNodeFailedEvent,
+                QueueNodeInIterationFailedEvent,
+                QueueNodeInLoopFailedEvent,
+                QueueNodeExceptionEvent,
             ),
         ):
             yield from self._handle_node_failed_events(

@@ -68,11 +68,13 @@ export default function AppSelector() {
     if (localStorage?.getItem('conversationIdInfo'))
       localStorage.removeItem('conversationIdInfo')
     // 二开部分 - End 解决切换账号对话记录不存在问题
-
+    let id_token = null
+    if (localStorage) {
+      id_token = localStorage.getItem('logout_id_token')
+    }
     // Start: Automatic login/logout Extend
-    console.log(systemFeatures, 2344)
     if (window.location !== undefined && `${systemFeatures.is_custom_auth2_logout}` !== '' && systemFeatures.is_custom_auth2_logout !== undefined)
-      window.location.href = `${systemFeatures.is_custom_auth2_logout}&redirect_url=${window.location.href}`
+      window.location.href = `${systemFeatures.is_custom_auth2_logout}?id_token_hint=${id_token}&redirect_url=${window.location.href}`
     // Stop: Automatic login/logout Extend
     router.push('/signin')
   }

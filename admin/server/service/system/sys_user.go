@@ -44,7 +44,7 @@ func (userService *UserService) Register(u system.SysUser, token string) (userIn
 		global.GVA_LOG.Info(fmt.Sprintf("用户email已存在: %s", u.Email))
 		return userInter, errors.New("用户名已注册")
 	}
-	
+
 	// 如果传入了UUID，检查UUID是否已存在
 	if u.UUID != uuid.Nil {
 		var existingUser system.SysUser
@@ -54,7 +54,7 @@ func (userService *UserService) Register(u system.SysUser, token string) (userIn
 			return existingUser, nil
 		}
 	}
-	
+
 	global.GVA_LOG.Debug("注册用户信息:", zap.Any("1", 1))
 
 	// Extend Start: Gaia Register User
