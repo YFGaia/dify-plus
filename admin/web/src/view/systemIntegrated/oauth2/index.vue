@@ -198,7 +198,7 @@ const config = ref({
   user_name_field: "",
   user_email_field: "",
   user_id_field: "",
-    scope: "",
+    scope: "openid profile email",
     token_auth_method: "client_secret_post",
     redirect_uri: "",
     discovery_url: "",
@@ -249,10 +249,11 @@ const testConnection = async () => {
   const base = config.value.server_url || ''
   const authPath = config.value.authorize_url || ''
   let authorizeUrl = authPath.startsWith('http://') || authPath.startsWith('https://') ? authPath : `${base}${authPath}`
-  let redirectUriRaw = config.value.redirect_uri || `${location.protocol}//${location.host}/api/base/auth2/callback`
+  let redirectUriRaw = config.value.redirect_uri || `${location.protocol}//${location.host}/admin/api/base/auth2/callback`
   let redirectUri = encodeURIComponent(redirectUriRaw)
+  let authorizeLike = authorizeUrl.includes('?') ? '&' : '?'
   let scope = encodeURIComponent(config.value.scope || 'openid profile email')
-  window.open(`${authorizeUrl}?client_id=${encodeURIComponent(config.value.app_id)}&response_type=code&scope=${scope}&redirect_uri=${redirectUri}`)
+  window.open(`${authorizeUrl}${authorizeLike}&client_id=${encodeURIComponent(config.value.app_id)}&response_type=code&scope=${scope}&redirect_uri=${redirectUri}`)
 }
 
 const initForm = async() => {

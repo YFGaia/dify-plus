@@ -122,6 +122,22 @@ const List = () => {
     { value: 'completion', text: t('app.types.completion'), icon: <RiFile4Line className='mr-1 h-[14px] w-[14px]' /> },
   ]
 
+  // Extend: start 取消同步至应用模板
+  const recommendedApps = data?.at(-1)?.recommended_apps ?? [] // app recommended apps[]string
+  useEffect(() => {
+    const hasMore = data?.at(-1)?.has_more ?? true
+    let observer: IntersectionObserver | undefined
+    if (anchorRef.current) {
+      observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !isLoading && hasMore)
+          setSize((size: number) => size + 1)
+      }, { rootMargin: '100px' })
+      observer.observe(anchorRef.current)
+    }
+    return () => observer?.disconnect()
+  }, [isLoading, setSize, anchorRef, mutate, data])
+  // Extend: stop 取消同步至应用模板
+
   useEffect(() => {
     if (localStorage.getItem(NEED_REFRESH_APP_LIST_KEY) === '1') {
       localStorage.removeItem(NEED_REFRESH_APP_LIST_KEY)
@@ -213,7 +229,8 @@ const List = () => {
             {isCurrentWorkspaceEditor
               && <NewAppCard ref={newAppCardRef} onSuccess={mutate} />}
             {data.map(({ data: apps }) => apps.map(app => (
-              <AppCard key={app.id} app={app} onRefresh={mutate} />
+              // Extend: 取消同步至应用模板
+              <AppCard key={app.id} app={app} onRefresh={mutate} onApp={recommendedApps.includes(app.id)} />
             )))}
           </div>
           : <div className='relative grid grow grid-cols-1 content-start gap-4 overflow-hidden px-12 pt-2 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 2k:grid-cols-6'>
