@@ -186,8 +186,8 @@ const Apps = ({
 
   return (
     <div className={cn(
-      'flex flex-col',
-      pageType === PageType.EXPLORE ? 'h-full border-l border-gray-200' : 'h-[calc(100%-56px)]',
+      'flex flex-col border-divider-regular',
+      pageType === PageType.EXPLORE ? 'h-full border-l' : 'h-[calc(100%-56px)]',
     )}>
       {pageType === PageType.EXPLORE && (
         <div className='shrink-0 pt-6 px-12'>
@@ -225,7 +225,7 @@ const Apps = ({
         {/* extend: Application Center Search Stop */}
       </div>
       <div className={cn(
-        'relative flex flex-1 pb-6 flex-col overflow-auto bg-gray-100 shrink-0 grow',
+        'relative flex flex-1 pb-6 flex-col overflow-auto shrink-0 grow',
         pageType === PageType.EXPLORE ? 'mt-6' : 'mt-0 pt-2',
       )}
       >

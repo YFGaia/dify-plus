@@ -66,13 +66,7 @@ class GitHubOAuth(OAuth):
         headers = {"Accept": "application/json"}
         response = requests.post(self._TOKEN_URL, data=data, headers=headers)
 
-        response_json = response.json()
-        access_token = response_json.get("access_token")
-
-        if not access_token:
-            raise ValueError(f"Error in GitHub OAuth: {response_json}")
-
-        return access_token
+        return response.json()
 
     def get_raw_user_info(self, token: str):
         headers = {"Authorization": f"token {token}"}
@@ -120,13 +114,7 @@ class GoogleOAuth(OAuth):
         headers = {"Accept": "application/json"}
         response = requests.post(self._TOKEN_URL, data=data, headers=headers)
 
-        response_json = response.json()
-        access_token = response_json.get("access_token")
-
-        if not access_token:
-            raise ValueError(f"Error in Google OAuth: {response_json}")
-
-        return access_token
+        return response.json()
 
     def get_raw_user_info(self, token: str):
         headers = {"Authorization": f"Bearer {token}"}
@@ -239,9 +227,7 @@ class OaOAuth(OAuth):
             'response_type': 'code',
             'redirect_uri': dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/oauth2",
             'client_id': integration.app_id,
-            # 重要：未设置 scope 时，Casdoor /api/userinfo 仅返回 openid 最小字段
-            # 从配置读取 scope，默认请求更完整的信息
-            'scope': (config.get('scope') if isinstance(config, dict) and config.get('scope') else 'openid profile email'),
+            'scope': config.get('scope'),
         }
         if invite_token:
             params['state'] = invite_token
@@ -249,7 +235,7 @@ class OaOAuth(OAuth):
 
         endpoints = self._resolve_endpoints(config)
         auth_url = endpoints.get('authorize_url')
-        return f"{auth_url}?{query_string}"
+        return f"{auth_url}{'&' if "?" in auth_url else '&'}{query_string}"
 
     def get_access_token(self, code: str):
         auto2_conf = self.get_auto2_conf()
@@ -281,17 +267,12 @@ class OaOAuth(OAuth):
         if not code:
             return ""
 
-        response = requests.post(token_url, data=data, headers=headers, auth=auth)
+        response = requests.post(token_url, data=data, headers=headers, auth=auth, timeout=30)
         response.encoding = "utf-8"
         if response.status_code != 200:
             return ""
-        try:
-            response_json = response.json()
-        except:
-            return ""
-        access_token = response_json.get("access_token")
 
-        return access_token
+        return response.json()
 
     def get_raw_user_info(self, token: str):
         auto2_conf = self.get_auto2_conf()
@@ -299,14 +280,45 @@ class OaOAuth(OAuth):
             return ""
         config = auto2_conf.get('config')
         endpoints = self._resolve_endpoints(config)
-        headers = {"Authorization": f"Bearer {token}"}
-        userinfo_url = endpoints.get('userinfo_url')
-        response = requests.get(userinfo_url, headers=headers)
-        response.raise_for_status()
-        return response.json()
+
+        # 检查token是否为空
+        if not token or token.strip() == "":
+            raise ValueError("OAuth2 access token is empty or invalid")
+
+        # 尝试不同的Authorization header格式
+        auth_formats = [
+            f"Bearer {token}",
+            f"Token {token}",
+            token
+        ]
+
+        last_error = None
+        for auth_header in auth_formats:
+            try:
+                headers = {"Authorization": auth_header}
+                response = requests.get(f"{endpoints.get('userinfo_url')}", headers=headers, timeout=30)
+
+                if response.status_code == 200:
+                    return response.json()
+                elif response.status_code == 401:
+                    last_error = f"401 Unauthorized: {response.text}"
+                    continue
+                else:
+                    last_error = f"HTTP {response.status_code}: {response.text}"
+                    continue
+
+            except requests.RequestException as e:
+                last_error = str(e)
+                continue
+
+        # 如果所有格式都失败，抛出最后一个错误
+        if last_error:
+            raise requests.RequestException(f"All authentication formats failed. Last error: {last_error}")
+        else:
+            raise requests.RequestException("Failed to get user info with any authentication format")
 
     def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
-        
+
         # 检查 raw_info 是否为空或为 None
         auto2_conf = self.get_auto2_conf()
         if not raw_info or not isinstance(raw_info, dict) or auto2_conf.get('integration') is None:
