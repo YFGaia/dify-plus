@@ -1,6 +1,8 @@
 package initialize
 
 import (
+	"fmt"
+	"log"
 	"os"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -37,9 +39,6 @@ func Gorm() *gorm.DB {
 
 func RegisterTables() {
 	db := global.GVA_DB
-
-	// 在注册表之前，清理重复的 email 数据
-	system.CleanDuplicateEmails()
 
 	err := db.AutoMigrate(
 		system.SysApi{},
@@ -82,10 +81,10 @@ func RegisterTables() {
 		os.Exit(0)
 	}
 
-	// 如果是PostgreSQL数据库，创建必要的序列
-	if global.GVA_CONFIG.System.DbType == "pgsql" {
-		createPostgreSQLSequences(db)
-	}
+	//// 如果是PostgreSQL数据库，创建必要的序列
+	//if global.GVA_CONFIG.System.DbType == "pgsql" {
+	//	createPostgreSQLSequences(db)
+	//}
 
 	err = bizModel()
 

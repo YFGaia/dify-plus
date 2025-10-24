@@ -36,7 +36,6 @@ from tasks.extend.update_account_money_when_workflow_node_execution_created_exte
     update_account_money_when_workflow_node_execution_created_extend,
 )
 
-
 # 二开部分End - 密钥额度限制
 
 @dataclass
@@ -215,9 +214,9 @@ class WorkflowCycleManager:
         self,
         *,
         event: QueueNodeFailedEvent
-               | QueueNodeInIterationFailedEvent
-               | QueueNodeInLoopFailedEvent
-               | QueueNodeExceptionEvent,
+        | QueueNodeInIterationFailedEvent
+        | QueueNodeInLoopFailedEvent
+        | QueueNodeExceptionEvent,
     ) -> WorkflowNodeExecution:
         """
         Workflow node execution failed
@@ -361,7 +360,7 @@ class WorkflowCycleManager:
             node_exec
             for node_exec in self._node_execution_cache.values()
             if node_exec.workflow_execution_id == workflow_execution_id
-               and node_exec.status == WorkflowNodeExecutionStatus.RUNNING
+            and node_exec.status == WorkflowNodeExecutionStatus.RUNNING
         ]
 
         for node_execution in running_node_executions:
