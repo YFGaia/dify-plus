@@ -35,7 +35,7 @@ type SysUser struct {
 	Authority     SysAuthority   `json:"authority" gorm:"foreignKey:AuthorityId;references:AuthorityId;comment:用户角色"`                        // 用户角色
 	Authorities   []SysAuthority `json:"authorities" gorm:"many2many:sys_user_authority;"`                                                   // 多用户角色
 	Phone         string         `json:"phone"  gorm:"comment:用户手机号"`                                                                        // 用户手机号
-	Email         string         `json:"email"  gorm:"uniqueIndex;comment:用户邮箱"`                                                             // 用户邮箱
+	Email         string         `json:"email"  gorm:"index;comment:用户邮箱"`                                                                   // 用户邮箱
 	Enable        int            `json:"enable" gorm:"default:1;comment:用户是否被冻结 1正常 2冻结"`                                                    //用户是否被冻结 1正常 2冻结
 	OriginSetting common.JSONMap `json:"originSetting" form:"originSetting" gorm:"type:text;default:null;column:origin_setting;comment:配置;"` //配置
 }
@@ -115,41 +115,3 @@ type SysUserGlobalCode struct {
 }
 
 // Extend: Stop global code
-
-// CleanDuplicateEmails 清除重复的 email 数据，只保留 id 最大的数据
-func CleanDuplicateEmails() {
-	// 查找所有重复的 email
-	var err error
-	var duplicateEmails []string
-	if err = global.GVA_DB.Model(&SysUser{}).
-		Select("email").
-		Group("email").
-		Having("COUNT(*) > 1").
-		Pluck("email", &duplicateEmails).Error; err != nil {
-		return
-	}
-
-	// 对每个重复的 email，删除除了 id 最大的记录之外的所有记录
-	for _, email := range duplicateEmails {
-		var users []SysUser
-		if err = global.GVA_DB.Where("email = ?", email).Order("id DESC").Find(&users).Error; err != nil {
-			return
-		}
-
-		// 如果找到重复记录，删除除了第一个（id 最大）之外的所有记录
-		if len(users) > 1 {
-			var idsToDelete []uint
-			for i := 1; i < len(users); i++ {
-				idsToDelete = append(idsToDelete, users[i].ID)
-			}
-
-			if len(idsToDelete) > 0 {
-				if err = global.GVA_DB.Where("id IN ?", idsToDelete).Delete(&SysUser{}).Error; err != nil {
-					return
-				}
-			}
-		}
-	}
-
-	return
-}
