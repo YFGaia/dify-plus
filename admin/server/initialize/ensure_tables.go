@@ -35,6 +35,7 @@ func (e *ensureTables) MigrateTable(ctx context.Context) (context.Context, error
 	if !ok {
 		return ctx, system.ErrMissingDBContext
 	}
+
 	tables := []interface{}{
 		sysModel.SysApi{},
 		sysModel.SysUser{},

@@ -1,4 +1,3 @@
-
 from flask_login import current_user
 
 from configs import dify_config
@@ -37,8 +36,8 @@ class WorkspaceService:
         tenant_extend_service = TenantExtendService
         super_admin_id = tenant_extend_service.get_super_admin_id().id
         super_admin_tenant_id = tenant_extend_service.get_super_admin_tenant_id().id
-        tenant_info["admin_extend"] = (super_admin_id == current_user.id)
-        tenant_info["tenant_extend"] = (super_admin_tenant_id == tenant.id)
+        tenant_info["admin_extend"] = super_admin_id == current_user.id
+        tenant_info["tenant_extend"] = super_admin_tenant_id == tenant.id
         # ----------------------- 二开部分Stop 添加用户权限 - ----------------------
 
         can_replace_logo = FeatureService.get_features(tenant.id).can_replace_logo

@@ -26,6 +26,10 @@ func GormPgSql() *gorm.DB {
 		sqlDB, _ := db.DB()
 		sqlDB.SetMaxIdleConns(p.MaxIdleConns)
 		sqlDB.SetMaxOpenConns(p.MaxOpenConns)
+
+		// 为PostgreSQL创建必要的序列
+		createPostgreSQLSequences(db)
+
 		return db
 	}
 }
