@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { RiKey2Line } from '@remixicon/react'
 import Button from '@/app/components/base/button'
 import SecretKeyModal from '@/app/components/develop/secret-key/secret-key-modal'
+import {useAppContext} from "@/context/app-context";
 
 type ISecretKeyButtonProps = {
   className?: string
@@ -12,8 +13,11 @@ type ISecretKeyButtonProps = {
 }
 
 const SecretKeyButton = ({ className, appId, textCls }: ISecretKeyButtonProps) => {
+  const { isCurrentWorkspaceManager } = useAppContext()
   const [isVisible, setVisible] = useState(false)
   const { t } = useTranslation()
+  if (!isCurrentWorkspaceManager)
+    return ""
   return (
     <>
       <Button

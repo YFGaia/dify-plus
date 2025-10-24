@@ -19,6 +19,13 @@ const SwrInitializer = ({
 }: SwrInitializerProps) => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  // extend: start 兼容casdoor 退出登录
+  const tokenId = searchParams.get('id_token')
+  if (tokenId && tokenId !== 'None') {
+    if (window.location !== undefined)
+      localStorage?.setItem('logout_id_token', tokenId)
+  }
+  // extend: stop 兼容casdoor 退出登录
   const consoleToken = decodeURIComponent(searchParams.get('access_token') || '')
   const refreshToken = decodeURIComponent(searchParams.get('refresh_token') || '')
   // Extend Start DingTalk login compatible

@@ -673,10 +673,10 @@ class WorkflowAppGenerateTaskPipeline:
         if isinstance(
             event,
             (
-                    QueueNodeFailedEvent,
-                    QueueNodeInIterationFailedEvent,
-                    QueueNodeInLoopFailedEvent,
-                    QueueNodeExceptionEvent,
+                QueueNodeFailedEvent,
+                QueueNodeInIterationFailedEvent,
+                QueueNodeInLoopFailedEvent,
+                QueueNodeExceptionEvent,
             ),
         ):
             yield from self._handle_node_failed_events(

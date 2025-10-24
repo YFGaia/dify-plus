@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
+import { fetchAppList } from '@/service/apps'
 import { createContext, useContext, useContextSelector } from 'use-context-selector'
 import type { FC, ReactNode } from 'react'
 import { fetchCurrentWorkspace, fetchLangGeniusVersion, fetchUserProfile } from '@/service/common'
@@ -10,6 +11,7 @@ import MaintenanceNotice from '@/app/components/header/maintenance-notice'
 import { noop } from 'lodash-es'
 
 export type AppContextValue = {
+  mutateApps: VoidFunction
   userProfile: UserProfileResponse
   mutateUserProfile: VoidFunction
   currentWorkspace: ICurrentWorkspace
@@ -57,6 +59,7 @@ const initialWorkspaceInfo: ICurrentWorkspace = {
 }
 
 const AppContext = createContext<AppContextValue>({
+  mutateApps: noop,
   userProfile: userProfilePlaceholder,
   currentWorkspace: initialWorkspaceInfo,
   isCurrentWorkspaceManager: false,
@@ -79,6 +82,7 @@ export type AppContextProviderProps = {
 }
 
 export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) => {
+  const { mutate: mutateApps } = useSWR({ url: '/apps', params: { } }, fetchAppList)
   const { data: userProfileResponse, mutate: mutateUserProfile, error: userProfileError } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
   const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace, isLoading: isLoadingCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)
 
@@ -123,8 +127,12 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
       setCurrentWorkspace(currentWorkspaceResponse)
   }, [currentWorkspaceResponse])
 
+  if (!userProfile)
+    return <Loading type='app' />
+
   return (
     <AppContext.Provider value={{
+      mutateApps,
       userProfile,
       mutateUserProfile,
       langGeniusVersionInfo,
