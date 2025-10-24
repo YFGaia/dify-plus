@@ -73,8 +73,10 @@ export default function AppSelector() {
       id_token = localStorage.getItem('logout_id_token')
     }
     // Start: Automatic login/logout Extend
-    if (window.location !== undefined && `${systemFeatures.is_custom_auth2_logout}` !== '' && systemFeatures.is_custom_auth2_logout !== undefined)
-      window.location.href = `${systemFeatures.is_custom_auth2_logout}?id_token_hint=${id_token}&redirect_url=${window.location.href}`
+    let logout_url = systemFeatures.is_custom_auth2_logout
+    let is_connector = logout_url.includes('?') ? '&' : '?'
+    if (window.location !== undefined && logout_url !== '')
+      window.location.href = `${logout_url}${is_connector}id_token_hint=${id_token}&redirect_url=${window.location.href}`
     // Stop: Automatic login/logout Extend
     router.push('/signin')
   }

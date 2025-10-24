@@ -235,7 +235,7 @@ class OaOAuth(OAuth):
 
         endpoints = self._resolve_endpoints(config)
         auth_url = endpoints.get('authorize_url')
-        return f"{auth_url}{'&' if "?" in auth_url else '&'}{query_string}"
+        return f"{auth_url}{'&' if "?" in auth_url else '?'}{query_string}"
 
     def get_access_token(self, code: str):
         auto2_conf = self.get_auto2_conf()
