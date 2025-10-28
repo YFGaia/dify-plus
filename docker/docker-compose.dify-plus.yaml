@@ -582,7 +582,7 @@ x-shared-env: &shared-api-worker-env
 services:
   # API service
   api:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1.fix
     restart: always
     environment:
       # Use the shared environment variables.
@@ -611,7 +611,7 @@ services:
   # worker service
   # The Celery worker for processing the queue.
   worker:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1.fix
     restart: always
     environment:
       # Use the shared environment variables.
@@ -636,7 +636,7 @@ services:
   # worker-gaia service
   # The Celery worker-gaia for processing the queue.
   worker-gaia:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1.fix
     restart: always
     environment:
       # Use the shared environment variables.
@@ -661,7 +661,7 @@ services:
   # worker-dataset service
   # The Celery worker-dataset for processing the queue.
   worker-dataset:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1.fix
     restart: always
     environment:
       # Use the shared environment variables.
@@ -686,7 +686,7 @@ services:
   # beat service
   # The Celery worker for schedule tasks.
   beat:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.8.1.fix
     restart: always
     environment:
       # Use the shared environment variables.
@@ -710,7 +710,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.8.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.8.1.fix
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -1375,7 +1375,7 @@ services:
 
   # Extend - admin-web
   admin-web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-web:1.8.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-web:1.8.1.fix
     restart: always
     ports:
       - '8081:8081'
@@ -1387,7 +1387,7 @@ services:
 
   # Extend - admin-server
   admin-server:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.8.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.8.1.fix
     restart: always
     environment:
       # JWT signing key must match API's SECRET_KEY for token compatibility
