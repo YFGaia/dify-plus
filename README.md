@@ -135,7 +135,8 @@ Dify-Plus，该名字不是说比 Dify 项目牛的意思，意思是想说比 D
    - Dify-plus官方交流群3（已满）
    - Dify-plus&Coze开源交流群4
 
-     <img width="200" height="583" alt="image" src="https://github.com/user-attachments/assets/e467e5ec-d493-46e7-8b6d-8d984a304508" />
+     <img width="200" height="583" alt="image" src="https://github.com/user-attachments/assets/3ac4598c-7255-4ade-99aa-8bc0f039797e" />
+
 
 
 
