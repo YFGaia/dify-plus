@@ -5,7 +5,7 @@ import type { UserMoney } from '@/models/common-extend'
 import cn from 'classnames'
 
 const AccountMoneyExtend = () => {
-  const [userMoney, setUserMoney] = useState<UserMoney>({ used_quota: 0, total_quota: 15 })
+  const [userMoney, setUserMoney] = useState<UserMoney>({ used_quota: 0, total_quota: 0 })
   const [isFetched, setIsFetched] = useState(false)
   const exchangeRate = 7.26 // 美元转人民币固定汇率
 
@@ -24,8 +24,12 @@ const AccountMoneyExtend = () => {
 
   // 计算额度（确保使用数字类型）
   const usedQuota = Number(userMoney.used_quota) || 0
-  const totalQuota = Number(userMoney.total_quota) || 15
+  const totalQuota = Number(userMoney.total_quota) || 0
   const remainingQuota = totalQuota - usedQuota
+
+  // 当总额度为0时不显示
+  if (totalQuota === 0)
+    return null
 
   // 转换为人民币并保留2位小数
   const usedRMB = (usedQuota * exchangeRate).toFixed(2)

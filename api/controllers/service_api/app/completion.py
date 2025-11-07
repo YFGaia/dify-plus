@@ -30,6 +30,7 @@ from libs import helper
 from libs.helper import uuid_value
 from models.model import ApiToken, App, AppMode, EndUser  # 二开部分End - 密钥额度限制，新增ApiToken
 from services.app_generate_service import AppGenerateService
+from services.app_generate_service_extend import AppGenerateServiceExtend
 from services.errors.app import IsDraftWorkflowError, WorkflowIdFormatError, WorkflowNotFoundError
 from services.errors.llm import InvokeRateLimitError
 
@@ -204,6 +205,13 @@ class ChatApi(Resource):
         # # ------------------- 二开部分End - 密钥额度限制 -------------------
 
         try:
+            # ------------------- 二开部分Begin - 添加使用统计 -------------------
+            AppGenerateServiceExtend.calculate_cumulative_usage(
+                app_model=app_model,
+                args=args,
+            )  # Extend: App
+            # ------------------- 二开部分End - 添加使用统计 -------------------
+
             response = AppGenerateService.generate(
                 app_model=app_model, user=end_user, args=args, invoke_from=InvokeFrom.SERVICE_API, streaming=streaming
             )
