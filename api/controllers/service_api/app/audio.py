@@ -106,7 +106,7 @@ class TextApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))
-    def post(self, app_model: App, end_user: EndUser):
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # 二开部分End - 密钥额度限制，新增api_token
         """Convert text to audio using text-to-speech.
 
         Converts the provided text to audio using the specified voice.
