@@ -510,7 +510,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.2.0-fix.2
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.2.0.fix.3
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
