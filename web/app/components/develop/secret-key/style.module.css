@@ -3,13 +3,6 @@
     max-height: calc(100vh - 80px);
 }
 
-/* 二开部分begin - 密钥额度*/
-.customModalExtend {
-    max-width: 1411px !important;
-    max-height: calc(100vh - 80px);
-}
-/* 二开部分end - 密钥额度*/
-
 .close {
     top: 1.5rem;
     right: 1.5rem;
@@ -62,18 +55,3 @@
 .copyIcon.copied {
     background-image: url(./assets/copied.svg);
 }
-
-/* 二开部分Begin - 密钥额度限制 */
-.editIcon {
-    background-image: url(./assets/edit.svg);
-    background-position: center;
-    background-repeat: no-repeat;
-}
-
-.editIcon:hover {
-    background-image: url(./assets/edit-hover.svg);
-    background-position: center;
-    background-repeat: no-repeat;
-}
-/* 二开部分End - 密钥额度限制 */
-

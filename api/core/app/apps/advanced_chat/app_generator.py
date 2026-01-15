@@ -3,7 +3,7 @@ import logging
 import threading
 import uuid
 from collections.abc import Generator, Mapping
-from typing import Any, Literal, Optional, Union, cast, overload  # 二开部分 - 密钥额度限制，新增cast
+from typing import Any, Literal, Union, overload, cast # extend: 二开部分 - 密钥额度限制，新增cast
 
 from flask import Flask, current_app
 from pydantic import ValidationError
@@ -22,10 +22,7 @@ from core.app.apps.base_app_queue_manager import AppQueueManager, PublishFrom
 from core.app.apps.exc import GenerateTaskStoppedError
 from core.app.apps.message_based_app_generator import MessageBasedAppGenerator
 from core.app.apps.message_based_app_queue_manager import MessageBasedAppQueueManager
-from core.app.entities.app_invoke_entities import (
-    AdvancedChatAppGenerateEntity,
-    InvokeFrom,
-)
+from core.app.entities.app_invoke_entities import AdvancedChatAppGenerateEntity, InvokeFrom
 from core.app.entities.task_entities import ChatbotAppBlockingResponse, ChatbotAppStreamResponse
 from core.helper.trace_id_helper import extract_external_trace_id_from_args
 from core.model_runtime.errors.invoke import InvokeAuthorizationError
@@ -41,16 +38,7 @@ from core.workflow.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader
 from extensions.ext_database import db
 from factories import file_factory
 from libs.flask_utils import preserve_flask_contexts
-from models import (  # 二开部分 - 密钥额度限制，新增ApiToken
-    Account,
-    ApiToken,
-    App,
-    Conversation,
-    EndUser,
-    Message,
-    Workflow,
-    WorkflowNodeExecutionTriggeredFrom,
-)
+from models import Account, App, Conversation, EndUser, Message, Workflow, WorkflowNodeExecutionTriggeredFrom, ApiToken # extend: 二开部分 - 密钥额度限制，新增ApiToken
 from models.enums import WorkflowRunTriggeredFrom
 from services.conversation_service import ConversationService
 from services.workflow_draft_variable_service import (
@@ -138,6 +126,7 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
             extras["app_token_id"] = api_token.id
         # ------------------- 二开部分End - 密钥额度限制 -------------------
 
+
         # get conversation
         conversation = None
         conversation_id = args.get("conversation_id")
@@ -173,7 +162,7 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
 
         if invoke_from == InvokeFrom.DEBUGGER:
             # always enable retriever resource in debugger mode
-            app_config.additional_features.show_retrieve_source = True
+            app_config.additional_features.show_retrieve_source = True  # type: ignore
 
         workflow_run_id = str(uuid.uuid4())
         # init application generate entity
@@ -409,7 +398,7 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
         application_generate_entity: AdvancedChatAppGenerateEntity,
         workflow_execution_repository: WorkflowExecutionRepository,
         workflow_node_execution_repository: WorkflowNodeExecutionRepository,
-        conversation: Optional[Conversation] = None,
+        conversation: Conversation | None = None,
         stream: bool = True,
         variable_loader: VariableLoader = DUMMY_VARIABLE_LOADER,
     ) -> Mapping[str, Any] | Generator[str | Mapping[str, Any], Any, None]:
@@ -439,7 +428,9 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
             db.session.refresh(conversation)
 
         # get conversation dialogue count
-        self._dialogue_count = get_thread_messages_length(conversation.id)
+        # NOTE: dialogue_count should not start from 0,
+        # because during the first conversation, dialogue_count should be 1.
+        self._dialogue_count = get_thread_messages_length(conversation.id) + 1
 
         # init queue manager
         queue_manager = MessageBasedAppQueueManager(
@@ -464,6 +455,8 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
                 "message_id": message.id,
                 "context": context,
                 "variable_loader": variable_loader,
+                "workflow_execution_repository": workflow_execution_repository,
+                "workflow_node_execution_repository": workflow_node_execution_repository,
             },
         )
 
@@ -483,10 +476,8 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
             conversation=conversation,
             message=message,
             user=user,
-            workflow_execution_repository=workflow_execution_repository,
-            workflow_node_execution_repository=workflow_node_execution_repository,
             stream=stream,
-            draft_var_saver_factory=self._get_draft_var_saver_factory(invoke_from),
+            draft_var_saver_factory=self._get_draft_var_saver_factory(invoke_from, account=user),
         )
 
         return AdvancedChatAppGenerateResponseConverter.convert(response=response, invoke_from=invoke_from)
@@ -500,7 +491,9 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
         message_id: str,
         context: contextvars.Context,
         variable_loader: VariableLoader,
-    ) -> None:
+        workflow_execution_repository: WorkflowExecutionRepository,
+        workflow_node_execution_repository: WorkflowNodeExecutionRepository,
+    ):
         """
         Generate worker in a new thread.
         :param flask_app: Flask app
@@ -555,6 +548,8 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
                 workflow=workflow,
                 system_user_id=system_user_id,
                 app=app,
+                workflow_execution_repository=workflow_execution_repository,
+                workflow_node_execution_repository=workflow_node_execution_repository,
             )
 
             try:
@@ -587,8 +582,6 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
         conversation: Conversation,
         message: Message,
         user: Union[Account, EndUser],
-        workflow_execution_repository: WorkflowExecutionRepository,
-        workflow_node_execution_repository: WorkflowNodeExecutionRepository,
         draft_var_saver_factory: DraftVariableSaverFactory,
         stream: bool = False,
     ) -> Union[ChatbotAppBlockingResponse, Generator[ChatbotAppStreamResponse, None, None]]:
@@ -601,7 +594,6 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
         :param message: message
         :param user: account or end user
         :param stream: is stream
-        :param workflow_node_execution_repository: optional repository for workflow node execution
         :return:
         """
         # init generate task pipeline
@@ -613,8 +605,6 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
             message=message,
             user=user,
             dialogue_count=self._dialogue_count,
-            workflow_execution_repository=workflow_execution_repository,
-            workflow_node_execution_repository=workflow_node_execution_repository,
             stream=stream,
             draft_var_saver_factory=draft_var_saver_factory,
         )

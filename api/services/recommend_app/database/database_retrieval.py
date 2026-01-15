@@ -1,13 +1,9 @@
-from typing import Optional
+from sqlalchemy import select
 
 from constants.languages import languages
 from extensions.ext_database import db
-from models.model import (  # extend add category to categories
-    App,
-    RecommendedApp,
-    RecommendedAppsCategoryJoinExtend,
-    RecommendedCategoryExtend,
-)
+# extend add category to categories
+from models.model import App, RecommendedApp, RecommendedAppsCategoryJoinExtend, RecommendedCategoryExtend
 from services.app_dsl_service import AppDslService
 from services.recommend_app.recommend_app_base import RecommendAppRetrievalBase
 from services.recommend_app.recommend_app_type import RecommendAppType
@@ -18,7 +14,7 @@ class DatabaseRecommendAppRetrieval(RecommendAppRetrievalBase):
     Retrieval recommended app from database
     """
 
-    def get_recommended_apps_and_categories(self, language: str) -> dict:
+    def get_recommended_apps_and_categories(self, language: str):
         result = self.fetch_recommended_apps_from_db(language)
         return result
 
@@ -30,24 +26,20 @@ class DatabaseRecommendAppRetrieval(RecommendAppRetrievalBase):
         return RecommendAppType.DATABASE
 
     @classmethod
-    def fetch_recommended_apps_from_db(cls, language: str) -> dict:
+    def fetch_recommended_apps_from_db(cls, language: str):
         """
         Fetch recommended apps from db.
         :param language: language
         :return:
         """
-        recommended_apps = (
-            db.session.query(RecommendedApp)
-            .where(RecommendedApp.is_listed == True, RecommendedApp.language == language)
-            .all()
-        )
+        recommended_apps = db.session.scalars(
+            select(RecommendedApp).where(RecommendedApp.is_listed == True, RecommendedApp.language == language)
+        ).all()
 
         if len(recommended_apps) == 0:
-            recommended_apps = (
-                db.session.query(RecommendedApp)
-                .where(RecommendedApp.is_listed == True, RecommendedApp.language == languages[0])
-                .all()
-            )
+            recommended_apps = db.session.scalars(
+                select(RecommendedApp).where(RecommendedApp.is_listed == True, RecommendedApp.language == languages[0])
+            ).all()
 
         # -------------- extend start: add category to categories ---------------
         tag_i = 0
@@ -75,39 +67,27 @@ class DatabaseRecommendAppRetrieval(RecommendAppRetrievalBase):
             if not site:
                 continue
 
-            config = app.app_model_config
-            if config is not None and config.pre_prompt is not None and len(config.pre_prompt) > 0:
-                description = config.pre_prompt
-            if recommended_app.id in recommended:
-                classList = recommended[recommended_app.id]
-            if len(classList) == 0:
-                classList.append("")
-            for classId in classList:
-                category = "未分类"
-                if classId in class_dick:
-                    category = class_dick[classId]
-                recommended_app_result = {
-                    "id": recommended_app.id,
-                    "app": recommended_app.app,
-                    "app_id": recommended_app.app_id,
-                    "description": description,
-                    "copyright": site.copyright,
-                    "privacy_policy": site.privacy_policy,
-                    "custom_disclaimer": site.custom_disclaimer,
-                    "category": category,
-                    "position": recommended_app.position,
-                    "is_listed": recommended_app.is_listed,
-                }
-                recommended_apps_result.append(recommended_app_result)
+            recommended_app_result = {
+                "id": recommended_app.id,
+                "app": recommended_app.app,
+                "app_id": recommended_app.app_id,
+                "description": site.description,
+                "copyright": site.copyright,
+                "privacy_policy": site.privacy_policy,
+                "custom_disclaimer": site.custom_disclaimer,
+                "category": recommended_app.category,
+                "position": recommended_app.position,
+                "is_listed": recommended_app.is_listed,
+            }
+            recommended_apps_result.append(recommended_app_result)
 
-                categories.add(recommended_app.category)  # add category to categories
-        categories = sorted(categories)
-        categories.append("未分类")
-        return {"recommended_apps": recommended_apps_result, "categories": categories}
+            categories.add(recommended_app.category)
+
+        return {"recommended_apps": recommended_apps_result, "categories": sorted(categories)}
         # -------------- extend stop: add category to categories ---------------
 
     @classmethod
-    def fetch_recommended_app_detail_from_db(cls, app_id: str) -> Optional[dict]:
+    def fetch_recommended_app_detail_from_db(cls, app_id: str) -> dict | None:
         """
         Fetch recommended app detail from db.
         :param app_id: App ID

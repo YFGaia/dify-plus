@@ -10,11 +10,15 @@ from controllers.common.errors import (
     TooManyFilesError,
     UnsupportedFileTypeError,
 )
+from controllers.common.schema import register_schema_models
 from controllers.service_api import service_api_ns
 from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate_app_token
-from fields.file_fields import build_file_model
-from models.model import ApiToken, App, EndUser  # 二开部分End - 密钥额度限制，新增api_token,否则上传文件会报错
+from extensions.ext_database import db
+from fields.file_fields import FileResponse
+from models import ApiToken, App, EndUser # extend - 密钥额度限制，新增api_token,否则上传文件会报错
 from services.file_service import FileService
+
+register_schema_models(service_api_ns, FileResponse)
 
 
 @service_api_ns.route("/files/upload")
@@ -30,9 +34,9 @@ class FileApi(Resource):
             415: "Unsupported file type",
         }
     )
-    @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))
-    @service_api_ns.marshal_with(build_file_model(service_api_ns), code=HTTPStatus.CREATED)
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # 二开部分End - 密钥额度限制，新增api_token,否则上传文件会报错
+    @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))  # type: ignore
+    @service_api_ns.response(HTTPStatus.CREATED, "File uploaded", service_api_ns.models[FileResponse.__name__])
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken): # extend - 密钥额度限制，新增api_token,否则上传文件会报错
         """Upload a file for use in conversations.
 
         Accepts a single file upload via multipart/form-data.
@@ -52,7 +56,7 @@ class FileApi(Resource):
             raise FilenameNotExistsError
 
         try:
-            upload_file = FileService.upload_file(
+            upload_file = FileService(db.engine).upload_file(
                 filename=file.filename,
                 content=file.read(),
                 mimetype=file.mimetype,
@@ -63,4 +67,5 @@ class FileApi(Resource):
         except services.errors.file.UnsupportedFileTypeError:
             raise UnsupportedFileTypeError()
 
-        return upload_file, 201
+        response = FileResponse.model_validate(upload_file, from_attributes=True)
+        return response.model_dump(mode="json"), 201

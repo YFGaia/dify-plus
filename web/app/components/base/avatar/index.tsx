@@ -1,6 +1,6 @@
 'use client'
-import { useState } from 'react'
-import cn from '@/utils/classnames'
+import { useEffect, useState } from 'react'
+import { cn } from '@/utils/classnames'
 
 export type AvatarProps = {
   name: string
@@ -26,6 +26,12 @@ const Avatar = ({
     setImgError(true)
     onError?.(true)
   }
+
+  // after uploaded, api would first return error imgs url: '.../files//file-preview/...'. Then return the right url, Which caused not show the avatar
+  useEffect(() => {
+    if (avatar && imgError)
+      setImgError(false)
+  }, [avatar])
 
   if (avatar && !imgError) {
     return (

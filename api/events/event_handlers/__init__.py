@@ -6,14 +6,20 @@ from .create_site_record_when_app_created import handle as handle_create_site_re
 from .delete_tool_parameters_cache_when_sync_draft_workflow import (
     handle as handle_delete_tool_parameters_cache_when_sync_draft_workflow,
 )
-from .update_account_money_when_messaeg_created_extend import (
-    handle as handle_update_account_money_when_messaeg_created_extend,
-)  # 二开部分：新增限额判断
+from .sync_plugin_trigger_when_app_created import handle as handle_sync_plugin_trigger_when_app_created
+from .sync_webhook_when_app_created import handle as handle_sync_webhook_when_app_created
+from .sync_workflow_schedule_when_app_published import handle as handle_sync_workflow_schedule_when_app_published
 from .update_app_dataset_join_when_app_model_config_updated import (
     handle as handle_update_app_dataset_join_when_app_model_config_updated,
 )
+from .update_account_money_when_messaeg_created_extend import (
+    handle as handle_update_account_money_when_messaeg_created_extend,
+)  # 二开部分：新增限额判断
 from .update_app_dataset_join_when_app_published_workflow_updated import (
     handle as handle_update_app_dataset_join_when_app_published_workflow_updated,
+)
+from .update_app_triggers_when_app_published_workflow_updated import (
+    handle as handle_update_app_triggers_when_app_published_workflow_updated,
 )
 
 # Consolidated handler replaces both deduct_quota_when_message_created and
@@ -27,8 +33,12 @@ __all__ = [
     "handle_create_installed_app_when_app_created",
     "handle_create_site_record_when_app_created",
     "handle_delete_tool_parameters_cache_when_sync_draft_workflow",
-    "handle_update_account_money_when_messaeg_created_extend",
+    "handle_sync_plugin_trigger_when_app_created",
+    "handle_sync_webhook_when_app_created",
+    "handle_sync_workflow_schedule_when_app_published",
     "handle_update_app_dataset_join_when_app_model_config_updated",
     "handle_update_app_dataset_join_when_app_published_workflow_updated",
+    "handle_update_app_triggers_when_app_published_workflow_updated",
     "handle_update_provider_when_message_created",
+    "handle_update_account_money_when_messaeg_created_extend",# Extend messaeg_created_extend
 ]

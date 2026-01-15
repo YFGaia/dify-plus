@@ -23,10 +23,10 @@ from core.model_runtime.errors.invoke import InvokeAuthorizationError
 from core.ops.ops_trace_manager import TraceQueueManager
 from extensions.ext_database import db
 from factories import file_factory
-from models.account import Account
-from models.api_token_money_extend import ApiTokenMessageJoinsExtend  # 二开部分End - 密钥额度限制
+from models import Account
 from models.model import App, EndUser
 from services.conversation_service import ConversationService
+from models.api_token_money_extend import ApiTokenMessageJoinsExtend  # 二开部分End - 密钥额度限制
 
 logger = logging.getLogger(__name__)
 
@@ -220,7 +220,7 @@ class ChatAppGenerator(MessageBasedAppGenerator):
         queue_manager: AppQueueManager,
         conversation_id: str,
         message_id: str,
-    ) -> None:
+    ):
         """
         Generate worker in a new thread.
         :param flask_app: Flask app

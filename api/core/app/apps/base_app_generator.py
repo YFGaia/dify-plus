@@ -1,12 +1,13 @@
+import json
 from collections.abc import Generator, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Optional, Union, final
+from typing import TYPE_CHECKING, Any, Union, final
 
 from sqlalchemy.orm import Session
 
 from core.app.app_config.entities import VariableEntityType
 from core.app.entities.app_invoke_entities import InvokeFrom
 from core.file import File, FileUploadConfig
-from core.workflow.nodes.enums import NodeType
+from core.workflow.enums import NodeType
 from core.workflow.repositories.draft_variable_repository import (
     DraftVariableSaver,
     DraftVariableSaverFactory,
@@ -14,6 +15,7 @@ from core.workflow.repositories.draft_variable_repository import (
 )
 from factories import file_factory
 from libs.orjson import orjson_dumps
+from models import Account, EndUser
 from services.workflow_draft_variable_service import DraftVariableSaver as DraftVariableSaverImpl
 
 if TYPE_CHECKING:
@@ -24,7 +26,7 @@ class BaseAppGenerator:
     def _prepare_user_inputs(
         self,
         *,
-        user_inputs: Optional[Mapping[str, Any]],
+        user_inputs: Mapping[str, Any] | None,
         variables: Sequence["VariableEntity"],
         tenant_id: str,
         strict_type_validation: bool = False,
@@ -44,9 +46,9 @@ class BaseAppGenerator:
                 mapping=v,
                 tenant_id=tenant_id,
                 config=FileUploadConfig(
-                    allowed_file_types=entity_dictionary[k].allowed_file_types,
-                    allowed_file_extensions=entity_dictionary[k].allowed_file_extensions,
-                    allowed_file_upload_methods=entity_dictionary[k].allowed_file_upload_methods,
+                    allowed_file_types=entity_dictionary[k].allowed_file_types or [],
+                    allowed_file_extensions=entity_dictionary[k].allowed_file_extensions or [],
+                    allowed_file_upload_methods=entity_dictionary[k].allowed_file_upload_methods or [],
                 ),
                 strict_type_validation=strict_type_validation,
             )
@@ -59,9 +61,9 @@ class BaseAppGenerator:
                 mappings=v,
                 tenant_id=tenant_id,
                 config=FileUploadConfig(
-                    allowed_file_types=entity_dictionary[k].allowed_file_types,
-                    allowed_file_extensions=entity_dictionary[k].allowed_file_extensions,
-                    allowed_file_upload_methods=entity_dictionary[k].allowed_file_upload_methods,
+                    allowed_file_types=entity_dictionary[k].allowed_file_types or [],
+                    allowed_file_extensions=entity_dictionary[k].allowed_file_extensions or [],
+                    allowed_file_upload_methods=entity_dictionary[k].allowed_file_upload_methods or [],
                 ),
             )
             for k, v in user_inputs.items()
@@ -92,7 +94,21 @@ class BaseAppGenerator:
         if value is None:
             if variable_entity.required:
                 raise ValueError(f"{variable_entity.variable} is required in input form")
-            return value
+            # Use default value and continue validation to ensure type conversion
+            value = variable_entity.default
+            # If default is also None, return None directly
+            if value is None:
+                return None
+
+        # Treat empty placeholders for optional file inputs as unset
+        if (
+            variable_entity.type in {VariableEntityType.FILE, VariableEntityType.FILE_LIST}
+            and not variable_entity.required
+        ):
+            # Treat empty string (frontend default) as unset
+            # For FILE_LIST, allow empty list [] to pass through
+            if isinstance(value, str) and not value:
+                return None
 
         if variable_entity.type in {
             VariableEntityType.TEXT_INPUT,
@@ -150,14 +166,30 @@ class BaseAppGenerator:
                         f"{variable_entity.variable} in input form must be less than {variable_entity.max_length} files"
                     )
             case VariableEntityType.CHECKBOX:
-                if not isinstance(value, bool):
-                    raise ValueError(f"{variable_entity.variable} in input form must be a valid boolean value")
+                if isinstance(value, str):
+                    normalized_value = value.strip().lower()
+                    if normalized_value in {"true", "1", "yes", "on"}:
+                        value = True
+                    elif normalized_value in {"false", "0", "no", "off"}:
+                        value = False
+                elif isinstance(value, (int, float)):
+                    if value == 1:
+                        value = True
+                    elif value == 0:
+                        value = False
+            case VariableEntityType.JSON_OBJECT:
+                if not isinstance(value, str):
+                    raise ValueError(f"{variable_entity.variable} in input form must be a string")
+                try:
+                    json.loads(value)
+                except json.JSONDecodeError:
+                    raise ValueError(f"{variable_entity.variable} in input form must be a valid JSON object")
             case _:
                 raise AssertionError("this statement should be unreachable.")
 
         return value
 
-    def _sanitize_value(self, value: Any) -> Any:
+    def _sanitize_value(self, value: Any):
         if isinstance(value, str):
             return value.replace("\x00", "")
         return value
@@ -182,8 +214,9 @@ class BaseAppGenerator:
 
     @final
     @staticmethod
-    def _get_draft_var_saver_factory(invoke_from: InvokeFrom) -> DraftVariableSaverFactory:
+    def _get_draft_var_saver_factory(invoke_from: InvokeFrom, account: Account | EndUser) -> DraftVariableSaverFactory:
         if invoke_from == InvokeFrom.DEBUGGER:
+            assert isinstance(account, Account)
 
             def draft_var_saver_factory(
                 session: Session,
@@ -200,6 +233,7 @@ class BaseAppGenerator:
                     node_type=node_type,
                     node_execution_id=node_execution_id,
                     enclosing_node_id=enclosing_node_id,
+                    user=account,
                 )
         else:
 

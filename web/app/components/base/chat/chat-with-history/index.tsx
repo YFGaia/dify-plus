@@ -1,28 +1,24 @@
 'use client'
 import type { FC } from 'react'
+import type { InstalledApp } from '@/models/explore'
 import {
   useEffect,
   useState,
 } from 'react'
-import { useAsyncEffect } from 'ahooks'
-import { useRouter, useSearchParams } from 'next/navigation'
+import Loading from '@/app/components/base/loading'
+import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
+import useDocumentTitle from '@/hooks/use-document-title'
+import { cn } from '@/utils/classnames'
 import { useThemeContext } from '../embedded-chatbot/theme/theme-context'
+import ChatWrapper from './chat-wrapper'
 import {
   ChatWithHistoryContext,
   useChatWithHistoryContext,
 } from './context'
-import { useChatWithHistory } from './hooks'
-import Sidebar from './sidebar'
 import Header from './header'
 import HeaderInMobile from './header-in-mobile'
-import ChatWrapper from './chat-wrapper'
-import type { InstalledApp } from '@/models/explore'
-import Loading from '@/app/components/base/loading'
-import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
-import { checkOrSetAccessToken } from '@/app/components/share/utils'
-import AppUnavailable from '@/app/components/base/app-unavailable'
-import cn from '@/utils/classnames'
-import useDocumentTitle from '@/hooks/use-document-title'
+import { useChatWithHistory } from './hooks'
+import Sidebar from './sidebar'
 
 type ChatWithHistoryProps = {
   className?: string
@@ -48,6 +44,11 @@ const ChatWithHistory: FC<ChatWithHistoryProps> = ({
     themeBuilder?.buildTheme(site?.chat_color_theme, site?.chat_color_theme_inverted)
   }, [site, customConfig, themeBuilder])
 
+  useEffect(() => {
+    if (!isSidebarCollapsed)
+      setShowSidePanel(false)
+  }, [isSidebarCollapsed])
+
   useDocumentTitle(site?.title || 'Chat')
 
   return (
@@ -55,12 +56,14 @@ const ChatWithHistory: FC<ChatWithHistoryProps> = ({
       'flex h-full bg-background-default-burn',
       isMobile && 'flex-col',
       className,
-    )}>
+    )}
+    >
       {!isMobile && (
         <div className={cn(
           'flex w-[236px] flex-col p-1 pr-0 transition-all duration-200 ease-in-out',
           isSidebarCollapsed && 'w-0 overflow-hidden !p-0',
-        )}>
+        )}
+        >
           <Sidebar />
         </div>
       )}
@@ -77,13 +80,13 @@ const ChatWithHistory: FC<ChatWithHistoryProps> = ({
             onMouseEnter={() => setShowSidePanel(true)}
             onMouseLeave={() => setShowSidePanel(false)}
           >
-            <Sidebar isPanel />
+            <Sidebar isPanel panelVisible={showSidePanel} />
           </div>
         )}
         <div className={cn('flex h-full flex-col overflow-hidden border-[0,5px] border-components-panel-border-subtle bg-chatbot-bg', isMobile ? 'rounded-t-2xl' : 'rounded-2xl')}>
           {!isMobile && <Header />}
           {appChatListDataLoading && (
-            <Loading type='app' />
+            <Loading type="app" />
           )}
           {!appChatListDataLoading && (
             <ChatWrapper key={chatShouldReloadKey} />
@@ -187,7 +190,8 @@ const ChatWithHistoryWrap: FC<ChatWithHistoryWrapProps> = ({
       setCurrentConversationInputs,
       allInputsHidden,
       initUserVariables,
-    }}>
+    }}
+    >
       <ChatWithHistory className={className} />
     </ChatWithHistoryContext.Provider>
   )
@@ -197,54 +201,6 @@ const ChatWithHistoryWrapWithCheckToken: FC<ChatWithHistoryWrapProps> = ({
   installedAppInfo,
   className,
 }) => {
-  const router = useRouter() // start You must log in to access your account extend
-  const searchParams = useSearchParams() // start You must log in to access your account extend
-  const [initialized, setInitialized] = useState(false)
-  const [appUnavailable, setAppUnavailable] = useState<boolean>(false)
-  const [isUnknownReason, setIsUnknownReason] = useState<boolean>(false)
-  const [hasToken, setHasToken] = useState<boolean>(true)
-
-  useAsyncEffect(async () => {
-    if (!initialized) {
-      if (!installedAppInfo) {
-        try {
-          await checkOrSetAccessToken()
-        }
-        catch (e: any) {
-          if (e.status === 404) {
-            setAppUnavailable(true)
-          }
-          else {
-            setIsUnknownReason(true)
-            setAppUnavailable(true)
-          }
-        }
-      }
-      setInitialized(true)
-    }
-  }, [])
-
-  // ------------------------ start You must log in to access your account extend ------------------------
-  // fix: window is not defined
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const consoleToken = searchParams.get('console_token')
-      const consoleTokenFromLocalStorage = localStorage.getItem('console_token')
-      if (!(consoleToken || consoleTokenFromLocalStorage)) {
-        localStorage.setItem('redirect_url', window.location.href)
-        router.replace('/signin')
-        setHasToken(false)
-      }
-    }
-  }, [router, searchParams])
-  // ------------------------ end You must log in to access your account extend ------------------------
-
-  if (!initialized || !hasToken)
-    return null
-
-  if (appUnavailable)
-    return <AppUnavailable isUnknownReason={isUnknownReason} />
-
   return (
     <ChatWithHistoryWrap
       installedAppInfo={installedAppInfo}

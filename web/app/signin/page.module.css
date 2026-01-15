@@ -1,5 +1,5 @@
 .githubIcon {
-    background: center/contain url('./assets/github.svg') no-repeat;
+  background: center/contain url('./assets/github.svg') no-repeat;
 }
 
 html[data-theme="dark"] .githubIcon {
@@ -7,16 +7,5 @@ html[data-theme="dark"] .githubIcon {
 }
 
 .googleIcon {
-    background: center/contain url('./assets/google.svg') no-repeat;
+  background: center/contain url('./assets/google.svg') no-repeat;
 }
-
-/* Extend: start 钉钉快捷登录按钮 */
-.dingIcon {
-    background: center/contain url('./assets/ding.svg');
-}
-/* Extend: stop 钉钉快捷登录按钮 */
-
-.oauth2Icon {
-    background: center/contain url('./assets/oauth2.svg');
-}
-

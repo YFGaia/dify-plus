@@ -1,11 +1,12 @@
 import logging
 
 from flask import request
-from flask_restx import fields, marshal_with, reqparse
+from flask_restx import fields, marshal_with
+from pydantic import BaseModel, field_validator
 from werkzeug.exceptions import InternalServerError
 
 import services
-from controllers.web import api
+from controllers.web import web_ns
 from controllers.web.error import (
     AppUnavailableError,
     AudioTooLargeError,
@@ -20,6 +21,7 @@ from controllers.web.error import (
 from controllers.web.wraps import WebApiResource
 from core.errors.error import ModelCurrentlyNotSupportError, ProviderTokenNotInitError, QuotaExceededError
 from core.model_runtime.errors.invoke import InvokeError
+from libs.helper import uuid_value
 from models.model import App
 from services.audio_service import AudioService
 from services.errors.audio import (
@@ -29,18 +31,38 @@ from services.errors.audio import (
     UnsupportedAudioTypeServiceError,
 )
 
+from ..common.schema import register_schema_models
+
+
+class TextToAudioPayload(BaseModel):
+    message_id: str | None = None
+    voice: str | None = None
+    text: str | None = None
+    streaming: bool | None = None
+
+    @field_validator("message_id")
+    @classmethod
+    def validate_message_id(cls, value: str | None) -> str | None:
+        if value is None:
+            return value
+        return uuid_value(value)
+
+
+register_schema_models(web_ns, TextToAudioPayload)
+
 logger = logging.getLogger(__name__)
 
 
+@web_ns.route("/audio-to-text")
 class AudioApi(WebApiResource):
     audio_to_text_response_fields = {
         "text": fields.String,
     }
 
     @marshal_with(audio_to_text_response_fields)
-    @api.doc("Audio to Text")
-    @api.doc(description="Convert audio file to text using speech-to-text service.")
-    @api.doc(
+    @web_ns.doc("Audio to Text")
+    @web_ns.doc(description="Convert audio file to text using speech-to-text service.")
+    @web_ns.doc(
         responses={
             200: "Success",
             400: "Bad Request",
@@ -85,16 +107,12 @@ class AudioApi(WebApiResource):
             raise InternalServerError()
 
 
+@web_ns.route("/text-to-audio")
 class TextApi(WebApiResource):
-    text_to_audio_response_fields = {
-        "audio_url": fields.String,
-        "duration": fields.Float,
-    }
-
-    @marshal_with(text_to_audio_response_fields)
-    @api.doc("Text to Audio")
-    @api.doc(description="Convert text to audio using text-to-speech service.")
-    @api.doc(
+    @web_ns.expect(web_ns.models[TextToAudioPayload.__name__])
+    @web_ns.doc("Text to Audio")
+    @web_ns.doc(description="Convert text to audio using text-to-speech service.")
+    @web_ns.doc(
         responses={
             200: "Success",
             400: "Bad Request",
@@ -106,16 +124,11 @@ class TextApi(WebApiResource):
     def post(self, app_model: App, end_user):
         """Convert text to audio"""
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument("message_id", type=str, required=False, location="json")
-            parser.add_argument("voice", type=str, location="json")
-            parser.add_argument("text", type=str, location="json")
-            parser.add_argument("streaming", type=bool, location="json")
-            args = parser.parse_args()
+            payload = TextToAudioPayload.model_validate(web_ns.payload or {})
 
-            message_id = args.get("message_id", None)
-            text = args.get("text", None)
-            voice = args.get("voice", None)
+            message_id = payload.message_id
+            text = payload.text
+            voice = payload.voice
             response = AudioService.transcript_tts(
                 app_model=app_model, text=text, voice=voice, end_user=end_user.external_user_id, message_id=message_id
             )
@@ -145,7 +158,3 @@ class TextApi(WebApiResource):
         except Exception as e:
             logger.exception("Failed to handle post request to TextApi")
             raise InternalServerError()
-
-
-api.add_resource(AudioApi, "/audio-to-text")
-api.add_resource(TextApi, "/text-to-audio")

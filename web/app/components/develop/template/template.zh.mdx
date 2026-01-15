@@ -728,8 +728,8 @@ import { Row, Col, Properties, Property, Heading, SubProperty } from '../md.tsx'
   <Col>
     <CodeGroup
       title="Request"
-      tag="POST"
-      label="/meta"
+      tag="GET"
+      label="/site"
       targetCode={`curl -X GET '${props.appDetail.api_base_url}/site' \\
 -H 'Authorization: Bearer {api_key}'`}
     />
@@ -967,8 +967,8 @@ ___
     </Properties>
   </Col>
   <Col sticky>
-    嵌入模型的提供商和模型名称可以通过以下接口获取：v1/workspaces/current/models/model-types/text-embedding， 具体见：通过 API 维护知识库。 使用的Authorization是Dataset的API Token。
-    该接口是异步执行，所以会返回一个job_id，通过查询job状态接口可以获取到最终的执行结果。
+    嵌入模型的提供商和模型名称可以通过以下接口获取：v1/workspaces/current/models/model-types/text-embedding，具体见：通过 API 维护知识库。使用的 Authorization 是 Dataset 的 API Token。
+    该接口是异步执行，所以会返回一个 job_id，通过查询 job 状态接口可以获取到最终的执行结果。
     <CodeGroup
       title="Request"
       tag="POST"
@@ -986,6 +986,7 @@ ___
       "job_status": "waiting"
     }
     ```
+
     </CodeGroup>
   </Col>
 </Row>

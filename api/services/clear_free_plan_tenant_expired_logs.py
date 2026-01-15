@@ -6,10 +6,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 import click
 from flask import Flask, current_app
+from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from configs import dify_config
 from core.model_runtime.utils.encoders import jsonable_encoder
+from enums.cloud_plan import CloudPlan
 from extensions.ext_database import db
 from extensions.ext_storage import storage
 from models.account import Tenant
@@ -34,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 class ClearFreePlanTenantExpiredLogs:
     @classmethod
-    def _clear_message_related_tables(cls, session: Session, tenant_id: str, batch_message_ids: list[str]) -> None:
+    def _clear_message_related_tables(cls, session: Session, tenant_id: str, batch_message_ids: list[str]):
         """
         Clean up message-related tables to avoid data redundancy.
         This method cleans up tables that have foreign key relationships with Message.
@@ -115,7 +117,7 @@ class ClearFreePlanTenantExpiredLogs:
     @classmethod
     def process_tenant(cls, flask_app: Flask, tenant_id: str, days: int, batch: int):
         with flask_app.app_context():
-            apps = db.session.query(App).where(App.tenant_id == tenant_id).all()
+            apps = db.session.scalars(select(App).where(App.tenant_id == tenant_id)).all()
             app_ids = [app.id for app in apps]
             while True:
                 with Session(db.engine).no_autoflush as session:
@@ -353,11 +355,11 @@ class ClearFreePlanTenantExpiredLogs:
 
         thread_pool = ThreadPoolExecutor(max_workers=10)
 
-        def process_tenant(flask_app: Flask, tenant_id: str) -> None:
+        def process_tenant(flask_app: Flask, tenant_id: str):
             try:
                 if (
                     not dify_config.BILLING_ENABLED
-                    or BillingService.get_info(tenant_id)["subscription"]["plan"] == "sandbox"
+                    or BillingService.get_info(tenant_id)["subscription"]["plan"] == CloudPlan.SANDBOX
                 ):
                     # only process sandbox tenant
                     cls.process_tenant(flask_app, tenant_id, days, batch)
@@ -407,6 +409,7 @@ class ClearFreePlanTenantExpiredLogs:
                         datetime.timedelta(hours=1),
                     ]
 
+                    tenant_count = 0
                     for test_interval in test_intervals:
                         tenant_count = (
                             session.query(Tenant.id)

@@ -26,8 +26,14 @@ from .dataset import (
     TidbAuthBinding,
     Whitelist,
 )
-from .engine import db
-from .enums import CreatorUserRole, UserFrom, WorkflowRunTriggeredFrom
+from .enums import (
+    AppTriggerStatus,
+    AppTriggerType,
+    CreatorUserRole,
+    UserFrom,
+    WorkflowRunTriggeredFrom,
+    WorkflowTriggerStatus,
+)
 from .model import (
     ApiRequest,
     ApiToken,
@@ -54,9 +60,11 @@ from .model import (
     Site,
     Tag,
     TagBinding,
+    TenantCreditPool,
     TraceAppConfig,
     UploadFile,
 )
+from .oauth import DatasourceOauthParamConfig, DatasourceProvider
 from .provider import (
     LoadBalancingModelConfig,
     Provider,
@@ -80,6 +88,13 @@ from .tools import (
     ToolModelInvoke,
     WorkflowToolProvider,
 )
+from .trigger import (
+    AppTrigger,
+    TriggerOAuthSystemClient,
+    TriggerOAuthTenantClient,
+    TriggerSubscription,
+    WorkflowSchedulePlan,
+)
 from .web import PinnedConversation, SavedMessage
 from .workflow import (
     ConversationVariable,
@@ -87,7 +102,9 @@ from .workflow import (
     WorkflowAppLog,
     WorkflowAppLogCreatedFrom,
     WorkflowNodeExecutionModel,
+    WorkflowNodeExecutionOffload,
     WorkflowNodeExecutionTriggeredFrom,
+    WorkflowPause,
     WorkflowRun,
     WorkflowType,
 )
@@ -105,9 +122,12 @@ __all__ = [
     "AppAnnotationHitHistory",
     "AppAnnotationSetting",
     "AppDatasetJoin",
-    "AppMCPServer",  # Added
+    "AppMCPServer",
     "AppMode",
     "AppModelConfig",
+    "AppTrigger",
+    "AppTriggerStatus",
+    "AppTriggerType",
     "BuiltinToolProvider",
     "CeleryTask",
     "CeleryTaskSet",
@@ -124,6 +144,8 @@ __all__ = [
     "DatasetProcessRule",
     "DatasetQuery",
     "DatasetRetrieverResource",
+    "DatasourceOauthParamConfig",
+    "DatasourceProvider",
     "DifySetup",
     "Document",
     "DocumentSegment",
@@ -158,6 +180,7 @@ __all__ = [
     "Tenant",
     "TenantAccountJoin",
     "TenantAccountRole",
+    "TenantCreditPool",
     "TenantDefaultModel",
     "TenantPreferredModelProvider",
     "TenantStatus",
@@ -167,6 +190,9 @@ __all__ = [
     "ToolLabelBinding",
     "ToolModelInvoke",
     "TraceAppConfig",
+    "TriggerOAuthSystemClient",
+    "TriggerOAuthTenantClient",
+    "TriggerSubscription",
     "UploadFile",
     "UserFrom",
     "Whitelist",
@@ -174,10 +200,13 @@ __all__ = [
     "WorkflowAppLog",
     "WorkflowAppLogCreatedFrom",
     "WorkflowNodeExecutionModel",
+    "WorkflowNodeExecutionOffload",
     "WorkflowNodeExecutionTriggeredFrom",
+    "WorkflowPause",
     "WorkflowRun",
     "WorkflowRunTriggeredFrom",
+    "WorkflowSchedulePlan",
     "WorkflowToolProvider",
+    "WorkflowTriggerStatus",
     "WorkflowType",
-    "db",
 ]

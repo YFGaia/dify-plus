@@ -1,22 +1,23 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import mermaid, { type MermaidConfig } from 'mermaid'
-import { useTranslation } from 'react-i18next'
+import type { MermaidConfig } from 'mermaid'
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { MoonIcon, SunIcon } from '@heroicons/react/24/solid'
+import mermaid from 'mermaid'
+import * as React from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import LoadingAnim from '@/app/components/base/chat/chat/loading-anim'
+import ImagePreview from '@/app/components/base/image-uploader/image-preview'
+import { Theme } from '@/types/app'
+import { cn } from '@/utils/classnames'
 import {
   cleanUpSvgCode,
   isMermaidCodeComplete,
   prepareMermaidCode,
   processSvgForTheme,
+  sanitizeMermaidCode,
   svgToBase64,
   waitForDOMElement,
 } from './utils'
-import type { Property } from 'csstype' // Markdown embedded images support click-to-zoom, providing users with a better user experience
-import s from './modal.module.css' // Markdown embedded images support click-to-zoom, providing users with a better user experience
-import LoadingAnim from '@/app/components/base/chat/chat/loading-anim'
-import cn from '@/utils/classnames'
-import ImagePreview from '@/app/components/base/image-uploader/image-preview'
-import { Theme } from '@/types/app'
 
 // Global flags and cache for mermaid
 let isMermaidInitialized = false
@@ -73,7 +74,7 @@ const initMermaid = () => {
       const config: MermaidConfig = {
         startOnLoad: false,
         fontFamily: 'sans-serif',
-        securityLevel: 'loose',
+        securityLevel: 'strict',
         flowchart: {
           htmlLabels: true,
           useMaxWidth: true,
@@ -109,13 +110,14 @@ const initMermaid = () => {
   return isMermaidInitialized
 }
 
-// eslint-disable-next-line react/display-name
-const Flowchart = React.forwardRef((props: {
+type FlowchartProps = {
   PrimitiveCode: string
   theme?: 'light' | 'dark'
-}, ref) => {
+  ref?: React.Ref<HTMLDivElement>
+}
+
+const Flowchart = (props: FlowchartProps) => {
   const { t } = useTranslation()
-  const [svgCode, setSvgCode] = useState(null) // Extend image
   const [svgString, setSvgString] = useState<string | null>(null)
   const [look, setLook] = useState<'classic' | 'handDrawn'>('classic')
   const [isInitialized, setIsInitialized] = useState(false)
@@ -123,14 +125,9 @@ const Flowchart = React.forwardRef((props: {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartId = useRef(`mermaid-chart-${Math.random().toString(36).slice(2, 11)}`).current
   const [isLoading, setIsLoading] = useState(true)
-  const renderTimeoutRef = useRef<NodeJS.Timeout>()
+  const renderTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const [errMsg, setErrMsg] = useState('')
   const [imagePreviewUrl, setImagePreviewUrl] = useState('')
-  // Extend: Start Markdown embedded images support click-to-zoom, providing users with a better user experience
-  const [showModal, setShowModal] = useState(false)
-  const [imgStyle, setImgStyle] = useState({ width: '0px', height: '0px' })
-  const [imgBarStyle, setImgBarStyle] = useState({ width: '0px', height: '0px', overflowY: 'auto' as Property.OverflowY })
-  // Extend: Stop Markdown embedded images support click-to-zoom, providing users with a better user experience
 
   /**
    * Renders Mermaid chart
@@ -193,7 +190,7 @@ const Flowchart = React.forwardRef((props: {
   }, [])
 
   // Update theme when prop changes, but allow internal override.
-  const prevThemeRef = useRef<string>()
+  const prevThemeRef = useRef<string | undefined>(undefined)
   useEffect(() => {
     // Only react if the theme prop from the outside has actually changed.
     if (props.theme && props.theme !== prevThemeRef.current) {
@@ -273,6 +270,8 @@ const Flowchart = React.forwardRef((props: {
         finalCode = prepareMermaidCode(primitiveCode, look)
       }
 
+      finalCode = sanitizeMermaidCode(finalCode)
+
       // Step 2: Render chart
       const svgGraph = await renderMermaidChart(finalCode, look)
 
@@ -292,20 +291,7 @@ const Flowchart = React.forwardRef((props: {
         setSvgString(cleanedSvg)
       }
 
-      // Extend: start images update version
-      try {
-        if (typeof window !== 'undefined' && mermaidAPI) {
-          const svgGraph = await mermaidAPI.render('flowchart', PrimitiveCode)
-          const base64Svg: any = await svgToBase64(cleanUpSvgCode(svgGraph.svg))
-          setSvgCode(base64Svg)
-          setIsLoading(false)
-        }
-      }
-      catch (error) {
-        setIsLoading(false)
-        setErrMsg((error as Error).message)
-      }
-      // Extend: stop images update version
+      setIsLoading(false)
     }
     catch (error) {
       // Error handling
@@ -316,9 +302,9 @@ const Flowchart = React.forwardRef((props: {
   const configureMermaid = useCallback((primitiveCode: string) => {
     if (typeof window !== 'undefined' && isInitialized) {
       const themeVars = THEMES[currentTheme]
-      const config: any = {
+      const config: MermaidConfig = {
         startOnLoad: false,
-        securityLevel: 'loose',
+        securityLevel: 'strict',
         fontFamily: 'sans-serif',
         maxTextSize: 50000,
         gantt: {
@@ -344,7 +330,8 @@ const Flowchart = React.forwardRef((props: {
         config.theme = currentTheme === 'dark' ? 'dark' : 'neutral'
 
         if (isFlowchart) {
-          config.flowchart = {
+          type FlowchartConfigWithRanker = NonNullable<MermaidConfig['flowchart']> & { ranker?: string }
+          const flowchartConfig: FlowchartConfigWithRanker = {
             htmlLabels: true,
             useMaxWidth: true,
             nodeSpacing: 60,
@@ -352,6 +339,7 @@ const Flowchart = React.forwardRef((props: {
             curve: 'linear',
             ranker: 'tight-tree',
           }
+          config.flowchart = flowchartConfig as unknown as MermaidConfig['flowchart']
         }
 
         if (currentTheme === 'dark') {
@@ -402,34 +390,6 @@ const Flowchart = React.forwardRef((props: {
     }
     return false
   }, [currentTheme, isInitialized, look])
-
-  // Extend: Start Markdown embedded images support click-to-zoom, providing users with a better user experience
-  const openImage = async () => {
-    if (!window)
-      return
-    const img = new Image()
-    let winWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
-    let winHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
-    img.onload = () => {
-      setShowModal(true)
-      winWidth = winWidth * 0.9
-      winHeight = winHeight * 0.9
-      winWidth = winWidth > 1920 ? 1920 : winWidth
-      const multiple = winWidth / img.width
-      const imgHeight = img.height * multiple
-      if (imgHeight < winHeight)
-        winHeight = imgHeight
-      setImgBarStyle({ width: `${winWidth}px`, height: `${winHeight}px`, overflowY: 'auto' })
-      setImgStyle({ width: `${img.width * multiple}px`, height: `${imgHeight}px` })
-    }
-    if (svgCode)
-      img.src = svgCode
-  }
-  // clone
-  const closeImage = () => {
-    setShowModal(false)
-  }
-  // Extend: Stop Markdown embedded images support click-to-zoom, providing users with a better user experience
 
   // This is the main rendering effect.
   // It triggers whenever the code, theme, or style changes.
@@ -540,12 +500,12 @@ const Flowchart = React.forwardRef((props: {
   }
 
   return (
-    <div ref={ref as React.RefObject<HTMLDivElement>} className={themeClasses.container}>
+    <div ref={props.ref as React.RefObject<HTMLDivElement>} className={themeClasses.container}>
       <div className={themeClasses.segmented}>
         <div className="msh-segmented-group">
           <label className="msh-segmented-item m-2 flex w-[200px] items-center space-x-1">
             <div
-              key='classic'
+              key="classic"
               className={getLookButtonClass('classic')}
               onClick={() => {
                 if (look !== 'classic') {
@@ -555,10 +515,10 @@ const Flowchart = React.forwardRef((props: {
                 }
               }}
             >
-              <div className="msh-segmented-item-label">{t('app.mermaid.classic')}</div>
+              <div className="msh-segmented-item-label">{t('mermaid.classic', { ns: 'app' })}</div>
             </div>
             <div
-              key='handDrawn'
+              key="handDrawn"
               className={getLookButtonClass('handDrawn')}
               onClick={() => {
                 if (look !== 'handDrawn') {
@@ -568,25 +528,19 @@ const Flowchart = React.forwardRef((props: {
                 }
               }}
             >
-              <div className="msh-segmented-item-label">{t('app.mermaid.handDrawn')}</div>
+              <div className="msh-segmented-item-label">{t('mermaid.handDrawn', { ns: 'app' })}</div>
             </div>
           </label>
         </div>
       </div>
-      {
-        svgCode
-        && <div className="mermaid object-fit: cover h-auto w-full cursor-pointer" onClick={() => setImagePreviewUrl(svgCode)}>
-          {svgCode && <img onClick={openImage} src={svgCode} alt="mermaid_chart" />}
-        </div>
-      }
 
       <div ref={containerRef} style={{ position: 'absolute', visibility: 'hidden', height: 0, overflow: 'hidden' }} />
 
       {isLoading && !svgString && (
-        <div className='px-[26px] py-4'>
-          <LoadingAnim type='text'/>
+        <div className="px-[26px] py-4">
+          <LoadingAnim type="text" />
           <div className="mt-2 text-sm text-gray-500">
-            {t('common.wait_for_completion', 'Waiting for diagram code to complete...')}
+            {t('wait_for_completion', { ns: 'common', defaultValue: 'Waiting for diagram code to complete...' })}
           </div>
         </div>
       )}
@@ -595,12 +549,13 @@ const Flowchart = React.forwardRef((props: {
         <div className={themeClasses.mermaidDiv} style={{ objectFit: 'cover' }} onClick={handlePreviewClick}>
           <div className="absolute bottom-2 left-2 z-[100]">
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 toggleTheme()
               }}
               className={themeClasses.themeToggle}
-              title={(currentTheme === Theme.light ? t('app.theme.switchDark') : t('app.theme.switchLight')) || ''}
+              title={(currentTheme === Theme.light ? t('theme.switchDark', { ns: 'app' }) : t('theme.switchLight', { ns: 'app' })) || ''}
               style={{ transform: 'translate3d(0, 0, 0)' }}
             >
               {currentTheme === Theme.light ? <MoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />}
@@ -617,35 +572,18 @@ const Flowchart = React.forwardRef((props: {
       {errMsg && (
         <div className={themeClasses.errorMessage}>
           <div className="flex items-center">
-            <ExclamationTriangleIcon className={themeClasses.errorIcon}/>
+            <ExclamationTriangleIcon className={themeClasses.errorIcon} />
             <span className="ml-2">{errMsg}</span>
           </div>
         </div>
       )}
 
       {imagePreviewUrl && (
-        <ImagePreview title='mermaid_chart' url={imagePreviewUrl} onCancel={() => setImagePreviewUrl('')} />
+        <ImagePreview title="mermaid_chart" url={imagePreviewUrl} onCancel={() => setImagePreviewUrl('')} />
       )}
-      {/* Extend: Start Markdown embedded images support click-to-zoom, providing users with a better user experience */}
-      {
-        (showModal && imgStyle && svgCode) && <div onClick={closeImage}>
-          <div className={cn(s.mask_body)}>
-            <div className={cn(s.mask_layer)}></div>
-            <div className={cn(s.mask_dialog)} style={imgBarStyle}>
-              <img
-                alt="result image preview"
-                src={svgCode}
-                style={imgStyle}
-                className={cn('h-full', 'w-full', 'object-contain', s.mask_layer)}
-              />
-            </div>
-          </div>
-        </div>
-      }
-      {/* Extend: Stop Markdown embedded images support click-to-zoom, providing users with a better user experience */}
     </div>
   )
-})
+}
 
 Flowchart.displayName = 'Flowchart'
 

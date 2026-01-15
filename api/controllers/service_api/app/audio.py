@@ -1,10 +1,12 @@
 import logging
 
 from flask import request
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
+from pydantic import BaseModel, Field
 from werkzeug.exceptions import InternalServerError
 
 import services
+from controllers.common.schema import register_schema_model
 from controllers.service_api import service_api_ns
 from controllers.service_api.app.error import (
     AppUnavailableError,
@@ -20,7 +22,7 @@ from controllers.service_api.app.error import (
 from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate_app_token
 from core.errors.error import ModelCurrentlyNotSupportError, ProviderTokenNotInitError, QuotaExceededError
 from core.model_runtime.errors.invoke import InvokeError
-from models.model import ApiToken, App, EndUser  # 二开部分End - 密钥额度限制，新增api_token,否则上传文件会报错
+from models.model import ApiToken, App, EndUser # extend: 二开部分 密钥额度限制，新增api_token
 from services.audio_service import AudioService
 from services.errors.audio import (
     AudioTooLargeServiceError,
@@ -84,17 +86,19 @@ class AudioApi(Resource):
             raise InternalServerError()
 
 
-# Define parser for text-to-audio API
-text_to_audio_parser = reqparse.RequestParser()
-text_to_audio_parser.add_argument("message_id", type=str, required=False, location="json", help="Message ID")
-text_to_audio_parser.add_argument("voice", type=str, location="json", help="Voice to use for TTS")
-text_to_audio_parser.add_argument("text", type=str, location="json", help="Text to convert to audio")
-text_to_audio_parser.add_argument("streaming", type=bool, location="json", help="Enable streaming response")
+class TextToAudioPayload(BaseModel):
+    message_id: str | None = Field(default=None, description="Message ID")
+    voice: str | None = Field(default=None, description="Voice to use for TTS")
+    text: str | None = Field(default=None, description="Text to convert to audio")
+    streaming: bool | None = Field(default=None, description="Enable streaming response")
+
+
+register_schema_model(service_api_ns, TextToAudioPayload)
 
 
 @service_api_ns.route("/text-to-audio")
 class TextApi(Resource):
-    @service_api_ns.expect(text_to_audio_parser)
+    @service_api_ns.expect(service_api_ns.models[TextToAudioPayload.__name__])
     @service_api_ns.doc("text_to_audio")
     @service_api_ns.doc(description="Convert text to audio using text-to-speech")
     @service_api_ns.doc(
@@ -106,17 +110,17 @@ class TextApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # 二开部分End - 密钥额度限制，新增api_token
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend 二开部分End - 密钥额度限制，新增api_token
         """Convert text to audio using text-to-speech.
 
         Converts the provided text to audio using the specified voice.
         """
         try:
-            args = text_to_audio_parser.parse_args()
+            payload = TextToAudioPayload.model_validate(service_api_ns.payload or {})
 
-            message_id = args.get("message_id", None)
-            text = args.get("text", None)
-            voice = args.get("voice", None)
+            message_id = payload.message_id
+            text = payload.text
+            voice = payload.voice
             response = AudioService.transcript_tts(
                 app_model=app_model, text=text, voice=voice, end_user=end_user.external_user_id, message_id=message_id
             )

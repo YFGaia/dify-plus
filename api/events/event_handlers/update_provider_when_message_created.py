@@ -1,22 +1,23 @@
 import logging
 import time as time_module
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, cast
 
 from pydantic import BaseModel
 from sqlalchemy import update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
 
 from configs import dify_config
 from core.app.entities.app_invoke_entities import AgentChatAppGenerateEntity, ChatAppGenerateEntity
-from core.entities.provider_entities import QuotaUnit, SystemConfiguration
-from core.plugin.entities.plugin import ModelProviderID
+from core.entities.provider_entities import ProviderQuotaType, QuotaUnit, SystemConfiguration
 from events.message_event import message_was_created
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client, redis_fallback
 from libs import datetime_utils
 from models.model import Message
 from models.provider import Provider, ProviderType
+from models.provider_ids import ModelProviderID
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ def _get_provider_cache_key(tenant_id: str, provider_name: str) -> str:
 
 
 @redis_fallback(default_return=None)
-def _get_last_update_timestamp(cache_key: str) -> Optional[datetime]:
+def _get_last_update_timestamp(cache_key: str) -> datetime | None:
     """Get last update timestamp from Redis cache."""
     timestamp_str = redis_client.get(cache_key)
     if timestamp_str:
@@ -42,7 +43,7 @@ def _get_last_update_timestamp(cache_key: str) -> Optional[datetime]:
 
 
 @redis_fallback()
-def _set_last_update_timestamp(cache_key: str, timestamp: datetime) -> None:
+def _set_last_update_timestamp(cache_key: str, timestamp: datetime):
     """Set last update timestamp in Redis cache with TTL."""
     redis_client.setex(cache_key, _CACHE_TTL_SECONDS, str(timestamp.timestamp()))
 
@@ -52,8 +53,8 @@ class _ProviderUpdateFilters(BaseModel):
 
     tenant_id: str
     provider_name: str
-    provider_type: Optional[str] = None
-    quota_type: Optional[str] = None
+    provider_type: str | None = None
+    quota_type: str | None = None
 
 
 class _ProviderUpdateAdditionalFilters(BaseModel):
@@ -65,8 +66,8 @@ class _ProviderUpdateAdditionalFilters(BaseModel):
 class _ProviderUpdateValues(BaseModel):
     """Values to update in Provider records."""
 
-    last_used: Optional[datetime] = None
-    quota_used: Optional[Any] = None  # Can be Provider.quota_used + int expression
+    last_used: datetime | None = None
+    quota_used: Any | None = None  # Can be Provider.quota_used + int expression
 
 
 class _ProviderUpdateOperation(BaseModel):
@@ -133,22 +134,38 @@ def handle(sender: Message, **kwargs):
             system_configuration=system_configuration,
             model_name=model_config.model,
         )
-
         if used_quota is not None:
-            quota_update = _ProviderUpdateOperation(
-                filters=_ProviderUpdateFilters(
+            if provider_configuration.system_configuration.current_quota_type == ProviderQuotaType.TRIAL:
+                from services.credit_pool_service import CreditPoolService
+
+                CreditPoolService.check_and_deduct_credits(
                     tenant_id=tenant_id,
-                    provider_name=ModelProviderID(model_config.provider).provider_name,
-                    provider_type=ProviderType.SYSTEM.value,
-                    quota_type=provider_configuration.system_configuration.current_quota_type.value,
-                ),
-                values=_ProviderUpdateValues(quota_used=Provider.quota_used + used_quota, last_used=current_time),
-                additional_filters=_ProviderUpdateAdditionalFilters(
-                    quota_limit_check=True  # Provider.quota_limit > Provider.quota_used
-                ),
-                description="quota_deduction_update",
-            )
-            updates_to_perform.append(quota_update)
+                    credits_required=used_quota,
+                    pool_type="trial",
+                )
+            elif provider_configuration.system_configuration.current_quota_type == ProviderQuotaType.PAID:
+                from services.credit_pool_service import CreditPoolService
+
+                CreditPoolService.check_and_deduct_credits(
+                    tenant_id=tenant_id,
+                    credits_required=used_quota,
+                    pool_type="paid",
+                )
+            else:
+                quota_update = _ProviderUpdateOperation(
+                    filters=_ProviderUpdateFilters(
+                        tenant_id=tenant_id,
+                        provider_name=ModelProviderID(model_config.provider).provider_name,
+                        provider_type=ProviderType.SYSTEM.value,
+                        quota_type=provider_configuration.system_configuration.current_quota_type.value,
+                    ),
+                    values=_ProviderUpdateValues(quota_used=Provider.quota_used + used_quota, last_used=current_time),
+                    additional_filters=_ProviderUpdateAdditionalFilters(
+                        quota_limit_check=True  # Provider.quota_limit > Provider.quota_used
+                    ),
+                    description="quota_deduction_update",
+                )
+                updates_to_perform.append(quota_update)
 
     # Execute all updates
     start_time = time_module.perf_counter()
@@ -182,7 +199,7 @@ def handle(sender: Message, **kwargs):
 
 def _calculate_quota_usage(
     *, message: Message, system_configuration: SystemConfiguration, model_name: str
-) -> Optional[int]:
+) -> int | None:
     """Calculate quota usage based on message tokens and quota type."""
     quota_unit = None
     for quota_configuration in system_configuration.quota_configurations:
@@ -255,7 +272,7 @@ def _execute_provider_updates(updates_to_perform: list[_ProviderUpdateOperation]
                 now = datetime_utils.naive_utc_now()
                 last_update = _get_last_update_timestamp(cache_key)
 
-                if last_update is None or (now - last_update).total_seconds() > LAST_USED_UPDATE_WINDOW_SECONDS:
+                if last_update is None or (now - last_update).total_seconds() > LAST_USED_UPDATE_WINDOW_SECONDS:  # type: ignore
                     update_values["last_used"] = values.last_used
                     _set_last_update_timestamp(cache_key, now)
 
@@ -267,7 +284,7 @@ def _execute_provider_updates(updates_to_perform: list[_ProviderUpdateOperation]
 
             # Build and execute the update statement
             stmt = update(Provider).where(*where_conditions).values(**update_values)
-            result = session.execute(stmt)
+            result = cast(CursorResult, session.execute(stmt))
             rows_affected = result.rowcount
 
             logger.debug(

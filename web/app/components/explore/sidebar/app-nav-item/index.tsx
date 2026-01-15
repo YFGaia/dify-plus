@@ -1,13 +1,13 @@
 'use client'
-import React, { useRef } from 'react'
-
-import { useRouter } from 'next/navigation'
-import { useHover } from 'ahooks'
-import cn from '@/utils/classnames'
-import ItemOperation from '@/app/components/explore/item-operation'
-import AppIcon from '@/app/components/base/app-icon'
 import type { AppIconType } from '@/types/app'
-import { useAppContext } from '@/context/app-context' // 二开部分 - 现在普通成员，在默认空间，也能在侧边栏置顶应用，这样不符合逻辑
+
+import { useHover } from 'ahooks'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
+import { useRef } from 'react'
+import AppIcon from '@/app/components/base/app-icon'
+import ItemOperation from '@/app/components/explore/item-operation'
+import { cn } from '@/utils/classnames'
 
 export type IAppNavItemProps = {
   isMobile: boolean
@@ -42,40 +42,31 @@ export default function AppNavItem({
   const url = `/explore/installed/${id}`
   const ref = useRef(null)
   const isHovering = useHover(ref)
-  const { isCurrentWorkspaceManager } = useAppContext()
   return (
     <div
       ref={ref}
       key={id}
-      className={cn('system-sm-medium flex h-8 items-center justify-between rounded-lg px-2 text-sm font-normal text-components-menu-item-text mobile:justify-center mobile:px-1',
-        isSelected ? 'bg-state-base-active text-components-menu-item-text-active' : 'hover:bg-state-base-hover hover:text-components-menu-item-text-hover',
-      )}
+      className={cn('system-sm-medium flex h-8 items-center justify-between rounded-lg px-2 text-sm font-normal text-components-menu-item-text mobile:justify-center mobile:px-1', isSelected ? 'bg-state-base-active text-components-menu-item-text-active' : 'hover:bg-state-base-hover hover:text-components-menu-item-text-hover')}
       onClick={() => {
         router.push(url) // use Link causes popup item always trigger jump. Can not be solved by e.stopPropagation().
       }}
     >
-      {isMobile && <AppIcon size='tiny' iconType={icon_type} icon={icon} background={icon_background} imageUrl={icon_url} />}
+      {isMobile && <AppIcon size="tiny" iconType={icon_type} icon={icon} background={icon_background} imageUrl={icon_url} />}
       {!isMobile && (
         <>
-          <div className='flex w-0 grow items-center space-x-2'>
-            <AppIcon size='tiny' iconType={icon_type} icon={icon} background={icon_background} imageUrl={icon_url} />
-            <div className='overflow-hidden text-ellipsis whitespace-nowrap' title={name}>{name}</div>
+          <div className="flex w-0 grow items-center space-x-2">
+            <AppIcon size="tiny" iconType={icon_type} icon={icon} background={icon_background} imageUrl={icon_url} />
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap" title={name}>{name}</div>
           </div>
-          {
-            // 二开部分 - 现在普通成员，在默认空间，也能在侧边栏置顶应用，这样不符合逻辑，加了isCurrentWorkspaceManager的判断
-            isCurrentWorkspaceManager && (
-              <div className='h-6 shrink-0' onClick={e => e.stopPropagation()}>
-                <ItemOperation
-                  isPinned={isPinned}
-                  isItemHovering={isHovering}
-                  togglePin={togglePin}
-                  isShowDelete={!uninstallable && !isSelected}
-                  onDelete={() => onDelete(id)}
-                />
-              </div>
-            )
-            // 二开部分 - 现在普通成员，在默认空间，也能在侧边栏置顶应用，这样不符合逻辑，加了isCurrentWorkspaceManager的判断
-          }
+          <div className="h-6 shrink-0" onClick={e => e.stopPropagation()}>
+            <ItemOperation
+              isPinned={isPinned}
+              isItemHovering={isHovering}
+              togglePin={togglePin}
+              isShowDelete={!uninstallable && !isSelected}
+              onDelete={() => onDelete(id)}
+            />
+          </div>
         </>
       )}
     </div>

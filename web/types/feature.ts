@@ -27,9 +27,9 @@ type License = {
 
 export type SystemFeatures = {
   plugin_installation_permission: {
-    plugin_installation_scope: InstallationScope,
+    plugin_installation_scope: InstallationScope
     restrict_to_marketplace_only: boolean
-  },
+  }
   sso_enforced_for_signin: boolean
   sso_enforced_for_signin_protocol: SSOProtocol | ''
   sso_enforced_for_web: boolean
@@ -59,11 +59,6 @@ export type SystemFeatures = {
     allow_email_code_login: boolean
     allow_email_password_login: boolean
   }
-  is_custom_auth2: string // extend: Customizing AUTH2
-  is_custom_auth2_logout: string // extend: AUTH2 logout url
-  ding_talk_client_id: string // Extend: DingTalk third-party login
-  ding_talk_corp_id: string // Extend: DingTalk sidebar login
-  ding_talk: boolean // Extend: switch DingTalk sidebar login
 }
 
 export const defaultSystemFeatures: SystemFeatures = {
@@ -103,19 +98,16 @@ export const defaultSystemFeatures: SystemFeatures = {
     allow_email_code_login: false,
     allow_email_password_login: false,
   },
-  is_custom_auth2: '', // extend: Customizing AUTH2
-  ding_talk_client_id: '', // Extend: DingTalk third-party login
-  ding_talk_corp_id: '', // Extend: DingTalk sidebar login
-  ding_talk: false, // Extend: switch DingTalk sidebar login
 }
 
 export enum DatasetAttr {
   DATA_API_PREFIX = 'data-api-prefix',
   DATA_PUBLIC_API_PREFIX = 'data-public-api-prefix',
-  DATA_ADMIN_API_PREFIX = 'data-admin-api-prefix',
   DATA_MARKETPLACE_API_PREFIX = 'data-marketplace-api-prefix',
   DATA_MARKETPLACE_URL_PREFIX = 'data-marketplace-url-prefix',
   DATA_PUBLIC_EDITION = 'data-public-edition',
+  DATA_PUBLIC_AMPLITUDE_API_KEY = 'data-public-amplitude-api-key',
+  DATA_PUBLIC_COOKIE_DOMAIN = 'data-public-cookie-domain',
   DATA_PUBLIC_SUPPORT_MAIL_LOGIN = 'data-public-support-mail-login',
   DATA_PUBLIC_SENTRY_DSN = 'data-public-sentry-dsn',
   DATA_PUBLIC_MAINTENANCE_NOTICE = 'data-public-maintenance-notice',
@@ -132,4 +124,12 @@ export enum DatasetAttr {
   DATA_PUBLIC_ENABLE_WEBSITE_JINAREADER = 'data-public-enable-website-jinareader',
   DATA_PUBLIC_ENABLE_WEBSITE_FIRECRAWL = 'data-public-enable-website-firecrawl',
   DATA_PUBLIC_ENABLE_WEBSITE_WATERCRAWL = 'data-public-enable-website-watercrawl',
+  DATA_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX = 'data-public-enable-single-dollar-latex',
+  NEXT_PUBLIC_ZENDESK_WIDGET_KEY = 'next-public-zendesk-widget-key',
+  NEXT_PUBLIC_ZENDESK_FIELD_ID_ENVIRONMENT = 'next-public-zendesk-field-id-environment',
+  NEXT_PUBLIC_ZENDESK_FIELD_ID_VERSION = 'next-public-zendesk-field-id-version',
+  NEXT_PUBLIC_ZENDESK_FIELD_ID_EMAIL = 'next-public-zendesk-field-id-email',
+  NEXT_PUBLIC_ZENDESK_FIELD_ID_WORKSPACE_ID = 'next-public-zendesk-field-id-workspace-id',
+  NEXT_PUBLIC_ZENDESK_FIELD_ID_PLAN = 'next-public-zendesk-field-id-plan',
+  DATA_PUBLIC_BATCH_CONCURRENCY = 'data-public-batch-concurrency',
 }

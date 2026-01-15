@@ -1,20 +1,23 @@
-import json  # extend: oauth2
-import re  # extend: oauth2
 from enum import StrEnum
 
-from flask import request  # extend: oauth2
 from pydantic import BaseModel, ConfigDict, Field
 
 from configs import dify_config
-from extensions.ext_database import db  # extend: oauth2
-from extensions.ext_redis import redis_client  # extend: oauth2
-from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend  # Extend DingTalk third-party login
+from enums.cloud_plan import CloudPlan
 from services.billing_service import BillingService
 from services.enterprise.enterprise_service import EnterpriseService
 
+# extend start: oauth2 and DingTalk third-party login
+import re
+import json
+from flask import request
+from extensions.ext_database import db
+from extensions.ext_redis import redis_client
+from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend
+# extend stop: oauth2 and DingTalk third-party login
 
 class SubscriptionModel(BaseModel):
-    plan: str = "sandbox"
+    plan: str = CloudPlan.SANDBOX
     interval: str = ""
 
 
@@ -59,6 +62,12 @@ class LicenseLimitationModel(BaseModel):
         return (self.limit - self.size) >= required
 
 
+class Quota(BaseModel):
+    usage: int = 0
+    limit: int = 0
+    reset_date: int = -1
+
+
 class LicenseStatus(StrEnum):
     NONE = "none"
     INACTIVE = "inactive"
@@ -92,6 +101,10 @@ class WebAppAuthModel(BaseModel):
     sso_config: WebAppAuthSSOModel = WebAppAuthSSOModel()
     allow_email_code_login: bool = False
     allow_email_password_login: bool = False
+
+
+class KnowledgePipeline(BaseModel):
+    publish_enabled: bool = False
 
 
 class PluginInstallationScope(StrEnum):
@@ -130,14 +143,22 @@ class FeatureModel(BaseModel):
     webapp_copyright_enabled: bool = False
     workspace_members: LicenseLimitationModel = LicenseLimitationModel(enabled=False, size=0, limit=0)
     is_allow_transfer_workspace: bool = True
+    trigger_event: Quota = Quota(usage=0, limit=3000, reset_date=0)
+    api_rate_limit: Quota = Quota(usage=0, limit=5000, reset_date=0)
     # pydantic configs
     model_config = ConfigDict(protected_namespaces=())
+    knowledge_pipeline: KnowledgePipeline = KnowledgePipeline()
+    next_credit_reset_date: int = 0
 
 
 class KnowledgeRateLimitModel(BaseModel):
     enabled: bool = False
     limit: int = 10
     subscription_plan: str = ""
+
+
+class PluginManagerModel(BaseModel):
+    enabled: bool = False
 
 
 class SystemFeatureModel(BaseModel):
@@ -156,6 +177,7 @@ class SystemFeatureModel(BaseModel):
     webapp_auth: WebAppAuthModel = WebAppAuthModel()
     plugin_installation_permission: PluginInstallationPermissionModel = PluginInstallationPermissionModel()
     enable_change_email: bool = True
+    plugin_manager: PluginManagerModel = PluginManagerModel()
     is_custom_auth2: str = ""  # extend: Customizing AUTH2
     is_custom_auth2_logout: str = ""  # extend: Customizing AUTH2
     ding_talk_client_id: str = "" # extend: DingTalk third-party login
@@ -175,6 +197,7 @@ class FeatureService:
 
         if dify_config.ENTERPRISE_ENABLED:
             features.webapp_copyright_enabled = True
+            features.knowledge_pipeline.publish_enabled = True
             cls._fulfill_params_from_workspace_info(features, tenant_id)
 
         return features
@@ -186,7 +209,7 @@ class FeatureService:
             knowledge_rate_limit.enabled = True
             limit_info = BillingService.get_knowledge_rate_limit(tenant_id)
             knowledge_rate_limit.limit = limit_info.get("limit", 10)
-            knowledge_rate_limit.subscription_plan = limit_info.get("subscription_plan", "sandbox")
+            knowledge_rate_limit.subscription_plan = limit_info.get("subscription_plan", CloudPlan.SANDBOX)
         return knowledge_rate_limit
 
     @classmethod
@@ -206,6 +229,7 @@ class FeatureService:
             system_features.branding.enabled = True
             system_features.webapp_auth.enabled = True
             system_features.enable_change_email = False
+            system_features.plugin_manager.enabled = True
             cls._fulfill_params_from_enterprise(system_features)
 
         if dify_config.MARKETPLACE_ENABLED:
@@ -256,15 +280,27 @@ class FeatureService:
     def _fulfill_params_from_billing_api(cls, features: FeatureModel, tenant_id: str):
         billing_info = BillingService.get_info(tenant_id)
 
+        features_usage_info = BillingService.get_tenant_feature_plan_usage_info(tenant_id)
+
         features.billing.enabled = billing_info["enabled"]
         features.billing.subscription.plan = billing_info["subscription"]["plan"]
         features.billing.subscription.interval = billing_info["subscription"]["interval"]
         features.education.activated = billing_info["subscription"].get("education", False)
 
-        if features.billing.subscription.plan != "sandbox":
+        if features.billing.subscription.plan != CloudPlan.SANDBOX:
             features.webapp_copyright_enabled = True
         else:
             features.is_allow_transfer_workspace = False
+
+        if "trigger_event" in features_usage_info:
+            features.trigger_event.usage = features_usage_info["trigger_event"]["usage"]
+            features.trigger_event.limit = features_usage_info["trigger_event"]["limit"]
+            features.trigger_event.reset_date = features_usage_info["trigger_event"].get("reset_date", -1)
+
+        if "api_rate_limit" in features_usage_info:
+            features.api_rate_limit.usage = features_usage_info["api_rate_limit"]["usage"]
+            features.api_rate_limit.limit = features_usage_info["api_rate_limit"]["limit"]
+            features.api_rate_limit.reset_date = features_usage_info["api_rate_limit"].get("reset_date", -1)
 
         if "members" in billing_info:
             features.members.size = billing_info["members"]["size"]
@@ -297,6 +333,12 @@ class FeatureService:
 
         if "knowledge_rate_limit" in billing_info:
             features.knowledge_rate_limit = billing_info["knowledge_rate_limit"]["limit"]
+
+        if "knowledge_pipeline_publish_enabled" in billing_info:
+            features.knowledge_pipeline.publish_enabled = billing_info["knowledge_pipeline_publish_enabled"]
+
+        if "next_credit_reset_date" in billing_info:
+            features.next_credit_reset_date = billing_info["next_credit_reset_date"]
 
     @classmethod
     def _fulfill_params_from_enterprise(cls, features: SystemFeatureModel):

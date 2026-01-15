@@ -4,6 +4,7 @@ from configs import dify_config
 from extensions.ext_database import db
 from models.account import Tenant, TenantAccountJoin, TenantAccountRole
 from services.account_service import TenantService
+# extend: 添加用户权限
 from services.account_service_extend import TenantExtendService
 from services.feature_service import FeatureService
 
@@ -13,7 +14,7 @@ class WorkspaceService:
     def get_tenant_info(cls, tenant: Tenant):
         if not tenant:
             return None
-        tenant_info = {
+        tenant_info: dict[str, object] = {
             "id": tenant.id,
             "name": tenant.name,
             "plan": tenant.plan,
@@ -41,6 +42,8 @@ class WorkspaceService:
         # ----------------------- 二开部分Stop 添加用户权限 - ----------------------
 
         can_replace_logo = FeatureService.get_features(tenant.id).can_replace_logo
+        feature = FeatureService.get_features(tenant.id)
+        can_replace_logo = feature.can_replace_logo
 
         if can_replace_logo and TenantService.has_roles(tenant, [TenantAccountRole.OWNER, TenantAccountRole.ADMIN]):
             base_url = dify_config.FILES_URL
@@ -55,5 +58,19 @@ class WorkspaceService:
                 "remove_webapp_brand": remove_webapp_brand,
                 "replace_webapp_logo": replace_webapp_logo,
             }
+        if dify_config.EDITION == "CLOUD":
+            tenant_info["next_credit_reset_date"] = feature.next_credit_reset_date
+
+            from services.credit_pool_service import CreditPoolService
+
+            paid_pool = CreditPoolService.get_pool(tenant_id=tenant.id, pool_type="paid")
+            if paid_pool:
+                tenant_info["trial_credits"] = paid_pool.quota_limit
+                tenant_info["trial_credits_used"] = paid_pool.quota_used
+            else:
+                trial_pool = CreditPoolService.get_pool(tenant_id=tenant.id, pool_type="trial")
+                if trial_pool:
+                    tenant_info["trial_credits"] = trial_pool.quota_limit
+                    tenant_info["trial_credits_used"] = trial_pool.quota_used
 
         return tenant_info

@@ -116,6 +116,7 @@ app_partial_fields = {
     "access_mode": fields.String,
     "create_user_name": fields.String,
     "author_name": fields.String,
+    "has_draft_trigger": fields.Boolean,
 }
 
 
@@ -123,7 +124,6 @@ app_pagination_fields = {
     "page": fields.Integer,
     "limit": fields.Integer(attribute="per_page"),
     "total": fields.Integer,
-    "recommended_apps": fields.List(fields.String),  # update app list fields
     "has_more": fields.Boolean(attribute="has_next"),
     "data": fields.List(fields.Nested(app_partial_fields), attribute="items"),
 }

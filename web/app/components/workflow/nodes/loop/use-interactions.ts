@@ -1,24 +1,23 @@
-import { useCallback } from 'react'
-import produce from 'immer'
-import { useTranslation } from 'react-i18next'
-import { useStoreApi } from 'reactflow'
 import type {
   BlockEnum,
   Node,
 } from '../../types'
+import { produce } from 'immer'
+import { useCallback } from 'react'
+import { useStoreApi } from 'reactflow'
+import { useNodesMetaData } from '@/app/components/workflow/hooks'
+import {
+  LOOP_PADDING,
+} from '../../constants'
 import {
   generateNewNode,
   getNodeCustomTypeByNodeDataType,
 } from '../../utils'
-import {
-  LOOP_PADDING,
-  NODES_INITIAL_DATA,
-} from '../../constants'
 import { CUSTOM_LOOP_START_NODE } from '../loop-start/constants'
 
 export const useNodeLoopInteractions = () => {
-  const { t } = useTranslation()
   const store = useStoreApi()
+  const { nodesMap: nodesMetaDataMap } = useNodesMetaData()
 
   const handleNodeLoopRerender = useCallback((nodeId: string) => {
     const {
@@ -76,7 +75,7 @@ export const useNodeLoopInteractions = () => {
     const { getNodes } = store.getState()
     const nodes = getNodes()
 
-    const restrictPosition: { x?: number; y?: number } = { x: undefined, y: undefined }
+    const restrictPosition: { x?: number, y?: number } = { x: undefined, y: undefined }
 
     if (node.data.isInLoop) {
       const parentNode = nodes.find(n => n.id === node.parentId)
@@ -115,17 +114,20 @@ export const useNodeLoopInteractions = () => {
 
     return childrenNodes.map((child, index) => {
       const childNodeType = child.data.type as BlockEnum
+      const {
+        defaultValue,
+      } = nodesMetaDataMap![childNodeType]
       const nodesWithSameType = nodes.filter(node => node.data.type === childNodeType)
       const { newNode } = generateNewNode({
         type: getNodeCustomTypeByNodeDataType(childNodeType),
         data: {
-          ...NODES_INITIAL_DATA[childNodeType],
+          ...defaultValue,
           ...child.data,
           selected: false,
           _isBundled: false,
           _connectedSourceHandleIds: [],
           _connectedTargetHandleIds: [],
-          title: nodesWithSameType.length > 0 ? `${t(`workflow.blocks.${childNodeType}`)} ${nodesWithSameType.length + 1}` : t(`workflow.blocks.${childNodeType}`),
+          title: nodesWithSameType.length > 0 ? `${defaultValue.title} ${nodesWithSameType.length + 1}` : defaultValue.title,
           loop_id: newNodeId,
 
         },
@@ -138,7 +140,7 @@ export const useNodeLoopInteractions = () => {
       newNode.id = `${newNodeId}${newNode.id + index}`
       return newNode
     })
-  }, [store, t])
+  }, [store, nodesMetaDataMap])
 
   return {
     handleNodeLoopRerender,

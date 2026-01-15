@@ -34,3 +34,23 @@ from . import (
 )
 
 api.add_namespace(web_ns)
+
+__all__ = [
+    "api",
+    "app",
+    "audio",
+    "bp",
+    "completion",
+    "conversation",
+    "feature",
+    "files",
+    "forgot_password",
+    "login",
+    "message",
+    "passport",
+    "remote_files",
+    "saved_message",
+    "site",
+    "web_ns",
+    "workflow",
+]

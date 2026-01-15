@@ -3,7 +3,7 @@ import json
 from collections import defaultdict
 from collections.abc import Sequence
 from json import JSONDecodeError
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -36,7 +36,6 @@ from core.model_runtime.entities.provider_entities import (
     ProviderEntity,
 )
 from core.model_runtime.model_providers.model_provider_factory import ModelProviderFactory
-from core.plugin.entities.plugin import ModelProviderID
 from extensions import ext_hosting_provider
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
@@ -51,6 +50,7 @@ from models.provider import (
     TenantDefaultModel,
     TenantPreferredModelProvider,
 )
+from models.provider_ids import ModelProviderID
 from services.feature_service import FeatureService
 
 
@@ -59,7 +59,7 @@ class ProviderManager:
     ProviderManager is a class that manages the model providers includes Hosting and Customize Model Providers.
     """
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.decoding_rsa_key = None
         self.decoding_cipher_rsa = None
 
@@ -150,6 +150,9 @@ class ProviderManager:
             tenant_id
         )
 
+        # Get All provider model credentials
+        provider_name_to_provider_model_credentials_dict = self._get_all_provider_model_credentials(tenant_id)
+
         provider_configurations = ProviderConfigurations(tenant_id=tenant_id)
 
         # Construct ProviderConfiguration objects for each provider
@@ -171,10 +174,18 @@ class ProviderManager:
                 provider_model_records.extend(
                     provider_name_to_provider_model_records_dict.get(provider_id_entity.provider_name, [])
                 )
+            provider_model_credentials = provider_name_to_provider_model_credentials_dict.get(
+                provider_entity.provider, []
+            )
+            provider_id_entity = ModelProviderID(provider_name)
+            if provider_id_entity.is_langgenius():
+                provider_model_credentials.extend(
+                    provider_name_to_provider_model_credentials_dict.get(provider_id_entity.provider_name, [])
+                )
 
             # Convert to custom configuration
             custom_configuration = self._to_custom_configuration(
-                tenant_id, provider_entity, provider_records, provider_model_records
+                tenant_id, provider_entity, provider_records, provider_model_records, provider_model_credentials
             )
 
             # Convert to system configuration
@@ -270,7 +281,7 @@ class ProviderManager:
             model_type_instance=model_type_instance,
         )
 
-    def get_default_model(self, tenant_id: str, model_type: ModelType) -> Optional[DefaultModelEntity]:
+    def get_default_model(self, tenant_id: str, model_type: ModelType) -> DefaultModelEntity | None:
         """
         Get default model.
 
@@ -298,11 +309,12 @@ class ProviderManager:
                     (model for model in available_models if model.model == "gpt-4"), available_models[0]
                 )
 
-                default_model = TenantDefaultModel()
-                default_model.tenant_id = tenant_id
-                default_model.model_type = model_type.to_origin_model_type()
-                default_model.provider_name = available_model.provider.provider
-                default_model.model_name = available_model.model
+                default_model = TenantDefaultModel(
+                    tenant_id=tenant_id,
+                    model_type=model_type.to_origin_model_type(),
+                    provider_name=available_model.provider.provider,
+                    model_name=available_model.model,
+                )
                 db.session.add(default_model)
                 db.session.commit()
 
@@ -319,7 +331,6 @@ class ProviderManager:
                 provider=provider_schema.provider,
                 label=provider_schema.label,
                 icon_small=provider_schema.icon_small,
-                icon_large=provider_schema.icon_large,
                 supported_model_types=provider_schema.supported_model_types,
             ),
         )
@@ -454,6 +465,24 @@ class ProviderManager:
         return provider_name_to_provider_model_settings_dict
 
     @staticmethod
+    def _get_all_provider_model_credentials(tenant_id: str) -> dict[str, list[ProviderModelCredential]]:
+        """
+        Get All provider model credentials of the workspace.
+
+        :param tenant_id: workspace id
+        :return:
+        """
+        provider_name_to_provider_model_credentials_dict = defaultdict(list)
+        with Session(db.engine, expire_on_commit=False) as session:
+            stmt = select(ProviderModelCredential).where(ProviderModelCredential.tenant_id == tenant_id)
+            provider_model_credentials = session.scalars(stmt)
+            for provider_model_credential in provider_model_credentials:
+                provider_name_to_provider_model_credentials_dict[provider_model_credential.provider_name].append(
+                    provider_model_credential
+                )
+        return provider_name_to_provider_model_credentials_dict
+
+    @staticmethod
     def _get_all_provider_load_balancing_configs(tenant_id: str) -> dict[str, list[LoadBalancingModelConfig]]:
         """
         Get All provider load balancing configs of the workspace.
@@ -485,6 +514,21 @@ class ProviderManager:
         return provider_name_to_provider_load_balancing_model_configs_dict
 
     @staticmethod
+    def _get_provider_names(provider_name: str) -> list[str]:
+        """
+        provider_name: `openai` or `langgenius/openai/openai`
+        return: [`openai`, `langgenius/openai/openai`]
+        """
+        provider_names = [provider_name]
+        model_provider_id = ModelProviderID(provider_name)
+        if model_provider_id.is_langgenius():
+            if "/" in provider_name:
+                provider_names.append(model_provider_id.provider_name)
+            else:
+                provider_names.append(str(model_provider_id))
+        return provider_names
+
+    @staticmethod
     def get_provider_available_credentials(tenant_id: str, provider_name: str) -> list[CredentialConfiguration]:
         """
         Get provider all credentials.
@@ -496,7 +540,10 @@ class ProviderManager:
         with Session(db.engine, expire_on_commit=False) as session:
             stmt = (
                 select(ProviderCredential)
-                .where(ProviderCredential.tenant_id == tenant_id, ProviderCredential.provider_name == provider_name)
+                .where(
+                    ProviderCredential.tenant_id == tenant_id,
+                    ProviderCredential.provider_name.in_(ProviderManager._get_provider_names(provider_name)),
+                )
                 .order_by(ProviderCredential.created_at.desc())
             )
 
@@ -525,7 +572,7 @@ class ProviderManager:
                 select(ProviderModelCredential)
                 .where(
                     ProviderModelCredential.tenant_id == tenant_id,
-                    ProviderModelCredential.provider_name == provider_name,
+                    ProviderModelCredential.provider_name.in_(ProviderManager._get_provider_names(provider_name)),
                     ProviderModelCredential.model_name == model_name,
                     ProviderModelCredential.model_type == model_type,
                 )
@@ -538,23 +585,6 @@ class ProviderManager:
             CredentialConfiguration(credential_id=credential.id, credential_name=credential.credential_name)
             for credential in available_credentials
         ]
-
-    @staticmethod
-    def get_credentials_from_provider_model(tenant_id: str, provider_name: str) -> Sequence[ProviderModelCredential]:
-        """
-        Get all the credentials records from ProviderModelCredential by provider_name
-
-        :param tenant_id: workspace id
-        :param provider_name: provider name
-
-        """
-        with Session(db.engine, expire_on_commit=False) as session:
-            stmt = select(ProviderModelCredential).where(
-                ProviderModelCredential.tenant_id == tenant_id, ProviderModelCredential.provider_name == provider_name
-            )
-
-            all_credentials = session.scalars(stmt).all()
-            return all_credentials
 
     @staticmethod
     def _init_trial_provider_records(
@@ -580,7 +610,7 @@ class ProviderManager:
 
             provider_quota_to_provider_record_dict = {}
             for provider_record in provider_records:
-                if provider_record.provider_type != ProviderType.SYSTEM.value:
+                if provider_record.provider_type != ProviderType.SYSTEM:
                     continue
 
                 provider_quota_to_provider_record_dict[ProviderQuotaType.value_of(provider_record.quota_type)] = (
@@ -588,9 +618,9 @@ class ProviderManager:
                 )
 
             for quota in configuration.quotas:
-                if quota.quota_type == ProviderQuotaType.TRIAL:
+                if quota.quota_type in (ProviderQuotaType.TRIAL, ProviderQuotaType.PAID):
                     # Init trial provider records if not exists
-                    if ProviderQuotaType.TRIAL not in provider_quota_to_provider_record_dict:
+                    if quota.quota_type not in provider_quota_to_provider_record_dict:
                         try:
                             # FIXME ignore the type error, only TrialHostingQuota has limit need to change the logic
                             new_provider_record = Provider(
@@ -598,8 +628,8 @@ class ProviderManager:
                                 # TODO: Use provider name with prefix after the data migration.
                                 provider_name=ModelProviderID(provider_name).provider_name,
                                 provider_type=ProviderType.SYSTEM.value,
-                                quota_type=ProviderQuotaType.TRIAL.value,
-                                quota_limit=quota.quota_limit,  # type: ignore
+                                quota_type=quota.quota_type,
+                                quota_limit=0,  # type: ignore
                                 quota_used=0,
                                 is_valid=True,
                             )
@@ -612,7 +642,7 @@ class ProviderManager:
                                 Provider.tenant_id == tenant_id,
                                 Provider.provider_name == ModelProviderID(provider_name).provider_name,
                                 Provider.provider_type == ProviderType.SYSTEM.value,
-                                Provider.quota_type == ProviderQuotaType.TRIAL.value,
+                                Provider.quota_type == quota.quota_type,
                             )
                             existed_provider_record = db.session.scalar(stmt)
                             if not existed_provider_record:
@@ -632,6 +662,7 @@ class ProviderManager:
         provider_entity: ProviderEntity,
         provider_records: list[Provider],
         provider_model_records: list[ProviderModel],
+        provider_model_credentials: list[ProviderModelCredential],
     ) -> CustomConfiguration:
         """
         Convert to custom configuration.
@@ -647,15 +678,12 @@ class ProviderManager:
             tenant_id, provider_entity, provider_records
         )
 
-        # Get all model credentials once
-        all_model_credentials = self.get_credentials_from_provider_model(tenant_id, provider_entity.provider)
-
         # Get custom models which have not been added to the model list yet
-        unadded_models = self._get_can_added_models(provider_model_records, all_model_credentials)
+        unadded_models = self._get_can_added_models(provider_model_records, provider_model_credentials)
 
         # Get custom model configurations
         custom_model_configurations = self._get_custom_model_configurations(
-            tenant_id, provider_entity, provider_model_records, unadded_models, all_model_credentials
+            tenant_id, provider_entity, provider_model_records, unadded_models, provider_model_credentials
         )
 
         can_added_models = [
@@ -674,7 +702,7 @@ class ProviderManager:
         """Get custom provider configuration."""
         # Find custom provider record (non-system)
         custom_provider_record = next(
-            (record for record in provider_records if record.provider_type != ProviderType.SYSTEM.value), None
+            (record for record in provider_records if record.provider_type != ProviderType.SYSTEM), None
         )
 
         if not custom_provider_record:
@@ -877,13 +905,29 @@ class ProviderManager:
         # Convert provider_records to dict
         quota_type_to_provider_records_dict: dict[ProviderQuotaType, Provider] = {}
         for provider_record in provider_records:
-            if provider_record.provider_type != ProviderType.SYSTEM.value:
+            if provider_record.provider_type != ProviderType.SYSTEM:
                 continue
 
             quota_type_to_provider_records_dict[ProviderQuotaType.value_of(provider_record.quota_type)] = (
                 provider_record
             )
         quota_configurations = []
+
+        if dify_config.EDITION == "CLOUD":
+            from services.credit_pool_service import CreditPoolService
+
+            trail_pool = CreditPoolService.get_pool(
+                tenant_id=tenant_id,
+                pool_type=ProviderQuotaType.TRIAL.value,
+            )
+            paid_pool = CreditPoolService.get_pool(
+                tenant_id=tenant_id,
+                pool_type=ProviderQuotaType.PAID.value,
+            )
+        else:
+            trail_pool = None
+            paid_pool = None
+
         for provider_quota in provider_hosting_configuration.quotas:
             if provider_quota.quota_type not in quota_type_to_provider_records_dict:
                 if provider_quota.quota_type == ProviderQuotaType.FREE:
@@ -904,16 +948,36 @@ class ProviderManager:
                     raise ValueError("quota_used is None")
                 if provider_record.quota_limit is None:
                     raise ValueError("quota_limit is None")
+                if provider_quota.quota_type == ProviderQuotaType.TRIAL and trail_pool is not None:
+                    quota_configuration = QuotaConfiguration(
+                        quota_type=provider_quota.quota_type,
+                        quota_unit=provider_hosting_configuration.quota_unit or QuotaUnit.TOKENS,
+                        quota_used=trail_pool.quota_used,
+                        quota_limit=trail_pool.quota_limit,
+                        is_valid=trail_pool.quota_limit > trail_pool.quota_used or trail_pool.quota_limit == -1,
+                        restrict_models=provider_quota.restrict_models,
+                    )
 
-                quota_configuration = QuotaConfiguration(
-                    quota_type=provider_quota.quota_type,
-                    quota_unit=provider_hosting_configuration.quota_unit or QuotaUnit.TOKENS,
-                    quota_used=provider_record.quota_used,
-                    quota_limit=provider_record.quota_limit,
-                    is_valid=provider_record.quota_limit > provider_record.quota_used
-                    or provider_record.quota_limit == -1,
-                    restrict_models=provider_quota.restrict_models,
-                )
+                elif provider_quota.quota_type == ProviderQuotaType.PAID and paid_pool is not None:
+                    quota_configuration = QuotaConfiguration(
+                        quota_type=provider_quota.quota_type,
+                        quota_unit=provider_hosting_configuration.quota_unit or QuotaUnit.TOKENS,
+                        quota_used=paid_pool.quota_used,
+                        quota_limit=paid_pool.quota_limit,
+                        is_valid=paid_pool.quota_limit > paid_pool.quota_used or paid_pool.quota_limit == -1,
+                        restrict_models=provider_quota.restrict_models,
+                    )
+
+                else:
+                    quota_configuration = QuotaConfiguration(
+                        quota_type=provider_quota.quota_type,
+                        quota_unit=provider_hosting_configuration.quota_unit or QuotaUnit.TOKENS,
+                        quota_used=provider_record.quota_used,
+                        quota_limit=provider_record.quota_limit,
+                        is_valid=provider_record.quota_limit > provider_record.quota_used
+                        or provider_record.quota_limit == -1,
+                        restrict_models=provider_quota.restrict_models,
+                    )
 
             quota_configurations.append(quota_configuration)
 
@@ -1026,8 +1090,8 @@ class ProviderManager:
     def _to_model_settings(
         self,
         provider_entity: ProviderEntity,
-        provider_model_settings: Optional[list[ProviderModelSetting]] = None,
-        load_balancing_model_configs: Optional[list[LoadBalancingModelConfig]] = None,
+        provider_model_settings: list[ProviderModelSetting] | None = None,
+        load_balancing_model_configs: list[LoadBalancingModelConfig] | None = None,
     ) -> list[ModelSettings]:
         """
         Convert to model settings.
@@ -1119,6 +1183,7 @@ class ProviderManager:
                                 name=load_balancing_model_config.name,
                                 credentials=provider_model_credentials,
                                 credential_source_type=load_balancing_model_config.credential_source_type,
+                                credential_id=load_balancing_model_config.credential_id,
                             )
                         )
 

@@ -1,51 +1,49 @@
 'use client'
 import type { FC } from 'react'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import {
-  RiBookmark3Line,
-  RiErrorWarningFill,
-} from '@remixicon/react'
-import { useBoolean } from 'ahooks'
-import { useRouter, useSearchParams } from 'next/navigation' // Extend: Batch import
-import TabHeader from '../../base/tab-header'
-import MenuDropdown from './menu-dropdown'
-import RunBatch from './run-batch'
-import ResDownload from './run-batch/res-download'
-import BatchProgress from './run-batch/batch-progress' // Extend: Batch import
-import Pagination from '@/app/components/base/pagination' // Extend: Batch import
-import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
-import RunOnce from '@/app/components/share/text-generation/run-once'
-import { fetchSavedMessage as doFetchSavedMessage, removeMessage, saveMessage } from '@/service/share'
-import type { SiteInfo } from '@/models/share'
 import type {
   MoreLikeThisConfig,
   PromptConfig,
   SavedMessage,
   TextToSpeechConfig,
 } from '@/models/debug'
+import type { InstalledApp } from '@/models/explore'
+import type { SiteInfo } from '@/models/share'
+import type { VisionFile, VisionSettings } from '@/types/app'
+import {
+  RiBookmark3Line,
+  RiErrorWarningFill,
+} from '@remixicon/react'
+import { useBoolean } from 'ahooks'
+import { useSearchParams } from 'next/navigation'
+import * as React from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import SavedItems from '@/app/components/app/text-generate/saved-items'
 import AppIcon from '@/app/components/base/app-icon'
 import Badge from '@/app/components/base/badge'
-import { changeLanguage } from '@/i18n-config/i18next-config'
 import Loading from '@/app/components/base/loading'
-import { userInputsFormToPromptVariables } from '@/utils/model-config'
-import Res from '@/app/components/share/text-generation/result'
-import SavedItems from '@/app/components/app/text-generate/saved-items'
-import type { InstalledApp } from '@/models/explore'
-import { DEFAULT_VALUE_MAX_LEN, appDefaultIconBackground } from '@/config'
-import Toast from '@/app/components/base/toast'
-import type { VisionFile, VisionSettings } from '@/types/app'
-import { Resolution, TransferMethod } from '@/types/app'
-import { useAppFavicon } from '@/hooks/use-app-favicon'
 import DifyLogo from '@/app/components/base/logo/dify-logo'
-import cn from '@/utils/classnames'
-import { downloadBatchApi, fetchBatchWorkflowListApi, processExcelUploadApi } from '@/service/web-extend' // Extend: Batch import
-import { AccessMode } from '@/models/access-control'
+import Toast from '@/app/components/base/toast'
+import Res from '@/app/components/share/text-generation/result'
+import RunOnce from '@/app/components/share/text-generation/run-once'
+import { appDefaultIconBackground, BATCH_CONCURRENCY, DEFAULT_VALUE_MAX_LEN } from '@/config'
 import { useGlobalPublicStore } from '@/context/global-public-context'
-import useDocumentTitle from '@/hooks/use-document-title'
 import { useWebAppStore } from '@/context/web-app-context'
+import { useAppFavicon } from '@/hooks/use-app-favicon'
+import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
+import useDocumentTitle from '@/hooks/use-document-title'
+import { changeLanguage } from '@/i18n-config/client'
+import { AccessMode } from '@/models/access-control'
+import { fetchSavedMessage as doFetchSavedMessage, removeMessage, saveMessage } from '@/service/share'
+import { Resolution, TransferMethod } from '@/types/app'
+import { cn } from '@/utils/classnames'
+import { userInputsFormToPromptVariables } from '@/utils/model-config'
+import TabHeader from '../../base/tab-header'
+import MenuDropdown from './menu-dropdown'
+import RunBatch from './run-batch'
+import ResDownload from './run-batch/res-download'
 
-const GROUP_SIZE = 5 // to avoid RPM(Request per minute) limit. The group task finished then the next group.
+const GROUP_SIZE = BATCH_CONCURRENCY // to avoid RPM(Request per minute) limit. The group task finished then the next group.
 enum TaskStatus {
   pending = 'pending',
   running = 'running',
@@ -84,7 +82,6 @@ const TextGeneration: FC<IMainProps> = ({
   const mode = searchParams.get('mode') || 'create'
   const [currentTab, setCurrentTab] = useState<string>(['create', 'batch'].includes(mode) ? mode : 'create')
 
-  const router = useRouter() // extend
   // Notice this situation isCallBatchAPI but not in batch tab
   const [isCallBatchAPI, setIsCallBatchAPI] = useState(false)
   const isInBatchTab = currentTab === 'batch'
@@ -110,12 +107,12 @@ const TextGeneration: FC<IMainProps> = ({
   }, [isInstalledApp, appId])
   const handleSaveMessage = async (messageId: string) => {
     await saveMessage(messageId, isInstalledApp, appId)
-    notify({ type: 'success', message: t('common.api.saved') })
+    notify({ type: 'success', message: t('api.saved', { ns: 'common' }) })
     fetchSavedMessage()
   }
   const handleRemoveSavedMessage = async (messageId: string) => {
     await removeMessage(messageId, isInstalledApp, appId)
-    notify({ type: 'success', message: t('common.api.remove') })
+    notify({ type: 'success', message: t('api.remove', { ns: 'common' }) })
     fetchSavedMessage()
   }
 
@@ -129,6 +126,12 @@ const TextGeneration: FC<IMainProps> = ({
     transfer_methods: [TransferMethod.local_file],
   })
   const [completionFiles, setCompletionFiles] = useState<VisionFile[]>([])
+  const [runControl, setRunControl] = useState<{ onStop: () => Promise<void> | void, isStopping: boolean } | null>(null)
+
+  useEffect(() => {
+    if (isCallBatchAPI)
+      setRunControl(null)
+  }, [isCallBatchAPI])
 
   const handleSend = () => {
     setIsCallBatchAPI(false)
@@ -152,84 +155,6 @@ const TextGeneration: FC<IMainProps> = ({
     doSetAllTaskList(taskList)
     allTaskListRef.current = taskList
   }
-  // Extend: Start Batch import
-  // 每页5个任务
-  const batchJobsLimit = 5
-  // 分页状态
-  const [currentPage, setCurrentPage] = useState(1)
-  // 批量处理相关状态
-  const [batchJobs, setBatchJobs] = useState<Array<{
-    id: string
-    fileName: string
-    createdAt: string
-    status: string
-    totalRows: number
-    processedRows: number
-    error?: string
-  }>>([])
-
-  const [totalBatchJobs, setTotalBatchJobs] = useState(0)
-  const [isLoadingBatchJobs, setIsLoadingBatchJobs] = useState(false)
-
-  // 从后端获取批量工作流列表
-  const loadBatchWorkflows = async () => {
-    if (!appId || currentTab !== 'batch') return
-
-    setIsLoadingBatchJobs(true)
-    try {
-      const result = await fetchBatchWorkflowListApi(installedAppInfo?.id, currentPage, batchJobsLimit)
-      if (result) {
-        // 转换数据格式以兼容现有组件
-        const convertedJobs = result.items.map(item => ({
-          id: item.id,
-          fileName: item.file_name,
-          createdAt: item.created_at,
-          status: item.status,
-          totalRows: item.total_rows,
-          processedRows: item.processed_rows,
-          error: item.error, // 添加错误信息
-        }))
-        setBatchJobs(convertedJobs)
-        setTotalBatchJobs(result.total)
-      }
-    }
-    catch (error) {
-      console.error('Failed to load batch workflows:', error)
-    }
-    finally {
-      setIsLoadingBatchJobs(false)
-    }
-  }
-
-  // 加载批量工作流列表
-  useEffect(() => {
-    loadBatchWorkflows()
-  }, [appId, currentTab, currentPage, installedAppInfo?.id])
-
-  // 自动刷新批量工作流列表（每3秒）
-  useEffect(() => {
-    if (currentTab !== 'batch' || batchJobs.length === 0)
-      return
-
-    // 检查是否有进行中的任务
-    const hasActiveJobs = batchJobs.some(job =>
-      job.status === 'pending' || job.status === 'processing',
-    )
-
-    if (!hasActiveJobs)
-      return
-
-    const refreshInterval = setInterval(() => {
-      loadBatchWorkflows()
-    }, 3000) // 每3秒刷新一次
-
-    return () => clearInterval(refreshInterval)
-  }, [currentTab, batchJobs, appId, installedAppInfo?.id, currentPage])
-
-  // 计算分页数据 - 现在数据已经是从后端分页获取的，不需要再切片
-  const paginatedBatchJobs = batchJobs
-  // Extend: Stop Batch import
-
   const pendingTaskList = allTaskList.filter(task => task.status === TaskStatus.pending)
   const noPendingTask = pendingTaskList.length === 0
   const showTaskList = allTaskList.filter(task => task.status !== TaskStatus.pending)
@@ -262,12 +187,12 @@ const TextGeneration: FC<IMainProps> = ({
     if (typeof batchCompletionResLatest[task.id] === 'object')
       result = JSON.stringify(result)
 
-    res[t('share.generation.completionResult')] = result
+    res[t('generation.completionResult', { ns: 'share' })] = result
     return res
   })
   const checkBatchInputs = (data: string[][]) => {
     if (!data || data.length === 0) {
-      notify({ type: 'error', message: t('share.generation.errorMsg.empty') })
+      notify({ type: 'error', message: t('generation.errorMsg.empty', { ns: 'share' }) })
       return false
     }
     const headerData = data[0]
@@ -281,13 +206,13 @@ const TextGeneration: FC<IMainProps> = ({
     })
 
     if (!isMapVarName) {
-      notify({ type: 'error', message: t('share.generation.errorMsg.fileStructNotMatch') })
+      notify({ type: 'error', message: t('generation.errorMsg.fileStructNotMatch', { ns: 'share' }) })
       return false
     }
 
     let payloadData = data.slice(1)
     if (payloadData.length === 0) {
-      notify({ type: 'error', message: t('share.generation.errorMsg.atLeastOne') })
+      notify({ type: 'error', message: t('generation.errorMsg.atLeastOne', { ns: 'share' }) })
       return false
     }
 
@@ -308,7 +233,7 @@ const TextGeneration: FC<IMainProps> = ({
       })
 
       if (hasMiddleEmptyLine) {
-        notify({ type: 'error', message: t('share.generation.errorMsg.emptyLine', { rowIndex: startIndex + 2 }) })
+        notify({ type: 'error', message: t('generation.errorMsg.emptyLine', { ns: 'share', rowIndex: startIndex + 2 }) })
         return false
       }
     }
@@ -317,7 +242,7 @@ const TextGeneration: FC<IMainProps> = ({
     payloadData = payloadData.filter(item => !item.every(i => i === ''))
     // after remove empty rows in the end, checked again
     if (payloadData.length === 0) {
-      notify({ type: 'error', message: t('share.generation.errorMsg.atLeastOne') })
+      notify({ type: 'error', message: t('generation.errorMsg.atLeastOne', { ns: 'share' }) })
       return false
     }
     let errorRowIndex = 0
@@ -352,10 +277,10 @@ const TextGeneration: FC<IMainProps> = ({
 
     if (errorRowIndex !== 0) {
       if (requiredVarName)
-        notify({ type: 'error', message: t('share.generation.errorMsg.invalidLine', { rowIndex: errorRowIndex + 1, varName: requiredVarName }) })
+        notify({ type: 'error', message: t('generation.errorMsg.invalidLine', { ns: 'share', rowIndex: errorRowIndex + 1, varName: requiredVarName }) })
 
       if (moreThanMaxLengthVarName)
-        notify({ type: 'error', message: t('share.generation.errorMsg.moreThanMaxLengthLine', { rowIndex: errorRowIndex + 1, varName: moreThanMaxLengthVarName, maxLength }) })
+        notify({ type: 'error', message: t('generation.errorMsg.moreThanMaxLengthLine', { ns: 'share', rowIndex: errorRowIndex + 1, varName: moreThanMaxLengthVarName, maxLength }) })
 
       return false
     }
@@ -365,7 +290,7 @@ const TextGeneration: FC<IMainProps> = ({
     if (!checkBatchInputs(data))
       return
     if (!allTasksFinished) {
-      notify({ type: 'info', message: t('appDebug.errorMessage.waitForBatchResponse') })
+      notify({ type: 'info', message: t('errorMessage.waitForBatchResponse', { ns: 'appDebug' }) })
       return
     }
 
@@ -401,76 +326,8 @@ const TextGeneration: FC<IMainProps> = ({
     setControlStopResponding(Date.now())
 
     // eslint-disable-next-line ts/no-use-before-define
-    doShowResultPanel() // Extend: Batch import
+    showResultPanel()
   }
-  // Extend: Start Batch import
-  // 处理批量上传
-  const handleBatchUpload = async (originalFile: File, data: string[][], originalFileName?: string) => {
-    if (!checkBatchInputs(data))
-      return
-
-    try {
-      // 创建key-name映射
-      const keyNameMapping: Record<string, string> = {}
-      promptConfig?.prompt_variables.forEach((variable) => {
-        keyNameMapping[variable.name] = variable.key
-      })
-
-      // 直接使用原始文件
-      const result = await processExcelUploadApi(originalFile, installedAppInfo?.id || '', appId, keyNameMapping)
-      if (result === null) {
-        // API调用失败，错误信息已经在processExcelUploadApi中显示
-        return
-      }
-      // 添加到批量任务列表 - 最新的任务显示在顶部
-      setBatchJobs(prev => [{
-        id: result.id,
-        fileName: originalFileName || originalFile.name,
-        createdAt: new Date().toISOString(),
-        status: 'pending',
-        totalRows: 0,
-        processedRows: 0,
-        error: undefined,
-      }, ...prev])
-
-      // 显示结果面板
-      // eslint-disable-next-line ts/no-use-before-define
-      doShowResultPanel()
-      notify({ type: 'success', message: t('extend.batchWorkflow.batchUploadSuccess') })
-    }
-    catch (error) {
-      console.error('批量上传失败:', error)
-      notify({ type: 'error', message: t('extend.batchWorkflow.batchUploadFailed') })
-    }
-  }
-
-  // 下载批量处理结果
-  const handleBatchDownload = async (batchId: string) => {
-    try {
-      const blob = await downloadBatchApi(batchId)
-      if (blob) {
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `batch_results_${batchId}.csv`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-      }
-    }
-    catch (error) {
-      console.error('下载失败:', error)
-      notify({ type: 'error', message: t('extend.batchWorkflow.downloadFailed') })
-    }
-  }
-  // 处理重试成功回调
-  const handleRetrySuccess = () => {
-    // 重试成功后，重新加载批量工作流列表
-    loadBatchWorkflows()
-    console.log('批量任务重试成功，已刷新列表')
-  }
-  // Extend: Stop Batch import
   const handleCompleted = (completionRes: string, taskId?: number, isSuccess?: boolean) => {
     const allTaskListLatest = getLatestTaskList()
     const batchCompletionResLatest = getBatchCompletionRes()
@@ -513,7 +370,8 @@ const TextGeneration: FC<IMainProps> = ({
     (async () => {
       if (!appData || !appParams)
         return
-      !isWorkflow && fetchSavedMessage()
+      if (!isWorkflow)
+        fetchSavedMessage()
       const { app_id: appId, site: siteInfo, custom_config } = appData
       setAppId(appId)
       setSiteInfo(siteInfo as SiteInfo)
@@ -540,7 +398,7 @@ const TextGeneration: FC<IMainProps> = ({
   }, [appData, appParams, fetchSavedMessage, isWorkflow])
 
   // Can Use metadata(https://beta.nextjs.org/docs/api-reference/metadata) to set title. But it only works in server side client.
-  useDocumentTitle(siteInfo?.title || t('share.generation.title'))
+  useDocumentTitle(siteInfo?.title || t('generation.title', { ns: 'share' }))
 
   useAppFavicon({
     enable: !isInstalledApp,
@@ -559,46 +417,40 @@ const TextGeneration: FC<IMainProps> = ({
   }
   const [resultExisted, setResultExisted] = useState(false)
 
-  const renderRes = (task?: Task) => (<Res
-    key={task?.id}
-    isWorkflow={isWorkflow}
-    isCallBatchAPI={isCallBatchAPI}
-    isPC={isPC}
-    isMobile={!isPC}
-    isInstalledApp={isInstalledApp}
-    installedAppInfo={installedAppInfo}
-    isError={task?.status === TaskStatus.failed}
-    promptConfig={promptConfig}
-    moreLikeThisEnabled={!!moreLikeThisConfig?.enabled}
-    inputs={isCallBatchAPI ? (task as Task).params.inputs : inputs}
-    controlSend={controlSend}
-    controlRetry={task?.status === TaskStatus.failed ? controlRetry : 0}
-    controlStopResponding={controlStopResponding}
-    onShowRes={showResultPanel}
-    handleSaveMessage={handleSaveMessage}
-    taskId={task?.id}
-    onCompleted={handleCompleted}
-    visionConfig={visionConfig}
-    completionFiles={completionFiles}
-    isShowTextToSpeech={!!textToSpeechConfig?.enabled}
-    siteInfo={siteInfo}
-    onRunStart={() => setResultExisted(true)}
-  />)
+  const renderRes = (task?: Task) => (
+    <Res
+      key={task?.id}
+      isWorkflow={isWorkflow}
+      isCallBatchAPI={isCallBatchAPI}
+      isPC={isPC}
+      isMobile={!isPC}
+      isInstalledApp={isInstalledApp}
+      appId={appId}
+      installedAppInfo={installedAppInfo}
+      isError={task?.status === TaskStatus.failed}
+      promptConfig={promptConfig}
+      moreLikeThisEnabled={!!moreLikeThisConfig?.enabled}
+      inputs={isCallBatchAPI ? (task as Task).params.inputs : inputs}
+      controlSend={controlSend}
+      controlRetry={task?.status === TaskStatus.failed ? controlRetry : 0}
+      controlStopResponding={controlStopResponding}
+      onShowRes={showResultPanel}
+      handleSaveMessage={handleSaveMessage}
+      taskId={task?.id}
+      onCompleted={handleCompleted}
+      visionConfig={visionConfig}
+      completionFiles={completionFiles}
+      isShowTextToSpeech={!!textToSpeechConfig?.enabled}
+      siteInfo={siteInfo}
+      onRunStart={() => setResultExisted(true)}
+      onRunControlChange={!isCallBatchAPI ? setRunControl : undefined}
+      hideInlineStopButton={!isCallBatchAPI}
+    />
+  )
 
   const renderBatchRes = () => {
     return (showTaskList.map(task => renderRes(task)))
   }
-
-  // ------------------------ start You must log in to access your account extend ------------------------
-  const consoleToken = searchParams.get('console_token')
-  const consoleTokenFromLocalStorage = localStorage?.getItem('console_token')
-
-  if (!(consoleToken || consoleTokenFromLocalStorage)) {
-    if (window.location !== undefined)
-      localStorage?.setItem('redirect_url', window.location.href)
-    router.replace('/signin')
-  }
-  // ------------------------ end You must log in to access your account extend --------------------------------
 
   const renderResWrap = (
     <div
@@ -616,8 +468,9 @@ const TextGeneration: FC<IMainProps> = ({
         <div className={cn(
           'flex shrink-0 items-center justify-between px-14 pb-2 pt-9',
           !isPC && 'px-4 pb-1 pt-3',
-        )}>
-          <div className='system-md-semibold-uppercase text-text-primary'>{t('share.generation.executions', { num: allTaskList.length })}</div>
+        )}
+        >
+          <div className="system-md-semibold-uppercase text-text-primary">{t('generation.executions', { ns: 'share', num: allTaskList.length })}</div>
           {allSuccessTaskList.length > 0 && (
             <ResDownload
               isMobile={!isPC}
@@ -629,79 +482,23 @@ const TextGeneration: FC<IMainProps> = ({
       <div className={cn(
         'flex h-0 grow flex-col overflow-y-auto',
         isPC && 'px-14 py-8',
-        isPC && (isCallBatchAPI || (isInBatchTab && batchJobs.length > 0)) && 'pt-0',
+        isPC && isCallBatchAPI && 'pt-0',
         !isPC && 'p-0 pb-2',
-      )}>
-        {!isCallBatchAPI && !(isInBatchTab && batchJobs.length > 0) ? renderRes() : (
-          <>
-            {isCallBatchAPI && renderBatchRes()}
-            {isInBatchTab && batchJobs.length > 0 && (
-              <div className="space-y-4">
-                {/* 数据保留提示 */}
-                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
-                  <div className="text-sm text-yellow-800">
-                    <strong>{t('extend.batchWorkflow.dataRetentionNotice')}:</strong> {t('extend.batchWorkflow.dataRetentionDescription')}
-                  </div>
-                </div>
-
-                {/* //extend start 批量任务列表 */}
-                <div className="space-y-4">
-                  {isLoadingBatchJobs ? (
-                    <div className="flex justify-center py-8">
-                      <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
-                    </div>
-                  ) : paginatedBatchJobs.length > 0 ? (
-                    paginatedBatchJobs.map(job => (
-                      <BatchProgress
-                        key={job.id}
-                        fileName={job.fileName}
-                        batchId={job.id}
-                        workflowId={appId}
-                        jobData={job}
-                        onDownload={() => handleBatchDownload(job.id)}
-                        onRetrySuccess={handleRetrySuccess}
-                      />
-                    ))
-                  ) : (
-                    <div className="py-8 text-center text-gray-500">
-                      暂无批量处理任务
-                    </div>
-                  )}
-                </div>
-                {/* // extend stop 批量任务列表 */}
-
-                {/* 分页控件 */}
-                {totalBatchJobs > batchJobsLimit && (
-                  <div className="mt-6 flex justify-center">
-                    <Pagination
-                      current={currentPage}
-                      onChange={(page) => {
-                        setCurrentPage(page)
-                        // extend
-                      }}
-                      total={totalBatchJobs}
-                      limit={batchJobsLimit}
-                      className="w-auto"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-          </>
-        )}
-        {!noPendingTask && isCallBatchAPI && (
-          <div className='mt-4'>
-            <Loading type='area' />
+      )}
+      >
+        {!isCallBatchAPI ? renderRes() : renderBatchRes()}
+        {!noPendingTask && (
+          <div className="mt-4">
+            <Loading type="area" />
           </div>
         )}
-        { /* // Extend: Stop Batch import */ }
       </div>
       {isCallBatchAPI && allFailedTaskList.length > 0 && (
-        <div className='absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-components-panel-border bg-components-panel-bg-blur p-3 shadow-lg backdrop-blur-sm'>
-          <RiErrorWarningFill className='h-4 w-4 text-text-destructive' />
-          <div className='system-sm-medium text-text-secondary'>{t('share.generation.batchFailed.info', { num: allFailedTaskList.length })}</div>
-          <div className='h-3.5 w-px bg-divider-regular'></div>
-          <div onClick={handleRetryAllFailedTask} className='system-sm-semibold-uppercase cursor-pointer text-text-accent'>{t('share.generation.batchFailed.retry')}</div>
+        <div className="absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-components-panel-border bg-components-panel-bg-blur p-3 shadow-lg backdrop-blur-sm">
+          <RiErrorWarningFill className="h-4 w-4 text-text-destructive" />
+          <div className="system-sm-medium text-text-secondary">{t('generation.batchFailed.info', { ns: 'share', num: allFailedTaskList.length })}</div>
+          <div className="h-3.5 w-px bg-divider-regular"></div>
+          <div onClick={handleRetryAllFailedTask} className="system-sm-semibold-uppercase cursor-pointer text-text-accent">{t('generation.batchFailed.retry', { ns: 'share' })}</div>
         </div>
       )}
     </div>
@@ -709,9 +506,10 @@ const TextGeneration: FC<IMainProps> = ({
 
   if (!appId || !siteInfo || !promptConfig) {
     return (
-      <div className='flex h-screen items-center'>
-        <Loading type='app' />
-      </div>)
+      <div className="flex h-screen items-center">
+        <Loading type="app" />
+      </div>
+    )
   }
   return (
     <div className={cn(
@@ -719,16 +517,18 @@ const TextGeneration: FC<IMainProps> = ({
       isPC && 'flex',
       !isPC && 'flex-col',
       isInstalledApp ? 'h-full rounded-2xl shadow-md' : 'h-screen',
-    )}>
+    )}
+    >
       {/* Left */}
       <div className={cn(
         'relative flex h-full shrink-0 flex-col',
         isPC ? 'w-[600px] max-w-[50%]' : resultExisted ? 'h-[calc(100%_-_64px)]' : '',
         isInstalledApp && 'rounded-l-2xl',
-      )}>
+      )}
+      >
         {/* header */}
         <div className={cn('shrink-0 space-y-4 border-b border-divider-subtle', isPC ? 'bg-components-panel-bg p-8 pb-0' : 'p-4 pb-0')}>
-          <div className='flex items-center gap-3'>
+          <div className="flex items-center gap-3">
             <AppIcon
               size={isPC ? 'large' : 'small'}
               iconType={siteInfo.icon_type}
@@ -736,53 +536,34 @@ const TextGeneration: FC<IMainProps> = ({
               background={siteInfo.icon_background || appDefaultIconBackground}
               imageUrl={siteInfo.icon_url}
             />
-            <div className='system-md-semibold grow truncate text-text-secondary'>{siteInfo.title}</div>
+            <div className="system-md-semibold grow truncate text-text-secondary">{siteInfo.title}</div>
             <MenuDropdown hideLogout={isInstalledApp || accessMode === AccessMode.PUBLIC} data={siteInfo} />
           </div>
           {siteInfo.description && (
-            <div className='system-xs-regular text-text-tertiary'>{siteInfo.description}</div>
+            <div className="system-xs-regular text-text-tertiary">{siteInfo.description}</div>
           )}
           <TabHeader
             items={[
-              { id: 'create', name: t('share.generation.tabs.create') },
-              { id: 'batch', name: t('share.generation.tabs.batch') },
+              { id: 'create', name: t('generation.tabs.create', { ns: 'share' }) },
+              { id: 'batch', name: t('generation.tabs.batch', { ns: 'share' }) },
               ...(!isWorkflow
                 ? [{
-                  id: 'saved',
-                  name: t('share.generation.tabs.saved'),
-                  isRight: true,
-                  icon: <RiBookmark3Line className='h-4 w-4' />,
-                  extra: savedMessages.length > 0
-                    ? (
-                      <Badge className='ml-1'>
-                        {savedMessages.length}
-                      </Badge>
-                    )
-                    : null,
-                }]
+                    id: 'saved',
+                    name: t('generation.tabs.saved', { ns: 'share' }),
+                    isRight: true,
+                    icon: <RiBookmark3Line className="h-4 w-4" />,
+                    extra: savedMessages.length > 0
+                      ? (
+                          <Badge className="ml-1">
+                            {savedMessages.length}
+                          </Badge>
+                        )
+                      : null,
+                  }]
                 : []),
             ]}
             value={currentTab}
-            onChange={(tab) => {
-              // Extend: Start Batch import
-
-              // 当从批量模式切换回单次运行时，重置批量相关状态
-              if (currentTab === 'batch' && tab === 'create') {
-                setIsCallBatchAPI(false)
-                setAllTaskList([])
-                setCurrGroupNum(0)
-                // 只清空显示状态，保留localStorage以便再次切换回批量时恢复
-                setBatchJobs([])
-              }
-
-              // 当从单次运行切换到批量模式时，清理单次运行的结果
-              if (currentTab === 'create' && tab === 'batch') {
-                setResultExisted(false)
-                setControlStopResponding(Date.now()) // 停止可能正在进行的单次运行
-              }
-              setCurrentTab(tab)
-            }}
-            // Extend: Stop Batch import
+            onChange={setCurrentTab}
           />
         </div>
         {/* form */}
@@ -790,7 +571,8 @@ const TextGeneration: FC<IMainProps> = ({
           'h-0 grow overflow-y-auto bg-components-panel-bg',
           isPC ? 'px-8' : 'px-4',
           !isPC && resultExisted && customConfig?.remove_webapp_brand && 'rounded-b-2xl border-b-[0.5px] border-divider-regular',
-        )}>
+        )}
+        >
           <div className={cn(currentTab === 'create' ? 'block' : 'hidden')}>
             <RunOnce
               siteInfo={siteInfo}
@@ -801,16 +583,14 @@ const TextGeneration: FC<IMainProps> = ({
               onSend={handleSend}
               visionConfig={visionConfig}
               onVisionFilesChange={setCompletionFiles}
+              runControl={runControl}
             />
           </div>
           <div className={cn(isInBatchTab ? 'block' : 'hidden')}>
             <RunBatch
               vars={promptConfig.prompt_variables}
               onSend={handleRunBatch}
-              onBatchSend={handleBatchUpload}// Extend: Batch import
               isAllFinished={allTasksRun}
-              isInstalledApp={isInstalledApp}// Extend: Batch import
-              installedAppInfo={installedAppInfo}// Extend: Batch import
             />
           </div>
           {currentTab === 'saved' && (
@@ -829,14 +609,15 @@ const TextGeneration: FC<IMainProps> = ({
             'flex shrink-0 items-center gap-1.5 bg-components-panel-bg py-3',
             isPC ? 'px-8' : 'px-4',
             !isPC && resultExisted && 'rounded-b-2xl border-b-[0.5px] border-divider-regular',
-          )}>
-            <div className='system-2xs-medium-uppercase text-text-tertiary'>{t('share.chat.poweredBy')}</div>
+          )}
+          >
+            <div className="system-2xs-medium-uppercase text-text-tertiary">{t('chat.poweredBy', { ns: 'share' })}</div>
             {
               systemFeatures.branding.enabled && systemFeatures.branding.workspace_logo
-                ? <img src={systemFeatures.branding.workspace_logo} alt='logo' className='block h-5 w-auto' />
+                ? <img src={systemFeatures.branding.workspace_logo} alt="logo" className="block h-5 w-auto" />
                 : customConfig?.replace_webapp_logo
-                  ? <img src={`${customConfig?.replace_webapp_logo}`} alt='logo' className='block h-5 w-auto' />
-                  : <DifyLogo size='small' />
+                  ? <img src={`${customConfig?.replace_webapp_logo}`} alt="logo" className="block h-5 w-auto" />
+                  : <DifyLogo size="small" />
             }
           </div>
         )}
@@ -850,7 +631,8 @@ const TextGeneration: FC<IMainProps> = ({
             : resultExisted
               ? 'relative h-16 shrink-0 overflow-hidden bg-background-default-burn pt-2.5'
               : '',
-      )}>
+      )}
+      >
         {!isPC && (
           <div
             className={cn(
@@ -862,10 +644,10 @@ const TextGeneration: FC<IMainProps> = ({
               if (isShowResultPanel)
                 hideResultPanel()
               else
-                doShowResultPanel()// Extend: Batch import
+                showResultPanel()
             }}
           >
-            <div className='h-1 w-8 cursor-grab rounded bg-divider-solid' />
+            <div className="h-1 w-8 cursor-grab rounded bg-divider-solid" />
           </div>
         )}
         {renderResWrap}
