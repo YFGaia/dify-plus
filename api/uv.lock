@@ -158,10 +158,37 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a0/87/1d7019d23891897cb076b2f7e3c81ab3c2ba91de3bb067196f675d60d34c/alibabacloud-credentials-api-1.0.0.tar.gz", hash = "sha256:8c340038d904f0218d7214a8f4088c31912bfcf279af2cbc7d9be4897a97dd2f", size = 2330, upload-time = "2025-01-13T05:53:04.931Z" }
 
 [[package]]
+name = "alibabacloud-dingtalk"
+version = "2.1.99"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "alibabacloud-endpoint-util" },
+    { name = "alibabacloud-gateway-dingtalk" },
+    { name = "alibabacloud-gateway-spi" },
+    { name = "alibabacloud-openapi-util" },
+    { name = "alibabacloud-tea-openapi" },
+    { name = "alibabacloud-tea-util" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b7/41/5909fcad753c10dbe02080345e7d062fceff6ef696295f1c2ef52c217367/alibabacloud_dingtalk-2.1.99.tar.gz", hash = "sha256:1e9cfb9b2d4eefa3250dbf56a3dfac69c3dbf111d02cd6b04f4cae0aa399b41a", size = 1799354, upload-time = "2025-04-29T02:37:49.714Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/e9/99dd01c8daa12edf4cd9f454e55f3906465e71cd6095b0005d09eb0cd143/alibabacloud_dingtalk-2.1.99-py3-none-any.whl", hash = "sha256:a86094d1f99a2ee9bbc32266cf202214d1dab3329786fde593e2aa6697106cde", size = 1910635, upload-time = "2025-04-29T02:37:47.402Z" },
+]
+
+[[package]]
 name = "alibabacloud-endpoint-util"
 version = "0.0.4"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/92/7d/8cc92a95c920e344835b005af6ea45a0db98763ad6ad19299d26892e6c8d/alibabacloud_endpoint_util-0.0.4.tar.gz", hash = "sha256:a593eb8ddd8168d5dc2216cd33111b144f9189fcd6e9ca20e48f358a739bbf90", size = 2813, upload-time = "2025-06-12T07:20:52.572Z" }
+
+[[package]]
+name = "alibabacloud-gateway-dingtalk"
+version = "1.0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "alibabacloud-gateway-spi" },
+    { name = "alibabacloud-tea-util" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d2/40/751d8bdf133d7fcf053f10c98e8e506810e7bee06458a02eaaa14d30ac26/alibabacloud_gateway_dingtalk-1.0.2.tar.gz", hash = "sha256:acea8b0b1d11e0394913f0b0899ddd19c0bfceab716060449b57fcc250ceb300", size = 2938, upload-time = "2023-04-25T09:48:42.249Z" }
 
 [[package]]
 name = "alibabacloud-gateway-spi"
@@ -1371,6 +1398,7 @@ name = "dify-api"
 version = "1.11.2"
 source = { virtual = "." }
 dependencies = [
+    { name = "alibabacloud-dingtalk" },
     { name = "aliyun-log-python-sdk" },
     { name = "apscheduler" },
     { name = "arize-phoenix-otel" },
@@ -1388,6 +1416,7 @@ dependencies = [
     { name = "flask-login" },
     { name = "flask-migrate" },
     { name = "flask-orjson" },
+    { name = "flask-restful" },
     { name = "flask-restx" },
     { name = "flask-sqlalchemy" },
     { name = "gevent" },
@@ -1406,6 +1435,7 @@ dependencies = [
     { name = "jsonschema" },
     { name = "langfuse" },
     { name = "langsmith" },
+    { name = "ldap3" },
     { name = "litellm" },
     { name = "markdown" },
     { name = "mlflow-skinny" },
@@ -1439,6 +1469,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pyjwt" },
     { name = "pypdfium2" },
+    { name = "pypinyin" },
     { name = "python-docx" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
@@ -1451,8 +1482,10 @@ dependencies = [
     { name = "sseclient-py" },
     { name = "starlette" },
     { name = "tiktoken" },
+    { name = "tokenizers" },
     { name = "transformers" },
     { name = "unstructured", extra = ["docx", "epub", "md", "ppt", "pptx"] },
+    { name = "validators" },
     { name = "weave" },
     { name = "weaviate-client" },
     { name = "webvtt-py" },
@@ -1569,6 +1602,7 @@ vdb = [
 
 [package.metadata]
 requires-dist = [
+    { name = "alibabacloud-dingtalk", specifier = "~=2.1.32" },
     { name = "aliyun-log-python-sdk", specifier = "~=0.9.37" },
     { name = "apscheduler", specifier = ">=3.11.0" },
     { name = "arize-phoenix-otel", specifier = "~=0.9.2" },
@@ -1586,6 +1620,7 @@ requires-dist = [
     { name = "flask-login", specifier = "~=0.6.3" },
     { name = "flask-migrate", specifier = "~=4.0.7" },
     { name = "flask-orjson", specifier = "~=2.0.0" },
+    { name = "flask-restful", specifier = "~=0.3.10" },
     { name = "flask-restx", specifier = "~=1.3.0" },
     { name = "flask-sqlalchemy", specifier = "~=3.1.1" },
     { name = "gevent", specifier = "~=25.9.1" },
@@ -1604,6 +1639,7 @@ requires-dist = [
     { name = "jsonschema", specifier = ">=4.25.1" },
     { name = "langfuse", specifier = "~=2.51.3" },
     { name = "langsmith", specifier = "~=0.1.77" },
+    { name = "ldap3", specifier = "~=2.9.1" },
     { name = "litellm", specifier = "==1.77.1" },
     { name = "markdown", specifier = "~=3.5.1" },
     { name = "mlflow-skinny", specifier = ">=3.0.0" },
@@ -1637,6 +1673,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = "~=2.11.0" },
     { name = "pyjwt", specifier = "~=2.10.1" },
     { name = "pypdfium2", specifier = "==5.2.0" },
+    { name = "pypinyin", specifier = "~=0.53.0" },
     { name = "python-docx", specifier = "~=1.1.0" },
     { name = "python-dotenv", specifier = "==1.0.1" },
     { name = "pyyaml", specifier = "~=6.0.1" },
@@ -1649,8 +1686,10 @@ requires-dist = [
     { name = "sseclient-py", specifier = "~=1.8.0" },
     { name = "starlette", specifier = "==0.49.1" },
     { name = "tiktoken", specifier = "~=0.9.0" },
+    { name = "tokenizers", specifier = "~=0.22.0" },
     { name = "transformers", specifier = "~=4.56.1" },
     { name = "unstructured", extras = ["docx", "epub", "md", "ppt", "pptx"], specifier = "~=0.16.1" },
+    { name = "validators", specifier = ">=0.34.0" },
     { name = "weave", specifier = ">=0.52.16" },
     { name = "weaviate-client", specifier = "==4.17.0" },
     { name = "webvtt-py", specifier = "~=0.5.1" },
@@ -2065,6 +2104,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a3/49/575796f6ddca171d82dbb12762e33166c8b8f8616c946f0a6dfbb9bc3cd6/flask_orjson-2.0.0.tar.gz", hash = "sha256:6df6631437f9bc52cf9821735f896efa5583b5f80712f7d29d9ef69a79986a9c", size = 2974, upload-time = "2024-01-15T00:03:22.236Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f3/ca/53e14be018a2284acf799830e8cd8e0b263c0fd3dff1ad7b35f8417e7067/flask_orjson-2.0.0-py3-none-any.whl", hash = "sha256:5d15f2ba94b8d6c02aee88fc156045016e83db9eda2c30545fabd640aebaec9d", size = 3622, upload-time = "2024-01-15T00:03:17.511Z" },
+]
+
+[[package]]
+name = "flask-restful"
+version = "0.3.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aniso8601" },
+    { name = "flask" },
+    { name = "pytz" },
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c0/ce/a0a133db616ea47f78a41e15c4c68b9f08cab3df31eb960f61899200a119/Flask-RESTful-0.3.10.tar.gz", hash = "sha256:fe4af2ef0027df8f9b4f797aba20c5566801b6ade995ac63b588abf1a59cec37", size = 110453, upload-time = "2023-05-21T03:58:55.781Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d7/7b/f0b45f0df7d2978e5ae51804bb5939b7897b2ace24306009da0cc34d8d1f/Flask_RESTful-0.3.10-py2.py3-none-any.whl", hash = "sha256:1cf93c535172f112e080b0d4503a8d15f93a48c88bdd36dd87269bdaf405051b", size = 26217, upload-time = "2023-05-21T03:58:54.004Z" },
 ]
 
 [[package]]
@@ -3193,6 +3247,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/6c/56/201dd94d492ae47c1bf9b50cacc1985113dc2288d8f15857e1f4a6818376/langsmith-0.1.147.tar.gz", hash = "sha256:2e933220318a4e73034657103b3b1a3a6109cc5db3566a7e8e03be8d6d7def7a", size = 300453, upload-time = "2024-11-27T17:32:41.297Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/f0/63b06b99b730b9954f8709f6f7d9b8d076fa0a973e472efe278089bde42b/langsmith-0.1.147-py3-none-any.whl", hash = "sha256:7166fc23b965ccf839d64945a78e9f1157757add228b086141eb03a60d699a15", size = 311812, upload-time = "2024-11-27T17:32:39.569Z" },
+]
+
+[[package]]
+name = "ldap3"
+version = "2.9.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyasn1" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/43/ac/96bd5464e3edbc61595d0d69989f5d9969ae411866427b2500a8e5b812c0/ldap3-2.9.1.tar.gz", hash = "sha256:f3e7fc4718e3f09dda568b57100095e0ce58633bcabbed8667ce3f8fbaa4229f", size = 398830, upload-time = "2021-07-18T06:34:21.786Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4e/f6/71d6ec9f18da0b2201287ce9db6afb1a1f637dedb3f0703409558981c723/ldap3-2.9.1-py2.py3-none-any.whl", hash = "sha256:5869596fc4948797020d3f03b7939da938778a0f9e2009f7a072ccf92b8e8d70", size = 432192, upload-time = "2021-07-18T06:34:12.905Z" },
 ]
 
 [[package]]
@@ -5025,6 +5091,15 @@ name = "pypika"
 version = "0.48.9"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c7/2c/94ed7b91db81d61d7096ac8f2d325ec562fc75e35f3baea8749c85b28784/PyPika-0.48.9.tar.gz", hash = "sha256:838836a61747e7c8380cd1b7ff638694b7a7335345d0f559b04b2cd832ad5378", size = 67259, upload-time = "2022-03-15T11:22:57.066Z" }
+
+[[package]]
+name = "pypinyin"
+version = "0.53.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/2d/58c9e7d0825d834fc5ac62a340640953d39a80e78cba70eb73d3bad5b4be/pypinyin-0.53.0.tar.gz", hash = "sha256:a2d39ddc2bd31b55897bbb10d2e11a0c4d399988a97c00ad489c151afd9b106d", size = 824458, upload-time = "2024-09-15T08:05:49.637Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b1/af/a1f9ee31b860ea55985a743b53fc06e61fe156bc1a9d64d94a81afa80470/pypinyin-0.53.0-py2.py3-none-any.whl", hash = "sha256:a906768919da3c31771f2c5e0e5a759214dc38d0087e15e6ff67649e03df8097", size = 834720, upload-time = "2024-09-15T08:05:47.379Z" },
+]
 
 [[package]]
 name = "pyproject-hooks"

@@ -94,8 +94,8 @@ dependencies = [
     "apscheduler>=3.11.0",
     "weave>=0.52.16",
     ##### start extend ######
-    "tokenizers~=0.21.2",
-    "validators~=0.22.0",
+    "tokenizers~=0.22.0",
+    "validators>=0.34.0",
     "alibabacloud-dingtalk~=2.1.32",
     "ldap3~=2.9.1",
     "pypinyin~=0.53.0",
