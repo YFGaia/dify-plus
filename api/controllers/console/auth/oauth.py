@@ -50,7 +50,7 @@ def get_oauth_providers():
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
 
-        oauth2 = OaOAuth(client_id='', client_secret='', redirect_uri='') # Extend: oauth2
+        oauth2 = OaOAuth(client_id='', client_secret='', redirect_uri='')  # Extend: oauth2
 
         OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth, "oauth2": oauth2}
         return OAUTH_PROVIDERS

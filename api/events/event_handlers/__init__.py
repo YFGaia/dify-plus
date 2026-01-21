@@ -10,12 +10,12 @@ from .queue_credential_sync_when_tenant_created import handle as handle_queue_cr
 from .sync_plugin_trigger_when_app_created import handle as handle_sync_plugin_trigger_when_app_created
 from .sync_webhook_when_app_created import handle as handle_sync_webhook_when_app_created
 from .sync_workflow_schedule_when_app_published import handle as handle_sync_workflow_schedule_when_app_published
-from .update_app_dataset_join_when_app_model_config_updated import (
-    handle as handle_update_app_dataset_join_when_app_model_config_updated,
-)
 from .update_account_money_when_messaeg_created_extend import (
     handle as handle_update_account_money_when_messaeg_created_extend,
 )  # 二开部分：新增限额判断
+from .update_app_dataset_join_when_app_model_config_updated import (
+    handle as handle_update_app_dataset_join_when_app_model_config_updated,
+)
 from .update_app_dataset_join_when_app_published_workflow_updated import (
     handle as handle_update_app_dataset_join_when_app_published_workflow_updated,
 )
@@ -38,9 +38,9 @@ __all__ = [
     "handle_sync_plugin_trigger_when_app_created",
     "handle_sync_webhook_when_app_created",
     "handle_sync_workflow_schedule_when_app_published",
+    "handle_update_account_money_when_messaeg_created_extend",  # Extend messaeg_created_extend
     "handle_update_app_dataset_join_when_app_model_config_updated",
     "handle_update_app_dataset_join_when_app_published_workflow_updated",
     "handle_update_app_triggers_when_app_published_workflow_updated",
     "handle_update_provider_when_message_created",
-    "handle_update_account_money_when_messaeg_created_extend",# Extend messaeg_created_extend
 ]

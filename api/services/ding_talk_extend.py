@@ -20,7 +20,7 @@ from services.account_service import AccountService, RegisterService, TenantServ
 from services.account_service_extend import TenantExtendService
 
 logger = logging.getLogger(__name__)
-DINGTALK_ACCOUNT_TOKEN = { "time": 0, "token": "" }
+DINGTALK_ACCOUNT_TOKEN = {"time": 0, "token": ""}
 
 
 class DingTalkService:
@@ -97,7 +97,7 @@ class DingTalkService:
         dingTalkToken, err = cls.get_access_token()
         responses = requests.post(
             f'https://oapi.dingtalk.com/topapi/v2/user/get?access_token={dingTalkToken}',
-            json={ "userid": userid },
+            json={"userid": userid},
         )
         # Check the response status code
         if responses.status_code != 200:
@@ -148,7 +148,7 @@ class DingTalkService:
             return "", f"Failed to obtain token: {err}"
         response = requests.get(
             "https://api.dingtalk.com/v1.0/contact/users/me",
-            headers={ "x-acs-dingtalk-access-token": userToken },
+            headers={"x-acs-dingtalk-access-token": userToken},
         )
         # Check the response status code
         if response.status_code != 200:
@@ -161,7 +161,7 @@ class DingTalkService:
         dingTalkToken, err = cls.get_access_token()
         unionIdResponse = requests.post(
             f"https://oapi.dingtalk.com/topapi/user/getbyunionid?access_token={dingTalkToken}",
-            json={ "unionid": req["unionId"] }
+            json={"unionid": req["unionId"]}
         )
         # Check the response status code
         if unionIdResponse.status_code != 200:
@@ -185,7 +185,7 @@ class DingTalkService:
             return "", f"Failed to obtain token: {err}"
         response = requests.post(
             f"{host}/getuserinfo?access_token={token}",
-            json={ "code": code },
+            json={"code": code},
         )
         # Check the response status code
         if response.status_code != 200:

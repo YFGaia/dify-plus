@@ -1,5 +1,6 @@
 import logging
 from typing import Any, Literal
+
 from pydantic import BaseModel, Field, field_validator
 from werkzeug.exceptions import InternalServerError, NotFound
 
@@ -37,14 +38,16 @@ logger = logging.getLogger(__name__)
 
 # extend: 您必须登录才能访问您的帐户扩展功能
 from flask import request
-from extensions.ext_database import db
-from libs.passport import PassportService
-from models.account_money_extend import AccountMoneyExtend
-from services.app_generate_service_extend import AppGenerateServiceExtend
+
 from controllers.web.error_extend import (
     AccountNoMoneyErrorExtend,
     WebAuthRequiredErrorExtend,
 )
+from extensions.ext_database import db
+from libs.passport import PassportService
+from models.account_money_extend import AccountMoneyExtend
+from services.app_generate_service_extend import AppGenerateServiceExtend
+
 
 def is_end_login(end_user):
     user_info = None
@@ -60,6 +63,7 @@ def is_end_login(end_user):
         pass
     # no login
     return user_info
+
 
 # 额度限制
 def is_money_limit(end_user) -> bool:

@@ -186,3 +186,26 @@ class RecommendedAppService:
             return recommendedApp.id
         except:
             return ""
+
+    # Extend: start messages context handling
+    @classmethod
+    def message_context(cls, conversation_id: str):
+        from models.model_extend import MessageContextExtend
+        message_list = []
+        message_context = db.session.query(MessageContextExtend).filter(
+            MessageContextExtend.conversation_id == conversation_id).order_by(
+            MessageContextExtend.created_at.desc()).all()
+        for v in message_context:
+            message_list.append(v.message_id)
+        return message_list
+
+    @classmethod
+    def delete_message_context(cls, conversation_id, message_id: str):
+        from models.model_extend import MessageContextExtend
+        db.session.query(MessageContextExtend).filter(
+            MessageContextExtend.conversation_id == conversation_id,
+            MessageContextExtend.message_id == message_id,
+        ).delete()
+        db.session.commit()
+        return 'ok'
+    # Extend: stop messages context handling

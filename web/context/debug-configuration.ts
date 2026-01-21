@@ -105,6 +105,10 @@ type IDebugConfiguration = {
   isShowAudioConfig: boolean
   rerankSettingModalOpen: boolean
   setRerankSettingModalOpen: (rerankSettingModalOpen: boolean) => void
+  // Extend: 记忆上下文功能
+  retentionNumber: number
+  setRetentionNumber: (retentionNumber: number) => void
+  // Extend: 记忆上下文功能
 }
 
 const DebugConfigurationContext = createContext<IDebugConfiguration>({
@@ -268,6 +272,10 @@ const DebugConfigurationContext = createContext<IDebugConfiguration>({
   isShowAudioConfig: false,
   rerankSettingModalOpen: false,
   setRerankSettingModalOpen: noop,
+  // Extend: 记忆上下文功能
+  retentionNumber: 0,
+  setRetentionNumber: noop,
+  // Extend: 记忆上下文功能
 })
 
 export const useDebugConfigurationContext = () => useContext(DebugConfigurationContext)

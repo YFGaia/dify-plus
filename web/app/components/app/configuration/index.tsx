@@ -233,6 +233,9 @@ const Configuration: FC = () => {
     doSetDatasetConfigs(newDatasetConfigs)
     datasetConfigsRef.current = newDatasetConfigs
   }, [])
+  // Extend: 记忆上下文功能
+  const [retentionNumber, setRetentionNumber] = useState(Number(process.env.NEXT_CONTEXT_RETENTION_DEFAULT_COUNT || 5))
+  // Extend: 记忆上下文功能
 
   const setModelConfig = (newModelConfig: ModelConfig) => {
     doSetModelConfig(newModelConfig)
@@ -562,6 +565,10 @@ const Configuration: FC = () => {
       const modelConfig = res.model_config as BackendModelConfig
       const promptMode = modelConfig.prompt_type === PromptMode.advanced ? PromptMode.advanced : PromptMode.simple
       doSetPromptMode(promptMode)
+      // Extend: 记忆上下文功能
+      if (res.retention_number !== undefined)
+        setRetentionNumber(res.retention_number)
+      // Extend: 记忆上下文功能
       if (promptMode === PromptMode.advanced) {
         if (modelConfig.chat_prompt_config && modelConfig.chat_prompt_config.prompt.length > 0)
           setChatPromptConfig(modelConfig.chat_prompt_config)
@@ -832,6 +839,9 @@ const Configuration: FC = () => {
         } as any,
       },
       system_parameters: modelConfig.system_parameters,
+      // Extend: 记忆上下文功能
+      retention_number: retentionNumber,
+      // Extend: 记忆上下文功能
     }
 
     await updateAppModelConfig({ url: `/apps/${appId}/model-config`, body: data })
@@ -954,6 +964,10 @@ const Configuration: FC = () => {
     isShowAudioConfig,
     rerankSettingModalOpen,
     setRerankSettingModalOpen,
+    // Extend: 记忆上下文功能
+    retentionNumber,
+    setRetentionNumber,
+    // Extend: 记忆上下文功能
   }
   return (
     <ConfigContext.Provider value={value}>

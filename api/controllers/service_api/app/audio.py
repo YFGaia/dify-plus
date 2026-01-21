@@ -22,7 +22,7 @@ from controllers.service_api.app.error import (
 from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate_app_token
 from core.errors.error import ModelCurrentlyNotSupportError, ProviderTokenNotInitError, QuotaExceededError
 from core.model_runtime.errors.invoke import InvokeError
-from models.model import ApiToken, App, EndUser # extend: 二开部分 密钥额度限制，新增api_token
+from models.model import ApiToken, App, EndUser  # extend: 二开部分 密钥额度限制，新增api_token
 from services.audio_service import AudioService
 from services.errors.audio import (
     AudioTooLargeServiceError,

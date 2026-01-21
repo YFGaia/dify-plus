@@ -33,10 +33,10 @@ from libs.login import current_user
 from models import Account
 from models.model import AppMode
 from services.app_generate_service import AppGenerateService
-from services.app_task_service import AppTaskService
 from services.app_generate_service_extend import (
     AppGenerateServiceExtend,  # Extend: App Center - Recommended list sorted by usage frequency
 )
+from services.app_task_service import AppTaskService
 from services.errors.llm import InvokeRateLimitError
 
 from .. import console_ns

@@ -67,6 +67,13 @@ class ExtendInfo(BaseSettings):
         default=None,
     )
 
+    # Extend: 记忆上下文功能
+    DEFAULT_NUMBER_CONTEXT: Optional[int] = Field(
+        description="Default number of context retention (记忆窗口默认值)",
+        default=5,
+    )
+    # Extend: 记忆上下文功能
+
 
 class ExtendConfig(ExtendInfo):
     pass

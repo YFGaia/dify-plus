@@ -11,10 +11,11 @@ from core.variables.types import SegmentType
 from core.workflow.enums import NodeType, WorkflowNodeExecutionStatus
 from core.workflow.node_events import NodeRunResult
 from core.workflow.nodes.base.node import Node
-from core.workflow.nodes.code.entities import CodeNodeData
-from core.workflow.nodes.code.limits import CodeNodeLimits
+
 # Extend: Adding execution control logic
 from core.workflow.nodes.code.control_extend import ExecutionControl
+from core.workflow.nodes.code.entities import CodeNodeData
+from core.workflow.nodes.code.limits import CodeNodeLimits
 
 from .exc import (
     CodeNodeError,

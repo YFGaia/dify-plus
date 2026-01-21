@@ -15,6 +15,8 @@ import datasetPipeline from '../i18n/en-US/dataset-pipeline.json'
 import datasetSettings from '../i18n/en-US/dataset-settings.json'
 import dataset from '../i18n/en-US/dataset.json'
 import education from '../i18n/en-US/education.json'
+// extend: 二开部分：新增的多语言
+import extend from '../i18n/en-US/extend.json'
 import explore from '../i18n/en-US/explore.json'
 import layout from '../i18n/en-US/layout.json'
 import login from '../i18n/en-US/login.json'
@@ -48,6 +50,8 @@ const resources = {
   datasetPipeline,
   datasetSettings,
   education,
+  // extend: 二开部分：新增的多语言
+  extend,
   explore,
   layout,
   login,

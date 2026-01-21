@@ -38,6 +38,7 @@ from tasks.extend.update_account_money_when_workflow_node_execution_created_exte
 
 # 二开部分End - 密钥额度限制
 
+
 @dataclass
 class CycleManagerWorkflowInfo:
     workflow_id: str
@@ -55,12 +56,18 @@ class WorkflowCycleManager:
         workflow_info: CycleManagerWorkflowInfo,
         workflow_execution_repository: WorkflowExecutionRepository,
         workflow_node_execution_repository: WorkflowNodeExecutionRepository,
+        user_id: Optional[str] = None,  # extend:二开部分 - 计费相关的用户信息
+        created_by_role=None,  # extend:二开部分 - 计费相关的用户信息
     ) -> None:
         self._application_generate_entity = application_generate_entity
         self._workflow_system_variables = workflow_system_variables
         self._workflow_info = workflow_info
         self._workflow_execution_repository = workflow_execution_repository
         self._workflow_node_execution_repository = workflow_node_execution_repository
+        
+        # extend:二开部分 - 计费相关的用户信息
+        self._user_id = user_id
+        self._created_by_role = created_by_role
 
         # Initialize caches for workflow execution cycle
         # These caches avoid redundant repository calls during a single workflow execution

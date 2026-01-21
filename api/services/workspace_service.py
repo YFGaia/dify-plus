@@ -4,6 +4,7 @@ from configs import dify_config
 from extensions.ext_database import db
 from models.account import Tenant, TenantAccountJoin, TenantAccountRole
 from services.account_service import TenantService
+
 # extend: 添加用户权限
 from services.account_service_extend import TenantExtendService
 from services.feature_service import FeatureService

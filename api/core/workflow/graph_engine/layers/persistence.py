@@ -15,6 +15,7 @@ from datetime import datetime
 from typing import Any, Union
 
 from core.app.entities.app_invoke_entities import AdvancedChatAppGenerateEntity, WorkflowAppGenerateEntity
+from core.model_runtime.utils.encoders import jsonable_encoder
 from core.ops.entities.trace_entity import TraceTaskName
 from core.ops.ops_trace_manager import TraceQueueManager, TraceTask
 from core.workflow.constants import SYSTEM_VARIABLE_NODE_ID
@@ -47,6 +48,14 @@ from core.workflow.repositories.workflow_execution_repository import WorkflowExe
 from core.workflow.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
 from core.workflow.workflow_entry import WorkflowEntry
 from libs.datetime_utils import naive_utc_now
+
+# extend: start 二开部分 - 计费相关的用户信息
+from models.enums import CreatorUserRole, UserFrom
+from tasks.extend.update_account_money_when_workflow_node_execution_created_extend import (
+    update_account_money_when_workflow_node_execution_created_extend,
+)
+
+# extend: stop 二开部分 - 计费相关的用户信息
 
 
 @dataclass(slots=True)
@@ -82,6 +91,7 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
         workflow_execution_repository: WorkflowExecutionRepository,
         workflow_node_execution_repository: WorkflowNodeExecutionRepository,
         trace_manager: TraceQueueManager | None = None,
+        user_from: UserFrom | None = None,  # 二开部分 - 用于计费
     ) -> None:
         super().__init__()
         self._application_generate_entity = application_generate_entity
@@ -89,6 +99,7 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
         self._workflow_execution_repository = workflow_execution_repository
         self._workflow_node_execution_repository = workflow_node_execution_repository
         self._trace_manager = trace_manager
+        self._user_from = user_from  # 二开部分 - 用于计费
 
         self._workflow_execution: WorkflowExecution | None = None
         self._node_execution_cache: dict[str, WorkflowNodeExecution] = {}
@@ -270,6 +281,26 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
     def _handle_node_succeeded(self, event: NodeRunSucceededEvent) -> None:
         domain_execution = self._get_node_execution(event.id)
         self._update_node_execution(domain_execution, event.node_run_result, WorkflowNodeExecutionStatus.SUCCEEDED)
+        
+        # 二开部分Begin - 计费
+        # 异步任务计算费用并更新账户额度，将对象转换为字典传递
+        domain_execution_dict = jsonable_encoder(domain_execution)
+        
+        # 添加用户信息到字典中
+        domain_execution_dict['created_by'] = self._application_generate_entity.user_id
+        if self._user_from == UserFrom.ACCOUNT:
+            domain_execution_dict['created_by_role'] = CreatorUserRole.ACCOUNT.value
+        elif self._user_from == UserFrom.END_USER:
+            domain_execution_dict['created_by_role'] = CreatorUserRole.END_USER.value
+        else:
+            domain_execution_dict['created_by_role'] = None
+        
+        # 添加 workflow_run_id
+        if self._workflow_execution:
+            domain_execution_dict['workflow_run_id'] = self._workflow_execution.id_
+        
+        update_account_money_when_workflow_node_execution_created_extend.delay(domain_execution_dict)
+        # 二开部分End - 计费
 
     def _handle_node_failed(self, event: NodeRunFailedEvent) -> None:
         domain_execution = self._get_node_execution(event.id)
@@ -403,3 +434,4 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
     def _system_variables(self) -> Mapping[str, Any]:
         runtime_state = self.graph_runtime_state
         return runtime_state.variable_pool.get_by_prefix(SYSTEM_VARIABLE_NODE_ID)
+ 

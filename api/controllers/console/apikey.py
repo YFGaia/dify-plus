@@ -12,9 +12,9 @@ from werkzeug.exceptions import Forbidden
 from extensions.ext_database import db
 from libs.helper import TimestampField
 from libs.login import current_account_with_tenant, login_required
+from models.api_token_money_extend import ApiTokenMoneyExtend  # 二开部分 - 密钥额度限制
 from models.dataset import Dataset
 from models.model import ApiToken, App
-from models.api_token_money_extend import ApiTokenMoneyExtend  # 二开部分 - 密钥额度限制
 
 from . import console_ns
 from .wraps import account_initialization_required, edit_permission_required, setup_required

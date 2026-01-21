@@ -577,6 +577,7 @@ class RecommendedAppsCategoryJoinExtend(db.Model):
     recommended_id = db.Column(StringUUID, nullable=False)
     category_id = db.Column(StringUUID, nullable=False)
 
+
 class RecommendedApp(Base):  # bug
     __tablename__ = "recommended_apps"
     __table_args__ = (

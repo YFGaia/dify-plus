@@ -27,7 +27,8 @@ import { useProviderContext } from '@/context/provider-context'
 import { useAsyncWindowOpen } from '@/hooks/use-async-window-open'
 import { AccessMode } from '@/models/access-control'
 import { useGetUserCanAccessApp } from '@/service/access-control'
-import { copyApp, deleteApp, exportAppConfig, updateAppInfo } from '@/service/apps'
+// extend: sync app
+import { copyApp, deleteApp, exportAppConfig, updateAppInfo, syncApp, syncCancelApp } from '@/service/apps'
 import { fetchInstalledAppList } from '@/service/explore'
 import { fetchWorkflowDraft } from '@/service/workflow'
 import { AppModeEnum } from '@/types/app'
@@ -58,17 +59,24 @@ const AccessControl = dynamic(() => import('@/app/components/app/app-access-cont
 export type AppCardProps = {
   app: App
   onRefresh?: () => void
+  onApp?: boolean // extend: SyncToAppTemplate
 }
 
-const AppCard = ({ app, onRefresh }: AppCardProps) => {
+// extend: SyncToAppTemplate
+const AppCard = ({ app, onRefresh, onApp }: AppCardProps) => {
   const { t } = useTranslation()
   const { notify } = useContext(ToastContext)
   const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
-  const { isCurrentWorkspaceEditor } = useAppContext()
+  // extend: start SyncToAppTemplate
+  const { isCurrentWorkspaceEditor, userProfile } = useAppContext()
   const { onPlanInfoChanged } = useProviderContext()
   const { push } = useRouter()
   const openAsyncWindow = useAsyncWindowOpen()
 
+  // ----------------------start SyncToAppTemplate----------------------
+  const [showSyncApps, setShowSyncApps] = useState(false)
+  const [showCancelSyncApps, setShowCancelSyncApps] = useState(false)
+  // ----------------------stop SyncToAppTemplate----------------------
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
   const [showSwitchModal, setShowSwitchModal] = useState<boolean>(false)
@@ -92,6 +100,43 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
     }
     setShowConfirmDelete(false)
   }, [app.id, notify, onPlanInfoChanged, onRefresh, t])
+
+  // ----------------------start SyncToAppTemplate----------------------
+  // Cancel the click sync for the app.
+  const onDeleteSyncApps = useCallback(async () => {
+    try {
+      await syncCancelApp({ appID: app.id })
+      notify({ type: 'success', message: t("app.syncAppOk", { ns: 'extend' }) })
+      if (onRefresh)
+        onRefresh()
+      onPlanInfoChanged()
+    }
+    catch (e: any) {
+      notify({
+        type: 'error',
+        message: `${t("appDeleteFailed", "app")}${'message' in e ? `: ${e.message}` : ''}`,
+      })
+    }
+    setShowCancelSyncApps(false)
+  }, [app.id])
+  // app click sync
+  const onSyncApps = useCallback(async () => {
+    try {
+      await syncApp({ appID: app.id })
+      notify({ type: 'success', message: t('app.syncAppOk', { ns: 'extend' }) })
+      if (onRefresh)
+        onRefresh()
+      onPlanInfoChanged()
+    }
+    catch (e: any) {
+      notify({
+        type: 'error',
+        message: `${t("appDeleteFailed", { ns: 'app' })}${'message' in e ? `: ${e.message}` : ''}`,
+      })
+    }
+    setShowSyncApps(false)
+  }, [app.id])
+  // ----------------------stop SyncToAppTemplate----------------------
 
   const onEdit: CreateAppModalProps['onConfirm'] = useCallback(async ({
     name,
@@ -266,6 +311,21 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
         Toast.notify({ type: 'error', message: `${e.message || e}` })
       }
     }
+    // ----------------------start SyncToAppTemplate----------------------
+    // Synchronize to exploration list
+    const onClickSyncToAppTemplate = async (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation()
+      props.onClick?.()
+      e.preventDefault()
+      setShowSyncApps(true)
+    }
+    const onClickCancelSyncToAppTemplate = async (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation()
+      props.onClick?.()
+      e.preventDefault()
+      setShowCancelSyncApps(true)
+    }
+    // ----------------------stop SyncToAppTemplate----------------------
     return (
       <div className="relative flex w-full flex-col py-1" onMouseLeave={onMouseLeave}>
         <button type="button" className="mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 hover:bg-state-base-hover" onClick={onClickSettings}>
@@ -311,6 +371,30 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
                 )
           )
         }
+        {/* <>------start SyncToAppTemplate-------</> */}
+        {(userProfile.admin_extend && userProfile.tenant_extend && !onApp) && (
+          <>
+            <Divider className="!my-1"/>
+            <div
+              className='h-9 py-2 px-3 mx-1 flex items-center hover:bg-gray-50 rounded-lg cursor-pointer'
+              onClick={onClickSyncToAppTemplate}
+            >
+              <span style={{ color: '#00931e' }} className='text-gray-700 text-sm leading-5'>{t('app.syncToAppTemplate', { ns: 'extend' })}</span>
+            </div>
+          </>
+        )}
+        {(userProfile.admin_extend && userProfile.tenant_extend && onApp) && (
+          <>
+            <Divider className="!my-1"/>
+            <div
+              className='h-9 py-2 px-3 mx-1 flex items-center hover:bg-gray-50 rounded-lg cursor-pointer'
+              onClick={onClickCancelSyncToAppTemplate}
+            >
+              <span style={{ color: '#b70000' }} className='text-gray-700 text-sm leading-5'>{t('app.cancelSyncToAppTemplate', { ns: 'extend' })}</span>
+            </div>
+          </>
+        )}
+        {/* <>------stop SyncToAppTemplate-------</> */}
         <Divider className="my-1" />
         {
           systemFeatures.webapp_auth.enabled && isCurrentWorkspaceEditor && (
@@ -517,6 +601,28 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
       {showAccessControl && (
         <AccessControl app={app} onConfirm={onUpdateAccessControl} onClose={() => setShowAccessControl(false)} />
       )}
+      {/* <>------start SyncToAppTemplate-------</> */}
+      {showSyncApps && (
+        <Confirm
+          title={t("app.confirmSyncApp", { ns: "extend" })}
+          content={t("app.confirmSyncAppContent", { ns: "extend" })}
+          isShow={showSyncApps}
+          onClose={() => setShowSyncApps(false)}
+          onConfirm={onSyncApps}
+          onCancel={() => setShowSyncApps(false)}
+        />
+      )}
+      {showCancelSyncApps && (
+        <Confirm
+          title={t("app.cancelSyncToAppTemplate", { ns: "extend" })}
+          content={t("app.cloneCancelSyncToAppTemplate", { ns: "extend" })}
+          isShow={showCancelSyncApps}
+          onClose={() => setShowCancelSyncApps(false)}
+          onConfirm={onDeleteSyncApps}
+          onCancel={() => setShowCancelSyncApps(false)}
+        />
+      )}
+      {/* <>------stop SyncToAppTemplate-------</> */}
     </>
   )
 }

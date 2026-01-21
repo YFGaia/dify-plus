@@ -69,7 +69,41 @@ class AppSyncApi(Resource):
         return "", 200
 
 
+# Extend: start messages context handling
+class MessageContextApi(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    def get(self):
+        """Message Context"""
+        from flask import request
+        conversation_id = request.args.get("conversation_id")
+        if not conversation_id:
+            from werkzeug.exceptions import BadRequest
+            raise BadRequest("conversation_id is required")
+        app_service = RecommendedAppService()
+
+        return app_service.message_context(conversation_id)
+
+    @setup_required
+    @login_required
+    @account_initialization_required
+    def delete(self):
+        """Message Context"""
+        from flask import request
+        message_id = request.args.get("message_id")
+        conversation_id = request.args.get("conversation_id")
+        if not message_id or not conversation_id:
+            from werkzeug.exceptions import BadRequest
+            raise BadRequest("message_id and conversation_id are required")
+        app_service = RecommendedAppService()
+
+        return app_service.delete_message_context(conversation_id, message_id)
+# Extend: stop messages context handling
+
+
 # ----------------start sync app------------------------
 api.add_resource(AppSyncApi, "/apps/<uuid:app_id>/sync")
 api.add_resource(InstalledSyncAppApi, "/installed/apps")
+api.add_resource(MessageContextApi, "/message/context")
 # ---------------- stop sync app ------------------------

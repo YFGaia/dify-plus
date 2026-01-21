@@ -17,10 +17,10 @@ from controllers.console.app.error import (
     ProviderQuotaExceededError,
 )
 from controllers.console.app.wraps import get_app_model
-from controllers.console.wraps import account_initialization_required, edit_permission_required, setup_required
+
 # Extend money_extend
 from controllers.console.money_extend import money_limit
-from controllers.console.wraps import account_initialization_required, setup_required
+from controllers.console.wraps import account_initialization_required, edit_permission_required, setup_required
 from controllers.web.error import InvokeRateLimitError as InvokeRateLimitHttpError
 from core.app.entities.app_invoke_entities import InvokeFrom
 from core.errors.error import (

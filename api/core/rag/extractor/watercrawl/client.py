@@ -12,12 +12,6 @@ from core.rag.extractor.watercrawl.exceptions import (
     WaterCrawlPermissionError,
 )
 
-from core.rag.extractor.watercrawl.exceptions import (
-    WaterCrawlAuthenticationError,
-    WaterCrawlBadRequestError,
-    WaterCrawlPermissionError,
-)
-
 
 class BaseAPIClient:
     def __init__(self, api_key, base_url):

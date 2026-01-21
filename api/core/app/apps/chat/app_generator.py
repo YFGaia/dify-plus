@@ -24,9 +24,9 @@ from core.ops.ops_trace_manager import TraceQueueManager
 from extensions.ext_database import db
 from factories import file_factory
 from models import Account
+from models.api_token_money_extend import ApiTokenMessageJoinsExtend  # 二开部分End - 密钥额度限制
 from models.model import App, EndUser
 from services.conversation_service import ConversationService
-from models.api_token_money_extend import ApiTokenMessageJoinsExtend  # 二开部分End - 密钥额度限制
 
 logger = logging.getLogger(__name__)
 

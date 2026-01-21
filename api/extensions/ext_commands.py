@@ -56,7 +56,7 @@ def init_app(app: DifyApp):
         migrate_oss,
         setup_datasource_oauth_client,
         transform_datasource_credentials,
-        install_rag_pipeline_plugins,,
+        install_rag_pipeline_plugins,
         extend_db,
     ]
     for cmd in cmds_to_register:

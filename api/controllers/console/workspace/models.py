@@ -6,7 +6,11 @@ from flask_restx import Resource
 from pydantic import BaseModel, Field, field_validator
 
 from controllers.console import console_ns
-from controllers.console.wraps import account_initialization_required, is_admin_or_owner_required, setup_required, is_admin_or_owner_required # extend: 非admin或者owner返回 Forbidden
+from controllers.console.wraps import (  # extend: 非admin或者owner返回 Forbidden
+    account_initialization_required,
+    is_admin_or_owner_required,
+    setup_required,
+)
 from core.model_runtime.entities.model_entities import ModelType
 from core.model_runtime.errors.validate import CredentialsValidateFailedError
 from core.model_runtime.utils.encoders import jsonable_encoder

@@ -21,6 +21,7 @@ from libs.datetime_utils import naive_utc_now
 from libs.login import current_user
 from models import Account
 from models.model import App, AppMode, AppModelConfig, AppStatisticsExtend, RecommendedApp, Site
+from models.model_extend import AppExtend  # Extend: 记忆上下文功能
 from models.tools import ApiToolProvider
 from services.billing_service import BillingService
 from services.enterprise.enterprise_service import EnterpriseService
@@ -259,6 +260,13 @@ class AppService:
                     return model_config
 
             app = ModifiedApp(app)
+        # Extend: 记忆上下文功能 - Start
+        app_extend: AppExtend = db.session.query(AppExtend).filter(AppExtend.app_id == app.id).first()
+        if app_extend is not None:
+            app.retention_number = app_extend.retention_number
+        else:
+            app.retention_number = dify_config.DEFAULT_NUMBER_CONTEXT
+        # Extend: 记忆上下文功能 - Stop
 
         return app
 

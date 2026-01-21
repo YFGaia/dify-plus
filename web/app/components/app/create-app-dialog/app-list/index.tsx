@@ -18,7 +18,6 @@ import CreateAppModal from '@/app/components/explore/create-app-modal'
 import { usePluginDependencies } from '@/app/components/workflow/plugin-dependency/hooks'
 import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
 import { useAppContext } from '@/context/app-context'
-import { useTabSearchParams } from '@/hooks/use-tab-searchparams'
 import { DSLImportMode } from '@/models/app'
 import { importDSL } from '@/service/apps'
 import { fetchAppDetail } from '@/service/explore'
@@ -40,9 +39,9 @@ type AppsProps = {
 // }
 
 const Apps = ({
-  onSuccess,
-  onCreateFromBlank,
-}: AppsProps) => {
+                onSuccess,
+                onCreateFromBlank,
+              }: AppsProps) => {
   const { t } = useTranslation()
   const { isCurrentWorkspaceEditor } = useAppContext()
   const { push } = useRouter()
@@ -61,10 +60,7 @@ const Apps = ({
   }
 
   const [currentType, setCurrentType] = useState<AppModeEnum[]>([])
-  const [currCategory, setCurrCategory] = useTabSearchParams({
-    defaultTab: allCategoriesEn,
-    disableSearchParams: true,
-  })
+  const [currCategory, setCurrCategory] = useState<AppCategories | string>(allCategoriesEn)
 
   const {
     data,
@@ -112,12 +108,12 @@ const Apps = ({
   const [isShowCreateModal, setIsShowCreateModal] = React.useState(false)
   const { handleCheckPluginDependencies } = usePluginDependencies()
   const onCreate: CreateAppModalProps['onConfirm'] = async ({
-    name,
-    icon_type,
-    icon,
-    icon_background,
-    description,
-  }) => {
+                                                              name,
+                                                              icon_type,
+                                                              icon,
+                                                              icon_background,
+                                                              description,
+                                                            }) => {
     const { export_data, mode } = await fetchAppDetail(
       currApp?.app.id as string,
     )
@@ -143,7 +139,7 @@ const Apps = ({
       setIsShowCreateModal(false)
       Toast.notify({
         type: 'success',
-        message: t('app.newApp.appCreated'),
+        message: t('newApp.appCreated', { ns: 'app' }),
       })
       if (onSuccess)
         onSuccess()
@@ -153,7 +149,7 @@ const Apps = ({
       getRedirection(isCurrentWorkspaceEditor, { id: app.app_id!, mode }, push)
     }
     catch {
-      Toast.notify({ type: 'error', message: t('app.newApp.appCreateFailed') })
+      Toast.notify({ type: 'error', message: t('newApp.appCreateFailed', { ns: 'app' }) })
     }
   }
 
@@ -169,7 +165,7 @@ const Apps = ({
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b border-divider-burn py-3">
         <div className="min-w-[180px] pl-5">
-          <span className="title-xl-semi-bold text-text-primary">{t('app.newApp.startFromTemplate')}</span>
+          <span className="title-xl-semi-bold text-text-primary">{t('newApp.startFromTemplate', { ns: 'app' })}</span>
         </div>
         <div className="flex max-w-[548px] flex-1 items-center rounded-xl border border-components-panel-border bg-components-panel-bg-blur p-1.5 shadow-md">
           <AppTypeSelector value={currentType} onChange={setCurrentType} />
@@ -180,7 +176,7 @@ const Apps = ({
             showClearIcon
             wrapperClassName="w-full flex-1"
             className="bg-transparent hover:border-transparent hover:bg-transparent focus:border-transparent focus:bg-transparent focus:shadow-none"
-            placeholder={t('app.newAppFromTemplate.searchAllTemplate') as string}
+            placeholder={t('newAppFromTemplate.searchAllTemplate', { ns: 'app' }) as string}
             value={keywords}
             onChange={e => handleKeywordsChange(e.target.value)}
             onClear={() => handleKeywordsChange('')}
@@ -199,12 +195,12 @@ const Apps = ({
             <>
               <div className="pb-1 pt-4">
                 {searchKeywords
-                  ? <p className="title-md-semi-bold text-text-tertiary">{searchFilteredList.length > 1 ? t('app.newApp.foundResults', { count: searchFilteredList.length }) : t('app.newApp.foundResult', { count: searchFilteredList.length })}</p>
+                  ? <p className="title-md-semi-bold text-text-tertiary">{searchFilteredList.length > 1 ? t('newApp.foundResults', { ns: 'app', count: searchFilteredList.length }) : t('newApp.foundResult', { ns: 'app', count: searchFilteredList.length })}</p>
                   : (
-                      <div className="flex h-[22px] items-center">
-                        <AppCategoryLabel category={currCategory as AppCategories} className="title-md-semi-bold text-text-primary" />
-                      </div>
-                    )}
+                    <div className="flex h-[22px] items-center">
+                      <AppCategoryLabel category={currCategory as AppCategories} className="title-md-semi-bold text-text-primary" />
+                    </div>
+                  )}
               </div>
               <div
                 className={cn(
@@ -254,8 +250,8 @@ function NoTemplateFound() {
       <div className="mb-2 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-components-card-bg shadow-lg">
         <RiRobot2Line className="h-5 w-5 text-text-tertiary" />
       </div>
-      <p className="title-md-semi-bold text-text-primary">{t('app.newApp.noTemplateFound')}</p>
-      <p className="system-sm-regular text-text-tertiary">{t('app.newApp.noTemplateFoundTip')}</p>
+      <p className="title-md-semi-bold text-text-primary">{t('newApp.noTemplateFound', { ns: 'app' })}</p>
+      <p className="system-sm-regular text-text-tertiary">{t('newApp.noTemplateFoundTip', { ns: 'app' })}</p>
     </div>
   )
 }

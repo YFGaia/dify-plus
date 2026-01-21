@@ -11,7 +11,7 @@ from controllers.service_api import service_api_ns
 from controllers.service_api.wraps import validate_app_token
 from extensions.ext_redis import redis_client
 from fields.annotation_fields import annotation_fields, build_annotation_model
-from models.model import App
+from models.model import ApiToken, App  # extend - 密钥额度限制，新增ApiToken
 from services.annotation_service import AppAnnotationService
 
 
@@ -111,7 +111,7 @@ class AnnotationListApi(Resource):
     )
     @validate_app_token
     @service_api_ns.marshal_with(build_annotation_list_model(service_api_ns))
-    def get(self, app_model: App):
+    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
         """List annotations for the application."""
         page = request.args.get("page", default=1, type=int)
         limit = request.args.get("limit", default=20, type=int)

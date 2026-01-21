@@ -150,7 +150,8 @@ const List = () => {
     }
     return () => observer?.disconnect()
   }, [isLoading, isFetchingNextPage, fetchNextPage, error, hasNextPage, isCurrentWorkspaceDatasetOperator])
-
+  // extend: app recommended apps[]string
+  const recommendedApps = data?.pages?.at(-1)?.recommended_apps ?? []
   const { run: handleSearch } = useDebounceFn(() => {
     setSearchKeywords(keywords)
   }, { wait: 500 })
@@ -230,7 +231,7 @@ const List = () => {
 
             if (hasAnyApp) {
               return pages.flatMap(({ data: apps }) => apps).map(app => (
-                <AppCard key={app.id} app={app} onRefresh={refetch} />
+                <AppCard key={app.id} app={app} onRefresh={refetch} onApp={recommendedApps.includes(app.id)} />
               ))
             }
 

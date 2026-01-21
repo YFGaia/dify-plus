@@ -26,6 +26,9 @@ from .dataset import (
     TidbAuthBinding,
     Whitelist,
 )
+
+# extend: db
+from .engine import db
 from .enums import (
     AppTriggerStatus,
     AppTriggerType,
@@ -174,7 +177,7 @@ __all__ = [
     "RecommendedApp",
     "SavedMessage",
     "Site",
-    "SystemIntegrationExtend", # Extend System Integration
+    "SystemIntegrationExtend",  # Extend System Integration
     "Tag",
     "TagBinding",
     "Tenant",
@@ -209,4 +212,5 @@ __all__ = [
     "WorkflowToolProvider",
     "WorkflowTriggerStatus",
     "WorkflowType",
+    "db",  # extend: db
 ]

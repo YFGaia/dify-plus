@@ -15,7 +15,7 @@ from controllers.service_api import service_api_ns
 from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate_app_token
 from extensions.ext_database import db
 from fields.file_fields import FileResponse
-from models import ApiToken, App, EndUser # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+from models import ApiToken, App, EndUser  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
 from services.file_service import FileService
 
 register_schema_models(service_api_ns, FileResponse)
@@ -36,7 +36,7 @@ class FileApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))  # type: ignore
     @service_api_ns.response(HTTPStatus.CREATED, "File uploaded", service_api_ns.models[FileResponse.__name__])
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken): # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
         """Upload a file for use in conversations.
 
         Accepts a single file upload via multipart/form-data.

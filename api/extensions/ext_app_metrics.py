@@ -2,7 +2,7 @@ import json
 import os
 import threading
 
-from flask import Response
+from flask import Response, request  # Extend: 新增request
 
 from configs import dify_config
 from dify_app import DifyApp
@@ -14,6 +14,12 @@ def init_app(app: DifyApp):
         """Add Version headers to the response."""
         response.headers.add("X-Version", dify_config.project.version)
         response.headers.add("X-Env", dify_config.DEPLOY_ENV)
+        # Extend: Start New proxy authentication: Login and write JWT token to cookies
+        cookie = request.cookies.get("x-token")
+        token = request.headers.get("Authorization")
+        if token is not None and len(token) > 0 and token != cookie:
+            response.set_cookie("x-token", token[7:], httponly=True)
+        # Extend: Stop New proxy authentication: Login and write JWT token to cookies
         return response
 
     @app.route("/health")

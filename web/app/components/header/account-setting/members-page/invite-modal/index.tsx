@@ -6,7 +6,6 @@ import { useBoolean } from 'ahooks'
 import { noop } from 'es-toolkit/function'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ReactMultiEmail } from 'react-multi-email'
 import { useContext } from 'use-context-selector'
 import Button from '@/app/components/base/button'
 import Modal from '@/app/components/base/modal'
@@ -18,7 +17,8 @@ import { inviteMember } from '@/service/common'
 import { cn } from '@/utils/classnames'
 import s from './index.module.css'
 import RoleSelector from './role-selector'
-import 'react-multi-email/dist/style.css'
+// extend: 二开部分 - 邮箱输入框
+import CustomEmailInput from '@/app/components/base/react-multi-email-extend'
 
 type IInviteModalProps = {
   isEmailSetup: boolean
@@ -107,22 +107,14 @@ const InviteModal = ({
         <div>
           <div className="mb-2 text-sm font-medium text-text-primary">{t('members.email', { ns: 'common' })}</div>
           <div className="mb-8 flex h-36 flex-col items-stretch">
-            <ReactMultiEmail
-              className={cn('h-full w-full border-components-input-border-active !bg-components-input-bg-normal px-3 pt-2 outline-none', 'appearance-none overflow-y-auto rounded-lg text-sm !text-text-primary')}
-              autoFocus
+            {/* extend: 二开部分 - 邮箱输入框 */}
+            <CustomEmailInput
               emails={emails}
-              inputClassName="bg-transparent"
               onChange={setEmails}
-              getLabel={(email, index, removeEmail) => (
-                <div data-tag key={index} className={cn('!bg-components-button-secondary-bg')}>
-                  <div data-tag-item>{email}</div>
-                  <span data-tag-handle onClick={() => removeEmail(index)}>
-                    ×
-                  </span>
-                </div>
-              )}
+              className={cn('h-full w-full border-components-input-border-active !bg-components-input-bg-normal px-3 pt-2 outline-none', 'appearance-none overflow-y-auto rounded-lg text-sm !text-text-primary')}
               placeholder={t('members.emailPlaceholder', { ns: 'common' }) || ''}
             />
+            {/* extend: 二开部分 - 邮箱输入框 */}
             <div className={
               cn('system-xs-regular flex items-center justify-end text-text-tertiary', (isLimited && usedSize > licenseLimit.workspace_members.limit) ? 'text-text-destructive' : '')
             }

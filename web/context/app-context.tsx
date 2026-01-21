@@ -95,14 +95,17 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   const queryClient = useQueryClient()
   const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
   const { data: userProfileResp } = useUserProfile()
+  // extend: account profile
+  const { data: useCurrentWorkspaceResp } = useCurrentWorkspace()
   const { data: currentWorkspaceResp, isPending: isLoadingCurrentWorkspace, isFetching: isValidatingCurrentWorkspace } = useCurrentWorkspace()
   const langGeniusVersionQuery = useLangGeniusVersion(
     userProfileResp?.meta.currentVersion,
     !systemFeatures.branding.enabled,
   )
-
   const userProfile = useMemo<UserProfileResponse>(() => userProfileResp?.profile || userProfilePlaceholder, [userProfileResp?.profile])
   const currentWorkspace = useMemo<ICurrentWorkspace>(() => currentWorkspaceResp || initialWorkspaceInfo, [currentWorkspaceResp])
+  userProfile.admin_extend = useCurrentWorkspaceResp?.admin_extend || false
+  userProfile.tenant_extend = useCurrentWorkspaceResp?.tenant_extend || false
   const langGeniusVersionInfo = useMemo<LangGeniusVersionResponse>(() => {
     if (!userProfileResp?.meta?.currentVersion || !langGeniusVersionQuery.data)
       return initialLangGeniusVersionInfo

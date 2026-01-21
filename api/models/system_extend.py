@@ -9,10 +9,10 @@ from .engine import db
 
 
 class SystemIntegrationClassify:
-    SYSTEM_INTEGRATION_DINGTALK = 1 # 钉钉
-    SYSTEM_INTEGRATION_WEIXIN = 2 # 微信
-    SYSTEM_INTEGRATION_FEI_SU = 3 # 飞书
-    SYSTEM_INTEGRATION_OAUTH_TWO = 4 # OAuth2
+    SYSTEM_INTEGRATION_DINGTALK = 1  # 钉钉
+    SYSTEM_INTEGRATION_WEIXIN = 2  # 微信
+    SYSTEM_INTEGRATION_FEI_SU = 3  # 飞书
+    SYSTEM_INTEGRATION_OAUTH_TWO = 4  # OAuth2
 
 
 class SystemIntegrationExtend(db.Model):

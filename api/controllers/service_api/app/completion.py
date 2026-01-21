@@ -30,9 +30,9 @@ from core.errors.error import (
 from core.helper.trace_id_helper import get_external_trace_id
 from core.model_runtime.errors.invoke import InvokeError
 from libs import helper
-from models.model import ApiToken, App, AppMode, EndUser # extend: 密钥额度限制，新增ApiToken
+from models.model import ApiToken, App, AppMode, EndUser  # extend: 密钥额度限制，新增ApiToken
 from services.app_generate_service import AppGenerateService
-from services.app_generate_service_extend import AppGenerateServiceExtend # extend: 密钥额度限制，新增ApiToken
+from services.app_generate_service_extend import AppGenerateServiceExtend  # extend: 密钥额度限制，新增ApiToken
 from services.app_task_service import AppTaskService
 from services.errors.app import IsDraftWorkflowError, WorkflowIdFormatError, WorkflowNotFoundError
 from services.errors.llm import InvokeRateLimitError

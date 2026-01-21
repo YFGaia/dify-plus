@@ -2,6 +2,7 @@ from sqlalchemy import select
 
 from constants.languages import languages
 from extensions.ext_database import db
+
 # extend add category to categories
 from models.model import App, RecommendedApp, RecommendedAppsCategoryJoinExtend, RecommendedCategoryExtend
 from services.app_dsl_service import AppDslService
@@ -67,22 +68,34 @@ class DatabaseRecommendAppRetrieval(RecommendAppRetrievalBase):
             if not site:
                 continue
 
-            recommended_app_result = {
-                "id": recommended_app.id,
-                "app": recommended_app.app,
-                "app_id": recommended_app.app_id,
-                "description": site.description,
-                "copyright": site.copyright,
-                "privacy_policy": site.privacy_policy,
-                "custom_disclaimer": site.custom_disclaimer,
-                "category": recommended_app.category,
-                "position": recommended_app.position,
-                "is_listed": recommended_app.is_listed,
-            }
-            recommended_apps_result.append(recommended_app_result)
+            config = app.app_model_config
+            if config is not None and config.pre_prompt is not None and len(config.pre_prompt) > 0:
+                description = config.pre_prompt
+            if recommended_app.id in recommended:
+                classList = recommended[recommended_app.id]
+            if len(classList) == 0:
+                classList.append("")
+            for classId in classList:
+                category = "未分类"
+                if classId in class_dick:
+                    category = class_dick[classId]
+                recommended_app_result = {
+                    "id": recommended_app.id,
+                    "app": recommended_app.app,
+                    "app_id": recommended_app.app_id,
+                    "description": description,
+                    "copyright": site.copyright,
+                    "privacy_policy": site.privacy_policy,
+                    "custom_disclaimer": site.custom_disclaimer,
+                    "category": category,
+                    "position": recommended_app.position,
+                    "is_listed": recommended_app.is_listed,
+                }
+                recommended_apps_result.append(recommended_app_result)
 
-            categories.add(recommended_app.category)
-
+                categories.add(category)  # add category to categories
+        categories = sorted(categories)
+        categories.append("未分类")
         return {"recommended_apps": recommended_apps_result, "categories": sorted(categories)}
         # -------------- extend stop: add category to categories ---------------
 

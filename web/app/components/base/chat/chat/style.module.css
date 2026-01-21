@@ -1,0 +1,33 @@
+.contextTag {
+    position: relative;
+    display: block;
+    height: 1px;
+    width: 100%;
+    margin: 24px 0;
+    border-top: 2px dashed #dcdfe6;
+    font-size: 12px;
+    cursor: pointer;
+}
+.contextTag .recover {
+    display: none;
+}
+.contextTag .isCenter, .contextTag .recover {
+    left: 50%;
+    transform: translate(-50%) translateY(-50%);
+    position: absolute;
+    padding: 0 10px;
+    font-weight: 500;
+    background-color: #f6f7f9;
+    color: #757575;
+}
+.contextTag:hover {
+    border-top: 2.5px dashed #dcdfe6;
+    font-size: 13px;
+}
+.contextTag:hover .isCenter {
+    display: none;
+}
+.contextTag:hover .recover {
+    display: block;
+    color: #ff9235;
+}

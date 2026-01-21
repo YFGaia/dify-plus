@@ -14,25 +14,26 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden, NotFound, Unauthorized
 
-from enums.cloud_plan import CloudPlan
-from extensions.ext_database import db
-from extensions.ext_redis import redis_client
-from libs.datetime_utils import naive_utc_now
-from libs.login import current_user
-from models import Account, Tenant, TenantAccountJoin, TenantStatus
-from models.dataset import Dataset, RateLimitLog
-from models.model import ApiToken, App
-from services.end_user_service import EndUserService
-from services.feature_service import FeatureService
-
 # extend: start 额度限制，API调用计费，新增TenantAccountRole
 from controllers.service_api.app.error_extend import (
     AccountNoMoneyErrorExtend,
     ApiTokenDayNoMoneyErrorExtend,
     ApiTokenMonthNoMoneyErrorExtend,
 )
+from enums.cloud_plan import CloudPlan
+from extensions.ext_database import db
+from extensions.ext_redis import redis_client
+from libs.datetime_utils import naive_utc_now
+from libs.login import current_user
+from models import Account, Tenant, TenantAccountJoin, TenantStatus
 from models.account_money_extend import AccountMoneyExtend
 from models.api_token_money_extend import ApiTokenMoneyExtend
+from models.dataset import Dataset, RateLimitLog
+from models.model import ApiToken, App
+from models.model_extend import EndUserAccountJoinsExtend
+from services.end_user_service import EndUserService
+from services.feature_service import FeatureService
+
 # extend: stop 额度限制，API调用计费，新增TenantAccountRole
 
 
@@ -80,17 +81,27 @@ def validate_app_token(view: Callable[P, R] | None = None, *, fetch_user_arg: Fe
             if tenant.status == TenantStatus.ARCHIVE:
                 raise Forbidden("The workspace's status is archived.")
 
-
             # ---------------------extend: 二开部分Begin  额度限制，API调用计费 ---------------------
-            # TODO 需要写入缓存，读缓存
-            account_money = (
-                db.session.query(AccountMoneyExtend)
-                .filter(AccountMoneyExtend.account_id == ta.account_id)
-                .first()
-            )
-            if account_money and account_money.used_quota >= account_money.total_quota:
-                raise AccountNoMoneyErrorExtend()
-
+            tenant_account_join = (
+                db.session.query(Tenant, TenantAccountJoin)
+                .filter(Tenant.id == api_token.tenant_id)
+                .filter(TenantAccountJoin.tenant_id == Tenant.id)
+                .filter(TenantAccountJoin.role.in_(["owner"]))
+                .filter(Tenant.status == TenantStatus.NORMAL)
+                .one_or_none()
+            )  # TODO: only owner information is required, so only one is returned.
+            if tenant_account_join:
+                tenant, ta = tenant_account_join
+                # TODO 需要写入缓存，读缓存
+                account_money = (
+                    db.session.query(AccountMoneyExtend)
+                    .filter(AccountMoneyExtend.account_id == ta.account_id)
+                    .first()
+                )
+                if account_money and account_money.used_quota >= account_money.total_quota:
+                    raise AccountNoMoneyErrorExtend()
+            else:
+                raise Unauthorized("Tenant does not exist.")
             # 密钥额度判断
             kwargs["api_token"] = api_token  # API token消息数据传递下去
             api_token_money = (
@@ -382,6 +393,7 @@ def validate_and_get_api_token(scope: str | None = None):
 
     return api_token
 
+
 # ---------------------二开部分Begin  额度限制，API调用计费 ---------------------
 def create_or_update_end_user_account_join_extend(end_user_id, account_id, app_id: str) -> EndUserAccountJoinsExtend:
     # 插入节点账号id和用户账号id关联关系，以方便扣钱查询
@@ -400,7 +412,6 @@ def create_or_update_end_user_account_join_extend(end_user_id, account_id, app_i
 
 
 # ---------------------二开部分End 额度限制，API调用计费 ---------------------
-
 
 
 class DatasetApiResource(Resource):

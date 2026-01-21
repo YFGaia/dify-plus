@@ -8,7 +8,7 @@ from services.model_provider_service_extend import ModelProviderExtendService
 class ModelExtendService:
     @staticmethod
     def sync_set_all_model_to_tenant(tenant_id: str) -> bool:
-        logging.info(f"开始同步所有模型到工作区: {tenant_id}")
+        logging.info("开始同步所有模型到工作区: %s", tenant_id)
         model_provider_service_extend = ModelProviderExtendService()
         # 同步供应商+模型名称的模型数据
         provider_model_records = TenantExtendService.get_sync_all_model()

@@ -15,6 +15,7 @@ import { useFormattingChangedDispatcher } from '../debug/hooks'
 import AgentTools from './agent/agent-tools'
 import ConfigAudio from './config-audio'
 import ConfigDocument from './config-document'
+import RetentionNumberExtend from '@/app/components/app/configuration/retention-number-extend' // Extend: 记忆上下文功能
 
 const Config: FC = () => {
   const {
@@ -66,6 +67,11 @@ const Config: FC = () => {
           promptVariables={promptVariables}
           onChange={handlePromptChange}
         />
+
+        {/* Extend: 记忆上下文功能 */}
+        {
+          isChatApp && <RetentionNumberExtend />
+        }
 
         {/* Variables */}
         <ConfigVar

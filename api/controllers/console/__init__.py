@@ -83,7 +83,7 @@ from .auth import (
     login,
     oauth,
     oauth_server,
-    register_extend,# 二开部分: 新增用户（调用dify注册接口）
+    register_extend,  # 二开部分: 新增用户（调用dify注册接口）
 )
 
 # Import billing controllers
@@ -124,7 +124,7 @@ from .tag import tags
 # Import workspace controllers
 from .workspace import (
     account,
-    account_extend,# 二开部分：新增account_extend
+    account_extend,  # 二开部分：新增account_extend
     agent_providers,
     endpoint,
     load_balancing_config,
@@ -141,9 +141,9 @@ api.add_namespace(console_ns)
 
 __all__ = [
     "account",
+    "account_extend",  # 二开部分：新增account_extend
     "activate",
     "admin",
-    "account_extend",# 二开部分：新增account_extend
     "advanced_prompt_template",
     "agent",
     "agent_providers",

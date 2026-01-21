@@ -2112,6 +2112,7 @@ def migrate_oss(
                 db.session.rollback()
                 click.echo(click.style(f"Failed to update DB storage_type: {str(e)}", fg="red"))
 
+
 # extend: start 管理二开db扩展
 @click.group("extend_db", help="管理二开扩展表的数据库迁移")
 def extend_db():

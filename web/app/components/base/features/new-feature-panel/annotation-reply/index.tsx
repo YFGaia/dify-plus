@@ -14,7 +14,6 @@ import FeatureCard from '@/app/components/base/features/new-feature-panel/featur
 import { MessageFast } from '@/app/components/base/icons/src/vender/features'
 import AnnotationFullModal from '@/app/components/billing/annotation-full/modal'
 import { ANNOTATION_DEFAULT } from '@/config'
-import type { AnnotationReplyConfig } from '@/models/debug'
 
 type Props = {
   disabled?: boolean

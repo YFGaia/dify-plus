@@ -34,6 +34,11 @@ import ChatInputArea from './chat-input-area'
 import { ChatContextProvider } from './context'
 import Question from './question'
 import TryToAsk from './try-to-ask'
+// Extend: start messages context handling
+import { deleteMessageContext, messageContextList } from '@/service/apps'
+import { useChatWithHistoryContext } from '@/app/components/base/chat/chat-with-history/context'
+import s from './style.module.css'
+// Extend: stop messages context handling
 
 export type ChatProps = {
   appData?: AppData
@@ -127,6 +132,34 @@ const Chat: FC<ChatProps> = ({
   const chatFooterInnerRef = useRef<HTMLDivElement>(null)
   const userScrolledRef = useRef(false)
   const isAutoScrollingRef = useRef(false)
+  // Extend: start add Message Context List
+  let currentConversationId = ''
+  try {
+    const context = useChatWithHistoryContext()
+    currentConversationId = context?.currentConversationId || ''
+  } catch {
+    // Context not available, skip
+  }
+  const [contextList, setContextList] = useState<string[]>([])
+  const handleResponding = async () => {
+    // 请求当前conversation_id分割
+    if (currentConversationId) {
+      try {
+        const historyList = await messageContextList({ conversation_id: currentConversationId })
+        setContextList(historyList)
+      } catch (error) {
+        // Handle error silently
+        console.error('Failed to fetch message context list:', error)
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (isResponding)
+      return
+    handleResponding().then()
+  }, [isResponding, currentConversationId])
+  // Extend: stop add Message Context List
 
   const handleScrollToBottom = useCallback(() => {
     if (chatList.length > 1 && chatContainerRef.current && !userScrolledRef.current) {
@@ -272,22 +305,47 @@ const Chat: FC<ChatProps> = ({
               chatList.map((item, index) => {
                 if (item.isAnswer) {
                   const isLast = item.id === chatList[chatList.length - 1]?.id
+                  // Extend: start messages context handling
+                  const clearContext = async (message_id: string) => {
+                    if (currentConversationId) {
+                      await deleteMessageContext({ conversation_id: currentConversationId, message_id })
+                      handleResponding().then()
+                    }
+                  }
+                  // Extend: stop messages context handling
                   return (
-                    <Answer
-                      appData={appData}
-                      key={item.id}
-                      item={item}
-                      question={chatList[index - 1]?.content}
-                      index={index}
-                      config={config}
-                      answerIcon={answerIcon}
-                      responding={isLast && isResponding}
-                      showPromptLog={showPromptLog}
-                      chatAnswerContainerInner={chatAnswerContainerInner}
-                      hideProcessDetail={hideProcessDetail}
-                      noChatInput={noChatInput}
-                      switchSibling={switchSibling}
-                    />
+                    <>
+                      <Answer
+                        appData={appData}
+                        key={item.id}
+                        item={item}
+                        question={chatList[index - 1]?.content}
+                        index={index}
+                        config={config}
+                        answerIcon={answerIcon}
+                        responding={isLast && isResponding}
+                        showPromptLog={showPromptLog}
+                        chatAnswerContainerInner={chatAnswerContainerInner}
+                        hideProcessDetail={hideProcessDetail}
+                        noChatInput={noChatInput}
+                        switchSibling={switchSibling}
+                      />
+                      {/* Extend: start messages context handling */}
+                      {
+                        contextList.includes(item.id) && (
+                          <span
+                            onClick={() => {
+                              clearContext(item.id).then()
+                            }}
+                            className={cn(s.contextTag)}
+                          >
+                            <span className={cn(s.isCenter)}>{t('configuration.clearContext', { ns: 'extend' })}</span>
+                            <span className={cn(s.recover)}>{t('configuration.restoreContext', { ns: 'extend' })}</span>
+                          </span>
+                        )
+                      }
+                      {/* Extend: stop messages context handling */}
+                    </>
                   )
                 }
                 return (

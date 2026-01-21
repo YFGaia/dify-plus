@@ -3,7 +3,7 @@ import logging
 import threading
 import uuid
 from collections.abc import Generator, Mapping
-from typing import Any, Literal, Union, overload, cast # extend: 二开部分 - 密钥额度限制，新增cast
+from typing import Any, Literal, Union, cast, overload  # extend: 二开部分 - 密钥额度限制，新增cast
 
 from flask import Flask, current_app
 from pydantic import ValidationError
@@ -38,7 +38,16 @@ from core.workflow.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader
 from extensions.ext_database import db
 from factories import file_factory
 from libs.flask_utils import preserve_flask_contexts
-from models import Account, App, Conversation, EndUser, Message, Workflow, WorkflowNodeExecutionTriggeredFrom, ApiToken # extend: 二开部分 - 密钥额度限制，新增ApiToken
+from models import (  # extend: 二开部分 - 密钥额度限制，新增ApiToken
+    Account,
+    ApiToken,
+    App,
+    Conversation,
+    EndUser,
+    Message,
+    Workflow,
+    WorkflowNodeExecutionTriggeredFrom,
+)
 from models.enums import WorkflowRunTriggeredFrom
 from services.conversation_service import ConversationService
 from services.workflow_draft_variable_service import (
@@ -125,7 +134,6 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
             cast(ApiToken, api_token)
             extras["app_token_id"] = api_token.id
         # ------------------- 二开部分End - 密钥额度限制 -------------------
-
 
         # get conversation
         conversation = None

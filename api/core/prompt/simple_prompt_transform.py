@@ -50,6 +50,7 @@ class SimplePromptTransform(PromptTransform):
         model_config: ModelConfigWithCredentialsEntity,
         image_detail_config: ImagePromptMessageContent.DETAIL | None = None,
         context_files: list["File"] | None = None,
+        control_registers: bool = True,  # Extend: messages context handling
     ) -> tuple[list[PromptMessage], list[str] | None]:
         inputs = {key: str(value) for key, value in inputs.items()}
 
@@ -66,6 +67,7 @@ class SimplePromptTransform(PromptTransform):
                 model_config=model_config,
                 image_detail_config=image_detail_config,
                 context_files=context_files,
+                control_registers=control_registers,  # Extend: messages context handling
             )
         else:
             prompt_messages, stops = self._get_completion_model_prompt_messages(
@@ -191,6 +193,7 @@ class SimplePromptTransform(PromptTransform):
         model_config: ModelConfigWithCredentialsEntity,
         image_detail_config: ImagePromptMessageContent.DETAIL | None = None,
         context_files: list["File"] | None = None,
+        control_registers: bool = True,  # Extend: messages context handling
     ) -> tuple[list[PromptMessage], list[str] | None]:
         prompt_messages: list[PromptMessage] = []
 
@@ -217,6 +220,7 @@ class SimplePromptTransform(PromptTransform):
                 ),
                 prompt_messages=prompt_messages,
                 model_config=model_config,
+                control_registers=control_registers,  # Extend: messages context handling
             )
 
         if query:

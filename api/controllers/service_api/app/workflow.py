@@ -34,7 +34,7 @@ from extensions.ext_database import db
 from fields.workflow_app_log_fields import build_workflow_app_log_pagination_model
 from libs import helper
 from libs.helper import TimestampField
-from models.model import ApiToken, App, AppMode, EndUser # extend - 密钥额度限制，ApiToken
+from models.model import ApiToken, App, AppMode, EndUser  # extend - 密钥额度限制，ApiToken
 from repositories.factory import DifyAPIRepositoryFactory
 from services.app_generate_service import AppGenerateService
 from services.errors.app import IsDraftWorkflowError, WorkflowIdFormatError, WorkflowNotFoundError
@@ -97,7 +97,7 @@ class WorkflowRunDetailApi(Resource):
     )
     @validate_app_token
     @service_api_ns.marshal_with(build_workflow_run_model(service_api_ns))
-    def get(self, app_model: App, workflow_run_id: str):
+    def get(self, app_model: App, workflow_run_id: str, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token参数
         """Get a workflow task running detail.
 
         Returns detailed information about a specific workflow run.
@@ -134,7 +134,7 @@ class WorkflowRunApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken, workflow_id: str): # extend: 密钥额度限制
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend: 密钥额度限制
         """Execute a workflow.
 
         Runs a workflow with the provided inputs and returns the results.
@@ -195,7 +195,7 @@ class WorkflowRunByIdApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, workflow_id: str):
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken, workflow_id: str):  # extend: 密钥额度限制
         """Run specific workflow by ID.
 
         Executes a specific workflow version identified by its ID.
@@ -214,6 +214,10 @@ class WorkflowRunByIdApi(Resource):
         if external_trace_id:
             args["external_trace_id"] = external_trace_id
         streaming = payload.response_mode == "streaming"
+
+        # ------------------- 二开部分Begin - 密钥额度限制 -------------------
+        args["api_token"] = api_token
+        # ------------------- 二开部分End - 密钥额度限制 -------------------
 
         try:
             response = AppGenerateService.generate(

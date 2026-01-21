@@ -76,7 +76,11 @@ class AgentChatAppRunner(AppRunner):
             files=list(files),
             query=query,
             memory=memory,
+            control_registers=False,  # Extend: messages_context_handling
         )
+
+        # Extend: messages_context_handling
+        self.add_messages_context(prompt_messages, app_config.app_id, conversation.id, message.id)
 
         # moderation
         try:

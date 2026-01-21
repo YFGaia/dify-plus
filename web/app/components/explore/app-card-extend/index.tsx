@@ -1,29 +1,37 @@
 'use client'
-import cn from 'classnames'
-import { useTranslation } from 'react-i18next'
-import { PlusIcon } from '@heroicons/react/20/solid'
-import { useRouter, useSearchParams } from 'next/navigation'
-import Button from '../../base/button'
 import type { App } from '@/models/explore'
+import { PlusIcon } from '@heroicons/react/20/solid'
+import { useTranslation } from 'react-i18next'
 import AppIcon from '@/app/components/base/app-icon'
-import { AiText, ChatBot, CuteRobot } from '@/app/components/base/icons/src/vender/solid/communication'
-import { Route } from '@/app/components/base/icons/src/vender/solid/mapsAndTravel'
+import { AppModeEnum } from '@/types/app'
+import { cn } from '@/utils/classnames'
+import { AppTypeIcon } from '../../app/type-selector'
+import Button from '../../base/button'
+import { useRouter, useSearchParams } from 'next/navigation'
+
+
 export type AppCardProps = {
   app: App
   canCreate: boolean
+  onCreate: () => void
   isExplore: boolean
 }
 
 const AppCard = ({
-  app,
-  canCreate,
-  isExplore,
+ app,
+ canCreate,
+ onCreate,
+ isExplore,
 }: AppCardProps) => {
   const { t } = useTranslation()
   const { app: appBasicInfo } = app
-  const router = useRouter()
 
   // ------------------------ start You must log in to access your account extend ------------------------
+  const router = useRouter()
+  const openChat = () => {
+    router.replace(`/explore/installed/${app.app.id}`)
+  }
+
   const searchParams = useSearchParams()
   const consoleTokenFromLocalStorage = localStorage?.getItem('console_token')
   const consoleToken = searchParams.get('access_token') ? searchParams.get('access_token') : searchParams.get('console_token')
@@ -35,62 +43,51 @@ const AppCard = ({
     return null
   }
   // ------------------------ end You must log in to access your account extend ------------------------
-  const openChat = () => {
-    router.replace(`/explore/installed/${app.app.id}`)
-  }
-
   return (
     <div className={cn('group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:shadow-lg')}>
-      <div className='flex h-[66px] shrink-0 grow-0 items-center gap-3 px-[14px] pb-3 pt-[14px]'>
-        <div className='relative shrink-0'>
+      <div className="flex h-[66px] shrink-0 grow-0 items-center gap-3 px-[14px] pb-3 pt-[14px]">
+        <div className="relative shrink-0">
           <AppIcon
-            size='large'
-            iconType={app.app.icon_type}
-            icon={app.app.icon_url ? app.app.icon_url : app.app.icon}
-            background={app.app.icon_background}
-            imageUrl={app.app.icon_url}
+            size="large"
+            iconType={appBasicInfo.icon_type}
+            icon={appBasicInfo.icon}
+            background={appBasicInfo.icon_background}
+            imageUrl={appBasicInfo.icon_url}
           />
-          <span className='absolute bottom-[-3px] right-[-3px] w-4 h-4 p-0.5 rounded border-[0.5px] border-[rgba(0,0,0,0.02)] shadow-sm'>
-            {appBasicInfo.mode === 'advanced-chat' && (
-              <ChatBot className='w-3 h-3 text-[#1570EF]' />
-            )}
-            {appBasicInfo.mode === 'agent-chat' && (
-              <CuteRobot className='w-3 h-3 text-indigo-600' />
-            )}
-            {appBasicInfo.mode === 'chat' && (
-              <ChatBot className='w-3 h-3 text-[#1570EF]' />
-            )}
-            {appBasicInfo.mode === 'completion' && (
-              <AiText className='w-3 h-3 text-[#0E9384]' />
-            )}
-            {appBasicInfo.mode === 'workflow' && (
-              <Route className='w-3 h-3 text-[#f79009]' />
-            )}
-          </span>
+          <AppTypeIcon
+            wrapperClassName="absolute -bottom-0.5 -right-0.5 w-4 h-4 shadow-sm"
+            className="h-3 w-3"
+            type={appBasicInfo.mode}
+          />
         </div>
-        <div className='grow w-0 py-[1px]'>
-          <div className='flex items-center text-sm font-semibold leading-5 text-text-secondary'>
-            <div className='truncate' title={appBasicInfo.name}>{appBasicInfo.name}</div>
+        <div className="w-0 grow py-[1px]">
+          <div className="flex items-center text-sm font-semibold leading-5 text-text-secondary">
+            <div className="truncate" title={appBasicInfo.name}>{appBasicInfo.name}</div>
           </div>
-          <div className='flex items-center text-[10px] leading-[18px] text-gray-500 font-medium'>
-            {appBasicInfo.mode === 'advanced-chat' && <div className='truncate'>{t('app.types.chatbot').toUpperCase()}</div>}
-            {appBasicInfo.mode === 'chat' && <div className='truncate'>{t('app.types.chatbot').toUpperCase()}</div>}
-            {appBasicInfo.mode === 'agent-chat' && <div className='truncate'>{t('app.types.agent').toUpperCase()}</div>}
-            {appBasicInfo.mode === 'workflow' && <div className='truncate'>{t('app.types.workflow').toUpperCase()}</div>}
-            {appBasicInfo.mode === 'completion' && <div className='truncate'>{t('app.types.completion').toUpperCase()}</div>}
+          <div className="flex items-center text-[10px] font-medium leading-[18px] text-text-tertiary">
+            {appBasicInfo.mode === AppModeEnum.ADVANCED_CHAT && <div className="truncate">{t('types.advanced', { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.CHAT && <div className="truncate">{t('types.chatbot', { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.AGENT_CHAT && <div className="truncate">{t('types.agent', { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.WORKFLOW && <div className="truncate">{t('types.workflow', { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.COMPLETION && <div className="truncate">{t('types.completion', { ns: 'app' }).toUpperCase()}</div>}
           </div>
         </div>
       </div>
-      <div className='mb-1 px-[14px] text-xs leading-normal text-gray-500 line-clamp-4 group-hover:line-clamp-2 group-hover:h-9'>{app.description}</div>
-
-      <div className={cn('hidden items-center flex-wrap min-h-[42px] px-[14px] pt-2 pb-[10px] group-hover:flex')}>
-        <div className={cn('flex items-center w-full space-x-2')}>
-          <Button variant='primary' className='grow h-7' onClick={() => openChat()}>
-            <PlusIcon className='w-4 h-4 mr-1' />
-            <span className='text-xs'>{t('share.chat.newChatDefaultName')}</span>
-          </Button>
+      <div className="description-wrapper system-xs-regular h-[90px] px-[14px] text-text-tertiary">
+        <div className="line-clamp-4 group-hover:line-clamp-2">
+          {app.description}
         </div>
       </div>
+      {isExplore && canCreate && (
+        <div className={cn('absolute bottom-0 left-0 right-0 hidden bg-gradient-to-t from-components-panel-gradient-2 from-[60.27%] to-transparent p-4 pt-8 group-hover:flex')}>
+          <div className={cn('flex h-8 w-full items-center space-x-2')}>
+            <Button variant="primary" className="h-7 grow" onClick={() => onCreate()}>
+              <PlusIcon className="mr-1 h-4 w-4" />
+              <span className="text-xs">{t('appCard.addToWorkspace', { ns: 'explore' })}</span>
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

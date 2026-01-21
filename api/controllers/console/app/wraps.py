@@ -6,17 +6,6 @@ from controllers.console.app.error import AppNotFoundError
 from extensions.ext_database import db
 from libs.login import current_account_with_tenant
 from models import App, AppMode
-from models.account import Account
-
-
-def _load_app_model(app_id: str) -> Optional[App]:
-    assert isinstance(current_user, Account)
-    app_model = (
-        db.session.query(App)
-        .where(App.id == app_id, App.tenant_id == current_user.current_tenant_id, App.status == "normal")
-        .first()
-    )
-    return app_model
 
 P = ParamSpec("P")
 R = TypeVar("R")

@@ -83,6 +83,16 @@ export const copyApp = ({
   return post<AppDetailResponse>(`apps/${appID}/copy`, { body: { name, icon_type, icon, icon_background, mode, description } })
 }
 
+// extend: start sync app
+export const syncApp = ({ appID }: { appID: string }): Promise<AppDetailResponse> => {
+  return put<AppDetailResponse>(`apps/${appID}/sync`)
+}
+
+export const syncCancelApp = ({ appID }: { appID: string }): Promise<CommonResponse> => {
+  return del<CommonResponse>(`apps/${appID}/sync`)
+}
+// extend: stop sync app
+
 export const exportAppConfig = ({ appID, include = false, workflowID }: { appID: string, include?: boolean, workflowID?: string }): Promise<{ data: string }> => {
   const params = new URLSearchParams({
     include_secret: include.toString(),
@@ -236,3 +246,13 @@ export const updateTracingConfig = ({ appId, body }: { appId: string, body: Trac
 export const removeTracingConfig = ({ appId, provider }: { appId: string, provider: TracingProvider }): Promise<CommonResponse> => {
   return del<CommonResponse>(`/apps/${appId}/trace-config?tracing_provider=${provider}`)
 }
+
+// Extend: start messages context handling
+export const messageContextList = ({ conversation_id }: { conversation_id: string }): Promise<string[]> => {
+  return get<string[]>(`/message/context?conversation_id=${conversation_id}`)
+}
+
+export const deleteMessageContext = ({ conversation_id, message_id }: { conversation_id: string; message_id: string }): Promise<string[]> => {
+  return del<string[]>(`/message/context?conversation_id=${conversation_id}&message_id=${message_id}`)
+}
+// Extend: stop messages context handling

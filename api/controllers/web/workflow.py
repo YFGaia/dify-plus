@@ -36,7 +36,9 @@ from controllers.web.error_extend import (
     WebAuthRequiredErrorExtend,
 )
 from services.app_generate_service_extend import AppGenerateServiceExtend
+
 # extend: stop 您必须登录才能访问您的帐户扩展功能
+
 
 @web_ns.route("/workflows/run")
 class WorkflowRunApi(WebApiResource):

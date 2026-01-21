@@ -224,6 +224,21 @@ class ChatAppRunner(AppRunner):
             user=application_generate_entity.user_id,
         )
 
+        # Extend: Start messages context handling
+        messages_list, _ = self.organize_prompt_messages(
+            app_record=app_record,
+            model_config=application_generate_entity.model_conf,
+            prompt_template_entity=app_config.prompt_template,
+            inputs=inputs,
+            files=files,
+            query=query,
+            context=context,
+            memory=memory
+        )
+
+        # Extend: Stop messages_context_handling
+        self.add_messages_context(messages_list, app_config.app_id, conversation.id, message.id)
+
         # handle invoke result
         self._handle_invoke_result(
             invoke_result=invoke_result, queue_manager=queue_manager, stream=application_generate_entity.stream

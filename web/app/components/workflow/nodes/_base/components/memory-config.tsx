@@ -15,7 +15,7 @@ import { MemoryRole } from '../../../types'
 const i18nPrefix = 'nodes.common.memory'
 const WINDOW_SIZE_MIN = 1
 const WINDOW_SIZE_MAX = 100
-const WINDOW_SIZE_DEFAULT = 50
+const WINDOW_SIZE_DEFAULT = Number(process.env.NEXT_CONTEXT_RETENTION_DEFAULT_COUNT || 5) // Extend: 记忆上下文功能
 type RoleItemProps = {
   readonly: boolean
   title: string
@@ -54,7 +54,7 @@ type Props = {
 }
 
 const MEMORY_DEFAULT: Memory = {
-  window: { enabled: false, size: WINDOW_SIZE_DEFAULT },
+  window: { enabled: true, size: WINDOW_SIZE_DEFAULT }, // Extend: 记忆上下文功能 - 默认启用窗口
   query_prompt_template: '{{#sys.query#}}\n\n{{#sys.files#}}',
 }
 
@@ -70,21 +70,11 @@ const MemoryConfig: FC<Props> = ({
   const handleMemoryEnabledChange = useCallback((enabled: boolean) => {
     onChange(enabled ? MEMORY_DEFAULT : undefined)
   }, [onChange])
-  const handleWindowEnabledChange = useCallback((enabled: boolean) => {
-    const newPayload = produce(config.data || MEMORY_DEFAULT, (draft) => {
-      if (!draft.window)
-        draft.window = { enabled: false, size: WINDOW_SIZE_DEFAULT }
-
-      draft.window.enabled = enabled
-    })
-
-    onChange(newPayload)
-  }, [config, onChange])
 
   const handleWindowSizeChange = useCallback((size: number | string) => {
     const newPayload = produce(payload || MEMORY_DEFAULT, (draft) => {
       if (!draft.window)
-        draft.window = { enabled: true, size: WINDOW_SIZE_DEFAULT }
+        draft.window = { enabled: true, size: WINDOW_SIZE_DEFAULT } // Extend: 记忆上下文功能 - 默认启用
       let limitedSize: null | string | number = size
       if (limitedSize === '') {
         limitedSize = null
@@ -102,6 +92,7 @@ const MemoryConfig: FC<Props> = ({
       }
 
       draft.window.size = limitedSize as number
+      draft.window.enabled = true // Extend: 记忆上下文功能 - 始终启用窗口
     })
     onChange(newPayload)
   }, [payload, onChange])
@@ -145,15 +136,10 @@ const MemoryConfig: FC<Props> = ({
       >
         {payload && (
           <>
+            {/* Extend: 记忆上下文功能 - 移除记忆窗口开关，只保留窗口大小调整 */}
             {/* window size */}
             <div className="flex justify-between">
-              <div className="flex h-8 items-center space-x-2">
-                <Switch
-                  defaultValue={payload?.window?.enabled}
-                  onChange={handleWindowEnabledChange}
-                  size="md"
-                  disabled={readonly}
-                />
+              <div className="flex h-8 items-center">
                 <div className="system-xs-medium-uppercase text-text-tertiary">{t(`${i18nPrefix}.windowSize`, { ns: 'workflow' })}</div>
               </div>
               <div className="flex h-8 items-center space-x-2">
@@ -164,7 +150,7 @@ const MemoryConfig: FC<Props> = ({
                   max={WINDOW_SIZE_MAX}
                   step={1}
                   onChange={handleWindowSizeChange}
-                  disabled={readonly || !payload.window?.enabled}
+                  disabled={readonly}
                 />
                 <Input
                   value={(payload.window?.size || WINDOW_SIZE_DEFAULT) as number}
@@ -176,7 +162,7 @@ const MemoryConfig: FC<Props> = ({
                   step={1}
                   onChange={e => handleWindowSizeChange(e.target.value)}
                   onBlur={handleBlur}
-                  disabled={readonly || !payload.window?.enabled}
+                  disabled={readonly}
                 />
               </div>
             </div>

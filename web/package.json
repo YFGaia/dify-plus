@@ -1,7 +1,7 @@
 {
   "name": "dify-web",
   "type": "module",
-  "version": "1.11.2",
+  "version": "1.11.4",
   "private": true,
   "packageManager": "pnpm@10.27.0+sha512.72d699da16b1179c14ba9e64dc71c9a40988cbdc65c264cb0e489db7de917f20dcf4d64d8723625f2969ba52d4b7e2a1170682d9ac2a5dcaeaab732b7e16f04a",
   "imports": {
@@ -74,6 +74,9 @@
     "@tanstack/react-form": "^1.23.7",
     "@tanstack/react-query": "^5.90.5",
     "@tanstack/react-query-devtools": "^5.90.2",
+    "@tanstack/eslint-plugin-query": "^5.91.2",
+    "@tanstack/react-devtools": "^0.9.0",
+    "@tanstack/react-form-devtools": "^0.2.9",
     "abcjs": "^6.5.2",
     "ahooks": "^3.9.5",
     "class-variance-authority": "^0.7.1",
@@ -143,6 +146,7 @@
     "sharp": "^0.33.5",
     "sortablejs": "^1.15.6",
     "swr": "^2.3.6",
+    "string-ts": "^2.3.1",
     "tailwind-merge": "^2.6.0",
     "tldts": "^7.0.17",
     "use-context-selector": "^2.0.0",

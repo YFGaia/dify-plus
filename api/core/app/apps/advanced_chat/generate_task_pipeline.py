@@ -70,7 +70,14 @@ from core.workflow.runtime import GraphRuntimeState
 from core.workflow.system_variable import SystemVariable
 from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
-from models import AppMode, Account, Conversation, EndUser, Message, MessageFile # extend: 二开部分End - 密钥额度限制，新增AppMode
+from models import (  # extend: 二开部分End - 密钥额度限制，新增AppMode
+    Account,
+    AppMode,
+    Conversation,
+    EndUser,
+    Message,
+    MessageFile,
+)
 from models.api_token_money_extend import ApiTokenMessageJoinsExtend  # extend: 二开部分End - 密钥额度限制
 from models.enums import CreatorUserRole
 from models.workflow import Workflow
@@ -579,37 +586,6 @@ class AdvancedChatAppGenerateTaskPipeline(GraphRuntimeStateSupport):
         with self._database_session() as session:
             err_event = QueueErrorEvent(error=ValueError(f"Run failed: {event.error}"))
             err = self._base_task_pipeline.handle_error(event=err_event, session=session, message_id=self._message_id)
-    def _handle_workflow_failed_event(
-        self,
-        event: QueueWorkflowFailedEvent,
-        *,
-        graph_runtime_state: Optional[GraphRuntimeState] = None,
-        trace_manager: Optional[TraceQueueManager] = None,
-        **kwargs,
-    ) -> Generator[StreamResponse, None, None]:
-        """Handle workflow failed events."""
-        self._ensure_workflow_initialized()
-        validated_state = self._ensure_graph_runtime_initialized(graph_runtime_state)
-
-        with self._database_session() as session:
-            workflow_execution = self._workflow_cycle_manager.handle_workflow_run_failed(
-                workflow_run_id=self._workflow_run_id,
-                total_tokens=validated_state.total_tokens,
-                total_steps=validated_state.node_run_steps,
-                status=WorkflowExecutionStatus.FAILED,
-                error_message=event.error,
-                conversation_id=self._conversation_id,
-                trace_manager=trace_manager,
-                exceptions_count=event.exceptions_count,
-                external_trace_id=self._application_generate_entity.extras.get("external_trace_id"),
-            )
-            workflow_finish_resp = self._workflow_response_converter.workflow_finish_to_stream_response(
-                session=session,
-                task_id=self._application_generate_entity.task_id,
-                workflow_execution=workflow_execution,
-            )
-            err_event = QueueErrorEvent(error=ValueError(f"Run failed: {workflow_execution.error_message}"))
-            err = self._base_task_pipeline._handle_error(event=err_event, session=session, message_id=self._message_id)
 
         yield workflow_finish_resp
         yield self._base_task_pipeline.error_to_stream_response(err)

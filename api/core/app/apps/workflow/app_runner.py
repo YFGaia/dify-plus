@@ -145,6 +145,7 @@ class WorkflowAppRunner(WorkflowBasedAppRunner):
             workflow_execution_repository=self._workflow_execution_repository,
             workflow_node_execution_repository=self._workflow_node_execution_repository,
             trace_manager=self.application_generate_entity.trace_manager,
+            user_from=user_from,  # 二开部分 - 用于计费
         )
 
         workflow_entry.graph_engine.layer(persistence_layer)

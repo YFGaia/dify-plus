@@ -46,6 +46,25 @@ class AppListQuery(BaseModel):
     tag_ids: list[str] | None = Field(default=None, description="Comma-separated tag IDs")
     is_created_by_me: bool | None = Field(default=None, description="Filter by creator")
 
+    # extend: start 二开部分：新增的查询参数
+    @field_validator("mode", mode="before")
+    @classmethod
+    def validate_mode(cls, value: Any) -> str:
+        """
+        Be tolerant for query params.
+        If client passes an unexpected value, fall back to 'all' instead of raising 422.
+        """
+        if value is None:
+            return "all"
+
+        if isinstance(value, str):
+            v = value.strip()
+            allowed = {"completion", "chat", "advanced-chat", "workflow", "agent-chat", "channel", "all"}
+            return v if v in allowed else "all"
+
+        return "all"
+    # extend: start 二开部分：新增的查询参数
+
     @field_validator("tag_ids", mode="before")
     @classmethod
     def validate_tag_ids(cls, value: str | list[str] | None) -> list[str] | None:
@@ -443,6 +462,7 @@ class AppPagination(ResponseModel):
     total: int
     has_more: bool = Field(validation_alias=AliasChoices("has_next", "has_more"))
     data: list[AppPartial] = Field(validation_alias=AliasChoices("items", "data"))
+    recommended_apps: list[str]  # extend: recommended apps
 
 
 class AppExportResponse(ResponseModel):

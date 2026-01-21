@@ -4,6 +4,8 @@ from typing import cast
 from flask import request
 from flask_restx import Resource, fields
 
+# Extend: 记忆上下文功能
+from configs import dify_config
 from controllers.console import console_ns
 from controllers.console.app.wraps import get_app_model
 from controllers.console.wraps import account_initialization_required, edit_permission_required, setup_required
@@ -12,10 +14,14 @@ from core.tools.tool_manager import ToolManager
 from core.tools.utils.configuration import ToolParameterConfigurationManager
 from events.app_event import app_model_config_was_updated
 from extensions.ext_database import db
+from extensions.ext_redis import redis_client
 from libs.datetime_utils import naive_utc_now
 from libs.login import current_account_with_tenant, login_required
 from models.model import AppMode, AppModelConfig
+from models.model_extend import AppExtend
 from services.app_model_config_service import AppModelConfigService
+
+# Extend: 记忆上下文功能
 
 
 @console_ns.route("/apps/<uuid:app_id>/model-config")
@@ -66,6 +72,23 @@ class ModelConfigResource(Resource):
             updated_by=current_user.id,
         )
         new_app_model_config = new_app_model_config.from_model_config_dict(model_configuration)
+
+        # Extend: 记忆上下文功能 - Start
+        config = request.json
+        if app_model.mode == AppMode.AGENT_CHAT.value or app_model.mode == AppMode.CHAT.value or app_model.is_agent:
+            retention_number = int(config.get("retention_number", dify_config.DEFAULT_NUMBER_CONTEXT))
+            # 循环移除相关键
+            redis_client.delete(f"retention_number_{app_model.id}")
+            app_extend = db.session.query(AppExtend).filter(AppExtend.app_id == app_model.id).first()
+            # appExtend is not None
+            if app_extend is None:
+                db.session.add(AppExtend(app_id=app_model.id, retention_number=retention_number))
+            else:
+                db.session.query(AppExtend).filter(AppExtend.app_id == app_model.id).update(
+                    {AppExtend.retention_number: retention_number}
+                )
+                db.session.commit()
+        # Extend: 记忆上下文功能 - Stop
 
         if app_model.mode == AppMode.AGENT_CHAT or app_model.is_agent:
             # get original app model config

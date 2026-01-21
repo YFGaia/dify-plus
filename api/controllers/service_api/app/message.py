@@ -15,7 +15,7 @@ from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate
 from core.app.entities.app_invoke_entities import InvokeFrom
 from fields.conversation_fields import ResultResponse
 from fields.message_fields import MessageInfiniteScrollPagination, MessageListItem
-from models.model import ApiToken, App, AppMode, EndUser # extend - 密钥额度限制，新增ApiToken
+from models.model import ApiToken, App, AppMode, EndUser  # extend - 密钥额度限制，新增ApiToken
 from services.errors.message import (
     FirstMessageNotExistsError,
     MessageNotExistsError,
@@ -58,7 +58,7 @@ class MessageListApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))
-    def get(self, app_model: App, end_user: EndUser, api_token: ApiToken): # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def get(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
         """List messages in a conversation.
 
         Retrieves messages with pagination support using first_id.
@@ -102,7 +102,7 @@ class MessageFeedbackApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken): # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def post(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
         """Submit feedback for a message.
 
         Allows users to rate messages as like/dislike and provide optional feedback content.
@@ -137,7 +137,7 @@ class AppGetFeedbacksApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App):
+    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
         """Get all feedbacks for the application.
 
         Returns paginated list of all feedback submitted for messages in this app.
@@ -162,7 +162,7 @@ class MessageSuggestedApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY, required=True))
-    def get(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken): # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def get(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
         """Get suggested follow-up questions for a message.
 
         Returns AI-generated follow-up questions based on the message content.

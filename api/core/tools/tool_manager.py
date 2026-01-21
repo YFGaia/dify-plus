@@ -122,6 +122,9 @@ class ToolManager:
         """
         get the plugin provider
         """
+        # extend: 获取插件提供程序
+        from core.plugin.impl.exc import PluginNotFoundError
+
         # check if context is set
 
         try:
@@ -141,19 +144,53 @@ class ToolManager:
                 return plugin_tool_providers[provider]
 
             manager = PluginToolManager()
-            provider_entity = manager.fetch_tool_provider(tenant_id, provider)
-            if not provider_entity:
-                raise ToolProviderNotFoundError(f"plugin provider {provider} not found")
+            # extend: start 获取插件提供程序
+            max_retries = 2
+            last_error = None
 
-            controller = PluginToolProviderController(
-                entity=provider_entity.declaration,
-                plugin_id=provider_entity.plugin_id,
-                plugin_unique_identifier=provider_entity.plugin_unique_identifier,
-                tenant_id=tenant_id,
-            )
+            for attempt in range(max_retries):
+                try:
+                    provider_entity = manager.fetch_tool_provider(tenant_id, provider)
+                    if not provider_entity:
+                        raise ToolProviderNotFoundError(f"plugin provider {provider} not found")
 
-            plugin_tool_providers[provider] = controller
-            return controller
+                    controller = PluginToolProviderController(
+                        entity=provider_entity.declaration,
+                        plugin_id=provider_entity.plugin_id,
+                        plugin_unique_identifier=provider_entity.plugin_unique_identifier,
+                        tenant_id=tenant_id,
+                    )
+
+                    plugin_tool_providers[provider] = controller
+                    return controller
+                except PluginNotFoundError as e:
+                    last_error = e
+                    # Clear cache and retry once more
+                    if attempt < max_retries - 1:
+                        logger.warning(
+                            f"Plugin {provider} not found on attempt {attempt + 1}, clearing cache and retrying. "
+                            f"Error: {str(e)}"
+                        )
+                        # Remove from cache if exists
+                        plugin_tool_providers.pop(provider, None)
+                        # Small delay before retry
+                        time.sleep(0.5)
+                    else:
+                        logger.error(
+                            f"Plugin {provider} not found after {max_retries} attempts. "
+                            f"Last error: {str(e)}"
+                        )
+                        raise ToolProviderNotFoundError(f"plugin provider {provider} not found after retries: {str(e)}")
+                except Exception as e:
+                    # For other errors, don't retry
+                    logger.exception(f"Error fetching plugin provider {provider}: {str(e)}")
+                    raise
+
+            # Should not reach here, but just in case
+            if last_error:
+                raise ToolProviderNotFoundError(f"plugin provider {provider} not found: {str(last_error)}")
+            raise ToolProviderNotFoundError(f"plugin provider {provider} not found")
+            # extend: stop 获取插件提供程序
 
     @classmethod
     def get_tool_runtime(
@@ -634,9 +671,9 @@ class ToolManager:
             # MySQL: Use window function to achieve same result
             sql = """
                 SELECT id FROM (
-                    SELECT id, 
+                    SELECT id,
                            ROW_NUMBER() OVER (
-                               PARTITION BY tenant_id, provider 
+                               PARTITION BY tenant_id, provider
                                ORDER BY is_default DESC, created_at DESC
                            ) as rn
                     FROM tool_builtin_providers

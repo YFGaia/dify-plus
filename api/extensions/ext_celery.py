@@ -102,6 +102,7 @@ def init_app(app: DifyApp) -> Celery:
     imports = [
         "tasks.async_workflow_tasks",  # trigger workers
         "tasks.trigger_processing_tasks",  # async trigger processing
+        "tasks.extend.update_account_money_when_workflow_node_execution_created_extend",  # 二开部分 - workflow计费任务
     ]
     day = dify_config.CELERY_BEAT_SCHEDULER_TIME
 
@@ -175,6 +176,29 @@ def init_app(app: DifyApp) -> Celery:
             "task": "schedule.trigger_provider_refresh_task.trigger_provider_refresh",
             "schedule": timedelta(minutes=dify_config.TRIGGER_PROVIDER_REFRESH_INTERVAL),
         }
+    # ---------------------------- 二开部分 Begin ----------------------------
+    # 添加二开的定时任务imports
+    imports.append("schedule.update_account_used_quota_extend")  # 每月重置账号额度
+    imports.append("schedule.update_api_token_daily_used_quota_task_extend")  # 重置密钥日额度
+    imports.append("schedule.update_api_token_monthly_used_quota_task_extend")  # 重置密钥月额度
+
+    # 每月1号00:00，重置账号额度
+    beat_schedule["update_account_used_quota"] = {
+        "task": "schedule.update_account_used_quota_extend.update_account_used_quota_extend",
+        "schedule": crontab(minute="0", hour="0", day_of_month="1"),
+    }
+    # 每天00:00，重置密钥日额度
+    beat_schedule["update_api_token_daily_used_quota_task_extend"] = {
+        "task": "schedule.update_api_token_daily_used_quota_task_extend.update_api_token_daily_used_quota_task_extend",
+        "schedule": crontab(minute="0", hour="0"),
+    }
+    # 每月1号00:00，重置密钥月额度
+    beat_schedule["update_api_token_monthly_used_quota_task_extend"] = {
+        "task": "schedule.update_api_token_monthly_used_quota_task_extend.update_api_token_monthly_used_quota_task_extend",
+        "schedule": crontab(minute="0", hour="0", day_of_month="1"),
+    }
+    # ---------------------------- 二开部分 End ----------------------------
+
     celery_app.conf.update(beat_schedule=beat_schedule, imports=imports)
 
     return celery_app

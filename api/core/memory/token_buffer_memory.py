@@ -19,6 +19,9 @@ from core.prompt.utils.extract_thread_messages import extract_thread_messages
 from extensions.ext_database import db
 from factories import file_factory
 from models.model import AppMode, Conversation, Message, MessageFile
+
+# Extend: start messages context handling
+from models.model_extend import MessageContextExtend
 from models.workflow import Workflow
 from repositories.api_workflow_run_repository import APIWorkflowRunRepository
 from repositories.factory import DifyAPIRepositoryFactory
@@ -33,6 +36,31 @@ class TokenBufferMemory:
         self.conversation = conversation
         self.model_instance = model_instance
         self._workflow_run_repo: APIWorkflowRunRepository | None = None
+
+    # Extend: start messages context handling
+    def messages_context_handling(
+        self,
+        conversation_id: str,
+        prompt_messages: tuple[list[AssistantPromptMessage]],
+    ) -> tuple[list[AssistantPromptMessage]]:
+        # check if there is a segmentation context
+        message_context = db.session.query(MessageContextExtend).filter(
+                MessageContextExtend.conversation_id == conversation_id).order_by(
+                MessageContextExtend.created_at.desc()).all()
+        # Is there a split
+        if not message_context:
+            return prompt_messages
+        # for
+        messages = []
+        for v in prompt_messages:
+            messages.append(v)
+            if v.name is not None and len(v.name) > 0:
+                for i in message_context:
+                    if v.name == i.message_id:
+                        messages = []
+            v.name = None
+        return messages
+    # Extend: stop messages context handling
 
     @property
     def workflow_run_repo(self) -> APIWorkflowRunRepository:
@@ -115,12 +143,14 @@ class TokenBufferMemory:
                 return AssistantPromptMessage(content=prompt_message_contents)
 
     def get_history_prompt_messages(
-        self, max_token_limit: int = 2000, message_limit: int | None = None
+        self, max_token_limit: int = 2000, message_limit: int | None = None,
+        control_registers: bool = True,  # Extend: messages context handling
     ) -> Sequence[PromptMessage]:
         """
         Get history prompt messages.
         :param max_token_limit: max token limit
         :param message_limit: message limit
+        :param control_registers:
         """
         app_record = self.conversation.app
 
@@ -187,6 +217,17 @@ class TokenBufferMemory:
                 prompt_messages.append(assistant_prompt_message)
             else:
                 prompt_messages.append(AssistantPromptMessage(content=message.answer))
+
+            # Extend Contextual dividing line
+            prompt_messages.append(AssistantPromptMessage(name=message.id, content=message.answer))
+
+        # Extend: start messages context handling
+        if control_registers:
+            prompt_messages = self.messages_context_handling(
+                prompt_messages=prompt_messages,
+                conversation_id=self.conversation.id,
+            )
+        # Extend: stop messages context handling
 
         if not prompt_messages:
             return []

@@ -5,7 +5,7 @@ from controllers.service_api import service_api_ns
 from controllers.service_api.app.error import AppUnavailableError
 from controllers.service_api.wraps import validate_app_token
 from core.app.app_config.common.parameters_mapping import get_parameters_from_feature_dict
-from models.model import App, AppMode
+from models.model import ApiToken, App, AppMode
 from services.app_service import AppService
 
 
@@ -23,7 +23,7 @@ class AppParameterApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App):
+    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
         """Retrieve app parameters.
 
         Returns the input form parameters and configuration for the application.
@@ -60,7 +60,7 @@ class AppMetaApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App):
+    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
         """Get app metadata.
 
         Returns metadata about the application including configuration and settings.
@@ -80,7 +80,7 @@ class AppInfoApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App):
+    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
         """Get app information.
 
         Returns basic information about the application including name, description, tags, and mode.

@@ -5,8 +5,6 @@ from typing import Union, cast
 
 from sqlalchemy import select
 
-from sqlalchemy import select
-
 from core.agent.entities import AgentEntity, AgentToolEntity
 from core.app.app_config.features.file_upload.manager import FileUploadConfigManager
 from core.app.apps.agent_chat.app_config_manager import AgentChatAppConfig

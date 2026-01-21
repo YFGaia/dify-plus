@@ -215,7 +215,7 @@ class OaOAuth(OAuth):
 
         return current
 
-    def get_authorization_url(self, invite_token: Optional[str] = None):
+    def get_authorization_url(self, invite_token: str | None = None):
         auto2_conf = self.get_auto2_conf()
         integration = auto2_conf.get('integration')
         if integration is None:

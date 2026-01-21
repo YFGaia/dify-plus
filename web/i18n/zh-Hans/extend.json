@@ -1,4 +1,6 @@
 {
+  "user.credit": "额度",
+  "user.used": "已用:",
   "aiVideo.title": "AI 视频",
   "aiVideo.translate": "视频翻译",
   "apiKeyModal.accumulatedLimit": "累计使用额度",
@@ -73,5 +75,7 @@
   "fileUploader.uploadFromComputerUploadError": "文件上传失败，请重新上传。",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "选择工作空间",
   "sidebar.appCenter": "应用中心",
-  "sidebar.withDingTalk": "使用 钉钉 登录"
+  "sidebar.withDingTalk": "使用 钉钉 登录",
+  "configuration.clearContext": "上下文已清除",
+  "configuration.restoreContext": "点击恢复上下文"
 }

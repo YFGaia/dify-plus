@@ -1,7 +1,5 @@
 from sqlalchemy import select
 
-from sqlalchemy import select
-
 from core.extension.api_based_extension_requestor import APIBasedExtensionRequestor
 from core.external_data_tool.base import ExternalDataTool
 from core.helper import encrypter

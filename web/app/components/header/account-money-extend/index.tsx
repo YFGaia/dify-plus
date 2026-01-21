@@ -2,12 +2,14 @@
 import React, { useEffect, useState } from 'react'
 import { fetchUserMoney } from '@/service/common-extend'
 import type { UserMoney } from '@/models/common-extend'
-import cn from 'classnames'
+import { cn } from '@/utils/classnames'
+import {useTranslation} from "react-i18next";
 
 const AccountMoneyExtend = () => {
   const [userMoney, setUserMoney] = useState<UserMoney>({ used_quota: 0, total_quota: 0 })
   const [isFetched, setIsFetched] = useState(false)
-  const exchangeRate = 7.26 // 美元转人民币固定汇率
+  const exchangeRate = 6.97 // 美元转人民币固定汇率
+  const { t } = useTranslation()
 
   const getUserMoney = async () => {
     const data: any = await fetchUserMoney()
@@ -53,10 +55,10 @@ const AccountMoneyExtend = () => {
       className='flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]'
     >
       <div className='flex items-center bg-background-default-dimmed px-2 py-1 font-medium text-text-secondary'>
-        额度
+        {t('user.credit', { ns: 'extend' })}
       </div>
       <div className='flex items-center border-l border-divider-regular bg-background-default px-2 py-1.5'>
-        <span className='mr-1 text-text-tertiary'>已用:</span>
+        <span className='mr-1 text-text-tertiary'>{t('user.used', { ns: 'extend' })}</span>
         <span
           className={cn(
             'font-bold transition-all duration-300',

@@ -1,20 +1,22 @@
+import json
+
+# extend start: oauth2 and DingTalk third-party login
+import re
 from enum import StrEnum
 
+from flask import has_app_context, has_request_context, request
 from pydantic import BaseModel, ConfigDict, Field
 
 from configs import dify_config
 from enums.cloud_plan import CloudPlan
-from services.billing_service import BillingService
-from services.enterprise.enterprise_service import EnterpriseService
-
-# extend start: oauth2 and DingTalk third-party login
-import re
-import json
-from flask import request
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
 from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend
+from services.billing_service import BillingService
+from services.enterprise.enterprise_service import EnterpriseService
+
 # extend stop: oauth2 and DingTalk third-party login
+
 
 class SubscriptionModel(BaseModel):
     plan: str = CloudPlan.SANDBOX
@@ -180,9 +182,9 @@ class SystemFeatureModel(BaseModel):
     plugin_manager: PluginManagerModel = PluginManagerModel()
     is_custom_auth2: str = ""  # extend: Customizing AUTH2
     is_custom_auth2_logout: str = ""  # extend: Customizing AUTH2
-    ding_talk_client_id: str = "" # extend: DingTalk third-party login
-    ding_talk_corp_id: str = "" # extend: DingTalk sidebar login
-    ding_talk: bool = "" # extend: DingTalk sidebar login
+    ding_talk_client_id: str = ""  # extend: DingTalk third-party login
+    ding_talk_corp_id: str = ""  # extend: DingTalk sidebar login
+    ding_talk: bool = ""  # extend: DingTalk sidebar login
 
 
 class FeatureService:
@@ -216,9 +218,14 @@ class FeatureService:
     def get_system_features(cls) -> SystemFeatureModel:
         system_features = SystemFeatureModel()
         # extend start: oauth2
-        api_host = request.host_url
-        # 通过nginx代理转发会导致 request.host_url 获取的是内网ip，这个时候使用.env的配置
-        if bool(re.search(r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}', request.host_url)):
+        # 检查是否有请求上下文（在 Celery worker 中可能没有）
+        if has_request_context():
+            api_host = request.host_url
+            # 通过nginx代理转发会导致 request.host_url 获取的是内网ip，这个时候使用.env的配置
+            if bool(re.search(r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}', request.host_url)):
+                api_host = dify_config.CONSOLE_WEB_URL
+        else:
+            # 没有请求上下文时（如 Celery worker），直接使用配置值
             api_host = dify_config.CONSOLE_WEB_URL
         redis_client.set("api_host", api_host)
         # extend stop: oauth2
@@ -246,19 +253,21 @@ class FeatureService:
         system_features.is_allow_create_workspace = dify_config.ALLOW_CREATE_WORKSPACE
         system_features.is_email_setup = dify_config.MAIL_TYPE is not None and dify_config.MAIL_TYPE != ""
         # extend start: DingTalk third-party login
-        for i in db.session.query(SystemIntegrationExtend).filter(SystemIntegrationExtend.status == True).all():
-            if i.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK:
-                system_features.ding_talk_client_id = i.app_key
-                system_features.ding_talk_corp_id = i.corp_id
-                system_features.ding_talk = i.status
-                # Extend: OAuth2 Start
-            elif i.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_OAUTH_TWO:
-                config = json.loads(i.config)
-                system_features.is_custom_auth2 = i.status
-                if "logout_url" in config.keys():
-                    system_features.is_custom_auth2_logout = "{}{}".format(
-                        config['server_url'], config['logout_url'])
-                # Extend: OAuth2 Stop
+        # 检查是否有应用上下文（访问 db.session 需要应用上下文）
+        if has_app_context():
+            for i in db.session.query(SystemIntegrationExtend).filter(SystemIntegrationExtend.status == True).all():
+                if i.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK:
+                    system_features.ding_talk_client_id = i.app_key
+                    system_features.ding_talk_corp_id = i.corp_id
+                    system_features.ding_talk = i.status
+                    # Extend: OAuth2 Start
+                elif i.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_OAUTH_TWO:
+                    config = json.loads(i.config)
+                    system_features.is_custom_auth2 = i.status
+                    if "logout_url" in config.keys():
+                        system_features.is_custom_auth2_logout = "{}{}".format(
+                            config['server_url'], config['logout_url'])
+                    # Extend: OAuth2 Stop
         # extend stop: DingTalk third-party login
 
     @classmethod

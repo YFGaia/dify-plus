@@ -1,20 +1,22 @@
 import React, { useState } from 'react'
 import { ReactMultiEmail, isEmail } from 'react-multi-email'
 import 'react-multi-email/dist/style.css'
-import cn from 'classnames'
+import { cn } from '@/utils/classnames'
 import s from './index.module.css'
 
 type CustomEmailInputProps = {
   emails: string[]
   onChange: (emails: string[]) => void
+  className?: string
+  placeholder?: string
 }
 
-const CustomEmailInput: React.FC<CustomEmailInputProps> = ({ emails, onChange }) => {
+const CustomEmailInput: React.FC<CustomEmailInputProps> = ({ emails, onChange, className, placeholder }) => {
   const [inputValue, setInputValue] = useState<string>('')
   const defaultDomain = process.env.NEXT_PUBLIC_DEFAULT_DOMAIN
 
   const setBlur = () => {
-    if (inputValue && !inputValue.includes('@')) {
+    if (inputValue && !inputValue.includes('@') && defaultDomain) {
       const newEmail = `${inputValue}@${defaultDomain}`
       if (isEmail(newEmail)) {
         setInputValue('')
@@ -26,7 +28,7 @@ const CustomEmailInput: React.FC<CustomEmailInputProps> = ({ emails, onChange })
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && inputValue && !inputValue.includes('@')) {
+    if (event.key === 'Enter' && inputValue && !inputValue.includes('@') && defaultDomain) {
       const newEmail = `${inputValue}@${defaultDomain}`
       if (isEmail(newEmail)) {
         setInputValue('')
@@ -43,6 +45,7 @@ const CustomEmailInput: React.FC<CustomEmailInputProps> = ({ emails, onChange })
         'w-full pt-2 px-3 outline-none border-none',
         'appearance-none text-sm text-gray-900 rounded-lg overflow-y-auto',
         s.emailsInput,
+        className,
       )}
       autoFocus
       emails={emails}
@@ -54,12 +57,13 @@ const CustomEmailInput: React.FC<CustomEmailInputProps> = ({ emails, onChange })
       onChangeInput={setInputValue}
       initialInputValue={inputValue}
       getLabel={(email: string, index: number, removeEmail: (index: number) => void) => (
-        <div data-tag key={index}>
-          {email}
+        <div data-tag key={index} className='!bg-components-button-secondary-bg'>
+          <div data-tag-item>{email}</div>
           <span data-tag-handle onClick={() => removeEmail(index)}>×</span>
         </div>
       )}
       onKeyDown={handleKeyDown}
+      placeholder={placeholder}
     />
   )
 }
