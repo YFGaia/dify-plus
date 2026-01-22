@@ -15,7 +15,7 @@ import { resumeBatchApi, retryFailedTasksApi, stopBatchApi } from '@/service/web
 import type { BatchStatus } from '@/utils/batch-progress-manager' // extend: 批量运行工单
 import ActionButton from '@/app/components/base/action-button'
 
-import cn from '@/utils/classnames'
+import { cn } from '@/utils/classnames'
 
 export type BatchProgressProps = {
   batchId: string
@@ -103,17 +103,17 @@ const BatchProgress: FC<BatchProgressProps> = ({
   const getStatusText = (status: BatchStatus) => {
     switch (status) {
       case 'pending':
-        return t('extend.batchWorkflow.pending')
+        return t('batchWorkflow.pending', { ns: 'extend'})
       case 'processing':
-        return t('extend.batchWorkflow.processing')
+        return t('batchWorkflow.processing', { ns: 'extend'})
       case 'completed':
-        return t('extend.batchWorkflow.completed')
+        return t('batchWorkflow.completed', { ns: 'extend'})
       case 'failed':
-        return t('extend.batchWorkflow.failed')
+        return t('batchWorkflow.failed', { ns: 'extend'})
       case 'stopped':
-        return t('extend.batchWorkflow.stopped')
+        return t('batchWorkflow.stopped', { ns: 'extend'})
       default:
-        return t('extend.batchWorkflow.pending')
+        return t('batchWorkflow.pending', { ns: 'extend'})
     }
   }
 
@@ -188,8 +188,8 @@ const BatchProgress: FC<BatchProgressProps> = ({
         {/* 文件信息 */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm font-medium text-gray-900">{t('extend.batchWorkflow.uploadedFileName')}</div>
-            <div className="mt-1 text-xs text-gray-500">{t('extend.batchWorkflow.uploadTime')}</div>
+            <div className="text-sm font-medium text-gray-900">{t('batchWorkflow.uploadedFileName', { ns: 'extend' })}</div>
+            <div className="mt-1 text-xs text-gray-500">{t('batchWorkflow.uploadTime', { ns: 'extend' })}</div>
           </div>
           <div>
             <div className="text-right">
@@ -234,9 +234,10 @@ const BatchProgress: FC<BatchProgressProps> = ({
           {/* 详细进度信息 */}
           {jobData.totalRows > 0 && (
             <div className="mt-2 text-xs text-gray-500">
-              {t('extend.batchWorkflow.processed', {
+              {t('batchWorkflow.processed', {
                 processed: jobData.processedRows || 0,
                 total: jobData.totalRows || 0,
+                ns: 'extend',
               })}
             </div>
           )}
@@ -248,7 +249,7 @@ const BatchProgress: FC<BatchProgressProps> = ({
                 <RiErrorWarningLine className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
                   <div className="text-sm font-medium text-red-800 mb-1">
-                    {t('extend.batchWorkflow.errorOccurred')}
+                    {t('batchWorkflow.errorOccurred', { ns: 'extend'} )}
                   </div>
                   <div className="text-xs text-red-700 break-words">
                     {jobData.error}
@@ -271,7 +272,7 @@ const BatchProgress: FC<BatchProgressProps> = ({
                 ) : (
                   <RiStopLine className="h-4 w-4" />
                 )}
-                <span className="ml-1">{t('extend.batchWorkflow.stop')}</span>
+                <span className="ml-1">{t('batchWorkflow.stop', { ns: 'extend'})}</span>
               </ActionButton>
             )}
             {status === 'stopped' && (
@@ -281,7 +282,7 @@ const BatchProgress: FC<BatchProgressProps> = ({
                 ) : (
                   <RiPlayLargeLine className="h-4 w-4" />
                 )}
-                <span className="ml-1">{t('extend.batchWorkflow.resume')}</span>
+                <span className="ml-1">{t('batchWorkflow.resume', { ns: 'extend'})}</span>
               </ActionButton>
             )}
             {(status === 'failed') && (
@@ -291,7 +292,7 @@ const BatchProgress: FC<BatchProgressProps> = ({
                 ) : (
                   <RiRefreshLine className="h-4 w-4" />
                 )}
-                <span className="ml-1">{t('extend.batchWorkflow.retry')}</span>
+                <span className="ml-1">{t('batchWorkflow.retry', { ns: 'extend'})}</span>
               </ActionButton>
             )}
           </div>
@@ -300,7 +301,7 @@ const BatchProgress: FC<BatchProgressProps> = ({
             {/* 下载按钮 */}
             {(status === 'failed' || status === 'completed' || (status === 'processing' && progress >= 100)) && (
               <ActionButton onClick={onDownload} size="sm">
-                <span>{t('extend.batchWorkflow.download')}</span>
+                <span>{t('batchWorkflow.download', { ns: 'extend'})}</span>
               </ActionButton>
             )}
           </div>

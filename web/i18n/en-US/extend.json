@@ -37,6 +37,7 @@
   "batchWorkflow.errorOccurred": "Error occurred",
   "batchWorkflow.failed": "Failed",
   "batchWorkflow.initializing": "Initializing batch task...",
+  "batchWorkflow.noBatchTasks": "No batch processing tasks",
   "batchWorkflow.pending": "Pending",
   "batchWorkflow.pleaseWait": "Please wait",
   "batchWorkflow.processed": "Processed {{processed}}/{{total}} rows",

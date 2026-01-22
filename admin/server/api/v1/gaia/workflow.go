@@ -514,7 +514,15 @@ func generateCSVFromTasks(flow *gaia.BatchWorkflow, tasks []gaia.BatchWorkflowTa
 				if key == "task_id" {
 					continue
 				}
-				text += fmt.Sprintf("%s\r", v)
+				switch vv := v.(type) {
+				case string:
+					text += fmt.Sprintf("%s\r", vv)
+				case float64:
+					text += fmt.Sprintf("%s\r", strconv.FormatFloat(vv, 'f', -1, 64))
+				case int64:
+					text += fmt.Sprintf("%d\r", vv)
+				}
+
 			}
 		}
 		row = append(row, text)

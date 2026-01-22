@@ -39,6 +39,7 @@
   "batchWorkflow.errorOccurred": "发生错误",
   "batchWorkflow.failed": "失败",
   "batchWorkflow.initializing": "正在初始化批量任务...",
+  "batchWorkflow.noBatchTasks": "暂无批量处理任务",
   "batchWorkflow.pending": "待处理",
   "batchWorkflow.pleaseWait": "请稍候",
   "batchWorkflow.processed": "已处理 {{processed}}/{{total}} 行",

@@ -40,34 +40,17 @@ const RunBatch: FC<IRunBatchProps> = ({
   const [isRecentlyClicked, setIsRecentlyClicked] = React.useState(false)
 
   const handleParsed = (data: string[][], originalFile?: File) => {
-    console.log('handleParsed 被调用, originalFile:', originalFile ? originalFile.name : 'undefined')
     setCsvData(data)
     setIsParsed(true)
     if (originalFile) {
       setFileName(originalFile.name)
       setOriginalFile(originalFile)
-      console.log('originalFile 已设置:', originalFile.name)
-    }
-    else {
-      console.warn('⚠️ originalFile 未传递!')
     }
   }
 
   const handleSend = async () => {
-    console.log('=== 批量运行调试信息 ===')
-    console.log('csvData:', csvData ? csvData.length : 'null')
-    console.log('originalFile:', originalFile ? originalFile.name : 'null')
-    console.log('onBatchSend:', onBatchSend ? '已定义' : '未定义')
-    console.log('isRecentlyClicked:', isRecentlyClicked)
-    
-    if (!csvData || csvData.length === 0 || !originalFile || isRecentlyClicked) {
-      console.log('提前返回，原因：', {
-        noCsvData: !csvData || csvData.length === 0,
-        noOriginalFile: !originalFile,
-        isRecentlyClicked,
-      })
+    if (!csvData || csvData.length === 0 || !originalFile || isRecentlyClicked)
       return
-    }
 
     // 设置防重复点击状态
     setIsRecentlyClicked(true)
@@ -79,13 +62,9 @@ const RunBatch: FC<IRunBatchProps> = ({
 
     const dataRows = csvData.slice(1).filter(row => !row.every(cell => cell === ''))
     const rowCount = dataRows.length
-    
-    console.log('有效数据行数:', rowCount)
-    console.log('判断条件: rowCount > 10 && onBatchSend =', rowCount > 10, '&&', !!onBatchSend, '=', rowCount > 10 && !!onBatchSend)
 
     // 如果超过10行，使用批量处理
     if (rowCount > 10 && onBatchSend) {
-      console.log('✅ 使用admin后台批量处理')
       setIsUploading(true)
       try {
         await onBatchSend(originalFile, csvData, fileName)
@@ -98,7 +77,7 @@ const RunBatch: FC<IRunBatchProps> = ({
       }
     }
     else {
-      console.log('❌ 使用旧的前端处理逻辑')
+      // 10行以内，使用原有的在线处理
       onSend(csvData)
     }
   }
@@ -111,16 +90,37 @@ const RunBatch: FC<IRunBatchProps> = ({
     <div className="pt-4">
       <CSVReader onParsed={handleParsed} />
       <CSVDownload vars={vars} />
+
+      {/* 显示行数信息 Extend: Start Batch import */}
+      {isParsed && csvData.length > 1 && (
+        <div className="mt-2 text-sm text-gray-500">
+          {t(
+            'batchWorkflow.rowCount',
+            { ns: 'extend', count: csvData.slice(1).filter(row => !row.every(
+              cell => cell === '')).length
+            }
+          )}
+        </div>
+      )}
+      {/* Extend: Stop Batch import */}
+
       <div className="flex justify-end">
+        {/* Extend: Start Batch import */}
         <Button
           variant="primary"
           className={cn('mt-4 pl-3 pr-4', !isPC && 'grow')}
           onClick={handleSend}
           disabled={isDisabled}
         >
-          <Icon className={cn(!isAllFinished && 'animate-spin', 'mr-1 h-4 w-4 shrink-0')} aria-hidden="true" />
-          <span className="text-[13px] uppercase">{t('generation.run', { ns: 'share' })}</span>
+          <Icon
+            className={cn((!isAllFinished || isUploading) && 'animate-spin', 'mr-1 h-4 w-4 shrink-0')}
+            aria-hidden="true"
+          />
+          <span className="text-[13px] uppercase">
+            {isUploading ? t('batchWorkflow.uploading', { ns: 'extend' } ) : t('generation.run', { ns: 'share' })}
+          </span>
         </Button>
+        {/* Extend: Stop Batch import */}
       </div>
     </div>
   )

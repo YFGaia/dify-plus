@@ -115,9 +115,6 @@ func (s *BatchWorkflowService) CreateBatchWorkflow(
 		global.GVA_LOG.Error(fmt.Sprintf("更新总行数失败: %v", err))
 	}
 
-	global.GVA_LOG.Info(fmt.Sprintf("批量工作流 %s 创建完成，原始行数: %d，有效行数: %d",
-		batchWorkflow.ID, len(fileContent)-1, validRowCount))
-
 	// 任务已创建，工作池会自动处理
 	// 确保工作池在运行
 	if pool := GetWorkerPool(); pool == nil || !pool.IsRunning() {
@@ -325,7 +322,7 @@ func (s *BatchWorkflowService) parseSSEStream(body []byte) (*request.WorkflowRes
 
 // callDifyAPI 调用Dify API
 func (s *BatchWorkflowService) callDifyAPI(
-	installedID, userToken string, inputs map[string]string) (string, error) {
+	installedID, userToken, csrfToken string, inputs map[string]string) (string, error) {
 
 	var err error
 	var requestBodyJSON []byte
@@ -358,7 +355,13 @@ func (s *BatchWorkflowService) callDifyAPI(
 	// 设置请求头
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+userToken)
-	req.Header.Set("Accept", "text/event-stream") // 接受SSE流
+	req.Header.Set("Accept", "text/event-stream")
+	// Extend Start: 添加CSRF token支持
+	if csrfToken != "" {
+		req.Header.Set("x-csrf-token", csrfToken)
+		req.Header.Set("Cookie", fmt.Sprintf("csrf_token=%s", csrfToken))
+	}
+	// Extend End: 添加CSRF token支持
 
 	// 发送请求
 	client := &http.Client{}
@@ -400,20 +403,23 @@ func (s *BatchWorkflowService) GetBatchWorkflow(id string) (*gaia.BatchWorkflow,
 	}
 
 	var batchWorkflow gaia.BatchWorkflow
-	if err := global.GVA_DB.Where("id = ?", id).First(&batchWorkflow).Error; err != nil {
+	if err := global.GVA_DB.Where("id = ?", id).First(
+		&batchWorkflow).Error; err != nil {
 		return nil, err
 	}
 	return &batchWorkflow, nil
 }
 
 // GetBatchWorkflowTasks 获取批量处理的任务列表
-func (s *BatchWorkflowService) GetBatchWorkflowTasks(batchWorkflowID string) ([]gaia.BatchWorkflowTask, error) {
+func (s *BatchWorkflowService) GetBatchWorkflowTasks(
+	batchWorkflowID string) ([]gaia.BatchWorkflowTask, error) {
 	if global.GVA_DB == nil {
 		return nil, fmt.Errorf("数据库连接未初始化")
 	}
 
 	var tasks []gaia.BatchWorkflowTask
-	if err := global.GVA_DB.Where("batch_workflow_id = ?", batchWorkflowID).Order("row_index").Find(&tasks).Error; err != nil {
+	if err := global.GVA_DB.Where("batch_workflow_id = ?", batchWorkflowID).Order(
+		"row_index").Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	return tasks, nil
@@ -425,7 +431,8 @@ func (s *BatchWorkflowService) StopBatchWorkflow(id string) error {
 		return fmt.Errorf("数据库连接未初始化")
 	}
 
-	return global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where("id = ?", id).Update("status", "stopped").Error
+	return global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where("id = ?", id).Update(
+		"status", "stopped").Error
 }
 
 // RetryFailedTasks 仅重试失败的任务
@@ -436,14 +443,14 @@ func (s *BatchWorkflowService) RetryFailedTasks(id string) error {
 
 	// 只重置失败的任务为待处理状态，保留已完成的任务
 	errorCount := 0
+	taskList := []string{"failed", "queued", "running"}
 	if err := global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where(
-		"batch_workflow_id = ? AND status IN ?", id, []string{"failed", "queued", "running"}).Updates(
-		map[string]interface{}{
-			"status":      "pending",
-			"error":       "",
-			"error_count": &errorCount,
-			"updated_at":  time.Now(),
-		}).Error; err != nil {
+		"batch_workflow_id = ? AND status IN ?", id, taskList).Updates(map[string]interface{}{
+		"status":      "pending",
+		"error":       "",
+		"error_count": &errorCount,
+		"updated_at":  time.Now(),
+	}).Error; err != nil {
 		return err
 	}
 
@@ -453,7 +460,8 @@ func (s *BatchWorkflowService) RetryFailedTasks(id string) error {
 		"batch_workflow_id = ? AND status = ?", id, "completed").Count(&completedCount)
 
 	// 重置批量处理状态
-	if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where("id = ?", id).Updates(map[string]interface{}{
+	if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where(
+		"id = ?", id).Updates(map[string]interface{}{
 		"status":         "pending",
 		"processed_rows": completedCount,
 		"error":          "",
@@ -473,7 +481,8 @@ func (s *BatchWorkflowService) RetryBatchWorkflow(id string) error {
 	}
 
 	// 重置所有失败的任务为待处理状态
-	if err := global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where("batch_workflow_id = ? AND status IN ?", id, []string{"failed", "queued", "running"}).Updates(map[string]interface{}{
+	if err := global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where(
+		"batch_workflow_id = ? AND status IN ?", id, []string{"failed", "queued", "running"}).Updates(map[string]interface{}{
 		"status":     "pending",
 		"error":      "",
 		"updated_at": time.Now(),
@@ -483,10 +492,12 @@ func (s *BatchWorkflowService) RetryBatchWorkflow(id string) error {
 
 	// 重新计算已处理行数
 	var completedCount int64
-	global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where("batch_workflow_id = ? AND status = ?", id, "completed").Count(&completedCount)
+	global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where(
+		"batch_workflow_id = ? AND status = ?", id, "completed").Count(&completedCount)
 
 	// 重置批量处理状态
-	if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where("id = ?", id).Updates(map[string]interface{}{
+	if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where(
+		"id = ?", id).Updates(map[string]interface{}{
 		"status":         "processing",
 		"processed_rows": completedCount,
 		"error":          "",
@@ -522,17 +533,59 @@ func (s *BatchWorkflowService) ResumeBatchWorkflow(id string) error {
 		return fmt.Errorf("只能恢复已停止的批量处理")
 	}
 
+	// 重新计算已处理行数（基于实际完成的任务数）
+	var completedCount int64
+	global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where(
+		"batch_workflow_id = ? AND status = ?", id, "completed").Count(&completedCount)
+
+	// 同步 processed_rows 字段
+	if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where(
+		"id = ?", id).Update("processed_rows", completedCount).Error; err != nil {
+		global.GVA_LOG.Error(fmt.Sprintf("同步已处理行数失败: %v", err))
+	}
+
+	// 检查是否所有任务都已完成
+	if completedCount == int64(batchWorkflow.TotalRows) {
+		// 所有任务都已完成，更新状态为 completed
+		if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where(
+			"id = ?", id).Updates(map[string]interface{}{
+			"status":         "completed",
+			"processed_rows": completedCount,
+			"error":          "",
+			"error_count":    0,
+			"updated_at":     time.Now(),
+		}).Error; err != nil {
+			return fmt.Errorf("更新批量工作流完成状态失败: %v", err)
+		}
+		return nil
+	}
+
 	// 检查是否有可恢复的任务（pending 或 cancelled 状态）
 	var resumableTasks int64
-	global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where("batch_workflow_id = ? AND status IN (?)", id, []string{"pending", "cancelled"}).Count(&resumableTasks)
+	global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where(
+		"batch_workflow_id = ? AND status IN (?)", id, []string{"pending", "cancelled"}).Count(&resumableTasks)
 
 	if resumableTasks == 0 {
+		// 没有可恢复的任务，但也没有全部完成，可能是数据不一致
+		// 检查是否有其他状态的任务
+		var otherTasks int64
+		global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).Where(
+			"batch_workflow_id = ? AND status NOT IN (?)", id, []string{"completed", "failed"}).Count(&otherTasks)
+
+		if otherTasks == 0 {
+			// 所有任务都是 completed 或 failed，但 completedCount 不等于 TotalRows
+			// 可能是数据不一致，尝试调用 checkBatchWorkflowCompletion 来修复
+			if pool := GetWorkerPool(); pool != nil {
+				pool.checkBatchWorkflowCompletion(id)
+			}
+			return fmt.Errorf("没有可恢复的任务，但任务状态可能不一致，已尝试修复")
+		}
 		return fmt.Errorf("没有可恢复的任务")
 	}
 
 	// 将cancelled状态的任务恢复为pending状态
 	if err := global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).
-		Where("batch_workflow_id = ? AND status = ?", id, "cancelled").
+		Where("batch_workflow_id = ? AND status IN (?)", id, []string{"pending", "cancelled"}).
 		Updates(map[string]interface{}{
 			"status":     "pending",
 			"updated_at": time.Now(),
@@ -541,9 +594,11 @@ func (s *BatchWorkflowService) ResumeBatchWorkflow(id string) error {
 	}
 
 	// 更新批量工作流状态为处理中
-	if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where("id = ?", id).Updates(map[string]interface{}{
-		"status":     "processing",
-		"updated_at": time.Now(),
+	if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where(
+		"id = ?", id).Updates(map[string]interface{}{
+		"status":         "processing",
+		"processed_rows": completedCount,
+		"updated_at":     time.Now(),
 	}).Error; err != nil {
 		return err
 	}
@@ -554,7 +609,6 @@ func (s *BatchWorkflowService) ResumeBatchWorkflow(id string) error {
 		InitWorkerPool(global.GVA_CONFIG.System.WorkFlowNumber)
 	}
 
-	global.GVA_LOG.Info(fmt.Sprintf("批量工作流 %s 恢复已启动，工作池将自动处理待处理任务", id))
 	return nil
 }
 

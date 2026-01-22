@@ -9,7 +9,7 @@ import { toJpeg, toPng, toSvg } from 'html-to-image'
 import { useNodesReadOnly } from '../hooks'
 import TipPopup from './tip-popup'
 import { RiExportLine } from '@remixicon/react'
-import cn from '@/utils/classnames'
+import { cn } from '@/utils/classnames'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import {
   PortalToFollowElem,
@@ -186,7 +186,7 @@ const ExportImage: FC = () => {
         }}
       >
         <PortalToFollowElemTrigger>
-          <TipPopup title={t('workflow.common.exportImage')}>
+          <TipPopup title={t('common.exportImage', { sn: 'workflow' })}>
             <div
               className={cn(
                 'flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg hover:bg-state-base-hover hover:text-text-secondary',
@@ -202,49 +202,49 @@ const ExportImage: FC = () => {
           <div className='min-w-[180px] rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-bg-blur text-text-secondary shadow-lg'>
             <div className='p-1'>
               <div className='px-2 py-1 text-xs font-medium text-text-tertiary'>
-                {t('workflow.common.currentView')}
+                {t('common.currentView', { sn: 'workflow' })}
               </div>
               <div
                 className='system-md-regular flex h-8 cursor-pointer items-center rounded-lg px-2 hover:bg-state-base-hover'
                 onClick={() => handleExportImage('png')}
               >
-                {t('workflow.common.exportPNG')}
+                {t('common.exportPNG', { sn: 'workflow' })}
               </div>
               <div
                 className='system-md-regular flex h-8 cursor-pointer items-center rounded-lg px-2 hover:bg-state-base-hover'
                 onClick={() => handleExportImage('jpeg')}
               >
-                {t('workflow.common.exportJPEG')}
+                {t('common.exportJPEG', { sn: 'workflow' })}
               </div>
               <div
                 className='system-md-regular flex h-8 cursor-pointer items-center rounded-lg px-2 hover:bg-state-base-hover'
                 onClick={() => handleExportImage('svg')}
               >
-                {t('workflow.common.exportSVG')}
+                {t('common.exportSVG', { sn: 'workflow' })}
               </div>
 
               <div className='border-border-divider mx-2 my-1 border-t' />
 
               <div className='px-2 py-1 text-xs font-medium text-text-tertiary'>
-                {t('workflow.common.currentWorkflow')}
+                {t('common.currentWorkflow', { sn: 'workflow' })}
               </div>
               <div
                 className='system-md-regular flex h-8 cursor-pointer items-center rounded-lg px-2 hover:bg-state-base-hover'
                 onClick={() => handleExportImage('png', true)}
               >
-                {t('workflow.common.exportPNG')}
+                {t('common.exportPNG', { sn: 'workflow' })}
               </div>
               <div
                 className='system-md-regular flex h-8 cursor-pointer items-center rounded-lg px-2 hover:bg-state-base-hover'
                 onClick={() => handleExportImage('jpeg', true)}
               >
-                {t('workflow.common.exportJPEG')}
+                {t('common.exportJPEG', { sn: 'workflow' })}
               </div>
               <div
                 className='system-md-regular flex h-8 cursor-pointer items-center rounded-lg px-2 hover:bg-state-base-hover'
                 onClick={() => handleExportImage('svg', true)}
               >
-                {t('workflow.common.exportSVG')}
+                {t('common.exportSVG', { sn: 'workflow' })}
               </div>
             </div>
           </div>

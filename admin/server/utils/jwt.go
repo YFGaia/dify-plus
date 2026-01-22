@@ -54,6 +54,12 @@ func (j *JWT) CreateToken(claims request.CustomClaims) (string, error) {
 	return token.SignedString(j.SigningKey)
 }
 
+// CreateCSRFToken 创建CSRF token (与Dify API兼容)
+func (j *JWT) CreateCSRFToken(claims request.CSRFClaims) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(j.SigningKey)
+}
+
 // CreateTokenByOldToken 旧token 换新token 使用归并回源避免并发问题
 func (j *JWT) CreateTokenByOldToken(oldToken string, claims request.CustomClaims) (string, error) {
 	v, err, _ := global.GVA_Concurrency_Control.Do("JWT:"+oldToken, func() (interface{}, error) {

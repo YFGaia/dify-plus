@@ -7,6 +7,7 @@ import (
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid/v5"
+	jwt "github.com/golang-jwt/jwt/v4"
 	"net"
 	"time"
 )
@@ -187,8 +188,57 @@ func LoginToken(user system.Login) (token string, claims systemReq.CustomClaims,
 		// Extend Start: add gaia token
 	})
 	token, err = j.CreateToken(claims)
-	if err != nil {
-		return
-	}
 	return
+}
+
+// LoginTokenWithCSRF 生成登录token和CSRF token (用于批量处理API调用)
+func LoginTokenWithCSRF(user system.Login) (
+	token string, csrfToken string, claims systemReq.CustomClaims, err error) {
+	var account gaia.Account
+	dr, err := ParseDuration(global.GVA_CONFIG.JWT.BufferTime)
+	if err != nil {
+		return token, csrfToken, claims, err
+	}
+	j := &JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
+	if err = global.GVA_DB.Where("email=?", user.GetUserEmail()).First(&account).Error; err != nil {
+		return token, csrfToken, claims, err
+	}
+	claims = j.CreateClaims(systemReq.BaseClaims{
+		UUID:        user.GetUUID(),
+		ID:          user.GetUserId(),
+		NickName:    user.GetNickname(),
+		Username:    user.GetUsername(),
+		AuthorityId: user.GetAuthorityId(),
+		// Extend Start: add gaia token
+		UserId: account.ID.String(),
+		Exp:    time.Now().Add(dr).Unix(),
+		Sub:    "Console API Passport",
+		Email:  account.Email,
+		// Extend Start: add gaia token
+	})
+	token, err = j.CreateToken(claims)
+	if err != nil {
+		return token, csrfToken, claims, err
+	}
+
+	// 生成CSRF token
+	csrfToken, err = GenerateCSRFToken(account.ID.String())
+	return
+}
+
+// GenerateCSRFToken 生成CSRF token (与Dify API兼容)
+func GenerateCSRFToken(userID string) (string, error) {
+	ep, err := ParseDuration(global.GVA_CONFIG.JWT.ExpiresTime)
+	if err != nil {
+		return "", err
+	}
+	j := &JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)}
+
+	// CSRF token只需要exp和sub字段，使用RegisteredClaims的ExpiresAt
+	return j.CreateCSRFToken(systemReq.CSRFClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(ep)),
+		},
+		Sub: userID,
+	})
 }

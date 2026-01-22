@@ -9,6 +9,8 @@ require (
 	github.com/aws/aws-sdk-go v1.55.5
 	github.com/casbin/casbin/v2 v2.100.0
 	github.com/casbin/gorm-adapter/v3 v3.28.0
+	github.com/faabiosr/cachego v0.15.0
+	github.com/fastwego/dingding v1.0.0-beta.4
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-gonic/gin v1.10.0
@@ -79,8 +81,6 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/elastic/go-sysinfo v1.14.2 // indirect
 	github.com/elastic/go-windows v1.0.2 // indirect
-	github.com/faabiosr/cachego v0.15.0 // indirect
-	github.com/fastwego/dingding v1.0.0-beta.4 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.6 // indirect
 	github.com/gammazero/toposort v0.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect

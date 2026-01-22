@@ -31,3 +31,9 @@ type BaseClaims struct {
 	Sub    string `json:"sub,omitempty"`
 	// Extend Start: add gaia token
 }
+
+// CSRFClaims CSRF token claims (与Dify API兼容)
+type CSRFClaims struct {
+	jwt.RegisteredClaims
+	Sub string `json:"sub"`
+}

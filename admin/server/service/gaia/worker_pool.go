@@ -22,6 +22,9 @@ type UserWorkerAllocation struct {
 	MaxLimit int  `json:"max_limit"`
 }
 
+// 全局工作池实例
+var globalWorkerPool *WorkerPool
+
 // WorkerPool 工作池管理器
 type WorkerPool struct {
 	ctx            context.Context
@@ -764,14 +767,13 @@ func (wp *WorkerPool) processTask(task *gaia.BatchWorkflowTask) {
 		global.GVA_LOG.Info(fmt.Sprintf("任务 %s 包含全空值输入，跳过处理并标记为完成", task.ID))
 
 		// 创建空结果并标记为完成
-		emptyResult := map[string]interface{}{
+		emptyResultJSON, _ := json.Marshal(map[string]interface{}{
 			"status":  gaia.BatchTaskStatusCompleted,
 			"message": "跳过空值输入任务",
 			"outputs": map[string]interface{}{
 				"text": "输入为空，已跳过处理",
 			},
-		}
-		emptyResultJSON, _ := json.Marshal(emptyResult)
+		})
 
 		// 更新任务状态为完成
 		if err := global.GVA_DB.Model(task).Updates(map[string]interface{}{
@@ -792,28 +794,30 @@ func (wp *WorkerPool) processTask(task *gaia.BatchWorkflowTask) {
 		return
 	}
 
-	// 快速生成即时token
+	// 快速生成即时token和CSRF token
 	var err error
 	var token string
+	var csrfToken string
 	var user system.SysUser
 	if err = global.GVA_DB.Where(
 		"id = ? AND enable = ?", batchWorkflow.UserID, system.UserActive).First(&user).Error; err != nil {
 		wp.updateTaskError(task, "用户不存在: "+err.Error())
 		return
 	}
-	// 生成这个用户的token
-	if token, _, err = utils.LoginToken(&user); err != nil {
+	// 生成这个用户的token和CSRF token
+	if token, csrfToken, _, err = utils.LoginTokenWithCSRF(&user); err != nil {
 		wp.updateTaskError(task, "用户token生成失败: "+err.Error())
 		return
 	}
 
 	// 调用Dify API
-	result, err := wp.batchService.callDifyAPI(batchWorkflow.InstalledID, token, inputs)
+	result, err := wp.batchService.callDifyAPI(batchWorkflow.InstalledID, token, csrfToken, inputs)
 	if err != nil {
 		// 检查是否是余额不足错误（403状态码）
-		if strings.Contains(err.Error(), "状态码: 403") && strings.Contains(err.Error(), "Insufficient balance") {
-			global.GVA_LOG.Warn(fmt.Sprintf("用户 %d 余额不足，将其所有pending和processing状态的批量工作流和任务设置为失败",
-				batchWorkflow.UserID))
+		if strings.Contains(err.Error(), "状态码: 403") && strings.Contains(
+			err.Error(), "Insufficient balance") {
+			global.GVA_LOG.Warn(fmt.Sprintf(
+				"用户 %d 余额不足，将其所有pending和processing状态的批量工作流和任务设置为失败", batchWorkflow.UserID))
 			wp.handleInsufficientBalance(batchWorkflow.UserID, task.BatchWorkflowID)
 			wp.updateTaskError(task, gaia.ErrorInsufficientBalance)
 			return
@@ -838,9 +842,10 @@ func (wp *WorkerPool) processTask(task *gaia.BatchWorkflowTask) {
 			errorMsg = apiError
 		}
 		// 检查是否是余额不足错误
-		if strings.Contains(result, "call failed") || strings.Contains(apiError, "Insufficient balance") {
-			global.GVA_LOG.Warn(fmt.Sprintf("用户 %d 余额不足，将其所有pending和processing状态的批量工作流和任务设置为失败",
-				batchWorkflow.UserID))
+		if strings.Contains(result, "call failed") || strings.Contains(
+			apiError, "Insufficient balance") {
+			global.GVA_LOG.Warn(fmt.Sprintf(
+				"用户 %d 余额不足，将其所有pending和processing状态的批量工作流和任务设置为失败", batchWorkflow.UserID))
 			wp.handleInsufficientBalance(batchWorkflow.UserID, task.BatchWorkflowID)
 			wp.updateTaskError(task, gaia.ErrorInsufficientBalance)
 			return
@@ -861,7 +866,8 @@ func (wp *WorkerPool) processTask(task *gaia.BatchWorkflowTask) {
 	}
 
 	// 更新批量处理的已处理行数
-	global.GVA_DB.Exec("UPDATE batch_workflows_extend SET processed_rows = processed_rows + 1, updated_at = ? WHERE id = ?",
+	global.GVA_DB.Exec(
+		"UPDATE batch_workflows_extend SET processed_rows = processed_rows + 1, updated_at = ? WHERE id = ?",
 		time.Now(), batchWorkflow.ID)
 
 	// 检查批量工作流是否完成
@@ -916,11 +922,10 @@ func (wp *WorkerPool) updateTaskError(task *gaia.BatchWorkflowTask, errorMsg str
 	newErrorCount := task.ErrorCount + 1
 
 	// 更新批量工作流的错误次数和错误信息
-	if err := global.GVA_DB.Exec("UPDATE batch_workflows_extend SET error_count = error_count + 1, error = ?, updated_at = ? WHERE id = ?",
+	if err := global.GVA_DB.Exec(
+		"UPDATE batch_workflows_extend SET error_count = error_count + 1, error = ?, updated_at = ? WHERE id = ?",
 		decodedErrorMsg, time.Now(), task.BatchWorkflowID).Error; err != nil {
 		global.GVA_LOG.Error(fmt.Sprintf("更新批量工作流错误次数和错误信息失败: %s", err.Error()))
-	} else {
-		global.GVA_LOG.Debug(fmt.Sprintf("批量工作流 %s 错误次数已递增，错误信息已更新", task.BatchWorkflowID))
 	}
 
 	// 检查是否超过最大重试次数
@@ -955,7 +960,8 @@ func (wp *WorkerPool) updateTaskError(task *gaia.BatchWorkflowTask, errorMsg str
 // checkBatchWorkflowCompletion 检查批量工作流是否完成
 func (wp *WorkerPool) checkBatchWorkflowCompletion(batchWorkflowID string) {
 	var batchWorkflow gaia.BatchWorkflow
-	if err := global.GVA_DB.Where("id = ?", batchWorkflowID).First(&batchWorkflow).Error; err != nil {
+	if err := global.GVA_DB.Where("id = ?", batchWorkflowID).First(
+		&batchWorkflow).Error; err != nil {
 		return
 	}
 
@@ -974,12 +980,13 @@ func (wp *WorkerPool) checkBatchWorkflowCompletion(batchWorkflowID string) {
 
 	// 如果所有任务都已完成
 	if completedCount == int64(batchWorkflow.TotalRows) {
-		// 重置错误计数并更新状态
+		// 重置错误计数并更新状态，同时同步 processed_rows 确保数据一致性
 		if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where("id = ?", batchWorkflowID).Updates(map[string]interface{}{
-			"status":      gaia.BatchWorkflowStatusCompleted,
-			"error":       "", // 清空错误信息
-			"error_count": 0,  // 重置错误计数，恢复用户并发位
-			"updated_at":  time.Now(),
+			"status":         gaia.BatchWorkflowStatusCompleted,
+			"processed_rows": completedCount, // 同步已处理行数，确保数据一致性
+			"error":          "",             // 清空错误信息
+			"error_count":    0,              // 重置错误计数，恢复用户并发位
+			"updated_at":     time.Now(),
 		}).Error; err != nil {
 			global.GVA_LOG.Error(fmt.Sprintf("更新批量工作流完成状态失败: %s", err.Error()))
 		} else {
@@ -989,20 +996,18 @@ func (wp *WorkerPool) checkBatchWorkflowCompletion(batchWorkflowID string) {
 		// 如果没有待处理、排队或运行中的任务，但有失败的任务
 		// 获取第一个失败任务的错误信息作为代表
 		var failedTask gaia.BatchWorkflowTask
-		var errorInfo string
-		if err := global.GVA_DB.Where("batch_workflow_id = ? AND status = ?", batchWorkflowID, gaia.BatchTaskStatusFailed).
-			First(&failedTask).Error; err == nil && failedTask.Error != "" {
+		var errorInfo = gaia.ErrorWorkflowFailed
+		if err := global.GVA_DB.Where("batch_workflow_id = ? AND status = ?", batchWorkflowID,
+			gaia.BatchTaskStatusFailed).First(&failedTask).Error; err == nil && failedTask.Error != "" {
 			errorInfo = failedTask.Error
-		} else {
-			errorInfo = gaia.ErrorWorkflowFailed
 		}
 
-		global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where("id = ?", batchWorkflowID).Updates(map[string]interface{}{
+		global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where(
+			"id = ?", batchWorkflowID).Updates(map[string]interface{}{
 			"status":     gaia.BatchWorkflowStatusFailed,
 			"error":      errorInfo,
 			"updated_at": time.Now(),
 		})
-		global.GVA_LOG.Info(fmt.Sprintf("批量工作流 %s 处理失败，错误信息: %s", batchWorkflowID, errorInfo))
 	}
 }
 
@@ -1052,22 +1057,17 @@ func resetAbnormalTasks() {
 	for _, bw := range batchWorkflows {
 		var runningCount int64
 		global.GVA_DB.Model(&gaia.BatchWorkflowTask{}).
-			Where("batch_workflow_id = ? AND status IN (?)", bw.ID, []string{gaia.BatchTaskStatusRunning, gaia.BatchTaskStatusQueued}).
-			Count(&runningCount)
+			Where("batch_workflow_id = ? AND status IN (?)", bw.ID, []string{
+				gaia.BatchTaskStatusRunning, gaia.BatchTaskStatusQueued}).Count(&runningCount)
 
 		// 如果没有正在运行或排队的任务，将批量工作流状态重置为 pending
 		if runningCount == 0 {
-			if err = global.GVA_DB.Model(&gaia.BatchWorkflow{}).
-				Where("id = ?", bw.ID).
-				Update("status", gaia.BatchWorkflowStatusPending).Error; err != nil {
+			if err = global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where("id = ?", bw.ID).Update(
+				"status", gaia.BatchWorkflowStatusPending).Error; err != nil {
 				global.GVA_LOG.Error(fmt.Sprintf("重置批量工作流 %s 状态失败: %s", bw.ID, err.Error()))
-			} else {
-				global.GVA_LOG.Info(fmt.Sprintf("批量工作流 %s 状态从processing重置为pending", bw.ID))
 			}
 		}
 	}
-
-	global.GVA_LOG.Info("异常状态任务重置完成")
 }
 
 // cleanupStoppedBatchWorkflowTasks 清理已停止的批量工作流中的待处理和排队任务
@@ -1075,24 +1075,17 @@ func cleanupStoppedBatchWorkflowTasks() {
 
 	// 将已停止的批量工作流中的pending和queued任务标记为cancelled
 	// 使用子查询方式避免JOIN在UPDATE中的别名问题
-	result := global.GVA_DB.Table("batch_workflow_tasks_extend").
-		Where("batch_workflow_id IN (?) AND status IN (?)",
-			global.GVA_DB.Table("batch_workflows_extend").Select("id").Where("status = ?", gaia.BatchWorkflowStatusStopped),
-			[]string{gaia.BatchTaskStatusPending, gaia.BatchTaskStatusQueued}).
-		Update("status", gaia.BatchTaskStatusCancelled)
+	result := global.GVA_DB.Table("batch_workflow_tasks_extend").Where(
+		"batch_workflow_id IN (?) AND status IN (?)", global.GVA_DB.Table("batch_workflows_extend").Select(
+			"id").Where("status = ?", gaia.BatchWorkflowStatusStopped), []string{
+			gaia.BatchTaskStatusPending, gaia.BatchTaskStatusQueued}).Update(
+		"status", gaia.BatchTaskStatusCancelled)
 
 	if result.Error != nil {
 		global.GVA_LOG.Error("清理已停止的批量工作流任务失败: " + result.Error.Error())
 		return
 	}
-
-	if result.RowsAffected > 0 {
-		global.GVA_LOG.Info(fmt.Sprintf("已清理 %d 个已停止批量工作流中的待处理和排队任务", result.RowsAffected))
-	}
 }
-
-// 全局工作池实例
-var globalWorkerPool *WorkerPool
 
 // InitWorkerPool 初始化全局工作池
 func InitWorkerPool(workers int) {

@@ -1,7 +1,7 @@
 package request
 
 type WorkflowBatchProcessing struct {
-	Outputs map[string]string `json:"outputs" gorm:"comment:从任务生成CSV内容"` // 从任务生成CSV内容
+	Outputs map[string]interface{} `json:"outputs" gorm:"comment:从任务生成CSV内容"` // 从任务生成CSV内容
 }
 
 // SSEEvent 表示一个SSE事件

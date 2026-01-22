@@ -1,74 +1,221 @@
-gaia:
-  url: http://127.0.0.1:5001
-  login_max_error_limit: 5
-  SUPER_ADMIN_ACCOUNT_ID:
-  SUPER_ADMIN_TENANT_ID:
+aliyun-oss:
+    endpoint: ""
+    access-key-id: ""
+    access-key-secret: ""
+    bucket-name: ""
+    bucket-url: ""
+    base-path: ""
+autocode:
+    web: ""
+    root: /Users/tasia/Desktop/code/python/dify-plus/admin
+    server: ""
+    module: github.com/flipped-aurora/gin-vue-admin/server
+    ai-path: ""
+aws-s3:
+    bucket: ""
+    region: ""
+    endpoint: ""
+    secret-id: ""
+    secret-key: ""
+    base-url: ""
+    path-prefix: ""
+    s3-force-path-style: false
+    disable-ssl: false
 captcha:
-  key-long: 6
-  img-width: 240
-  img-height: 80
-  open-captcha: 0
-  open-captcha-timeout: 3600
-jwt:
-  signing-key: sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U
-  expires-time: 1d
-  buffer-time: 1d
-  issuer: CLOUD
-local:
-  path: uploads/file
-  store-path: uploads/file
-oa-login:
-  url:
-  oauth2-client-id:
-  oauth2-client-secret:
-  get-user-info-api-path:
-  get-token-by-code-api-path:
-pgsql:
-  prefix: ""
-  port: "5432"
-  config:
-  db-name:
-  username:
-  password:
-  path:
-  engine: ""
-  log-mode: error
-  max-idle-conns: 10
-  max-open-conns: 100
-  singular: false
-  log-zap: false
-redis:
-  name: ""
-  addr: 127.0.0.1:6379
-  password: difyai123456
-  db: 8
-  useCluster: false
+    key-long: 6
+    img-width: 240
+    img-height: 80
+    open-captcha: 0
+    open-captcha-timeout: 3600
+cloudflare-r2:
+    bucket: ""
+    base-url: ""
+    path: ""
+    account-id: ""
+    access-key-id: ""
+    secret-access-key: ""
+cors:
+    mode: ""
+    whitelist: []
+db-list: []
 dify-redis:
-  name: ""
-  addr: 127.0.0.1:6379
-  password: difyai123456
-  db: 0
-  useCluster: false
+    name: ""
+    addr: 127.0.0.1:6379
+    password: difyai123456
+    db: 0
+    useCluster: false
+    clusterAddrs: []
+disk-list: []
+email:
+    to: ""
+    from: ""
+    host: ""
+    secret: ""
+    nickname: ""
+    port: 0
+    is-ssl: false
+excel:
+    dir: ""
+gaia:
+    url: http://127.0.0.1:5001
+    login_max_error_limit: 5
+    SUPER_ADMIN_ACCOUNT_ID:
+    SUPER_ADMIN_TENANT_ID:
+hua-wei-obs:
+    path: ""
+    bucket: ""
+    endpoint: ""
+    access-key: ""
+    secret-key: ""
+jwt:
+    signing-key: J27pJFVthP4YF76Zej6RinXzZ3piqfYFFJStmCnNWyZtGFi1GV3LvOiT
+    expires-time: 1d
+    buffer-time: 1d
+    issuer: CLOUD
+local:
+    path: uploads/file
+    store-path: uploads/file
+minio:
+    endpoint: ""
+    access-key-id: ""
+    access-key-secret: ""
+    bucket-name: ""
+    use-ssl: false
+    base-path: ""
+    bucket-url: ""
+mongo:
+    coll: ""
+    options: ""
+    database: ""
+    username: ""
+    password: ""
+    auth-source: ""
+    min-pool-size: 0
+    max-pool-size: 0
+    socket-timeout-ms: 0
+    connect-timeout-ms: 0
+    is-zap: false
+    hosts: []
+mssql:
+    prefix: ""
+    port: ""
+    config: ""
+    db-name: ""
+    username: ""
+    password: ""
+    path: ""
+    engine: ""
+    log-mode: ""
+    max-idle-conns: 0
+    max-open-conns: 0
+    singular: false
+    log-zap: false
+mysql:
+    prefix: ""
+    port: ""
+    config: ""
+    db-name: ""
+    username: ""
+    password: ""
+    path: ""
+    engine: ""
+    log-mode: ""
+    max-idle-conns: 0
+    max-open-conns: 0
+    singular: false
+    log-zap: false
+oa-login:
+    url: ""
+    oauth2-client-id: ""
+    oauth2-client-secret: ""
+    get-user-info-api-path: ""
+    get-token-by-code-api-path: ""
+oracle:
+    prefix: ""
+    port: ""
+    config: ""
+    db-name: ""
+    username: ""
+    password: ""
+    path: ""
+    engine: ""
+    log-mode: ""
+    max-idle-conns: 0
+    max-open-conns: 0
+    singular: false
+    log-zap: false
+pgsql:
+    prefix: ""
+    port: "5432"
+    config: sslmode=disable TimeZone=Asia/Shanghai
+    db-name: dify
+    username: postgres
+    password: difyai123456
+    path: 127.0.0.1
+    engine: ""
+    log-mode: error
+    max-idle-conns: 10
+    max-open-conns: 100
+    singular: false
+    log-zap: false
+qiniu:
+    zone: ""
+    bucket: ""
+    img-path: ""
+    access-key: ""
+    secret-key: ""
+    use-https: false
+    use-cdn-domains: false
+redis:
+    name: ""
+    addr: 127.0.0.1:6379
+    password: difyai123456
+    db: 8
+    useCluster: false
+    clusterAddrs: []
+redis-list: []
+sqlite:
+    prefix: ""
+    port: ""
+    config: ""
+    db-name: ""
+    username: ""
+    password: ""
+    path: ""
+    engine: ""
+    log-mode: ""
+    max-idle-conns: 0
+    max-open-conns: 0
+    singular: false
+    log-zap: false
 system:
-  db-type: pgsql
-  oss-type: local
-  router-prefix: ""
-  addr: 8888
-  iplimit-count: 15000
-  iplimit-time: 3600
-  use-multipoint: false
-  use-redis: true
-  use-mongo: false
-  use-strict-auth: false
-  user_default-group-id: "888"
-  work_flow_number: 100
+    db-type: pgsql
+    oss-type: local
+    router-prefix: ""
+    addr: 8888
+    iplimit-count: 15000
+    iplimit-time: 3600
+    use-multipoint: false
+    use-redis: true
+    use-mongo: false
+    use-strict-auth: false
+    work_flow_number: 100
+    user_default-group-id: "888"
+    dockerrun: false
+tencent-cos:
+    bucket: ""
+    region: ""
+    secret-id: ""
+    secret-key: ""
+    base-url: ""
+    path-prefix: ""
 zap:
-  level: info
-  prefix: '[gaia/server]'
-  format: json
-  director: log
-  encode-level: LowercaseColorLevelEncoder
-  stacktrace-key: stacktrace
-  show-line: true
-  log-in-console: true
-  retention-day: -1
+    level: info
+    prefix: '[gaia/server]'
+    format: json
+    director: log
+    encode-level: LowercaseColorLevelEncoder
+    stacktrace-key: stacktrace
+    show-line: true
+    log-in-console: true
+    retention-day: -1

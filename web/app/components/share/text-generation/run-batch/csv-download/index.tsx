@@ -50,23 +50,30 @@ const CSVDownload: FC<ICSVDownloadProps> = ({
           </tbody>
         </table>
       </div>
-      <CSVDownloader
-        className="mt-2 block cursor-pointer"
-        type={Type.Link}
-        filename="template"
-        bom={true}
-        config={{
-          // delimiter: ';',
-        }}
-        data={[
-          template,
-        ]}
-      >
-        <div className="system-xs-medium flex h-[18px] items-center space-x-1 text-text-accent">
-          <DownloadIcon className="h-3 w-3" />
-          <span>{t('generation.downloadTemplate', { ns: 'share' })}</span>
-        </div>
-      </CSVDownloader>
+      {/* Extend: start 聊天批量处理 */}
+      <div className="mt-2 flex items-center justify-between">
+        <CSVDownloader
+          className="cursor-pointer"
+          type={Type.Link}
+          filename="template"
+          bom={true}
+          config={{
+            // delimiter: ';',
+          }}
+          data={[
+            template,
+          ]}
+        >
+          <div className="system-xs-medium flex h-[18px] items-center space-x-1 text-text-accent">
+            <DownloadIcon className="h-3 w-3" />
+            <span>{t('generation.downloadTemplate', { ns: 'share' } )}</span>
+          </div>
+        </CSVDownloader>
+        <span className="system-xs-medium text-text-tertiary">
+          {t('batchWorkflow.willUseBatchProcessing', { ns: 'extend' } )}
+        </span>
+      </div>
+      {/* Extend: stop 聊天批量处理 */}
     </div>
 
   )
