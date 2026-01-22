@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import style from '../page.module.css'
 import Button from '@/app/components/base/button'
-import classNames from '@/utils/classnames'
+import { cn } from '@/utils/classnames'
 import { API_PREFIX } from '@/config'
 
 type SocialAuthProps = {
@@ -32,13 +32,13 @@ export default function DingTalkAuth(props: SocialAuthProps) {
           className="w-full"
         >
           <span className={
-            classNames(
+            cn(
               style.dingIcon,
               'mr-2 h-5 w-5',
             )
           }
           />
-          <span className="truncate">{t('extend.sidebar.withDingTalk')}</span>
+          <span className="truncate">{t('sidebar.withDingTalk', { ns: 'extend' })}</span>
         </Button>
       </a>
     </div>

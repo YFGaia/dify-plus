@@ -8,7 +8,7 @@ import { trackEvent } from '@/app/components/base/amplitude'
 import Button from '@/app/components/base/button'
 import Input from '@/app/components/base/input'
 import Toast from '@/app/components/base/toast'
-import { emailRegex } from '@/config'
+import { emailRegex, CSRF_COOKIE_NAME } from '@/config'
 import { useLocale } from '@/context/i18n'
 import { login } from '@/service/common'
 import { setWebAppAccessToken } from '@/service/webapp-auth'
@@ -66,7 +66,9 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
       })
       if (res.result === 'success') {
         // Track login success event
-        setWebAppAccessToken(res.data.access_token)
+        if (res.data?.access_token) {
+          setWebAppAccessToken(res.data.access_token)
+        }
         trackEvent('user_login_success', {
           method: 'email_password',
           is_invite: isInvite,
@@ -76,17 +78,24 @@ export default function MailAndPasswordAuth({ isInvite, isEmailSetup, allowRegis
           router.replace(`/signin/invite-settings?${searchParams.toString()}`)
         }
         else {
-          const redirectUrl = resolvePostLoginRedirect(searchParams)
-          router.replace(redirectUrl || '/apps')
           // Extend Begin  ----------------
+          const tokenKey = CSRF_COOKIE_NAME()
+          const loginData = res.data as { access_token?: string; refresh_token?: string } | undefined
+          if (loginData?.access_token) {
+            localStorage.setItem(tokenKey, loginData.access_token)
+            if (loginData.refresh_token) {
+              localStorage.setItem('refresh_token', loginData.refresh_token)
+            }
+          }
           // 如果本地浏览器缓存数据存在重定向url，则跳转到重定向url
-          if (localStorage.getItem('redirect_url')) {
-            const redirectUrl = localStorage.getItem('redirect_url')
+          const redirectUrl = localStorage.getItem('redirect_url')
+          if (redirectUrl) {
             localStorage.removeItem('redirect_url')
-            router.replace(redirectUrl as string)
+            window.location.href = redirectUrl
             return
           }
-          router.replace('/explore/apps-center-extend')
+          // 强制跳转到应用中心
+          window.location.href = '/explore/apps-center-extend'
           // Extend End  ----------------
         }
       }

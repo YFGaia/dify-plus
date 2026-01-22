@@ -3,10 +3,14 @@ import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import style from '../page.module.css'
 import Button from '@/app/components/base/button'
-import classNames from '@/utils/classnames'
+import { cn } from '@/utils/classnames'
 import { API_PREFIX } from '@/config'
 
-export default function OAuth2() {
+type OAuth2Props = {
+  title: string
+}
+
+export default function OAuth2(props: OAuth2Props) {
   const { t } = useTranslation()
   const router = useRouter()
 
@@ -22,13 +26,13 @@ export default function OAuth2() {
           className="w-full"
         >
           <span className={
-            classNames(
+            cn(
               style.oauth2Icon,
               'mr-2 h-5 w-5',
             )
           }
           />
-          <span className="truncate">{t('appOverview.overview.appInfo.settings.sso.label')}</span>
+          <span className="truncate">{props.title === '' ? t('withSSO', { ns: 'login' }) : props.title}</span>
         </Button>
       </a>
     </div>

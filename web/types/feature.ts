@@ -59,6 +59,14 @@ export type SystemFeatures = {
     allow_email_code_login: boolean
     allow_email_password_login: boolean
   }
+  // Extend: start 钉钉和OAuth2登录字段
+  is_custom_auth2: string // extend: Customizing AUTH2
+  is_custom_auth2_button: string // extend: Customizing AUTH2 button text
+  is_custom_auth2_logout: string // extend: AUTH2 logout url
+  ding_talk_client_id: string // Extend: DingTalk third-party login
+  ding_talk_corp_id: string // Extend: DingTalk sidebar login
+  ding_talk: boolean // Extend: switch DingTalk sidebar login
+  // Extend: end
 }
 
 export const defaultSystemFeatures: SystemFeatures = {
@@ -98,6 +106,14 @@ export const defaultSystemFeatures: SystemFeatures = {
     allow_email_code_login: false,
     allow_email_password_login: false,
   },
+  // Extend: start 钉钉和OAuth2登录字段默认值
+  is_custom_auth2: '', // extend: Customizing AUTH2
+  is_custom_auth2_button: '', // extend: Customizing AUTH2 button text
+  is_custom_auth2_logout: '', // extend: Customizing AUTH2 logout url
+  ding_talk_client_id: '', // Extend: DingTalk third-party login
+  ding_talk_corp_id: '', // Extend: DingTalk sidebar login
+  ding_talk: false, // Extend: switch DingTalk sidebar login
+  // Extend: end
 }
 
 export enum DatasetAttr {

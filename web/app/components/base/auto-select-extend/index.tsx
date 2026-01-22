@@ -4,7 +4,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { Combobox, Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon, XMarkIcon } from '@heroicons/react/20/solid'
 import { useTranslation } from 'react-i18next'
-import classNames from '@/utils/classnames'
+import { cn } from '@/utils/classnames'
 import {
   PortalToFollowElem,
   PortalToFollowElemContent,
@@ -83,7 +83,7 @@ const Select: FC<ISelectProps> = ({
           onSelect(value)
         }
       }}>
-      <div className={classNames('relative')}>
+      <div className={cn('relative')}>
         <div className='group text-gray-800'>
           {allowSearch
             ? <Combobox.Input
@@ -99,7 +99,7 @@ const Select: FC<ISelectProps> = ({
                 if (!disabled)
                   setOpen(!open)
               }
-            } className={classNames(optionClassName, `flex items-center h-9 w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-gray-200 group-hover:bg-gray-200`)}>
+            } className={cn(optionClassName, `flex items-center h-9 w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-gray-200 group-hover:bg-gray-200`)}>
               <div className='w-0 grow text-left truncate' title={selectedItem?.name}>{selectedItem?.name}</div>
             </Combobox.Button>}
           <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none group-hover:bg-gray-200" onClick={
@@ -119,7 +119,7 @@ const Select: FC<ISelectProps> = ({
                 key={item.value}
                 value={item}
                 className={({ active }: { active: boolean }) =>
-                  classNames(
+                  cn(
                     optionClassName,
                     'relative cursor-default select-none py-2 pl-3 pr-9 rounded-lg hover:bg-gray-100 text-gray-700',
                     active ? 'bg-gray-100' : '',
@@ -128,10 +128,10 @@ const Select: FC<ISelectProps> = ({
               >
                 {({ /* active, */ selected }) => (
                   <>
-                    <span className={classNames('block', selected && 'font-normal')}>{item.name}</span>
+                    <span className={cn('block', selected && 'font-normal')}>{item.name}</span>
                     {selected && (
                       <span
-                        className={classNames(
+                        className={cn(
                           'absolute inset-y-0 right-0 flex items-center pr-4 text-gray-700',
                         )}
                       >
@@ -159,7 +159,7 @@ const SimpleSelect: FC<ISelectProps> = ({
   placeholder,
 }) => {
   const { t } = useTranslation()
-  const localPlaceholder = placeholder || t('common.placeholder.select')
+  const localPlaceholder = placeholder || t('placeholder.select', { ns: 'common' })
 
   const [selectedItem, setSelectedItem] = useState<Item | null>(null)
   useEffect(() => {
@@ -183,7 +183,7 @@ const SimpleSelect: FC<ISelectProps> = ({
     >
       <div className={`relative h-9 ${wrapperClassName}`}>
         <Listbox.Button className={`w-full h-full rounded-lg border-0 bg-gray-100 py-1.5 pl-3 pr-10 sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-gray-200 group-hover:bg-gray-200 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`}>
-          <span className={classNames('block truncate text-left', !selectedItem?.name && 'text-gray-400')}>{selectedItem?.name ?? localPlaceholder}</span>
+          <span className={cn('block truncate text-left', !selectedItem?.name && 'text-gray-400')}>{selectedItem?.name ?? localPlaceholder}</span>
           <span className="absolute inset-y-0 right-0 flex items-center pr-2">
             {selectedItem
               ? (
@@ -226,10 +226,10 @@ const SimpleSelect: FC<ISelectProps> = ({
                 >
                   {({ /* active, */ selected }) => (
                     <>
-                      <span className={classNames('block', selected && 'font-normal')}>{item.name}</span>
+                      <span className={cn('block', selected && 'font-normal')}>{item.name}</span>
                       {selected && (
                         <span
-                          className={classNames(
+                          className={cn(
                             'absolute inset-y-0 right-0 flex items-center pr-4 text-gray-700',
                           )}
                         >
@@ -264,7 +264,7 @@ const PortalSelect: FC<PortalSelectProps> = ({
 }) => {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const localPlaceholder = placeholder || t('common.placeholder.select')
+  const localPlaceholder = placeholder || t('placeholder.select', { ns: 'common' })
   const selectedItem = items.find(item => item.value === value)
 
   return (
@@ -277,7 +277,7 @@ const PortalSelect: FC<PortalSelectProps> = ({
       <PortalToFollowElemTrigger onClick={() => setOpen(v => !v)} className='w-full'>
         <div
           className={`
-            flex items-center justify-between px-2.5 h-9 rounded-lg border-0 bg-gray-100 text-sm cursor-pointer 
+            flex items-center justify-between px-2.5 h-9 rounded-lg border-0 bg-gray-100 text-sm cursor-pointer
           `}
           title={selectedItem?.name}
         >

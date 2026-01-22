@@ -106,7 +106,7 @@ const NormalForm = () => {
         <div className="mx-auto w-full">
           <h2 className="title-4xl-semi-bold text-text-primary">{systemFeatures.branding.enabled ? t('pageTitleForE', { ns: 'login' }) : t('pageTitle', { ns: 'login' })}</h2>
           {/*extend: login.welcome*/}
-          {!systemFeatures.branding.enabled && <p className="body-md-regular mt-2 text-text-tertiary">{t('welcome', { ns: 'login' })}</p>
+          {!systemFeatures.branding.enabled && <p className="body-md-regular mt-2 text-text-tertiary">{t('welcome', { ns: 'login' })}</p>}
         </div>
         <div className="relative">
           <div className="mt-6 flex flex-col gap-3">
