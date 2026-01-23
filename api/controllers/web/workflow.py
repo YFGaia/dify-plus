@@ -86,6 +86,11 @@ class WorkflowRunApi(WebApiResource):
         )
         args = parser.parse_args()
 
+        # extend: 获取 Console 用户 ID，直接作为 from_account_id 传递
+        user_info = is_end_login(end_user)
+        if user_info:
+            args["account_id"] = user_info.id
+
         try:
             AppGenerateServiceExtend.calculate_cumulative_usage(
                 app_model=app_model,

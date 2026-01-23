@@ -23,6 +23,7 @@ from libs.passport import PassportService
 from libs.password import valid_password
 from libs.token import (
     clear_webapp_access_token_from_cookie,
+    extract_access_token,
     extract_webapp_access_token,
 )
 from services.account_service import AccountService
@@ -88,11 +89,23 @@ class LoginStatusApi(Resource):
     def get(self):
         app_code = request.args.get("app_code")
         user_id = request.args.get("user_id")
+        
+        # 检查 Console 用户的 access_token cookie
+        console_token = extract_access_token(request)
+        console_user_logged_in = False
+        if console_token:
+            try:
+                PassportService().verify(console_token)
+                console_user_logged_in = True
+            except Exception:
+                console_user_logged_in = False
+        
         token = extract_webapp_access_token(request)
         if not app_code:
             return {
                 "logged_in": bool(token),
                 "app_logged_in": False,
+                "console_logged_in": console_user_logged_in,
             }
         app_id = AppService.get_app_id_by_code(app_code)
         is_public = not dify_config.ENTERPRISE_ENABLED or not WebAppAuthService.is_app_require_permission_check(
@@ -118,6 +131,7 @@ class LoginStatusApi(Resource):
         return {
             "logged_in": user_logged_in,
             "app_logged_in": app_logged_in,
+            "console_logged_in": console_user_logged_in,
         }
 
 

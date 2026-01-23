@@ -45,20 +45,33 @@ from controllers.web.error_extend import (
 )
 from extensions.ext_database import db
 from libs.passport import PassportService
+from libs.token import extract_access_token
 from models.account_money_extend import AccountMoneyExtend
+from services.account_service import AccountService
 from services.app_generate_service_extend import AppGenerateServiceExtend
 
 
 def is_end_login(end_user):
     user_info = None
     try:
-        auth_token = request.headers.get("Authorization-extend")
+        # 从 cookie 中读取 access_token
+        auth_token = extract_access_token(request)
+        if not auth_token:
+            return None
+            
+        # 验证 access_token
         decoded = PassportService().verify(auth_token)
-        user_info = AccountService.load_logged_in_account(account_id=decoded.get("user_id"))
+        user_id = decoded.get("user_id")
+        
+        # 加载 Console 用户信息
+        user_info = AccountService.load_logged_in_account(account_id=user_id)
+        
+        # 绑定 end_user 与 Console 用户
         if user_info is not None:
             if end_user.external_user_id is None:
-                end_user.external_user_id = decoded.get("user_id")
-    except:
+                end_user.external_user_id = user_id
+                db.session.commit()  # 提交绑定关系
+    except Exception:
         logging.exception("load_logged_in_account error")
         pass
     # no login
@@ -151,6 +164,11 @@ class CompletionApi(WebApiResource):
 
         streaming = payload.response_mode == "streaming"
         args["auto_generate_name"] = False
+
+        # extend 获取 Console 用户 ID，直接作为 from_account_id 传递
+        user_info = is_end_login(end_user)
+        if user_info:
+            args["account_id"] = user_info.id
 
         try:
             AppGenerateServiceExtend.calculate_cumulative_usage(
@@ -250,6 +268,11 @@ class ChatApi(WebApiResource):
 
         streaming = payload.response_mode == "streaming"
         args["auto_generate_name"] = False
+
+        # 获取 Console 用户 ID，直接作为 from_account_id 传递
+        user_info = is_end_login(end_user)
+        if user_info:
+            args["account_id"] = user_info.id
 
         try:
             AppGenerateServiceExtend.calculate_cumulative_usage(

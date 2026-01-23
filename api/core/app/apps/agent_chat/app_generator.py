@@ -98,6 +98,9 @@ class AgentChatAppGenerator(MessageBasedAppGenerator):
         inputs = args["inputs"]
 
         extras = {"auto_generate_conversation_name": args.get("auto_generate_name", True)}
+        # extend: 如果 args 中有 account_id（Web App 登录用户），将其放入 extras
+        if args.get("account_id"):
+            extras["account_id"] = args.get("account_id")
 
         # get conversation
         conversation = None

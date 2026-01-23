@@ -28,6 +28,7 @@ export function clearWebAppPassport(shareCode: string) {
 type isWebAppLogin = {
   logged_in: boolean
   app_logged_in: boolean
+  console_logged_in?: boolean
 }
 
 export async function webAppLoginStatus(shareCode: string, userId?: string) {
@@ -40,6 +41,17 @@ export async function webAppLoginStatus(shareCode: string, userId?: string) {
   return {
     userLoggedIn: logged_in,
     appLoggedIn: app_logged_in,
+  }
+}
+
+export async function checkConsoleLoginStatus() {
+  try {
+    const { console_logged_in } = await getPublic<isWebAppLogin>('/login/status')
+    return console_logged_in || false
+  }
+  catch (error) {
+    console.error('Failed to check console login status:', error)
+    return false
   }
 }
 

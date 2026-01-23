@@ -2,14 +2,14 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppUnavailable from '@/app/components/base/app-unavailable'
 import Loading from '@/app/components/base/loading'
 import { useWebAppStore } from '@/context/web-app-context'
 import { useGetUserCanAccessApp } from '@/service/access-control'
 import { useGetWebAppInfo, useGetWebAppMeta, useGetWebAppParams } from '@/service/use-share'
-import { webAppLogout } from '@/service/webapp-auth'
+import { checkConsoleLoginStatus, webAppLogout } from '@/service/webapp-auth'
 
 const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation()
@@ -22,6 +22,7 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const { isFetching: isFetchingAppInfo, data: appInfo, error: appInfoError } = useGetWebAppInfo()
   const { isFetching: isFetchingAppMeta, data: appMeta, error: appMetaError } = useGetWebAppMeta()
   const { data: userCanAccessApp, error: useCanAccessAppError } = useGetUserCanAccessApp({ appId: appInfo?.app_id, isInstalledApp: false })
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   useEffect(() => {
     if (appInfo)
@@ -36,6 +37,22 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  
+  // 检查 Console 用户登录状态
+  useEffect(() => {
+    const checkConsoleAuth = async () => {
+      setIsCheckingAuth(true)
+      const isConsoleLoggedIn = await checkConsoleLoginStatus()
+      if (!isConsoleLoggedIn) {
+        // 未登录，保存当前 URL 到 localStorage，然后跳转到 Console 登录页面
+        localStorage.setItem('redirect_url', pathname)
+        router.replace('/signin')
+      }
+      setIsCheckingAuth(false)
+    }
+    
+    checkConsoleAuth()
+  }, [pathname, router])
   const getSigninUrl = useCallback(() => {
     const params = new URLSearchParams(searchParams)
     params.delete('message')
@@ -85,7 +102,7 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
     )
   }
-  if (isFetchingAppInfo || isFetchingAppParams || isFetchingAppMeta) {
+  if (isCheckingAuth || isFetchingAppInfo || isFetchingAppParams || isFetchingAppMeta) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loading />

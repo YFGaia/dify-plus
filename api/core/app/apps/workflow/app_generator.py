@@ -166,6 +166,10 @@ class WorkflowAppGenerator(BaseAppGenerator):
             extras["app_token_id"] = api_token.id
         # ------------------- 二开部分End - 密钥额度限制
 
+        # extend: 如果 args 中有 account_id（Web App 登录用户），将其放入 extras
+        if args.get("account_id"):
+            extras["account_id"] = args.get("account_id")
+
         # init application generate entity
         application_generate_entity = WorkflowAppGenerateEntity(
             task_id=str(uuid.uuid4()),

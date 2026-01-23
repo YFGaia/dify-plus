@@ -316,10 +316,9 @@ const Chat: FC<ChatProps> = ({
                   }
                   // Extend: stop messages context handling
                   return (
-                    <>
+                    <Fragment key={item.id}>
                       <Answer
                         appData={appData}
-                        key={item.id}
                         item={item}
                         question={chatList[index - 1]?.content}
                         index={index}
@@ -347,7 +346,7 @@ const Chat: FC<ChatProps> = ({
                         )
                       }
                       {/* Extend: stop messages context handling */}
-                    </>
+                    </Fragment>
                   )
                 }
                 return (

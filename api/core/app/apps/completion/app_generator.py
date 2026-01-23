@@ -130,6 +130,11 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
             app_id=app_model.id, user_id=user.id if isinstance(user, Account) else user.session_id
         )
 
+        # extend: 如果 args 中有 account_id（Web App 登录用户），将其放入 extras
+        extras = {}
+        if args.get("account_id"):
+            extras["account_id"] = args.get("account_id")
+
         # init application generate entity
         application_generate_entity = CompletionAppGenerateEntity(
             task_id=str(uuid.uuid4()),
@@ -144,7 +149,7 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
             user_id=user.id,
             stream=streaming,
             invoke_from=invoke_from,
-            extras={},
+            extras=extras,
             trace_manager=trace_manager,
         )
 

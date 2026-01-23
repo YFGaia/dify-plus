@@ -446,12 +446,6 @@ export const ssePost = async (
     }),
   } as RequestInit, fetchOptions)
 
-  // ----------------- start You must log in to access your account extend ---------------
-  const token = localStorage.getItem(CSRF_COOKIE_NAME()) || ''
-  if ((url === 'chat-messages' || url === 'completion-messages' || url === 'workflows/run') && token.length > 0)
-    (options.headers as Headers).set('Authorization-extend', `${token}`)
-  // ----------------- stop You must log in to access your account extend ---------------
-
   const contentType = (options.headers as Headers).get('Content-Type')
   if (!contentType)
     (options.headers as Headers).set('Content-Type', ContentType.json)

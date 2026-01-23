@@ -957,9 +957,15 @@ class Conversation(Base):
             ):
                 return end_user.session_id
             elif end_user is not None:
-                user: Account = db.session.query(Account).filter(Account.id == end_user.external_user_id).first()
-                if user:
-                    return user.name
+                # 验证 external_user_id 是否为有效的 UUID
+                try:
+                    uuid.UUID(end_user.external_user_id)
+                    user: Account = db.session.query(Account).filter(Account.id == end_user.external_user_id).first()
+                    if user:
+                        return user.name
+                except (ValueError, TypeError):
+                    # 如果不是有效的 UUID，返回 session_id
+                    return end_user.session_id
         elif self.from_account_id:
             user: Account = db.session.query(Account).filter(Account.id == self.from_account_id).first()
             if user:

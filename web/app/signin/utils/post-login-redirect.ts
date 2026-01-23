@@ -21,6 +21,19 @@ function getItemWithExpiry(key: string): string | null {
 }
 
 export const resolvePostLoginRedirect = (searchParams: ReadonlyURLSearchParams) => {
+  // WebApp/Console: 优先走 localStorage 里的 redirect_url（登录成功后必须清理）
+  const localRedirectUrl = localStorage.getItem('redirect_url')
+  if (localRedirectUrl) {
+    localStorage.removeItem('redirect_url')
+    try {
+      return decodeURIComponent(localRedirectUrl)
+    }
+    catch (e) {
+      console.error('Failed to decode redirect URL from localStorage:', e)
+      return localRedirectUrl
+    }
+  }
+
   const redirectUrl = searchParams.get(REDIRECT_URL_KEY)
   if (redirectUrl) {
     try {

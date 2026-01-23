@@ -128,6 +128,9 @@ class MessageBasedAppGenerator(BaseAppGenerator):
         if application_generate_entity.invoke_from in {InvokeFrom.WEB_APP, InvokeFrom.SERVICE_API}:
             from_source = "api"
             end_user_id = application_generate_entity.user_id
+            # 如果 extras 中提供了 account_id（Web App 登录用户），优先使用
+            if application_generate_entity.extras and application_generate_entity.extras.get("account_id"):
+                account_id = application_generate_entity.extras.get("account_id")
         else:
             from_source = "console"
             account_id = application_generate_entity.user_id

@@ -2,13 +2,14 @@
 import type { FC } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppUnavailable from '@/app/components/base/app-unavailable'
+import Loading from '@/app/components/base/loading'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import { useWebAppStore } from '@/context/web-app-context'
 import { AccessMode } from '@/models/access-control'
-import { webAppLogout } from '@/service/webapp-auth'
+import { checkConsoleLoginStatus, webAppLogout } from '@/service/webapp-auth'
 import ExternalMemberSsoAuth from './components/external-member-sso-auth'
 import NormalForm from './normalForm'
 
@@ -18,8 +19,26 @@ const WebSSOForm: FC = () => {
   const webAppAccessMode = useWebAppStore(s => s.webAppAccessMode)
   const searchParams = useSearchParams()
   const router = useRouter()
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   const redirectUrl = searchParams.get('redirect_url')
+  
+  // 检查 Console 用户登录状态
+  useEffect(() => {
+    const checkAuth = async () => {
+      setIsCheckingAuth(true)
+      const isConsoleLoggedIn = await checkConsoleLoginStatus()
+      if (!isConsoleLoggedIn) {
+        // 未登录，保存 redirect_url 到 localStorage，然后跳转到 Console 登录页面
+        if (redirectUrl)
+          localStorage.setItem('redirect_url', redirectUrl)
+        router.replace('/signin')
+      }
+      setIsCheckingAuth(false)
+    }
+    
+    checkAuth()
+  }, [router, redirectUrl])
 
   const getSigninUrl = useCallback(() => {
     const params = new URLSearchParams()
@@ -33,6 +52,14 @@ const WebSSOForm: FC = () => {
     const url = getSigninUrl()
     router.replace(url)
   }, [getSigninUrl, router, webAppLogout, shareCode])
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loading />
+      </div>
+    )
+  }
 
   if (!redirectUrl) {
     return (
