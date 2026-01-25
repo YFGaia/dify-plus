@@ -3,6 +3,7 @@ import urllib.parse
 from dataclasses import dataclass
 
 import httpx
+import requests
 
 from configs import dify_config  # Extend OAuto third-party login
 from extensions.ext_database import db  # Extend OAuto third-party login

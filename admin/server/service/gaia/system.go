@@ -157,6 +157,11 @@ func (e *SystemIntegratedService) TestConnection(integrate gaia.SystemIntegratio
 		if _, err := e.DingTalkConfigAvailable(integrate); err != nil {
 			return errors.New("钉钉链接失败: " + err.Error())
 		}
+		// 验证第三方邮箱API配置
+		if err := e.ValidateEmailApiConfig(integrate); err != nil {
+			global.GVA_LOG.Warn("第三方邮箱API配置验证失败", zap.Error(err))
+			// 不阻止保存，只记录警告
+		}
 		return nil
 	case gaia.SystemIntegrationOAuth2:
 		// 测试OAuth2连接
@@ -164,6 +169,79 @@ func (e *SystemIntegratedService) TestConnection(integrate gaia.SystemIntegratio
 	default:
 		return errors.New("不支持的集成类型")
 	}
+}
+
+// ValidateEmailApiConfig 验证第三方邮箱API配置
+// @Tags System Integrated
+// @Summary 验证第三方邮箱API配置
+// @param: integrate gaia.SystemIntegration
+// @return: error
+func (e *SystemIntegratedService) ValidateEmailApiConfig(integrate gaia.SystemIntegration) error {
+	// 解析Config字段
+	if integrate.Config == "" {
+		return nil // 配置为空不算错误
+	}
+
+	var configMap request.DingTalkConfigRequest
+	if err := json.Unmarshal([]byte(integrate.Config), &configMap); err != nil {
+		return fmt.Errorf("解析配置失败: %s", err.Error())
+	}
+
+	// 检查是否启用邮箱API
+	if !configMap.EmailApi.Enabled {
+		return nil // 未启用不需要验证
+	}
+
+	// 验证必填字段
+	if configMap.EmailApi.URL == "" {
+		return errors.New("邮箱API URL不能为空")
+	}
+
+	if configMap.EmailApi.Method == "" {
+		configMap.EmailApi.Method = "GET"
+	}
+
+	if configMap.EmailApi.RequestParamField == "" {
+		return errors.New("邮箱请求字段不能为空")
+	}
+
+	if configMap.EmailApi.ResponseEmailField == "" {
+		return errors.New("邮箱信息提取字段不能为空")
+	}
+
+	// 验证Body类型（仅POST/PUT/DELETE需要）
+	if configMap.EmailApi.Method != "GET" {
+		bodyType := strings.ToLower(configMap.EmailApi.BodyType)
+		if bodyType == "" {
+			configMap.EmailApi.BodyType = "raw" // 默认raw
+		} else if bodyType != "form-data" && bodyType != "x-www-form-urlencoded" && bodyType != "raw" {
+			return fmt.Errorf("不支持的Body类型: %s，支持的类型: form-data, x-www-form-urlencoded, raw", bodyType)
+		}
+	}
+
+	// 验证Authorization配置
+	authType := strings.ToLower(configMap.EmailApi.Authorization.Type)
+	if authType != "" && authType != "none" {
+		if authType == "bearer" {
+			if configMap.EmailApi.Authorization.Token == "" {
+				return errors.New("Bearer Token不能为空")
+			}
+		} else if authType == "basic" {
+			if configMap.EmailApi.Authorization.Username == "" || configMap.EmailApi.Authorization.Password == "" {
+				return errors.New("Basic Auth需要填写Username和Password")
+			}
+		} else {
+			return fmt.Errorf("不支持的Authorization类型: %s，支持的类型: none, bearer, basic", authType)
+		}
+	}
+
+	global.GVA_LOG.Info("第三方邮箱API配置验证通过",
+		zap.String("url", configMap.EmailApi.URL),
+		zap.String("method", configMap.EmailApi.Method),
+		zap.String("body_type", configMap.EmailApi.BodyType),
+		zap.String("auth_type", configMap.EmailApi.Authorization.Type))
+
+	return nil
 }
 
 // TestOAuth2Connection 测试OAuth2连接

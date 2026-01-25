@@ -20,6 +20,7 @@
   "app.confirmSyncAppContent": "同步应用至探索界面，并关联创建相关标签",
   "app.syncAppOk": "同步成功",
   "app.syncToAppTemplate": "同步至应用模板",
+  "appCard.newConversation": "新对话",
   "appCenter.description": "以下是应用中心，你可以在这里看到分类好的应用，进行使用",
   "appMenus.userOverview": "个人监测",
   "batchWorkflow.batchJobs": "{{num}} 个批量任务",

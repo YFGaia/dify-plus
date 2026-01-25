@@ -4,27 +4,21 @@ import type { CreateAppModalProps } from '@/app/components/explore/create-app-mo
 import type { App } from '@/models/explore'
 import { useDebounceFn } from 'ahooks'
 import { useQueryState } from 'nuqs'
+import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useContext } from 'use-context-selector'
-import DSLConfirmModal from '@/app/components/app/create-from-dsl-modal/dsl-confirm-modal'
-import Input from '@/app/components/base/input'
 import Loading from '@/app/components/base/loading'
 import Category from '@/app/components/explore/category'
-import CreateAppModal from '@/app/components/explore/create-app-modal'
-import ExploreContext from '@/context/explore-context'
-import { useImportDSL } from '@/hooks/use-import-dsl'
-import {
-  DSLImportMode,
-} from '@/models/app'
 import { fetchAppDetail } from '@/service/explore'
-import { useExploreAppList } from '@/service/use-explore'
+import { useInstalledAppList } from '@/service/use-explore'
 import { cn } from '@/utils/classnames'
 import s from './style.module.css'
-import SearchInput from '@/app/components/base/search-input' // Extend: Explore Add Search
-import TagFilter from '@/app/components/base/tag-management/filter' // Extend: Explore Add Search
-import AppCard from '@/app/components/explore/app-card-extend' // Extend: Explore Add Search
+// Extend: start Explore Add Search
+import SearchInput from '@/app/components/base/search-input'
+import TagFilter from '@/app/components/base/tag-management/filter'
+import AppCard from '@/app/components/explore/app-card-extend'
+// Extend: stop Explore Add Search
 
 type AppsProps = {
   onSuccess?: () => void
@@ -34,51 +28,24 @@ const Apps = ({
   onSuccess,
 }: AppsProps) => {
   const { t } = useTranslation()
-  const { hasEditPermission } = useContext(ExploreContext)
   const allCategoriesEn = t('apps.allCategories', { ns: 'explore', lng: 'en' })
 
-  const [keywords, setKeywords] = useState('')
-  const [searchKeywords, setSearchKeywords] = useState('')
-
+  // Extend: start Installed app list sorted by usage
   const {
     data,
     isLoading,
     isError,
-  } = useExploreAppList()
+  } = useInstalledAppList()
+  // Extend: stop Installed app list sorted by usage
 
-  // Extend: Start Explore Add Search
-  const [filteredListExtend, setFilteredListExtend] = useState<any[]>([])
+  // Extend: start Explore Add Search
   const [tagFilterValue, setTagFilterValue] = useState<string[]>([])
   const [keywordsValue, setKeywordsValue] = useState<string>('')
-
-  // Extend: Stop Explore Add Search
-
+  // Extend: stop Explore Add Search
 
   const { run: handleSearch } = useDebounceFn(() => {
-    // extend: start filteredList
-    if (!data)
-      return
-    const cacheList: any[] = []
-    const idList: string[] = []
-    for (const i in data.allList) {
-      if (keywordsValue.length > 0) {
-        if (!(data.allList[i].description.includes(keywordsValue) || data.allList[i].app.name.includes(keywordsValue)))
-          continue
-      }
-      if (tagFilterValue.length > 0) {
-        if (!tagFilterValue.includes(data.allList[i].category))
-          continue
-      }
-      if (!idList.includes(data.allList[i].app_id)) {
-        idList.push(data.allList[i].app_id)
-        cacheList.push(data.allList[i])
-      }
-    }
-    // save
-    setFilteredListExtend(cacheList)
-    // extend: stop filteredList
+    // Trigger search update
   }, { wait: 500 })
-
 
   const handleTagsChange = (value: string[]) => {
     setTagFilterValue(value)
@@ -86,7 +53,7 @@ const Apps = ({
   }
 
   const handleKeywordsChange = (value: string) => {
-    setKeywords(value)
+    setKeywordsValue(value)
     handleSearch()
   }
 
@@ -94,67 +61,46 @@ const Apps = ({
     defaultValue: allCategoriesEn,
   })
 
-  const filteredList = useMemo(() => {
+  // Extend: start Filtered list with search and tag filter
+  const filteredListExtend = useMemo(() => {
     if (!data)
       return []
-    return data.allList.filter(item => currCategory === allCategoriesEn || item.category === currCategory)
-  }, [data, currCategory, allCategoriesEn])
+    
+    let result = data.allList
 
-  const searchFilteredList = useMemo(() => {
-    if (!searchKeywords || !filteredList || filteredList.length === 0)
-      return filteredList
-
-    const lowerCaseSearchKeywords = searchKeywords.toLowerCase()
-
-    return filteredList.filter(item =>
-      item.app && item.app.name && item.app.name.toLowerCase().includes(lowerCaseSearchKeywords),
-    )
-  }, [searchKeywords, filteredList])
-
-  const [currApp, setCurrApp] = React.useState<App | null>(null)
-  const [isShowCreateModal, setIsShowCreateModal] = React.useState(false)
-
-  const {
-    handleImportDSL,
-    handleImportDSLConfirm,
-    versions,
-    isFetching,
-  } = useImportDSL()
-  const [showDSLConfirmModal, setShowDSLConfirmModal] = useState(false)
-  const onCreate: CreateAppModalProps['onConfirm'] = async ({
-    name,
-    icon_type,
-    icon,
-    icon_background,
-    description,
-  }) => {
-    const { export_data } = await fetchAppDetail(
-      currApp?.app.id as string,
-    )
-    const payload = {
-      mode: DSLImportMode.YAML_CONTENT,
-      yaml_content: export_data,
-      name,
-      icon_type,
-      icon,
-      icon_background,
-      description,
+    // Apply category filter
+    if (currCategory !== allCategoriesEn) {
+      result = result.filter(item => item.category === currCategory)
     }
-    await handleImportDSL(payload, {
-      onSuccess: () => {
-        setIsShowCreateModal(false)
-      },
-      onPending: () => {
-        setShowDSLConfirmModal(true)
-      },
-    })
-  }
 
-  const onConfirmDSL = useCallback(async () => {
-    await handleImportDSLConfirm({
-      onSuccess,
-    })
-  }, [handleImportDSLConfirm, onSuccess])
+    // Apply tag filter
+    if (tagFilterValue.length > 0) {
+      result = result.filter(item => tagFilterValue.includes(item.category))
+    }
+
+    // Apply keyword search
+    if (keywordsValue.length > 0) {
+      const lowerCaseKeywords = keywordsValue.toLowerCase()
+      result = result.filter(item =>
+        item.description?.toLowerCase().includes(lowerCaseKeywords) ||
+        item.app?.name?.toLowerCase().includes(lowerCaseKeywords)
+      )
+    }
+
+    return result
+  }, [data, currCategory, allCategoriesEn, tagFilterValue, keywordsValue])
+  // Extend: stop Filtered list with search and tag filter
+
+  // Extend: start Create new conversation for installed app
+  const { push } = useRouter()
+  const handleCreateConversation = useCallback((app: App) => {
+    // Directly navigate to installed app conversation page
+    // Use installed_id which should be provided by backend
+    if (app.installed_id) {
+      push(`/explore/installed/${app.installed_id}`)
+    }
+  }, [push])
+  // Extend: stop Create new conversation for installed app
 
   if (isLoading) {
     return (
@@ -189,21 +135,13 @@ const Apps = ({
           onChange={setCurrCategory}
           allCategoriesEn={allCategoriesEn}
         />
-        <Input
-          showLeftIcon
-          showClearIcon
-          wrapperClassName="w-[200px] self-start"
-          value={keywords}
-          onChange={e => handleKeywordsChange(e.target.value)}
-          onClear={() => handleKeywordsChange('')}
-        />
+        {/* Extend: start Explore Add Search */}
+        <div className="flex items-center gap-2">
+          <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
+          <SearchInput className="w-[200px]" value={keywordsValue} onChange={handleKeywordsChange}/>
+        </div>
+        {/* Extend: stop Explore Add Search */}
       </div>
-      {/* extend: Application Center Search Start */}
-      <div className={cn('flex items-center gap-2', s.rightSearch)}>
-        <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} defaultValue={categories} />
-        <SearchInput className="w-[200px]" value={keywordsValue} onChange={handleKeywordsChange}/>
-      </div>
-      {/* extend: Application Center Search Stop */}
       <div className={cn(
         'relative mt-4 flex flex-1 shrink-0 grow flex-col overflow-auto pb-6',
       )}
@@ -219,39 +157,14 @@ const Apps = ({
               key={app.app_id}
               isExplore
               app={app}
-              canCreate={hasEditPermission}
-              onCreate={() => {
-                setCurrApp(app)
-                setIsShowCreateModal(true)
-              }}
+              // Extend: start Create new conversation for installed app
+              onCreate={() => handleCreateConversation(app)}
+              canCreate={true}
+              // Extend: stop Create new conversation for installed app
             />
           ))}
         </nav>
       </div>
-      {isShowCreateModal && (
-        <CreateAppModal
-          appIconType={currApp?.app.icon_type || 'emoji'}
-          appIcon={currApp?.app.icon || ''}
-          appIconBackground={currApp?.app.icon_background || ''}
-          appIconUrl={currApp?.app.icon_url}
-          appName={currApp?.app.name || ''}
-          appDescription={currApp?.app.description || ''}
-          show={isShowCreateModal}
-          onConfirm={onCreate}
-          confirmDisabled={isFetching}
-          onHide={() => setIsShowCreateModal(false)}
-        />
-      )}
-      {
-        showDSLConfirmModal && (
-          <DSLConfirmModal
-            versions={versions}
-            onCancel={() => setShowDSLConfirmModal(false)}
-            onConfirm={onConfirmDSL}
-            confirmDisabled={isFetching}
-          />
-        )
-      }
     </div>
   )
 }

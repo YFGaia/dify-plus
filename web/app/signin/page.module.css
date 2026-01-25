@@ -9,3 +9,14 @@ html[data-theme="dark"] .githubIcon {
 .googleIcon {
   background: center/contain url('./assets/google.svg') no-repeat;
 }
+
+/* Extend: start 钉钉快捷登录按钮 */
+.dingIcon {
+    background: center/contain url('./assets/ding.svg');
+}
+
+.oauth2Icon {
+    background: center/contain url('./assets/oauth2.svg');
+}
+/* Extend: stop 钉钉快捷登录按钮 */
+

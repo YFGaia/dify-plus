@@ -6,12 +6,6 @@
   text-fill-color: transparent;
 }
 
-.rightSearch {
-    position: absolute;
-    right: 3rem;
-    color: #ff0000;
-}
-
 .appList {
   grid-template-columns: repeat(1, minmax(0, 1fr))
 }

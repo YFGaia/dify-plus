@@ -18,6 +18,7 @@
   "app.confirmSyncAppContent": "Sync app to Explore page and create associated tags",
   "app.syncAppOk": "Sync Successful",
   "app.syncToAppTemplate": "Sync to App Template",
+  "appCard.newConversation": "New Conversation",
   "appCenter.description": "This is the App Center where you can view categorized applications and use them",
   "appMenus.userOverview": "Personal Monitoring",
   "batchWorkflow.batchJobs": "{{num}} batch tasks",

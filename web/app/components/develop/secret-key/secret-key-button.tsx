@@ -17,7 +17,7 @@ const SecretKeyButton = ({ className, appId, textCls }: ISecretKeyButtonProps) =
   const [isVisible, setVisible] = useState(false)
   const { t } = useTranslation()
   if (!isCurrentWorkspaceManager)
-    return ""
+    return null
   return (
     <>
       <Button

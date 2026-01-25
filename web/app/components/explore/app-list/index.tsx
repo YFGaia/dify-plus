@@ -9,7 +9,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import DSLConfirmModal from '@/app/components/app/create-from-dsl-modal/dsl-confirm-modal'
-import Input from '@/app/components/base/input'
 import Loading from '@/app/components/base/loading'
 import AppCard from '@/app/components/explore/app-card'
 import Category from '@/app/components/explore/category'
@@ -23,6 +22,10 @@ import { fetchAppDetail } from '@/service/explore'
 import { useExploreAppList } from '@/service/use-explore'
 import { cn } from '@/utils/classnames'
 import s from './style.module.css'
+// Extend: start Explore Add Search
+import SearchInput from '@/app/components/base/search-input'
+import TagFilter from '@/app/components/base/tag-management/filter'
+// Extend: stop Explore Add Search
 
 type AppsProps = {
   onSuccess?: () => void
@@ -35,17 +38,10 @@ const Apps = ({
   const { hasEditPermission } = useContext(ExploreContext)
   const allCategoriesEn = t('apps.allCategories', { ns: 'explore', lng: 'en' })
 
-  const [keywords, setKeywords] = useState('')
-  const [searchKeywords, setSearchKeywords] = useState('')
-
-  const { run: handleSearch } = useDebounceFn(() => {
-    setSearchKeywords(keywords)
-  }, { wait: 500 })
-
-  const handleKeywordsChange = (value: string) => {
-    setKeywords(value)
-    handleSearch()
-  }
+  // Extend: start Explore Add Search
+  const [tagFilterValue, setTagFilterValue] = useState<string[]>([])
+  const [keywordsValue, setKeywordsValue] = useState<string>('')
+  // Extend: stop Explore Add Search
 
   const [currCategory, setCurrCategory] = useQueryState('category', {
     defaultValue: allCategoriesEn,
@@ -55,24 +51,58 @@ const Apps = ({
     data,
     isLoading,
     isError,
+    // extend: start sync app
+    refetch,
+    // extend: stop sync app
   } = useExploreAppList()
 
-  const filteredList = useMemo(() => {
+  // extend: start sync app
+  // Get recommended apps list to check if app is synced
+  const recommendedAppIds = useMemo(() => {
+    if (!data)
+      return new Set<string>()
+    // Extract app_id from allList to check sync status
+    return new Set(data.allList.map(item => item.app_id))
+  }, [data])
+  // extend: stop sync app
+
+  // Extend: start Filtered list with search and tag filter
+  const filteredListExtend = useMemo(() => {
     if (!data)
       return []
-    return data.allList.filter(item => currCategory === allCategoriesEn || item.category === currCategory)
-  }, [data, currCategory, allCategoriesEn])
+    
+    let result = data.allList
 
-  const searchFilteredList = useMemo(() => {
-    if (!searchKeywords || !filteredList || filteredList.length === 0)
-      return filteredList
+    // Apply category filter
+    if (currCategory !== allCategoriesEn) {
+      result = result.filter(item => item.category === currCategory)
+    }
 
-    const lowerCaseSearchKeywords = searchKeywords.toLowerCase()
+    // Apply tag filter
+    if (tagFilterValue.length > 0) {
+      result = result.filter(item => tagFilterValue.includes(item.category))
+    }
 
-    return filteredList.filter(item =>
-      item.app && item.app.name && item.app.name.toLowerCase().includes(lowerCaseSearchKeywords),
-    )
-  }, [searchKeywords, filteredList])
+    // Apply keyword search
+    if (keywordsValue.length > 0) {
+      const lowerCaseKeywords = keywordsValue.toLowerCase()
+      result = result.filter(item =>
+        item.description?.toLowerCase().includes(lowerCaseKeywords) ||
+        item.app?.name?.toLowerCase().includes(lowerCaseKeywords)
+      )
+    }
+
+    return result
+  }, [data, currCategory, allCategoriesEn, tagFilterValue, keywordsValue])
+  // Extend: stop Filtered list with search and tag filter
+
+  const handleTagsChange = (value: string[]) => {
+    setTagFilterValue(value)
+  }
+
+  const handleKeywordsChange = (value: string) => {
+    setKeywordsValue(value)
+  }
 
   const [currApp, setCurrApp] = React.useState<App | null>(null)
   const [isShowCreateModal, setIsShowCreateModal] = React.useState(false)
@@ -153,14 +183,12 @@ const Apps = ({
           onChange={setCurrCategory}
           allCategoriesEn={allCategoriesEn}
         />
-        <Input
-          showLeftIcon
-          showClearIcon
-          wrapperClassName="w-[200px] self-start"
-          value={keywords}
-          onChange={e => handleKeywordsChange(e.target.value)}
-          onClear={() => handleKeywordsChange('')}
-        />
+        {/* Extend: start Explore Add Search */}
+        <div className="flex items-center gap-2">
+          <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
+          <SearchInput className="w-[200px]" value={keywordsValue} onChange={handleKeywordsChange}/>
+        </div>
+        {/* Extend: stop Explore Add Search */}
       </div>
 
       <div className={cn(
@@ -173,7 +201,7 @@ const Apps = ({
             'grid shrink-0 content-start gap-4 px-6 sm:px-12',
           )}
         >
-          {searchFilteredList.map(app => (
+          {filteredListExtend.map(app => (
             <AppCard
               key={app.app_id}
               isExplore
@@ -183,6 +211,10 @@ const Apps = ({
                 setCurrApp(app)
                 setIsShowCreateModal(true)
               }}
+              // extend: start sync app
+              onApp={recommendedAppIds.has(app.app_id)}
+              onRefresh={() => refetch()}
+              // extend: stop sync app
             />
           ))}
         </nav>

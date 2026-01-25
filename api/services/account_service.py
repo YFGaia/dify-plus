@@ -1337,6 +1337,15 @@ class RegisterService:
             account.status = status or AccountStatus.ACTIVE
             account.initialized_at = naive_utc_now()
 
+            # extend begin：初始化用户额度数据
+            account_money_add = AccountMoneyExtend(
+                account_id=account.id,
+                used_quota=0,
+                total_quota=dify_config.ACCOUNT_TOTAL_QUOTA,
+            )
+            db.session.add(account_money_add)
+            # extend end：初始化用户额度数据
+
             if open_id is not None and provider is not None:
                 AccountService.link_account_integrate(provider, open_id, account)
 

@@ -7,8 +7,6 @@ import { AppModeEnum } from '@/types/app'
 import { cn } from '@/utils/classnames'
 import { AppTypeIcon } from '../../app/type-selector'
 import Button from '../../base/button'
-import { useRouter, useSearchParams } from 'next/navigation'
-
 
 export type AppCardProps = {
   app: App
@@ -18,31 +16,13 @@ export type AppCardProps = {
 }
 
 const AppCard = ({
- app,
- canCreate,
- onCreate,
- isExplore,
-}: AppCardProps) => {
+                   app,
+                   canCreate,
+                   onCreate,
+                   isExplore,
+                 }: AppCardProps) => {
   const { t } = useTranslation()
   const { app: appBasicInfo } = app
-
-  // ------------------------ start You must log in to access your account extend ------------------------
-  const router = useRouter()
-  const openChat = () => {
-    router.replace(`/explore/installed/${app.app.id}`)
-  }
-
-  const searchParams = useSearchParams()
-  const consoleTokenFromLocalStorage = localStorage?.getItem('console_token')
-  const consoleToken = searchParams.get('access_token') ? searchParams.get('access_token') : searchParams.get('console_token')
-
-  if (!(consoleToken || consoleTokenFromLocalStorage)) {
-    if (window.location !== undefined)
-      localStorage?.setItem('redirect_url', window.location.href)
-    router.replace('/signin')
-    return null
-  }
-  // ------------------------ end You must log in to access your account extend ------------------------
   return (
     <div className={cn('group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:shadow-lg')}>
       <div className="flex h-[66px] shrink-0 grow-0 items-center gap-3 px-[14px] pb-3 pt-[14px]">
@@ -83,7 +63,8 @@ const AppCard = ({
           <div className={cn('flex h-8 w-full items-center space-x-2')}>
             <Button variant="primary" className="h-7 grow" onClick={() => onCreate()}>
               <PlusIcon className="mr-1 h-4 w-4" />
-              <span className="text-xs">{t('appCard.addToWorkspace', { ns: 'explore' })}</span>
+              {/* Create new conversation button for installed app */}
+              <span className="text-xs">{t('appCard.newConversation', { ns: 'extend' })}</span>
             </Button>
           </div>
         </div>

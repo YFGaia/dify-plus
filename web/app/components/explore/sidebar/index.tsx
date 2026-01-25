@@ -14,6 +14,8 @@ import { useGetInstalledApps, useUninstallApp, useUpdateAppPinStatus } from '@/s
 import { cn } from '@/utils/classnames'
 import Toast from '../../base/toast'
 import Item from './app-nav-item'
+// extend: app-context
+import { useAppContext } from '@/context/app-context'
 
 const SelectedDiscoveryIcon = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="current" xmlns="http://www.w3.org/2000/svg">
@@ -27,6 +29,24 @@ const DiscoveryIcon = () => (
   </svg>
 )
 
+// ----------------------- 二开部分Begin 新增应用中心-----------------------
+const SelectedAppCenterIcon = () => (
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+       className="remixicon w-4 h-4">
+    <path
+      d="M13.5 2C13.5 2.44425 13.3069 2.84339 13 3.11805V5H18C19.6569 5 21 6.34315 21 8V18C21 19.6569 19.6569 21 18 21H6C4.34315 21 3 19.6569 3 18V8C3 6.34315 4.34315 5 6 5H11V3.11805C10.6931 2.84339 10.5 2.44425 10.5 2C10.5 1.17157 11.1716 0.5 12 0.5C12.8284 0.5 13.5 1.17157 13.5 2ZM0 10H2V16H0V10ZM24 10H22V16H24V10ZM9 14.5C9.82843 14.5 10.5 13.8284 10.5 13C10.5 12.1716 9.82843 11.5 9 11.5C8.17157 11.5 7.5 12.1716 7.5 13C7.5 13.8284 8.17157 14.5 9 14.5ZM16.5 13C16.5 12.1716 15.8284 11.5 15 11.5C14.1716 11.5 13.5 12.1716 13.5 13C13.5 13.8284 14.1716 14.5 15 14.5C15.8284 14.5 16.5 13.8284 16.5 13Z"></path>
+  </svg>
+)
+
+const AppCenterIcon = () => (
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+       className="remixicon w-4 h-4">
+    <path
+      d="M13.5 2C13.5 2.44425 13.3069 2.84339 13 3.11805V5H18C19.6569 5 21 6.34315 21 8V18C21 19.6569 19.6569 21 18 21H6C4.34315 21 3 19.6569 3 18V8C3 6.34315 4.34315 5 6 5H11V3.11805C10.6931 2.84339 10.5 2.44425 10.5 2C10.5 1.17157 11.1716 0.5 12 0.5C12.8284 0.5 13.5 1.17157 13.5 2ZM6 7C5.44772 7 5 7.44772 5 8V18C5 18.5523 5.44772 19 6 19H18C18.5523 19 19 18.5523 19 18V8C19 7.44772 18.5523 7 18 7H13H11H6ZM2 10H0V16H2V10ZM22 10H24V16H22V10ZM9 14.5C9.82843 14.5 10.5 13.8284 10.5 13C10.5 12.1716 9.82843 11.5 9 11.5C8.17157 11.5 7.5 12.1716 7.5 13C7.5 13.8284 8.17157 14.5 9 14.5ZM15 14.5C15.8284 14.5 16.5 13.8284 16.5 13C16.5 12.1716 15.8284 11.5 15 11.5C14.1716 11.5 13.5 12.1716 13.5 13C13.5 13.8284 14.1716 14.5 15 14.5Z"></path>
+  </svg>
+)
+// ----------------------- 二开部分End 新增应用中心-----------------------
+
 export type IExploreSideBarProps = {
   controlUpdateInstalledApps: number
 }
@@ -38,6 +58,8 @@ const SideBar: FC<IExploreSideBarProps> = ({
   const segments = useSelectedLayoutSegments()
   const lastSegment = segments.slice(-1)[0]
   const isDiscoverySelected = lastSegment === 'apps'
+  const { currentWorkspace } = useAppContext() // 二开部分 - “发现”页的隐藏显示逻辑
+  const isAppCenterSelected = lastSegment === 'apps-center-extend' // 二开部分 - 新增应用中心
   const { installedApps, setInstalledApps, setIsFetchingInstalledApps } = useContext(ExploreContext)
   const { isFetching: isFetchingInstalledApps, data: ret, refetch: fetchInstalledAppList } = useGetInstalledApps()
   const { mutateAsync: uninstallApp } = useUninstallApp()
@@ -85,16 +107,32 @@ const SideBar: FC<IExploreSideBarProps> = ({
   const pinnedAppsCount = installedApps.filter(({ is_pinned }) => is_pinned).length
   return (
     <div className="w-fit shrink-0 cursor-pointer border-r border-divider-burn px-4 pt-6 sm:w-[216px]">
-      <div className={cn(isDiscoverySelected ? 'text-text-accent' : 'text-text-tertiary')}>
+      {/* ----------------------- 二开部分Begin 新增应用中心 ----------------------- */}
+      {(currentWorkspace.role === 'owner') && (<div className={cn(isDiscoverySelected ? 'text-text-accent' : 'text-text-tertiary')}>
+          <Link
+            href='/explore/apps'
+            className={cn(isDiscoverySelected ? ' bg-components-main-nav-nav-button-bg-active' : 'font-medium hover:bg-state-base-hover',
+              'flex h-9 items-center gap-2 rounded-lg px-3 mobile:w-fit mobile:justify-center mobile:px-2 pc:w-full pc:justify-start')}
+            style={isDiscoverySelected ? { boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)' } : {}}
+          >
+            {isDiscoverySelected ? <SelectedDiscoveryIcon /> : <DiscoveryIcon />}
+            {!isMobile && <div className='text-sm'>{t('sidebar.discovery', { ns: 'explore' })}</div>}
+          </Link>
+        </div>
+      )}
+      {/* extend: 发现修改字体颜色为gray-900 */}
+      <div className={cn(isAppCenterSelected ? 'text-text-accent' : 'text-text-tertiary')}>
         <Link
-          href="/explore/apps"
-          className={cn(isDiscoverySelected ? ' bg-components-main-nav-nav-button-bg-active' : 'font-medium hover:bg-state-base-hover', 'flex h-9 items-center gap-2 rounded-lg px-3 mobile:w-fit mobile:justify-center mobile:px-2 pc:w-full pc:justify-start')}
-          style={isDiscoverySelected ? { boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)' } : {}}
+          href='/explore/apps-center-extend'
+          className={cn(isAppCenterSelected ? 'bg-components-main-nav-nav-button-bg-active font-semibold' : 'font-medium hover:bg-state-base-hover',
+            'flex h-9 items-center gap-2 rounded-lg px-3 mobile:w-fit mobile:justify-center mobile:px-2 pc:w-full pc:justify-start')}
+          style={isAppCenterSelected ? { boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)' } : {}}
         >
-          {isDiscoverySelected ? <SelectedDiscoveryIcon /> : <DiscoveryIcon />}
-          {!isMobile && <div className="text-sm">{t('sidebar.discovery', { ns: 'explore' })}</div>}
+          {isAppCenterSelected ? <SelectedAppCenterIcon /> : <AppCenterIcon />}
+          {!isMobile && <div className='text-sm'>{t('sidebar.appCenter', { ns: 'extend' })}</div>}
         </Link>
       </div>
+      {/* ----------------------- 二开部分End 新增应用中心 ----------------------- */}
       {installedApps.length > 0 && (
         <div className="mt-10">
           <p className="break-all pl-2 text-xs font-medium uppercase text-text-tertiary mobile:px-0">{t('sidebar.workspace', { ns: 'explore' })}</p>

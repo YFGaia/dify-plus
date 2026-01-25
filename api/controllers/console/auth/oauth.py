@@ -1,4 +1,5 @@
 import logging
+from typing import Optional  # Extend: OAuto third-party login
 
 import httpx
 from flask import current_app, redirect, request
@@ -13,7 +14,7 @@ from events.tenant_event import tenant_was_created
 from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
 from libs.helper import extract_remote_ip
-from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo
+from libs.oauth import GitHubOAuth, GoogleOAuth, OaOAuth, OAuthUserInfo  # Extend: OAuto third-party login
 from libs.token import (
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,

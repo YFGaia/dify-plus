@@ -32,8 +32,11 @@ class RecommendedAppService:
             classList = app.tags
             description = app.description
             config = app.app_model_config
+            # Extend: start Handle apps without tags
             if len(classList) == 0:
-                classList.append(Tag(name="未分类"))
+                # Create a simple object with name attribute for "未分类" category
+                classList.append(type('Tag', (), {'name': '未分类'})())
+            # Extend: stop Handle apps without tags
             if (
                 len(description) == 0
                 and config is not None
@@ -60,6 +63,7 @@ class RecommendedAppService:
                             "icon_background": app.icon_background,
                         },
                         "app_id": installed_app.app_id,
+                        "installed_id": installed_app.id,
                         "description": description,
                         "copyright": "",
                         "privacy_policy": "",

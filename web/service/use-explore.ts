@@ -2,7 +2,7 @@ import type { App, AppCategory } from '@/models/explore'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import { AccessMode } from '@/models/access-control'
-import { fetchAppList, fetchInstalledAppList, getAppAccessModeByAppId, uninstallApp, updatePinStatus } from './explore'
+import { fetchAppList, fetchInstalledAppList, fetchOpenInstalledAppList, getAppAccessModeByAppId, uninstallApp, updatePinStatus } from './explore'
 import { fetchAppMeta, fetchAppParams } from './share'
 
 const NAME_SPACE = 'explore'
@@ -24,6 +24,22 @@ export const useExploreAppList = () => {
     },
   })
 }
+
+// Extend: start Installed app list sorted by usage
+export const useInstalledAppList = () => {
+  return useQuery<ExploreAppListData>({
+    queryKey: [NAME_SPACE, 'installedAppList'],
+    queryFn: async () => {
+      const { categories, recommended_apps } = await fetchOpenInstalledAppList()
+      // Backend already sorts by AppStatisticsExtend.number.desc(), so we keep the order
+      return {
+        categories,
+        allList: recommended_apps,
+      }
+    },
+  })
+}
+// Extend: stop Installed app list sorted by usage
 
 export const useGetInstalledApps = () => {
   return useQuery({

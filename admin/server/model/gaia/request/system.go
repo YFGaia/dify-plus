@@ -27,3 +27,37 @@ type SystemOAuth2Request struct {
 	Test            bool   `json:"test" gorm:"default:0;comment:是否测试链接联通性"`   // 是否测试链接联通性
 	Code            string `json:"code" gorm:"default:0;comment:code代码"`      // code代码
 }
+
+// AuthorizationConfig 认证配置
+type AuthorizationConfig struct {
+	Type     string `json:"type"`     // none | bearer | basic
+	Token    string `json:"token"`    // Bearer Token
+	Username string `json:"username"` // Basic Auth用户名
+	Password string `json:"password"` // Basic Auth密码
+}
+
+// BodyData Body数据配置
+type BodyData struct {
+	FormData   []map[string]string `json:"form_data"`   // form-data格式数据
+	Urlencoded []map[string]string `json:"urlencoded"`  // x-www-form-urlencoded格式数据
+	Raw        string              `json:"raw"`         // raw JSON字符串
+}
+
+// EmailApiConfig 第三方邮箱API配置
+type EmailApiConfig struct {
+	Enabled              bool                `json:"enabled"`                 // 是否启用
+	URL                  string              `json:"url"`                     // API地址
+	Method               string              `json:"method"`                  // HTTP方法
+	RequestParamField    string              `json:"request_param_field"`     // 请求参数字段名
+	BodyType             string              `json:"body_type"`               // Body类型: form-data | x-www-form-urlencoded | raw
+	Headers              map[string]string   `json:"headers"`                 // 请求头
+	Authorization        AuthorizationConfig  `json:"authorization"`           // 认证配置
+	BodyData             BodyData            `json:"body_data"`               // Body数据
+	ResponseEmailField   string              `json:"response_email_field"`    // 响应邮箱字段路径
+}
+
+// DingTalkConfigRequest 钉钉集成配置
+type DingTalkConfigRequest struct {
+	EmailApi EmailApiConfig `json:"email_api"` // 第三方邮箱API配置
+}
+
