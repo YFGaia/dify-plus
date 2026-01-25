@@ -79,5 +79,7 @@
   "sidebar.appCenter": "应用中心",
   "sidebar.withDingTalk": "使用 钉钉 登录",
   "configuration.clearContext": "上下文已清除",
-  "configuration.restoreContext": "点击恢复上下文"
+  "configuration.restoreContext": "点击恢复上下文",
+  "sidebar.discovery": "发现",
+  "aiDraw.title": "AI 作图"
 }

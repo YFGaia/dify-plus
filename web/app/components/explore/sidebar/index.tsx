@@ -122,7 +122,7 @@ const SideBar: FC<IExploreSideBarProps> = ({
             style={isDiscoverySelected ? { boxShadow: '0px 1px 2px rgba(16, 24, 40, 0.05)' } : {}}
           >
             {isDiscoverySelected ? <SelectedDiscoveryIcon /> : <DiscoveryIcon />}
-            {!isMobile && <div className='text-sm'>{t('sidebar.discovery', { ns: 'explore' })}</div>}
+            {!isMobile && <div className='text-sm'>{t('sidebar.discovery', { ns: 'extend' })}</div>}
           </Link>
         </div>
       )}

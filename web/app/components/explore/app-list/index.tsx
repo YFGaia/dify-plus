@@ -117,15 +117,11 @@ const Apps = ({
 
     return result
   }, [data, currCategory, allCategoriesEn, tagFilterValue, keywordsValue])
-  // Extend: stop Filtered list with search and tag filter
 
   const handleTagsChange = (value: string[]) => {
     setTagFilterValue(value)
   }
-
-  const handleKeywordsChange = (value: string) => {
-    setKeywordsValue(value)
-  }
+  // Extend: stop Filtered list with search and tag filter
 
   const [currApp, setCurrApp] = React.useState<App | null>(null)
   const [isShowCreateModal, setIsShowCreateModal] = React.useState(false)
@@ -225,15 +221,6 @@ const Apps = ({
           <SearchInput className="w-[200px]" value={keywordsValue} onChange={handleKeywordsChange}/>
         </div>
         {/* Extend: stop Explore Add Search */}
-      </div>
-
-      <div className="mt-2 px-12">
-        <Category
-          list={categories}
-          value={currCategory}
-          onChange={setCurrCategory}
-          allCategoriesEn={allCategoriesEn}
-        />
       </div>
 
       <div className={cn(

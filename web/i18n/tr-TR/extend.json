@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "AI Çizim",
   "aiVideo.title": "AI Video",
   "aiVideo.translate": "Video Çevirisi",
   "apiKeyModal.accumulatedLimit": "Toplam Kullanım Sınırı",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Uygulamayı Keşif Sayfasına Senkronize Et ve İlgili Etiketleri Oluştur",
   "app.syncAppOk": "Senkronizasyon Başarılı",
   "app.syncToAppTemplate": "Uygulama Şablonuna Senkronize Et",
+  "appCard.newConversation": "Yeni Konuşma",
   "appCenter.description": "İşte Uygulama Merkezi, kategorize edilmiş uygulamaları görüp kullanabileceğiniz yer",
   "appMenus.userOverview": "Kullanıcı Görünümü",
   "batchWorkflow.batchJobs": "{{num}} toplu görev",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Bir hata oluştu",
   "batchWorkflow.failed": "Başarısız",
   "batchWorkflow.initializing": "Toplu görev başlatılıyor...",
+  "batchWorkflow.noBatchTasks": "Toplu işleme görevi yok",
   "batchWorkflow.pending": "Beklemede",
   "batchWorkflow.pleaseWait": "Lütfen bekleyin",
   "batchWorkflow.processed": "{{processed}}/{{total}} satır işlendi",
@@ -63,6 +66,8 @@
   "billingList.link": "Bağlantı",
   "billingList.open": "Genişlet",
   "billingList.router": "Yönlendirici",
+  "configuration.clearContext": "Bağlam temizlendi",
+  "configuration.restoreContext": "Bağlamı geri yüklemek için tıklayın",
   "fileUploader.fileUpload": "Dosya Yükleme",
   "fileUploader.pasteFileLink": "Dosya Bağlantısını Yapıştır",
   "fileUploader.pasteFileLinkInputPlaceholder": "Dosya bağlantısını buraya yapıştırın",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Dosya yükleme hatası, lütfen tekrar yükleyin.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Çalışma Alanı Seç",
   "sidebar.appCenter": "Uygulama Merkezi",
-  "sidebar.withDingTalk": "DingTalk ile Giriş Yap"
+  "sidebar.discovery": "Keşif",
+  "sidebar.withDingTalk": "DingTalk ile Giriş Yap",
+  "user.credit": "Kredi",
+  "user.used": "Kullanılan:"
 }

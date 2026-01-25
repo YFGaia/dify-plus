@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "วาดภาพ AI",
   "aiVideo.title": "วิดีโอ AI",
   "aiVideo.translate": "แปลวิดีโอ",
   "apiKeyModal.accumulatedLimit": "ข้อจำกัดการใช้งานรวม",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "ซิงค์แอปไปยังหน้าค้นหาและเชื่อมโยงการสร้างแท็กที่เกี่ยวข้อง",
   "app.syncAppOk": "ซิงค์สำเร็จ",
   "app.syncToAppTemplate": "ซิงค์ไปยังแม่แบบแอป",
+  "appCard.newConversation": "การสนทนาใหม่",
   "appCenter.description": "นี่คือศูนย์แอป คุณสามารถดูแอปที่จัดประเภทและใช้งานได้ที่นี่",
   "appMenus.userOverview": "การติดตามส่วนบุคคล",
   "batchWorkflow.batchJobs": "{{num}} งานแบตช์",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "เกิดข้อผิดพลาด",
   "batchWorkflow.failed": "ล้มเหลว",
   "batchWorkflow.initializing": "กำลังเริ่มต้นงานแบตช์...",
+  "batchWorkflow.noBatchTasks": "ไม่มีงานประมวลผลแบบกลุ่ม",
   "batchWorkflow.pending": "กำลังรอดำเนินการ",
   "batchWorkflow.pleaseWait": "กรุณารอสักครู่",
   "batchWorkflow.processed": "ประมวลผลแล้ว {{processed}}/{{total}} แถว",
@@ -63,6 +66,8 @@
   "billingList.link": "ลิงก์",
   "billingList.open": "ขยาย",
   "billingList.router": "เส้นทาง",
+  "configuration.clearContext": "ล้างบริบทแล้ว",
+  "configuration.restoreContext": "คลิกเพื่อกู้คืนบริบท",
   "fileUploader.fileUpload": "อัปโหลดไฟล์",
   "fileUploader.pasteFileLink": "วางลิงก์ไฟล์",
   "fileUploader.pasteFileLinkInputPlaceholder": "วางลิงก์ไฟล์ที่นี่",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "อัปโหลดไฟล์ล้มเหลว กรุณาอัปโหลดใหม่อีกครั้ง。",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "เลือกพื้นที่ทำงาน",
   "sidebar.appCenter": "ศูนย์รับสมัครงาน",
-  "sidebar.withDingTalk": "เข้าสู่ระบบโดยใช้ DingTalk"
+  "sidebar.discovery": "การค้นพบ",
+  "sidebar.withDingTalk": "เข้าสู่ระบบโดยใช้ DingTalk",
+  "user.credit": "เครดิต",
+  "user.used": "ใช้แล้ว:"
 }

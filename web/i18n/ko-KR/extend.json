@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "AI 그림",
   "aiVideo.title": "AI 비디오",
   "aiVideo.translate": "비디오 번역",
   "apiKeyModal.accumulatedLimit": "누적 사용 한도",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "탐색 화면에 앱 동기화 및 관련 태그 생성",
   "app.syncAppOk": "동기화 완료",
   "app.syncToAppTemplate": "앱 템플릿으로 동기화",
+  "appCard.newConversation": "새 대화",
   "appCenter.description": "앱 센터입니다. 여기서 분류된 앱을 보고 사용할 수 있습니다.",
   "appMenus.userOverview": "개인 모니터링",
   "batchWorkflow.batchJobs": "{{num}}개의 일괄 작업",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "오류가 발생했습니다",
   "batchWorkflow.failed": "실패",
   "batchWorkflow.initializing": "일괄 작업을 초기화하는 중...",
+  "batchWorkflow.noBatchTasks": "일괄 처리 작업 없음",
   "batchWorkflow.pending": "대기 중",
   "batchWorkflow.pleaseWait": "잠시만 기다려 주세요",
   "batchWorkflow.processed": "{{processed}}/{{total}}행 처리됨",
@@ -63,6 +66,8 @@
   "billingList.link": "링크",
   "billingList.open": "펼치기",
   "billingList.router": "라우터",
+  "configuration.clearContext": "컨텍스트가 지워졌습니다",
+  "configuration.restoreContext": "클릭하여 컨텍스트 복원",
   "fileUploader.fileUpload": "파일 업로드",
   "fileUploader.pasteFileLink": "파일 링크 붙여넣기",
   "fileUploader.pasteFileLinkInputPlaceholder": "여기에 파일 링크를 붙여넣으세요",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "파일 업로드 실패. 다시 업로드해 주세요.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "작업 공간 선택",
   "sidebar.appCenter": "앱 센터",
-  "sidebar.withDingTalk": "딩톡으로 로그인"
+  "sidebar.discovery": "발견",
+  "sidebar.withDingTalk": "딩톡으로 로그인",
+  "user.credit": "크레딧",
+  "user.used": "사용됨:"
 }

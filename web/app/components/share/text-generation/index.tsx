@@ -74,6 +74,7 @@ export type IMainProps = {
 
 const TextGeneration: FC<IMainProps> = ({
   isInstalledApp = false,
+  installedAppInfo,
   isWorkflow = false,
 }) => {
   const { notify } = Toast

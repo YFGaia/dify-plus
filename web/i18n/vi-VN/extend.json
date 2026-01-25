@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "Vẽ AI",
   "aiVideo.title": "Video AI",
   "aiVideo.translate": "Dịch video",
   "apiKeyModal.accumulatedLimit": "Mức sử dụng tích lũy",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Đồng bộ hóa ứng dụng với giao diện khám phá và tạo các thẻ liên quan",
   "app.syncAppOk": "Đồng bộ hóa thành công",
   "app.syncToAppTemplate": "Đồng bộ hóa với mẫu ứng dụng",
+  "appCard.newConversation": "Cuộc trò chuyện mới",
   "appCenter.description": "Dưới đây là Trung tâm ứng dụng, nơi bạn có thể xem các ứng dụng được phân loại và sử dụng",
   "appMenus.userOverview": "Tổng quan người dùng",
   "batchWorkflow.batchJobs": "{{num}} tác vụ hàng loạt",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Đã xảy ra lỗi",
   "batchWorkflow.failed": "Thất bại",
   "batchWorkflow.initializing": "Đang khởi tạo tác vụ hàng loạt...",
+  "batchWorkflow.noBatchTasks": "Không có tác vụ xử lý hàng loạt",
   "batchWorkflow.pending": "Đang chờ xử lý",
   "batchWorkflow.pleaseWait": "Vui lòng đợi",
   "batchWorkflow.processed": "Đã xử lý {{processed}}/{{total}} hàng",
@@ -63,6 +66,8 @@
   "billingList.link": "Liên kết",
   "billingList.open": "Mở rộng",
   "billingList.router": "Định tuyến",
+  "configuration.clearContext": "Đã xóa ngữ cảnh",
+  "configuration.restoreContext": "Nhấp để khôi phục ngữ cảnh",
   "fileUploader.fileUpload": "Tải lên tệp",
   "fileUploader.pasteFileLink": "Dán liên kết tệp",
   "fileUploader.pasteFileLinkInputPlaceholder": "Dán liên kết tệp tại đây",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Tải lên tệp thất bại, vui lòng tải lên lại.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Chọn không gian làm việc",
   "sidebar.appCenter": "Trung tâm ứng dụng",
-  "sidebar.withDingTalk": "Đăng nhập bằng DingTalk"
+  "sidebar.discovery": "Khám phá",
+  "sidebar.withDingTalk": "Đăng nhập bằng DingTalk",
+  "user.credit": "Tín dụng",
+  "user.used": "Đã sử dụng:"
 }

@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "Rysowanie AI",
   "aiVideo.title": "Wideo AI",
   "aiVideo.translate": "Tłumaczenie wideo",
   "apiKeyModal.accumulatedLimit": "Skumulowany limit użycia",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Synchronizuj aplikację z interfejsem odkrywania i powiąż utworzone tagi",
   "app.syncAppOk": "Synchronizacja zakończona sukcesem",
   "app.syncToAppTemplate": "Synchronizuj z szablonem aplikacji",
+  "appCard.newConversation": "Nowa rozmowa",
   "appCenter.description": "Oto Centrum Aplikacji, gdzie możesz zobaczyć sklasyfikowane aplikacje i z nich korzystać",
   "appMenus.userOverview": "Przegląd użytkownika",
   "batchWorkflow.batchJobs": "{{num}} zadań wsadowych",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Wystąpił błąd",
   "batchWorkflow.failed": "Nieudane",
   "batchWorkflow.initializing": "Inicjalizacja zadania wsadowego...",
+  "batchWorkflow.noBatchTasks": "Brak zadań przetwarzania wsadowego",
   "batchWorkflow.pending": "Oczekujące",
   "batchWorkflow.pleaseWait": "Proszę czekać",
   "batchWorkflow.processed": "Przetworzono {{processed}}/{{total}} wierszy",
@@ -63,6 +66,8 @@
   "billingList.link": "Link",
   "billingList.open": "Rozwiń",
   "billingList.router": "Router",
+  "configuration.clearContext": "Kontekst wyczyszczony",
+  "configuration.restoreContext": "Kliknij, aby przywrócić kontekst",
   "fileUploader.fileUpload": "Przesyłanie pliku",
   "fileUploader.pasteFileLink": "Wklej link do pliku",
   "fileUploader.pasteFileLinkInputPlaceholder": "Wklej link do pliku tutaj",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Przesyłanie pliku nie powiodło się, prześlij ponownie.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Wybierz przestrzeń roboczą",
   "sidebar.appCenter": "Centrum Aplikacji",
-  "sidebar.withDingTalk": "Zaloguj się za pomocą DingTalk"
+  "sidebar.discovery": "Odkrywanie",
+  "sidebar.withDingTalk": "Zaloguj się za pomocą DingTalk",
+  "user.credit": "Kredyt",
+  "user.used": "Użyto:"
 }

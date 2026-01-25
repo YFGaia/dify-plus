@@ -22,7 +22,7 @@ const ExploreNav = ({
 
   return (
     <Link
-      href="/explore/apps"
+      href="/explore/apps-center-extend"
       className={cn(className, 'group', activated && 'bg-components-main-nav-nav-button-bg-active shadow-md', activated ? 'text-components-main-nav-nav-button-text-active' : 'text-components-main-nav-nav-button-text hover:bg-components-main-nav-nav-button-bg-hover')}
     >
       {

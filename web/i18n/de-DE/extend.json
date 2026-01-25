@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "KI-Zeichnung",
   "aiVideo.title": "KI-Video",
   "aiVideo.translate": "Video übersetzen",
   "apiKeyModal.accumulatedLimit": "Kumulierte Nutzung",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "App zur Entdeckungsseite synchronisieren und zugehörige Tags erstellen",
   "app.syncAppOk": "Synchronisierung erfolgreich",
   "app.syncToAppTemplate": "Zur App-Vorlage synchronisieren",
+  "appCard.newConversation": "Neue Unterhaltung",
   "appCenter.description": "Hier ist der App-Center, wo Sie kategorisierte Apps finden und nutzen können",
   "appMenus.userOverview": "Persönliche Überwachung",
   "batchWorkflow.batchJobs": "{{num}} Stapelaufgaben",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Fehler aufgetreten",
   "batchWorkflow.failed": "Fehlgeschlagen",
   "batchWorkflow.initializing": "Stapelaufgabe wird initialisiert...",
+  "batchWorkflow.noBatchTasks": "Keine Stapelverarbeitungsaufgaben",
   "batchWorkflow.pending": "Ausstehend",
   "batchWorkflow.pleaseWait": "Bitte warten",
   "batchWorkflow.processed": "{{processed}}/{{total}} Zeilen verarbeitet",
@@ -63,6 +66,8 @@
   "billingList.link": "Link",
   "billingList.open": "Erweitern",
   "billingList.router": "Router",
+  "configuration.clearContext": "Kontext gelöscht",
+  "configuration.restoreContext": "Klicken, um Kontext wiederherzustellen",
   "fileUploader.fileUpload": "Datei-Upload",
   "fileUploader.pasteFileLink": "Datei-Link einfügen",
   "fileUploader.pasteFileLinkInputPlaceholder": "Datei-Link hier einfügen",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Datei-Upload fehlgeschlagen, bitte erneut hochladen.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Arbeitsbereich auswählen",
   "sidebar.appCenter": "App-Center",
-  "sidebar.withDingTalk": "Anmelden mit DingTalk"
+  "sidebar.discovery": "Entdecken",
+  "sidebar.withDingTalk": "Anmelden mit DingTalk",
+  "user.credit": "Guthaben",
+  "user.used": "Verwendet:"
 }

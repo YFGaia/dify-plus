@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "AI 作圖",
   "aiVideo.title": "AI 視頻",
   "aiVideo.translate": "視頻翻譯",
   "apiKeyModal.accumulatedLimit": "累計使用額度",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "同步應用至探索介面，並關聯創建相關標籤",
   "app.syncAppOk": "同步成功",
   "app.syncToAppTemplate": "同步至應用模板",
+  "appCard.newConversation": "新對話",
   "appCenter.description": "以下是應用中心，你可以在這裡看到分類好的應用，進行使用",
   "appMenus.userOverview": "個人監測",
   "batchWorkflow.batchJobs": "{{num}} 個批量任務",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "發生錯誤",
   "batchWorkflow.failed": "失敗",
   "batchWorkflow.initializing": "正在初始化批量任務...",
+  "batchWorkflow.noBatchTasks": "暫無批量處理任務",
   "batchWorkflow.pending": "待處理",
   "batchWorkflow.pleaseWait": "請稍候",
   "batchWorkflow.processed": "已處理 {{processed}}/{{total}} 行",
@@ -63,6 +66,8 @@
   "billingList.link": "鏈接",
   "billingList.open": "展開",
   "billingList.router": "路由",
+  "configuration.clearContext": "上下文已清除",
+  "configuration.restoreContext": "點擊恢復上下文",
   "fileUploader.fileUpload": "文件上傳",
   "fileUploader.pasteFileLink": "粘貼文件鏈接",
   "fileUploader.pasteFileLinkInputPlaceholder": "將文件鏈接粘貼到此處",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "文件上傳失敗，請重新上傳。",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "選擇工作空間",
   "sidebar.appCenter": "應用中心",
-  "sidebar.withDingTalk": "使用 釘釘 登錄"
+  "sidebar.discovery": "發現",
+  "sidebar.withDingTalk": "使用 釘釘 登錄",
+  "user.credit": "額度",
+  "user.used": "已用:"
 }

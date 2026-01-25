@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "AI 作図",
   "aiVideo.title": "AI ビデオ",
   "aiVideo.translate": "ビデオ翻訳",
   "apiKeyModal.accumulatedLimit": "累計使用制限",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "探索画面にアプリを同期し、関連するタグを作成",
   "app.syncAppOk": "同期に成功しました",
   "app.syncToAppTemplate": "アプリテンプレートに同期",
+  "appCard.newConversation": "新しい会話",
   "appCenter.description": "以下はアプリセンターです。ここでカテゴリ分けされたアプリを閲覧できます",
   "appMenus.userOverview": "個人モニタリング",
   "batchWorkflow.batchJobs": "{{num}} 個のバッチタスク",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "エラーが発生しました",
   "batchWorkflow.failed": "失敗",
   "batchWorkflow.initializing": "バッチタスクを初期化中...",
+  "batchWorkflow.noBatchTasks": "バッチ処理タスクがありません",
   "batchWorkflow.pending": "処理待ち",
   "batchWorkflow.pleaseWait": "お待ちください",
   "batchWorkflow.processed": "{{processed}}/{{total}} 行を処理済み",
@@ -63,6 +66,8 @@
   "billingList.link": "リンク",
   "billingList.open": "展開",
   "billingList.router": "ルーター",
+  "configuration.clearContext": "コンテキストがクリアされました",
+  "configuration.restoreContext": "クリックしてコンテキストを復元",
   "fileUploader.fileUpload": "ファイルアップロード",
   "fileUploader.pasteFileLink": "ファイルリンクを貼り付け",
   "fileUploader.pasteFileLinkInputPlaceholder": "ここにファイルリンクを貼り付けてください",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "ファイルのアップロードに失敗しました。もう一度アップロードしてください。",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "ワークスペースを選択",
   "sidebar.appCenter": "アプリセンター",
-  "sidebar.withDingTalk": "DingTalkでログイン"
+  "sidebar.discovery": "発見",
+  "sidebar.withDingTalk": "DingTalkでログイン",
+  "user.credit": "クレジット",
+  "user.used": "使用済み:"
 }

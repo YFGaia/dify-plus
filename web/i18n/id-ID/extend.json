@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "Gambar AI",
   "aiVideo.title": "Video AI",
   "aiVideo.translate": "Terjemahan Video",
   "apiKeyModal.accumulatedLimit": "Batas penggunaan kumulatif",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Sinkronkan aplikasi ke halaman Jelajah dan buat tag terkait",
   "app.syncAppOk": "Sinkronisasi berhasil",
   "app.syncToAppTemplate": "Sinkronkan ke template aplikasi",
+  "appCard.newConversation": "Percakapan baru",
   "appCenter.description": "Berikut adalah Pusat Aplikasi, di mana Anda dapat melihat aplikasi yang dikategorikan dan menggunakannya",
   "appMenus.userOverview": "Pemantauan Pribadi",
   "batchWorkflow.batchJobs": "{{num}} tugas batch",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Terjadi kesalahan",
   "batchWorkflow.failed": "Gagal",
   "batchWorkflow.initializing": "Menginisialisasi tugas batch...",
+  "batchWorkflow.noBatchTasks": "Tidak ada tugas pemrosesan batch",
   "batchWorkflow.pending": "Tertunda",
   "batchWorkflow.pleaseWait": "Mohon tunggu",
   "batchWorkflow.processed": "Diproses {{processed}}/{{total}} baris",
@@ -63,6 +66,8 @@
   "billingList.link": "Tautan",
   "billingList.open": "Perluas",
   "billingList.router": "Router",
+  "configuration.clearContext": "Konteks dibersihkan",
+  "configuration.restoreContext": "Klik untuk memulihkan konteks",
   "fileUploader.fileUpload": "Unggah file",
   "fileUploader.pasteFileLink": "Tempel tautan file",
   "fileUploader.pasteFileLinkInputPlaceholder": "Tempel tautan file di sini",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Gagal mengunggah file, silakan unggah ulang.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Pilih workspace",
   "sidebar.appCenter": "Pusat Aplikasi",
-  "sidebar.withDingTalk": "Masuk dengan DingTalk"
+  "sidebar.discovery": "Penemuan",
+  "sidebar.withDingTalk": "Masuk dengan DingTalk",
+  "user.credit": "Kredit",
+  "user.used": "Digunakan:"
 }

@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "نقاشی AI",
   "aiVideo.title": "ویدیوی هوش مصنوعی",
   "aiVideo.translate": "ترجمه ویدیو",
   "apiKeyModal.accumulatedLimit": "سهمیه استفاده تجمعی",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "همگام‌سازی برنامه به صفحه کشف و ایجاد برچسب‌های مرتبط",
   "app.syncAppOk": "همگام‌سازی موفقیت‌آمیز بود",
   "app.syncToAppTemplate": "همگام‌سازی به قالب برنامه",
+  "appCard.newConversation": "مکالمه جدید",
   "appCenter.description": "این مرکز برنامه‌هاست، جایی که می‌توانید برنامه‌های دسته‌بندی شده را مشاهده و استفاده کنید",
   "appMenus.userOverview": "نظارت شخصی",
   "batchWorkflow.batchJobs": "{{num}} وظیفه دسته‌ای",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "خطا رخ داد",
   "batchWorkflow.failed": "شکست خورد",
   "batchWorkflow.initializing": "در حال راه‌اندازی وظیفه دسته‌ای...",
+  "batchWorkflow.noBatchTasks": "هیچ کار پردازش دسته‌ای وجود ندارد",
   "batchWorkflow.pending": "در انتظار پردازش",
   "batchWorkflow.pleaseWait": "لطفاً منتظر بمانید",
   "batchWorkflow.processed": "{{processed}}/{{total}} ردیف پردازش شد",
@@ -63,6 +66,8 @@
   "billingList.link": "پیوند",
   "billingList.open": "باز کردن",
   "billingList.router": "مسیریاب",
+  "configuration.clearContext": "زمینه پاک شد",
+  "configuration.restoreContext": "برای بازیابی زمینه کلیک کنید",
   "fileUploader.fileUpload": "بارگذاری فایل",
   "fileUploader.pasteFileLink": "چسباندن لینک فایل",
   "fileUploader.pasteFileLinkInputPlaceholder": "لینک فایل را در اینجا بچسبانید",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "بارگذاری فایل شکست خورد، لطفاً مجدداً بارگذاری کنید.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "انتخاب فضای کاری",
   "sidebar.appCenter": "مرکز برنامه‌ها",
-  "sidebar.withDingTalk": "ورود با DingTalk"
+  "sidebar.discovery": "کشف",
+  "sidebar.withDingTalk": "ورود با DingTalk",
+  "user.credit": "اعتبار",
+  "user.used": "استفاده شده:"
 }

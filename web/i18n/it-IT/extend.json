@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "Disegno IA",
   "aiVideo.title": "Video AI",
   "aiVideo.translate": "Traduzione video",
   "apiKeyModal.accumulatedLimit": "Limite utilizzo cumulativo",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Sincronizza app con la pagina di esplorazione e crea tag correlati",
   "app.syncAppOk": "Sincronizzazione riuscita",
   "app.syncToAppTemplate": "Sincronizza con modello app",
+  "appCard.newConversation": "Nuova conversazione",
   "appCenter.description": "Qui di seguito è il centro app, dove puoi visualizzare le applicazioni categorizzate e utilizzarle",
   "appMenus.userOverview": "Panoramica utente",
   "batchWorkflow.batchJobs": "{{num}} attività batch",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Si è verificato un errore",
   "batchWorkflow.failed": "Non riuscito",
   "batchWorkflow.initializing": "Inizializzazione attività batch...",
+  "batchWorkflow.noBatchTasks": "Nessuna attività di elaborazione batch",
   "batchWorkflow.pending": "In attesa",
   "batchWorkflow.pleaseWait": "Si prega di attendere",
   "batchWorkflow.processed": "Elaborate {{processed}}/{{total}} righe",
@@ -63,6 +66,8 @@
   "billingList.link": "Link",
   "billingList.open": "Espandi",
   "billingList.router": "Router",
+  "configuration.clearContext": "Contesto cancellato",
+  "configuration.restoreContext": "Fare clic per ripristinare il contesto",
   "fileUploader.fileUpload": "Caricamento file",
   "fileUploader.pasteFileLink": "Incolla link file",
   "fileUploader.pasteFileLinkInputPlaceholder": "Incolla qui il link del file",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Caricamento file non riuscito, ricaricare.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Seleziona spazio di lavoro",
   "sidebar.appCenter": "Centro App",
-  "sidebar.withDingTalk": "Accedi con DingTalk"
+  "sidebar.discovery": "Scoperta",
+  "sidebar.withDingTalk": "Accedi con DingTalk",
+  "user.credit": "Credito",
+  "user.used": "Usato:"
 }

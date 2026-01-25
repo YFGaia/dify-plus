@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "AI Рисование",
   "aiVideo.title": "AI-видео",
   "aiVideo.translate": "Перевод видео",
   "apiKeyModal.accumulatedLimit": "Накопленный лимит использования",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Синхронизировать приложение со страницей \"Исследование\" и связать созданные теги",
   "app.syncAppOk": "Синхронизация успешна",
   "app.syncToAppTemplate": "Синхронизировать с шаблоном приложения",
+  "appCard.newConversation": "Новый разговор",
   "appCenter.description": "Ниже представлен Центр приложений, где вы можете просмотреть категоризированные приложения и использовать их",
   "appMenus.userOverview": "Личный обзор",
   "batchWorkflow.batchJobs": "{{num}} пакетных задач",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Произошла ошибка",
   "batchWorkflow.failed": "Не удалось",
   "batchWorkflow.initializing": "Инициализация пакетной задачи...",
+  "batchWorkflow.noBatchTasks": "Нет задач пакетной обработки",
   "batchWorkflow.pending": "В ожидании",
   "batchWorkflow.pleaseWait": "Пожалуйста, подождите",
   "batchWorkflow.processed": "Обработано {{processed}}/{{total}} строк",
@@ -63,6 +66,8 @@
   "billingList.link": "Ссылка",
   "billingList.open": "Развернуть",
   "billingList.router": "Маршрутизатор",
+  "configuration.clearContext": "Контекст очищен",
+  "configuration.restoreContext": "Нажмите, чтобы восстановить контекст",
   "fileUploader.fileUpload": "Загрузка файла",
   "fileUploader.pasteFileLink": "Вставить ссылку на файл",
   "fileUploader.pasteFileLinkInputPlaceholder": "Вставьте здесь ссылку на файл",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Не удалось загрузить файл, пожалуйста, загрузите его снова.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Выберите рабочее пространство",
   "sidebar.appCenter": "Центр приложений",
-  "sidebar.withDingTalk": "Войти с помощью DingTalk"
+  "sidebar.discovery": "Обнаружение",
+  "sidebar.withDingTalk": "Войти с помощью DingTalk",
+  "user.credit": "Кредит",
+  "user.used": "Использовано:"
 }

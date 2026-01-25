@@ -2,7 +2,15 @@ import type { App, AppCategory } from '@/models/explore'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import { AccessMode } from '@/models/access-control'
-import { fetchAppList, fetchBanners, fetchInstalledAppList, getAppAccessModeByAppId, uninstallApp, updatePinStatus } from './explore'
+import {
+  fetchAppList,
+  fetchBanners,
+  fetchInstalledAppList,
+  fetchOpenInstalledAppList,
+  getAppAccessModeByAppId,
+  uninstallApp,
+  updatePinStatus,
+} from './explore'
 import { AppSourceType, fetchAppMeta, fetchAppParams } from './share'
 
 const NAME_SPACE = 'explore'

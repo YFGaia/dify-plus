@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "Dibujo IA",
   "aiVideo.title": "Video de IA",
   "aiVideo.translate": "Traducción de video",
   "apiKeyModal.accumulatedLimit": "Límite de uso acumulado",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Sincronizar aplicación a la interfaz de exploración y crear etiquetas relacionadas",
   "app.syncAppOk": "Sincronización exitosa",
   "app.syncToAppTemplate": "Sincronizar a plantilla de aplicación",
+  "appCard.newConversation": "Nueva conversación",
   "appCenter.description": "A continuación se encuentra el centro de aplicaciones, donde puedes ver aplicaciones categorizadas y utilizarlas",
   "appMenus.userOverview": "Monitoreo personal",
   "batchWorkflow.batchJobs": "{{num}} tareas por lotes",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Ocurrió un error",
   "batchWorkflow.failed": "Fallido",
   "batchWorkflow.initializing": "Inicializando tarea por lotes...",
+  "batchWorkflow.noBatchTasks": "No hay tareas de procesamiento por lotes",
   "batchWorkflow.pending": "Pendiente",
   "batchWorkflow.pleaseWait": "Por favor espere",
   "batchWorkflow.processed": "Procesadas {{processed}}/{{total}} filas",
@@ -63,6 +66,8 @@
   "billingList.link": "Enlace",
   "billingList.open": "Expandir",
   "billingList.router": "Enrutador",
+  "configuration.clearContext": "Contexto borrado",
+  "configuration.restoreContext": "Haga clic para restaurar el contexto",
   "fileUploader.fileUpload": "Carga de archivo",
   "fileUploader.pasteFileLink": "Pegar enlace de archivo",
   "fileUploader.pasteFileLinkInputPlaceholder": "Pegue el enlace del archivo aquí",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Error al cargar el archivo, por favor vuelva a cargar.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Seleccionar espacio de trabajo",
   "sidebar.appCenter": "Centro de aplicaciones",
-  "sidebar.withDingTalk": "Iniciar sesión con DingTalk"
+  "sidebar.discovery": "Descubrimiento",
+  "sidebar.withDingTalk": "Iniciar sesión con DingTalk",
+  "user.credit": "Crédito",
+  "user.used": "Usado:"
 }

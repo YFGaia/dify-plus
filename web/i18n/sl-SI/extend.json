@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "AI risanje",
   "aiVideo.title": "AI Video",
   "aiVideo.translate": "Prevod videoposnetka",
   "apiKeyModal.accumulatedLimit": "Skupna poraba",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Sinhroniziraj aplikacijo v raziskovalni vmesnik in ustvari povezane oznake",
   "app.syncAppOk": "Sinhronizacija uspešna",
   "app.syncToAppTemplate": "Sinhroniziraj v predlogo aplikacije",
+  "appCard.newConversation": "Nov pogovor",
   "appCenter.description": "To je center aplikacij, kjer lahko vidite razvrščene aplikacije in jih uporabljate",
   "appMenus.userOverview": "Pregled uporabnika",
   "batchWorkflow.batchJobs": "{{num}} paketnih nalog",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Prišlo je do napake",
   "batchWorkflow.failed": "Neuspešno",
   "batchWorkflow.initializing": "Inicializacija paketne naloge...",
+  "batchWorkflow.noBatchTasks": "Ni nalog za paketno obdelavo",
   "batchWorkflow.pending": "Na čakanju",
   "batchWorkflow.pleaseWait": "Prosimo počakajte",
   "batchWorkflow.processed": "Obdelanih {{processed}}/{{total}} vrstic",
@@ -63,6 +66,8 @@
   "billingList.link": "Povezava",
   "billingList.open": "Razširi",
   "billingList.router": "Usmerjevalnik",
+  "configuration.clearContext": "Kontekst počiščen",
+  "configuration.restoreContext": "Kliknite za obnovitev konteksta",
   "fileUploader.fileUpload": "Nalaganje datoteke",
   "fileUploader.pasteFileLink": "Prilepi povezavo do datoteke",
   "fileUploader.pasteFileLinkInputPlaceholder": "Tukaj prilepite povezavo do datoteke",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Nalaganje datoteke ni uspelo, prosimo poskusite znova.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Izberite delovni prostor",
   "sidebar.appCenter": "Center aplikacij",
-  "sidebar.withDingTalk": "Vpis z DingTalk"
+  "sidebar.discovery": "Odkritje",
+  "sidebar.withDingTalk": "Vpis z DingTalk",
+  "user.credit": "Kredit",
+  "user.used": "Uporabljeno:"
 }

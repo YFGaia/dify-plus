@@ -36,10 +36,10 @@ if [[ "${MODE}" == "worker" ]]; then
   if [[ -z "${CELERY_QUEUES}" ]]; then
     if [[ "${EDITION}" == "CLOUD" ]]; then
       # Cloud edition: separate queues for dataset and trigger tasks
-      DEFAULT_QUEUES="priority_dataset,priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow_professional,workflow_team,workflow_sandbox,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention"
+      DEFAULT_QUEUES="priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow_professional,workflow_team,workflow_sandbox,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention"
     else
       # Community edition (SELF_HOSTED): dataset, pipeline and workflow have separate queues
-      DEFAULT_QUEUES="priority_dataset,priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention"
+      DEFAULT_QUEUES="priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention"
     fi
   else
     DEFAULT_QUEUES="${CELERY_QUEUES}"
@@ -64,20 +64,11 @@ if [[ "${MODE}" == "worker" ]]; then
   WORKER_POOL="${CELERY_WORKER_POOL:-${CELERY_WORKER_CLASS:-gevent}}"
   echo "Starting Celery worker with queues: ${DEFAULT_QUEUES}"
 
-  ## 二开部分，额度计算移动到新的队列中
   exec celery -A celery_entrypoint.celery worker -P ${WORKER_POOL} $CONCURRENCY_OPTION \
     --max-tasks-per-child ${MAX_TASKS_PER_CHILD:-50} --loglevel ${LOG_LEVEL:-INFO} \
     -Q ${DEFAULT_QUEUES} \
     --prefetch-multiplier=${CELERY_PREFETCH_MULTIPLIER:-1}
 
-  ## 二开部分，额度计算移动到新的队列中
-## 二开部分，额度计算
-elif [[ "${MODE}" == "worker-gaia" ]]; then
-  exec celery -A app.celery worker -P gevent -c 1 -Q extend_high,extend_low --loglevel INFO
-## 二开部分，单一运行的知识库，多容器执行会导致卡住问题
-elif [[ "${MODE}" == "worker-dataset" ]]; then
-  exec celery -A app.celery worker -P gevent -c 1 -Q dataset --prefetch-multiplier=1 --loglevel INFO
-## 二开部分，end
 elif [[ "${MODE}" == "beat" ]]; then
   exec celery -A app.celery beat --loglevel ${LOG_LEVEL:-INFO}
 

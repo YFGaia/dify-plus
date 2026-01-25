@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "AI Drawing",
   "aiVideo.title": "AI Video",
   "aiVideo.translate": "Video Translation",
   "apiKeyModal.accumulatedLimit": "Cumulative Usage Limit",
@@ -65,6 +66,8 @@
   "billingList.link": "Link",
   "billingList.open": "Expand",
   "billingList.router": "Route",
+  "configuration.clearContext": "Context cleared",
+  "configuration.restoreContext": "Click to restore context",
   "fileUploader.fileUpload": "File upload",
   "fileUploader.pasteFileLink": "Paste file link",
   "fileUploader.pasteFileLinkInputPlaceholder": "Paste file link here",
@@ -75,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "File upload failed, please upload again.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Select workspace",
   "sidebar.appCenter": "App Center",
-  "sidebar.withDingTalk": "Log in with DingTalk"
+  "sidebar.discovery": "Discovery",
+  "sidebar.withDingTalk": "Log in with DingTalk",
+  "user.credit": "Credit",
+  "user.used": "Used:"
 }

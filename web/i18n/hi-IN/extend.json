@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "AI ड्राइंग",
   "aiVideo.title": "AI वीडियो",
   "aiVideo.translate": "वीडियो अनुवाद",
   "apiKeyModal.accumulatedLimit": "संचयी उपयोग सीमा",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "खोज इंटरफ़ेस पर ऐप सिंक्रोनाइज़ करें और संबंधित टैग बनाएं",
   "app.syncAppOk": "सिंक्रोनाइज़ सफल",
   "app.syncToAppTemplate": "ऐप टेम्पलेट में सिंक्रोनाइज़ करें",
+  "appCard.newConversation": "नई बातचीत",
   "appCenter.description": "यह ऐप केंद्र है, जहां आप श्रेणीबद्ध ऐप्स देख और उपयोग कर सकते हैं",
   "appMenus.userOverview": "व्यक्तिगत निगरानी",
   "batchWorkflow.batchJobs": "{{num}} बैच कार्य",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "त्रुटि हुई",
   "batchWorkflow.failed": "विफल",
   "batchWorkflow.initializing": "बैच कार्य प्रारंभ हो रहा है...",
+  "batchWorkflow.noBatchTasks": "कोई बैच प्रसंस्करण कार्य नहीं",
   "batchWorkflow.pending": "लंबित",
   "batchWorkflow.pleaseWait": "कृपया प्रतीक्षा करें",
   "batchWorkflow.processed": "{{processed}}/{{total}} पंक्तियाँ प्रोसेस की गईं",
@@ -63,6 +66,8 @@
   "billingList.link": "लिंक",
   "billingList.open": "खोलें",
   "billingList.router": "राउटर",
+  "configuration.clearContext": "संदर्भ साफ़ कर दिया गया",
+  "configuration.restoreContext": "संदर्भ पुनर्स्थापित करने के लिए क्लिक करें",
   "fileUploader.fileUpload": "फ़ाइल अपलोड",
   "fileUploader.pasteFileLink": "फ़ाइल लिंक पेस्ट करें",
   "fileUploader.pasteFileLinkInputPlaceholder": "अपना फ़ाइल लिंक यहाँ पेस्ट करें",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "फ़ाइल अपलोड करने में त्रुटि, कृपया फिर से अपलोड करें।",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "कार्यस्थल चुनें",
   "sidebar.appCenter": "ऐप केंद्र",
-  "sidebar.withDingTalk": "डिंगटॉक के साथ लॉगिन करें"
+  "sidebar.discovery": "खोज",
+  "sidebar.withDingTalk": "डिंगटॉक के साथ लॉगिन करें",
+  "user.credit": "क्रेडिट",
+  "user.used": "उपयोग किया गया:"
 }

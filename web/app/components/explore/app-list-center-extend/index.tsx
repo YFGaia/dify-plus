@@ -1,6 +1,5 @@
 'use client'
 
-import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
 import type { App } from '@/models/explore'
 import { useDebounceFn } from 'ahooks'
 import { useQueryState } from 'nuqs'
@@ -10,7 +9,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/app/components/base/loading'
 import Category from '@/app/components/explore/category'
-import { fetchAppDetail } from '@/service/explore'
 import { useInstalledAppList } from '@/service/use-explore'
 import { cn } from '@/utils/classnames'
 import s from './style.module.css'
@@ -65,7 +63,7 @@ const Apps = ({
   const filteredListExtend = useMemo(() => {
     if (!data)
       return []
-    
+
     let result = data.allList
 
     // Apply category filter
@@ -87,7 +85,17 @@ const Apps = ({
       )
     }
 
-    return result
+    // Deduplicate by app_id (same app may appear multiple times due to multiple tags)
+    const seenAppIds = new Set<string>()
+    const deduplicatedResult: App[] = []
+    for (const item of result) {
+      if (!seenAppIds.has(item.app_id)) {
+        seenAppIds.add(item.app_id)
+        deduplicatedResult.push(item)
+      }
+    }
+
+    return deduplicatedResult
   }, [data, currCategory, allCategoriesEn, tagFilterValue, keywordsValue])
   // Extend: stop Filtered list with search and tag filter
 
@@ -120,11 +128,6 @@ const Apps = ({
       'flex h-full flex-col border-l-[0.5px] border-divider-regular',
     )}
     >
-      <div className="shrink-0 px-12 pt-6">
-        <div className={`mb-1 ${s.textGradient} text-xl font-semibold`}>{t('apps.title', { ns: 'explore' })}</div>
-        <div className="text-sm text-text-tertiary">{t('apps.description', { ns: 'explore' })}</div>
-      </div>
-
       <div className={cn(
         'mt-6 flex items-center justify-between px-12',
       )}
@@ -154,7 +157,7 @@ const Apps = ({
         >
           {filteredListExtend.map(app => (
             <AppCard
-              key={app.app_id}
+              key={app.installed_id}
               isExplore
               app={app}
               // Extend: start Create new conversation for installed app

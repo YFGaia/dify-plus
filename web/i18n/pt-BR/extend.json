@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "Desenho IA",
   "aiVideo.title": "Vídeo de IA",
   "aiVideo.translate": "Tradução de vídeo",
   "apiKeyModal.accumulatedLimit": "Limite de uso acumulado",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Sincronizar aplicativo para a interface de exploração e criar tags relacionadas",
   "app.syncAppOk": "Sincronização bem-sucedida",
   "app.syncToAppTemplate": "Sincronizar para modelo de aplicativo",
+  "appCard.newConversation": "Nova conversa",
   "appCenter.description": "Aqui está o Centro de Aplicativos, onde você pode ver aplicativos categorizados e utilizá-los",
   "appMenus.userOverview": "Visão geral do usuário",
   "batchWorkflow.batchJobs": "{{num}} tarefas em lote",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "Ocorreu um erro",
   "batchWorkflow.failed": "Falhou",
   "batchWorkflow.initializing": "Inicializando tarefa em lote...",
+  "batchWorkflow.noBatchTasks": "Nenhuma tarefa de processamento em lote",
   "batchWorkflow.pending": "Pendente",
   "batchWorkflow.pleaseWait": "Por favor, aguarde",
   "batchWorkflow.processed": "{{processed}}/{{total}} linhas processadas",
@@ -63,6 +66,8 @@
   "billingList.link": "Link",
   "billingList.open": "Expandir",
   "billingList.router": "Rota",
+  "configuration.clearContext": "Contexto limpo",
+  "configuration.restoreContext": "Clique para restaurar o contexto",
   "fileUploader.fileUpload": "Upload de arquivo",
   "fileUploader.pasteFileLink": "Colar link do arquivo",
   "fileUploader.pasteFileLinkInputPlaceholder": "Cole o link do arquivo aqui",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Falha no upload do arquivo, por favor, carregue novamente.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Escolher espaço de trabalho",
   "sidebar.appCenter": "Centro de Aplicativos",
-  "sidebar.withDingTalk": "Iniciar sessão com DingTalk"
+  "sidebar.discovery": "Descoberta",
+  "sidebar.withDingTalk": "Iniciar sessão com DingTalk",
+  "user.credit": "Crédito",
+  "user.used": "Usado:"
 }

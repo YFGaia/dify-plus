@@ -1,7 +1,8 @@
 import type { Viewport } from 'next'
 import { Provider as JotaiProvider } from 'jotai'
 import { ThemeProvider } from 'next-themes'
-import { Instrument_Serif } from 'next/font/google'
+// extend: dockefile 构建访问不到google，改成本地
+import localFont from 'next/font/local'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import GlobalPublicStoreProvider from '@/context/global-public-context'
 import { TanstackQueryInitializer } from '@/context/query-client'
@@ -25,13 +26,23 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
   userScalable: false,
 }
-
-const instrumentSerif = Instrument_Serif({
-  weight: ['400'],
-  style: ['normal', 'italic'],
-  subsets: ['latin'],
+// extend: start dockefile 构建访问不到google，改成本地
+const instrumentSerif = localFont({
+  src: [
+    {
+      path: './fonts/InstrumentSerif-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './fonts/InstrumentSerif-Italic.ttf',
+      weight: '400',
+      style: 'italic',
+    },
+  ],
   variable: '--font-instrument-serif',
 })
+// extend: stop dockefile 构建访问不到google，改成本地
 
 const LocaleLayout = async ({
   children,

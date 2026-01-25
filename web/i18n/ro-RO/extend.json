@@ -1,4 +1,5 @@
 {
+  "aiDraw.title": "Desen AI",
   "aiVideo.title": "Video AI",
   "aiVideo.translate": "Traducere video",
   "apiKeyModal.accumulatedLimit": "Limită de utilizare cumulată",
@@ -18,6 +19,7 @@
   "app.confirmSyncAppContent": "Sincronizează aplicația la interfața de explorare și creează etichete asociate",
   "app.syncAppOk": "Sincronizare reușită",
   "app.syncToAppTemplate": "Sincronizează la șablonul de aplicație",
+  "appCard.newConversation": "Conversație nouă",
   "appCenter.description": "Aceasta este Centrul de Aplicații, unde puteți vedea aplicațiile organizate pe categorii și le puteți utiliza",
   "appMenus.userOverview": "Monitorizare personală",
   "batchWorkflow.batchJobs": "{{num}} sarcini în lot",
@@ -37,6 +39,7 @@
   "batchWorkflow.errorOccurred": "A apărut o eroare",
   "batchWorkflow.failed": "Eșuat",
   "batchWorkflow.initializing": "Se inițializează sarcina în lot...",
+  "batchWorkflow.noBatchTasks": "Nu există sarcini de procesare în lot",
   "batchWorkflow.pending": "În așteptare",
   "batchWorkflow.pleaseWait": "Vă rugăm să așteptați",
   "batchWorkflow.processed": "Procesate {{processed}}/{{total}} rânduri",
@@ -63,6 +66,8 @@
   "billingList.link": "Link",
   "billingList.open": "Deschide",
   "billingList.router": "Rută",
+  "configuration.clearContext": "Context șters",
+  "configuration.restoreContext": "Faceți clic pentru a restabili contextul",
   "fileUploader.fileUpload": "Încărcare fișier",
   "fileUploader.pasteFileLink": "Lipire link fișier",
   "fileUploader.pasteFileLinkInputPlaceholder": "Lipiți linkul fișierului aici",
@@ -73,5 +78,8 @@
   "fileUploader.uploadFromComputerUploadError": "Încărcarea fișierului a eșuat, vă rugăm să încărcați din nou.",
   "modelSyncWorkspaceCustomize.workspacePlaceholder": "Selectați spațiul de lucru",
   "sidebar.appCenter": "Centru de aplicații",
-  "sidebar.withDingTalk": "Conectați-vă cu DingTalk"
+  "sidebar.discovery": "Descoperire",
+  "sidebar.withDingTalk": "Conectați-vă cu DingTalk",
+  "user.credit": "Credit",
+  "user.used": "Folosit:"
 }
