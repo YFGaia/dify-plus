@@ -59,6 +59,8 @@ export type SystemFeatures = {
     allow_email_code_login: boolean
     allow_email_password_login: boolean
   }
+  enable_trial_app: boolean
+  enable_explore_banner: boolean
   // Extend: start 钉钉和OAuth2登录字段
   is_custom_auth2: string // extend: Customizing AUTH2
   is_custom_auth2_button: string // extend: Customizing AUTH2 button text
@@ -106,6 +108,8 @@ export const defaultSystemFeatures: SystemFeatures = {
     allow_email_code_login: false,
     allow_email_password_login: false,
   },
+  enable_trial_app: false,
+  enable_explore_banner: false,
   // Extend: start 钉钉和OAuth2登录字段默认值
   is_custom_auth2: '', // extend: Customizing AUTH2
   is_custom_auth2_button: '', // extend: Customizing AUTH2 button text

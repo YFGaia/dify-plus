@@ -134,19 +134,19 @@ async function base<T>(url: string, options: FetchOptionType = {}, otherOptions:
   // In fetchCompat mode, skip baseOptions to avoid overriding Request object's method, headers,
   const baseOptions = otherOptions.fetchCompat
     ? {
-      mode: 'cors',
-      credentials: 'include', // always send cookies、HTTP Basic authentication.
-      redirect: 'follow',
-    }
+        mode: 'cors',
+        credentials: 'include', // always send cookies、HTTP Basic authentication.
+        redirect: 'follow',
+      }
     : {
-      mode: 'cors',
-      credentials: 'include', // always send cookies、HTTP Basic authentication.
-      headers: new Headers({
-        'Content-Type': ContentType.json,
-      }),
-      method: 'GET',
-      redirect: 'follow',
-    }
+        mode: 'cors',
+        credentials: 'include', // always send cookies、HTTP Basic authentication.
+        headers: new Headers({
+          'Content-Type': ContentType.json,
+        }),
+        method: 'GET',
+        redirect: 'follow',
+      }
   const { params, body, headers: headersFromProps, ...init } = Object.assign({}, baseOptions, options)
   const headers = new Headers(headersFromProps || {})
 

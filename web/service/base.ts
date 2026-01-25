@@ -82,6 +82,11 @@ export type IOtherOptions = {
   needAllResponseContent?: boolean
   deleteContentType?: boolean
   silent?: boolean
+
+  /** If true, behaves like standard fetch: no URL prefix, returns raw Response */
+  fetchCompat?: boolean
+  request?: Request
+
   onData?: IOnData // for stream
   onThought?: IOnThought
   onFile?: IOnFile
@@ -216,6 +221,17 @@ export const handleStream = (
                 conversationId: bufferObj?.conversation_id,
                 messageId: bufferObj?.message_id,
               })
+              return
+            }
+            if (!bufferObj || typeof bufferObj !== 'object') {
+              onData('', isFirstMessage, {
+                conversationId: undefined,
+                messageId: '',
+                errorMessage: 'Invalid response data',
+                errorCode: 'invalid_data',
+              })
+              hasError = true
+              onCompleted?.(true, 'Invalid response data')
               return
             }
             if (bufferObj.status === 400 || !bufferObj.event) {

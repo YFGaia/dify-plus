@@ -1,5 +1,6 @@
 'use client'
 
+import type { FC } from 'react'
 import {
   RiApps2Line,
   RiDragDropLine,
@@ -36,6 +37,16 @@ import useAppsQueryState from './hooks/use-apps-query-state'
 import { useDSLDragDrop } from './hooks/use-dsl-drag-drop'
 import NewAppCard from './new-app-card'
 
+// Define valid tabs at module scope to avoid re-creation on each render and stale closures
+const validTabs = new Set<string | AppModeEnum>([
+  'all',
+  AppModeEnum.WORKFLOW,
+  AppModeEnum.ADVANCED_CHAT,
+  AppModeEnum.CHAT,
+  AppModeEnum.AGENT_CHAT,
+  AppModeEnum.COMPLETION,
+])
+
 const TagManagementModal = dynamic(() => import('@/app/components/base/tag-management'), {
   ssr: false,
 })
@@ -43,7 +54,12 @@ const CreateFromDSLModal = dynamic(() => import('@/app/components/app/create-fro
   ssr: false,
 })
 
-const List = () => {
+type Props = {
+  controlRefreshList?: number
+}
+const List: FC<Props> = ({
+  controlRefreshList = 0,
+}) => {
   const { t } = useTranslation()
   const { systemFeatures } = useGlobalPublicStore()
   const router = useRouter()
@@ -53,6 +69,7 @@ const List = () => {
     'category',
     parseAsString.withDefault('all').withOptions({ history: 'push' }),
   )
+
   const { query: { tagIDs = [], keywords = '', isCreatedByMe: queryIsCreatedByMe = false }, setQuery } = useAppsQueryState()
   const [isCreatedByMe, setIsCreatedByMe] = useState(queryIsCreatedByMe)
   const [tagFilterValue, setTagFilterValue] = useState<string[]>(tagIDs)
@@ -98,6 +115,13 @@ const List = () => {
     error,
     refetch,
   } = useInfiniteAppList(appListQueryParams, { enabled: !isCurrentWorkspaceDatasetOperator })
+
+  useEffect(() => {
+    if (controlRefreshList > 0) {
+      refetch()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controlRefreshList])
 
   const anchorRef = useRef<HTMLDivElement>(null)
   const options = [
@@ -238,6 +262,9 @@ const List = () => {
             // No apps - show empty state
             return <Empty />
           })()}
+          {isFetchingNextPage && (
+            <AppCardSkeleton count={3} />
+          )}
         </div>
 
         {isCurrentWorkspaceEditor && (

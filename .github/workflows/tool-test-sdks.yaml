@@ -21,17 +21,12 @@ jobs:
         working-directory: sdks/nodejs-client
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
-<<<<<<< HEAD
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-=======
       - name: Use Node.js
         uses: actions/setup-node@v6
->>>>>>> 328897f81c (build: require node 24.13.0 (#30945))
         with:
           node-version: 24
           cache: ''

@@ -180,6 +180,8 @@ class SystemFeatureModel(BaseModel):
     plugin_installation_permission: PluginInstallationPermissionModel = PluginInstallationPermissionModel()
     enable_change_email: bool = True
     plugin_manager: PluginManagerModel = PluginManagerModel()
+    enable_trial_app: bool = False
+    enable_explore_banner: bool = False
     is_custom_auth2: str = ""  # extend: Customizing AUTH2
     is_custom_auth2_logout: str = ""  # extend: Customizing AUTH2
     ding_talk_client_id: str = ""  # extend: DingTalk third-party login
@@ -215,7 +217,7 @@ class FeatureService:
         return knowledge_rate_limit
 
     @classmethod
-    def get_system_features(cls) -> SystemFeatureModel:
+    def get_system_features(cls, is_authenticated: bool = False) -> SystemFeatureModel:
         system_features = SystemFeatureModel()
         # extend start: oauth2
         # 检查是否有请求上下文（在 Celery worker 中可能没有）
@@ -237,7 +239,7 @@ class FeatureService:
             system_features.webapp_auth.enabled = True
             system_features.enable_change_email = False
             system_features.plugin_manager.enabled = True
-            cls._fulfill_params_from_enterprise(system_features)
+            cls._fulfill_params_from_enterprise(system_features, is_authenticated)
 
         if dify_config.MARKETPLACE_ENABLED:
             system_features.enable_marketplace = True
@@ -252,6 +254,8 @@ class FeatureService:
         system_features.is_allow_register = dify_config.ALLOW_REGISTER
         system_features.is_allow_create_workspace = dify_config.ALLOW_CREATE_WORKSPACE
         system_features.is_email_setup = dify_config.MAIL_TYPE is not None and dify_config.MAIL_TYPE != ""
+        system_features.enable_trial_app = dify_config.ENABLE_TRIAL_APP
+        system_features.enable_explore_banner = dify_config.ENABLE_EXPLORE_BANNER
         # extend start: DingTalk third-party login
         # 检查是否有应用上下文（访问 db.session 需要应用上下文）
         if has_app_context():
@@ -350,7 +354,7 @@ class FeatureService:
             features.next_credit_reset_date = billing_info["next_credit_reset_date"]
 
     @classmethod
-    def _fulfill_params_from_enterprise(cls, features: SystemFeatureModel):
+    def _fulfill_params_from_enterprise(cls, features: SystemFeatureModel, is_authenticated: bool = False):
         enterprise_info = EnterpriseService.get_info()
 
         if "SSOEnforcedForSignin" in enterprise_info:
@@ -387,19 +391,14 @@ class FeatureService:
             )
             features.webapp_auth.sso_config.protocol = enterprise_info.get("SSOEnforcedForWebProtocol", "")
 
-        if "License" in enterprise_info:
-            license_info = enterprise_info["License"]
+        if is_authenticated and (license_info := enterprise_info.get("License")):
+            features.license.status = LicenseStatus(license_info.get("status", LicenseStatus.INACTIVE))
+            features.license.expired_at = license_info.get("expiredAt", "")
 
-            if "status" in license_info:
-                features.license.status = LicenseStatus(license_info.get("status", LicenseStatus.INACTIVE))
-
-            if "expiredAt" in license_info:
-                features.license.expired_at = license_info["expiredAt"]
-
-            if "workspaces" in license_info:
-                features.license.workspaces.enabled = license_info["workspaces"]["enabled"]
-                features.license.workspaces.limit = license_info["workspaces"]["limit"]
-                features.license.workspaces.size = license_info["workspaces"]["used"]
+            if workspaces_info := license_info.get("workspaces"):
+                features.license.workspaces.enabled = workspaces_info.get("enabled", False)
+                features.license.workspaces.limit = workspaces_info.get("limit", 0)
+                features.license.workspaces.size = workspaces_info.get("used", 0)
 
         if "PluginInstallationPermission" in enterprise_info:
             plugin_installation_info = enterprise_info["PluginInstallationPermission"]

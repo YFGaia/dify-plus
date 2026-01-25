@@ -1,5 +1,7 @@
 'use client'
 import type { FC } from 'react'
+import { RiAppsFill, RiExpandRightLine, RiLayoutLeft2Line } from '@remixicon/react'
+import { useBoolean } from 'ahooks'
 import Link from 'next/link'
 import { useSelectedLayoutSegments } from 'next/navigation'
 import * as React from 'react'
@@ -14,6 +16,7 @@ import { useGetInstalledApps, useUninstallApp, useUpdateAppPinStatus } from '@/s
 import { cn } from '@/utils/classnames'
 import Toast from '../../base/toast'
 import Item from './app-nav-item'
+import NoApps from './no-apps'
 // extend: app-context
 import { useAppContext } from '@/context/app-context'
 
@@ -67,6 +70,9 @@ const SideBar: FC<IExploreSideBarProps> = ({
 
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
+  const [isFold, {
+    toggle: toggleIsFold,
+  }] = useBoolean(false)
 
   const [showConfirm, setShowConfirm] = useState(false)
   const [currId, setCurrId] = useState('')
@@ -133,11 +139,19 @@ const SideBar: FC<IExploreSideBarProps> = ({
         </Link>
       </div>
       {/* ----------------------- 二开部分End 新增应用中心 ----------------------- */}
+
+      {installedApps.length === 0 && !isMobile && !isFold
+        && (
+          <div className="mt-5">
+            <NoApps />
+          </div>
+        )}
+
       {installedApps.length > 0 && (
-        <div className="mt-10">
-          <p className="break-all pl-2 text-xs font-medium uppercase text-text-tertiary mobile:px-0">{t('sidebar.workspace', { ns: 'explore' })}</p>
+        <div className="mt-5">
+          {!isMobile && !isFold && <p className="system-xs-medium-uppercase mb-1.5 break-all pl-2 uppercase text-text-tertiary mobile:px-0">{t('sidebar.webApps', { ns: 'explore' })}</p>}
           <div
-            className="mt-3 space-y-1 overflow-y-auto overflow-x-hidden"
+            className="space-y-0.5 overflow-y-auto overflow-x-hidden"
             style={{
               height: 'calc(100vh - 250px)',
             }}
@@ -145,7 +159,7 @@ const SideBar: FC<IExploreSideBarProps> = ({
             {installedApps.map(({ id, is_pinned, uninstallable, app: { name, icon_type, icon, icon_url, icon_background } }, index) => (
               <React.Fragment key={id}>
                 <Item
-                  isMobile={isMobile}
+                  isMobile={isMobile || isFold}
                   name={name}
                   icon_type={icon_type}
                   icon={icon}
@@ -167,6 +181,17 @@ const SideBar: FC<IExploreSideBarProps> = ({
           </div>
         </div>
       )}
+
+      {!isMobile && (
+        <div className="absolute bottom-3 left-3 flex size-8 cursor-pointer items-center justify-center text-text-tertiary" onClick={toggleIsFold}>
+          {isFold
+            ? <RiExpandRightLine className="size-4.5" />
+            : (
+                <RiLayoutLeft2Line className="size-4.5" />
+              )}
+        </div>
+      )}
+
       {showConfirm && (
         <Confirm
           title={t('sidebar.delete.title', { ns: 'explore' })}
