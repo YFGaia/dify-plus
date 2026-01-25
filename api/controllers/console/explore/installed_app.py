@@ -16,8 +16,6 @@ from libs.datetime_utils import naive_utc_now
 from libs.login import current_account_with_tenant, login_required
 from models import App, InstalledApp, RecommendedApp
 from services.account_service import TenantService
-from services.enterprise.enterprise_service import EnterpriseService
-from services.feature_service import FeatureService
 
 
 class InstalledAppCreatePayload(BaseModel):
@@ -67,39 +65,6 @@ class InstalledAppsListApi(Resource):
             for installed_app in installed_apps
             if installed_app.app is not None
         ]
-
-        # filter out apps that user doesn't have access to
-        if FeatureService.get_system_features().webapp_auth.enabled:
-            user_id = current_user.id
-            app_ids = [installed_app["app"].id for installed_app in installed_app_list]
-            webapp_settings = EnterpriseService.WebAppAuth.batch_get_app_access_mode_by_id(app_ids)
-
-            # Pre-filter out apps without setting or with sso_verified
-            filtered_installed_apps = []
-
-            for installed_app in installed_app_list:
-                app_id = installed_app["app"].id
-                webapp_setting = webapp_settings.get(app_id)
-                if not webapp_setting or webapp_setting.access_mode == "sso_verified":
-                    continue
-                filtered_installed_apps.append(installed_app)
-
-            # Batch permission check
-            app_ids = [installed_app["app"].id for installed_app in filtered_installed_apps]
-            permissions = EnterpriseService.WebAppAuth.batch_is_user_allowed_to_access_webapps(
-                user_id=user_id,
-                app_ids=app_ids,
-            )
-
-            # Keep only allowed apps
-            res = []
-            for installed_app in filtered_installed_apps:
-                app_id = installed_app["app"].id
-                if permissions.get(app_id):
-                    res.append(installed_app)
-
-            installed_app_list = res
-            logger.debug("installed_app_list: %s, user_id: %s", installed_app_list, user_id)
 
         installed_app_list.sort(
             key=lambda app: (
