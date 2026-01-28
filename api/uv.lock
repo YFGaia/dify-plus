@@ -1659,7 +1659,7 @@ requires-dist = [
     { name = "opentelemetry-instrumentation-httpx", specifier = "==0.48b0" },
     { name = "opentelemetry-instrumentation-redis", specifier = "==0.48b0" },
     { name = "opentelemetry-instrumentation-sqlalchemy", specifier = "==0.48b0" },
-    { name = "opentelemetry-propagator-b3", specifier = "==1.27.0" },
+    { name = "opentelemetry-propagator-b3", specifier = "==1.39.1" },
     { name = "opentelemetry-proto", specifier = "==1.27.0" },
     { name = "opentelemetry-sdk", specifier = "==1.27.0" },
     { name = "opentelemetry-semantic-conventions", specifier = "==0.48b0" },
@@ -4223,15 +4223,15 @@ wheels = [
 
 [[package]]
 name = "opentelemetry-propagator-b3"
-version = "1.27.0"
+version = "1.39.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "deprecated" },
     { name = "opentelemetry-api" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/53/a3/3ceeb5ff5a1906371834d5c594e24e5b84f35528d219054833deca4ac44c/opentelemetry_propagator_b3-1.27.0.tar.gz", hash = "sha256:39377b6aa619234e08fbc6db79bf880aff36d7e2761efa9afa28b78d5937308f", size = 9590, upload-time = "2024-08-28T21:35:43.971Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a8/d7/d416083250dc639d5d3cc8e95e04b6f02a6446921949e27cdb8797ceedbb/opentelemetry_propagator_b3-1.39.1.tar.gz", hash = "sha256:bbe24c025cb3db0c26862907bd4f9fc94776a63b2926927040095a350578cfd2", size = 9576, upload-time = "2025-12-11T13:32:47.599Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/03/3f/75ba77b8d9938bae575bc457a5c56ca2246ff5367b54c7d4252a31d1c91f/opentelemetry_propagator_b3-1.27.0-py3-none-any.whl", hash = "sha256:1dd75e9801ba02e870df3830097d35771a64c123127c984d9b05c352a35aa9cc", size = 8899, upload-time = "2024-08-28T21:35:18.317Z" },
+    { url = "https://files.pythonhosted.org/packages/4e/96/daf9fa8374ddd1d1a7066c0fd8de0f9172ae26dfe81440e37425a0bba1f1/opentelemetry_propagator_b3-1.39.1-py3-none-any.whl", hash = "sha256:dd9498f073915a2d088efbb746742f418ad0318c721d9bae7960dc4e1b959eb5", size = 8917, upload-time = "2025-12-11T13:32:31.794Z" },
 ]
 
 [[package]]
