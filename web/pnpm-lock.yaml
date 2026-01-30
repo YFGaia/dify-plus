@@ -171,8 +171,8 @@ importers:
         specifier: 3.0.5
         version: 3.0.5(echarts@5.6.0)(react@19.2.4)
       elkjs:
-        specifier: 0.9.3
-        version: 0.9.3
+        specifier: 0.11.0
+        version: 0.11.0
       embla-carousel-autoplay:
         specifier: 8.6.0
         version: 8.6.0(embla-carousel@8.6.0)
@@ -4274,8 +4274,8 @@ packages:
   electron-to-chromium@1.5.278:
     resolution: {integrity: sha512-dQ0tM1svDRQOwxnXxm+twlGTjr9Upvt8UFWAgmLsxEzFQxhbti4VwxmMjsDxVC51Zo84swW7FVCXEV+VAkhuPw==}
 
-  elkjs@0.9.3:
-    resolution: {integrity: sha512-f/ZeWvW/BCXbhGEf1Ujp29EASo/lk1FDnETgNKwJrsVvGZhUWCZyg3xLJjAsxfOmt8KjswHmI5EwCQcPMpOYhQ==}
+  elkjs@0.11.0:
+    resolution: {integrity: sha512-u4J8h9mwEDaYMqo0RYJpqNMFDoMK7f+pu4GjcV+N8jIC7TRdORgzkfSjTJemhqONFfH6fBI3wpysgWbhgVWIXw==}
 
   embla-carousel-autoplay@8.6.0:
     resolution: {integrity: sha512-OBu5G3nwaSXkZCo1A6LTaFMZ8EpkYbwIaH+bPqdBnDGQ2fh4+NbzjXjs2SktoPNKCtflfVMc75njaDHOYXcrsA==}
@@ -11537,7 +11537,7 @@ snapshots:
 
   electron-to-chromium@1.5.278: {}
 
-  elkjs@0.9.3: {}
+  elkjs@0.11.0: {}
 
   embla-carousel-autoplay@8.6.0(embla-carousel@8.6.0):
     dependencies:
