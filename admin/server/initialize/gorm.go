@@ -76,6 +76,7 @@ func RegisterTables() {
 		system.SysUserGlobalCode{}, // Extend Global Code
 		// Extend gaia model
 	)
+
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))
 		os.Exit(0)

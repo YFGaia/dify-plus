@@ -717,7 +717,7 @@ services:
 
   # API service
   api:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4-fix.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4.fex.1.9
     restart: always
     environment:
       # Use the shared environment variables.
@@ -761,7 +761,7 @@ services:
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
   worker:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4-fix.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4.fex.1.9
     restart: always
     environment:
       # Use the shared environment variables.
@@ -800,7 +800,7 @@ services:
   # worker-gaia service
   # The Celery worker-gaia for processing the queue.
   worker-gaia:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4-fix.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4.fex.1.9
     restart: always
     environment:
       # Use the shared environment variables.
@@ -826,7 +826,7 @@ services:
   # worker-dataset service
   # The Celery worker-dataset for processing the queue.
   worker-dataset:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4-fix.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4.fex.1.9
     restart: always
     environment:
       # Use the shared environment variables.
@@ -852,7 +852,7 @@ services:
   # worker_beat service
   # Celery beat for scheduling periodic tasks.
   worker_beat:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4-fix.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.11.4.fex.1.9
     restart: always
     environment:
       # Use the shared environment variables.
@@ -882,7 +882,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.11.4-fix.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.11.4.fex.3
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
