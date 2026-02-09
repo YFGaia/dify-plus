@@ -308,9 +308,9 @@ export const fetchSupportRetrievalMethods = (url: string): Promise<RetrievalMeth
   return get<RetrievalMethodsRes>(url)
 }
 
+// extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
 export const getSystemFeatures = (): Promise<SystemFeatures> => {
-  // extend: 解决登录状况不刷新
-  return get<SystemFeatures>(`/system-features?time=${(Math.round(new Date() / 1000)).toString()}`)
+  return get<SystemFeatures>(`/login_config?time=${(Math.round(new Date() / 1000)).toString()}`)
 }
 
 export const enableModel = (url: string, body: { model: string, model_type: ModelTypeEnum }): Promise<CommonResponse> =>

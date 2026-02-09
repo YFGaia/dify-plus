@@ -4,7 +4,7 @@ import type { SystemFeatures } from '@/types/feature'
 import { useQuery } from '@tanstack/react-query'
 import { create } from 'zustand'
 import Loading from '@/app/components/base/loading'
-import { consoleClient } from '@/service/client'
+import { consoleClient, setLoginConfigToken } from '@/service/client'
 import { defaultSystemFeatures } from '@/types/feature'
 import { fetchSetupStatusWithCache } from '@/utils/setup-status'
 
@@ -21,8 +21,12 @@ export const useGlobalPublicStore = create<GlobalPublicStore>(set => ({
 const systemFeaturesQueryKey = ['systemFeatures'] as const
 const setupStatusQueryKey = ['setupStatus'] as const
 
+// extend: CVE-2025-63387未授权访问 — 先请求 bootstrap 拿 JWT（cookie + body），跨域时用 Header 带 token 请求 login_config
 async function fetchSystemFeatures() {
-  const data = await consoleClient.systemFeatures()
+  const bootstrapRes = await consoleClient.loginConfigBootstrap()
+  if (bootstrapRes?.token)
+    setLoginConfigToken(bootstrapRes.token)
+  const data = await consoleClient.loginConfig()
   const { setSystemFeatures } = useGlobalPublicStore.getState()
   setSystemFeatures({ ...defaultSystemFeatures, ...data })
   return data

@@ -73,6 +73,9 @@ func RegisterTables() {
 		gaia.ForwardingExtend{},    // Extend Forwarding Extend
 		gaia.BatchWorkflow{},       // Extend Batch Workflow
 		gaia.BatchWorkflowTask{},   // Extend Batch Workflow Task
+		gaia.AppVersionConfig{},    // 应用版本全局配置（Token）
+		gaia.AppVersionRelease{},   // 应用版本发布
+		gaia.AppVersionDownload{},  // 应用版本各平台安装包
 		system.SysUserGlobalCode{}, // Extend Global Code
 		// Extend gaia model
 	)
@@ -127,6 +130,9 @@ func createPostgreSQLSequences(db *gorm.DB) {
 		"forwarding_extends",
 		"batch_workflows",
 		"batch_workflow_tasks",
+		"app_version_config",
+		"app_version_releases",
+		"app_version_downloads",
 		"sys_user_global_codes",
 	}
 

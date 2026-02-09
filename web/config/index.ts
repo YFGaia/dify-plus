@@ -53,16 +53,37 @@ const getStringConfig = (
   return defaultValue
 }
 
-export const API_PREFIX = getStringConfig(
+/**
+ * 在浏览器中，若配置的 API 地址为 localhost 或 127.0.0.1，则改为使用当前页面的 origin，
+ * 避免 127.0.0.1 与 localhost 不同源导致 cookie 无法携带（登录后 /api/login/status 拿不到 console 的 access_token）。
+ */
+function normalizeSameOriginApiPrefix(raw: string): string {
+  if (typeof globalThis.window === 'undefined' || !raw.startsWith('http'))
+    return raw
+  try {
+    const u = new URL(raw)
+    if (u.hostname === 'localhost' || u.hostname === '127.0.0.1')
+      return globalThis.window.location.origin + (u.pathname.replace(/\/$/, '') || '/')
+    return raw
+  }
+  catch {
+    return raw
+  }
+}
+
+const _apiPrefixRaw = getStringConfig(
   process.env.NEXT_PUBLIC_API_PREFIX,
   DatasetAttr.DATA_API_PREFIX,
   'http://localhost:5001/console/api',
 )
-export const PUBLIC_API_PREFIX = getStringConfig(
+const _publicApiPrefixRaw = getStringConfig(
   process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX,
   DatasetAttr.DATA_PUBLIC_API_PREFIX,
   'http://localhost:5001/api',
 )
+
+export const API_PREFIX = normalizeSameOriginApiPrefix(_apiPrefixRaw)
+export const PUBLIC_API_PREFIX = normalizeSameOriginApiPrefix(_publicApiPrefixRaw)
 export const MARKETPLACE_API_PREFIX = getStringConfig(
   process.env.NEXT_PUBLIC_MARKETPLACE_API_PREFIX,
   DatasetAttr.DATA_MARKETPLACE_API_PREFIX,

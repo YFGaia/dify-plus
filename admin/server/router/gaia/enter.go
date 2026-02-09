@@ -9,6 +9,7 @@ type RouterGroup struct {
 	SystemRouter
 	TestRouter
 	WorkflowRouter
+	AppVersionRouter
 }
 
 var (
@@ -20,3 +21,4 @@ var systemApi = api.ApiGroupApp.GaiaApiGroup.SystemApi
 var quotaApi = api.ApiGroupApp.GaiaApiGroup.QuotaApi
 var testApi = api.ApiGroupApp.GaiaApiGroup.TestApi
 var batchWorkflowApi = api.ApiGroupApp.GaiaApiGroup.BatchWorkflowApi
+var appVersionApi = api.ApiGroupApp.GaiaApiGroup.AppVersionApi

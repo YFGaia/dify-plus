@@ -137,6 +137,13 @@ func (menuService *MenuService) AddBaseMenu(menu system.SysBaseMenu) error {
 	if !errors.Is(global.GVA_DB.Where("name = ?", menu.Name).First(&system.SysBaseMenu{}).Error, gorm.ErrRecordNotFound) {
 		return errors.New("存在重复name，请修改name")
 	}
+	// 判断是否pgsql
+	if global.GVA_CONFIG.System.DbType == "pgsql" {
+		var logMneu system.SysBaseMenu
+		if global.GVA_DB.Order("id desc").First(&logMneu).Error == nil {
+			menu.ID = logMneu.ID + 1
+		}
+	}
 	return global.GVA_DB.Create(&menu).Error
 }
 

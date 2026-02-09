@@ -21,5 +21,6 @@ func initBizRouter(routers ...*gin.RouterGroup) {
 		gaiaRouter.InitTestRouter(privateGroup, publicGroup)
 		gaiaRouter.InitSystemRouter(privateGroup)
 		gaiaRouter.InitWorkflowRouter(privateGroup)
+		gaiaRouter.InitAppVersionRouter(publicGroup, privateGroup)
 	}
 }

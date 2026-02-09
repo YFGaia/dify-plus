@@ -7,4 +7,6 @@ type ServiceGroup struct {
 	TenantsService
 	TestService
 	BatchWorkflowService
+	// extned: app version
+	AppVersionService
 }

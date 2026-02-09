@@ -51,6 +51,9 @@ func (i *initMenuAuthority) InitializeData(ctx context.Context) (next context.Co
 	if err = db.Model(&authorities[0]).Association("SysBaseMenus").Append(menus[37:40]); err != nil {
 		return next, err
 	}
+	if err = db.Model(&authorities[0]).Association("SysBaseMenus").Append(menus[40:41]); err != nil {
+		return next, err
+	}
 	if err = db.Model(&authorities[0]).Association("SysBaseMenus").Append(menus[2:5]); err != nil {
 		return next, err
 	}

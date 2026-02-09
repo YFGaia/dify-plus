@@ -219,6 +219,16 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "批量处理工作流", Method: "POST", Path: "/gaia/workflow/batch/:id/retry-failed", Description: "仅重试失败的任务"},
 		{ApiGroup: "批量处理工作流", Method: "POST", Path: "/gaia/workflow/batch/:id/resume", Description: "恢复批量处理"},
 		{ApiGroup: "批量处理工作流", Method: "GET", Path: "/gaia/workflow/batch/:id/download", Description: "下载结果"},
+		{ApiGroup: "应用版本", Method: "GET", Path: "/gaia/app-version/token", Description: "获取链接Token配置"},
+		{ApiGroup: "应用版本", Method: "PUT", Path: "/gaia/app-version/token", Description: "设置链接Token"},
+		{ApiGroup: "应用版本", Method: "POST", Path: "/gaia/app-version/token/reveal", Description: "密码验证后查看Token"},
+		{ApiGroup: "应用版本", Method: "GET", Path: "/gaia/app-version/token/generate", Description: "随机生成Token"},
+		{ApiGroup: "应用版本", Method: "GET", Path: "/gaia/app-version/releases", Description: "版本列表"},
+		{ApiGroup: "应用版本", Method: "POST", Path: "/gaia/app-version/releases", Description: "新增版本"},
+		{ApiGroup: "应用版本", Method: "GET", Path: "/gaia/app-version/releases/:id", Description: "版本详情"},
+		{ApiGroup: "应用版本", Method: "PUT", Path: "/gaia/app-version/releases/:id", Description: "更新版本信息"},
+		{ApiGroup: "应用版本", Method: "POST", Path: "/gaia/app-version/releases/:id/upload", Description: "上传安装包(自动识别平台架构)"},
+		{ApiGroup: "应用版本", Method: "DELETE", Path: "/gaia/app-version/releases/:id/download", Description: "删除指定平台架构包"},
 		// Extend Stop: batch workflow
 	}
 	if err := db.Create(&entities).Error; err != nil {

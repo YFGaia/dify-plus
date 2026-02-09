@@ -15,9 +15,22 @@ import {
 } from '@/contract/router'
 import { request } from './base'
 
+// extend: CVE-2025-63387 跨域时 Cookie 可能为 None，用 Header 携带 JWT
+let loginConfigToken: string | null = null
+export function setLoginConfigToken(token: string | null) {
+  loginConfigToken = token
+}
+
 const getMarketplaceHeaders = () => new Headers({
   'X-Dify-Version': !IS_MARKETPLACE ? APP_VERSION : '999.0.0',
 })
+
+const getConsoleHeaders = () => {
+  const h = new Headers()
+  if (loginConfigToken)
+    h.set('X-Login-Config-Token', loginConfigToken)
+  return h
+}
 
 const marketplaceLink = new OpenAPILink(marketplaceRouterContract, {
   url: MARKETPLACE_API_PREFIX,
@@ -40,6 +53,7 @@ export const marketplaceQuery = createTanstackQueryUtils(marketplaceClient, { pa
 
 const consoleLink = new OpenAPILink(consoleRouterContract, {
   url: API_PREFIX,
+  headers: () => getConsoleHeaders(),
   fetch: (input, init) => {
     return request(
       input.url,

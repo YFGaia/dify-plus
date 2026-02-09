@@ -17,6 +17,7 @@
   "/src/view/example/customer/customer.vue": "Customer",
   "/src/view/example/index.vue": "Example",
   "/src/view/example/upload/upload.vue": "Upload",
+  "/src/view/gaia/appVersion/index.vue": "AppVersion",
   "/src/view/gaia/dashboard/components/accountMoneyTable.vue": "AccountMoneyTable",
   "/src/view/gaia/dashboard/components/appTokenDailyQuotaNumbers.vue": "AppTokenDailyQuotaNumbers",
   "/src/view/gaia/dashboard/components/appTokenQuota.vue": "AppTokenQuota",

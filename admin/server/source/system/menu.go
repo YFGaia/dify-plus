@@ -93,6 +93,7 @@ func (i *initMenu) InitializeData(ctx context.Context) (next context.Context, er
 		{GVA_MODEL: global.GVA_MODEL{ID: 38}, MenuLevel: 0, Hidden: false, ParentId: 0, Path: "SystemIntegrated", Name: "SystemIntegrated", Component: "view/systemIntegrated/index.vue", Sort: 1, Meta: Meta{Title: "系统集成", Icon: "box"}},
 		{GVA_MODEL: global.GVA_MODEL{ID: 39}, MenuLevel: 0, Hidden: false, ParentId: 38, Path: "IntegratedDingTalk", Name: "IntegratedDingTalk", Component: "view/systemIntegrated/dingTalk/index.vue", Sort: 1, Meta: Meta{Title: "钉钉", Icon: "turn-off"}},
 		{GVA_MODEL: global.GVA_MODEL{ID: 40}, MenuLevel: 0, Hidden: false, ParentId: 38, Path: "IntegratedOAuth2", Name: "IntegratedOAuth2", Component: "view/systemIntegrated/oauth2/index.vue", Sort: 2, Meta: Meta{Title: "OAuth2", Icon: "share"}},
+		{GVA_MODEL: global.GVA_MODEL{ID: 41}, MenuLevel: 0, Hidden: false, ParentId: 0, Path: "AppVersion", Name: "AppVersion", Component: "view/gaia/appVersion/index.vue", Sort: 10, Meta: Meta{Title: "版本管理", Icon: "upload-filled"}},
 		// 二开部分
 	}
 	if err = db.Create(&entities).Error; err != nil {

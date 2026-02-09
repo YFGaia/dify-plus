@@ -60,6 +60,9 @@ DOCUMENT_EXTENSIONS: set[str] = convert_to_lower_and_upper_set(_doc_extensions)
 COOKIE_NAME_ACCESS_TOKEN = "access_token"
 COOKIE_NAME_REFRESH_TOKEN = "refresh_token"
 COOKIE_NAME_CSRF_TOKEN = "csrf_token"
+# extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的
+COOKIE_NAME_LOGIN_CONFIG_TOKEN = "dify_console_login_config"
+HEADER_NAME_LOGIN_CONFIG_TOKEN = "X-Login-Config-Token"
 
 # webapp
 COOKIE_NAME_WEBAPP_ACCESS_TOKEN = "webapp_access_token"
