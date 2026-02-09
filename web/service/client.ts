@@ -13,6 +13,7 @@ import {
   consoleRouterContract,
   marketplaceRouterContract,
 } from '@/contract/router'
+import { isClient } from '@/utils/client'
 import { request } from './base'
 
 // extend: CVE-2025-63387 跨域时 Cookie 可能为 None，用 Header 携带 JWT
@@ -24,6 +25,31 @@ export function setLoginConfigToken(token: string | null) {
 const getMarketplaceHeaders = () => new Headers({
   'X-Dify-Version': !IS_MARKETPLACE ? APP_VERSION : '999.0.0',
 })
+
+function isURL(path: string) {
+  try {
+    // eslint-disable-next-line no-new
+    new URL(path)
+    return true
+  }
+  catch {
+    return false
+  }
+}
+
+export function getBaseURL(path: string) {
+  const url = new URL(path, isURL(path) ? undefined : isClient ? window.location.origin : 'http://localhost')
+
+  if (!isClient && !isURL(path)) {
+    console.warn('Using localhost as base URL in server environment, please configure accordingly.')
+  }
+
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    console.warn(`Unexpected protocol for API requests, expected http or https. Current protocol: ${url.protocol}. Please configure accordingly.`)
+  }
+
+  return url
+}
 
 const getConsoleHeaders = () => {
   const h = new Headers()
@@ -52,7 +78,7 @@ export const marketplaceClient: JsonifiedClient<ContractRouterClient<typeof mark
 export const marketplaceQuery = createTanstackQueryUtils(marketplaceClient, { path: ['marketplace'] })
 
 const consoleLink = new OpenAPILink(consoleRouterContract, {
-  url: API_PREFIX,
+  url: getBaseURL(API_PREFIX),
   headers: () => getConsoleHeaders(),
   fetch: (input, init) => {
     return request(

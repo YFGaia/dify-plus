@@ -30,6 +30,7 @@ from core.errors.error import (
 from core.helper.trace_id_helper import get_external_trace_id
 from core.model_runtime.errors.invoke import InvokeError
 from libs import helper
+from libs.helper import UUIDStrOrEmpty
 from models.model import ApiToken, App, AppMode, EndUser  # extend: 密钥额度限制，新增ApiToken
 from services.app_generate_service import AppGenerateService
 from services.app_generate_service_extend import AppGenerateServiceExtend  # extend: 密钥额度限制，新增ApiToken
@@ -53,7 +54,7 @@ class ChatRequestPayload(BaseModel):
     query: str
     files: list[dict[str, Any]] | None = None
     response_mode: Literal["blocking", "streaming"] | None = None
-    conversation_id: str | None = Field(default=None, description="Conversation UUID")
+    conversation_id: UUIDStrOrEmpty | None = Field(default=None, description="Conversation UUID")
     retriever_from: str = Field(default="dev")
     auto_generate_name: bool = Field(default=True, description="Auto generate conversation name")
     workflow_id: str | None = Field(default=None, description="Workflow ID for advanced chat")

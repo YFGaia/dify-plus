@@ -279,6 +279,7 @@ const Apps = ({
       {isShowTryAppPanel && (
         <TryApp
           appId={appParams?.appId || ''}
+          app={appParams?.app}
           category={appParams?.app?.category}
           onClose={hideTryAppPanel}
           onCreate={handleShowFromTryApp}

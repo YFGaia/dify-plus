@@ -103,6 +103,8 @@ def init_app(app: DifyApp) -> Celery:
         "tasks.async_workflow_tasks",  # trigger workers
         "tasks.trigger_processing_tasks",  # async trigger processing
         "tasks.extend.update_account_money_when_workflow_node_execution_created_extend",  # 二开部分 - workflow计费任务
+        "tasks.generate_summary_index_task",  # summary index generation
+        "tasks.regenerate_summary_index_task",  # summary index regeneration
     ]
     day = dify_config.CELERY_BEAT_SCHEDULER_TIME
 
