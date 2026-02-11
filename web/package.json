@@ -167,7 +167,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "7.2.0",
     "@chromatic-com/storybook": "5.0.0",
-    "@eslint-react/eslint-plugin": "2.8.1",
+    "@eslint-react/eslint-plugin": "2.12.4",
     "@mdx-js/loader": "3.1.1",
     "@mdx-js/react": "3.1.1",
     "@next/bundle-analyzer": "16.1.5",
