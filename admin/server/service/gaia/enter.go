@@ -9,4 +9,6 @@ type ServiceGroup struct {
 	BatchWorkflowService
 	// extned: app version
 	AppVersionService
+	// extend: model provider
+	ModelProviderService
 }

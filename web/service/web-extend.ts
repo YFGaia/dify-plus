@@ -1,9 +1,11 @@
+import Cookies from 'js-cookie'
+import { CSRF_COOKIE_NAME } from '@/config'
 import Toast from '@/app/components/base/toast'
 
 // Admin server 使用独立的 JWT 认证，需要从 admin_token 获取
 const getAdminToken = () => {
   // 优先使用 admin_token，如果没有则尝试使用 console_token
-  return localStorage.getItem('admin_token') || localStorage.getItem('console_token')
+  return Cookies.get(CSRF_COOKIE_NAME())
 }
 
 type batchProcessing = {

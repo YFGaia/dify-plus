@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 CSRF_WHITE_LIST = [
     re.compile(r"/console/api/apps/[a-f0-9-]+/workflows/draft"),
+    # 后台服务端调用（仅 Bearer 认证），无浏览器 Cookie，豁免 CSRF
+    re.compile(r"/console/api/admin_register_user"),
 ]
 
 

@@ -55,8 +55,11 @@ export const useUserStore = defineStore('user', () => {
     }
     return res
   }
-  /* 登录*/
-  const LoginIn = async(loginInfo) => {
+  /* 登录
+   * @param loginInfo 账号密码等
+   * @param opts 可选 { redirect_uri, state }，第三方带回调时：登录成功后跳回 redirect_uri 并带上 token 与 state，不再进入后台
+   */
+  const LoginIn = async(loginInfo, opts = {}) => {
     loadingInstance.value = ElLoading.service({
       fullscreen: true,
       text: '登录中，请稍候...',
@@ -73,6 +76,18 @@ export const useUserStore = defineStore('user', () => {
     // 登陆成功，设置用户信息和权限相关信息
     setUserInfo(res.data.user)
     setToken(res.data.token)
+
+    const redirectUri = opts.redirect_uri && opts.redirect_uri.trim()
+    const thirdPartyState = opts.state != null ? String(opts.state) : ''
+
+    // 第三方回调：带 token 跳回第三方，不进入后台
+    if (redirectUri) {
+      loadingInstance.value.close()
+      const sep = redirectUri.includes('?') ? '&' : '?'
+      const url = redirectUri + sep + 'token=' + encodeURIComponent(res.data.token) + (thirdPartyState ? '&state=' + encodeURIComponent(thirdPartyState) : '')
+      window.location.href = url
+      return true
+    }
 
     // 初始化路由信息
     const routerStore = useRouterStore()
@@ -188,6 +203,7 @@ export const useUserStore = defineStore('user', () => {
     OaLoginIn,
     LoginOut,
     setToken,
+    setUserInfo,
     loadingInstance,
     ClearStorage
   }

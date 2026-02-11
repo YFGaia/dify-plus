@@ -22,3 +22,4 @@ var quotaApi = api.ApiGroupApp.GaiaApiGroup.QuotaApi
 var testApi = api.ApiGroupApp.GaiaApiGroup.TestApi
 var batchWorkflowApi = api.ApiGroupApp.GaiaApiGroup.BatchWorkflowApi
 var appVersionApi = api.ApiGroupApp.GaiaApiGroup.AppVersionApi
+var modelProviderApi = api.ApiGroupApp.GaiaApiGroup.ModelProviderApi

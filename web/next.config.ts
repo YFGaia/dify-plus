@@ -63,12 +63,14 @@ const nextConfig: NextConfig = {
       },
     ]
   },
-  // dev 时把 /console/api 和 /api 代理到 5001
+  // dev 时把 /console/api 和 /api 代理到 5001，/admin 代理到 8888
   ...(isDev && {
     async rewrites() {
       return [
         { source: '/console/api/:path*', destination: 'http://localhost:5001/console/api/:path*' },
         { source: '/api/:path*', destination: 'http://localhost:5001/api/:path*' },
+        { source: '/admin', destination: 'http://localhost:8888/' },
+        { source: '/admin/:path*', destination: 'http://localhost:8888/:path*' },
       ]
     },
   }),

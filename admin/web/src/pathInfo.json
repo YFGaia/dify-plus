@@ -64,6 +64,7 @@
   "/src/view/system/state.vue": "State",
   "/src/view/systemIntegrated/dingTalk/index.vue": "IntegratedDingTalk",
   "/src/view/systemIntegrated/index.vue": "SystemIntegrated",
+  "/src/view/systemIntegrated/modelManagement/index.vue": "IntegratedModelManagement",
   "/src/view/systemIntegrated/oauth2/index.vue": "IntegratedOAuth2",
   "/src/view/systemTools/autoCode/component/fieldDialog.vue": "FieldDialog",
   "/src/view/systemTools/autoCode/component/previewCodeDialog.vue": "PreviewCodeDialog",

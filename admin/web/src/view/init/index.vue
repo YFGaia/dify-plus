@@ -194,7 +194,7 @@ const out = ref(false)
 const form = reactive({
   adminPassword: '123456',
   dbType: 'pgsql',
-  host: 'db',
+  host: 'db_postgres',
   port: '5432',
   userName: 'postgres',
   password: 'difyai123456',

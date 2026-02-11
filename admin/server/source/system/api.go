@@ -230,6 +230,20 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "应用版本", Method: "POST", Path: "/gaia/app-version/releases/:id/upload", Description: "上传安装包(自动识别平台架构)"},
 		{ApiGroup: "应用版本", Method: "DELETE", Path: "/gaia/app-version/releases/:id/download", Description: "删除指定平台架构包"},
 		// Extend Stop: batch workflow
+
+		// Extend Start: model provider (模型管理)
+		{ApiGroup: "模型管理", Method: "GET", Path: "/gaia/model-provider/list", Description: "获取提供商配置列表"},
+		{ApiGroup: "模型管理", Method: "POST", Path: "/gaia/model-provider/update", Description: "更新提供商配置"},
+		{ApiGroup: "模型管理", Method: "GET", Path: "/gaia/model-provider/available-models", Description: "获取可用模型"},
+		{ApiGroup: "模型管理", Method: "GET", Path: "/gaia/model-provider/test-credentials", Description: "测试提供商凭证"},
+		{ApiGroup: "模型管理", Method: "GET", Path: "/gaia/model-provider/logs", Description: "获取代理日志"},
+		{ApiGroup: "模型管理", Method: "GET", Path: "/gaia/models", Description: "获取开启的模型列表(第三方)"},
+		{ApiGroup: "模型管理", Method: "GET", Path: "/gaia/proxy/*", Description: "中转API(第三方)-GET"},
+		{ApiGroup: "模型管理", Method: "POST", Path: "/gaia/proxy/*", Description: "中转API(第三方)-POST"},
+		{ApiGroup: "模型管理", Method: "PUT", Path: "/gaia/proxy/*", Description: "中转API(第三方)-PUT"},
+		{ApiGroup: "模型管理", Method: "PATCH", Path: "/gaia/proxy/*", Description: "中转API(第三方)-PATCH"},
+		{ApiGroup: "模型管理", Method: "DELETE", Path: "/gaia/proxy/*", Description: "中转API(第三方)-DELETE"},
+		// Extend Stop: model provider
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, sysModel.SysApi{}.TableName()+"表数据初始化失败!")

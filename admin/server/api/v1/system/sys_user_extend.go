@@ -5,18 +5,24 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	gaiaReq "github.com/flipped-aurora/gin-vue-admin/server/model/gaia/request"
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	sysSvc "github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
+
+var gaiaSystemIntegratedService = service.ServiceGroupApp.GaiaServiceGroup.SystemIntegratedService
 
 // Extend Start: sync user
 
@@ -184,3 +190,89 @@ func (b *BaseApi) OAuth2Callback(c *gin.Context) {
 }
 
 // Extend Stop: oAuth2 callback verification
+
+// GetGaiaLoginOptions 获取 Gaia 登录方式（钉钉/OAuth2 是否启用及授权地址），供登录页展示，无需鉴权
+// @Tags     Base
+// @Summary  获取登录方式选项
+// @Produce  application/json
+// @Param    origin  query    string  false  "前端 origin，用于拼回调地址"
+// @Router   /base/gaiaLoginOptions [get]
+func (b *BaseApi) GetGaiaLoginOptions(c *gin.Context) {
+	origin := c.Query("origin")
+	if origin == "" {
+		origin = c.GetHeader("Origin")
+	}
+	if origin == "" {
+		origin = strings.TrimSuffix(global.GVA_CONFIG.Gaia.Url, "/")
+	}
+	opts := gaiaSystemIntegratedService.GetLoginOptions(origin)
+	response.OkWithData(opts, c)
+}
+
+// GaiaOAuth2Login 使用系统集成 OAuth2 的 code 或 access_token（Extend: 兼容 casdoor）登录，返回 JWT；若带 redirect_uri/state 则一并返回供前端回调第三方
+// @Tags     Base
+// @Summary  Gaia OAuth2 登录
+// @Produce  application/json
+// @Param    data  body  gaiaReq.GaiaOAuth2LoginReq  true  "code 或 access_token 二选一、redirect_uri、state"
+// @Router   /base/gaiaOAuth2Login [post]
+func (b *BaseApi) GaiaOAuth2Login(c *gin.Context) {
+	var req gaiaReq.GaiaOAuth2LoginReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	result, err := gaiaSystemIntegratedService.OAuth2CodeLogin(req)
+	if err != nil {
+		global.GVA_LOG.Error("Gaia OAuth2 登录失败", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	sysSvc.MenuServiceApp.UserAuthorityDefaultRouter(&result.User)
+	data := map[string]interface{}{
+		"user":   result.User,
+		"token":  result.Token,
+		"expiresAt": 0,
+	}
+	if result.RedirectURI != "" {
+		data["redirect_uri"] = result.RedirectURI
+	}
+	if result.State != "" {
+		data["state"] = result.State
+	}
+	response.OkWithDetailed(data, "登录成功", c)
+}
+
+// GaiaDingTalkLogin 钉钉 code 登录，返回 JWT
+// @Tags     Base
+// @Summary  钉钉登录
+// @Produce  application/json
+// @Param    data  body  gaiaReq.GaiaDingTalkLoginReq  true  "auth_code、redirect_uri、state"
+// @Router   /base/dingtalkLogin [post]
+func (b *BaseApi) GaiaDingTalkLogin(c *gin.Context) {
+	var req gaiaReq.GaiaDingTalkLoginReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	result, err := gaiaSystemIntegratedService.DingTalkCodeLogin(req)
+	if err != nil {
+		global.GVA_LOG.Error("钉钉登录失败", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	sysSvc.MenuServiceApp.UserAuthorityDefaultRouter(&result.User)
+	data := map[string]interface{}{
+		"user":   result.User,
+		"token":  result.Token,
+		"expiresAt": 0,
+	}
+	if result.RedirectURI != "" {
+		data["redirect_uri"] = result.RedirectURI
+	}
+	if result.State != "" {
+		data["state"] = result.State
+	}
+	response.OkWithDetailed(data, "登录成功", c)
+}
+
+// Extend Stop: gaia login

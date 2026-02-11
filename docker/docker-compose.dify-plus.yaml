@@ -1688,18 +1688,31 @@ services:
     ports:
       - '8888:8888'
     depends_on:
+      init_permissions:
+        condition: service_completed_successfully
       db_postgres:
         condition: service_healthy
-      redis:
+        required: false
+      db_mysql:
         condition: service_healthy
+        required: false
+      oceanbase:
+        condition: service_healthy
+        required: false
+      seekdb:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_started
+    networks:
+      - default
     links:
       - db_postgres
       - redis
-    networks:
-      - ssrf_proxy_network
-      - default
     volumes:
       - ./admin-server/config.docker.yaml:/app/config.docker.yaml
+      # 挂载 Dify storage 目录以访问 tenant 私钥（用于解密 provider credentials）
+      - ./volumes/app/storage:/app/storage:ro
 
   # Extend - sandbox-full
   sandbox-full:

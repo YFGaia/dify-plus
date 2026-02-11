@@ -21,8 +21,8 @@
             </div>
             <div class="mb-9">
               <p class="text-center text-4xl font-bold">{{ $GIN_VUE_ADMIN.appName }}</p>
-              <p class="text-center text-sm font-normal text-gray-500 mt-2.5">A management platform for Dify-Plus
-              </p>
+              <p class="text-center text-sm font-normal text-gray-500 mt-2.5">A management platform for Dify-Plus</p>
+              <p v-if="redirectUri" class="text-center text-xs text-blue-600 mt-2">登录后将跳回第三方应用</p>
             </div>
             <el-form
               ref="loginForm"
@@ -87,7 +87,32 @@
                     type="primary"
                     size="large"
                     @click="submitForm"
-                  >登 录</el-button>
+                  >账号密码登录</el-button>
+                </el-form-item>
+                <!-- 钉钉 / OAuth2 登录：仅在有 redirect_uri（第三方回调）时显示 -->
+                <el-form-item
+                  v-if="loginOptions.dingtalk.enabled && redirectUri"
+                  class="mb-6"
+                >
+                  <el-button
+                    class="shadow h-11 w-full"
+                    size="large"
+                    @click="dingtalkLoginJump"
+                  >
+                    钉钉登录
+                  </el-button>
+                </el-form-item>
+                <el-form-item
+                  v-if="loginOptions.oauth2.enabled && redirectUri"
+                  class="mb-6"
+                >
+                  <el-button
+                    class="shadow shadow-blue-600 h-11 w-full"
+                    size="large"
+                    @click="oauth2LoginJump"
+                  >
+                    OAuth2 登录
+                  </el-button>
                 </el-form-item>
               </template>
               <!--  新增是否已经初始化判断 End -->
@@ -103,19 +128,6 @@
                 >前往初始化</el-button>
 
               </el-form-item>
-              <!--  新增OA登录 Begin -->
-              <el-form-item class="mb-6">
-                <el-button
-                  class="shadow shadow-blue-600 h-11 w-full"
-                  type="primary"
-                  size="large"
-                  disabled
-                  @click="oaLoginJump"
-                >
-                  Oauth2 登录(敬请期待)
-                </el-button>
-              </el-form-item>
-              <!--  新增OA登录 End -->
             </el-form>
           </div>
         </div>
@@ -177,10 +189,11 @@
 <script setup>
 import { captcha } from '@/api/user'
 import { checkDB } from '@/api/initdb'
+import { getGaiaLoginOptions } from '@/api/user_extend'
 import BottomInfo from '@/components/bottomInfo/bottomInfo.vue'
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/pinia/modules/user'
 
 defineOptions({
@@ -188,6 +201,17 @@ defineOptions({
 })
 
 const router = useRouter()
+const route = useRoute()
+
+// 第三方回调参数（用于登录成功后跳回第三方并带 token）
+const redirectUri = ref(route.query.redirect_uri || '')
+const thirdPartyState = ref(route.query.state || '')
+
+// Gaia 登录方式（钉钉/OAuth2）
+const loginOptions = reactive({
+  dingtalk: { enabled: false, auth_url: '' },
+  oauth2: { enabled: false, auth_url: '' }
+})
 const showInit = ref(false)
 // 验证函数
 const checkUsername = (rule, value, callback) => {
@@ -243,7 +267,10 @@ const rules = reactive({
 
 const userStore = useUserStore()
 const login = async() => {
-  return await userStore.LoginIn(loginFormData)
+  return await userStore.LoginIn(loginFormData, {
+    redirect_uri: redirectUri.value || undefined,
+    state: thirdPartyState.value || undefined,
+  })
 }
 const submitForm = () => {
   loginForm.value.validate(async(v) => {
@@ -298,16 +325,53 @@ const showInitExtend = async() => {
 }
 showInitExtend()
 
-// 跳转oa登录链接
-const oaLoginJump = () => {
-  const clientId = import.meta.env.VITE_OA_LOGIN_CLINET_ID
-  const oaUrl = import.meta.env.VITE_OA_URL
-  const redirect_uri = window.location.origin + '#/loginCallback'
-  // 获取loginCallback该路由的完整url
-
-  const jumpUrl = oaUrl + '?client_id=' + clientId + '&redirect_uri=' + encodeURIComponent(redirect_uri) + '&state='
-  console.log(jumpUrl)
-  window.location.href = jumpUrl
+// 已登录且带 redirect_uri 时直接回调第三方
+const tryRedirectWithToken = async () => {
+  if (!redirectUri.value || !userStore.token) return false
+  const res = await userStore.GetUserInfo()
+  if (res?.code === 0) {
+    const sep = redirectUri.value.includes('?') ? '&' : '?'
+    const url = redirectUri.value + sep + 'token=' + encodeURIComponent(userStore.token) + (thirdPartyState.value ? '&state=' + encodeURIComponent(thirdPartyState.value) : '')
+    window.location.href = url
+    return true
+  }
+  return false
 }
 
+// 拉取登录方式并检测已登录回调
+const loadLoginOptionsAndMaybeRedirect = async () => {
+  const didRedirect = await tryRedirectWithToken()
+  if (didRedirect) return
+  try {
+    const res = await getGaiaLoginOptions({ origin: window.location.origin })
+    if (res?.code === 0 && res.data) {
+      if (res.data.dingtalk) {
+        loginOptions.dingtalk.enabled = res.data.dingtalk.enabled
+        loginOptions.dingtalk.auth_url = res.data.dingtalk.auth_url || ''
+      }
+      if (res.data.oauth2) {
+        loginOptions.oauth2.enabled = res.data.oauth2.enabled
+        loginOptions.oauth2.auth_url = res.data.oauth2.auth_url || ''
+      }
+    }
+  } catch (_) {}
+}
+
+// 钉钉登录：保存回调参数并跳转钉钉授权
+const dingtalkLoginJump = () => {
+  sessionStorage.setItem('gaia_login_redirect_uri', redirectUri.value)
+  sessionStorage.setItem('gaia_login_state', thirdPartyState.value)
+  if (loginOptions.dingtalk.auth_url) window.location.href = loginOptions.dingtalk.auth_url
+}
+
+// OAuth2 登录：保存回调参数并跳转 OAuth2 授权
+const oauth2LoginJump = () => {
+  sessionStorage.setItem('gaia_login_redirect_uri', redirectUri.value)
+  sessionStorage.setItem('gaia_login_state', thirdPartyState.value)
+  if (loginOptions.oauth2.auth_url) window.location.href = loginOptions.oauth2.auth_url
+}
+
+onMounted(() => {
+  loadLoginOptionsAndMaybeRedirect()
+})
 </script>

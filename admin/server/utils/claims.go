@@ -66,17 +66,25 @@ func GetToken(c *gin.Context) string {
 }
 
 func GetClaims(c *gin.Context) (*systemReq.CustomClaims, error) {
-	token := GetToken(c)
+	// init
 	j := NewJWT()
+	token := GetToken(c)
 	claims, err := j.ParseToken(token)
 	if err != nil {
 		global.GVA_LOG.Error("从Gin的Context中获取从jwt解析信息失败, 请检查请求头是否存在x-token且claims是否为规定结构")
 	}
 	// 判断是否dify的token
 	if claims.Username == "" {
+		var userList []string
 		var user system.SysUser
 		var account gaia.Account
-		if err = global.GVA_DB.Where("uuid=?", claims.UserId).First(&user).Error; err == nil {
+		if claims.UserId != "" {
+			userList = append(userList, claims.UserId)
+		} else if claims.Sub != "" {
+			userList = append(userList, claims.Sub)
+		}
+		// sql
+		if err = global.GVA_DB.Where("uuid IN (?)", userList).First(&user).Error; err == nil {
 			claims.BaseClaims.ID = user.ID
 			claims.Username = user.Username
 			claims.AuthorityId = user.AuthorityId

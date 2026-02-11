@@ -69,14 +69,16 @@ func RegisterTables() {
 		gaia.AccountDingTalkExtend{},
 		gaia.AppRequestTestBatch{},
 		gaia.AppRequestTest{},
-		gaia.SystemIntegration{},   // Extend System Integration
-		gaia.ForwardingExtend{},    // Extend Forwarding Extend
-		gaia.BatchWorkflow{},       // Extend Batch Workflow
-		gaia.BatchWorkflowTask{},   // Extend Batch Workflow Task
-		gaia.AppVersionConfig{},    // 应用版本全局配置（Token）
-		gaia.AppVersionRelease{},   // 应用版本发布
-		gaia.AppVersionDownload{},  // 应用版本各平台安装包
-		system.SysUserGlobalCode{}, // Extend Global Code
+		gaia.SystemIntegration{},     // Extend System Integration
+		gaia.ForwardingExtend{},      // Extend Forwarding Extend
+		gaia.BatchWorkflow{},         // Extend Batch Workflow
+		gaia.BatchWorkflowTask{},     // Extend Batch Workflow Task
+		gaia.AppVersionConfig{},      // 应用版本全局配置（Token）
+		gaia.AppVersionRelease{},     // 应用版本发布
+		gaia.AppVersionDownload{},    // 应用版本各平台安装包
+		gaia.ModelProviderConfig{},   // 模型提供商配置
+		gaia.ModelProxyLog{},         // 模型中转请求日志
+		system.SysUserGlobalCode{},   // Extend Global Code
 		// Extend gaia model
 	)
 

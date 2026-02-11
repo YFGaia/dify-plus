@@ -495,6 +495,7 @@ func generateCSVFromTasks(flow *gaia.BatchWorkflow, tasks []gaia.BatchWorkflowTa
 		nameList = append(nameList, value)
 	}
 	headers = append(headers, "生成结果")
+	headers = append(headers, "报错信息")
 	_ = w.Write(headers)
 
 	// 行数据
@@ -526,6 +527,9 @@ func generateCSVFromTasks(flow *gaia.BatchWorkflow, tasks []gaia.BatchWorkflowTa
 			}
 		}
 		row = append(row, text)
+		if len(task.Error) > 0 {
+			row = append(row, task.Error)
+		}
 		_ = w.Write(row)
 	}
 

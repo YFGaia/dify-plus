@@ -378,6 +378,31 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		{Ptype: "p", V0: "1", V1: "/gaia/app-version/releases/:id/upload", V2: "POST"},
 		{Ptype: "p", V0: "1", V1: "/gaia/app-version/releases/:id/download", V2: "DELETE"},
 		// Extend Stop: app version
+
+		// Extend Start: model provider (模型管理)
+		{Ptype: "p", V0: "888", V1: "/gaia/model-provider/list", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/model-provider/update", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/model-provider/available-models", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/model-provider/test-credentials", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/model-provider/logs", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/models", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/proxy/*", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/proxy/*", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/proxy/*", V2: "PUT"},
+		{Ptype: "p", V0: "888", V1: "/gaia/proxy/*", V2: "PATCH"},
+		{Ptype: "p", V0: "888", V1: "/gaia/proxy/*", V2: "DELETE"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/model-provider/list", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/model-provider/update", V2: "POST"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/model-provider/available-models", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/model-provider/test-credentials", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/model-provider/logs", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/models", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/proxy/*", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/proxy/*", V2: "POST"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/proxy/*", V2: "PUT"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/proxy/*", V2: "PATCH"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/proxy/*", V2: "DELETE"},
+		// Extend Stop: model provider
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, "Casbin 表 ("+i.InitializerName()+") 数据初始化失败!")

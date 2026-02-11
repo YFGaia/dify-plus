@@ -11,6 +11,7 @@ type ApiGroup struct {
 	SystemOAuth2Api
 	BatchWorkflowApi
 	AppVersionApi
+	ModelProviderApi
 }
 
 var (

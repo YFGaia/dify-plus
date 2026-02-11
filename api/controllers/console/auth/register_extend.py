@@ -1,21 +1,20 @@
 import uuid
-from datetime import UTC, datetime
-
 import jwt
 from flask import request
-from flask_restx import Resource, reqparse
-
-from configs import dify_config
-from controllers.console import api
-from extensions.ext_database import db
-from libs.login import login_required
+from .. import console_ns
 from models import Account
+from configs import dify_config
+from datetime import UTC, datetime
+from libs.login import login_required
+from extensions.ext_database import db
 from models.account import AccountStatus
+from flask_restx import Resource, reqparse
 from models.account_money_extend import AccountMoneyExtend
 from services.account_service import AccountService, TenantService
 from services.account_service_extend import TenantExtendService
 
 
+@console_ns.route("/admin_register_user")
 class AdminRegisterApi(Resource):
     """Resource for user login."""
     @login_required
@@ -78,4 +77,3 @@ class AdminRegisterApi(Resource):
         return {"result": "success", "data": "ok"}
 
 
-api.add_resource(AdminRegisterApi, "/admin_register_user")

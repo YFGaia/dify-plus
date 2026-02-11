@@ -61,6 +61,7 @@ gaia:
     login_max_error_limit: 5
     SUPER_ADMIN_ACCOUNT_ID: a30d5d5a-8350-4aac-ac56-7b08926df23c
     SUPER_ADMIN_TENANT_ID: 93fef0de-5eb0-4542-9077-d70126379751
+    storage-path: ../../api/storage
 hua-wei-obs:
     path: ""
     bucket: ""

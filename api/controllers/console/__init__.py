@@ -219,4 +219,6 @@ __all__ = [
     "workflow_statistic",
     "workflow_trigger",
     "workspace",
+    # extend: 二开
+    "register_extend",
 ]
