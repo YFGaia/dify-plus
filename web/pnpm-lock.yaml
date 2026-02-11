@@ -4323,14 +4323,12 @@ packages:
     resolution: {integrity: sha512-k1gCAXAsNgLwEL+Y8Wvl+M6oEFj5bgazfZULpS5CneoPPXRaCCW7dm+q21Ky2VEE5X+VeRDBVg1Pcvvsr4TtNQ==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
 
-<<<<<<< HEAD
-  dingtalk-jsapi@3.2.5:
-    resolution: {integrity: sha512-GHtDTmilJQhr07GNarjlzhvgUkPWc0+52zbN2ToW+JzkydaOwmhiJCTO42+BI+onAlhdfLUbtUnGsjQNDTrM1w==}
-=======
   diff-sequences@29.6.3:
     resolution: {integrity: sha512-EjePK1srD3P08o2j4f0ExnylqRs5B9tJjcp9t1krH2qRi8CCdsYfwe9JgSLurFBWwq4uOlipzfk5fHNvwFKr8Q==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
->>>>>>> cd03e0a9ef7f2383853ace444e3aefe4fac05cde
+
+  dingtalk-jsapi@3.2.5:
+    resolution: {integrity: sha512-GHtDTmilJQhr07GNarjlzhvgUkPWc0+52zbN2ToW+JzkydaOwmhiJCTO42+BI+onAlhdfLUbtUnGsjQNDTrM1w==}
 
   dlv@1.1.3:
     resolution: {integrity: sha512-+HlytyjlPKnIG8XuRG8WvmBP8xs8P71y+SKKS6ZXWoEgLuePxtDoUEiH7WkdePWrQ5JBpE6aoVqfZfJUQkjXwA==}
@@ -11617,13 +11615,11 @@ snapshots:
 
   diff-sequences@27.5.1: {}
 
-<<<<<<< HEAD
+  diff-sequences@29.6.3: {}
+
   dingtalk-jsapi@3.2.5:
     dependencies:
       promise-polyfill: 7.1.2
-=======
-  diff-sequences@29.6.3: {}
->>>>>>> cd03e0a9ef7f2383853ace444e3aefe4fac05cde
 
   dlv@1.1.3: {}
 
