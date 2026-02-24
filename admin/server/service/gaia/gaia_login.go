@@ -4,35 +4,36 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
-	"io"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
+	"strings"
 )
 
 // OAuth2CodeLogin 使用 Gaia 系统 OAuth2 配置：code 换 token 或直接用 access_token（Extend: 兼容 casdoor）、拉用户信息、查找/创建用户、签发 JWT
-func (e *SystemIntegratedService) OAuth2CodeLogin(req request.GaiaOAuth2LoginReq) (*response.GaiaLoginResult, error) {
-	// Extend Start: 兼容 casdoor（code 与 access_token 二选一）
+func (e *SystemIntegratedService) OAuth2CodeLogin(
+	req request.GaiaOAuth2LoginReq) (*response.GaiaLoginResult, error) {
+	// init
+	var accessToken, tokenType string
+	var configMap request.SystemOAuth2Request
 	if strings.TrimSpace(req.Code) == "" && strings.TrimSpace(req.AccessToken) == "" {
 		return nil, fmt.Errorf("请提供 code 或 access_token")
 	}
-	// Extend Stop: 兼容 casdoor
 
 	integrate := e.getIntegratedConfigRaw(gaia.SystemIntegrationOAuth2)
 	if !integrate.Status {
 		return nil, fmt.Errorf("OAuth2 未启用")
 	}
-	var configMap request.SystemOAuth2Request
 	if err := json.Unmarshal([]byte(integrate.Config), &configMap); err != nil {
 		return nil, fmt.Errorf("OAuth2 配置解析失败")
 	}
@@ -40,8 +41,6 @@ func (e *SystemIntegratedService) OAuth2CodeLogin(req request.GaiaOAuth2LoginReq
 		return nil, fmt.Errorf("OAuth2 配置不完整（缺少 userinfo）")
 	}
 
-	var accessToken, tokenType string
-	// Extend Start: 兼容 casdoor（直接使用回调中的 access_token，跳过 code 换 token）
 	if strings.TrimSpace(req.AccessToken) != "" {
 		accessToken = strings.TrimSpace(req.AccessToken)
 		tokenType = "bearer"
@@ -55,9 +54,9 @@ func (e *SystemIntegratedService) OAuth2CodeLogin(req request.GaiaOAuth2LoginReq
 			redirectURI = req.RedirectURI
 		}
 		formData := url.Values{}
-		formData.Set("grant_type", "authorization_code")
 		formData.Set("code", req.Code)
 		formData.Set("redirect_uri", redirectURI)
+		formData.Set("grant_type", "authorization_code")
 		tokenAuthMethod := strings.ToLower(strings.TrimSpace(configMap.TokenAuthMethod))
 		if tokenAuthMethod != "client_secret_basic" {
 			formData.Set("client_id", integrate.AppID)
@@ -83,17 +82,13 @@ func (e *SystemIntegratedService) OAuth2CodeLogin(req request.GaiaOAuth2LoginReq
 			global.GVA_LOG.Error("OAuth2 token 接口非 200", zap.Int("status", resp.StatusCode), zap.String("body", string(body)))
 			return nil, fmt.Errorf("OAuth2 返回错误: %d", resp.StatusCode)
 		}
-		var tokenResp struct {
-			AccessToken  string `json:"access_token"`
-			TokenType    string `json:"token_type"`
-			RefreshToken string `json:"refresh_token"`
-		}
-		if err := json.Unmarshal(body, &tokenResp); err != nil || tokenResp.AccessToken == "" {
+		var tokenResp map[string]interface{}
+		if err = json.Unmarshal(body, &tokenResp); err != nil || tokenResp["access_token"] == "" {
 			return nil, fmt.Errorf("解析 OAuth2 token 失败")
 		}
-		accessToken = tokenResp.AccessToken
-		if tokenResp.TokenType != "" {
-			tokenType = strings.ToLower(tokenResp.TokenType)
+		accessToken = tokenResp["access_token"].(string)
+		if tokenCache, ok := tokenResp["token_type"]; ok {
+			tokenType = strings.ToLower(tokenCache.(string))
 		} else {
 			tokenType = "bearer"
 		}
@@ -124,19 +119,24 @@ func (e *SystemIntegratedService) OAuth2CodeLogin(req request.GaiaOAuth2LoginReq
 	}
 
 	var userInfoMap map[string]interface{}
-	if err := json.Unmarshal(userBody, &userInfoMap); err != nil {
+	if err = json.Unmarshal(userBody, &userInfoMap); err != nil {
 		return nil, fmt.Errorf("解析用户信息失败")
 	}
-	email := getStringFromMap(userInfoMap, configMap.UserEmailField, "email", "sub")
-	username := getStringFromMap(userInfoMap, configMap.UserNameField, "name", "username", "preferred_username")
+	// 用户信息映射：支持 Jinja 风格路径，如 name、email、phone 或 user.name、data.attributes.phone
+	username := getStringByPathOrKeys(userInfoMap, configMap.UserNameField, "name", "username", "preferred_username")
+	email := getStringByPathOrKeys(userInfoMap, configMap.UserEmailField, "email", "sub")
+	userID := getStringByPathOrKeys(userInfoMap, configMap.UserIDField, "phone", "sub", "id")
 	if username == "" {
 		username = email
+		if username == "" {
+			username = userID
+		}
 	}
-	if email == "" {
-		return nil, fmt.Errorf("无法从 OAuth2 用户信息中获取邮箱")
+	if email == "" && userID == "" {
+		return nil, fmt.Errorf("无法从 OAuth2 用户信息中获取邮箱或用户唯一标识")
 	}
 
-	sysUser, err := e.findUserByEmail(email)
+	sysUser, err := e.findUserByEmailOrPhone(email, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -159,13 +159,12 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 	}
 
 	// 钉钉 OAuth2: 用 code 换 userAccessToken
-	body := map[string]string{
+	bodyJSON, _ := json.Marshal(map[string]string{
 		"clientId":     integrate.AppKey,
 		"clientSecret": integrate.AppSecret,
 		"code":         req.AuthCode,
 		"grantType":    "authorization_code",
-	}
-	bodyJSON, _ := json.Marshal(body)
+	})
 	httpReq, err := http.NewRequest("POST", "https://api.dingtalk.com/v1.0/oauth2/userAccessToken", bytes.NewReader(bodyJSON))
 	if err != nil {
 		return nil, err
@@ -184,17 +183,14 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 		return nil, fmt.Errorf("钉钉返回错误: %d", resp.StatusCode)
 	}
 
-	var tokenResp struct {
-		AccessToken  string `json:"accessToken"`
-		RefreshToken string `json:"refreshToken"`
-	}
-	if err := json.Unmarshal(respBody, &tokenResp); err != nil || tokenResp.AccessToken == "" {
+	var tokenResp map[string]interface{}
+	if err = json.Unmarshal(respBody, &tokenResp); err != nil || tokenResp["accessToken"] == "" {
 		return nil, fmt.Errorf("解析钉钉 token 失败")
 	}
 
 	// 获取用户信息
 	userReq, _ := http.NewRequest("GET", "https://api.dingtalk.com/v1.0/contact/users/me", nil)
-	userReq.Header.Set("x-acs-dingtalk-access-token", tokenResp.AccessToken)
+	userReq.Header.Set("x-acs-dingtalk-access-token", tokenResp["accessToken"].(string))
 	userResp, err := client.Do(userReq)
 	if err != nil {
 		return nil, fmt.Errorf("钉钉用户信息请求失败: %w", err)
@@ -205,15 +201,12 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 		return nil, fmt.Errorf("钉钉用户信息返回: %d", userResp.StatusCode)
 	}
 
-	var dingUser struct {
-		Nick  string `json:"nick"`
-		Email string `json:"email"`
-	}
-	if err := json.Unmarshal(userBody, &dingUser); err != nil {
+	var dingUser map[string]interface{}
+	if err = json.Unmarshal(userBody, &dingUser); err != nil {
 		return nil, fmt.Errorf("解析钉钉用户信息失败")
 	}
-	email := dingUser.Email
-	username := dingUser.Nick
+	email := dingUser["email"].(string)
+	username := dingUser["nick"].(string)
 	if username == "" {
 		username = email
 	}
@@ -246,14 +239,79 @@ func getStringFromMap(m map[string]interface{}, keys ...string) string {
 	return ""
 }
 
+// getStringByJinjaPath 按 Jinja 风格路径从 map 提取字符串，支持点分路径如 "name"、"user.email"、"data.attributes.phone"；
+// path 可带 {{ }}，会先去除再解析。
+func getStringByJinjaPath(m map[string]interface{}, path string) string {
+	path = strings.TrimSpace(path)
+	path = strings.TrimPrefix(path, "{{")
+	path = strings.TrimSuffix(path, "}}")
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return ""
+	}
+	keys := strings.Split(path, ".")
+	var current interface{} = m
+	for _, key := range keys {
+		key = strings.TrimSpace(key)
+		if key == "" {
+			continue
+		}
+		switch v := current.(type) {
+		case map[string]interface{}:
+			current = v[key]
+		case map[string]string:
+			current = v[key]
+		default:
+			return ""
+		}
+		if current == nil {
+			return ""
+		}
+	}
+	switch v := current.(type) {
+	case string:
+		return v
+	case float64:
+		return fmt.Sprintf("%v", v)
+	case int:
+		return fmt.Sprintf("%d", v)
+	case int64:
+		return fmt.Sprintf("%d", v)
+	case bool:
+		if v {
+			return "true"
+		}
+		return "false"
+	default:
+		return fmt.Sprintf("%v", current)
+	}
+}
+
+// getStringByPathOrKeys 优先用 Jinja 路径从 m 取值，若为空则按 keys 顺序从顶层取。
+func getStringByPathOrKeys(m map[string]interface{}, path string, fallbackKeys ...string) string {
+	if path != "" {
+		if s := getStringByJinjaPath(m, path); s != "" {
+			return s
+		}
+	}
+	return getStringFromMap(m, fallbackKeys...)
+}
+
 // findUserByEmail 按邮箱查找已存在的用户（需在 gaia.accounts 中有对应记录方可签发 JWT）
 func (e *SystemIntegratedService) findUserByEmail(email string) (*system.SysUser, error) {
 	var u system.SysUser
-	email = "admin@npc0.com"
-	if err := global.GVA_DB.Where("email = ?", email).Preload(
+	var mailList []string
+	mailList = append(mailList, email)
+	parts := strings.Split(email, "@")
+	defaultMail := os.Getenv(gaia.EmailDomainEnv)
+	if len(defaultMail) > 0 && len(parts) == 2 {
+		mailList = append(mailList, parts[0]+"@"+defaultMail)
+	}
+	// 查询关联邮箱
+	if err := global.GVA_DB.Where("email IN (?)", mailList).Preload(
 		"Authorities").Preload("Authority").First(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("该邮箱尚未开通后台账号，请联系管理员")
+			return nil, fmt.Errorf(fmt.Sprintf("邮箱%s尚未开通账号，请联系管理员", email))
 		}
 		return nil, err
 	}
@@ -262,4 +320,32 @@ func (e *SystemIntegratedService) findUserByEmail(email string) (*system.SysUser
 	}
 	// 默认路由由调用方（api/system）设置，避免 gaia -> system 循环依赖
 	return &u, nil
+}
+
+// findUserByEmailOrPhone 按邮箱或用户唯一标识（如手机号）查找用户，优先邮箱
+func (e *SystemIntegratedService) findUserByEmailOrPhone(email, userID string) (*system.SysUser, error) {
+	if email != "" {
+		u, err := e.findUserByEmail(email)
+		if err == nil {
+			return u, nil
+		}
+		// 仅当“未开通”时再尝试按 userID(phone) 查，其他错误直接返回
+		if err != nil && !strings.Contains(err.Error(), "尚未开通") {
+			return nil, err
+		}
+	}
+	if userID != "" {
+		var u system.SysUser
+		if err := global.GVA_DB.Where("phone = ?", userID).Preload("Authorities").Preload("Authority").First(&u).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, fmt.Errorf("该用户唯一标识尚未开通后台账号，请联系管理员")
+			}
+			return nil, err
+		}
+		if u.Enable != 1 {
+			return nil, fmt.Errorf("账号已被禁用")
+		}
+		return &u, nil
+	}
+	return nil, fmt.Errorf("无法从 OAuth2 用户信息中获取邮箱或用户唯一标识")
 }

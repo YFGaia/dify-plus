@@ -6,7 +6,7 @@ import { ElLoading } from 'element-plus'
 
 const service = axios.create({
   baseURL: import.meta.env.VITE_BASE_API,
-  timeout: 99999
+  timeout: 300000  // 默认 5 分钟，大文件上传等接口可在请求里单独设置 timeout
 })
 let activeAxios = 0
 let timer

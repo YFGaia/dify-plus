@@ -1,6 +1,7 @@
 package gaia
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -116,6 +117,26 @@ func (m *ModelProviderApi) Proxy(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"message": "读取请求体失败"}})
 		return
 	}
+
+	// 打印传入参数便于排查
+	queryProvider := strings.TrimSpace(c.Query("provider"))
+	var bodyModel string
+	if len(body) > 0 {
+		var parseObj map[string]interface{}
+		if jsonErr := json.Unmarshal(body, &parseObj); jsonErr == nil {
+			if m, ok := parseObj["model"].(string); ok {
+				bodyModel = m
+			}
+		}
+	}
+	global.GVA_LOG.Info("Gaia代理请求入参",
+		zap.String("path", path),
+		zap.String("method", c.Request.Method),
+		zap.String("query_provider", queryProvider),
+		zap.Int("body_len", len(body)),
+		zap.String("body_model", bodyModel),
+		zap.String("body", string(body)),
+	)
 
 	if err = modelProviderService.ProxyRequest(
 		userID, path, c.Request.Method, reqHeader, body, c.Writer); err != nil {

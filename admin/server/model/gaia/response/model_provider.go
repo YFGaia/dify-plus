@@ -2,8 +2,9 @@ package response
 
 // ProviderCredentials 提供商凭证（内部/代理用）
 type ProviderCredentials struct {
-	APIKey   string `json:"api_key"`
-	Endpoint string `json:"endpoint,omitempty"`
+	APIKey     string `json:"api_key"`
+	Endpoint   string `json:"endpoint,omitempty"`
+	APIVersion string `json:"api_version,omitempty"` // Azure OpenAI API 版本
 }
 
 // ModelInfo 模型信息

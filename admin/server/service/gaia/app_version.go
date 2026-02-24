@@ -62,8 +62,11 @@ func (s *AppVersionService) GetLatest(platform, arch, token string) (*response.L
 	if err != nil {
 		return nil, 500
 	}
-	if cfg.LinkToken != nil && *cfg.LinkToken != "" && (token == "" || token != *cfg.LinkToken) {
-		return nil, 401
+	// 仅当后台配置了 link_token 时才校验；未配置则不验证
+	if cfg.LinkToken != nil && *cfg.LinkToken != "" {
+		if token == "" || token != *cfg.LinkToken {
+			return nil, 401
+		}
 	}
 
 	var release gaia.AppVersionRelease

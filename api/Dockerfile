@@ -12,12 +12,12 @@ RUN pip install --no-cache-dir uv==${UV_VERSION}
 FROM base AS packages
 
 # if you located in China, you can use aliyun mirror to speed up
-RUN sed -i 's@deb.debian.org@mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/debian.sources
+# RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
           # basic environment
-          gcc g++ libc-dev libffi-dev libgmp-dev \
+          g++ \
           # for building gmpy2
           libmpfr-dev libmpc-dev
 
@@ -41,9 +41,9 @@ EXPOSE 5001
 # set timezone
 ENV TZ=UTC
 
-# Set UTF-8 locale
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
+# Set UTF-8 locale (C.UTF-8 is available in slim images; en_US.UTF-8 would require installing locales)
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 WORKDIR /app/api
@@ -108,8 +108,9 @@ RUN python -c "import tiktoken; tiktoken.encoding_for_model('gpt2')" \
 # Copy source code
 COPY --chown=dify:dify . /app/api/
 
-# Prepare entrypoint script
-COPY --chown=dify:dify --chmod=755 docker/entrypoint.sh /entrypoint.sh
+# Prepare entrypoint script (chmod in RUN for compatibility without BuildKit)
+COPY --chown=dify:dify docker/entrypoint.sh /entrypoint.sh
+RUN chmod 755 /entrypoint.sh
 
 
 ARG COMMIT_SHA

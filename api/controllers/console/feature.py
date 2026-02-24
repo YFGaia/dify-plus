@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Optional
 
 import jwt
@@ -20,7 +20,7 @@ def _issue_login_config_jwt(ip: str) -> str:
     """extend: CVE-2025-63387 签发 JWT，payload 含 ip 与 1h 过期。"""
     payload = {
         "ip": ip,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=1),
+        "exp": datetime.now(UTC) + timedelta(hours=1),
     }
     return jwt.encode(payload, dify_config.SECRET_KEY, algorithm="HS256")
 
@@ -34,6 +34,16 @@ def _verify_login_config_token(token: Optional[str]) -> bool:
     except jwt.PyJWTError:
         return False
     return payload.get("ip") == extract_remote_ip(request)
+
+
+# extend: 防止部分健康监测system-features无响应
+@console_ns.route("/system-features")
+class LoginConfigBootstrapApi(Resource):
+    """extend: 防止部分健康监测system-features无响应"""
+    @console_ns.doc("system-features")
+    @console_ns.response(200, "Success")
+    def get(self):
+        return make_response({"ping": True})
 
 
 # extend: start CVE-2025-63387未授权访问
@@ -79,7 +89,6 @@ class FeatureApi(Resource):
         _, current_tenant_id = current_account_with_tenant()
 
         return FeatureService.get_features(current_tenant_id).model_dump()
-
 
 
 # extend: start CVE-2025-63387未授权访问

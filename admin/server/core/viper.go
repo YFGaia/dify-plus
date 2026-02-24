@@ -4,14 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/core/internal"
+	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/fsnotify/fsnotify"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
-
-	"github.com/fsnotify/fsnotify"
-	"github.com/spf13/viper"
-
-	"github.com/flipped-aurora/gin-vue-admin/server/global"
 )
 
 // Extend: Override JWT signing key from environment variable
@@ -36,8 +34,9 @@ func Viper(path ...string) *viper.Viper {
 	if len(path) == 0 {
 		flag.StringVar(&config, "c", "", "choose config file.")
 		flag.Parse()
-		if config == "" { // 判断命令行参数是否为空
-			if configEnv := os.Getenv(internal.ConfigEnv); configEnv == "" { // 判断 internal.ConfigEnv 常量存储的环境变量是否为空
+		if config == "" {
+			// 判断 internal.ConfigEnv 常量存储的环境变量是否为空
+			if configEnv := os.Getenv(internal.ConfigEnv); configEnv == "" {
 				switch gin.Mode() {
 				case gin.DebugMode:
 					config = internal.ConfigDefaultFile

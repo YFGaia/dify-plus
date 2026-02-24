@@ -171,18 +171,46 @@ func (s *ModelProviderService) GetEnabledModels() (gaiaResponse.OpenAIModelsResp
 	return resp, nil
 }
 
-// GetAvailableModelsFromDify 通过各提供商官方 API 拉取可用模型列表（不使用 Dify provider_models 表）。
-// @Tags System Integrated
-// @Summary 获取提供商的可用模型列表
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
+// getAvailableModelsFromProviderModelCredentials 从 Dify provider_model_credentials 表拉取指定提供商的可用模型列表。
+// 返回的模型 ID/Name 均为表内 model_name；实际请求 GPT 时由 API 侧根据 encrypted_config 中的 base_model_name 调用。
+// 用于 admin 第三方模型列表展示（如 azure_openai 展示 model_name，调用时用 base_model_name）。
+func (s *ModelProviderService) getAvailableModelsFromProviderModelCredentials(providerName string) ([]gaiaResponse.ModelInfo, error) {
+	var firstTenant gaia.Tenants
+	tenantID := firstTenant.GetSuperAdminTenantId()
+	if tenantID == "" {
+		return nil, nil
+	}
+	var modelNames []string
+	err := global.GVA_DB.Table("provider_model_credentials").
+		Where("tenant_id = ? AND provider_name LIKE ?", tenantID, fmt.Sprintf("%%%s%%", providerName)).
+		Distinct("model_name").
+		Pluck("model_name", &modelNames).Error
+	if err != nil {
+		global.GVA_LOG.Warn("从 provider_model_credentials 拉取模型列表失败", zap.String("provider", providerName), zap.Error(err))
+		return nil, nil
+	}
+	list := make([]gaiaResponse.ModelInfo, 0, len(modelNames))
+	for _, name := range modelNames {
+		if name != "" {
+			list = append(list, gaiaResponse.ModelInfo{ID: name, Name: name})
+		}
+	}
+	return list, nil
+}
+
+// GetAvailableModelsFromDify 获取提供商的可用模型列表。
+// - Azure：仅从 provider_model_credentials 表拉取，列表展示 model_name，实际请求 GPT 时由 API 侧用 encrypted_config 的 base_model_name。
+// - OpenAI / 通义 / Google：与原先一致，通过各提供商官方 API 拉取可用模型。未配置凭证时返回空列表且不报错。
 //
-// 参数 providerName 为短名（openai/tongyi/google）。未配置凭证时返回空列表且不报错。
+// 参数 providerName 为短名（openai/tongyi/google/azure）。
 func (s *ModelProviderService) GetAvailableModelsFromDify(providerName string) ([]gaiaResponse.ModelInfo, error) {
+	if providerName == gaia.ProviderAzure {
+		return s.getAvailableModelsFromProviderModelCredentials(providerName)
+	}
+
 	creds, err := s.GetDifyProviderCredentials(providerName)
 	if err != nil || creds.APIKey == "" {
-		return nil, nil // 未配置凭证时返回空列表，不报错
+		return nil, nil
 	}
 
 	client := &http.Client{Timeout: 15 * time.Second}
@@ -194,18 +222,15 @@ func (s *ModelProviderService) GetAvailableModelsFromDify(providerName string) (
 		}
 		return s.fetchOpenAICompatibleModels(client, base, creds.APIKey)
 	case gaia.ProviderTongyi:
-		// 通义兼容 OpenAI 接口：GET .../v1/models
 		return s.fetchOpenAICompatibleModels(
 			client, "https://dashscope.aliyuncs.com/api", creds.APIKey)
 	case gaia.ProviderGoogle:
-		// Google Gemini: GET https://generativelanguage.googleapis.com/v1beta/models?key=API_KEY
 		base := creds.Endpoint
 		if base == "" {
 			base = gaia.DefaultAPIBase[gaia.ProviderGoogle]
 		}
 		return s.fetchGeminiModels(client, base, creds.APIKey)
 	case gaia.ProviderAnthropic:
-		// Anthropic 使用 /v1/messages，模型列表接口不同，暂返回空
 		return nil, nil
 	default:
 		if creds.Endpoint != "" {
@@ -329,7 +354,55 @@ func (s *ModelProviderService) fetchGeminiModels(client *http.Client, baseURL, a
 	return all, nil
 }
 
-// GetDifyProviderCredentials 从 Dify 数据库（providers + provider_credentials）读取指定提供商的凭证，支持缓存与解密。
+// fetchAzureOpenAIModels 调用 Azure OpenAI GET {endpoint}/openai/models?api-version={version}，解析 data[]。
+// 认证使用 api-key 请求头，响应格式：{ "data": [ { "id": "...", "object": "model" } ] }
+func (s *ModelProviderService) fetchAzureOpenAIModels(client *http.Client, baseURL, apiKey, apiVersion string) ([]gaiaResponse.ModelInfo, error) {
+	baseURL = strings.TrimSuffix(baseURL, "/")
+	if apiVersion == "" {
+		apiVersion = "2024-08-01-preview" // 默认 API 版本
+	}
+
+	url := fmt.Sprintf("%s/openai/models?api-version=%s", baseURL, apiVersion)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("api-key", apiKey)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		global.GVA_LOG.Warn("拉取 Azure OpenAI 模型列表非 200", zap.String("url", url), zap.Int("status", resp.StatusCode), zap.String("body", string(body)))
+		return nil, fmt.Errorf("接口返回 %d", resp.StatusCode)
+	}
+
+	// Azure OpenAI 返回格式与 OpenAI 类似
+	var listResp gaiaResponse.OpenAIModelsListResponse
+	if err = json.Unmarshal(body, &listResp); err != nil {
+		return nil, fmt.Errorf("解析 Azure OpenAI 模型列表失败: %w", err)
+	}
+
+	list := make([]gaiaResponse.ModelInfo, 0, len(listResp.Data))
+	for _, m := range listResp.Data {
+		if m.ID != "" {
+			list = append(list, gaiaResponse.ModelInfo{ID: m.ID, Name: m.ID})
+		}
+	}
+
+	return list, nil
+}
+
+// GetDifyProviderCredentials 从 Dify 数据库读取指定提供商的凭证，支持缓存与解密。
+// 查询优先级：
+//  1. providers + provider_credentials 表（传统方式）
+//  2. provider_model_credentials 表（多凭证方式，按 updated_at 倒序取最新）
+//
 // @Tags System Integrated
 // @Summary 获取提供商凭证
 // @Security ApiKeyAuth
@@ -341,6 +414,8 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 
 	// 首先尝试从Redis缓存获取（按请求的 providerName 缓存）
 	var cached string
+	var firstTenant gaia.Tenants
+	tenantID := firstTenant.GetSuperAdminTenantId()
 	cacheKey := fmt.Sprintf("model_provider_credentials:%s", providerName)
 	if cached, err = global.GVA_Dify_REDIS.Get(context.Background(), cacheKey).Result(); err == nil {
 		if err = json.Unmarshal([]byte(cached), &creds); err == nil {
@@ -348,19 +423,35 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 		}
 	}
 
-	// 从数据库查询，同时获取 tenant_id
+	// 尝试方式1: 从 providers + provider_credentials 表查询
 	var row gaia.ProviderCredential
-	if err = global.GVA_DB.Table("providers").
+	err = global.GVA_DB.Table("providers").
 		Select("provider_credentials.encrypted_config, providers.tenant_id").
 		Joins("LEFT JOIN provider_credentials ON providers.credential_id = provider_credentials.id").
-		Where("providers.provider_name LIKE ? AND providers.provider_type = ? AND providers.is_valid = ?",
-			fmt.Sprintf("%%%s%%", providerName), gaia.DifyProviderTypeCustom, true).
-		First(&row).Error; err != nil {
+		Where("providers.tenant_id = ? AND providers.provider_name LIKE ? AND providers.provider_type = ? AND providers.is_valid = ?",
+			tenantID, fmt.Sprintf("%%%s%%", providerName), gaia.DifyProviderTypeCustom, true).
+		Order("provider_credentials.updated_at DESC").
+		First(&row).Error
+
+	// 如果方式1 未找到记录，尝试方式2: 从 provider_model_credentials 表查询
+	if err != nil || row.EncryptedConfig == "" {
+		var pmcRow gaia.ProviderCredential
+		if pmcErr := global.GVA_DB.Table("provider_model_credentials").
+			Select("encrypted_config, tenant_id, provider_name, updated_at").
+			Where("tenant_id = ? AND provider_name LIKE ?", tenantID, fmt.Sprintf("%%%s%%", providerName)).
+			Order("updated_at DESC"). // 按 updated_at 倒序，取最新的凭证
+			First(&pmcRow).Error; pmcErr == nil && pmcRow.EncryptedConfig != "" {
+			row = pmcRow
+			err = nil
+		}
+	}
+
+	if err != nil || row.EncryptedConfig == "" {
 		return creds, fmt.Errorf("未找到提供商 %s 的凭证配置", providerName)
 	}
 
 	// 兼容两种存储：1) 明文 JSON（如 {"openai_api_key":"...", "openai_api_base":"..."}）；2) Dify RSA+AES-EAX 加密后再 base64
-	var base string
+	var base, apiVersion string
 	var configMap map[string]interface{}
 	if err = json.Unmarshal([]byte(row.EncryptedConfig), &configMap); err == nil {
 		// 解密函数用于处理加密的值
@@ -368,6 +459,10 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 			creds.APIKey, err = s.decryptConfig(config.(string), row.TenantID)
 			if base, ok = configMap[gaia.ConfigKeyOpenaiAPIBase].(string); ok && strings.TrimSpace(base) != "" {
 				creds.Endpoint = strings.TrimSuffix(strings.TrimSpace(base), "/")
+			}
+			// 提取 API 版本（Azure 使用）
+			if apiVersion, ok = configMap[gaia.ConfigKeyOpenaiAPIVersion].(string); ok && strings.TrimSpace(apiVersion) != "" {
+				creds.APIVersion = strings.TrimSpace(apiVersion)
 			}
 		} else if config, ok = configMap[gaia.ConfigKeyDashScopeAPIKey]; ok {
 			creds.APIKey, err = s.decryptConfig(config.(string), row.TenantID)
@@ -385,6 +480,10 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 			}
 			if base, ok = configMap[gaia.ConfigKeyOpenaiAPIBase].(string); ok && strings.TrimSpace(base) != "" {
 				creds.Endpoint = strings.TrimSuffix(strings.TrimSpace(base), "/")
+			}
+			// 提取 API 版本（Azure 使用）
+			if apiVersion, ok = configMap[gaia.ConfigKeyOpenaiAPIVersion].(string); ok && strings.TrimSpace(apiVersion) != "" {
+				creds.APIVersion = strings.TrimSpace(apiVersion)
 			}
 		}
 		if err != nil {
@@ -456,20 +555,36 @@ func (s *ModelProviderService) decryptConfig(encryptedConfig string, tenantID st
 }
 
 // loadPrivateKey 从配置的存储路径加载指定 tenant 的 RSA 私钥（PEM 文件）。
+// 若该 tenant 的私钥文件不存在，则回退到「第一个创建的空间」（tenants 表 created_at 最早）的私钥路径，与 Dify 默认空间约定一致。
 func (s *ModelProviderService) loadPrivateKey(tenantID string) (*rsa.PrivateKey, error) {
-	// 私钥路径: {storage-path}/privkeys/{tenant_id}/private.pem
-	// 可通过配置自定义存储路径
+	key, err := s.loadPrivateKeyFromPath(tenantID)
+	if err != nil {
+		// 若错误为文件不存在，尝试使用第一个创建的空间的私钥
+		if errors.Is(err, os.ErrNotExist) || strings.Contains(err.Error(), "no such file or directory") {
+			var firstTenant gaia.Tenants
+			firstID := firstTenant.GetSuperAdminTenantId()
+			if firstID != "" && firstID != tenantID {
+				key, fallbackErr := s.loadPrivateKeyFromPath(firstID)
+				if fallbackErr == nil {
+					return key, nil
+				}
+			}
+		}
+		return nil, err
+	}
+	return key, nil
+}
+
+// loadPrivateKeyFromPath 根据 tenantID 解析私钥文件路径并读取、解析 PEM，不做回退。
+func (s *ModelProviderService) loadPrivateKeyFromPath(tenantID string) (*rsa.PrivateKey, error) {
 	storagePath := global.GVA_CONFIG.Gaia.StoragePath
 	if storagePath == "" {
-		// 默认路径：Docker 环境使用 /app/storage，本地开发使用相对路径
 		storagePath = "/app/storage"
 	}
 
 	filepath := fmt.Sprintf("%s/privkeys/%s/private.pem", storagePath, tenantID)
 
-	// 如果默认路径不存在，尝试本地开发相对路径
 	if _, err := os.Stat(filepath); os.IsNotExist(err) && storagePath == "/app/storage" {
-		// 本地开发环境：admin/server 相对于 api/storage
 		localPath := fmt.Sprintf("../../api/storage/privkeys/%s/private.pem", tenantID)
 		if _, err := os.Stat(localPath); err == nil {
 			filepath = localPath
@@ -481,16 +596,13 @@ func (s *ModelProviderService) loadPrivateKey(tenantID string) (*rsa.PrivateKey,
 		return nil, fmt.Errorf("read private key file failed: %w", err)
 	}
 
-	// 解析 PEM 格式私钥
 	block, _ := pem.Decode(pemData)
 	if block == nil {
 		return nil, errors.New("failed to decode PEM block")
 	}
 
-	// 尝试解析 PKCS#1 格式
 	privateKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		// 尝试解析 PKCS#8 格式
 		key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 		if err != nil {
 			return nil, fmt.Errorf("parse private key failed: %w", err)
@@ -542,15 +654,10 @@ func (s *ModelProviderService) aesEAXDecrypt(key, nonce, ciphertext, tag []byte)
 // @accept application/json
 // @Produce application/json
 func (s *ModelProviderService) ProxyChat(userID string, req gaiaRequest.ChatRequest, writer io.Writer) error {
-	// 检查模型是否开启
-	providerName, err := s.getProviderByModel(req.Model)
+	// 按“已选模型”解析实际渠道（如 gpt-5-chat 若只在 Azure 下勾选则走 azure）
+	providerName, err := s.resolveProviderByModel(req.Model)
 	if err != nil {
 		return err
-	}
-
-	// 验证模型是否在开启列表中
-	if !s.isModelEnabled(providerName, req.Model) {
-		return fmt.Errorf("模型 %s 未开启", req.Model)
 	}
 
 	// 获取提供商凭证
@@ -646,7 +753,53 @@ func (s *ModelProviderService) ProxyChat(userID string, req gaiaRequest.ChatRequ
 	return nil
 }
 
-// getProviderByModel 根据模型名称推断所属提供商短名（openai/tongyi/google/anthropic）。
+// getProviderCandidatesByModel 返回可能服务该模型的提供商短名列表（用于按“已选模型”解析实际渠道）。
+// 例如 gpt 系列可能走 openai 或 azure，返回 [azure, openai] 以便优先匹配用户在 admin 里配置的渠道。
+func (s *ModelProviderService) getProviderCandidatesByModel(modelName string) []string {
+	modelLower := strings.ToLower(modelName)
+	if strings.HasPrefix(modelLower, "gpt") || strings.Contains(modelLower, "openai") {
+		return []string{gaia.ProviderAzure, gaia.ProviderOpenai}
+	}
+	if strings.Contains(modelLower, "azure") {
+		return []string{gaia.ProviderAzure}
+	}
+	if strings.HasPrefix(modelLower, "qwen") || strings.Contains(modelLower, "tongyi") {
+		return []string{gaia.ProviderTongyi}
+	}
+	if strings.HasPrefix(modelLower, "gemini") || strings.Contains(modelLower, "google") {
+		return []string{gaia.ProviderGoogle}
+	}
+	if strings.Contains(modelLower, "claude") || strings.Contains(modelLower, "anthropic") {
+		return []string{gaia.ProviderAnthropic}
+	}
+	// GLM/智谱 可能配置在 tongyi（统一入口）或 zhipuai 下，先试 tongyi
+	if strings.HasPrefix(modelLower, "glm") || strings.Contains(modelLower, "zhipu") || strings.Contains(modelLower, "chatglm") {
+		return []string{gaia.ProviderTongyi, gaia.ProviderZhipuai}
+	}
+	// 支持 "minimax" 或 "MiniMax/MiniMax-M2.5" 等形式；可能配置在 tongyi（统一入口）或 minimax 下，先试 tongyi
+	if strings.HasPrefix(modelLower, "minimax") || strings.Contains(modelLower, "abab") {
+		return []string{gaia.ProviderTongyi, gaia.ProviderMinimax}
+	}
+	return nil
+}
+
+// resolveProviderByModel 根据模型名解析实际使用的提供商：在“可能服务该模型的”渠道中，取第一个已启用且已选模型列表包含该模型的渠道。
+// 这样当模型名是 gpt-5-chat 且用户只在 Azure 渠道下勾选了该模型时，会正确走 azure 而不是 openai。
+func (s *ModelProviderService) resolveProviderByModel(modelName string) (string, error) {
+	candidates := s.getProviderCandidatesByModel(modelName)
+	if len(candidates) == 0 {
+		global.GVA_LOG.Warn("resolveProviderByModel 无法识别提供商", zap.String("model", modelName), zap.String("model_lower", strings.ToLower(modelName)))
+		return "", fmt.Errorf("无法识别模型 %s 的提供商", modelName)
+	}
+	for _, p := range candidates {
+		if s.isModelEnabled(p, modelName) {
+			return p, nil
+		}
+	}
+	return "", fmt.Errorf("模型 %s 未开启", modelName)
+}
+
+// getProviderByModel 仅根据模型名称推断提供商短名（不查配置表）。代理校验“是否开启”请用 resolveProviderByModel。
 func (s *ModelProviderService) getProviderByModel(modelName string) (string, error) {
 	modelLower := strings.ToLower(modelName)
 	if strings.HasPrefix(modelLower, "gpt") || strings.Contains(modelLower, "openai") {
@@ -660,6 +813,17 @@ func (s *ModelProviderService) getProviderByModel(modelName string) (string, err
 	}
 	if strings.Contains(modelLower, "claude") || strings.Contains(modelLower, "anthropic") {
 		return gaia.ProviderAnthropic, nil
+	}
+	if strings.Contains(modelLower, "azure") {
+		return gaia.ProviderAzure, nil
+	}
+	// GLM 类模型可能走 tongyi 或 zhipuai，仅推断时默认 tongyi
+	if strings.HasPrefix(modelLower, "glm") || strings.Contains(modelLower, "zhipu") || strings.Contains(modelLower, "chatglm") {
+		return gaia.ProviderTongyi, nil
+	}
+	// MiniMax 类模型可能走 tongyi 或 minimax，仅推断时默认 tongyi（实际以 resolveProviderByModel + 已选模型为准）
+	if strings.HasPrefix(modelLower, "minimax") || strings.Contains(modelLower, "abab") {
+		return gaia.ProviderTongyi, nil
 	}
 	return "", fmt.Errorf("无法识别模型 %s 的提供商", modelName)
 }
@@ -676,8 +840,23 @@ func (s *ModelProviderService) isModelEnabled(providerName, modelName string) bo
 		return false
 	}
 
+	suffixOfRequest := modelName
+	if idx := strings.LastIndex(modelName, "/"); idx >= 0 && idx < len(modelName)-1 {
+		suffixOfRequest = modelName[idx+1:]
+	}
 	for _, m := range models {
 		if m == modelName {
+			return true
+		}
+		// 请求 model 为 "MiniMax/MiniMax-M2.5" 时，与配置中的 "MiniMax-M2.5" 视为同一模型
+		if m == suffixOfRequest {
+			return true
+		}
+		suffixOfConfig := m
+		if idx := strings.LastIndex(m, "/"); idx >= 0 && idx < len(m)-1 {
+			suffixOfConfig = m[idx+1:]
+		}
+		if suffixOfRequest == suffixOfConfig {
 			return true
 		}
 	}
@@ -720,22 +899,23 @@ func (s *ModelProviderService) ProxyRequest(
 	}
 
 	// 解析 provider：头 > query 已在 handler 传入；此处从 body 取 model 仅当 body 为 JSON 且含 model 时用于推断
-	if p := reqHeader.Get("X-Gaia-Provider"); p != "" {
+	xGaiaProvider := reqHeader.Get("X-Gaia-Provider")
+	global.GVA_LOG.Info("ProxyRequest 解析 provider", zap.String("path", path), zap.String("X-Gaia-Provider", xGaiaProvider), zap.Int("body_len", len(body)))
+	if p := xGaiaProvider; p != "" {
 		providerName = strings.TrimSpace(strings.ToLower(p))
 	}
 	if providerName == "" && len(body) > 0 {
 		var obj map[string]interface{}
 		if err = json.Unmarshal(body, &obj); err == nil {
 			if m, ok := obj["model"].(string); ok && m != "" {
-				var errP error
-				providerName, errP = s.getProviderByModel(m)
-				if errP != nil {
-					return errP
+				global.GVA_LOG.Info("ProxyRequest 从 body 解析 model", zap.String("model", m))
+				// 按“已选模型”解析实际渠道（如 gpt-5-chat 若只在 Azure 下勾选则走 azure）
+				providerName, err = s.resolveProviderByModel(m)
+				if err != nil {
+					global.GVA_LOG.Error("ProxyRequest resolveProviderByModel 失败", zap.String("model", m), zap.Error(err))
+					return err
 				}
-				// 有 model 时校验该模型是否在开启列表
-				if !s.isModelEnabled(providerName, m) {
-					return fmt.Errorf("模型 %s 未开启", m)
-				}
+				global.GVA_LOG.Info("ProxyRequest 解析得到 provider", zap.String("provider", providerName))
 			}
 		}
 	}
@@ -762,14 +942,51 @@ func (s *ModelProviderService) ProxyRequest(
 	if len(body) > 0 {
 		bodyReader = bytes.NewReader(body)
 	}
-	fmt.Println("path", base+"/"+path, string(body))
-	httpReq, err := http.NewRequest(method, base+"/"+path, bodyReader)
+
+	// 构建请求 URL，Azure 需要特殊处理
+	var requestURL string
+	if providerName == gaia.ProviderAzure {
+		// Azure OpenAI 有两种 API 格式：
+		// 1. 新版 v1 API（2025年8月后）：/openai/v1/... 不需要 api-version 参数
+		// 2. 传统 API：/openai/deployments/{deployment}/... 需要 api-version 参数
+		// 参考：https://learn.microsoft.com/en-us/azure/ai-foundry/openai/api-version-lifecycle
+		//
+		// 当请求路径以 "v1/" 开头时，使用新版 v1 API，不添加 api-version
+		if strings.HasPrefix(path, "v1/") {
+			// 新版 v1 API：/openai/v1/chat/completions（不需要 api-version）
+			requestURL = base + "/openai/" + path
+		} else if strings.HasPrefix(path, "openai/v1/") {
+			// 已经包含完整的 openai/v1 前缀
+			requestURL = base + "/" + path
+		} else if strings.HasPrefix(path, "openai/") {
+			// 其他 openai 路径（如 openai/deployments/...），可能需要 api-version
+			requestURL = base + "/" + path
+			if creds.APIVersion != "" {
+				requestURL += "?api-version=" + creds.APIVersion
+			}
+		} else {
+			// 其他路径，添加 openai 前缀并使用传统 API
+			requestURL = base + "/openai/" + path
+			if creds.APIVersion != "" {
+				requestURL += "?api-version=" + creds.APIVersion
+			}
+		}
+	} else {
+		requestURL = base + "/" + path
+	}
+
+	fmt.Println("path", requestURL, string(body))
+	httpReq, err := http.NewRequest(method, requestURL, bodyReader)
 	if err != nil {
 		return err
 	}
 
-	// 复制常用请求头，Authorization 使用上游 API Key
-	httpReq.Header.Set("Authorization", "Bearer "+creds.APIKey)
+	// 复制常用请求头，Azure 使用 api-key 头，其他使用 Authorization Bearer
+	if providerName == gaia.ProviderAzure {
+		httpReq.Header.Set("api-key", creds.APIKey)
+	} else {
+		httpReq.Header.Set("Authorization", "Bearer "+creds.APIKey)
+	}
 	if ct := reqHeader.Get("Content-Type"); ct != "" {
 		httpReq.Header.Set("Content-Type", ct)
 	}

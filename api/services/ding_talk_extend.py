@@ -41,28 +41,28 @@ class DingTalkService:
         """
         从字典中提取指定路径的数据
         支持点号分隔的路径和数组索引
-        
+
         Args:
             dictionary (dict): 源字典
             path (str): 以点分隔的路径，如 "data.email" 或 "data[0].userName"
-            
+
         Returns:
             提取的数据，如果路径不存在返回None
         """
         if not path:
             return None
-            
+
         import re
-        
+
         # 处理路径中的数组索引，如 data[0].userName -> data.[0].userName
         path = re.sub(r'\[(\d+)\]', r'.[\1]', path)
         parts = path.split('.')
         current = dictionary
-        
+
         for part in parts:
             if not part:
                 continue
-                
+
             # 处理数组索引
             array_match = re.match(r'\[(\d+)\]', part)
             if array_match:
@@ -75,18 +75,18 @@ class DingTalkService:
                 current = current[part]
             else:
                 return None
-                
+
         return current
 
     @classmethod
     def get_email_from_third_party_api(cls, userid: str, integration: SystemIntegrationExtend) -> str:
         """
         通过第三方API获取用户邮箱
-        
+
         Args:
             userid: 钉钉用户ID
             integration: 集成配置对象
-            
+
         Returns:
             邮箱地址，获取失败返回空字符串
         """
@@ -94,14 +94,14 @@ class DingTalkService:
             # 解析config字段
             if not integration.config:
                 return ""
-                
+
             config_data = json.loads(integration.config)
             email_api_config = config_data.get("email_api", {})
-            
+
             # 检查是否启用
             if not email_api_config.get("enabled", False):
                 return ""
-                
+
             # 获取配置参数
             api_url = email_api_config.get("url", "")
             method = email_api_config.get("method", "GET").upper()
@@ -111,14 +111,14 @@ class DingTalkService:
             headers = email_api_config.get("headers", {})
             authorization = email_api_config.get("authorization", {})
             body_data = email_api_config.get("body_data", {})
-            
+
             if not api_url:
                 logger.warning("Third-party email API URL is not configured")
                 return ""
-            
+
             # 准备请求头
             request_headers = dict(headers) if headers else {}
-            
+
             # 处理Authorization
             auth = None
             auth_type = authorization.get("type", "none")
@@ -132,10 +132,10 @@ class DingTalkService:
                 if username and password:
                     from requests.auth import HTTPBasicAuth
                     auth = HTTPBasicAuth(username, password)
-            
+
             # 构建请求数据
             request_data = {}
-            
+
             # 处理Body数据（仅POST/PUT/DELETE）
             if method in ["POST", "PUT", "DELETE"]:
                 if body_type == "form-data":
@@ -151,7 +151,7 @@ class DingTalkService:
                     request_data[param_field] = userid
                     # form-data使用data参数
                     response = requests.request(
-                        method, api_url, data=request_data, 
+                        method, api_url, data=request_data,
                         headers=request_headers, auth=auth, timeout=10
                     )
                 elif body_type == "x-www-form-urlencoded":
@@ -197,23 +197,23 @@ class DingTalkService:
                     api_url, params=request_data,
                     headers=request_headers, auth=auth, timeout=10
                 )
-            
+
             # 检查响应
             if response.status_code != 200:
                 logger.error(f"Third-party email API returned status code: {response.status_code}")
                 return ""
-            
+
             # 解析响应
             response_data = response.json()
             email = cls.extract_data(response_data, email_field)
-            
+
             if email and isinstance(email, str) and "@" in email:
                 logger.info("Successfully retrieved email from third-party API for userid: %s", userid)
                 return email
             else:
                 logger.warning("Failed to extract valid email from response using path: %s", email_field)
                 return ""
-                
+
         except json.JSONDecodeError as e:
             logger.error("Failed to parse email API config: %s", e)
             return ""
@@ -288,7 +288,7 @@ class DingTalkService:
                 SystemIntegrationExtend.status == True,
                 SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK).first()
         )
-        
+
         dingTalkToken, err = cls.get_access_token()
         responses = requests.post(
             f'https://oapi.dingtalk.com/topapi/v2/user/get?access_token={dingTalkToken}',
@@ -302,21 +302,21 @@ class DingTalkService:
             return "", "Request for user information failed: " + userid + " " + json.dumps(reqs)
         # Check if the user exists
         username = reqs["result"]['name']
-        
+
         # 优先尝试从第三方API获取邮箱
         email = ""
         if integration:
             email = cls.get_email_from_third_party_api(userid, integration)
-        
+
         # 降级处理：使用钉钉返回的邮箱
         if not email and "email" in reqs["result"] and len(reqs["result"]["email"]):
             email = reqs["result"]["email"]
-        
+
         # 最终降级：使用拼音生成邮箱
         if not email:
             email = f"{''.join(lazy_pinyin(username))}@{dify_config.EMAIL_DOMAIN}"
             logger.info("Using pinyin-generated email for user %s: %s", userid, email)
-        
+
         account: Account = (
             db.session.query(Account).filter(Account.email == email).first()
         )
@@ -385,7 +385,7 @@ class DingTalkService:
         token_pair, err = cls.auto_create_user(unionIdReq["result"]["userid"])
         if len(err) > 0:
             return None, "", "Request failed: " + err
-        
+
         redirect_url = f"{dify_config.CONSOLE_WEB_URL}/explore/apps-center-extend"
         return token_pair, redirect_url, ""
 

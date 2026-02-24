@@ -1,9 +1,9 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import { fetchUserMoney } from '@/service/common-extend'
 import type { UserMoney } from '@/models/common-extend'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { fetchUserMoney } from '@/service/common-extend'
 import { cn } from '@/utils/classnames'
-import {useTranslation} from "react-i18next";
 
 const AccountMoneyExtend = () => {
   const [userMoney, setUserMoney] = useState<UserMoney>({ used_quota: 0, total_quota: 0 })
@@ -12,12 +12,15 @@ const AccountMoneyExtend = () => {
   const { t } = useTranslation()
 
   const getUserMoney = async () => {
-    const data: any = await fetchUserMoney()
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-expect-error
+    const data: never = await fetchUserMoney()
     setUserMoney(data)
   }
 
   useEffect(() => {
     getUserMoney()
+    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
     setIsFetched(true)
   }, [])
 
@@ -51,14 +54,14 @@ const AccountMoneyExtend = () => {
 
   return (
     <div
-      rel='noopener noreferrer'
-      className='flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]'
+      rel="noopener noreferrer"
+      className="flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]"
     >
-      <div className='flex items-center bg-background-default-dimmed px-2 py-1 font-medium text-text-secondary'>
+      <div className="flex items-center bg-background-default-dimmed px-2 py-1 font-medium text-text-secondary">
         {t('user.credit', { ns: 'extend' })}
       </div>
-      <div className='flex items-center border-l border-divider-regular bg-background-default px-2 py-1.5'>
-        <span className='mr-1 text-text-tertiary'>{t('user.used', { ns: 'extend' })}</span>
+      <div className="flex items-center border-l border-divider-regular bg-background-default px-2 py-1.5">
+        <span className="mr-1 text-text-tertiary">{t('user.used', { ns: 'extend' })}</span>
         <span
           className={cn(
             'font-bold transition-all duration-300',
@@ -66,11 +69,13 @@ const AccountMoneyExtend = () => {
             'text-sm md:text-base', // 默认字体稍大，响应式设计
           )}
         >
-          ¥{usedRMB}
+          ¥
+          {usedRMB}
         </span>
-        <span className='mx-1 text-text-quaternary'>/</span>
-        <span className='text-text-tertiary'>
-          ¥{totalRMB.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+        <span className="mx-1 text-text-quaternary">/</span>
+        <span className="text-text-tertiary">
+          ¥
+          {totalRMB.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
         </span>
       </div>
     </div>

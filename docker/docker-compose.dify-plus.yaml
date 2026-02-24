@@ -1685,6 +1685,7 @@ services:
       # JWT signing key must match API's SECRET_KEY for token compatibility
       JWT_SIGNING_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
       SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
+      EMAIL_DOMAIN: ${EMAIL_DOMAIN:-}
     ports:
       - '8888:8888'
     depends_on:

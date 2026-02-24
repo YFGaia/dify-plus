@@ -1,5 +1,6 @@
 package gaia
 
+const EmailDomainEnv = "EMAIL_DOMAIN"
 const SystemIntegrationDingTalk = uint(1) // 钉钉集成
 const SystemIntegrationWeiXin = uint(2)   // 微信集成
 const SystemIntegrationFeiShu = uint(3)   // 飞书集成

@@ -30,6 +30,12 @@ func (appVersionApi *AppVersionApi) GetLatest(c *gin.Context) {
 	platform := c.Query("platform")
 	arch := c.Query("arch")
 	token := c.Query("token")
+	if token == "" {
+		auth := c.GetHeader("Authorization")
+		if len(auth) > 7 && auth[:7] == "Bearer " {
+			token = auth[7:]
+		}
+	}
 	if platform == "" {
 		response.FailWithMessage("platform is required", c)
 		return

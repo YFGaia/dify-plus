@@ -6,31 +6,23 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"net/url"
 	"strings"
 )
 
-// LoginOptionsResponse 登录方式选项（公开，不包含密钥）
-type LoginOptionsResponse struct {
-	DingTalk struct {
-		Enabled bool   `json:"enabled"`
-		AuthURL string `json:"auth_url,omitempty"`
-	} `json:"dingtalk"`
-	OAuth2 struct {
-		Enabled     bool   `json:"enabled"`
-		AuthURL     string `json:"auth_url,omitempty"`
-		RedirectURI string `json:"redirect_uri,omitempty"`
-	} `json:"oauth2"`
-}
-
 // GetLoginOptions 获取登录方式选项（供登录页展示钉钉/OAuth2 按钮，不暴露密钥）
-func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res LoginOptionsResponse) {
-	// 钉钉
+func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res response.LoginOptionsResponse) {
+	// 非本地的需要加上admin
 	integrateDing := e.getIntegratedConfigRaw(gaia.SystemIntegrationDingTalk)
+	frontendOrigin = strings.TrimSuffix(frontendOrigin, "/")
+	if !strings.Contains(frontendOrigin, "localhost") {
+		frontendOrigin = frontendOrigin + "/admin"
+	}
 	if integrateDing.Status && integrateDing.AppKey != "" {
 		res.DingTalk.Enabled = true
-		callbackURI := strings.TrimSuffix(frontendOrigin, "/") + "/#/loginCallback?provider=dingtalk"
+		callbackURI := frontendOrigin + "/#/loginCallback?provider=dingtalk"
 		res.DingTalk.AuthURL = fmt.Sprintf("https://login.dingtalk.com/oauth2/auth?client_id=%s&response_type=code&scope=openid&redirect_uri=%s&state=dingtalk",
 			integrateDing.AppKey, url.QueryEscape(callbackURI))
 	}
@@ -48,7 +40,7 @@ func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res Lo
 		res.OAuth2.Enabled = true
 		redirectURI := strings.TrimSpace(configMap.RedirectUri)
 		if redirectURI == "" {
-			redirectURI = strings.TrimSuffix(frontendOrigin, "/") + "/#/loginCallback?provider=oauth2"
+			redirectURI = frontendOrigin + "/#/loginCallback?provider=oauth2"
 		}
 		res.OAuth2.RedirectURI = redirectURI
 		scope := strings.TrimSpace(configMap.Scope)
@@ -65,8 +57,7 @@ func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res Lo
 				paramSep = "&"
 			}
 			res.OAuth2.AuthURL = fmt.Sprintf("%s%sclient_id=%s&response_type=code&scope=%s&redirect_uri=%s&state=oauth2",
-				baseURLStr, paramSep,
-				url.QueryEscape(integrateOAuth.AppID), url.QueryEscape(scope), url.QueryEscape(redirectURI))
+				baseURLStr, paramSep, url.QueryEscape(integrateOAuth.AppID), url.QueryEscape(scope), url.QueryEscape(redirectURI))
 		} else {
 			q := u.Query()
 			q.Set("client_id", integrateOAuth.AppID)

@@ -186,10 +186,20 @@ class OaOAuth(OAuth):
             "config": json.loads(integration.config)
         }
 
+    def _normalize_jinja_path(self, path: str) -> str:
+        """
+        规范化 Jinja 风格路径：去掉 {{ }} 及首尾空格，得到点分路径供 extract_data 使用。
+        例如 "{{ user.name }}" -> "user.name"，"email" -> "email"。
+        """
+        if not path or not isinstance(path, str):
+            return ""
+        s = path.strip().replace("{{", "").replace("}}", "").strip()
+        return s
+
     def extract_data(self, dictionary, path):
         """
         从字典中提取指定路径的数据
-        支持通配符'*'获取列表中所有元素的特定字段
+        支持通配符'*'获取列表中所有元素的特定字段；路径可为 Jinja 风格（调用前用 _normalize_jinja_path 规范化）。
 
         Args:
             dictionary (dict): 源字典
@@ -198,6 +208,8 @@ class OaOAuth(OAuth):
         Returns:
             提取的数据
         """
+        if not path:
+            return None
         parts = path.split('.')
         current = dictionary
 
@@ -327,24 +339,28 @@ class OaOAuth(OAuth):
                 name="",
                 email="",
             )
-        # 提取参数（更健壮：支持点分路径、扁平键名和标准 OIDC 兜底）
+        # 提取参数（支持 Jinja 风格路径如 name、user.name、{{ data.attributes.phone }}，及标准 OIDC 兜底）
         config = auto2_conf.get('config')
         name_field = config.get('user_name_field') if isinstance(config, dict) else None
         email_field = config.get('user_email_field') if isinstance(config, dict) else None
         id_field = config.get('user_id_field') if isinstance(config, dict) else None
 
-        # 首选：按配置路径提取
-        name = self.extract_data(raw_info, name_field) if name_field else None
-        email = self.extract_data(raw_info, email_field) if email_field else None
-        username = self.extract_data(raw_info, id_field) if id_field else None
+        # 首选：按配置路径提取（路径会先做 Jinja 规范化：去掉 {{ }} 再按点分路径取）
+        name_path = self._normalize_jinja_path(name_field) if name_field else ""
+        email_path = self._normalize_jinja_path(email_field) if email_field else ""
+        id_path = self._normalize_jinja_path(id_field) if id_field else ""
+
+        name = self.extract_data(raw_info, name_path) if name_path else None
+        email = self.extract_data(raw_info, email_path) if email_path else None
+        username = self.extract_data(raw_info, id_path) if id_path else None
 
         # 如果配置为 data.name 但返回是扁平结构，尝试最后一级键名
-        if name is None and isinstance(name_field, str) and '.' in name_field:
-            name = raw_info.get(name_field.split('.')[-1])
-        if email is None and isinstance(email_field, str) and '.' in email_field:
-            email = raw_info.get(email_field.split('.')[-1])
-        if username is None and isinstance(id_field, str) and '.' in id_field:
-            username = raw_info.get(id_field.split('.')[-1])
+        if name is None and name_path and "." in name_path:
+            name = raw_info.get(name_path.split(".")[-1])
+        if email is None and email_path and "." in email_path:
+            email = raw_info.get(email_path.split(".")[-1])
+        if username is None and id_path and "." in id_path:
+            username = raw_info.get(id_path.split(".")[-1])
 
         # OIDC 常见字段兜底
         if username is None:

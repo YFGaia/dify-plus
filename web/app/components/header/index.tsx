@@ -12,6 +12,7 @@ import { WorkspaceProvider } from '@/context/workspace-context'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import { Plan } from '../billing/type'
 import AccountDropdown from './account-dropdown'
+import AccountMoneyExtend from './account-money-extend' // 二开部分 - 额度限制
 import AppNav from './app-nav'
 import DatasetNav from './dataset-nav'
 import EnvNav from './env-nav'
@@ -20,9 +21,8 @@ import LicenseNav from './license-env'
 import PlanBadge from './plan-badge'
 import PluginsNav from './plugins-nav'
 import ToolsNav from './tools-nav'
-import AccountMoneyExtend from './account-money-extend' // 二开部分 - 额度限制
-import DrawNav from './draw-nav-extend' // Extend draw nav
-import { AmazonMarketingNav } from './nav-extend/index' // Extend draw nav
+// import DrawNav from './draw-nav-extend' // Extend draw nav
+// import { AmazonMarketingNav } from './nav-extend/index' // Extend draw nav
 
 const navClassName = `
   flex items-center relative px-3 h-8 rounded-xl
@@ -48,7 +48,7 @@ const Header = () => {
 
   const renderLogo = () => (
     <h1>
-      {/*extend: 跳转修改*/}
+      {/* extend: 跳转修改 */}
       <Link href="/explore/apps-center-extend" className="flex h-8 shrink-0 items-center justify-center overflow-hidden whitespace-nowrap px-0.5 indent-[-9999px]">
         {isBrandingEnabled && systemFeatures.branding.application_title ? systemFeatures.branding.application_title : 'Dify'}
         {systemFeatures.branding.enabled && systemFeatures.branding.workspace_logo
@@ -89,11 +89,11 @@ const Header = () => {
           {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />}
           {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />}
           {/* gaia exnend begin */}
-          <DrawNav className={navClassName}/>
-          {<AmazonMarketingNav className={navClassName}/>}
+          { /* <DrawNav className={navClassName} /> */ }
+          { /* <AmazonMarketingNav className={navClassName} /> */ }
           {/* gaia extend end */}
           {/* 二开部分 - 额度限制 */}
-          {<AccountMoneyExtend />}
+          <AccountMoneyExtend />
         </div>
       </div>
     )
@@ -109,7 +109,7 @@ const Header = () => {
         </WorkspaceProvider>
         {enableBilling ? <PlanBadge allowHover sandboxAsUpgrade plan={plan.type} onClick={handlePlanClick} /> : <LicenseNav />}
         {/* 二开部分 - 额度限制 */}
-        {<AccountMoneyExtend />}
+        <AccountMoneyExtend />
       </div>
       <div className="flex items-center space-x-2">
         {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />}

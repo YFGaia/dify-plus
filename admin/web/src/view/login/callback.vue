@@ -22,10 +22,12 @@ const redirectToThirdParty = (token, redirectUri, state) => {
   if (!redirectUri) return false
   sessionStorage.removeItem('gaia_login_redirect_uri')
   sessionStorage.removeItem('gaia_login_state')
+  sessionStorage.removeItem('console_token')
+  sessionStorage.removeItem('token')
   const sep = redirectUri.includes('?') ? '&' : '?'
   const url = redirectUri + sep + 'token=' + encodeURIComponent(token) + (state ? '&state=' + encodeURIComponent(state) : '')
   window.location.href = url
-  window.location.href = "/"
+  setTimeout(() => { window.location.href = '/' }, 3000)
   return true
 }
 

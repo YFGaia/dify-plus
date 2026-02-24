@@ -35,13 +35,17 @@ export const updateAppVersionRelease = (id, data) => {
   return service({ url: `/gaia/app-version/releases/${id}`, method: 'put', data })
 }
 
+/** 上传安装包到指定版本（自动识别平台/架构），formData: file。大文件需较长超时，此处 30 分钟 */
+const UPLOAD_TIMEOUT_MS = 30 * 60 * 1000
+
 /** 上传安装包到指定版本（自动识别平台/架构），formData: file */
 export const uploadAppVersionPackage = (releaseId, formData) => {
   return service({
     url: `/gaia/app-version/releases/${releaseId}/upload`,
     method: 'post',
     data: formData,
-    headers: { 'Content-Type': 'multipart/form-data' }
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: UPLOAD_TIMEOUT_MS
   })
 }
 

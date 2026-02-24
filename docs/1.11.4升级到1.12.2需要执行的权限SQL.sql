@@ -40,10 +40,12 @@ INSERT INTO sys_apis (id, created_at, updated_at, deleted_at, path, description,
 -- ... 共 8 条;
 
 
--- --------------- 3. Casbin 规则 casbin_rule (角色 888/8881/9528/1 的接口权限) ---------------
+-- --------------- 3. Casbin 规则 casbin_rule (角色 888/8881/9528/1 的接口权限，含 token/reveal、token/generate) ---------------
 INSERT INTO casbin_rule (ptype, v0, v1, v2) VALUES
 ('p', '888', '/gaia/app-version/token', 'GET'),
 ('p', '888', '/gaia/app-version/token', 'PUT'),
+('p', '888', '/gaia/app-version/token/reveal', 'POST'),
+('p', '888', '/gaia/app-version/token/generate', 'GET'),
 ('p', '888', '/gaia/app-version/releases', 'GET'),
 ('p', '888', '/gaia/app-version/releases', 'POST'),
 ('p', '888', '/gaia/app-version/releases/:id', 'GET'),
@@ -60,6 +62,8 @@ INSERT INTO casbin_rule (ptype, v0, v1, v2) VALUES
 ('p', '8881', '/gaia/app-version/releases/:id/download', 'DELETE'),
 ('p', '9528', '/gaia/app-version/token', 'GET'),
 ('p', '9528', '/gaia/app-version/token', 'PUT'),
+('p', '9528', '/gaia/app-version/token/reveal', 'POST'),
+('p', '9528', '/gaia/app-version/token/generate', 'GET'),
 ('p', '9528', '/gaia/app-version/releases', 'GET'),
 ('p', '9528', '/gaia/app-version/releases', 'POST'),
 ('p', '9528', '/gaia/app-version/releases/:id', 'GET'),
@@ -149,14 +153,4 @@ INSERT INTO casbin_rule (ptype, v0, v1, v2) VALUES
 INSERT INTO sys_authority_menus (sys_authority_authority_id, sys_base_menu_id) VALUES (888, 42);
 
 
--- ============================================================
--- 已有库修复：若曾用具体路径 /gaia/proxy/v1/chat/completions，改为通配符 /gaia/proxy/*
--- ============================================================
--- sys_apis：将具体路径统一改为通配符（与 source/system/api.go、Casbin 一致）
-UPDATE sys_apis SET path = '/gaia/proxy/*', description = '中转API(第三方)-POST', updated_at = NOW()
-WHERE path = '/gaia/proxy/v1/chat/completions' AND method = 'POST';
--- 若有其他具体子路径也一并改为通配符（可选）
-UPDATE sys_apis SET path = '/gaia/proxy/*', updated_at = NOW()
-WHERE path LIKE '/gaia/proxy/%' AND path != '/gaia/proxy/*';
--- casbin_rule：若存在具体路径策略可删除，保留通配符策略即可（通常初始化已是 /gaia/proxy/*，可不执行）
--- DELETE FROM casbin_rule WHERE ptype = 'p' AND v1 LIKE '/gaia/proxy/%' AND v1 != '/gaia/proxy/*';
+

@@ -12,7 +12,6 @@
         <div class="z-[999] pt-12 pb-10 md:w-96 w-full  rounded-lg flex flex-col justify-between box-border">
           <div>
             <div class="flex items-center justify-center">
-
               <img
                 class="w-24"
                 :src="$GIN_VUE_ADMIN.appLogo"
@@ -20,9 +19,15 @@
               >
             </div>
             <div class="mb-9">
-              <p class="text-center text-4xl font-bold">{{ $GIN_VUE_ADMIN.appName }}</p>
-              <p class="text-center text-sm font-normal text-gray-500 mt-2.5">A management platform for Dify-Plus</p>
-              <p v-if="redirectUri" class="text-center text-xs text-blue-600 mt-2">登录后将跳回第三方应用</p>
+              <p class="text-center text-4xl font-bold">
+                {{ $GIN_VUE_ADMIN.appName }}
+              </p>
+              <p class="text-center text-sm font-normal text-gray-500 mt-2.5">
+                A management platform for Dify-Plus
+              </p>
+              <p v-if="redirectUri" class="text-center text-xs text-blue-600 mt-2">
+                登录后将跳回第三方应用
+              </p>
             </div>
             <el-form
               ref="loginForm"
@@ -35,60 +40,64 @@
               <template
                 v-if="showInit"
               >
-                <el-form-item
-                  prop="username"
-                  class="mb-6"
-                >
-                  <el-input
-                    v-model="loginFormData.username"
-                    size="large"
-                    placeholder="请输入dify的第一个帐号,即为管理员帐号"
-                    suffix-icon="user"
-                  />
-                </el-form-item>
-                <el-form-item
-                  prop="password"
-                  class="mb-6"
-                >
-                  <el-input
-                    v-model="loginFormData.password"
-                    show-password
-                    size="large"
-                    type="password"
-                    placeholder="请输入密码"
-                  />
-                </el-form-item>
-                <el-form-item
-                  v-if="loginFormData.openCaptcha"
-                  prop="captcha"
-                  class="mb-6"
-                >
-                  <div class="flex w-full justify-between">
+                <template v-if="!redirectUri">
+                  <el-form-item
+                    prop="username"
+                    class="mb-6"
+                  >
                     <el-input
-                      v-model="loginFormData.captcha"
-                      placeholder="请输入验证码"
+                      v-model="loginFormData.username"
                       size="large"
-                      class="flex-1 mr-5"
+                      placeholder="请输入dify的第一个帐号,即为管理员帐号"
+                      suffix-icon="user"
                     />
-                    <div class="w-1/3 h-11 bg-[#c3d4f2] rounded">
-                      <img
-                        v-if="picPath"
-                        class="w-full h-full"
-                        :src="picPath"
-                        alt="请输入验证码"
-                        @click="loginVerify()"
-                      >
+                  </el-form-item>
+                  <el-form-item
+                    prop="password"
+                    class="mb-6"
+                  >
+                    <el-input
+                      v-model="loginFormData.password"
+                      show-password
+                      size="large"
+                      type="password"
+                      placeholder="请输入密码"
+                    />
+                  </el-form-item>
+                  <el-form-item
+                    v-if="loginFormData.openCaptcha"
+                    prop="captcha"
+                    class="mb-6"
+                  >
+                    <div class="flex w-full justify-between">
+                      <el-input
+                        v-model="loginFormData.captcha"
+                        placeholder="请输入验证码"
+                        size="large"
+                        class="flex-1 mr-5"
+                      />
+                      <div class="w-1/3 h-11 bg-[#c3d4f2] rounded">
+                        <img
+                          v-if="picPath"
+                          class="w-full h-full"
+                          :src="picPath"
+                          alt="请输入验证码"
+                          @click="loginVerify()"
+                        >
+                      </div>
                     </div>
-                  </div>
-                </el-form-item>
-                <el-form-item class="mb-6">
-                  <el-button
-                    class="shadow shadow-active h-11 w-full"
-                    type="primary"
-                    size="large"
-                    @click="submitForm"
-                  >账号密码登录</el-button>
-                </el-form-item>
+                  </el-form-item>
+                  <el-form-item class="mb-6">
+                    <el-button
+                      class="shadow shadow-active h-11 w-full"
+                      type="primary"
+                      size="large"
+                      @click="submitForm"
+                    >
+                      账号密码登录
+                    </el-button>
+                  </el-form-item>
+                </template>
                 <!-- 钉钉 / OAuth2 登录：仅在有 redirect_uri（第三方回调）时显示 -->
                 <el-form-item
                   v-if="loginOptions.dingtalk.enabled && redirectUri"
@@ -125,18 +134,19 @@
                   type="primary"
                   size="large"
                   @click="checkInit"
-                >前往初始化</el-button>
-
+                >
+                  前往初始化
+                </el-button>
               </el-form-item>
             </el-form>
           </div>
         </div>
       </div>
-<!--      <div class="hidden md:block w-1/2 h-full float-right bg-[#194bfb]"><img-->
-<!--        class="h-full"-->
-<!--        src="@/assets/login_right_banner.jpg"-->
-<!--        alt="banner"-->
-<!--      ></div>-->
+      <!--      <div class="hidden md:block w-1/2 h-full float-right bg-[#194bfb]"><img-->
+      <!--        class="h-full"-->
+      <!--        src="@/assets/login_right_banner.jpg"-->
+      <!--        alt="banner"-->
+      <!--      ></div>-->
     </div>
 
     <BottomInfo class="left-0 right-0 absolute bottom-3 mx-auto  w-full z-20">

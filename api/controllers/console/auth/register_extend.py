@@ -1,17 +1,20 @@
 import uuid
+from datetime import UTC, datetime
+
 import jwt
 from flask import request
-from .. import console_ns
-from models import Account
-from configs import dify_config
-from datetime import UTC, datetime
-from libs.login import login_required
-from extensions.ext_database import db
-from models.account import AccountStatus
 from flask_restx import Resource, reqparse
+
+from configs import dify_config
+from extensions.ext_database import db
+from libs.login import login_required
+from models import Account
+from models.account import AccountStatus
 from models.account_money_extend import AccountMoneyExtend
 from services.account_service import AccountService, TenantService
 from services.account_service_extend import TenantExtendService
+
+from .. import console_ns
 
 
 @console_ns.route("/admin_register_user")

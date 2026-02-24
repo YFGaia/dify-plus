@@ -196,7 +196,7 @@ func LoginToken(user system.Login) (token string, claims systemReq.CustomClaims,
 		// Extend Start: add gaia token
 	})
 	token, err = j.CreateToken(claims)
-	return
+	return token, claims, err
 }
 
 // LoginTokenWithCSRF 生成登录token和CSRF token (用于批量处理API调用)

@@ -87,35 +87,35 @@
                 </div>
               </div>
 
-              <div v-if="provider.available_models && provider.available_models.length > 0" class="models-select-wrapper">
+              <div class="models-select-wrapper">
                 <el-select
                   v-model="provider.models"
                   multiple
                   filterable
+                  allow-create
+                  default-first-option
                   collapse-tags
                   collapse-tags-tooltip
                   :max-collapse-tags="5"
-                  placeholder="请选择模型"
+                  placeholder="选择模型或输入模型 ID 回车新增"
                   class="models-select"
                   @change="onModelSelectChange(provider)"
                 >
                   <el-option
-                    v-for="model in provider.available_models"
+                    v-for="model in getDisplayModels(provider)"
                     :key="model.id"
                     :label="model.name"
                     :value="model.id"
                   />
                 </el-select>
                 <div class="selected-count">
-                  已选择 {{ provider.models?.length || 0 }} / {{ provider.available_models.length }} 个模型
+                  已选择 {{ provider.models?.length || 0 }}{{ (provider.available_models && provider.available_models.length > 0) ? ` / ${provider.available_models.length} 个可用` : '' }} 个模型
                 </div>
               </div>
 
-              <el-empty
-                v-else
-                description="未找到可用模型，请先在Dify中配置该提供商"
-                :image-size="80"
-              />
+              <div v-if="!(provider.available_models && provider.available_models.length > 0)" class="models-hint">
+                未从接口拉取到可用模型，可输入模型 ID 后按回车直接新增
+              </div>
             </div>
           </el-collapse-transition>
         </div>
@@ -151,6 +151,15 @@ const providerDisplayNames = {
 
 const getProviderDisplayName = (providerName) => {
   return providerDisplayNames[providerName] || providerName
+}
+
+// 用于下拉展示的模型列表：接口返回的可用模型 + 已选中的自定义模型（不在接口列表中的）
+const getDisplayModels = (provider) => {
+  const available = provider.available_models || []
+  const selectedIds = new Set(provider.models || [])
+  const availableIds = new Set(available.map(m => m.id))
+  const custom = [...selectedIds].filter(id => !availableIds.has(id)).map(id => ({ id, name: id }))
+  return [...available, ...custom]
 }
 
 // 获取提供商列表
@@ -359,6 +368,12 @@ onMounted(() => {
           font-size: 12px;
           color: #909399;
         }
+      }
+
+      .models-hint {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #909399;
       }
     }
   }

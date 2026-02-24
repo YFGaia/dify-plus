@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
-	"strings"
-
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	gaiaReq "github.com/flipped-aurora/gin-vue-admin/server/model/gaia/request"
+	gaiaResponse "github.com/flipped-aurora/gin-vue-admin/server/model/gaia/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	systemRes "github.com/flipped-aurora/gin-vue-admin/server/model/system/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
@@ -20,6 +18,8 @@ import (
 	"github.com/go-resty/resty/v2"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"net/http"
+	"strings"
 )
 
 var gaiaSystemIntegratedService = service.ServiceGroupApp.GaiaServiceGroup.SystemIntegratedService
@@ -216,23 +216,25 @@ func (b *BaseApi) GetGaiaLoginOptions(c *gin.Context) {
 // @Param    data  body  gaiaReq.GaiaOAuth2LoginReq  true  "code 或 access_token 二选一、redirect_uri、state"
 // @Router   /base/gaiaOAuth2Login [post]
 func (b *BaseApi) GaiaOAuth2Login(c *gin.Context) {
+	// init
+	var err error
 	var req gaiaReq.GaiaOAuth2LoginReq
-	if err := c.ShouldBindJSON(&req); err != nil {
+	var data = make(map[string]interface{})
+	var result *gaiaResponse.GaiaLoginResult
+	if err = c.ShouldBindJSON(&req); err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	result, err := gaiaSystemIntegratedService.OAuth2CodeLogin(req)
-	if err != nil {
+
+	if result, err = gaiaSystemIntegratedService.OAuth2CodeLogin(req); err != nil {
 		global.GVA_LOG.Error("Gaia OAuth2 登录失败", zap.Error(err))
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
+	data["expiresAt"] = 0
+	data["user"] = result.User
+	data["token"] = result.Token
 	sysSvc.MenuServiceApp.UserAuthorityDefaultRouter(&result.User)
-	data := map[string]interface{}{
-		"user":   result.User,
-		"token":  result.Token,
-		"expiresAt": 0,
-	}
 	if result.RedirectURI != "" {
 		data["redirect_uri"] = result.RedirectURI
 	}
@@ -262,8 +264,8 @@ func (b *BaseApi) GaiaDingTalkLogin(c *gin.Context) {
 	}
 	sysSvc.MenuServiceApp.UserAuthorityDefaultRouter(&result.User)
 	data := map[string]interface{}{
-		"user":   result.User,
-		"token":  result.Token,
+		"user":      result.User,
+		"token":     result.Token,
 		"expiresAt": 0,
 	}
 	if result.RedirectURI != "" {
