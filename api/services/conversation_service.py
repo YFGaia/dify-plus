@@ -48,12 +48,29 @@ class ConversationService:
         if not user:
             return InfiniteScrollPagination(data=[], limit=limit, has_more=False)
 
+        if isinstance(user, EndUser):
+            from_source = "api"
+            # Include conversations owned by this end_user or by this end_user's linked account (Web login).
+            user_filter: Any = Conversation.from_end_user_id == user.id
+            if getattr(user, "external_user_id", None):
+                user_filter = or_(user_filter, Conversation.from_account_id == user.external_user_id)
+            base_conditions = (
+                Conversation.is_deleted == False,
+                Conversation.app_id == app_model.id,
+                Conversation.from_source == from_source,
+                user_filter,
+            )
+        else:
+            base_conditions = (
+                Conversation.is_deleted == False,
+                Conversation.app_id == app_model.id,
+                Conversation.from_source == "console",
+                Conversation.from_end_user_id.is_(None),
+                Conversation.from_account_id == user.id,
+            )
+
         stmt = select(Conversation).where(
-            Conversation.is_deleted == False,
-            Conversation.app_id == app_model.id,
-            Conversation.from_source == ("api" if isinstance(user, EndUser) else "console"),
-            Conversation.from_end_user_id == (user.id if isinstance(user, EndUser) else None),
-            Conversation.from_account_id == (user.id if isinstance(user, Account) else None),
+            *base_conditions,
             or_(Conversation.invoke_from.is_(None), Conversation.invoke_from == invoke_from.value),
         )
         # Check if include_ids is not None to apply filter
@@ -172,6 +189,28 @@ class ConversationService:
             )
             .first()
         )
+
+        # extend start: 二开部分End - web app 会话列表，兼容 cookie 和 header 登录
+        # Web App: fallback when conversation was created with same end_user but lookup fails
+        # (e.g. cookie vs header passport, or session refresh). Allow access when either
+        # from_end_user_id matches or from_account_id matches end_user's linked account.
+        if not conversation and isinstance(user, EndUser):
+            fallback = (
+                db.session.query(Conversation)
+                .where(
+                    Conversation.id == conversation_id,
+                    Conversation.app_id == app_model.id,
+                    Conversation.from_source == "api",
+                    Conversation.is_deleted == False,
+                )
+                .first()
+            )
+            if fallback and (
+                fallback.from_end_user_id == user.id
+                or (getattr(user, "external_user_id", None) and fallback.from_account_id == user.external_user_id)
+            ):
+                conversation = fallback
+        # extend end: 二开部分End - web app 会话列表，兼容 cookie 和 header 登录
 
         if not conversation:
             raise ConversationNotExistsError()

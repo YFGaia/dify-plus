@@ -44,8 +44,8 @@ func Corn() {
 	}
 	global.GVA_LOG.Info("【定时任务-每1分钟执行1次】同步用户列表任务，已启动！")
 
-	// 每10分钟同步一次【应用使用分析数据】
-	if _, err := c.AddFunc("0 */10 * * * *", func() {
+	// 一天同步一次～待改目前没啥用【应用使用分析数据】
+	if _, err := c.AddFunc("0 0 1 * * *", func() {
 		if global.GVA_DB == nil {
 			global.GVA_LOG.Info("【定时任务-每6分钟执行1次】同步应用使用分析数据任务，数据库没有初始化，暂未开始同步")
 			return
