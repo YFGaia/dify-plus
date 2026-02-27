@@ -2,10 +2,6 @@ package initialize
 
 import (
 	"context"
-	adapter "github.com/casbin/gorm-adapter/v3"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/example"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia"
-	sysModel "github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/service/system"
 	"gorm.io/gorm"
 )
@@ -36,48 +32,7 @@ func (e *ensureTables) MigrateTable(ctx context.Context) (context.Context, error
 		return ctx, system.ErrMissingDBContext
 	}
 
-	tables := []interface{}{
-		sysModel.SysApi{},
-		sysModel.SysUser{},
-		sysModel.SysBaseMenu{},
-		sysModel.SysAuthority{},
-		sysModel.JwtBlacklist{},
-		sysModel.SysDictionary{},
-		sysModel.SysAutoCodeHistory{},
-		sysModel.SysOperationRecord{},
-		sysModel.SysDictionaryDetail{},
-		sysModel.SysBaseMenuParameter{},
-		sysModel.SysBaseMenuBtn{},
-		sysModel.SysAuthorityBtn{},
-		sysModel.SysAutoCodePackage{},
-		sysModel.SysExportTemplate{},
-		sysModel.Condition{},
-		sysModel.JoinTemplate{},
-		sysModel.SysParams{},
-
-		adapter.CasbinRule{},
-
-		example.ExaFile{},
-		example.ExaCustomer{},
-		example.ExaFileChunk{},
-		example.ExaFileUploadAndDownload{},
-
-		// Extend gaia model
-		gaia.AccountDingTalkExtend{},
-		gaia.AppRequestTestBatch{},
-		gaia.AppRequestTest{},
-		gaia.SystemIntegration{},     // Extend System Integration
-		gaia.ForwardingExtend{},      // Extend Forwarding Extend
-		gaia.BatchWorkflow{},         // Extend Batch Workflow
-		gaia.BatchWorkflowTask{},     // Extend Batch Workflow Task
-		sysModel.SysUserGlobalCode{}, // Extend Global Code
-		// Extend gaia model
-	}
-	for _, t := range tables {
-		_ = db.AutoMigrate(&t)
-		// 视图 authority_menu 会被当成表来创建，引发冲突错误（更新版本的gorm似乎不会）
-		// 由于 AutoMigrate() 基本无需考虑错误，因此显式忽略
-	}
+	RegisterTables(db)
 	return ctx, nil
 }
 
@@ -85,42 +40,6 @@ func (e *ensureTables) TableCreated(ctx context.Context) bool {
 	db, ok := ctx.Value("db").(*gorm.DB)
 	if !ok {
 		return false
-	}
-	tables := []interface{}{
-		sysModel.SysApi{},
-		sysModel.SysUser{},
-		sysModel.SysBaseMenu{},
-		sysModel.SysAuthority{},
-		sysModel.JwtBlacklist{},
-		sysModel.SysDictionary{},
-		sysModel.SysAutoCodeHistory{},
-		sysModel.SysOperationRecord{},
-		sysModel.SysDictionaryDetail{},
-		sysModel.SysBaseMenuParameter{},
-		sysModel.SysBaseMenuBtn{},
-		sysModel.SysAuthorityBtn{},
-		sysModel.SysAutoCodePackage{},
-		sysModel.SysExportTemplate{},
-		sysModel.Condition{},
-		sysModel.JoinTemplate{},
-
-		adapter.CasbinRule{},
-
-		example.ExaFile{},
-		example.ExaCustomer{},
-		example.ExaFileChunk{},
-		example.ExaFileUploadAndDownload{},
-
-		// Extend gaia model
-		gaia.AccountDingTalkExtend{},
-		gaia.AppRequestTestBatch{},
-		gaia.AppRequestTest{},
-		gaia.SystemIntegration{},     // Extend System Integration
-		gaia.ForwardingExtend{},      // Extend Forwarding Extend
-		gaia.BatchWorkflow{},         // Extend Batch Workflow
-		gaia.BatchWorkflowTask{},     // Extend Batch Workflow Task
-		sysModel.SysUserGlobalCode{}, // Extend Global Code
-		// Extend gaia model
 	}
 	yes := true
 	for _, t := range tables {

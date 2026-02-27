@@ -274,7 +274,7 @@ func (dashboardService *DashboardService) GetAppQuotaRankingData(info gaiaReq.Ge
 		Total int64
 	}{list, total}
 
-	if err := dashboardService.cacheResult(cacheKey, result, 1800*time.Second); err != nil {
+	if err := dashboardService.cacheResult(cacheKey, result, 24*time.Hour); err != nil {
 		global.GVA_LOG.Error("Failed to cache result", zap.Error(err))
 	}
 
