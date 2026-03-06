@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	modelSystem "github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"gorm.io/gorm"
 	"sort"
@@ -86,6 +87,22 @@ func RegisterInit(order int, i SubInitializer) {
 
 type InitDBService struct{}
 
+// IfInit 判断是否数据库初始化了
+func (initDBService *InitDBService) IfInit() (init bool) {
+	var menuCount, authorityCount int64
+	if global.GVA_DB != nil {
+		init = true
+		var menu modelSystem.SysBaseMenuBtn
+		var authority modelSystem.SysAuthority
+		global.GVA_DB.Model(&menu).Count(&menuCount)
+		global.GVA_DB.Model(&authority).Count(&authorityCount)
+		if menuCount == 0 && authorityCount == 1 {
+			init = false
+		}
+	}
+	return init
+}
+
 // InitDB 创建数据库并初始化 总入口
 func (initDBService *InitDBService) InitDB(conf request.InitDB) (err error) {
 	ctx := context.TODO()
@@ -122,7 +139,8 @@ func (initDBService *InitDBService) InitDB(conf request.InitDB) (err error) {
 
 	db := ctx.Value("db").(*gorm.DB)
 	global.GVA_DB = db
-
+	db.Exec("DELETE FROM sys_base_menus")
+	db.Exec("DELETE FROM sys_authorities")
 	if err = initHandler.InitTables(ctx, initializers); err != nil {
 		return err
 	}

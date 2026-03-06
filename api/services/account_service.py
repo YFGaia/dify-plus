@@ -35,6 +35,7 @@ from models.account import (
 )
 from models.account_money_extend import AccountMoneyExtend
 from models.model import DifySetup
+from services.account_service_extend import TenantExtendService
 from services.billing_service import BillingService
 from services.errors.account import (
     AccountAlreadyInTenantError,
@@ -1312,6 +1313,19 @@ class RegisterService:
             account.initialized_at = naive_utc_now()
 
             TenantService.create_owner_tenant_if_not_exist(account=account, is_setup=True)
+
+            # extend begin: admin 初始化不同步问题 - 在 dify 初始化完成后，自动调用 admin 初始化
+            # 将 setup 用户加入到第一个工作区（admin 租户），确保后续用户信息同步时权限正确
+            tenant_extend_service = TenantExtendService
+            super_admin_id = tenant_extend_service.get_super_admin_id().id
+            super_admin_tenant_id = tenant_extend_service.get_super_admin_tenant_id().id
+            if super_admin_id and super_admin_tenant_id:
+                is_create = TenantExtendService.create_default_tenant_member_if_not_exist(
+                    super_admin_tenant_id, account.id
+                )
+                if is_create:
+                    TenantService.switch_tenant(account, super_admin_tenant_id)
+            # extend end: admin 初始化不同步问题
 
             dify_setup = DifySetup(version=dify_config.project.version)
             db.session.add(dify_setup)

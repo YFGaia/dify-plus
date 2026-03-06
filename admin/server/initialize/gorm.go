@@ -81,8 +81,58 @@ func Gorm() *gorm.DB {
 }
 
 func RegisterTables(db *gorm.DB) {
+	var err error
+	var count int64
+	var menu system.SysBaseMenuBtn
+	var authority system.SysAuthority
+	if err = global.GVA_DB.Model(&menu).Count(&count).Error; count == 0 {
+		if err = global.GVA_DB.Model(&authority).Count(&count).Error; count == 1 {
+			return
+		}
+	}
+	// auto
+	err = db.AutoMigrate(
+		system.SysApi{},
+		system.SysIgnoreApi{},
+		system.SysUser{},
+		system.SysBaseMenu{},
+		system.JwtBlacklist{},
+		system.SysAuthority{},
+		system.SysDictionary{},
+		system.SysOperationRecord{},
+		system.SysAutoCodeHistory{},
+		system.SysDictionaryDetail{},
+		system.SysBaseMenuParameter{},
+		system.SysBaseMenuBtn{},
+		system.SysAuthorityBtn{},
+		system.SysAutoCodePackage{},
+		system.SysExportTemplate{},
+		system.Condition{},
+		system.JoinTemplate{},
+		system.SysParams{},
 
-	err := db.AutoMigrate(tables)
+		example.ExaFile{},
+		example.ExaCustomer{},
+		example.ExaFileChunk{},
+		example.ExaFileUploadAndDownload{},
+
+		adapter.CasbinRule{},
+
+		// Extend gaia model
+		gaia.AccountDingTalkExtend{},
+		gaia.AppRequestTestBatch{},
+		gaia.AppRequestTest{},
+		gaia.SystemIntegration{},   // Extend System Integration
+		gaia.ForwardingExtend{},    // Extend Forwarding Extend
+		gaia.BatchWorkflow{},       // Extend Batch Workflow
+		gaia.BatchWorkflowTask{},   // Extend Batch Workflow Task
+		gaia.AppVersionConfig{},    // 应用版本全局配置（Token）
+		gaia.AppVersionRelease{},   // 应用版本发布
+		gaia.AppVersionDownload{},  // 应用版本各平台安装包
+		gaia.ModelProviderConfig{}, // 模型提供商配置
+		gaia.ModelProxyLog{},       // 模型中转请求日志
+		system.SysUserGlobalCode{}, // Extend Global Code
+	)
 
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))
