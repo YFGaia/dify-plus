@@ -171,8 +171,10 @@ func (casbinService *CasbinService) AddPolicies(db *gorm.DB, rules [][]string) e
 
 func (CasbinService *CasbinService) FreshCasbin() (err error) {
 	e := CasbinService.Casbin()
-	err = e.LoadPolicy()
-	return err
+	if e == nil {
+		return errors.New("casbin enforcer is nil, please check database initialization")
+	}
+	return e.LoadPolicy()
 }
 
 //@author: [piexlmax](https://github.com/piexlmax)
@@ -187,6 +189,10 @@ var (
 
 func (casbinService *CasbinService) Casbin() *casbin.SyncedCachedEnforcer {
 	once.Do(func() {
+		if global.GVA_DB == nil {
+			zap.L().Warn("Casbin initialization skipped: global.GVA_DB is nil")
+			return
+		}
 		a, err := gormadapter.NewAdapterByDB(global.GVA_DB)
 		if err != nil {
 			zap.L().Error("适配数据库失败请检查casbin表是否为InnoDB引擎!", zap.Error(err))

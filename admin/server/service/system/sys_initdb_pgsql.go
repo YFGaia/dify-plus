@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"path/filepath"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/config"
@@ -35,10 +36,10 @@ func (h PgsqlInitHandler) WriteConfig(ctx context.Context) error {
 
 	// 改成拿dify的配置,如果不是docker运行，则从dify api的.env文件中获取jwt的加密key
 	if !global.GVA_CONFIG.System.DockerRun {
-		var err error
-		global.GVA_CONFIG.JWT.SigningKey, err = h.GetJwtSigningKeyFormDifyApiEnv()
-		if err != nil {
-			return err
+		if secretKey, err := h.GetJwtSigningKeyFormDifyApiEnv(); err != nil {
+			global.GVA_LOG.Warn("failed to load JWT signing key from Dify API .env, using existing configuration", zap.Error(err))
+		} else if secretKey != "" {
+			global.GVA_CONFIG.JWT.SigningKey = secretKey
 		}
 	}
 	cs := utils.StructToMap(global.GVA_CONFIG)

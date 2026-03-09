@@ -113,10 +113,10 @@ pgsql:
     prefix: ""
     port: "5432"
     config: sslmode=disable TimeZone=Asia/Shanghai
-    db-name:
-    username:
-    password:
-    path:
+    db-name: dify
+    username: postgres
+    password: difyai123456
+    path: db_postgres
     engine: ""
     log-mode: error
     max-idle-conns: 10

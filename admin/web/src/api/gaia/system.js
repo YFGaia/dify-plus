@@ -41,7 +41,7 @@ export const getSystemOAuth2 = () => {
 }
 
 // @Tags systrm
-// @Summary 修改OAuth2集成配置
+// @Summary 修改 OAuth2 集成配置
 // @Security ApiKeyAuth
 // @Produce  application/json
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"返回成功"}"
@@ -51,5 +51,40 @@ export const setSystemOAuth2 = (data) => {
         url: '/gaia/system/oauth2',
         method: 'post',
         data,
+    })
+}
+
+// @Tags systrm
+// @Summary 获取转发 Token 列表
+// @Security ApiKeyAuth
+// @Router /gaia/system/forward-tokens [get]
+export const getForwardTokens = () => {
+    return service({
+        url: '/gaia/system/forward-tokens',
+        method: 'get'
+    })
+}
+
+// @Tags systrm
+// @Summary 新增转发 Token
+// @Security ApiKeyAuth
+// @Router /gaia/system/forward-tokens [post]
+export const createForwardToken = (data) => {
+    return service({
+        url: '/gaia/system/forward-tokens',
+        method: 'post',
+        data,
+    })
+}
+
+// @Tags systrm
+// @Summary 删除转发 Token
+// @Security ApiKeyAuth
+// @Router /gaia/system/forward-tokens/:id [delete]
+export const deleteForwardToken = (id, password) => {
+    return service({
+        url: `/gaia/system/forward-tokens/${id}`,
+        method: 'delete',
+        data: { password },
     })
 }

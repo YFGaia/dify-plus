@@ -22,6 +22,7 @@ func initBizRouter(routers ...*gin.RouterGroup) {
 		gaiaRouter.InitSystemRouter(privateGroup)
 		gaiaRouter.InitWorkflowRouter(privateGroup)
 		gaiaRouter.InitAppVersionRouter(publicGroup, privateGroup)
-		gaiaRouter.InitModelProviderRouter(privateGroup) // 模型提供商路由
+		gaiaRouter.InitModelProviderRouter(privateGroup)     // 模型提供商路由
+		gaiaRouter.InitForwardProxyRouter(publicGroup)       // GPT 转发代理（免 JWT）
 	}
 }

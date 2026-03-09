@@ -364,7 +364,147 @@
             </div>
           </div>
         </div>
+
+        <!-- 转发集成配置卡片 -->
+        <div class="card mt-4">
+          <div class="card-header flex items-center justify-between">
+            <span class="text-lg font-medium">转发集成配置</span>
+            <el-tag v-if="forwardConfig.enabled" type="success" size="small">已启用</el-tag>
+            <el-tag v-else type="info" size="small">未启用</el-tag>
+          </div>
+          <p class="text-gray-500 text-sm mb-4">为第三方系统（如钉钉入口）提供免登录转发代理能力，通过 Token 鉴权后根据钉钉 ID 自动计费</p>
+
+          <el-divider />
+
+          <!-- 开关 -->
+          <div class="card-section">
+            <div class="flex items-center mb-4">
+              <span class="info-label">启用转发：</span>
+              <el-switch
+                v-if="openEdit"
+                v-model="forwardConfig.enabled"
+              />
+              <span v-else>{{ forwardConfig.enabled ? '已启用' : '未启用' }}</span>
+            </div>
+          </div>
+
+          <el-divider />
+
+          <!-- Token 列表 -->
+          <div class="card-section">
+            <div class="flex items-center justify-between mb-3">
+              <div class="section-title mb-0">
+                转发 Token 列表
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-gray-500 text-sm">{{ forwardTokenList.length }}/20 个</span>
+                <el-button
+                  v-if="openEdit"
+                  type="primary"
+                  size="small"
+                  :disabled="forwardTokenList.length >= 20"
+                  @click="showCreateTokenDialog = true"
+                >
+                  + 新增 Token
+                </el-button>
+              </div>
+            </div>
+
+            <el-table :data="forwardTokenList" border size="small" class="w-full">
+              <el-table-column label="Token ID" prop="id" min-width="240">
+                <template #default="{ row }">
+                  <span class="font-mono text-xs">{{ row.id }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="创建时间" prop="created_at" width="180">
+                <template #default="{ row }">
+                  {{ formatDate(row.created_at) }}
+                </template>
+              </el-table-column>
+              <el-table-column v-if="openEdit" label="操作" width="80" align="center">
+                <template #default="{ row }">
+                  <el-button type="danger" link size="small" @click="openDeleteTokenDialog(row.id)">
+                    删除
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+
+          <el-divider />
+
+          <!-- 第三方钉钉 ID 匹配用户 API 配置 -->
+          <div class="card-section">
+            <div class="section-title">
+              第三方钉钉 ID 匹配用户 API
+            </div>
+            <p class="text-gray-500 text-sm mb-4">当本地表中找不到钉钉 ID 对应用户时，调用此 API 通过 ding_id 获取用户名</p>
+            <div class="bg-gray-50 dark:bg-slate-800 p-5 border dark:border-slate-700 rounded-lg">
+              <div class="flex items-center mb-4">
+                <span class="info-label">启用：</span>
+                <el-switch v-if="openEdit" v-model="dingIdApiConfig.enabled" />
+                <span v-else>{{ dingIdApiConfig.enabled ? '已启用' : '未启用' }}</span>
+              </div>
+              <div class="flex items-center mb-4">
+                <span class="info-label">API URL：</span>
+                <el-input v-if="openEdit" v-model="dingIdApiConfig.url" class="flex-1" placeholder="https://api.example.com/user/by-dingid" />
+                <span v-else class="info-value flex-1">{{ dingIdApiConfig.url || '未配置' }}</span>
+              </div>
+              <div class="flex items-center mb-4">
+                <span class="info-label">HTTP 方法：</span>
+                <el-select v-if="openEdit" v-model="dingIdApiConfig.method" class="flex-1">
+                  <el-option label="GET" value="GET" />
+                  <el-option label="POST" value="POST" />
+                  <el-option label="PUT" value="PUT" />
+                  <el-option label="DELETE" value="DELETE" />
+                </el-select>
+                <span v-else class="info-value">{{ dingIdApiConfig.method || 'GET' }}</span>
+              </div>
+              <div class="flex items-center mb-4">
+                <span class="info-label">请求参数字段：</span>
+                <el-input v-if="openEdit" v-model="dingIdApiConfig.request_param_field" class="flex-1" placeholder="ding_id" />
+                <span v-else class="info-value">{{ dingIdApiConfig.request_param_field || 'ding_id' }}</span>
+              </div>
+              <div class="flex items-center mb-4">
+                <span class="info-label">响应用户名路径：</span>
+                <el-input v-if="openEdit" v-model="dingIdApiConfig.response_user_name_path" class="flex-1" placeholder="data.username" />
+                <span v-else class="info-value">{{ dingIdApiConfig.response_user_name_path || '未配置' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </el-tabs>
+
+      <!-- 新增 Token 弹窗 -->
+      <el-dialog v-model="showCreateTokenDialog" title="新增转发 Token" width="480px" :close-on-click-modal="false">
+        <div v-if="!newTokenValue">
+          <p class="text-gray-600 mb-4">输入 Token 明文，系统将存储其 SHA256 哈希。Token 仅展示一次，请妥善保管。</p>
+          <el-input v-model="newTokenInput" placeholder="请输入 Token 明文（留空则自动生成）" clearable />
+        </div>
+        <div v-else>
+          <el-alert type="success" title="Token 创建成功！请复制保存，此后不再显示明文。" :closable="false" class="mb-4" />
+          <el-input v-model="newTokenValue" readonly>
+            <template #append>
+              <el-button @click="copyToken(newTokenValue)">复制</el-button>
+            </template>
+          </el-input>
+        </div>
+        <template #footer>
+          <el-button v-if="!newTokenValue" @click="showCreateTokenDialog = false; newTokenInput = ''">取消</el-button>
+          <el-button v-if="!newTokenValue" type="primary" :loading="creatingToken" @click="handleCreateToken">确认创建</el-button>
+          <el-button v-if="newTokenValue" type="primary" @click="showCreateTokenDialog = false; newTokenValue = ''; newTokenInput = ''; loadForwardTokens()">完成</el-button>
+        </template>
+      </el-dialog>
+
+      <!-- 删除 Token 弹窗（需密码） -->
+      <el-dialog v-model="showDeleteTokenDialog" title="删除转发 Token" width="420px" :close-on-click-modal="false">
+        <p class="text-gray-600 mb-4">删除操作需要验证您的登录密码，请输入后确认。</p>
+        <el-input v-model="deleteTokenPassword" type="password" placeholder="请输入您的登录密码" show-password />
+        <template #footer>
+          <el-button @click="showDeleteTokenDialog = false; deleteTokenPassword = ''; deletingTokenId = ''">取消</el-button>
+          <el-button type="danger" :loading="deletingToken" @click="handleDeleteToken">确认删除</el-button>
+        </template>
+      </el-dialog>
     </el-form>
   </div>
 </template>
@@ -373,7 +513,7 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
-import { getSystemDingTalk, setSystemDingTalk } from "@/api/gaia/system";
+import { getSystemDingTalk, setSystemDingTalk, getForwardTokens, createForwardToken, deleteForwardToken } from "@/api/gaia/system";
 
 defineOptions({
   name: 'IntegratedDingTalk',
@@ -410,6 +550,109 @@ const emailApiConfig = ref({
   },
   response_email_field: 'data[0].userName'
 })
+
+// 转发集成配置
+const forwardConfig = ref({ enabled: false, tokens: [] })
+
+// 第三方钉钉 ID 匹配 API 配置
+const dingIdApiConfig = ref({
+  enabled: false,
+  url: '',
+  method: 'GET',
+  request_param_field: 'ding_id',
+  body_type: 'raw',
+  headers: {},
+  authorization: { type: 'none', token: '', username: '', password: '' },
+  body_data: { raw: '', form_data: [], urlencoded: [] },
+  response_user_name_path: 'data.username',
+})
+
+// 转发 Token 列表
+const forwardTokenList = ref([])
+
+// 新增 Token 弹窗
+const showCreateTokenDialog = ref(false)
+const newTokenInput = ref('')
+const newTokenValue = ref('')
+const creatingToken = ref(false)
+
+// 删除 Token 弹窗
+const showDeleteTokenDialog = ref(false)
+const deleteTokenPassword = ref('')
+const deletingTokenId = ref('')
+const deletingToken = ref(false)
+
+// 格式化日期
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleString('zh-CN', { hour12: false })
+}
+
+// 加载转发 Token 列表
+const loadForwardTokens = async () => {
+  const res = await getForwardTokens()
+  if (res.code === 0) {
+    forwardTokenList.value = res.data?.tokens || []
+  }
+}
+
+// 生成随机 Token
+const generateToken = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let token = ''
+  for (let i = 0; i < 48; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return token
+}
+
+// 复制 Token
+const copyToken = (token) => {
+  navigator.clipboard.writeText(token).then(() => {
+    ElMessage({ type: 'success', message: 'Token 已复制到剪贴板' })
+  })
+}
+
+// 创建 Token
+const handleCreateToken = async () => {
+  creatingToken.value = true
+  const token = newTokenInput.value.trim() || generateToken()
+  const res = await createForwardToken({ token })
+  creatingToken.value = false
+  if (res.code === 0) {
+    newTokenValue.value = res.data?.token || token
+    ElMessage({ type: 'success', message: 'Token 创建成功' })
+  } else {
+    ElMessage({ type: 'error', message: res.msg || '创建失败' })
+  }
+}
+
+// 打开删除 Token 弹窗
+const openDeleteTokenDialog = (id) => {
+  deletingTokenId.value = id
+  deleteTokenPassword.value = ''
+  showDeleteTokenDialog.value = true
+}
+
+// 删除 Token
+const handleDeleteToken = async () => {
+  if (!deleteTokenPassword.value) {
+    ElMessage({ type: 'warning', message: '请输入登录密码' })
+    return
+  }
+  deletingToken.value = true
+  const res = await deleteForwardToken(deletingTokenId.value, deleteTokenPassword.value)
+  deletingToken.value = false
+  if (res.code === 0) {
+    ElMessage({ type: 'success', message: '删除成功' })
+    showDeleteTokenDialog.value = false
+    deleteTokenPassword.value = ''
+    deletingTokenId.value = ''
+    await loadForwardTokens()
+  } else {
+    ElMessage({ type: 'error', message: res.msg || '删除失败' })
+  }
+}
 
 // 标签页管理
 const activeTab = ref('headers')
@@ -730,11 +973,27 @@ const initForm = async() => {
             }
           }
         }
+
+        // 解析转发集成配置
+        if (configData.forward_config) {
+          forwardConfig.value = {
+            enabled: configData.forward_config.enabled || false,
+            tokens: configData.forward_config.tokens || [],
+          }
+          if (configData.forward_config.ding_id_api) {
+            dingIdApiConfig.value = {
+              ...dingIdApiConfig.value,
+              ...configData.forward_config.ding_id_api,
+            }
+          }
+        }
       } catch (e) {
         console.error('解析邮箱API配置失败:', e)
       }
     }
   }
+  // 加载 Token 列表
+  await loadForwardTokens()
 }
 initForm()
 
@@ -792,6 +1051,11 @@ const update = async() => {
       ...emailApiConfig.value,
       headers,
       body_data: bodyData
+    },
+    forward_config: {
+      enabled: forwardConfig.value.enabled,
+      tokens: forwardConfig.value.tokens,
+      ding_id_api: { ...dingIdApiConfig.value },
     }
   }
   config.value.config = JSON.stringify(configData)

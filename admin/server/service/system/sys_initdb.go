@@ -8,6 +8,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	modelSystem "github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"sort"
 )
@@ -141,6 +142,7 @@ func (initDBService *InitDBService) InitDB(conf request.InitDB) (err error) {
 	global.GVA_DB = db
 	db.Exec("DELETE FROM sys_base_menus")
 	db.Exec("DELETE FROM sys_authorities")
+	db.Exec("DELETE FROM sys_user_authority")
 	if err = initHandler.InitTables(ctx, initializers); err != nil {
 		return err
 	}
@@ -150,6 +152,10 @@ func (initDBService *InitDBService) InitDB(conf request.InitDB) (err error) {
 
 	if err = initHandler.WriteConfig(ctx); err != nil {
 		return err
+	}
+	// 初始化完成后刷新 Casbin 策略，避免使用旧的或空的策略
+	if err = CasbinServiceApp.FreshCasbin(); err != nil {
+		global.GVA_LOG.Warn("refresh casbin policy after InitDB failed", zap.Error(err))
 	}
 	initializers = initSlice{}
 	cache = map[string]*orderedInitializer{}

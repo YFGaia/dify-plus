@@ -23,3 +23,4 @@ var testApi = api.ApiGroupApp.GaiaApiGroup.TestApi
 var batchWorkflowApi = api.ApiGroupApp.GaiaApiGroup.BatchWorkflowApi
 var appVersionApi = api.ApiGroupApp.GaiaApiGroup.AppVersionApi
 var modelProviderApi = api.ApiGroupApp.GaiaApiGroup.ModelProviderApi
+var forwardProxyApi = api.ApiGroupApp.GaiaApiGroup.ForwardProxyApi

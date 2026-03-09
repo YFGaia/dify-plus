@@ -21,11 +21,12 @@ func newWithSeconds() *cron.Cron {
 
 func Corn() {
 	var lock bool
+	initDBService := system.InitDBService{}
 	c := newWithSeconds()
 	// 每分钟同步一次用户列表
 	if _, err := c.AddFunc("0 */1 * * * *", func() {
-		if global.GVA_DB == nil {
-			global.GVA_LOG.Info("【定时任务-每1分钟执行1次】同步用户列表任务，数据库没有初始化，暂未开始同步")
+		if global.GVA_DB == nil || !initDBService.IfInit() {
+			global.GVA_LOG.Info("【定时任务-每1分钟执行1次】同步用户列表任务，数据库没有初始化或尚未完成初始化，暂未开始同步")
 			return
 		}
 

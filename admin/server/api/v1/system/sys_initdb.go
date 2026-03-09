@@ -20,7 +20,7 @@ type DBApi struct{}
 // @Router   /init/initdb [post]
 func (i *DBApi) InitDB(c *gin.Context) {
 
-	if !initDBService.IfInit() {
+	if initDBService.IfInit() {
 		global.GVA_LOG.Error("已存在数据库配置!")
 		response.FailWithMessage("已存在数据库配置", c)
 		return

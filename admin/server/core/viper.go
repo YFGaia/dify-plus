@@ -26,7 +26,7 @@ func overrideJWTSigningKeyFromEnv() {
 }
 
 // Viper //
-// 优先级: 命令行 > 环境变量 > 默认值
+// 优先级：命令行 > 环境变量 > 默认值
 // Author [SliverHorn](https://github.com/SliverHorn)
 func Viper(path ...string) *viper.Viper {
 	var config string
@@ -45,17 +45,17 @@ func Viper(path ...string) *viper.Viper {
 				case gin.TestMode:
 					config = internal.ConfigTestFile
 				}
-				fmt.Printf("您正在使用gin模式的%s环境名称,config的路径为%s\n", gin.Mode(), config)
-			} else { // internal.ConfigEnv 常量存储的环境变量不为空 将值赋值于config
+				fmt.Printf("您正在使用 gin 模式的%s环境名称，config 的路径为%s\n", gin.Mode(), config)
+			} else { // internal.ConfigEnv 常量存储的环境变量不为空 将值赋值于 config
 				config = configEnv
-				fmt.Printf("您正在使用%s环境变量,config的路径为%s\n", internal.ConfigEnv, config)
+				fmt.Printf("您正在使用%s环境变量，config 的路径为%s\n", internal.ConfigEnv, config)
 			}
-		} else { // 命令行参数不为空 将值赋值于config
-			fmt.Printf("您正在使用命令行的-c参数传递的值,config的路径为%s\n", config)
+		} else { // 命令行参数不为空 将值赋值于 config
+			fmt.Printf("您正在使用命令行的 -c 参数传递的值，config 的路径为%s\n", config)
 		}
-	} else { // 函数传递的可变参数的第一个值赋值于config
+	} else { // 函数传递的可变参数的第一个值赋值于 config
 		config = path[0]
-		fmt.Printf("您正在使用func Viper()传递的值,config的路径为%s\n", config)
+		fmt.Printf("您正在使用 func Viper() 传递的值，config 的路径为%s\n", config)
 	}
 
 	v := viper.New()
@@ -82,7 +82,11 @@ func Viper(path ...string) *viper.Viper {
 	// Extend: Override JWT signing key from environment variable after initial load
 	overrideJWTSigningKeyFromEnv()
 
-	// root 适配性 根据root位置去找到对应迁移位置,保证root路径有效
+	// Extend: Override database and redis configuration from environment variables
+	// This allows admin-server to use the same configuration as docker-compose
+	overrideAllFromEnv()
+
+	// root 适配性 根据 root 位置去找到对应迁移位置，保证 root 路径有效
 	global.GVA_CONFIG.AutoCode.Root, _ = filepath.Abs("..")
 
 	return v

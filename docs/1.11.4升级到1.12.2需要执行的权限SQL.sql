@@ -153,4 +153,19 @@ INSERT INTO casbin_rule (ptype, v0, v1, v2) VALUES
 INSERT INTO sys_authority_menus (sys_authority_authority_id, sys_base_menu_id) VALUES (888, 42);
 
 
+-- --------------- 9. API sys_apis (转发集成：转发 Token 管理 3 条) 2026-03-09 18:08:33 ---------------
+-- 请按当前库最大 id 调整起始 id，避免冲突。例如 MAX(id)=269 则从 270 起
+INSERT INTO sys_apis (id, created_at, updated_at, deleted_at, path, description, api_group, method) VALUES
+(270, NOW(), NOW(), NULL, '/gaia/system/forward-tokens', '获取转发 Token 列表', '转发集成', 'GET'),
+(271, NOW(), NOW(), NULL, '/gaia/system/forward-tokens', '新增转发 Token', '转发集成', 'POST'),
+(272, NOW(), NOW(), NULL, '/gaia/system/forward-tokens/:id', '删除转发 Token', '转发集成', 'DELETE');
 
+
+-- --------------- 10. Casbin 规则 casbin_rule (转发集成 888/8881) ---------------
+INSERT INTO casbin_rule (ptype, v0, v1, v2) VALUES
+('p', '888', '/gaia/system/forward-tokens', 'GET'),
+('p', '888', '/gaia/system/forward-tokens', 'POST'),
+('p', '888', '/gaia/system/forward-tokens/:id', 'DELETE'),
+('p', '8881', '/gaia/system/forward-tokens', 'GET'),
+('p', '8881', '/gaia/system/forward-tokens', 'POST'),
+('p', '8881', '/gaia/system/forward-tokens/:id', 'DELETE');

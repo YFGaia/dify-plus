@@ -152,7 +152,7 @@ pgsql:
     db-name: dify
     username: postgres
     password: difyai123456
-    path: 127.0.0.01
+    path: 127.0.0.1
     engine: ""
     log-mode: error
     max-idle-conns: 10

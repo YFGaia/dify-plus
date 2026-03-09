@@ -12,6 +12,7 @@ type ApiGroup struct {
 	BatchWorkflowApi
 	AppVersionApi
 	ModelProviderApi
+	ForwardProxyApi
 }
 
 var (
