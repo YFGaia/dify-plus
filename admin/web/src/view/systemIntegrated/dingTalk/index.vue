@@ -376,15 +376,14 @@
 
           <el-divider />
 
-          <!-- 开关 -->
+          <!-- 开关：始终可操作，不依赖「配置链接应用信息」 -->
           <div class="card-section">
             <div class="flex items-center mb-4">
               <span class="info-label">启用转发：</span>
               <el-switch
-                v-if="openEdit"
                 v-model="forwardConfig.enabled"
+                @change="onForwardEnabledChange"
               />
-              <span v-else>{{ forwardConfig.enabled ? '已启用' : '未启用' }}</span>
             </div>
           </div>
 
@@ -399,7 +398,6 @@
               <div class="flex items-center gap-2">
                 <span class="text-gray-500 text-sm">{{ forwardTokenList.length }}/20 个</span>
                 <el-button
-                  v-if="openEdit"
                   type="primary"
                   size="small"
                   :disabled="forwardTokenList.length >= 20"
@@ -421,7 +419,7 @@
                   {{ formatDate(row.created_at) }}
                 </template>
               </el-table-column>
-              <el-table-column v-if="openEdit" label="操作" width="80" align="center">
+              <el-table-column label="操作" width="80" align="center">
                 <template #default="{ row }">
                   <el-button type="danger" link size="small" @click="openDeleteTokenDialog(row.id)">
                     删除
@@ -442,35 +440,30 @@
             <div class="bg-gray-50 dark:bg-slate-800 p-5 border dark:border-slate-700 rounded-lg">
               <div class="flex items-center mb-4">
                 <span class="info-label">启用：</span>
-                <el-switch v-if="openEdit" v-model="dingIdApiConfig.enabled" />
-                <span v-else>{{ dingIdApiConfig.enabled ? '已启用' : '未启用' }}</span>
+                <el-switch v-model="dingIdApiConfig.enabled" />
               </div>
               <div class="flex items-center mb-4">
                 <span class="info-label">API URL：</span>
-                <el-input v-if="openEdit" v-model="dingIdApiConfig.url" class="flex-1" placeholder="https://api.example.com/user/by-dingid" />
-                <span v-else class="info-value flex-1">{{ dingIdApiConfig.url || '未配置' }}</span>
+                <el-input v-model="dingIdApiConfig.url" class="flex-1" placeholder="https://api.example.com/user/by-dingid" />
               </div>
               <div class="flex items-center mb-4">
                 <span class="info-label">HTTP 方法：</span>
-                <el-select v-if="openEdit" v-model="dingIdApiConfig.method" class="flex-1">
+                <el-select v-model="dingIdApiConfig.method" class="flex-1">
                   <el-option label="GET" value="GET" />
                   <el-option label="POST" value="POST" />
                   <el-option label="PUT" value="PUT" />
                   <el-option label="DELETE" value="DELETE" />
                 </el-select>
-                <span v-else class="info-value">{{ dingIdApiConfig.method || 'GET' }}</span>
               </div>
               <div class="flex items-center mb-4">
                 <span class="info-label">请求参数字段：</span>
-                <el-input v-if="openEdit" v-model="dingIdApiConfig.request_param_field" class="flex-1" placeholder="ding_id" />
-                <span v-else class="info-value">{{ dingIdApiConfig.request_param_field || 'ding_id' }}</span>
+                <el-input v-model="dingIdApiConfig.request_param_field" class="flex-1" placeholder="ding_id" />
               </div>
               <div class="flex items-center mb-4">
                 <span class="info-label">响应用户名路径：</span>
-                <el-input v-if="openEdit" v-model="dingIdApiConfig.response_user_name_path" class="flex-1" placeholder="data.username" />
-                <span v-else class="info-value">{{ dingIdApiConfig.response_user_name_path || '未配置' }}</span>
+                <el-input v-model="dingIdApiConfig.response_user_name_path" class="flex-1" placeholder="data.username" />
               </div>
-              <div v-if="openEdit" class="flex justify-end mt-4">
+              <div class="flex justify-end mt-4">
                 <el-button type="primary" icon="CircleCheck" @click="saveForwardAndDingIdConfig">
                   保存「转发集成」与「钉钉 ID 匹配 API」配置
                 </el-button>
@@ -819,6 +812,11 @@ const handleStatusChange = (val) => {
 // 仅保存「转发集成」与「第三方钉钉 ID 匹配用户 API」配置（与主保存共用 update，保证整份 config 一致）
 const saveForwardAndDingIdConfig = () => {
   update()
+}
+
+// 启用转发开关切换时自动保存，使「转发集成」不依赖「配置链接应用信息」编辑状态即可生效
+const onForwardEnabledChange = () => {
+  saveForwardAndDingIdConfig()
 }
 
 // 掩码显示文本
