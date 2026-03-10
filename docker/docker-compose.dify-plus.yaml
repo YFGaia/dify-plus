@@ -1686,6 +1686,13 @@ services:
       JWT_SIGNING_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
       SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
       EMAIL_DOMAIN: ${EMAIL_DOMAIN:-}
+      # 与 Dify 使用同一套数据库配置，避免密码不一致导致认证失败
+      DB_TYPE: ${DB_TYPE:-postgresql}
+      DB_HOST: ${DB_HOST:-db_postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-difyai123456}
+      DB_DATABASE: ${DB_DATABASE:-dify}
     ports:
       - '8888:8888'
     depends_on:

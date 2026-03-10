@@ -403,6 +403,15 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		{Ptype: "p", V0: "8881", V1: "/gaia/proxy/*", V2: "PATCH"},
 		{Ptype: "p", V0: "8881", V1: "/gaia/proxy/*", V2: "DELETE"},
 		// Extend Stop: model provider
+
+		// Extend Start: 转发集成 (forward tokens)
+		{Ptype: "p", V0: "888", V1: "/gaia/system/forward-tokens", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/system/forward-tokens", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/system/forward-tokens/:id", V2: "DELETE"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/system/forward-tokens", V2: "GET"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/system/forward-tokens", V2: "POST"},
+		{Ptype: "p", V0: "8881", V1: "/gaia/system/forward-tokens/:id", V2: "DELETE"},
+		// Extend Stop: 转发集成
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, "Casbin 表 ("+i.InitializerName()+") 数据初始化失败!")

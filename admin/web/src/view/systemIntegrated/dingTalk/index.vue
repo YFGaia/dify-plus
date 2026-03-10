@@ -438,7 +438,7 @@
             <div class="section-title">
               第三方钉钉 ID 匹配用户 API
             </div>
-            <p class="text-gray-500 text-sm mb-4">当本地表中找不到钉钉 ID 对应用户时，调用此 API 通过 ding_id 获取用户名</p>
+            <p class="text-gray-500 text-sm mb-4">当本地表中找不到钉钉 ID 对应用户时，调用此 API 通过 ding_id 获取用户名。开启或修改后请点击下方「保存」按钮。</p>
             <div class="bg-gray-50 dark:bg-slate-800 p-5 border dark:border-slate-700 rounded-lg">
               <div class="flex items-center mb-4">
                 <span class="info-label">启用：</span>
@@ -470,19 +470,23 @@
                 <el-input v-if="openEdit" v-model="dingIdApiConfig.response_user_name_path" class="flex-1" placeholder="data.username" />
                 <span v-else class="info-value">{{ dingIdApiConfig.response_user_name_path || '未配置' }}</span>
               </div>
+              <div v-if="openEdit" class="flex justify-end mt-4">
+                <el-button type="primary" icon="CircleCheck" @click="saveForwardAndDingIdConfig">
+                  保存「转发集成」与「钉钉 ID 匹配 API」配置
+                </el-button>
+              </div>
             </div>
           </div>
         </div>
       </el-tabs>
 
-      <!-- 新增 Token 弹窗 -->
+      <!-- 新增 Token 弹窗：前端随机生成 → 保存到后端 → 自动复制到剪贴板并提示 -->
       <el-dialog v-model="showCreateTokenDialog" title="新增转发 Token" width="480px" :close-on-click-modal="false">
         <div v-if="!newTokenValue">
-          <p class="text-gray-600 mb-4">输入 Token 明文，系统将存储其 SHA256 哈希。Token 仅展示一次，请妥善保管。</p>
-          <el-input v-model="newTokenInput" placeholder="请输入 Token 明文（留空则自动生成）" clearable />
+          <p class="text-gray-600 mb-4">点击「生成并保存」将随机生成 Token，保存后会自动复制到系统剪贴板，请粘贴到安全位置保管。Token 仅展示一次。</p>
         </div>
         <div v-else>
-          <el-alert type="success" title="Token 创建成功！请复制保存，此后不再显示明文。" :closable="false" class="mb-4" />
+          <el-alert type="success" title="Token 已生成并已复制到剪贴板，请妥善保管。此处仅展示一次。" :closable="false" class="mb-4" />
           <el-input v-model="newTokenValue" readonly>
             <template #append>
               <el-button @click="copyToken(newTokenValue)">复制</el-button>
@@ -490,9 +494,9 @@
           </el-input>
         </div>
         <template #footer>
-          <el-button v-if="!newTokenValue" @click="showCreateTokenDialog = false; newTokenInput = ''">取消</el-button>
-          <el-button v-if="!newTokenValue" type="primary" :loading="creatingToken" @click="handleCreateToken">确认创建</el-button>
-          <el-button v-if="newTokenValue" type="primary" @click="showCreateTokenDialog = false; newTokenValue = ''; newTokenInput = ''; loadForwardTokens()">完成</el-button>
+          <el-button v-if="!newTokenValue" @click="showCreateTokenDialog = false">取消</el-button>
+          <el-button v-if="!newTokenValue" type="primary" :loading="creatingToken" @click="handleCreateToken">生成并保存</el-button>
+          <el-button v-if="newTokenValue" type="primary" @click="showCreateTokenDialog = false; newTokenValue = ''; initForm()">完成</el-button>
         </template>
       </el-dialog>
 
@@ -513,7 +517,10 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { QuestionFilled } from '@element-plus/icons-vue'
+import { useClipboard } from '@vueuse/core'
 import { getSystemDingTalk, setSystemDingTalk, getForwardTokens, createForwardToken, deleteForwardToken } from "@/api/gaia/system";
+
+const { copy: copyToClipboard, isSupported: isClipboardSupported } = useClipboard()
 
 defineOptions({
   name: 'IntegratedDingTalk',
@@ -570,9 +577,8 @@ const dingIdApiConfig = ref({
 // 转发 Token 列表
 const forwardTokenList = ref([])
 
-// 新增 Token 弹窗
+// 新增 Token 弹窗（前端随机生成 → 保存 → 复制到剪贴板）
 const showCreateTokenDialog = ref(false)
-const newTokenInput = ref('')
 const newTokenValue = ref('')
 const creatingToken = ref(false)
 
@@ -606,24 +612,35 @@ const generateToken = () => {
   return token
 }
 
-// 复制 Token
-const copyToken = (token) => {
-  navigator.clipboard.writeText(token).then(() => {
+// 复制 Token（使用 VueUse useClipboard，并提示）
+const copyToken = async (token) => {
+  if (!token) return
+  try {
+    if (isClipboardSupported.value) {
+      await copyToClipboard(token)
+    } else {
+      await navigator.clipboard.writeText(token)
+    }
     ElMessage({ type: 'success', message: 'Token 已复制到剪贴板' })
-  })
+  } catch (e) {
+    ElMessage({ type: 'warning', message: '复制失败，请手动复制' })
+  }
 }
 
-// 创建 Token
+// 生成并保存 Token：前端随机生成 → 调用接口保存（后端存 SHA256）→ 自动复制到剪贴板并提示
 const handleCreateToken = async () => {
+  const token = generateToken()
   creatingToken.value = true
-  const token = newTokenInput.value.trim() || generateToken()
-  const res = await createForwardToken({ token })
-  creatingToken.value = false
-  if (res.code === 0) {
-    newTokenValue.value = res.data?.token || token
-    ElMessage({ type: 'success', message: 'Token 创建成功' })
-  } else {
-    ElMessage({ type: 'error', message: res.msg || '创建失败' })
+  try {
+    const res = await createForwardToken({ token })
+    if (res.code === 0) {
+      newTokenValue.value = res.data?.token ?? token
+      await copyToken(newTokenValue.value)
+    } else {
+      ElMessage({ type: 'error', message: res.msg || '保存失败' })
+    }
+  } finally {
+    creatingToken.value = false
   }
 }
 
@@ -648,7 +665,7 @@ const handleDeleteToken = async () => {
     showDeleteTokenDialog.value = false
     deleteTokenPassword.value = ''
     deletingTokenId.value = ''
-    await loadForwardTokens()
+    await initForm()
   } else {
     ElMessage({ type: 'error', message: res.msg || '删除失败' })
   }
@@ -797,6 +814,11 @@ const handleStatusChange = (val) => {
     return;
   }
   update();
+}
+
+// 仅保存「转发集成」与「第三方钉钉 ID 匹配用户 API」配置（与主保存共用 update，保证整份 config 一致）
+const saveForwardAndDingIdConfig = () => {
+  update()
 }
 
 // 掩码显示文本

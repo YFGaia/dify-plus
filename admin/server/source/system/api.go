@@ -244,10 +244,12 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		{ApiGroup: "模型管理", Method: "PATCH", Path: "/gaia/proxy/*", Description: "中转API(第三方)-PATCH"},
 		{ApiGroup: "模型管理", Method: "DELETE", Path: "/gaia/proxy/*", Description: "中转API(第三方)-DELETE"},
 		// Extend Stop: model provider
-		// 转发 Token 管理
+
+		// Extend Start: 转发集成 (forward tokens)
 		{ApiGroup: "转发集成", Method: "GET", Path: "/gaia/system/forward-tokens", Description: "获取转发 Token 列表"},
 		{ApiGroup: "转发集成", Method: "POST", Path: "/gaia/system/forward-tokens", Description: "新增转发 Token"},
 		{ApiGroup: "转发集成", Method: "DELETE", Path: "/gaia/system/forward-tokens/:id", Description: "删除转发 Token"},
+		// Extend Stop: 转发集成
 	}
 	if err := db.Create(&entities).Error; err != nil {
 		return ctx, errors.Wrap(err, sysModel.SysApi{}.TableName()+"表数据初始化失败!")
