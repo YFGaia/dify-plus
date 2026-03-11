@@ -2,6 +2,49 @@ package gaia
 
 import "time"
 
+// ModelPricing 从 Dify Console API 拉取的模型定价信息（对应 pricing 字段）
+type ModelPricing struct {
+	Input    float64 `json:"input"`    // 每 unit 的输入单价
+	Output   float64 `json:"output"`   // 每 unit 的输出单价（0 表示与 Input 相同或不区分）
+	Unit     float64 `json:"unit"`     // 计费单位（通常 0.001，即每千 token）
+	Currency string  `json:"currency"` // 货币（USD / RMB）
+}
+
+// ModelUsage OpenAI 格式响应中的 usage 字段（非流式及流式末尾行）
+type ModelUsage struct {
+	PromptTokens     int `json:"prompt_tokens"`
+	CompletionTokens int `json:"completion_tokens"`
+}
+
+// ModelUsageResponse OpenAI 格式响应体（仅用于提取 usage 字段）
+type ModelUsageResponse struct {
+	Usage *ModelUsage `json:"usage"`
+}
+
+// DifyModelPricingRaw Dify Console API 返回的原始定价字段（值为字符串形式的数字）
+type DifyModelPricingRaw struct {
+	Input    string `json:"input"`
+	Output   string `json:"output"`
+	Unit     string `json:"unit"`
+	Currency string `json:"currency"`
+}
+
+// DifyModelItem Dify Console API 返回的单个模型信息
+type DifyModelItem struct {
+	Model   string               `json:"model"`
+	Pricing *DifyModelPricingRaw `json:"pricing"`
+}
+
+// DifyProviderModels Dify Console API 返回的单个 provider 下的模型列表
+type DifyProviderModels struct {
+	Models []DifyModelItem `json:"models"`
+}
+
+// DifyModelsResponse Dify Console API GET /models/model-types/llm 的响应结构
+type DifyModelsResponse struct {
+	Data []DifyProviderModels `json:"data"`
+}
+
 // ModelProviderConfig 模型提供商配置表
 type ModelProviderConfig struct {
 	Id           uint      `json:"id" form:"id" gorm:"primarykey;column:id;comment:id;"`

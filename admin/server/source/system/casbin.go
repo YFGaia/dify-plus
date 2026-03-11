@@ -287,6 +287,9 @@ func (i *initCasbin) InitializeData(ctx context.Context) (context.Context, error
 		// Extend Start: system integration
 		{Ptype: "p", V0: "888", V1: "/gaia/system/dingtalk", V2: "GET"},
 		{Ptype: "p", V0: "888", V1: "/gaia/system/dingtalk", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/system/dingtalk/test-email-config", V2: "POST"},
+		{Ptype: "p", V0: "888", V1: "/gaia/system/dingtalk/test-auth-url", V2: "GET"},
+		{Ptype: "p", V0: "888", V1: "/gaia/system/dingtalk/test-callback", V2: "POST"},
 		// Extend Stop: system integration
 
 		// Extend Start: oauth2

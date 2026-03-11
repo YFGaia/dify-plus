@@ -88,3 +88,32 @@ export const deleteForwardToken = (id, password) => {
         data: { password },
     })
 }
+
+// @Tags systrm
+// @Summary 测试第三方邮箱 API 配置
+// @Security ApiKeyAuth
+// @Router /gaia/system/dingtalk/test-email-config [post]
+export const testEmailApiConfig = (data) => {
+    return service({
+        url: '/gaia/system/dingtalk/test-email-config',
+        method: 'post',
+        data,
+    })
+}
+
+// 测试连接：获取钉钉授权 URL（打开后扫码完成即视为连接成功）
+export const getDingTalkTestAuthUrl = () => {
+    return service({
+        url: '/gaia/system/dingtalk/test-auth-url',
+        method: 'get',
+    })
+}
+
+// 测试连接回调：仅用 code 验证，不登录
+export const dingtalkTestCallback = (data) => {
+    return service({
+        url: '/gaia/system/dingtalk/test-callback',
+        method: 'post',
+        data: { code: data.code },
+    })
+}

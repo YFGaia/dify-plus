@@ -169,3 +169,27 @@ INSERT INTO casbin_rule (ptype, v0, v1, v2) VALUES
 ('p', '8881', '/gaia/system/forward-tokens', 'GET'),
 ('p', '8881', '/gaia/system/forward-tokens', 'POST'),
 ('p', '8881', '/gaia/system/forward-tokens/:id', 'DELETE');
+
+
+-- --------------- 11. API sys_apis (钉钉邮箱配置测试 1 条) ---------------
+-- 请按当前库最大 id 调整起始 id，避免冲突。例如 MAX(id)=272 则从 273 起
+INSERT INTO sys_apis (id, created_at, updated_at, deleted_at, path, description, api_group, method) VALUES
+(273, NOW(), NOW(), NULL, '/gaia/system/dingtalk/test-email-config', '测试钉钉邮箱API配置', '应用集成配置', 'POST');
+
+
+-- --------------- 12. Casbin 规则 casbin_rule (钉钉邮箱配置测试 888) ---------------
+INSERT INTO casbin_rule (ptype, v0, v1, v2) VALUES
+('p', '888', '/gaia/system/dingtalk/test-email-config', 'POST');
+
+
+-- --------------- 13. API sys_apis (钉钉测试连接：授权 URL + 回调验证 2 条) ---------------
+-- 请按当前库最大 id 调整起始 id，避免冲突。例如 MAX(id)=273 则从 274 起
+INSERT INTO sys_apis (id, created_at, updated_at, deleted_at, path, description, api_group, method) VALUES
+(274, NOW(), NOW(), NULL, '/gaia/system/dingtalk/test-auth-url', '测试连接-获取钉钉授权URL', '应用集成配置', 'GET'),
+(275, NOW(), NOW(), NULL, '/gaia/system/dingtalk/test-callback', '测试连接-钉钉回调验证', '应用集成配置', 'POST');
+
+
+-- --------------- 14. Casbin 规则 casbin_rule (钉钉测试连接 888) ---------------
+INSERT INTO casbin_rule (ptype, v0, v1, v2) VALUES
+('p', '888', '/gaia/system/dingtalk/test-auth-url', 'GET'),
+('p', '888', '/gaia/system/dingtalk/test-callback', 'POST');

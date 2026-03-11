@@ -11,6 +11,7 @@ import { useUserStore } from '@/pinia/modules/user'
 import { useRouterStore } from '@/pinia/modules/router'
 import router from '@/router'
 import { gaiaOAuth2Login, dingtalkLogin } from '@/api/user_extend'
+import { dingtalkTestCallback } from '@/api/gaia/system'
 
 defineOptions({
   name: 'LoginCallback',
@@ -69,6 +70,19 @@ const callback = async () => {
 
   const redirectUri = sessionStorage.getItem('gaia_login_redirect_uri') || ''
   const state = sessionStorage.getItem('gaia_login_state') || getQueryParam('state') || ''
+
+  // 测试连接回调：仅验证 code 换 token，不登录，结果通过 postMessage 回传并关闭
+  if (provider === 'dingtalk' && state === 'dingtalk_test') {
+    try {
+      const res = await dingtalkTestCallback({ code })
+      const payload = { type: 'dingtalk_test_result', success: res?.code === 0, message: res?.msg }
+      if (window.opener) window.opener.postMessage(payload, '*')
+    } catch (e) {
+      if (window.opener) window.opener.postMessage({ type: 'dingtalk_test_result', success: false, message: e?.message || '验证失败' }, '*')
+    }
+    window.close()
+    return
+  }
 
   try {
     if (provider === 'dingtalk') {

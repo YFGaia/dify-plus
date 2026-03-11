@@ -90,62 +90,56 @@ func (m *ModelProviderApi) GetModels(c *gin.Context) {
 	c.JSON(http.StatusOK, models)
 }
 
-// Proxy 通用中转 API：将 /gaia/proxy/* 的请求按路径转发到上游（如 /v1/chat/completions、/v1/messages、/v1/images/generations、/v1/embeddings 等）。
-// 上游 base 优先使用 provider_credentials 的 openai_api_base（如 "https://yunwu.ai"），便于计费区分。
+// proxyWithAccountId 通用代理逻辑：按路径转发到上游并计费。
+func proxyWithAccountId(c *gin.Context, accountId string) {
+	path := c.Param("path")
+	if path == "" || path == "/" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"message": "代理路径不能为空"}})
+		return
+	}
+	reqHeader := c.Request.Header.Clone()
+	if q := strings.TrimSpace(c.Query("provider")); q != "" {
+		reqHeader.Set("X-Gaia-Provider", q)
+	}
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"message": "读取请求体失败"}})
+		return
+	}
+	var bodyModel string
+	if len(body) > 0 {
+		var parseObj map[string]interface{}
+		if jsonErr := json.Unmarshal(body, &parseObj); jsonErr == nil {
+			if mv, ok := parseObj["model"].(string); ok {
+				bodyModel = mv
+			}
+		}
+	}
+	global.GVA_LOG.Info("Gaia代理请求入参",
+		zap.String("account_id", accountId),
+		zap.String("path", path),
+		zap.String("method", c.Request.Method),
+		zap.Int("body_len", len(body)),
+		zap.String("body_model", bodyModel),
+	)
+	if err = modelProviderService.ProxyRequest(
+		accountId, path, c.Request.Method, reqHeader, body, c.Writer); err != nil {
+		global.GVA_LOG.Error("代理请求失败", zap.String("account_id", accountId), zap.String("path", path), zap.Error(err))
+		if !c.Writer.Written() {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": gin.H{"message": err.Error()}})
+		}
+	}
+}
+
+// Proxy 通用中转 API：将 /gaia/proxy/* 的请求按路径转发到上游（需 JWT，account 来自当前登录用户）。
 // @Tags ModelProvider
 // @Summary 通用中转API（按路径转发）
 // @Security ApiKeyAuth
 // @Param path path string true "上游路径，如 v1/chat/completions、v1/messages"
 // @Router /gaia/proxy/*path [get,post,put,patch,delete]
 func (m *ModelProviderApi) Proxy(c *gin.Context) {
-	// init
-	var err error
-	var body []byte
-	path := c.Param("path")
-	userID := utils.GetUserUuid(c).String()
-	if path == "" || path == "/" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"message": "代理路径不能为空"}})
-		return
-	}
-	// 将 query provider 转为请求头，供 service 解析
-	reqHeader := c.Request.Header.Clone()
-	if q := strings.TrimSpace(c.Query("provider")); q != "" {
-		reqHeader.Set("X-Gaia-Provider", q)
-	}
-
-	if body, err = io.ReadAll(c.Request.Body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": gin.H{"message": "读取请求体失败"}})
-		return
-	}
-
-	// 打印传入参数便于排查
-	queryProvider := strings.TrimSpace(c.Query("provider"))
-	var bodyModel string
-	if len(body) > 0 {
-		var parseObj map[string]interface{}
-		if jsonErr := json.Unmarshal(body, &parseObj); jsonErr == nil {
-			if m, ok := parseObj["model"].(string); ok {
-				bodyModel = m
-			}
-		}
-	}
-	global.GVA_LOG.Info("Gaia代理请求入参",
-		zap.String("path", path),
-		zap.String("method", c.Request.Method),
-		zap.String("query_provider", queryProvider),
-		zap.Int("body_len", len(body)),
-		zap.String("body_model", bodyModel),
-		zap.String("body", string(body)),
-	)
-
-	if err = modelProviderService.ProxyRequest(
-		userID, path, c.Request.Method, reqHeader, body, c.Writer); err != nil {
-		global.GVA_LOG.Error("代理请求失败", zap.String("user_id", userID), zap.String(
-			"path", path), zap.Error(err))
-		if !c.Writer.Written() {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": gin.H{"message": err.Error()}})
-		}
-	}
+	accountId := utils.GetUserUuid(c).String()
+	proxyWithAccountId(c, accountId)
 }
 
 // GetAvailableModels 获取提供商的可用模型

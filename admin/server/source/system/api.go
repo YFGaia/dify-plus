@@ -201,6 +201,9 @@ func (i *initApi) InitializeData(ctx context.Context) (context.Context, error) {
 		// Extend Start: system integration
 		{ApiGroup: "应用集成配置", Method: "GET", Path: "/gaia/system/dingtalk", Description: "获取钉钉系统配置"},
 		{ApiGroup: "应用集成配置", Method: "POST", Path: "/gaia/system/dingtalk", Description: "设置钉钉系统配置"},
+		{ApiGroup: "应用集成配置", Method: "POST", Path: "/gaia/system/dingtalk/test-email-config", Description: "测试钉钉邮箱API配置"},
+		{ApiGroup: "应用集成配置", Method: "GET", Path: "/gaia/system/dingtalk/test-auth-url", Description: "测试连接-获取钉钉授权URL"},
+		{ApiGroup: "应用集成配置", Method: "POST", Path: "/gaia/system/dingtalk/test-callback", Description: "测试连接-钉钉回调验证"},
 		// Extend Stop: system integration
 
 		// Extend Start: oauth2

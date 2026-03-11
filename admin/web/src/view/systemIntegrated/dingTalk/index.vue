@@ -163,6 +163,54 @@
                     </div>
                   </el-tab-pane>
 
+                  <!-- Params标签 -->
+                  <el-tab-pane :label="`Params (${getParamsCount()})`" name="params">
+                    <div class="params-editor">
+                      <div class="text-xs text-gray-400 mb-3">
+                        配置 URL 查询参数，系统将自动判断使用 ? 或 &amp; 拼接到请求地址后
+                      </div>
+                      <div
+                        v-for="(param, index) in emailApiParams"
+                        :key="index"
+                        class="flex items-center mb-2 gap-2"
+                      >
+                        <el-input
+                          v-model="param.key"
+                          placeholder="参数名（如 userId）"
+                          style="flex: 2"
+                        />
+                        <el-select v-model="param.value_type" style="width: 120px; flex-shrink: 0">
+                          <el-option label="String（自定义）" value="string" />
+                          <el-option label="钉钉 ID（自动）" value="ding_id" />
+                        </el-select>
+                        <template v-if="param.value_type === 'ding_id'">
+                          <el-input
+                            disabled
+                            placeholder="登录时自动填入钉钉 ID"
+                            style="flex: 2"
+                          />
+                        </template>
+                        <template v-else>
+                          <el-input
+                            v-model="param.value"
+                            placeholder="参数值"
+                            style="flex: 2"
+                          />
+                        </template>
+                        <el-button
+                          type="danger"
+                          icon="delete"
+                          circle
+                          size="small"
+                          @click="removeParam(index)"
+                        />
+                      </div>
+                      <el-button type="primary" plain icon="plus" size="small" @click="addParam">
+                        添加参数
+                      </el-button>
+                    </div>
+                  </el-tab-pane>
+
                   <!-- Body标签 (仅POST/PUT/DELETE显示) -->
                   <el-tab-pane
                     v-if="emailApiConfig.method !== 'GET'"
@@ -172,9 +220,15 @@
                     <div class="body-editor">
                       <div class="mb-3">
                         <el-radio-group v-model="emailApiConfig.body_type">
-                          <el-radio label="form-data">form-data</el-radio>
-                          <el-radio label="x-www-form-urlencoded">x-www-form-urlencoded</el-radio>
-                          <el-radio label="raw">raw (JSON)</el-radio>
+                          <el-radio label="form-data">
+                            form-data
+                          </el-radio>
+                          <el-radio label="x-www-form-urlencoded">
+                            x-www-form-urlencoded
+                          </el-radio>
+                          <el-radio label="raw">
+                            raw (JSON)
+                          </el-radio>
                         </el-radio-group>
                       </div>
 
@@ -185,23 +239,32 @@
                             v-model="item.key"
                             placeholder="字段名"
                             class="flex-1"
-                            :disabled="item.isSystemField"
                           />
-                          <el-input
-                            v-model="item.value"
-                            placeholder="字段值（系统自动填充）"
-                            class="flex-1"
-                            :disabled="item.isSystemField"
-                          />
+                          <el-select v-model="item.value_type" style="width: 120px">
+                            <el-option label="String" value="string" />
+                            <el-option label="Int" value="int" />
+                            <el-option label="Bool" value="bool" />
+                            <el-option label="钉钉 ID" value="ding_id" />
+                          </el-select>
+                          <template v-if="item.value_type === 'ding_id'">
+                            <el-input disabled placeholder="运行时自动填充" class="flex-1" />
+                          </template>
+                          <template v-else-if="item.value_type === 'bool'">
+                            <el-switch v-model="item.value" :active-value="'true'" :inactive-value="'false'" class="flex-1" />
+                          </template>
+                          <template v-else-if="item.value_type === 'int'">
+                            <el-input v-model="item.value" type="number" placeholder="整数值" class="flex-1" />
+                          </template>
+                          <template v-else>
+                            <el-input v-model="item.value" placeholder="字段值" class="flex-1" />
+                          </template>
                           <el-button
-                            v-if="!item.isSystemField"
                             type="danger"
                             icon="delete"
                             circle
                             size="small"
                             @click="removeFormDataItem(index)"
                           />
-                          <el-tag v-if="item.isSystemField" type="info" size="small">系统字段</el-tag>
                         </div>
                         <el-button type="primary" plain icon="plus" size="small" @click="addFormDataItem">
                           添加字段
@@ -215,23 +278,32 @@
                             v-model="item.key"
                             placeholder="字段名"
                             class="flex-1"
-                            :disabled="item.isSystemField"
                           />
-                          <el-input
-                            v-model="item.value"
-                            placeholder="字段值（系统自动填充）"
-                            class="flex-1"
-                            :disabled="item.isSystemField"
-                          />
+                          <el-select v-model="item.value_type" style="width: 120px">
+                            <el-option label="String" value="string" />
+                            <el-option label="Int" value="int" />
+                            <el-option label="Bool" value="bool" />
+                            <el-option label="钉钉 ID" value="ding_id" />
+                          </el-select>
+                          <template v-if="item.value_type === 'ding_id'">
+                            <el-input disabled placeholder="运行时自动填充" class="flex-1" />
+                          </template>
+                          <template v-else-if="item.value_type === 'bool'">
+                            <el-switch v-model="item.value" :active-value="'true'" :inactive-value="'false'" class="flex-1" />
+                          </template>
+                          <template v-else-if="item.value_type === 'int'">
+                            <el-input v-model="item.value" type="number" placeholder="整数值" class="flex-1" />
+                          </template>
+                          <template v-else>
+                            <el-input v-model="item.value" placeholder="字段值" class="flex-1" />
+                          </template>
                           <el-button
-                            v-if="!item.isSystemField"
                             type="danger"
                             icon="delete"
                             circle
                             size="small"
                             @click="removeUrlEncodedItem(index)"
                           />
-                          <el-tag v-if="item.isSystemField" type="info" size="small">系统字段</el-tag>
                         </div>
                         <el-button type="primary" plain icon="plus" size="small" @click="addUrlEncodedItem">
                           添加字段
@@ -240,12 +312,28 @@
 
                       <!-- raw JSON -->
                       <div v-if="emailApiConfig.body_type === 'raw'" class="body-content">
+                        <div class="flex justify-end mb-2">
+                          <el-button
+                            type="primary"
+                            plain
+                            size="small"
+                            @click="insertDingIdMarker"
+                          >
+                            插入钉钉 ID
+                          </el-button>
+                        </div>
                         <el-input
+                          ref="rawBodyTextarea"
                           v-model="bodyRaw"
                           type="textarea"
                           :rows="8"
-                          placeholder='请输入JSON格式，例如: {"userId": "xxx", "other": "value"}'
+                          placeholder="请输入JSON格式，例如: {&quot;userId&quot;: &quot;$&lt;{[ding_id]}&gt;&quot;}"
+                          @click="saveRawCursorPos"
+                          @keyup="saveRawCursorPos"
                         />
+                        <div class="text-xs text-gray-400 mt-1">
+                          点击「插入钉钉 ID」将在光标位置插入 <code>$&lt;{[ding_id]}&gt;</code> 占位符，发送请求时自动替换为实际钉钉 ID
+                        </div>
                       </div>
                     </div>
                   </el-tab-pane>
@@ -255,9 +343,15 @@
                     <div class="auth-editor">
                       <div class="mb-3">
                         <el-radio-group v-model="emailApiConfig.authorization.type">
-                          <el-radio label="none">None</el-radio>
-                          <el-radio label="bearer">Bearer Token</el-radio>
-                          <el-radio label="basic">Basic Auth</el-radio>
+                          <el-radio label="none">
+                            None
+                          </el-radio>
+                          <el-radio label="bearer">
+                            Bearer Token
+                          </el-radio>
+                          <el-radio label="basic">
+                            Basic Auth
+                          </el-radio>
                         </el-radio-group>
                       </div>
 
@@ -293,30 +387,24 @@
               <!-- 只读模式显示 -->
               <div v-else class="mt-4">
                 <div v-if="Object.keys(emailApiConfig.headers).length > 0" class="mb-3">
-                  <div class="text-sm font-medium mb-2">Headers:</div>
+                  <div class="text-sm font-medium mb-2">
+                    Headers:
+                  </div>
                   <div v-for="(value, key) in emailApiConfig.headers" :key="key" class="flex items-center mb-1">
                     <span class="info-label text-sm">{{ key }}:</span>
                     <span class="info-value text-sm ml-2">{{ value }}</span>
                   </div>
                 </div>
                 <div v-if="emailApiConfig.authorization.type !== 'none'" class="mb-3">
-                  <div class="text-sm font-medium mb-2">Authorization:</div>
+                  <div class="text-sm font-medium mb-2">
+                    Authorization:
+                  </div>
                   <span class="info-value text-sm">{{ emailApiConfig.authorization.type === 'bearer' ? 'Bearer Token' : 'Basic Auth' }}</span>
                 </div>
               </div>
 
-              <!-- 邮箱请求字段和提取 -->
+              <!-- 邮箱信息提取路径 -->
               <div class="flex items-center mb-4 mt-4">
-                <span class="info-label">邮箱请求字段:</span>
-                <el-input
-                  v-if="openEdit"
-                  v-model="emailApiConfig.request_param_field"
-                  class="info-value flex-1"
-                  placeholder="例如: userId"
-                />
-                <span v-else class="info-value">{{ emailApiConfig.request_param_field || 'userId' }}</span>
-              </div>
-              <div class="flex items-center mb-4">
                 <span class="info-label">邮箱信息提取:</span>
                 <el-input
                   v-if="openEdit"
@@ -332,7 +420,10 @@
                 </el-input>
                 <span v-else class="info-value">{{ emailApiConfig.response_email_field || 'data[0].userName' }}</span>
               </div>
-              <div v-if="openEdit" class="flex justify-end">
+              <div v-if="openEdit" class="flex justify-end gap-2">
+                <el-button icon="promotion" @click="openTestDialog">
+                  测试配置
+                </el-button>
                 <el-button type="primary" icon="goods-filled" @click="update">
                   保存
                 </el-button>
@@ -341,53 +432,6 @@
             </div>
           </div>
 
-          <el-divider />
-
-          <div class="card-section">
-            <div class="section-title text-amber-500">
-              <el-icon><i class="el-icon-warning" /></el-icon>
-              <span>温馨提示</span>
-            </div>
-            <div class="tips-content">
-              <p class="tip-item">
-                1. 扫码登录应用创建入口：
-                <el-link type="primary" href="https://open-dev.dingtalk.com/fe/app" target="_blank">
-                  https://open-dev.dingtalk.com/fe/app
-                </el-link>
-              </p>
-              <p class="tip-item">
-                2. AppId和AppSecret是扫码登录应用的唯一标识，创建完成后可见
-              </p>
-              <p class="tip-item">
-                查看路径: 钉钉开放平台>应用开发>移动接入应用>扫码登录应用授权应用的列表。
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 转发集成配置卡片 -->
-        <div class="card mt-4">
-          <div class="card-header flex items-center justify-between">
-            <span class="text-lg font-medium">转发集成配置</span>
-            <el-tag v-if="forwardConfig.enabled" type="success" size="small">已启用</el-tag>
-            <el-tag v-else type="info" size="small">未启用</el-tag>
-          </div>
-          <p class="text-gray-500 text-sm mb-4">为第三方系统（如钉钉入口）提供免登录转发代理能力，通过 Token 鉴权后根据钉钉 ID 自动计费</p>
-
-          <el-divider />
-
-          <!-- 开关：始终可操作，不依赖「配置链接应用信息」 -->
-          <div class="card-section">
-            <div class="flex items-center mb-4">
-              <span class="info-label">启用转发：</span>
-              <el-switch
-                v-model="forwardConfig.enabled"
-                @change="onForwardEnabledChange"
-              />
-            </div>
-          </div>
-
-          <el-divider />
 
           <!-- Token 列表 -->
           <div class="card-section">
@@ -428,46 +472,26 @@
               </el-table-column>
             </el-table>
           </div>
-
           <el-divider />
 
-          <!-- 第三方钉钉 ID 匹配用户 API 配置 -->
           <div class="card-section">
-            <div class="section-title">
-              第三方钉钉 ID 匹配用户 API
+            <div class="section-title text-amber-500">
+              <el-icon><i class="el-icon-warning" /></el-icon>
+              <span>温馨提示</span>
             </div>
-            <p class="text-gray-500 text-sm mb-4">当本地表中找不到钉钉 ID 对应用户时，调用此 API 通过 ding_id 获取用户名。开启或修改后请点击下方「保存」按钮。</p>
-            <div class="bg-gray-50 dark:bg-slate-800 p-5 border dark:border-slate-700 rounded-lg">
-              <div class="flex items-center mb-4">
-                <span class="info-label">启用：</span>
-                <el-switch v-model="dingIdApiConfig.enabled" />
-              </div>
-              <div class="flex items-center mb-4">
-                <span class="info-label">API URL：</span>
-                <el-input v-model="dingIdApiConfig.url" class="flex-1" placeholder="https://api.example.com/user/by-dingid" />
-              </div>
-              <div class="flex items-center mb-4">
-                <span class="info-label">HTTP 方法：</span>
-                <el-select v-model="dingIdApiConfig.method" class="flex-1">
-                  <el-option label="GET" value="GET" />
-                  <el-option label="POST" value="POST" />
-                  <el-option label="PUT" value="PUT" />
-                  <el-option label="DELETE" value="DELETE" />
-                </el-select>
-              </div>
-              <div class="flex items-center mb-4">
-                <span class="info-label">请求参数字段：</span>
-                <el-input v-model="dingIdApiConfig.request_param_field" class="flex-1" placeholder="ding_id" />
-              </div>
-              <div class="flex items-center mb-4">
-                <span class="info-label">响应用户名路径：</span>
-                <el-input v-model="dingIdApiConfig.response_user_name_path" class="flex-1" placeholder="data.username" />
-              </div>
-              <div class="flex justify-end mt-4">
-                <el-button type="primary" icon="CircleCheck" @click="saveForwardAndDingIdConfig">
-                  保存「转发集成」与「钉钉 ID 匹配 API」配置
-                </el-button>
-              </div>
+            <div class="tips-content">
+              <p class="tip-item">
+                1. 扫码登录应用创建入口：
+                <el-link type="primary" href="https://open-dev.dingtalk.com/fe/app" target="_blank">
+                  https://open-dev.dingtalk.com/fe/app
+                </el-link>
+              </p>
+              <p class="tip-item">
+                2. AppId和AppSecret是扫码登录应用的唯一标识，创建完成后可见
+              </p>
+              <p class="tip-item">
+                查看路径: 钉钉开放平台>应用开发>移动接入应用>扫码登录应用授权应用的列表。
+              </p>
             </div>
           </div>
         </div>
@@ -476,30 +500,153 @@
       <!-- 新增 Token 弹窗：前端随机生成 → 保存到后端 → 自动复制到剪贴板并提示 -->
       <el-dialog v-model="showCreateTokenDialog" title="新增转发 Token" width="480px" :close-on-click-modal="false">
         <div v-if="!newTokenValue">
-          <p class="text-gray-600 mb-4">点击「生成并保存」将随机生成 Token，保存后会自动复制到系统剪贴板，请粘贴到安全位置保管。Token 仅展示一次。</p>
+          <p class="text-gray-600 mb-4">
+            点击「生成并保存」将随机生成 Token，保存后会自动复制到系统剪贴板，请粘贴到安全位置保管。Token 仅展示一次。
+          </p>
         </div>
         <div v-else>
           <el-alert type="success" title="Token 已生成并已复制到剪贴板，请妥善保管。此处仅展示一次。" :closable="false" class="mb-4" />
           <el-input v-model="newTokenValue" readonly>
             <template #append>
-              <el-button @click="copyToken(newTokenValue)">复制</el-button>
+              <el-button @click="copyToken(newTokenValue)">
+                复制
+              </el-button>
             </template>
           </el-input>
         </div>
         <template #footer>
-          <el-button v-if="!newTokenValue" @click="showCreateTokenDialog = false">取消</el-button>
-          <el-button v-if="!newTokenValue" type="primary" :loading="creatingToken" @click="handleCreateToken">生成并保存</el-button>
-          <el-button v-if="newTokenValue" type="primary" @click="showCreateTokenDialog = false; newTokenValue = ''; initForm()">完成</el-button>
+          <el-button v-if="!newTokenValue" @click="showCreateTokenDialog = false">
+            取消
+          </el-button>
+          <el-button v-if="!newTokenValue" type="primary" :loading="creatingToken" @click="handleCreateToken">
+            生成并保存
+          </el-button>
+          <el-button v-if="newTokenValue" type="primary" @click="showCreateTokenDialog = false; newTokenValue = ''; initForm()">
+            完成
+          </el-button>
         </template>
       </el-dialog>
 
       <!-- 删除 Token 弹窗（需密码） -->
       <el-dialog v-model="showDeleteTokenDialog" title="删除转发 Token" width="420px" :close-on-click-modal="false">
-        <p class="text-gray-600 mb-4">删除操作需要验证您的登录密码，请输入后确认。</p>
+        <p class="text-gray-600 mb-4">
+          删除操作需要验证您的登录密码，请输入后确认。
+        </p>
         <el-input v-model="deleteTokenPassword" type="password" placeholder="请输入您的登录密码" show-password />
         <template #footer>
-          <el-button @click="showDeleteTokenDialog = false; deleteTokenPassword = ''; deletingTokenId = ''">取消</el-button>
-          <el-button type="danger" :loading="deletingToken" @click="handleDeleteToken">确认删除</el-button>
+          <el-button @click="showDeleteTokenDialog = false; deleteTokenPassword = ''; deletingTokenId = ''">
+            取消
+          </el-button>
+          <el-button type="danger" :loading="deletingToken" @click="handleDeleteToken">
+            确认删除
+          </el-button>
+        </template>
+      </el-dialog>
+
+      <!-- 测试配置弹窗 -->
+      <el-dialog
+        v-model="showTestDialog"
+        title="测试邮箱 API 配置"
+        width="680px"
+        :close-on-click-modal="false"
+        destroy-on-close
+      >
+        <div class="test-dialog-content">
+          <!-- 测试用钉钉 ID 输入 -->
+          <div class="mb-4">
+            <div class="text-sm font-medium mb-2">
+              测试用钉钉 ID
+              <span class="text-gray-400 font-normal ml-1">（可选，填入真实钉钉 ID 可验证完整流程；留空则用占位符代替）</span>
+            </div>
+            <el-input
+              v-model="testDingId"
+              placeholder="例如：0123456789abcdef（留空用占位符）"
+              clearable
+              @keyup.enter="runTest"
+            />
+          </div>
+
+          <!-- 测试中状态 -->
+          <div v-if="testLoading" class="flex items-center justify-center py-8 text-gray-500">
+            <el-icon class="mr-2 animate-spin"><loading /></el-icon>
+            正在发送测试请求...
+          </div>
+
+          <!-- 测试结果 -->
+          <div v-if="testResult && !testLoading">
+            <!-- 状态码 -->
+            <div class="flex items-center mb-3 gap-3">
+              <el-tag :type="testResult.is_valid ? 'success' : 'danger'" size="large">
+                HTTP {{ testResult.status_code }}
+              </el-tag>
+              <span v-if="testResult.is_valid" class="text-green-600 font-medium">配置有效</span>
+              <span v-else class="text-red-500 font-medium">{{ testResult.error_message }}</span>
+            </div>
+
+            <!-- 邮箱字段解析预览 -->
+            <div v-if="testResult.email_field_preview" class="mb-3">
+              <div class="text-sm font-medium mb-1">邮箱字段解析</div>
+              <el-tag type="success">{{ testResult.email_field_preview }}</el-tag>
+            </div>
+
+            <!-- 响应 Body -->
+            <div class="mb-3">
+              <div class="flex items-center justify-between mb-1">
+                <div class="text-sm font-medium">
+                  响应 Body
+                </div>
+                <el-button
+                  v-if="testResult.body && typeof testResult.body === 'object'"
+                  size="small"
+                  text
+                  type="danger"
+                  class="!text-red-500"
+                  @click="testBodyExpanded = !testBodyExpanded"
+                >
+                  {{ testBodyExpanded ? '折叠' : '展开选择解析' }}
+                </el-button>
+              </div>
+              <div class="test-body-container">
+                <div v-if="typeof testResult.body === 'object'" class="json-tree">
+                  <div v-if="testBodyExpanded">
+                    <div
+                      v-for="(item, path) in flattenJSON(testResult.body)"
+                      :key="path"
+                      class="json-node flex items-center py-1 px-2 hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer rounded"
+                    >
+                      <span class="json-path text-gray-500 text-xs mr-2">{{ path }}</span>
+                      <span class="json-value text-sm font-mono">{{ typeof item === 'string' ? item : JSON.stringify(item) }}</span>
+                      <el-button
+                        v-if="typeof item === 'string' || typeof item === 'number'"
+                        size="small"
+                        text
+                        type="primary"
+                        class="ml-auto"
+                        @click="selectJsonField(path, item)"
+                      >
+                        选为邮箱字段
+                      </el-button>
+                    </div>
+                  </div>
+                  <pre v-else class="text-xs bg-gray-50 dark:bg-slate-800 p-3 rounded overflow-auto max-h-48">{{ JSON.stringify(testResult.body, null, 2) }}</pre>
+                </div>
+                <pre v-else class="text-xs bg-gray-50 dark:bg-slate-800 p-3 rounded overflow-auto max-h-48">{{ testResult.body }}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- 错误提示 -->
+          <div v-if="testError" class="mt-2">
+            <el-alert :title="testError" type="error" :closable="false" />
+          </div>
+        </div>
+        <template #footer>
+          <el-button @click="showTestDialog = false">
+            关闭
+          </el-button>
+          <el-button :loading="testLoading" @click="runTest">
+            重新测试
+          </el-button>
         </template>
       </el-dialog>
     </el-form>
@@ -507,11 +654,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { QuestionFilled } from '@element-plus/icons-vue'
+import { QuestionFilled, Loading } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
-import { getSystemDingTalk, setSystemDingTalk, getForwardTokens, createForwardToken, deleteForwardToken } from "@/api/gaia/system";
+import { getSystemDingTalk, setSystemDingTalk, getForwardTokens, createForwardToken, deleteForwardToken, testEmailApiConfig, getDingTalkTestAuthUrl } from "@/api/gaia/system";
 
 const { copy: copyToClipboard, isSupported: isClipboardSupported } = useClipboard()
 
@@ -539,11 +686,12 @@ const emailApiConfig = ref({
   enabled: false,
   url: '',
   method: 'GET',
-  request_param_field: 'userId',
-  body_type: 'raw',  // form-data | x-www-form-urlencoded | raw
+  request_param_field: '',   // 旧格式兼容字段
+  params: null,              // 新格式: null 表示使用旧格式，[] 或有元素表示新格式
+  body_type: 'raw',          // form-data | x-www-form-urlencoded | raw
   headers: {},
   authorization: {
-    type: 'none',    // none | bearer | basic
+    type: 'none',            // none | bearer | basic
     token: '',
     username: '',
     password: ''
@@ -551,21 +699,11 @@ const emailApiConfig = ref({
   response_email_field: 'data[0].userName'
 })
 
+// Params 参数列表（用于编辑，新格式）
+const emailApiParams = ref([])  // [{ key, value_type, value }]
+
 // 转发集成配置
 const forwardConfig = ref({ enabled: false, tokens: [] })
-
-// 第三方钉钉 ID 匹配 API 配置
-const dingIdApiConfig = ref({
-  enabled: false,
-  url: '',
-  method: 'GET',
-  request_param_field: 'ding_id',
-  body_type: 'raw',
-  headers: {},
-  authorization: { type: 'none', token: '', username: '', password: '' },
-  body_data: { raw: '', form_data: [], urlencoded: [] },
-  response_user_name_path: 'data.username',
-})
 
 // 转发 Token 列表
 const forwardTokenList = ref([])
@@ -671,27 +809,94 @@ const activeTab = ref('headers')
 const emailApiHeaders = ref([{ key: '', value: '' }])
 
 // Body编辑器数据（根据body_type不同使用不同格式）
-const bodyFormData = ref([{ key: '', value: '' }])  // form-data
-const bodyUrlEncoded = ref([{ key: '', value: '' }])  // x-www-form-urlencoded
+const bodyFormData = ref([{ key: '', value_type: 'string', value: '' }])  // form-data
+const bodyUrlEncoded = ref([{ key: '', value_type: 'string', value: '' }])  // x-www-form-urlencoded
 const bodyRaw = ref('')  // raw JSON
+
+// Raw 模式光标位置
+const rawBodyTextarea = ref(null)
+let rawCursorPos = 0
+
+// 测试配置弹窗
+const showTestDialog = ref(false)
+const testDingId = ref('')
+const testLoading = ref(false)
+const testResult = ref(null)
+const testError = ref('')
+const testBodyExpanded = ref(false)
 
 // 验证配置是否有效
 const isConfigValid = computed(() => {
   return !!(config.value.corp_id && config.value.agent_id && config.value.app_key && config.value.app_secret);
 })
 
+// 是否使用新格式（params 不为 null）
+const isNewParamsFormat = computed(() => emailApiConfig.value.params !== null)
+
 // 验证邮箱API配置是否有效
 const isEmailApiConfigValid = computed(() => {
   if (!emailApiConfig.value.enabled) {
     return true; // 未启用时认为有效
   }
-  return !!(
-    emailApiConfig.value.url &&
-    emailApiConfig.value.method &&
-    emailApiConfig.value.request_param_field &&
-    emailApiConfig.value.response_email_field
-  );
+  // 新格式：只需要 URL、method、response_email_field
+  return !!(emailApiConfig.value.url && emailApiConfig.value.method && emailApiConfig.value.response_email_field)
 })
+
+// 转发配置生效前的前置条件：至少 1 个 Token + 启用并配置「第三方邮箱配置」
+const validateForwardConfigPrerequisites = (showMessage = true) => {
+  const hasToken = (forwardTokenList.value?.length || 0) >= 1
+  const emailApiEnabled = !!emailApiConfig.value.enabled
+  const hasEmailApiURL = !!(emailApiConfig.value?.url && emailApiConfig.value.url.trim() !== '')
+
+  if (!hasToken) {
+    if (showMessage) ElMessage({ type: 'warning', message: '请至少新增 1 个转发 Token 后再保存配置' })
+    return false
+  }
+  if (!emailApiEnabled || !hasEmailApiURL) {
+    if (showMessage) ElMessage({ type: 'warning', message: '请先启用并配置「第三方邮箱配置」后再保存配置' })
+    return false
+  }
+  return true
+}
+
+// Params 管理（新格式）
+const getParamsCount = () => {
+  return emailApiParams.value.filter(p => p.key).length
+}
+
+const addParam = () => {
+  // 首次添加时将 params 设为数组，切换到新格式
+  if (emailApiConfig.value.params === null) {
+    emailApiConfig.value.params = []
+  }
+  emailApiParams.value.push({ key: '', value_type: 'string', value: '' })
+}
+
+const removeParam = (index) => {
+  emailApiParams.value.splice(index, 1)
+}
+
+// Raw 模式：记录光标位置
+const saveRawCursorPos = (event) => {
+  rawCursorPos = event.target.selectionStart
+}
+
+// Raw 模式：在光标位置插入钉钉 ID 标记（任务 8.8~8.9）
+const DING_ID_MARKER = '$<{[ding_id]}>'
+const insertDingIdMarker = async () => {
+  const text = bodyRaw.value
+  const pos = rawCursorPos ?? text.length
+  bodyRaw.value = text.substring(0, pos) + DING_ID_MARKER + text.substring(pos)
+  rawCursorPos = pos + DING_ID_MARKER.length
+  // 恢复光标位置
+  await nextTick()
+  const textarea = rawBodyTextarea.value?.$el?.querySelector('textarea')
+  if (textarea) {
+    textarea.selectionStart = rawCursorPos
+    textarea.selectionEnd = rawCursorPos
+    textarea.focus()
+  }
+}
 
 // Headers管理
 const getHeadersCount = () => {
@@ -732,68 +937,22 @@ const headersObjectToArray = (headersObj) => {
   return arr
 }
 
-// 确保系统字段存在（主请求字段）
-const ensureSystemField = (bodyArray, fieldName) => {
-  // 查找是否已存在系统字段
-  const systemFieldIndex = bodyArray.value.findIndex(item => item.isSystemField)
-
-  if (systemFieldIndex >= 0) {
-    // 更新现有系统字段的key
-    bodyArray.value[systemFieldIndex].key = fieldName
-  } else {
-    // 添加新的系统字段到第一个位置
-    bodyArray.value.unshift({
-      key: fieldName,
-      value: '',
-      isSystemField: true
-    })
-  }
-}
-
-// 移除系统字段标记（如果需要）
-const removeSystemField = (bodyArray) => {
-  const systemFieldIndex = bodyArray.value.findIndex(item => item.isSystemField)
-  if (systemFieldIndex >= 0) {
-    bodyArray.value.splice(systemFieldIndex, 1)
-  }
-}
-
 // Body form-data管理
 const addFormDataItem = () => {
-  bodyFormData.value.push({ key: '', value: '', isSystemField: false })
+  bodyFormData.value.push({ key: '', value_type: 'string', value: '' })
 }
 
 const removeFormDataItem = (index) => {
-  // 不允许删除系统字段
-  if (bodyFormData.value[index].isSystemField) {
-    return
-  }
   bodyFormData.value.splice(index, 1)
-  // 确保至少有一个非系统字段或系统字段存在
-  const hasSystemField = bodyFormData.value.some(item => item.isSystemField)
-  const hasOtherField = bodyFormData.value.some(item => !item.isSystemField)
-  if (!hasSystemField && !hasOtherField) {
-    ensureSystemField(bodyFormData, emailApiConfig.value.request_param_field)
-  }
 }
 
 // Body x-www-form-urlencoded管理
 const addUrlEncodedItem = () => {
-  bodyUrlEncoded.value.push({ key: '', value: '', isSystemField: false })
+  bodyUrlEncoded.value.push({ key: '', value_type: 'string', value: '' })
 }
 
 const removeUrlEncodedItem = (index) => {
-  // 不允许删除系统字段
-  if (bodyUrlEncoded.value[index].isSystemField) {
-    return
-  }
   bodyUrlEncoded.value.splice(index, 1)
-  // 确保至少有一个非系统字段或系统字段存在
-  const hasSystemField = bodyUrlEncoded.value.some(item => item.isSystemField)
-  const hasOtherField = bodyUrlEncoded.value.some(item => !item.isSystemField)
-  if (!hasSystemField && !hasOtherField) {
-    ensureSystemField(bodyUrlEncoded, emailApiConfig.value.request_param_field)
-  }
 }
 
 // 处理状态变更
@@ -814,11 +973,6 @@ const saveForwardAndDingIdConfig = () => {
   update()
 }
 
-// 启用转发开关切换时自动保存，使「转发集成」不依赖「配置链接应用信息」编辑状态即可生效
-const onForwardEnabledChange = () => {
-  saveForwardAndDingIdConfig()
-}
-
 // 掩码显示文本
 const openConfig = () => {
   openEdit.value = true
@@ -833,7 +987,7 @@ const copyHost = () => {
   });
 }
 
-// 测试连接
+// 测试连接：先保存当前配置，再打开钉钉授权页，扫码完成后根据回调结果提示成功/失败
 const testConnection = async () => {
   if (!isConfigValid.value) {
     ElMessage({
@@ -843,14 +997,64 @@ const testConnection = async () => {
     return;
   }
 
-  config.value.test = true;
-  const res = await setSystemDingTalk(config.value)
-  if (res.code === 0) {
-    ElMessage({
-      type: 'success',
-      message: '链接成功',
-    })
+  // 先保存配置，使后端能读到最新的 AppKey/AppSecret
+  config.value.test = false
+  const saveRes = await setSystemDingTalk(config.value)
+  if (saveRes.code !== 0) {
+    ElMessage({ type: 'error', message: saveRes.msg || '保存失败' })
+    return
   }
+
+  let authURL = ''
+  try {
+    const urlRes = await getDingTalkTestAuthUrl()
+    if (urlRes.code !== 0 || !urlRes.data?.auth_url) {
+      ElMessage({ type: 'error', message: urlRes.msg || '获取授权地址失败' })
+      return
+    }
+    authURL = urlRes.data.auth_url
+  } catch (e) {
+    ElMessage({ type: 'error', message: '获取授权地址失败：' + (e.message || '') })
+    return
+  }
+
+  const width = 520
+  const height = 620
+  const left = Math.round((window.screen.width - width) / 2)
+  const top = Math.round((window.screen.height - height) / 2)
+  const popup = window.open(
+    authURL,
+    'dingtalk_test',
+    `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes`
+  )
+  if (!popup) {
+    ElMessage({ type: 'warning', message: '请允许弹窗后重试' })
+    return
+  }
+
+  const timeoutMs = 120000
+  const timeoutId = setTimeout(() => {
+    try {
+      if (popup && !popup.closed) popup.close()
+    } catch (_) {}
+    window.removeEventListener('message', onMessage)
+    ElMessage({ type: 'info', message: '未在限定时间内完成扫码，已取消' })
+  }, timeoutMs)
+
+  const onMessage = (event) => {
+    if (event.data?.type !== 'dingtalk_test_result') return
+    clearTimeout(timeoutId)
+    window.removeEventListener('message', onMessage)
+    try {
+      if (popup && !popup.closed) popup.close()
+    } catch (_) {}
+    if (event.data.success) {
+      ElMessage({ type: 'success', message: '连接成功：已通过钉钉扫码验证' })
+    } else {
+      ElMessage({ type: 'error', message: event.data.message || '验证失败' })
+    }
+  }
+  window.addEventListener('message', onMessage)
 }
 
 // 监听URL变化，自动启用/禁用邮箱API配置
@@ -858,62 +1062,12 @@ watch(() => emailApiConfig.value.url, (newUrl) => {
   emailApiConfig.value.enabled = !!newUrl && newUrl.trim() !== ''
 })
 
-// 监听request_param_field变化，更新Body中的系统字段
-watch(() => emailApiConfig.value.request_param_field, (newField) => {
-  if (!newField) return
-
-  // 如果当前是form-data或x-www-form-urlencoded，更新系统字段
-  if (emailApiConfig.value.method !== 'GET') {
-    if (emailApiConfig.value.body_type === 'form-data') {
-      ensureSystemField(bodyFormData, newField)
-    } else if (emailApiConfig.value.body_type === 'x-www-form-urlencoded') {
-      ensureSystemField(bodyUrlEncoded, newField)
-    }
+// 监听 params 数组变化，同步到 emailApiConfig.params
+watch(emailApiParams, (newParams) => {
+  if (newParams.length > 0 || emailApiConfig.value.params !== null) {
+    emailApiConfig.value.params = newParams.length > 0 ? newParams : []
   }
-})
-
-// 监听body_type变化，管理系统字段
-watch(() => emailApiConfig.value.body_type, (newType, oldType) => {
-  if (emailApiConfig.value.method === 'GET') return
-
-  const fieldName = emailApiConfig.value.request_param_field
-
-  // 从旧类型移除系统字段
-  if (oldType === 'form-data') {
-    removeSystemField(bodyFormData)
-  } else if (oldType === 'x-www-form-urlencoded') {
-    removeSystemField(bodyUrlEncoded)
-  }
-
-  // 在新类型中添加系统字段
-  if (newType === 'form-data') {
-    ensureSystemField(bodyFormData, fieldName)
-  } else if (newType === 'x-www-form-urlencoded') {
-    ensureSystemField(bodyUrlEncoded, fieldName)
-  }
-})
-
-// 监听method变化，管理系统字段
-watch(() => emailApiConfig.value.method, (newMethod, oldMethod) => {
-  const fieldName = emailApiConfig.value.request_param_field
-
-  // 如果从非GET变为GET，移除系统字段
-  if (oldMethod !== 'GET' && newMethod === 'GET') {
-    if (emailApiConfig.value.body_type === 'form-data') {
-      removeSystemField(bodyFormData)
-    } else if (emailApiConfig.value.body_type === 'x-www-form-urlencoded') {
-      removeSystemField(bodyUrlEncoded)
-    }
-  }
-  // 如果从GET变为非GET，添加系统字段
-  else if (oldMethod === 'GET' && newMethod !== 'GET') {
-    if (emailApiConfig.value.body_type === 'form-data') {
-      ensureSystemField(bodyFormData, fieldName)
-    } else if (emailApiConfig.value.body_type === 'x-www-form-urlencoded') {
-      ensureSystemField(bodyUrlEncoded, fieldName)
-    }
-  }
-})
+}, { deep: true })
 
 const initForm = async() => {
   const res = await getSystemDingTalk()
@@ -929,68 +1083,56 @@ const initForm = async() => {
           : config.value.config
 
         if (configData.email_api) {
-          const url = configData.email_api.url || ''
+          const api = configData.email_api
+          const url = api.url || ''
           emailApiConfig.value = {
-            enabled: !!url && url.trim() !== '', // 根据URL自动设置enabled
+            enabled: !!url && url.trim() !== '',
             url: url,
-            method: configData.email_api.method || 'GET',
-            request_param_field: configData.email_api.request_param_field || 'userId',
-            body_type: configData.email_api.body_type || 'raw',
-            headers: configData.email_api.headers || {},
-            authorization: configData.email_api.authorization || {
-              type: 'none',
-              token: '',
-              username: '',
-              password: ''
-            },
-            response_email_field: configData.email_api.response_email_field || 'data[0].userName'
+            method: api.method || 'GET',
+            request_param_field: api.request_param_field || '',
+            params: api.params !== undefined ? api.params : null,  // 保留新旧格式标识
+            body_type: api.body_type || 'raw',
+            headers: api.headers || {},
+            authorization: api.authorization || { type: 'none', token: '', username: '', password: '' },
+            response_email_field: api.response_email_field || 'data[0].userName'
           }
 
           // 转换headers为数组格式供编辑
-          emailApiHeaders.value = headersObjectToArray(configData.email_api.headers)
+          emailApiHeaders.value = headersObjectToArray(api.headers)
 
-          // 转换body数据
-          if (configData.email_api.body_data) {
-            if (emailApiConfig.value.body_type === 'form-data') {
-              const formData = configData.email_api.body_data.form_data || []
-              // 转换为带isSystemField标记的格式
-              bodyFormData.value = formData.map(item => ({
-                key: item.key || '',
-                value: item.value || '',
-                isSystemField: false
-              }))
-              // 确保系统字段存在
-              if (emailApiConfig.value.method !== 'GET') {
-                ensureSystemField(bodyFormData, emailApiConfig.value.request_param_field)
-              }
-            } else if (emailApiConfig.value.body_type === 'x-www-form-urlencoded') {
-              const urlencoded = configData.email_api.body_data.urlencoded || []
-              // 转换为带isSystemField标记的格式
-              bodyUrlEncoded.value = urlencoded.map(item => ({
-                key: item.key || '',
-                value: item.value || '',
-                isSystemField: false
-              }))
-              // 确保系统字段存在
-              if (emailApiConfig.value.method !== 'GET') {
-                ensureSystemField(bodyUrlEncoded, emailApiConfig.value.request_param_field)
-              }
-            } else {
-              bodyRaw.value = configData.email_api.body_data.raw || ''
-            }
+          // 加载 params（新格式）
+          if (Array.isArray(api.params)) {
+            emailApiParams.value = api.params.map(p => ({
+              key: p.key || '',
+              value_type: p.value_type || 'string',
+              value: p.value || ''
+            }))
           } else {
-            // 初始化body数据
-            bodyFormData.value = []
-            bodyUrlEncoded.value = []
+            emailApiParams.value = []
+          }
+
+          // 转换body数据（新格式支持 value_type）
+          if (api.body_data) {
+            const toBodyField = (item) => ({
+              key: item.key || '',
+              value_type: item.value_type || 'string',
+              value: item.value || ''
+            })
+            const formDataRaw = api.body_data.form_data || []
+            bodyFormData.value = formDataRaw.length > 0
+              ? formDataRaw.map(toBodyField)
+              : [{ key: '', value_type: 'string', value: '' }]
+
+            const urlencodedRaw = api.body_data.urlencoded || []
+            bodyUrlEncoded.value = urlencodedRaw.length > 0
+              ? urlencodedRaw.map(toBodyField)
+              : [{ key: '', value_type: 'string', value: '' }]
+
+            bodyRaw.value = api.body_data.raw || ''
+          } else {
+            bodyFormData.value = [{ key: '', value_type: 'string', value: '' }]
+            bodyUrlEncoded.value = [{ key: '', value_type: 'string', value: '' }]
             bodyRaw.value = ''
-            // 如果方法不是GET，添加系统字段
-            if (emailApiConfig.value.method !== 'GET') {
-              if (emailApiConfig.value.body_type === 'form-data') {
-                ensureSystemField(bodyFormData, emailApiConfig.value.request_param_field)
-              } else if (emailApiConfig.value.body_type === 'x-www-form-urlencoded') {
-                ensureSystemField(bodyUrlEncoded, emailApiConfig.value.request_param_field)
-              }
-            }
           }
         }
 
@@ -999,12 +1141,6 @@ const initForm = async() => {
           forwardConfig.value = {
             enabled: configData.forward_config.enabled || false,
             tokens: configData.forward_config.tokens || [],
-          }
-          if (configData.forward_config.ding_id_api) {
-            dingIdApiConfig.value = {
-              ...dingIdApiConfig.value,
-              ...configData.forward_config.ding_id_api,
-            }
           }
         }
       } catch (e) {
@@ -1038,44 +1174,23 @@ const update = async() => {
     return;
   }
 
-  // 将emailApiConfig合并到config字段中
-  // 转换headers数组为对象
-  const headers = headersArrayToObject()
-
-  // 准备body数据
-  const bodyData = {}
-  if (emailApiConfig.value.method !== 'GET') {
-    if (emailApiConfig.value.body_type === 'form-data') {
-      // 保存所有字段（包括系统字段），但移除isSystemField标记
-      bodyData.form_data = bodyFormData.value
-        .filter(item => item.key) // 只过滤掉空的key
-        .map(item => ({
-          key: item.key,
-          value: item.value || '' // 系统字段的value为空，由后端填充
-        }))
-    } else if (emailApiConfig.value.body_type === 'x-www-form-urlencoded') {
-      // 保存所有字段（包括系统字段），但移除isSystemField标记
-      bodyData.urlencoded = bodyUrlEncoded.value
-        .filter(item => item.key) // 只过滤掉空的key
-        .map(item => ({
-          key: item.key,
-          value: item.value || '' // 系统字段的value为空，由后端填充
-        }))
-    } else {
-      bodyData.raw = bodyRaw.value
-    }
+  // 若已配置转发 Token，则在保存前校验前置条件（至少 1 个 Token + 启用并配置「第三方邮箱配置」）
+  if ((forwardTokenList.value?.length || 0) > 0 && !validateForwardConfigPrerequisites(true)) {
+    return
   }
+
+  // 将emailApiConfig合并到config字段中
+  const headers = headersArrayToObject()
+  const emailCfg = buildCurrentEmailConfig()
 
   const configData = {
     email_api: {
-      ...emailApiConfig.value,
+      ...emailCfg,
       headers,
-      body_data: bodyData
     },
     forward_config: {
       enabled: forwardConfig.value.enabled,
       tokens: forwardConfig.value.tokens,
-      ding_id_api: { ...dingIdApiConfig.value },
     }
   }
   config.value.config = JSON.stringify(configData)
@@ -1088,6 +1203,110 @@ const update = async() => {
     })
     await initForm()
     openEdit.value = false
+  }
+}
+
+// 测试配置相关（任务 9.2~9.10）
+const openTestDialog = async () => {
+  testResult.value = null
+  testError.value = ''
+  testBodyExpanded.value = false
+  testDingId.value = ''
+  showTestDialog.value = true
+  // 打开即自动执行一次测试
+  await runTest()
+}
+
+const buildCurrentEmailConfig = () => {
+  const headers = headersArrayToObject()
+  const bodyData = {}
+  if (emailApiConfig.value.method !== 'GET') {
+    if (emailApiConfig.value.body_type === 'form-data') {
+      bodyData.form_data = bodyFormData.value.filter(item => item.key).map(item => ({
+        key: item.key,
+        value_type: item.value_type || 'string',
+        value: item.value || ''
+      }))
+    } else if (emailApiConfig.value.body_type === 'x-www-form-urlencoded') {
+      bodyData.urlencoded = bodyUrlEncoded.value.filter(item => item.key).map(item => ({
+        key: item.key,
+        value_type: item.value_type || 'string',
+        value: item.value || ''
+      }))
+    } else {
+      bodyData.raw = bodyRaw.value
+    }
+  }
+
+  const params = isNewParamsFormat.value
+    ? emailApiParams.value.filter(p => p.key).map(p => ({
+        key: p.key,
+        value_type: p.value_type || 'string',
+        value: p.value || ''
+      }))
+    : null
+
+  return {
+    ...emailApiConfig.value,
+    headers,
+    body_data: bodyData,
+    params,
+  }
+}
+
+const runTest = async () => {
+  testLoading.value = true
+  testError.value = ''
+  testResult.value = null
+  try {
+    const config = buildCurrentEmailConfig()
+    const res = await testEmailApiConfig({
+      config,
+      test_ding_id: testDingId.value || undefined
+    })
+    if (res.code === 0) {
+      testResult.value = res.data
+      testBodyExpanded.value = false
+    } else {
+      testError.value = res.msg || '测试失败'
+    }
+  } catch (e) {
+    testError.value = '请求错误：' + e.message
+  } finally {
+    testLoading.value = false
+  }
+}
+
+// 将 JSON 对象展平为路径-值映射（用于 JSON 树选择）
+const flattenJSON = (obj, prefix = '', result = {}) => {
+  if (obj === null || typeof obj !== 'object') {
+    result[prefix || 'value'] = obj
+    return result
+  }
+  if (Array.isArray(obj)) {
+    obj.forEach((item, i) => {
+      flattenJSON(item, prefix ? `${prefix}[${i}]` : `[${i}]`, result)
+    })
+  } else {
+    Object.entries(obj).forEach(([k, v]) => {
+      const path = prefix ? `${prefix}.${k}` : k
+      if (v !== null && typeof v === 'object') {
+        flattenJSON(v, path, result)
+      } else {
+        result[path] = v
+      }
+    })
+  }
+  return result
+}
+
+// 选择 JSON 字段作为邮箱提取路径（任务 9.8~9.9）
+const selectJsonField = (path, value) => {
+  if (typeof value === 'string' || typeof value === 'number') {
+    emailApiConfig.value.response_email_field = path
+    ElMessage({ type: 'success', message: `已选择字段：${path}` })
+    // 选中后关闭测试弹窗
+    showTestDialog.value = false
   }
 }
 

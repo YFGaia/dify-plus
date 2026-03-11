@@ -72,6 +72,22 @@ func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res re
 	return res
 }
 
+// GetDingTalkTestAuthURL 返回用于「测试连接」的钉钉授权 URL（state=dingtalk_test，回调后仅验证 code 换 token，不登录）
+func (e *SystemIntegratedService) GetDingTalkTestAuthURL(frontendOrigin string) (string, error) {
+	integrate := e.getIntegratedConfigRaw(gaia.SystemIntegrationDingTalk)
+	if integrate.AppKey == "" || integrate.AppSecret == "" {
+		return "", fmt.Errorf("请先配置 AppKey 与 AppSecret")
+	}
+	frontendOrigin = strings.TrimSuffix(frontendOrigin, "/")
+	if !strings.Contains(frontendOrigin, "localhost") {
+		frontendOrigin = frontendOrigin + "/admin"
+	}
+	callbackURI := frontendOrigin + "/#/loginCallback?provider=dingtalk"
+	authURL := fmt.Sprintf("https://login.dingtalk.com/oauth2/auth?client_id=%s&response_type=code&scope=openid&redirect_uri=%s&state=dingtalk_test",
+		integrate.AppKey, url.QueryEscape(callbackURI))
+	return authURL, nil
+}
+
 // getIntegratedConfigRaw 获取集成配置（不脱敏，仅内部使用）
 func (e *SystemIntegratedService) getIntegratedConfigRaw(classID uint) (integrate gaia.SystemIntegration) {
 	if err := global.GVA_DB.Where("classify = ?", classID).First(&integrate).Error; err != nil {

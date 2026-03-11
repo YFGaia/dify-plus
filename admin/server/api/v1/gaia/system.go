@@ -5,10 +5,14 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"strings"
+
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia/request"
+	gaiaResp "github.com/flipped-aurora/gin-vue-admin/server/model/gaia/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
@@ -64,13 +68,79 @@ func (systemApi *SystemApi) SetDingTalk(c *gin.Context) {
 	response.OkWithData("ok", c)
 }
 
+// TestEmailApiConfig 测试第三方邮箱 API 配置
+// @Tags System
+// @Summary 测试第三方邮箱 API 配置
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body request.TestEmailApiConfigRequest true "测试配置请求"
+// @Success 200 {object} response.Response{data=gaiaResp.TestEmailApiConfigResponse,msg=string} "测试结果"
+// @Router /gaia/system/dingtalk/test-email-config [post]
+func (systemApi *SystemApi) TestEmailApiConfig(c *gin.Context) {
+	var req request.TestEmailApiConfigRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	result, err := systemIntegratedService.TestEmailApiConfig(req.Config, req.TestDingID)
+	if err != nil {
+		response.FailWithMessage("测试失败："+err.Error(), c)
+		return
+	}
+
+	response.OkWithData(result, c)
+}
+
+// GetDingTalkTestAuthURL 获取「测试连接」用的钉钉授权 URL，打开后扫码完成即视为连接成功
+// @Router /gaia/system/dingtalk/test-auth-url [get]
+func (systemApi *SystemApi) GetDingTalkTestAuthURL(c *gin.Context) {
+	origin := c.GetHeader("Referer")
+	if origin == "" {
+		origin = c.GetHeader("Origin")
+	}
+	if origin != "" {
+		if u, err := url.Parse(origin); err == nil {
+			origin = u.Scheme + "://" + u.Host + strings.TrimSuffix(u.Path, "/")
+		}
+	}
+	if origin == "" {
+		response.FailWithMessage("无法获取前端地址，请从配置页点击「测试连接」", c)
+		return
+	}
+	authURL, err := systemIntegratedService.GetDingTalkTestAuthURL(origin)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+	response.OkWithData(gin.H{"auth_url": authURL}, c)
+}
+
+// DingTalkTestCallback 测试连接回调：仅用 code 换 token 验证，不登录
+// @Router /gaia/system/dingtalk/test-callback [post]
+func (systemApi *SystemApi) DingTalkTestCallback(c *gin.Context) {
+	var req struct {
+		Code string `json:"code"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || strings.TrimSpace(req.Code) == "" {
+		response.FailWithMessage("缺少授权码 code", c)
+		return
+	}
+	if err := systemIntegratedService.DingTalkTestCallback(req.Code); err != nil {
+		response.FailWithMessage("验证失败: "+err.Error(), c)
+		return
+	}
+	response.OkWithMessage("验证成功", c)
+}
+
 // GetForwardTokens 获取转发 Token 列表
 // @Tags System
 // @Summary 获取转发 Token 列表
 // @Security ApiKeyAuth
 // @accept application/json
 // @Produce application/json
-// @Success 200 {object} response.Response{data=[]request.ForwardToken,msg=string} "查询成功"
+// @Success 200 {object} response.Response{data=gaiaResp.ForwardTokensResponse,msg=string} "查询成功"
 // @Router /gaia/system/forward-tokens [get]
 func (systemApi *SystemApi) GetForwardTokens(c *gin.Context) {
 	integrate := systemIntegratedService.GetIntegratedConfig(gaia.SystemIntegrationDingTalk)
@@ -83,21 +153,15 @@ func (systemApi *SystemApi) GetForwardTokens(c *gin.Context) {
 		}
 	}
 
-	// 返回不包含 token_hash 的列表
-	type TokenInfo struct {
-		ID        string    `json:"id"`
-		CreatedAt time.Time `json:"created_at"`
-	}
-
-	tokens := make([]TokenInfo, 0, len(configMap.ForwardConfig.Tokens))
+	tokens := make([]gaiaResp.ForwardTokenInfo, 0, len(configMap.ForwardConfig.Tokens))
 	for _, token := range configMap.ForwardConfig.Tokens {
-		tokens = append(tokens, TokenInfo{
-			ID:        token.ID,
+		tokens = append(tokens, gaiaResp.ForwardTokenInfo{
+			ID:        utils.AddAsteriskToString(token.ID),
 			CreatedAt: token.CreatedAt,
 		})
 	}
 
-	response.OkWithData(gin.H{"tokens": tokens, "count": len(tokens), "max": 20}, c)
+	response.OkWithData(gaiaResp.ForwardTokensResponse{Tokens: tokens, Count: len(tokens), Max: 20}, c)
 }
 
 // CreateForwardToken 新增转发 Token

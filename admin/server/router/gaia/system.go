@@ -10,10 +10,14 @@ type SystemRouter struct{}
 func (s *SystemRouter) InitSystemRouter(Router *gin.RouterGroup) {
 	systemRouter := Router.Group("gaia/system")
 	{
-		systemRouter.GET("dingtalk", systemApi.GetDingTalk)             // 获取钉钉系统配置
-		systemRouter.POST("dingtalk", systemApi.SetDingTalk)            // 设置钉钉系统配置
-		systemRouter.GET("oauth2", systemOAuth2Api.GetOAuth2Config)     // 获取 OAuth2 配置
-		systemRouter.POST("oauth2", systemOAuth2Api.SetOAuth2Config)    // 设置 OAuth2 配置
+		systemRouter.GET("dingtalk", systemApi.GetDingTalk)                          // 获取钉钉系统配置
+		systemRouter.POST("dingtalk", systemApi.SetDingTalk)                         // 设置钉钉系统配置
+		systemRouter.GET("dingtalk/test-auth-url", systemApi.GetDingTalkTestAuthURL) // 测试连接：获取钉钉授权 URL
+		systemRouter.POST("dingtalk/test-callback", systemApi.DingTalkTestCallback)  // 测试连接：回调验证 code
+		systemRouter.GET("oauth2", systemOAuth2Api.GetOAuth2Config)                  // 获取 OAuth2 配置
+		systemRouter.POST("oauth2", systemOAuth2Api.SetOAuth2Config)                 // 设置 OAuth2 配置
+		// 邮箱 API 配置测试
+		systemRouter.POST("dingtalk/test-email-config", systemApi.TestEmailApiConfig) // 测试第三方邮箱 API 配置
 		// 转发 Token 管理
 		systemRouter.GET("forward-tokens", systemApi.GetForwardTokens)          // 获取转发 Token 列表
 		systemRouter.POST("forward-tokens", systemApi.CreateForwardToken)       // 新增转发 Token
@@ -21,7 +25,7 @@ func (s *SystemRouter) InitSystemRouter(Router *gin.RouterGroup) {
 	}
 }
 
-// InitForwardProxyRouter 初始化 GPT 转发代理路由（免 JWT，挂在 PublicGroup）
+// InitForwardProxyRouter 初始化 GPT 转发代理路由
 func (s *SystemRouter) InitForwardProxyRouter(PublicRouter *gin.RouterGroup) {
 	// 免 JWT 转发入口，通过 forwarding token + ding_id 鉴权
 	PublicRouter.Any("gaia/forward/proxy/*path", forwardProxyApi.ForwardProxy)

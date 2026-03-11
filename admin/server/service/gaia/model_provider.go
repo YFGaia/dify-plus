@@ -18,6 +18,8 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia"
 	gaiaRequest "github.com/flipped-aurora/gin-vue-admin/server/model/gaia/request"
 	gaiaResponse "github.com/flipped-aurora/gin-vue-admin/server/model/gaia/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"go.gnd.pw/crypto/eax"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -28,6 +30,150 @@ import (
 	"sync"
 	"time"
 )
+
+// fetchAdminToken 查询一个管理员用户，生成 Dify Console API 兼容的 JWT。
+// 结果缓存到 Redis，TTL 50 分钟（JWT 有效期内复用，避免频繁生成）。
+func (s *ModelProviderService) fetchAdminToken() (token string, err error) {
+	const cacheKey = "gaia:admin_console_token"
+	ctx := context.Background()
+
+	// 优先从 Redis 读取缓存
+	if cached, e := global.GVA_REDIS.Get(ctx, cacheKey).Result(); e == nil && cached != "" {
+		return cached, nil
+	}
+
+	// 查询一个活跃管理员
+	var adminUser system.SysUser
+	if err = global.GVA_DB.Where("authority_id = ? AND enable = ?",
+		system.AdminAuthorityId, system.UserActive).First(&adminUser).Error; err != nil {
+		return "", fmt.Errorf("找不到可用的管理员账号：%w", err)
+	}
+
+	token, _, _, err = utils.LoginTokenWithCSRF(&adminUser)
+	if err != nil {
+		return "", fmt.Errorf("生成管理员 token 失败：%w", err)
+	}
+
+	// 缓存 50 分钟（JWT 缓冲时间内有效）
+	global.GVA_REDIS.Set(ctx, cacheKey, token, 50*time.Minute)
+	return token, nil
+}
+
+// fetchModelPricingFromDify 通过 Dify Console API 拉取 LLM 模型定价，结果按 model 名缓存到 Redis（TTL 1 小时）。
+// Dify Console API：GET /console/api/workspaces/current/models/model-types/llm
+// 响应结构：{"data": [{"models": [{"model": "gpt-4o", "fetch_from": "...", "pricing": {"input":"0.005","output":"0.015","unit":"0.001","currency":"USD"}}]}]}
+func (s *ModelProviderService) fetchModelPricingFromDify(modelName string) (*gaia.ModelPricing, error) {
+	const redisTTL = time.Hour
+	cacheKey := "gaia:model_pricing:" + modelName
+	ctx := context.Background()
+
+	// 先查 Redis
+	if cached, err := global.GVA_REDIS.Get(ctx, cacheKey).Result(); err == nil && cached != "" {
+		var p gaia.ModelPricing
+		if json.Unmarshal([]byte(cached), &p) == nil {
+			return &p, nil
+		}
+	}
+
+	// 获取管理员 token
+	token, err := s.fetchAdminToken()
+	if err != nil {
+		return nil, err
+	}
+
+	// 调用 Dify Console API
+	apiURL := strings.TrimSuffix(global.GVA_CONFIG.Gaia.Url, "/") +
+		"/console/api/workspaces/current/models/model-types/llm"
+	req, err := http.NewRequest(http.MethodGet, apiURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("构建定价请求失败：%w", err)
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 15 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("请求 Dify 定价接口失败：%w", err)
+	}
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("读取定价响应失败：%w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Dify 定价接口返回 %d：%s", resp.StatusCode, string(respBody))
+	}
+
+	// 解析响应，批量缓存所有模型的定价
+	var apiResp gaia.DifyModelsResponse
+	if err = json.Unmarshal(respBody, &apiResp); err != nil {
+		return nil, fmt.Errorf("解析定价响应失败：%w", err)
+	}
+
+	var targetPricing *gaia.ModelPricing
+	for _, providerData := range apiResp.Data {
+		for _, m := range providerData.Models {
+			if m.Pricing == nil {
+				continue
+			}
+			p := gaia.ModelPricing{Currency: m.Pricing.Currency}
+			fmt.Sscanf(m.Pricing.Input, "%f", &p.Input)
+			fmt.Sscanf(m.Pricing.Output, "%f", &p.Output)
+			fmt.Sscanf(m.Pricing.Unit, "%f", &p.Unit)
+			if p.Unit == 0 {
+				p.Unit = 0.001 // 默认按千 token 计费
+			}
+
+			// 缓存每个模型的定价
+			if b, e := json.Marshal(p); e == nil {
+				global.GVA_REDIS.Set(ctx, "gaia:model_pricing:"+m.Model, string(b), redisTTL)
+			}
+			if m.Model == modelName {
+				cp := p
+				targetPricing = &cp
+			}
+		}
+	}
+
+	if targetPricing != nil {
+		return targetPricing, nil
+	}
+	// 未找到该模型的定价，写入空标记避免反复请求（TTL 10 分钟）
+	global.GVA_REDIS.Set(ctx, cacheKey, "{}", 10*time.Minute)
+	return nil, nil
+}
+
+// calcQuotaDelta 根据定价和 token 用量计算本次消耗的配额金额。
+// 若未找到定价则回退到默认单价 0.001（每 token）。
+func calcQuotaDelta(pricing *gaia.ModelPricing, promptTokens, completionTokens int) float64 {
+	if pricing == nil || pricing.Unit == 0 {
+		// 回退：按 0.001/token 统一计费
+		return float64(promptTokens+completionTokens) * 0.001
+	}
+	inputCost := float64(promptTokens) * pricing.Input * pricing.Unit
+	outputPrice := pricing.Output
+	if outputPrice == 0 {
+		outputPrice = pricing.Input
+	}
+	outputCost := float64(completionTokens) * outputPrice * pricing.Unit
+	return inputCost + outputCost
+}
+
+// deductAccountQuota 将消耗配额计入 account_money_extend.used_quota（原子累加）。
+func deductAccountQuota(userID string, delta float64) {
+	if delta <= 0 {
+		return
+	}
+	if err := global.GVA_DB.Exec(
+		`UPDATE account_money_extend SET used_quota = used_quota + ?, updated_at = NOW() WHERE account_id = ?::uuid`,
+		delta, userID,
+	).Error; err != nil {
+		global.GVA_LOG.Warn("deductAccountQuota 失败",
+			zap.String("user_id", userID), zap.Float64("delta", delta), zap.Error(err))
+	}
+}
 
 // ModelProviderService 模型提供商服务，负责提供商配置、凭证获取、可用模型拉取及聊天请求代理。
 type ModelProviderService struct{}
@@ -900,7 +1046,8 @@ func (s *ModelProviderService) ProxyRequest(
 
 	// 解析 provider：头 > query 已在 handler 传入；此处从 body 取 model 仅当 body 为 JSON 且含 model 时用于推断
 	xGaiaProvider := reqHeader.Get("X-Gaia-Provider")
-	global.GVA_LOG.Info("ProxyRequest 解析 provider", zap.String("path", path), zap.String("X-Gaia-Provider", xGaiaProvider), zap.Int("body_len", len(body)))
+	global.GVA_LOG.Info("ProxyRequest 解析 provider", zap.String("path", path), zap.String(
+		"X-Gaia-Provider", xGaiaProvider), zap.Int("body_len", len(body)))
 	if p := xGaiaProvider; p != "" {
 		providerName = strings.TrimSpace(strings.ToLower(p))
 	}
@@ -912,7 +1059,8 @@ func (s *ModelProviderService) ProxyRequest(
 				// 按“已选模型”解析实际渠道（如 gpt-5-chat 若只在 Azure 下勾选则走 azure）
 				providerName, err = s.resolveProviderByModel(m)
 				if err != nil {
-					global.GVA_LOG.Error("ProxyRequest resolveProviderByModel 失败", zap.String("model", m), zap.Error(err))
+					global.GVA_LOG.Error("ProxyRequest resolveProviderByModel 失败", zap.String(
+						"model", m), zap.Error(err))
 					return err
 				}
 				global.GVA_LOG.Info("ProxyRequest 解析得到 provider", zap.String("provider", providerName))
@@ -939,7 +1087,20 @@ func (s *ModelProviderService) ProxyRequest(
 		return fmt.Errorf("提供商 %s 无可用上游地址", providerName)
 	}
 
+	// 若 body 是 JSON 且含 stream: true，注入 stream_options.include_usage = true
+	// 这样上游会在 SSE 末尾的 data 行返回 usage，供后续计费解析使用。
 	if len(body) > 0 {
+		var bodyObj map[string]interface{}
+		if json.Unmarshal(body, &bodyObj) == nil {
+			if streamVal, ok := bodyObj["stream"].(bool); ok && streamVal {
+				if _, hasOpt := bodyObj["stream_options"]; !hasOpt {
+					bodyObj["stream_options"] = map[string]interface{}{"include_usage": true}
+					if injected, e := json.Marshal(bodyObj); e == nil {
+						body = injected
+					}
+				}
+			}
+		}
 		bodyReader = bytes.NewReader(body)
 	}
 
@@ -1017,18 +1178,43 @@ func (s *ModelProviderService) ProxyRequest(
 		}
 	}
 	var logStatus, logError string
+	var promptTokens, completionTokens int
 	defer func() {
 		if logStatus == "" {
 			logStatus = "success"
 		}
 		global.GVA_DB.Create(&gaia.ModelProxyLog{
-			UserId:       userID,
-			ProviderName: providerName,
-			ModelName:    modelOrPath,
-			Status:       logStatus,
-			ErrorMessage: logError,
-			CreatedAt:    startTime,
+			UserId:         userID,
+			ProviderName:   providerName,
+			ModelName:      modelOrPath,
+			RequestTokens:  promptTokens,
+			ResponseTokens: completionTokens,
+			Status:         logStatus,
+			ErrorMessage:   logError,
+			CreatedAt:      startTime,
 		})
+
+		// 计费：仅成功时扣费
+		if logStatus == "success" {
+			if promptTokens > 0 || completionTokens > 0 {
+				// LLM 类型：按 token 计费
+				pricing, _ := s.fetchModelPricingFromDify(modelOrPath)
+				delta := calcQuotaDelta(pricing, promptTokens, completionTokens)
+				deductAccountQuota(userID, delta)
+			} else if isImageOrPerRequestPath(path) {
+				// 图片生成等无 usage 的接口：按请求次数计费（固定 0.04 USD/次，约 1 张图片单价）
+				// 实际价格因模型而异（DALL-E 3 1024x1024 = $0.04），此处为保守默认值，可通过定价表覆盖
+				pricing, _ := s.fetchModelPricingFromDify(modelOrPath)
+				var delta float64
+				if pricing != nil && pricing.Input > 0 {
+					// 若定价表有配置，input 字段用作每次请求单价
+					delta = pricing.Input
+				} else {
+					delta = 0.04
+				}
+				deductAccountQuota(userID, delta)
+			}
+		}
 	}()
 
 	// 写回状态码与响应头（流式由上游 Content-Type 决定）
@@ -1044,17 +1230,36 @@ func (s *ModelProviderService) ProxyRequest(
 		_, _ = io.Copy(writer, resp.Body)
 		return nil
 	}
-	// 流式响应时按行刷新，避免缓冲
+
+	// extractUsage 从 OpenAI 格式的 JSON 对象中提取 usage 字段
+	extractUsage := func(data []byte) {
+		var obj gaia.ModelUsageResponse
+		if json.Unmarshal(data, &obj) == nil && obj.Usage != nil {
+			if obj.Usage.PromptTokens > 0 {
+				promptTokens = obj.Usage.PromptTokens
+			}
+			if obj.Usage.CompletionTokens > 0 {
+				completionTokens = obj.Usage.CompletionTokens
+			}
+		}
+	}
+
+	// 流式响应：按行扫描，顺带从最后一条含 usage 的 data 行中提取 token 数
 	if strings.Contains(resp.Header.Get("Content-Type"), "text/event-stream") {
 		if flusher, ok := writer.(http.Flusher); ok {
 			scanner := bufio.NewScanner(resp.Body)
 			for scanner.Scan() {
-				fmt.Println("sss", scanner.Text())
-				if _, err = writer.Write([]byte(scanner.Text() + "\n")); err != nil {
+				line := scanner.Text()
+				if _, err = writer.Write([]byte(line + "\n")); err != nil {
 					logStatus, logError = "error", err.Error()
 					return err
 				}
 				flusher.Flush()
+				// 解析 SSE data 行中的 usage（stream_options.include_usage=true 时上游会附带）
+				if strings.HasPrefix(line, "data:") && strings.Contains(line, `"usage"`) {
+					payload := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+					extractUsage([]byte(payload))
+				}
 			}
 			if err = scanner.Err(); err != nil {
 				logStatus, logError = "error", err.Error()
@@ -1063,9 +1268,15 @@ func (s *ModelProviderService) ProxyRequest(
 			return nil
 		}
 	}
-	_, err = io.Copy(writer, resp.Body)
+
+	// 非流式响应：TeeReader 同时转发给客户端并读取 body 用于解析 usage
+	var buf bytes.Buffer
+	tee := io.TeeReader(resp.Body, &buf)
+	_, err = io.Copy(writer, tee)
 	if err != nil {
 		logStatus, logError = "error", err.Error()
+	} else {
+		extractUsage(buf.Bytes())
 	}
 	return err
 }
@@ -1077,4 +1288,23 @@ func (s *ModelProviderService) isProviderEnabled(providerName string) bool {
 		return false
 	}
 	return true
+}
+
+// isImageOrPerRequestPath 判断请求路径是否为按次计费的接口（图片生成、语音合成等无 usage 字段的接口）。
+func isImageOrPerRequestPath(path string) bool {
+	perRequestPaths := []string{
+		"images/generations",
+		"images/edits",
+		"images/variations",
+		"audio/speech",
+		"audio/transcriptions",
+		"audio/translations",
+	}
+	lpath := strings.ToLower(path)
+	for _, p := range perRequestPaths {
+		if strings.Contains(lpath, p) {
+			return true
+		}
+	}
+	return false
 }

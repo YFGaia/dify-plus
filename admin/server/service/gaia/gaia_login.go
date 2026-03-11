@@ -148,6 +148,45 @@ func (e *SystemIntegratedService) OAuth2CodeLogin(
 	return &response.GaiaLoginResult{User: *sysUser, Token: token, RedirectURI: req.RedirectURI, State: req.State}, nil
 }
 
+// DingTalkTestCallback 仅用 code 换 token，用于「测试连接」回调，不登录、不写 session
+func (e *SystemIntegratedService) DingTalkTestCallback(code string) error {
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return fmt.Errorf("授权码为空")
+	}
+	integrate := e.getIntegratedConfigRaw(gaia.SystemIntegrationDingTalk)
+	if integrate.AppKey == "" || integrate.AppSecret == "" {
+		return fmt.Errorf("钉钉配置不完整")
+	}
+	bodyJSON, _ := json.Marshal(map[string]string{
+		"clientId":     integrate.AppKey,
+		"clientSecret": integrate.AppSecret,
+		"code":         code,
+		"grantType":    "authorization_code",
+	})
+	httpReq, err := http.NewRequest("POST", "https://api.dingtalk.com/v1.0/oauth2/userAccessToken", bytes.NewReader(bodyJSON))
+	if err != nil {
+		return err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return fmt.Errorf("钉钉 token 请求失败: %w", err)
+	}
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		global.GVA_LOG.Error("钉钉 token 非 200", zap.Int("status", resp.StatusCode), zap.String("body", string(respBody)))
+		return fmt.Errorf("钉钉返回错误: %d", resp.StatusCode)
+	}
+	var tokenResp map[string]interface{}
+	if err = json.Unmarshal(respBody, &tokenResp); err != nil || tokenResp["accessToken"] == "" {
+		return fmt.Errorf("解析钉钉 token 失败")
+	}
+	return nil
+}
+
 // DingTalkCodeLogin 钉钉 code 换用户并登录（扫码/OAuth2 回调带 code）
 func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLoginReq) (*response.GaiaLoginResult, error) {
 	integrate := e.getIntegratedConfigRaw(gaia.SystemIntegrationDingTalk)
@@ -205,8 +244,56 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 	if err = json.Unmarshal(userBody, &dingUser); err != nil {
 		return nil, fmt.Errorf("解析钉钉用户信息失败")
 	}
-	email := dingUser["email"].(string)
-	username := dingUser["nick"].(string)
+
+	// 提取钉钉 ID（user_id 字段）
+	dingId := ""
+	if v, ok := dingUser["unionId"]; ok && v != nil {
+		dingId, _ = v.(string)
+	}
+	if dingId == "" {
+		if v, ok := dingUser["userId"]; ok && v != nil {
+			dingId, _ = v.(string)
+		}
+	}
+
+	// 解析邮箱配置
+	var configMap request.DingTalkConfigRequest
+	var emailConfig request.EmailApiConfig
+	if integrate.Config != "" {
+		if jsonErr := json.Unmarshal([]byte(integrate.Config), &configMap); jsonErr == nil {
+			var rawMsg json.RawMessage
+			if rawBytes, marshalErr := json.Marshal(configMap.EmailApi); marshalErr == nil {
+				rawMsg = rawBytes
+				if cfg, parseErr := parseEmailApiConfigFromJSON(rawMsg); parseErr == nil {
+					emailConfig = cfg
+				}
+			}
+		}
+	}
+
+	// 优先通过邮箱 API 获取邮箱（新格式）
+	if emailConfig.Enabled && dingId != "" {
+		email, apiErr := e.callEmailApi(dingId, emailConfig)
+		if apiErr == nil && email != "" {
+			global.GVA_LOG.Info("DingTalkCodeLogin: 通过第三方邮箱 API 获取邮箱",
+				zap.String("ding_id", dingId), zap.String("email", email))
+			sysUser, findErr := e.findUserByEmail(email)
+			if findErr != nil {
+				return nil, findErr
+			}
+			token, _, tokenErr := utils.LoginToken(sysUser)
+			if tokenErr != nil {
+				return nil, fmt.Errorf("签发 token 失败")
+			}
+			return &response.GaiaLoginResult{User: *sysUser, Token: token, RedirectURI: req.RedirectURI, State: req.State}, nil
+		}
+		global.GVA_LOG.Warn("DingTalkCodeLogin: 第三方邮箱 API 获取失败，尝试钉钉直接返回邮箱",
+			zap.String("ding_id", dingId), zap.Error(apiErr))
+	}
+
+	// 回退：直接从钉钉用户信息获取邮箱
+	email, _ := dingUser["email"].(string)
+	username, _ := dingUser["nick"].(string)
 	if username == "" {
 		username = email
 	}
@@ -311,7 +398,7 @@ func (e *SystemIntegratedService) findUserByEmail(email string) (*system.SysUser
 	if err := global.GVA_DB.Where("email IN (?)", mailList).Preload(
 		"Authorities").Preload("Authority").First(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf(fmt.Sprintf("邮箱%s尚未开通账号，请联系管理员", email))
+			return nil, fmt.Errorf("邮箱%s尚未开通账号，请联系管理员", email)
 		}
 		return nil, err
 	}
