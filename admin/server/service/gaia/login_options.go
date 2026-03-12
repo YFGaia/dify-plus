@@ -14,10 +14,10 @@ import (
 
 // GetLoginOptions 获取登录方式选项（供登录页展示钉钉/OAuth2 按钮，不暴露密钥）
 func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res response.LoginOptionsResponse) {
-	// 非本地的需要加上admin
+	// 非本地的需要加上 admin（若 Referer 已带 /admin 则不再追加，避免 /admin/admin）
 	integrateDing := e.getIntegratedConfigRaw(gaia.SystemIntegrationDingTalk)
 	frontendOrigin = strings.TrimSuffix(frontendOrigin, "/")
-	if !strings.Contains(frontendOrigin, "localhost") {
+	if !strings.Contains(frontendOrigin, "localhost") && !strings.HasSuffix(frontendOrigin, "/admin") {
 		frontendOrigin = frontendOrigin + "/admin"
 	}
 	if integrateDing.Status && integrateDing.AppKey != "" {
@@ -79,7 +79,7 @@ func (e *SystemIntegratedService) GetDingTalkTestAuthURL(frontendOrigin string) 
 		return "", fmt.Errorf("请先配置 AppKey 与 AppSecret")
 	}
 	frontendOrigin = strings.TrimSuffix(frontendOrigin, "/")
-	if !strings.Contains(frontendOrigin, "localhost") {
+	if !strings.Contains(frontendOrigin, "localhost") && !strings.HasSuffix(frontendOrigin, "/admin") {
 		frontendOrigin = frontendOrigin + "/admin"
 	}
 	callbackURI := frontendOrigin + "/#/loginCallback?provider=dingtalk"
