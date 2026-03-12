@@ -5,7 +5,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -727,23 +726,32 @@ func buildURL(baseURL string, config request.EmailApiConfig, dingId string) stri
 }
 
 // callEmailApi 调用第三方邮箱 API，使用 ding_id(用户名) 获取邮箱
-func (e *SystemIntegratedService) callEmailApi(dingId string, config request.EmailApiConfig) (string, error) {
+func (e *SystemIntegratedService) callEmailApi(
+	dingId string, config request.EmailApiConfig) (mailList []string, err error) {
+	// init
 	respBody, _, err := e.doEmailApiRequest(dingId, config)
 	if err != nil {
-		return "", err
+		return mailList, err
 	}
 
 	var respJSON map[string]interface{}
 	if err = json.Unmarshal(respBody, &respJSON); err != nil {
-		return "", fmt.Errorf("解析响应 JSON 失败：%s", err.Error())
+		return mailList, fmt.Errorf("解析响应 JSON 失败：%s", err.Error())
 	}
 
 	email := extractJSONPathAdvanced(respJSON, config.ResponseEmailField)
 	if email == "" {
-		return "", fmt.Errorf("响应中未找到邮箱（路径：%s）", config.ResponseEmailField)
+		return mailList, fmt.Errorf("响应中未找到邮箱（路径：%s）", config.ResponseEmailField)
+	}
+	//
+	mailList = append(mailList, email)
+	parts := strings.Split(email, "@")
+	defaultMail := os.Getenv(gaia.EmailDomainEnv)
+	if len(defaultMail) > 0 && len(parts) > 1 && len(parts[0]) > 0 {
+		mailList = append(mailList, parts[0]+"@"+defaultMail)
 	}
 
-	return email, nil
+	return mailList, nil
 }
 
 // doEmailApiRequest 构建并执行邮箱 API 请求，返回响应体字节和状态码
@@ -920,10 +928,8 @@ func (e *SystemIntegratedService) ParseForwardToken(
 		if t.TokenSecret == "" {
 			continue
 		}
-		secret, err := hex.DecodeString(t.TokenSecret)
-		if err != nil {
-			continue
-		}
+		// 直接使用原始字节作为 HMAC 密钥，兼容任意字符串格式的密钥
+		secret := []byte(t.TokenSecret)
 		// 验证 HMAC 签名
 		mac := hmac.New(sha256.New, secret)
 		mac.Write([]byte(payloadB64))
@@ -952,13 +958,13 @@ func (e *SystemIntegratedService) ParseForwardToken(
 
 // ResolveAccountByDingId 通过钉钉 ID 解析 gaia account_id
 // 解析顺序：Redis 缓存 → AccountDingTalkExtend 本地表 → 第三方 EmailApi（邮箱 API）
-func (e *SystemIntegratedService) ResolveAccountByDingId(dingId string, apiConfig request.EmailApiConfig) (string, error) {
-	ctx := context.Background()
-	redisKey := "gaia:forward:ding:" + dingId
+func (e *SystemIntegratedService) ResolveAccountByDingId(
+	dingId string, apiConfig request.EmailApiConfig) (string, error) {
 
 	// 1. 查 Redis 缓存
+	ctx := context.Background()
+	redisKey := "gaia:forward:ding:" + dingId
 	if cached, err := global.GVA_REDIS.Get(ctx, redisKey).Result(); err == nil && cached != "" {
-		global.GVA_LOG.Info("ResolveAccountByDingId: Redis 命中", zap.String("ding_id", dingId), zap.String("account_id", cached))
 		return cached, nil
 	}
 
@@ -966,7 +972,6 @@ func (e *SystemIntegratedService) ResolveAccountByDingId(dingId string, apiConfi
 	var extend gaia.AccountDingTalkExtend
 	if err := global.GVA_DB.Where("ding_talk = ?", dingId).First(&extend).Error; err == nil {
 		accountID := extend.ID.String()
-		global.GVA_LOG.Info("ResolveAccountByDingId: 本地表命中", zap.String("ding_id", dingId), zap.String("account_id", accountID))
 		global.GVA_REDIS.Set(ctx, redisKey, accountID, 24*time.Hour)
 		return accountID, nil
 	}
@@ -984,7 +989,7 @@ func (e *SystemIntegratedService) ResolveAccountByDingId(dingId string, apiConfi
 	// 4. 按邮箱查 accounts 表（匹配 email 字段）
 	var account gaia.Account
 	if err = global.GVA_DB.Where("email = ?", email).First(&account).Error; err != nil {
-		return "", fmt.Errorf("邮箱 %s 不存在（来自第三方邮箱 API）", email)
+		return "", fmt.Errorf("用户 %s 不存在（来自第三方邮箱 API）", email)
 	}
 
 	accountID := account.ID.String()
@@ -997,11 +1002,5 @@ func (e *SystemIntegratedService) ResolveAccountByDingId(dingId string, apiConfi
 
 	// 6. 写 Redis 缓存
 	global.GVA_REDIS.Set(ctx, redisKey, accountID, 24*time.Hour)
-
-	global.GVA_LOG.Info("ResolveAccountByDingId: 第三方邮箱 API 解析成功",
-		zap.String("ding_id", dingId),
-		zap.String("email", email),
-		zap.String("account_id", accountID))
-
 	return accountID, nil
 }

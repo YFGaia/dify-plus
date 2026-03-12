@@ -5,6 +5,7 @@ const SystemIntegrationDingTalk = uint(1) // 钉钉集成
 const SystemIntegrationWeiXin = uint(2)   // 微信集成
 const SystemIntegrationFeiShu = uint(3)   // 飞书集成
 const SystemIntegrationOAuth2 = uint(4)   // OAuth2集成
+const BearerLength = 7                    // OAuth2集成
 
 // SystemIntegration 系统集成表
 type SystemIntegration struct {

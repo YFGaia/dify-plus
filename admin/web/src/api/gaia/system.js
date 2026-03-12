@@ -80,10 +80,10 @@ export const createForwardToken = (data) => {
 // @Tags systrm
 // @Summary 删除转发 Token
 // @Security ApiKeyAuth
-// @Router /gaia/system/forward-tokens/:id [delete]
-export const deleteForwardToken = (id, password) => {
+// @Router /gaia/system/forward-tokens/:seq [delete]
+export const deleteForwardToken = (seq, password) => {
     return service({
-        url: `/gaia/system/forward-tokens/${id}`,
+        url: `/gaia/system/forward-tokens/${seq}`,
         method: 'delete',
         data: { password },
     })

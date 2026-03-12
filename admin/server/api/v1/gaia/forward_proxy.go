@@ -23,6 +23,13 @@ type ForwardProxyApi struct{}
 // @Param path path string true "上游路径"
 // @Router /gaia/forward/proxy/{path} [get,post,put,patch,delete]
 func (f *ForwardProxyApi) ForwardProxy(c *gin.Context) {
+	// 打印请求 Header，便于排查转发问题
+	global.GVA_LOG.Info("ForwardProxy 请求头",
+		zap.Any("headers", c.Request.Header),
+		zap.String("method", c.Request.Method),
+		zap.String("path", c.Request.URL.Path),
+	)
+
 	// 1. 读取转发配置
 	integrate := systemIntegratedService.GetIntegratedConfig(gaiaModel.SystemIntegrationDingTalk)
 	configMap, err := systemIntegratedService.ParseDingTalkConfig(integrate.Config)
@@ -33,12 +40,24 @@ func (f *ForwardProxyApi) ForwardProxy(c *gin.Context) {
 
 	// 2. 获取并校验 forwarding token（存在有效 Token 即视为开启转发能力）
 	dingId := c.GetHeader("X-Ding-Id")
+	apiKey := c.GetHeader("X-Api-Key")
 	bearer := c.GetHeader("Authorization")
 	token := c.GetHeader("X-Forward-Token")
-	if len(bearer) > 7 && len(dingId) == 0 {
-		// 从 Token 中验签并提取 ding_id
-		dingId, err = systemIntegratedService.ParseForwardToken(bearer[7:], configMap.ForwardConfig.Tokens)
-		if err != nil {
+
+	if (len(bearer) > gaiaModel.BearerLength || len(apiKey) > gaiaModel.BearerLength) && len(dingId) == 0 {
+		if len(bearer) > gaiaModel.BearerLength {
+			if bearer[:gaiaModel.BearerLength] == "Bearer " {
+				bearer = bearer[gaiaModel.BearerLength:]
+			}
+		} else if len(apiKey) > gaiaModel.BearerLength {
+			if apiKey[:gaiaModel.BearerLength] == "Bearer " {
+				bearer = apiKey[gaiaModel.BearerLength:]
+			} else {
+				bearer = apiKey
+			}
+		}
+
+		if dingId, err = systemIntegratedService.ParseForwardToken(bearer, configMap.ForwardConfig.Tokens); err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": gin.H{"message": "Token 验证失败: " + err.Error()}})
 			return
 		}

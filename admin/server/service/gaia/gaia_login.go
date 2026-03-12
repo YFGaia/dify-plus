@@ -16,7 +16,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 )
 
@@ -241,6 +240,7 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 	}
 
 	var dingUser map[string]interface{}
+	fmt.Println("sssssssss", string(userBody))
 	if err = json.Unmarshal(userBody, &dingUser); err != nil {
 		return nil, fmt.Errorf("解析钉钉用户信息失败")
 	}
@@ -256,7 +256,8 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 		}
 	}
 
-	// 解析邮箱配置
+	// 解析用户名配置
+	var emailList []string
 	var configMap request.DingTalkConfigRequest
 	var emailConfig request.EmailApiConfig
 	if integrate.Config != "" {
@@ -271,13 +272,11 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 		}
 	}
 
-	// 优先通过邮箱 API 获取邮箱（新格式）
+	// 优先通过用户名 API 获取用户名（新格式）
 	if emailConfig.Enabled && dingId != "" {
-		email, apiErr := e.callEmailApi(dingId, emailConfig)
-		if apiErr == nil && email != "" {
-			global.GVA_LOG.Info("DingTalkCodeLogin: 通过第三方邮箱 API 获取邮箱",
-				zap.String("ding_id", dingId), zap.String("email", email))
-			sysUser, findErr := e.findUserByEmail(email)
+		emailList, err = e.callEmailApi(dingId, emailConfig)
+		if err == nil && len(emailList) > 0 {
+			sysUser, findErr := e.findUserByEmail(emailList)
 			if findErr != nil {
 				return nil, findErr
 			}
@@ -288,7 +287,7 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 			return &response.GaiaLoginResult{User: *sysUser, Token: token, RedirectURI: req.RedirectURI, State: req.State}, nil
 		}
 		global.GVA_LOG.Warn("DingTalkCodeLogin: 第三方邮箱 API 获取失败，尝试钉钉直接返回邮箱",
-			zap.String("ding_id", dingId), zap.Error(apiErr))
+			zap.String("ding_id", dingId), zap.Error(err))
 	}
 
 	// 回退：直接从钉钉用户信息获取邮箱
@@ -301,7 +300,7 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 		return nil, fmt.Errorf("钉钉未返回邮箱")
 	}
 
-	sysUser, err := e.findUserByEmail(email)
+	sysUser, err := e.findUserByEmail([]string{email})
 	if err != nil {
 		return nil, err
 	}
@@ -318,7 +317,8 @@ func getStringFromMap(m map[string]interface{}, keys ...string) string {
 			continue
 		}
 		if v, ok := m[k]; ok && v != nil {
-			if s, ok := v.(string); ok {
+			var s string
+			if s, ok = v.(string); ok {
 				return s
 			}
 		}
@@ -384,21 +384,14 @@ func getStringByPathOrKeys(m map[string]interface{}, path string, fallbackKeys .
 	return getStringFromMap(m, fallbackKeys...)
 }
 
-// findUserByEmail 按邮箱查找已存在的用户（需在 gaia.accounts 中有对应记录方可签发 JWT）
-func (e *SystemIntegratedService) findUserByEmail(email string) (*system.SysUser, error) {
-	var u system.SysUser
-	var mailList []string
-	mailList = append(mailList, email)
-	parts := strings.Split(email, "@")
-	defaultMail := os.Getenv(gaia.EmailDomainEnv)
-	if len(defaultMail) > 0 && len(parts) == 2 {
-		mailList = append(mailList, parts[0]+"@"+defaultMail)
-	}
+// findUserByEmail 按username查找已存在的用户（需在 gaia.accounts 中有对应记录方可签发 JWT）
+func (e *SystemIntegratedService) findUserByEmail(mailList []string) (*system.SysUser, error) {
 	// 查询关联邮箱
+	var u system.SysUser
 	if err := global.GVA_DB.Where("email IN (?)", mailList).Preload(
 		"Authorities").Preload("Authority").First(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("邮箱%s尚未开通账号，请联系管理员", email)
+			return nil, fmt.Errorf("%s尚未开通账号，请联系管理员", mailList[0])
 		}
 		return nil, err
 	}
@@ -410,20 +403,19 @@ func (e *SystemIntegratedService) findUserByEmail(email string) (*system.SysUser
 }
 
 // findUserByEmailOrPhone 按邮箱或用户唯一标识（如手机号）查找用户，优先邮箱
-func (e *SystemIntegratedService) findUserByEmailOrPhone(email, userID string) (*system.SysUser, error) {
-	if email != "" {
-		u, err := e.findUserByEmail(email)
-		if err == nil {
+func (e *SystemIntegratedService) findUserByEmailOrPhone(mail, userID string) (u *system.SysUser, err error) {
+	if mail != "" {
+		if u, err = e.findUserByEmail([]string{mail}); err == nil {
 			return u, nil
 		}
 		// 仅当“未开通”时再尝试按 userID(phone) 查，其他错误直接返回
-		if err != nil && !strings.Contains(err.Error(), "尚未开通") {
+		if !strings.Contains(err.Error(), "尚未开通") {
 			return nil, err
 		}
 	}
 	if userID != "" {
-		var u system.SysUser
-		if err := global.GVA_DB.Where("phone = ?", userID).Preload("Authorities").Preload("Authority").First(&u).Error; err != nil {
+		if err = global.GVA_DB.Where("phone = ?", userID).Preload(
+			"Authorities").Preload("Authority").First(&u).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, fmt.Errorf("该用户唯一标识尚未开通后台账号，请联系管理员")
 			}
@@ -432,7 +424,7 @@ func (e *SystemIntegratedService) findUserByEmailOrPhone(email, userID string) (
 		if u.Enable != 1 {
 			return nil, fmt.Errorf("账号已被禁用")
 		}
-		return &u, nil
+		return u, nil
 	}
 	return nil, fmt.Errorf("无法从 OAuth2 用户信息中获取邮箱或用户唯一标识")
 }

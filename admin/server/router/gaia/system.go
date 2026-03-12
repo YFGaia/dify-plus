@@ -21,7 +21,7 @@ func (s *SystemRouter) InitSystemRouter(Router *gin.RouterGroup) {
 		// 转发 Token 管理
 		systemRouter.GET("forward-tokens", systemApi.GetForwardTokens)          // 获取转发 Token 列表
 		systemRouter.POST("forward-tokens", systemApi.CreateForwardToken)       // 新增转发 Token
-		systemRouter.DELETE("forward-tokens/:id", systemApi.DeleteForwardToken) // 删除转发 Token
+		systemRouter.DELETE("forward-tokens/:seq", systemApi.DeleteForwardToken) // 删除转发 Token（按序列号）
 	}
 }
 

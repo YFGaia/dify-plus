@@ -2,9 +2,10 @@ package response
 
 import "time"
 
-// ForwardTokenInfo 转发 Token 列表项（脱敏后的 Token ID）
+// ForwardTokenInfo 转发 Token 列表项（不暴露内部 ID）
 type ForwardTokenInfo struct {
-	ID        string    `json:"id"`
+	ID        string    `json:"id"` // token
+	Seq       int       `json:"seq"` // 1..N 序列号（用于删除）
 	CreatedAt time.Time `json:"created_at"`
 }
 

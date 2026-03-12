@@ -96,17 +96,17 @@
 
           <div class="card-section">
             <div class="section-title">
-              第三方邮箱配置
+              第三方用户名提取配置
             </div>
             <div class="bg-gray-50 dark:bg-slate-800 p-5 border dark:border-slate-700 rounded-lg">
               <!-- 基础配置 -->
               <div class="flex items-center mb-4">
-                <span class="info-label">邮箱详情的URL:</span>
+                <span class="info-label">第三方的URL:</span>
                 <el-input
                   v-if="openEdit"
                   v-model="emailApiConfig.url"
                   class="info-value flex-1"
-                  placeholder="请输入钉钉通过用户名获取邮箱地址的链接地址"
+                  placeholder="请输入钉钉id获取用户名的链接地址"
                 />
                 <span v-else class="info-value">{{ emailApiConfig.url || '未配置' }}</span>
               </div>
@@ -403,9 +403,9 @@
                 </div>
               </div>
 
-              <!-- 邮箱信息提取路径 -->
+              <!-- 用户名路径 -->
               <div class="flex items-center mb-4 mt-4">
-                <span class="info-label">邮箱信息提取:</span>
+                <span class="info-label">用户名路径:</span>
                 <el-input
                   v-if="openEdit"
                   v-model="emailApiConfig.response_email_field"
@@ -453,7 +453,7 @@
             </div>
 
             <el-table :data="forwardTokenList" border size="small" class="w-full">
-              <el-table-column label="Token ID" prop="id" min-width="240">
+              <el-table-column label="token" prop="seq" align="center">
                 <template #default="{ row }">
                   <span class="font-mono text-xs">{{ row.id }}</span>
                 </template>
@@ -465,7 +465,7 @@
               </el-table-column>
               <el-table-column label="操作" width="80" align="center">
                 <template #default="{ row }">
-                  <el-button type="danger" link size="small" @click="openDeleteTokenDialog(row.id)">
+                  <el-button type="danger" link size="small" @click="openDeleteTokenDialog(row.seq)">
                     删除
                   </el-button>
                 </template>
@@ -499,29 +499,47 @@
 
       <!-- 新增 Token 弹窗：前端随机生成 → 保存到后端 → 自动复制到剪贴板并提示 -->
       <el-dialog v-model="showCreateTokenDialog" title="新增转发 Token" width="480px" :close-on-click-modal="false">
-        <div v-if="!newTokenValue">
+        <div v-if="!newPlainToken">
           <p class="text-gray-600 mb-4">
-            点击「生成并保存」将随机生成 Token，保存后会自动复制到系统剪贴板，请粘贴到安全位置保管。Token 仅展示一次。
+            点击「生成并保存」将随机生成 Token，并返回两种凭证：
+            <br />2）Token Secret（用于生成 Authorization: Bearer ... 的签名密钥）
+            <br />两者仅展示一次，请务必复制到安全位置保管。
           </p>
         </div>
         <div v-else>
-          <el-alert type="success" title="Token 已生成并已复制到剪贴板，请妥善保管。此处仅展示一次。" :closable="false" class="mb-4" />
-          <el-input v-model="newTokenValue" readonly>
-            <template #append>
-              <el-button @click="copyToken(newTokenValue)">
-                复制
-              </el-button>
-            </template>
-          </el-input>
+          <el-alert
+            type="success"
+            title="Token 已生成，并已将 Token Secret 复制到剪贴板，请妥善保管（以下两项仅展示一次）。"
+            :closable="false"
+            class="mb-4"
+          />
+          <div class="mb-3">
+            <div class="text-xs text-gray-500 mb-1">明文 Token（可用于 X-Forward-Token）</div>
+            <el-input v-model="newPlainToken" readonly>
+              <template #append>
+                <el-button @click="copyToken(newPlainToken)">
+                  复制 Token
+                </el-button>
+              </template>
+            </el-input>
+          </div>
         </div>
         <template #footer>
-          <el-button v-if="!newTokenValue" @click="showCreateTokenDialog = false">
+          <el-button v-if="!newPlainToken" @click="showCreateTokenDialog = false">
             取消
           </el-button>
-          <el-button v-if="!newTokenValue" type="primary" :loading="creatingToken" @click="handleCreateToken">
+          <el-button v-if="!newPlainToken" type="primary" :loading="creatingToken" @click="handleCreateToken">
             生成并保存
           </el-button>
-          <el-button v-if="newTokenValue" type="primary" @click="showCreateTokenDialog = false; newTokenValue = ''; initForm()">
+          <el-button
+            v-else
+            type="primary"
+            @click="
+              showCreateTokenDialog = false;
+              newPlainToken = '';
+              initForm();
+            "
+          >
             完成
           </el-button>
         </template>
@@ -534,7 +552,7 @@
         </p>
         <el-input v-model="deleteTokenPassword" type="password" placeholder="请输入您的登录密码" show-password />
         <template #footer>
-          <el-button @click="showDeleteTokenDialog = false; deleteTokenPassword = ''; deletingTokenId = ''">
+          <el-button @click="showDeleteTokenDialog = false; deleteTokenPassword = ''; deletingTokenSeq = null">
             取消
           </el-button>
           <el-button type="danger" :loading="deletingToken" @click="handleDeleteToken">
@@ -624,7 +642,7 @@
                         class="ml-auto"
                         @click="selectJsonField(path, item)"
                       >
-                        选为邮箱字段
+                        选为用户名字段
                       </el-button>
                     </div>
                   </div>
@@ -658,9 +676,8 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { QuestionFilled, Loading } from '@element-plus/icons-vue'
 import { useClipboard } from '@vueuse/core'
+const { copy, isSupported } = useClipboard()
 import { getSystemDingTalk, setSystemDingTalk, getForwardTokens, createForwardToken, deleteForwardToken, testEmailApiConfig, getDingTalkTestAuthUrl } from "@/api/gaia/system";
-
-const { copy: copyToClipboard, isSupported: isClipboardSupported } = useClipboard()
 
 defineOptions({
   name: 'IntegratedDingTalk',
@@ -710,13 +727,15 @@ const forwardTokenList = ref([])
 
 // 新增 Token 弹窗（前端随机生成 → 保存 → 复制到剪贴板）
 const showCreateTokenDialog = ref(false)
-const newTokenValue = ref('')
+// 明文 token：可用于 X-Forward-Token 模式
+const newPlainToken = ref('')
+// token_secret：用于生成 Authorization: Bearer ... 的 HMAC 密钥
 const creatingToken = ref(false)
 
 // 删除 Token 弹窗
 const showDeleteTokenDialog = ref(false)
 const deleteTokenPassword = ref('')
-const deletingTokenId = ref('')
+const deletingTokenSeq = ref(null)
 const deletingToken = ref(false)
 
 // 格式化日期
@@ -747,12 +766,13 @@ const generateToken = () => {
 const copyToken = async (token) => {
   if (!token) return
   try {
-    if (isClipboardSupported.value) {
-      await copyToClipboard(token)
+    if (copy) {
+      await copy(token)
     } else {
       await navigator.clipboard.writeText(token)
     }
     ElMessage({ type: 'success', message: 'Token 已复制到剪贴板' })
+    // eslint-disable-next-line no-unused-vars
   } catch (e) {
     ElMessage({ type: 'warning', message: '复制失败，请手动复制' })
   }
@@ -765,8 +785,9 @@ const handleCreateToken = async () => {
   try {
     const res = await createForwardToken({ token })
     if (res.code === 0) {
-      newTokenValue.value = res.data?.token ?? token
-      await copyToken(newTokenValue.value)
+      newPlainToken.value = res.data?.token_secret || ''
+      // 默认复制 token_secret，方便用于 Bearer Token 生成
+      await copyToken(newPlainToken.value)
     } else {
       ElMessage({ type: 'error', message: res.msg || '保存失败' })
     }
@@ -776,8 +797,8 @@ const handleCreateToken = async () => {
 }
 
 // 打开删除 Token 弹窗
-const openDeleteTokenDialog = (id) => {
-  deletingTokenId.value = id
+const openDeleteTokenDialog = (seq) => {
+  deletingTokenSeq.value = seq
   deleteTokenPassword.value = ''
   showDeleteTokenDialog.value = true
 }
@@ -789,13 +810,13 @@ const handleDeleteToken = async () => {
     return
   }
   deletingToken.value = true
-  const res = await deleteForwardToken(deletingTokenId.value, deleteTokenPassword.value)
+  const res = await deleteForwardToken(deletingTokenSeq.value, deleteTokenPassword.value)
   deletingToken.value = false
   if (res.code === 0) {
     ElMessage({ type: 'success', message: '删除成功' })
     showDeleteTokenDialog.value = false
     deleteTokenPassword.value = ''
-    deletingTokenId.value = ''
+    deletingTokenSeq.value = null
     await initForm()
   } else {
     ElMessage({ type: 'error', message: res.msg || '删除失败' })
