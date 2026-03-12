@@ -102,7 +102,7 @@ func (dashboardService *DashboardService) GetAppQuotaRankingData(info gaiaReq.Ge
 		Select("" +
 			"app_id, " +
 			"COUNT(id) as message_num, " +
-			"SUM(CASE WHEN currency = 'RMB' THEN total_price / 7.26 ELSE total_price END) as message_cost").
+			fmt.Sprintf("SUM(CASE WHEN currency = 'RMB' THEN total_price / %f ELSE total_price END) as message_cost", gaia.RmbToUSDRate)).
 		Group("app_id")
 
 	workflowCosts := global.GVA_DB.Table("public.workflow_node_executions").
@@ -111,7 +111,7 @@ func (dashboardService *DashboardService) GetAppQuotaRankingData(info gaiaReq.Ge
 			"COUNT(id) as workflow_num, " +
 			"SUM(CASE " +
 			"  WHEN execution_metadata::json->>'currency' = 'RMB' " +
-			"  THEN CAST((execution_metadata::json->>'total_price') AS NUMERIC) / 7.26 " +
+			fmt.Sprintf("  THEN CAST((execution_metadata::json->>'total_price') AS NUMERIC) / %f ", gaia.RmbToUSDRate) +
 			"  ELSE CAST((execution_metadata::json->>'total_price') AS NUMERIC) " +
 			"END) AS workflow_cost").
 		Where("execution_metadata IS NOT NULL AND execution_metadata != '' AND (execution_metadata::json->>'total_price') IS NOT NULL").

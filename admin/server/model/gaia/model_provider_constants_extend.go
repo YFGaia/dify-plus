@@ -50,6 +50,23 @@ var DefaultAPIBase = map[string]string{
 // CredentialKeyFallback 未知提供商时依次尝试的配置 key
 var CredentialKeyFallback = []string{ConfigKeyOpenaiAPIKey, ConfigKeyAPIKey, ConfigKeyDashScopeAPIKey}
 
+// RmbToUSDRate 人民币兑美元汇率
+const RmbToUSDRate = 7.26
+
+// DefaultImageGenerationPriceUSD 图片生成等按次计费接口的默认单价（USD），无 usage 时使用
+const DefaultImageGenerationPriceUSD = 0.04
+
+// DefaultQuotaFallbackUSDPerToken 未命中定价时的兜底单价：每 token 的 USD 金额（仅做记账占位，约 $0.001/千 token）
+const DefaultQuotaFallbackUSDPerToken = 0.000001
+
+// Gaia 相关 Redis Key（GVA_REDIS / GVA_Dify_REDIS）
+const (
+	RedisKeyGaiaAdminConsoleToken          = "gaia:admin_console_token"
+	RedisKeyGaiaModelPricingPrefix         = "gaia:model_pricing:"
+	RedisKeyGaiaForwardDingPrefix          = "gaia:forward:ding:"
+	RedisKeyModelProviderCredentialsPrefix = "model_provider_credentials:"
+)
+
 // BuiltinModelPricing 内置兜底定价表（当 Dify Console API 未返回该模型定价时使用）。
 // 价格单位：每千 token（与 ModelPricing.Unit=0.001 对应），货币为各模型实际结算货币。
 // 通义/百炼模型官方定价（人民币，参考 https://help.aliyun.com/document_detail/2586379.html）：

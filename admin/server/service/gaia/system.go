@@ -963,7 +963,7 @@ func (e *SystemIntegratedService) ResolveAccountByDingId(
 
 	// 1. 查 Redis 缓存
 	ctx := context.Background()
-	redisKey := "gaia:forward:ding:" + dingId
+	redisKey := gaia.RedisKeyGaiaForwardDingPrefix + dingId
 	if cached, err := global.GVA_REDIS.Get(ctx, redisKey).Result(); err == nil && cached != "" {
 		return cached, nil
 	}

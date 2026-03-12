@@ -34,11 +34,10 @@ import (
 // fetchAdminToken 查询一个管理员用户，生成 Dify Console API 兼容的 JWT。
 // 结果缓存到 Redis，TTL 50 分钟（JWT 有效期内复用，避免频繁生成）。
 func (s *ModelProviderService) fetchAdminToken() (token string, err error) {
-	const cacheKey = "gaia:admin_console_token"
 	ctx := context.Background()
 
 	// 优先从 Redis 读取缓存
-	if cached, e := global.GVA_REDIS.Get(ctx, cacheKey).Result(); e == nil && cached != "" {
+	if cached, e := global.GVA_REDIS.Get(ctx, gaia.RedisKeyGaiaAdminConsoleToken).Result(); e == nil && cached != "" {
 		return cached, nil
 	}
 
@@ -55,7 +54,7 @@ func (s *ModelProviderService) fetchAdminToken() (token string, err error) {
 	}
 
 	// 缓存 50 分钟（JWT 缓冲时间内有效）
-	global.GVA_REDIS.Set(ctx, cacheKey, token, 50*time.Minute)
+	global.GVA_REDIS.Set(ctx, gaia.RedisKeyGaiaAdminConsoleToken, token, 50*time.Minute)
 	return token, nil
 }
 
@@ -64,7 +63,7 @@ func (s *ModelProviderService) fetchAdminToken() (token string, err error) {
 // 响应结构：{"data": [{"models": [{"model": "gpt-4o", "fetch_from": "...", "pricing": {"input":"0.005","output":"0.015","unit":"0.001","currency":"USD"}}]}]}
 func (s *ModelProviderService) fetchModelPricingFromDify(modelName string) (*gaia.ModelPricing, error) {
 	const redisTTL = time.Hour
-	cacheKey := "gaia:model_pricing:" + modelName
+	cacheKey := gaia.RedisKeyGaiaModelPricingPrefix + modelName
 	ctx := context.Background()
 
 	// 先查 Redis
@@ -103,7 +102,7 @@ func (s *ModelProviderService) fetchModelPricingFromDify(modelName string) (*gai
 		return nil, fmt.Errorf("读取定价响应失败：%w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Dify 定价接口返回 %d：%s", resp.StatusCode, string(respBody))
+		return nil, fmt.Errorf("dify 定价接口返回 %d：%s", resp.StatusCode, string(respBody))
 	}
 
 	// 解析响应，批量缓存所有模型的定价
@@ -119,16 +118,16 @@ func (s *ModelProviderService) fetchModelPricingFromDify(modelName string) (*gai
 				continue
 			}
 			p := gaia.ModelPricing{Currency: m.Pricing.Currency}
-			fmt.Sscanf(m.Pricing.Input, "%f", &p.Input)
-			fmt.Sscanf(m.Pricing.Output, "%f", &p.Output)
-			fmt.Sscanf(m.Pricing.Unit, "%f", &p.Unit)
+			_, _ = fmt.Sscanf(m.Pricing.Input, "%f", &p.Input)
+			_, _ = fmt.Sscanf(m.Pricing.Output, "%f", &p.Output)
+			_, _ = fmt.Sscanf(m.Pricing.Unit, "%f", &p.Unit)
 			if p.Unit == 0 {
 				p.Unit = 0.001 // 默认按千 token 计费
 			}
 
 			// 缓存每个模型的定价
 			if b, e := json.Marshal(p); e == nil {
-				global.GVA_REDIS.Set(ctx, "gaia:model_pricing:"+m.Model, string(b), redisTTL)
+				global.GVA_REDIS.Set(ctx, gaia.RedisKeyGaiaModelPricingPrefix+m.Model, string(b), redisTTL)
 			}
 			if m.Model == modelName {
 				cp := p
@@ -145,11 +144,9 @@ func (s *ModelProviderService) fetchModelPricingFromDify(modelName string) (*gai
 	return nil, nil
 }
 
-// rmbToUSD 将人民币金额按固定汇率换算为 USD（与 dashboard.go 保持一致，使用 7.26）。
-const rmbToUSDRate = 7.26
-
+// rmbToUSD 将人民币金额按固定汇率换算为 USD。
 func rmbToUSD(rmb float64) float64 {
-	return rmb / rmbToUSDRate
+	return rmb / gaia.RmbToUSDRate
 }
 
 // resolvePricing 返回模型定价：优先用从 Dify 拉取的 pricing，
@@ -182,13 +179,13 @@ func resolvePricing(pricing *gaia.ModelPricing, modelName string) *gaia.ModelPri
 func calcQuotaDelta(pricing *gaia.ModelPricing, modelName string, promptTokens, completionTokens int) float64 {
 	p := resolvePricing(pricing, modelName)
 	if p == nil {
-		// 兜底：$0.001/千token，仅做记账占位，不应大量触发
+		// 兜底：仅做记账占位，不应大量触发
 		global.GVA_LOG.Warn("calcQuotaDelta 未找到模型定价，使用兜底值",
 			zap.String("model", modelName),
 			zap.Int("prompt_tokens", promptTokens),
 			zap.Int("completion_tokens", completionTokens),
 		)
-		return float64(promptTokens+completionTokens) * 0.001 * 0.001
+		return float64(promptTokens+completionTokens) * gaia.DefaultQuotaFallbackUSDPerToken
 	}
 	inputCost := float64(promptTokens) * p.Input * p.Unit
 	outputPrice := p.Output
@@ -631,7 +628,7 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 	var cached string
 	var firstTenant gaia.Tenants
 	tenantID := firstTenant.GetSuperAdminTenantId()
-	cacheKey := fmt.Sprintf("model_provider_credentials:%s", providerName)
+	cacheKey := gaia.RedisKeyModelProviderCredentialsPrefix + providerName
 	if cached, err = global.GVA_Dify_REDIS.Get(context.Background(), cacheKey).Result(); err == nil {
 		if err = json.Unmarshal([]byte(cached), &creds); err == nil {
 			return creds, nil
@@ -1266,20 +1263,19 @@ func (s *ModelProviderService) ProxyRequest(
 		// 计费：仅成功时扣费
 		if logStatus == "success" {
 			if promptTokens > 0 || completionTokens > 0 {
-			// LLM 类型：按 token 计费
-			pricing, _ := s.fetchModelPricingFromDify(modelOrPath)
-			delta := calcQuotaDelta(pricing, modelOrPath, promptTokens, completionTokens)
+				// LLM 类型：按 token 计费
+				pricing, _ := s.fetchModelPricingFromDify(modelOrPath)
+				delta := calcQuotaDelta(pricing, modelOrPath, promptTokens, completionTokens)
 				deductAccountQuota(userID, delta)
 			} else if isImageOrPerRequestPath(path) {
-				// 图片生成等无 usage 的接口：按请求次数计费（固定 0.04 USD/次，约 1 张图片单价）
-				// 实际价格因模型而异（DALL-E 3 1024x1024 = $0.04），此处为保守默认值，可通过定价表覆盖
+				// 图片生成等无 usage 的接口：按请求次数计费，默认单价见 gaia.DefaultImageGenerationPriceUSD
 				pricing, _ := s.fetchModelPricingFromDify(modelOrPath)
 				var delta float64
 				if pricing != nil && pricing.Input > 0 {
 					// 若定价表有配置，input 字段用作每次请求单价
 					delta = pricing.Input
 				} else {
-					delta = 0.04
+					delta = gaia.DefaultImageGenerationPriceUSD
 				}
 				deductAccountQuota(userID, delta)
 			}
