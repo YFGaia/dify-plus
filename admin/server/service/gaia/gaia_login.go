@@ -135,6 +135,7 @@ func (e *SystemIntegratedService) OAuth2CodeLogin(
 		return nil, fmt.Errorf("无法从 OAuth2 用户信息中获取邮箱或用户唯一标识")
 	}
 
+	fmt.Println("OAuth2CodeLogin", email, username)
 	sysUser, err := e.findUserByEmailOrPhone(email, userID)
 	if err != nil {
 		return nil, err
@@ -187,7 +188,8 @@ func (e *SystemIntegratedService) DingTalkTestCallback(code string) error {
 }
 
 // DingTalkCodeLogin 钉钉 code 换用户并登录（扫码/OAuth2 回调带 code）
-func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLoginReq) (*response.GaiaLoginResult, error) {
+func (e *SystemIntegratedService) DingTalkCodeLogin(
+	req request.GaiaDingTalkLoginReq) (*response.GaiaLoginResult, error) {
 	integrate := e.getIntegratedConfigRaw(gaia.SystemIntegrationDingTalk)
 	if !integrate.Status {
 		return nil, fmt.Errorf("钉钉登录未启用")
@@ -277,6 +279,7 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 	if emailConfig.Enabled && dingId != "" {
 		emailList, err = e.callEmailApi(dingId, emailConfig)
 		if err == nil && len(emailList) > 0 {
+			fmt.Println("钉钉 code 换用户并登录（扫码/OAuth2 回调带 code）", emailList)
 			sysUser, findErr := e.findUserByEmail(emailList)
 			if findErr != nil {
 				return nil, findErr
@@ -301,6 +304,7 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 		return nil, fmt.Errorf("钉钉未返回邮箱")
 	}
 
+	fmt.Println("钉钉 code 换用户并登录第三方邮箱 API 获取失败", email)
 	sysUser, err := e.findUserByEmail([]string{email})
 	if err != nil {
 		return nil, err
@@ -404,7 +408,8 @@ func (e *SystemIntegratedService) findUserByEmail(mailList []string) (*system.Sy
 }
 
 // findUserByEmailOrPhone 按邮箱或用户唯一标识（如手机号）查找用户，优先邮箱
-func (e *SystemIntegratedService) findUserByEmailOrPhone(mail, userID string) (u *system.SysUser, err error) {
+func (e *SystemIntegratedService) findUserByEmailOrPhone(
+	mail, userID string) (u *system.SysUser, err error) {
 	if mail != "" {
 		if u, err = e.findUserByEmail([]string{mail}); err == nil {
 			return u, nil

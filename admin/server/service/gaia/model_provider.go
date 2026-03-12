@@ -398,7 +398,8 @@ func (s *ModelProviderService) getAvailableModelsFromProviderModelCredentials(pr
 		Distinct("model_name").
 		Pluck("model_name", &modelNames).Error
 	if err != nil {
-		global.GVA_LOG.Warn("从 provider_model_credentials 拉取模型列表失败", zap.String("provider", providerName), zap.Error(err))
+		global.GVA_LOG.Warn("从 provider_model_credentials 拉取模型列表失败", zap.String(
+			"provider", providerName), zap.Error(err))
 		return nil, nil
 	}
 	list := make([]gaiaResponse.ModelInfo, 0, len(modelNames))
@@ -456,7 +457,8 @@ func (s *ModelProviderService) GetAvailableModelsFromDify(providerName string) (
 // 兼容两种响应格式：
 // 1) OpenAI: { "data": [ { "id": "..." }, ... ] }
 // 2) 通义: { "success": true, "output": { "models": [ { "model": "...", "name": "..." }, ... ] } }
-func (s *ModelProviderService) fetchOpenAICompatibleModels(client *http.Client, baseURL, apiKey string) ([]gaiaResponse.ModelInfo, error) {
+func (s *ModelProviderService) fetchOpenAICompatibleModels(client *http.Client, baseURL, apiKey string) (
+	[]gaiaResponse.ModelInfo, error) {
 	url := strings.TrimSuffix(baseURL, "/") + "/v1/models"
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -471,7 +473,8 @@ func (s *ModelProviderService) fetchOpenAICompatibleModels(client *http.Client, 
 	defer resp.Body.Close()
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
-		global.GVA_LOG.Warn("拉取模型列表接口非 200", zap.String("url", url), zap.Int("status", resp.StatusCode), zap.String("body", string(body)))
+		global.GVA_LOG.Warn("拉取模型列表接口非 200", zap.String("url", url), zap.Int(
+			"status", resp.StatusCode), zap.String("body", string(body)))
 		return nil, fmt.Errorf("接口返回 %d", resp.StatusCode)
 	}
 
@@ -510,7 +513,8 @@ func (s *ModelProviderService) fetchOpenAICompatibleModels(client *http.Client, 
 
 // fetchGeminiModels 调用 Google Gemini GET /v1beta/models?key=API_KEY，解析 models[]，支持分页。
 // 认证使用 query 参数 key，响应格式：{ "models": [ { "name": "models/xxx", "baseModelId": "xxx", "displayName": "..." } ], "nextPageToken": "..." }
-func (s *ModelProviderService) fetchGeminiModels(client *http.Client, baseURL, apiKey string) ([]gaiaResponse.ModelInfo, error) {
+func (s *ModelProviderService) fetchGeminiModels(client *http.Client, baseURL, apiKey string) (
+	[]gaiaResponse.ModelInfo, error) {
 	baseURL = strings.TrimSuffix(baseURL, "/")
 	all := make([]gaiaResponse.ModelInfo, 0)
 	pageToken := ""
@@ -532,7 +536,9 @@ func (s *ModelProviderService) fetchGeminiModels(client *http.Client, baseURL, a
 		body, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
-			global.GVA_LOG.Warn("拉取 Gemini 模型列表非 200", zap.String("url", baseURL+"/v1beta/models"), zap.Int("status", resp.StatusCode), zap.String("body", string(body)))
+			global.GVA_LOG.Warn("拉取 Gemini 模型列表非 200", zap.String(
+				"url", baseURL+"/v1beta/models"), zap.Int("status", resp.StatusCode), zap.String(
+				"body", string(body)))
 			return nil, fmt.Errorf("接口返回 %d", resp.StatusCode)
 		}
 
@@ -568,7 +574,8 @@ func (s *ModelProviderService) fetchGeminiModels(client *http.Client, baseURL, a
 
 // fetchAzureOpenAIModels 调用 Azure OpenAI GET {endpoint}/openai/models?api-version={version}，解析 data[]。
 // 认证使用 api-key 请求头，响应格式：{ "data": [ { "id": "...", "object": "model" } ] }
-func (s *ModelProviderService) fetchAzureOpenAIModels(client *http.Client, baseURL, apiKey, apiVersion string) ([]gaiaResponse.ModelInfo, error) {
+func (s *ModelProviderService) fetchAzureOpenAIModels(client *http.Client, baseURL, apiKey, apiVersion string) (
+	[]gaiaResponse.ModelInfo, error) {
 	baseURL = strings.TrimSuffix(baseURL, "/")
 	if apiVersion == "" {
 		apiVersion = "2024-08-01-preview" // 默认 API 版本
@@ -590,7 +597,8 @@ func (s *ModelProviderService) fetchAzureOpenAIModels(client *http.Client, baseU
 
 	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
-		global.GVA_LOG.Warn("拉取 Azure OpenAI 模型列表非 200", zap.String("url", url), zap.Int("status", resp.StatusCode), zap.String("body", string(body)))
+		global.GVA_LOG.Warn("拉取 Azure OpenAI 模型列表非 200", zap.String("url", url), zap.Int(
+			"status", resp.StatusCode), zap.String("body", string(body)))
 		return nil, fmt.Errorf("接口返回 %d", resp.StatusCode)
 	}
 
@@ -920,7 +928,7 @@ func (s *ModelProviderService) ProxyChat(userID string, req gaiaRequest.ChatRequ
 
 	defer func() {
 		// 记录日志
-		log := gaia.ModelProxyLog{
+		global.GVA_DB.Create(&gaia.ModelProxyLog{
 			UserId:         userID,
 			ProviderName:   providerName,
 			ModelName:      req.Model,
@@ -929,8 +937,7 @@ func (s *ModelProviderService) ProxyChat(userID string, req gaiaRequest.ChatRequ
 			Status:         status,
 			ErrorMessage:   errorMsg,
 			CreatedAt:      startTime,
-		}
-		global.GVA_DB.Create(&log)
+		})
 	}()
 
 	// 处理流式响应
@@ -938,7 +945,7 @@ func (s *ModelProviderService) ProxyChat(userID string, req gaiaRequest.ChatRequ
 		scanner := bufio.NewScanner(resp.Body)
 		for scanner.Scan() {
 			line := scanner.Text()
-			if _, err := writer.Write([]byte(line + "\n")); err != nil {
+			if _, err = writer.Write([]byte(line + "\n")); err != nil {
 				status = "error"
 				errorMsg = err.Error()
 				return err
@@ -948,14 +955,14 @@ func (s *ModelProviderService) ProxyChat(userID string, req gaiaRequest.ChatRequ
 				flusher.Flush()
 			}
 		}
-		if err := scanner.Err(); err != nil {
+		if err = scanner.Err(); err != nil {
 			status = "error"
 			errorMsg = err.Error()
 			return err
 		}
 	} else {
 		// 非流式响应
-		if _, err := io.Copy(writer, resp.Body); err != nil {
+		if _, err = io.Copy(writer, resp.Body); err != nil {
 			status = "error"
 			errorMsg = err.Error()
 			return err
