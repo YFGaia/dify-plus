@@ -152,27 +152,54 @@ func rmbToUSD(rmb float64) float64 {
 	return rmb / rmbToUSDRate
 }
 
+// resolvePricing 返回模型定价：优先用从 Dify 拉取的 pricing，
+// 其次查内置兜底定价表（BuiltinModelPricing），最后返回 nil。
+func resolvePricing(pricing *gaia.ModelPricing, modelName string) *gaia.ModelPricing {
+	if pricing != nil && pricing.Unit > 0 {
+		return pricing
+	}
+	// 内置定价表精确匹配
+	if p, ok := gaia.BuiltinModelPricing[modelName]; ok {
+		return &p
+	}
+	// 前缀模糊匹配（如 "qwen3.5-plus-xxx" 匹配 "qwen3.5-plus"）
+	lower := strings.ToLower(modelName)
+	for k, p := range gaia.BuiltinModelPricing {
+		if strings.HasPrefix(lower, strings.ToLower(k)) {
+			cp := p
+			return &cp
+		}
+	}
+	return nil
+}
+
 // calcQuotaDelta 根据定价和 token 用量计算本次消耗的配额金额（统一以 USD 计）。
 // Dify pricing 字段语义：input/output 为每「unit」个 token 的价格，unit 通常为 0.001（千分之一），
-// 即 input=0.0014, unit=0.001 表示每千 token 收 $0.0014 × (tokens/1000)。
+// 即 input=0.0014, unit=0.001 表示每千 token ¥0.0014 × (tokens/1000)。
 // 公式：cost = tokens × input × unit（因为 unit=1/1000，等价于 tokens/1000 × input）。
-// 若货币为 RMB，则除以汇率 7.26 换算为 USD，与 account_money_extend.used_quota 存储单位保持一致。
-// 若未找到定价则回退到合理默认值：$0.001/1000 tokens（即每 token $0.000001）。
-func calcQuotaDelta(pricing *gaia.ModelPricing, promptTokens, completionTokens int) float64 {
-	if pricing == nil || pricing.Unit == 0 {
-		// 回退：按 $0.001 / 千token 计费（约 GPT-3.5 量级），避免按每 token 计费导致超额扣费
+// 若货币为 RMB/CNY，则除以汇率 7.26 换算为 USD，与 account_money_extend.used_quota 存储单位保持一致。
+// 若 Dify 未返回定价则查内置兜底表；均未命中时按极小默认值记账，避免多扣。
+func calcQuotaDelta(pricing *gaia.ModelPricing, modelName string, promptTokens, completionTokens int) float64 {
+	p := resolvePricing(pricing, modelName)
+	if p == nil {
+		// 兜底：$0.001/千token，仅做记账占位，不应大量触发
+		global.GVA_LOG.Warn("calcQuotaDelta 未找到模型定价，使用兜底值",
+			zap.String("model", modelName),
+			zap.Int("prompt_tokens", promptTokens),
+			zap.Int("completion_tokens", completionTokens),
+		)
 		return float64(promptTokens+completionTokens) * 0.001 * 0.001
 	}
-	inputCost := float64(promptTokens) * pricing.Input * pricing.Unit
-	outputPrice := pricing.Output
+	inputCost := float64(promptTokens) * p.Input * p.Unit
+	outputPrice := p.Output
 	if outputPrice == 0 {
-		outputPrice = pricing.Input
+		outputPrice = p.Input
 	}
-	outputCost := float64(completionTokens) * outputPrice * pricing.Unit
+	outputCost := float64(completionTokens) * outputPrice * p.Unit
 	total := inputCost + outputCost
 
-	// RMB 定价统一换算为 USD 后再扣费，与 used_quota 存储单位保持一致
-	if strings.EqualFold(pricing.Currency, "RMB") || strings.EqualFold(pricing.Currency, "CNY") {
+	// RMB/CNY 定价统一换算为 USD 后再扣费，与 used_quota 存储单位保持一致
+	if strings.EqualFold(p.Currency, "RMB") || strings.EqualFold(p.Currency, "CNY") {
 		total = rmbToUSD(total)
 	}
 	return total
@@ -1239,9 +1266,9 @@ func (s *ModelProviderService) ProxyRequest(
 		// 计费：仅成功时扣费
 		if logStatus == "success" {
 			if promptTokens > 0 || completionTokens > 0 {
-				// LLM 类型：按 token 计费
-				pricing, _ := s.fetchModelPricingFromDify(modelOrPath)
-				delta := calcQuotaDelta(pricing, promptTokens, completionTokens)
+			// LLM 类型：按 token 计费
+			pricing, _ := s.fetchModelPricingFromDify(modelOrPath)
+			delta := calcQuotaDelta(pricing, modelOrPath, promptTokens, completionTokens)
 				deductAccountQuota(userID, delta)
 			} else if isImageOrPerRequestPath(path) {
 				// 图片生成等无 usage 的接口：按请求次数计费（固定 0.04 USD/次，约 1 张图片单价）

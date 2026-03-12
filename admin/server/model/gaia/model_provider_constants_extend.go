@@ -49,3 +49,34 @@ var DefaultAPIBase = map[string]string{
 
 // CredentialKeyFallback 未知提供商时依次尝试的配置 key
 var CredentialKeyFallback = []string{ConfigKeyOpenaiAPIKey, ConfigKeyAPIKey, ConfigKeyDashScopeAPIKey}
+
+// BuiltinModelPricing 内置兜底定价表（当 Dify Console API 未返回该模型定价时使用）。
+// 价格单位：每千 token（与 ModelPricing.Unit=0.001 对应），货币为各模型实际结算货币。
+// 通义/百炼模型官方定价（人民币，参考 https://help.aliyun.com/document_detail/2586379.html）：
+//   - 输入/输出价格均为「每百万 token」，换算为每千 token 时除以 1000。
+var BuiltinModelPricing = map[string]ModelPricing{
+	// ──── 通义千问 Qwen3 系列（RMB / 百万 token，128K 档） ────
+	"qwen3-235b-a22b":  {Input: 0.4 / 1000, Output: 1.6 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen3-30b-a3b":    {Input: 0.11 / 1000, Output: 0.44 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen3-32b":        {Input: 0.8 / 1000, Output: 3.2 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen3-14b":        {Input: 0.3 / 1000, Output: 1.2 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen3-8b":         {Input: 0.1 / 1000, Output: 0.4 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen3-4b":         {Input: 0.04 / 1000, Output: 0.16 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen3-1.7b":       {Input: 0.02 / 1000, Output: 0.08 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen3-0.6b":       {Input: 0.01 / 1000, Output: 0.04 / 1000, Unit: 0.001, Currency: "RMB"},
+
+	// ──── 通义千问 Qwen3.5 系列（RMB / 百万 token，128K 档） ────
+	"qwen3.5-plus":     {Input: 0.8 / 1000, Output: 4.8 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen3.5-turbo":    {Input: 0.3 / 1000, Output: 1.2 / 1000, Unit: 0.001, Currency: "RMB"},
+
+	// ──── 通义千问 Qwen2.5 系列（RMB / 百万 token） ────
+	"qwen2.5-72b-instruct":   {Input: 4.0 / 1000, Output: 12.0 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen2.5-32b-instruct":   {Input: 3.5 / 1000, Output: 7.0 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen2.5-14b-instruct":   {Input: 2.0 / 1000, Output: 6.0 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen2.5-7b-instruct":    {Input: 1.0 / 1000, Output: 2.0 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen2.5-3b-instruct":    {Input: 0.3 / 1000, Output: 0.6 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen-plus":              {Input: 0.8 / 1000, Output: 2.0 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen-turbo":             {Input: 0.3 / 1000, Output: 0.6 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen-max":               {Input: 40.0 / 1000, Output: 120.0 / 1000, Unit: 0.001, Currency: "RMB"},
+	"qwen-long":              {Input: 0.5 / 1000, Output: 2.0 / 1000, Unit: 0.001, Currency: "RMB"},
+}
