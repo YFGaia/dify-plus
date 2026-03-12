@@ -203,7 +203,8 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 		"code":         req.AuthCode,
 		"grantType":    "authorization_code",
 	})
-	httpReq, err := http.NewRequest("POST", "https://api.dingtalk.com/v1.0/oauth2/userAccessToken", bytes.NewReader(bodyJSON))
+	httpReq, err := http.NewRequest("POST",
+		"https://api.dingtalk.com/v1.0/oauth2/userAccessToken", bytes.NewReader(bodyJSON))
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +218,8 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
-		global.GVA_LOG.Error("钉钉 token 非 200", zap.Int("status", resp.StatusCode), zap.String("body", string(respBody)))
+		global.GVA_LOG.Error("钉钉 token 非 200", zap.Int(
+			"status", resp.StatusCode), zap.String("body", string(respBody)))
 		return nil, fmt.Errorf("钉钉返回错误: %d", resp.StatusCode)
 	}
 
@@ -240,7 +242,6 @@ func (e *SystemIntegratedService) DingTalkCodeLogin(req request.GaiaDingTalkLogi
 	}
 
 	var dingUser map[string]interface{}
-	fmt.Println("sssssssss", string(userBody))
 	if err = json.Unmarshal(userBody, &dingUser); err != nil {
 		return nil, fmt.Errorf("解析钉钉用户信息失败")
 	}

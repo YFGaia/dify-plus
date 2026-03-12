@@ -122,6 +122,13 @@ func proxyWithAccountId(c *gin.Context, accountId string) {
 		zap.Int("body_len", len(body)),
 		zap.String("body_model", bodyModel),
 	)
+
+	// 余额前置检查：余额耗尽时直接拦截，不继续请求上游
+	if quotaErr := modelProviderService.CheckAccountQuota(accountId); quotaErr != nil {
+		c.JSON(http.StatusPaymentRequired, gin.H{"error": gin.H{"message": quotaErr.Error()}})
+		return
+	}
+
 	if err = modelProviderService.ProxyRequest(
 		accountId, path, c.Request.Method, reqHeader, body, c.Writer); err != nil {
 		global.GVA_LOG.Error("代理请求失败", zap.String("account_id", accountId), zap.String("path", path), zap.Error(err))
