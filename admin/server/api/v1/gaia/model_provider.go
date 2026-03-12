@@ -2,13 +2,13 @@ package gaia
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	gaiaReq "github.com/flipped-aurora/gin-vue-admin/server/model/gaia/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
@@ -31,7 +31,7 @@ func (m *ModelProviderApi) GetProviderList(c *gin.Context) {
 	list, err := modelProviderService.GetProviderList()
 	if err != nil {
 		global.GVA_LOG.Error("获取提供商配置列表失败", zap.Error(err))
-		response.FailWithMessage("获取失败: "+err.Error(), c)
+		response.FailWithMessage("获取失败:"+err.Error(), c)
 		return
 	}
 	response.OkWithData(list, c)
@@ -54,20 +54,20 @@ func (m *ModelProviderApi) UpdateProviderConfig(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.FailWithMessage("参数错误: "+err.Error(), c)
+		response.FailWithMessage("参数错误:"+err.Error(), c)
 		return
 	}
 
 	if err := modelProviderService.UpdateProviderConfig(req.ProviderName, req.Enabled, req.Models); err != nil {
 		global.GVA_LOG.Error("更新提供商配置失败", zap.String("provider", req.ProviderName), zap.Error(err))
-		response.FailWithMessage("更新失败: "+err.Error(), c)
+		response.FailWithMessage("更新失败:"+err.Error(), c)
 		return
 	}
 
 	response.OkWithMessage("更新成功", c)
 }
 
-// GetModels 获取开启的模型列表（OpenAI格式）
+// GetModels 获取开启的模型列表（OpenAI 格式，供第三方兼容调用；成功时返回裸 JSON，错误时与项目统一使用 response）。
 // @Tags ModelProvider
 // @Summary 获取开启的模型列表
 // @Security ApiKeyAuth
@@ -79,14 +79,9 @@ func (m *ModelProviderApi) GetModels(c *gin.Context) {
 	models, err := modelProviderService.GetEnabledModels()
 	if err != nil {
 		global.GVA_LOG.Error("获取模型列表失败", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": gin.H{
-				"message": "获取模型列表失败: " + err.Error(),
-			},
-		})
+		response.FailWithMessage("获取失败:"+err.Error(), c)
 		return
 	}
-
 	c.JSON(http.StatusOK, models)
 }
 
@@ -161,17 +156,15 @@ func (m *ModelProviderApi) Proxy(c *gin.Context) {
 func (m *ModelProviderApi) GetAvailableModels(c *gin.Context) {
 	providerName := c.Query("provider_name")
 	if providerName == "" {
-		response.FailWithMessage("参数错误: provider_name不能为空", c)
+		response.FailWithMessage("参数错误:provider_name不能为空", c)
 		return
 	}
-
 	models, err := modelProviderService.GetAvailableModelsFromDify(providerName)
 	if err != nil {
 		global.GVA_LOG.Error("获取可用模型失败", zap.String("provider", providerName), zap.Error(err))
-		response.FailWithMessage("获取失败: "+err.Error(), c)
+		response.FailWithMessage("获取失败:"+err.Error(), c)
 		return
 	}
-
 	response.OkWithData(models, c)
 }
 
@@ -187,14 +180,13 @@ func (m *ModelProviderApi) GetAvailableModels(c *gin.Context) {
 func (m *ModelProviderApi) TestProviderCredentials(c *gin.Context) {
 	providerName := c.Query("provider_name")
 	if providerName == "" {
-		response.FailWithMessage("参数错误: provider_name不能为空", c)
+		response.FailWithMessage("参数错误:provider_name不能为空", c)
 		return
 	}
-
 	creds, err := modelProviderService.GetDifyProviderCredentials(providerName)
 	if err != nil {
 		global.GVA_LOG.Error("获取提供商凭证失败", zap.String("provider", providerName), zap.Error(err))
-		response.FailWithMessage("获取凭证失败: "+err.Error(), c)
+		response.FailWithMessage("获取凭证失败:"+err.Error(), c)
 		return
 	}
 
@@ -215,7 +207,7 @@ func (m *ModelProviderApi) TestProviderCredentials(c *gin.Context) {
 	response.OkWithData(result, c)
 }
 
-// GetProxyLogs 获取代理日志
+// GetProxyLogs 获取代理日志（分页）
 // @Tags ModelProvider
 // @Summary 获取代理日志
 // @Security ApiKeyAuth
@@ -223,54 +215,30 @@ func (m *ModelProviderApi) TestProviderCredentials(c *gin.Context) {
 // @Produce application/json
 // @Param page query int false "页码"
 // @Param page_size query int false "每页数量"
-// @Success 200 {object} response.Response{data=map[string]interface{},msg=string} "获取成功"
+// @Success 200 {object} response.Response{data=response.PageResult,msg=string} "获取成功"
 // @Router /gaia/model-provider/logs [get]
 func (m *ModelProviderApi) GetProxyLogs(c *gin.Context) {
-	page := c.DefaultQuery("page", "1")
-	pageSize := c.DefaultQuery("page_size", "20")
-
-	var pageInt, pageSizeInt int
-	if _, err := fmt.Sscanf(page, "%d", &pageInt); err != nil {
-		pageInt = 1
-	}
-	if _, err := fmt.Sscanf(pageSize, "%d", &pageSizeInt); err != nil {
-		pageSizeInt = 20
-	}
-
-	if pageInt < 1 {
-		pageInt = 1
-	}
-	if pageSizeInt < 1 || pageSizeInt > 100 {
-		pageSizeInt = 20
-	}
-
-	var logs []map[string]interface{}
-	var total int64
-
-	db := global.GVA_DB.Table("model_proxy_log")
-
-	// 获取总数
-	if err := db.Count(&total).Error; err != nil {
-		global.GVA_LOG.Error("获取日志总数失败", zap.Error(err))
-		response.FailWithMessage("获取失败: "+err.Error(), c)
+	var req gaiaReq.GetProxyLogsReq
+	if err := c.ShouldBindQuery(&req); err != nil {
+		response.FailWithMessage("参数错误:"+err.Error(), c)
 		return
 	}
-
-	// 分页查询
-	offset := (pageInt - 1) * pageSizeInt
-	if err := db.Order("created_at DESC").Limit(pageSizeInt).Offset(
-		offset).Find(&logs).Error; err != nil {
-		global.GVA_LOG.Error("获取日志列表失败", zap.Error(err))
-		response.FailWithMessage("获取失败: "+err.Error(), c)
+	if req.Page < 1 {
+		req.Page = 1
+	}
+	if req.PageSize < 1 || req.PageSize > 100 {
+		req.PageSize = 20
+	}
+	list, total, err := modelProviderService.GetProxyLogs(req)
+	if err != nil {
+		global.GVA_LOG.Error("获取代理日志失败", zap.Error(err))
+		response.FailWithMessage("获取失败:"+err.Error(), c)
 		return
 	}
-
-	result := map[string]interface{}{
-		"list":      logs,
-		"total":     total,
-		"page":      pageInt,
-		"page_size": pageSizeInt,
-	}
-
-	response.OkWithData(result, c)
+	response.OkWithDetailed(response.PageResult{
+		List:     list,
+		Total:    total,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}, "获取成功", c)
 }

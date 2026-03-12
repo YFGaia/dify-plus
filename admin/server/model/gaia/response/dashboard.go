@@ -1,5 +1,29 @@
 package response
 
+// AppQuotaRankingRow 应用配额排名查询单行（仅用于 service 层 GORM 查询扫描）
+type AppQuotaRankingRow struct {
+	AppID        string  `gorm:"column:app_id"`
+	TotalCost    float64 `gorm:"column:total_cost"`
+	MessageCost  float64 `gorm:"column:message_cost"`
+	WorkflowCost float64 `gorm:"column:workflow_cost"`
+	RecordNum    float64 `gorm:"column:record_num"`
+}
+
+// AppQuotaRankingCache 应用配额排名缓存结构（List + Total）
+type AppQuotaRankingCache struct {
+	List  []GetAppQuotaRankingDataRes
+	Total int64
+}
+
+// AiImageQuotaRankingRow AI 图片使用量排名查询单行（仅用于 service 层 GORM 查询扫描）
+type AiImageQuotaRankingRow struct {
+	Address   string  `gorm:"column:address"`
+	Path      string  `gorm:"column:path"`
+	TotalCost float64 `gorm:"column:total_cost"`
+	RecordNum int     `gorm:"column:record_num"`
+	Model     string  `gorm:"column:model"`
+}
+
 // GetAccountQuotaRankingDataRes 获取账户配额排名数据的响应结构
 type GetAccountQuotaRankingDataRes struct {
 	Ranking    int     `json:"ranking"`     // 排名

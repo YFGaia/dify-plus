@@ -19,7 +19,8 @@ import (
 type DashboardService struct{}
 
 // GetAccountQuotaRankingData 分页获取【账号】额度排名列表
-func (dashboardService *DashboardService) GetAccountQuotaRankingData(info gaiaReq.GetAccountQuotaRankingDataReq) (list []response.GetAccountQuotaRankingDataRes, total int64, err error) {
+func (s *DashboardService) GetAccountQuotaRankingData(info gaiaReq.GetAccountQuotaRankingDataReq) (
+	list []response.GetAccountQuotaRankingDataRes, total int64, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 
@@ -79,15 +80,13 @@ func (dashboardService *DashboardService) GetAccountQuotaRankingData(info gaiaRe
 }
 
 // GetAppQuotaRankingData 分页获取【应用】配额排名数据
-func (dashboardService *DashboardService) GetAppQuotaRankingData(info gaiaReq.GetAppQuotaRankingDataReq) (list []response.GetAppQuotaRankingDataRes, total int64, err error) {
+func (s *DashboardService) GetAppQuotaRankingData(info gaiaReq.GetAppQuotaRankingDataReq) (
+	list []response.GetAppQuotaRankingDataRes, total int64, err error) {
 
 	cacheKey := fmt.Sprintf("app_token_quota_ranking:%d:%d", info.Page, info.PageSize)
-	var cachedResult struct {
-		List  []response.GetAppQuotaRankingDataRes
-		Total int64
-	}
+	var cachedResult response.AppQuotaRankingCache
 
-	if found, err := dashboardService.getCachedResult(cacheKey, &cachedResult); err == nil && found {
+	if found, err := s.getCachedResult(cacheKey, &cachedResult); err == nil && found {
 		return cachedResult.List, cachedResult.Total, nil
 	}
 
@@ -140,13 +139,7 @@ func (dashboardService *DashboardService) GetAppQuotaRankingData(info gaiaReq.Ge
 	}
 
 	// 执行查询
-	var results []struct {
-		AppID        string  `gorm:"column:app_id"`
-		TotalCost    float64 `gorm:"column:total_cost"`
-		MessageCost  float64 `gorm:"column:message_cost"`
-		WorkflowCost float64 `gorm:"column:workflow_cost"`
-		RecordNum    float64 `gorm:"column:record_num"`
-	}
+	var results []response.AppQuotaRankingRow
 
 	err = query.Find(&results).Error
 	if err != nil {
@@ -269,12 +262,8 @@ func (dashboardService *DashboardService) GetAppQuotaRankingData(info gaiaReq.Ge
 	}
 
 	// 在返回结果之前，缓存结果
-	result := struct {
-		List  []response.GetAppQuotaRankingDataRes
-		Total int64
-	}{list, total}
-
-	if err := dashboardService.cacheResult(cacheKey, result, 24*time.Hour); err != nil {
+	cachePayload := response.AppQuotaRankingCache{List: list, Total: total}
+	if err := s.cacheResult(cacheKey, cachePayload, 24*time.Hour); err != nil {
 		global.GVA_LOG.Error("Failed to cache result", zap.Error(err))
 	}
 
@@ -282,7 +271,8 @@ func (dashboardService *DashboardService) GetAppQuotaRankingData(info gaiaReq.Ge
 }
 
 // GetAppTokenQuotaRankingData 分页获取【应用密钥】配额排名数据列表
-func (dashboardService *DashboardService) GetAppTokenQuotaRankingData(info gaiaReq.GetAppTokenQuotaRankingDataReq) (list []response.GetAppTokenQuotaRankingDataRes, total int64, err error) {
+func (s *DashboardService) GetAppTokenQuotaRankingData(info gaiaReq.GetAppTokenQuotaRankingDataReq) (
+	list []response.GetAppTokenQuotaRankingDataRes, total int64, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 
@@ -365,9 +355,11 @@ func (dashboardService *DashboardService) GetAppTokenQuotaRankingData(info gaiaR
 }
 
 // GetAppTokenDailyQuotaData 获取每天密钥花费数据列表
-func (dashboardService *DashboardService) GetAppTokenDailyQuotaData(info gaiaReq.GetAppTokenDailyQuotaDataReq) (list []response.GetAppTokenDailyQuotaDataRes, err error) {
+func (s *DashboardService) GetAppTokenDailyQuotaData(info gaiaReq.GetAppTokenDailyQuotaDataReq) (
+	list []response.GetAppTokenDailyQuotaDataRes, err error) {
 
-	db := global.GVA_DB.Select("DATE(stat_at) as stat_at, SUM(day_used_quota) as day_used_quota").Model(&gaia.ApiTokenMoneyDailyStatExtend{}).Order("stat_at desc").Group("DATE(stat_at)")
+	db := global.GVA_DB.Select("DATE(stat_at) as stat_at, SUM(day_used_quota) as day_used_quota").Model(
+		&gaia.ApiTokenMoneyDailyStatExtend{}).Order("stat_at desc").Group("DATE(stat_at)")
 	var apiTokenMoneyDailyStatExtends []gaia.ApiTokenMoneyDailyStatExtend
 
 	if info.AppId != "" {
@@ -397,7 +389,8 @@ func (dashboardService *DashboardService) GetAppTokenDailyQuotaData(info gaiaReq
 }
 
 // GetAiImageQuotaRankingData 获取【AI图片】使用量排名数据列表
-func (dashboardService *DashboardService) GetAiImageQuotaRankingData(info gaiaReq.GetAiImageQuotaRankingDataReq) (list []response.GetAiImageQuotaRankingRes, err error) {
+func (s *DashboardService) GetAiImageQuotaRankingData(info gaiaReq.GetAiImageQuotaRankingDataReq) (
+	list []response.GetAiImageQuotaRankingRes, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 
@@ -427,13 +420,7 @@ func (dashboardService *DashboardService) GetAiImageQuotaRankingData(info gaiaRe
 		db = db.Limit(limit).Offset(offset)
 	}
 
-	var results []struct {
-		Address   string
-		Path      string
-		TotalCost float64
-		RecordNum int
-		Model     string
-	}
+	var results []response.AiImageQuotaRankingRow
 
 	err = db.Find(&results).Error
 	if err != nil {
@@ -456,7 +443,7 @@ func (dashboardService *DashboardService) GetAiImageQuotaRankingData(info gaiaRe
 	return list, nil
 }
 
-func (dashboardService *DashboardService) cacheResult(key string, data interface{}, expiration time.Duration) error {
+func (s *DashboardService) cacheResult(key string, data interface{}, expiration time.Duration) error {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -465,7 +452,7 @@ func (dashboardService *DashboardService) cacheResult(key string, data interface
 	return global.GVA_REDIS.Set(context.Background(), key, jsonData, expiration).Err()
 }
 
-func (dashboardService *DashboardService) getCachedResult(key string, result interface{}) (bool, error) {
+func (s *DashboardService) getCachedResult(key string, result interface{}) (bool, error) {
 	data, err := global.GVA_REDIS.Get(context.Background(), key).Bytes()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {

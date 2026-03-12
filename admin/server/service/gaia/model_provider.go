@@ -1346,6 +1346,28 @@ func (s *ModelProviderService) ProxyRequest(
 	return err
 }
 
+// GetProxyLogs 分页查询代理日志（model_proxy_log 表）。
+func (s *ModelProviderService) GetProxyLogs(info gaiaRequest.GetProxyLogsReq) (list []map[string]interface{}, total int64, err error) {
+	page, pageSize := info.Page, info.PageSize
+	if page < 1 {
+		page = 1
+	}
+	if pageSize < 1 || pageSize > 100 {
+		pageSize = 20
+	}
+	db := global.GVA_DB.Table("model_proxy_log")
+	if err = db.Count(&total).Error; err != nil {
+		err = fmt.Errorf("查询日志总数失败：%w", err)
+		return
+	}
+	offset := (page - 1) * pageSize
+	if err = db.Order("created_at DESC").Limit(pageSize).Offset(offset).Find(&list).Error; err != nil {
+		err = fmt.Errorf("查询日志列表失败：%w", err)
+		return
+	}
+	return list, total, nil
+}
+
 // isProviderEnabled 检查该提供商是否已启用（未校验具体模型列表，用于通用代理）。
 func (s *ModelProviderService) isProviderEnabled(providerName string) bool {
 	var config gaia.ModelProviderConfig
