@@ -1679,9 +1679,11 @@ services:
 
   # Extend - admin-server
   admin-server:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.12.1.fex.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.12.1.fix.3.1
     restart: always
     environment:
+      # Use the shared environment variables.
+      <<: *shared-api-worker-env
       # JWT signing key must match API's SECRET_KEY for token compatibility
       JWT_SIGNING_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
       SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}

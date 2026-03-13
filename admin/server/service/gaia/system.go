@@ -747,7 +747,7 @@ func (e *SystemIntegratedService) callEmailApi(
 	mailList = append(mailList, email)
 	parts := strings.Split(email, "@")
 	defaultMail := os.Getenv(gaia.EmailDomainEnv)
-	if len(defaultMail) > 0 && len(parts) > 1 && len(parts[0]) > 0 {
+	if len(defaultMail) > 1 && len(parts) > 1 && len(parts[0]) > 0 {
 		mailList = append(mailList, parts[0]+"@"+defaultMail)
 	}
 
