@@ -363,8 +363,8 @@ func (s *BatchWorkflowService) callDifyAPI(
 	}
 	// Extend End: 添加CSRF token支持
 
-	// 发送请求
-	client := &http.Client{}
+	// 发送请求（设置超时，避免 Dify 卡住时 goroutine 与连接长期占用不释放）
+	client := &http.Client{Timeout: 5 * time.Minute}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
