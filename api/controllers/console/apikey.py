@@ -170,7 +170,8 @@ class BaseApiKeyListResource(Resource):
     @marshal_with(api_key_fields)
     def put(self, resource_id):
         resource_id = str(resource_id)
-        _get_resource(resource_id, current_user.current_tenant_id, self.resource_model)
+        current_user, current_tenant_id = current_account_with_tenant()
+        _get_resource(resource_id, current_tenant_id, self.resource_model)
 
         if not current_user.is_admin_or_owner:
             raise Forbidden()
@@ -198,7 +199,7 @@ class BaseApiKeyListResource(Resource):
         )
 
         if key is None:
-            flask_restful.abort(404, message="API密钥未找到")
+            flask_restx.abort(404, message="API密钥未找到")
 
         data = request.get_json()
 
@@ -227,7 +228,7 @@ class BaseApiKeyListResource(Resource):
             merged_data = {**api_token.__dict__, **api_token_money_extend.__dict__}
             return merged_data, 200
         else:
-            flask_restful.abort(500, message="更新API密钥时发生错误")
+            flask_restx.abort(500, message="更新API密钥时发生错误")
     # --------------------- 二开部分End - 密钥额度限制 ---------------------
 
 
