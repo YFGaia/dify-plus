@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React from 'react'
+import * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import ParamItem from '.'
 
@@ -27,7 +27,7 @@ const DayLimitItemExtend: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const handleParamChange = (key: string, value: number) => {
-    let notOutRangeValue = parseFloat(value.toFixed(2))
+    let notOutRangeValue = Number.parseFloat(value.toFixed(2))
     notOutRangeValue = Math.max(VALUE_LIMIT.min, notOutRangeValue)
     notOutRangeValue = Math.min(VALUE_LIMIT.max, notOutRangeValue)
     onChange(key, notOutRangeValue)
@@ -36,8 +36,8 @@ const DayLimitItemExtend: FC<Props> = ({
     <ParamItem
       className={className}
       id={key}
-      name={t('extend.apiKeyModal.dayLimitItemName')}
-      tip={t('extend.apiKeyModal.noLimitTips') as string}
+      name={t('apiKeyModal.dayLimitItemName', { ns: 'extend' })}
+      tip={t('apiKeyModal.noLimitTips', { ns: 'extend' }) as string}
       {...VALUE_LIMIT}
       value={value}
       enable={enable}

@@ -55,3 +55,17 @@
 .copyIcon.copied {
     background-image: url(./assets/copied.svg);
 }
+
+/* 二开部分Begin - 密钥额度限制 */
+.editIcon {
+    background-image: url(./assets/edit.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.editIcon:hover {
+    background-image: url(./assets/edit-hover.svg);
+    background-position: center;
+    background-repeat: no-repeat;
+}
+/* 二开部分End - 密钥额度限制 */
