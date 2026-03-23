@@ -943,8 +943,6 @@ services:
       interval: 1s
       timeout: 3s
       retries: 60
-    ports:
-      - 5432:5432
 
   # The mysql database.
   db_mysql:
@@ -993,8 +991,6 @@ services:
           "CMD-SHELL",
           "redis-cli -a ${REDIS_PASSWORD:-difyai123456} ping | grep -q PONG",
         ]
-    ports:
-      - 6379:6379
 
   # The DifySandbox
   sandbox:
