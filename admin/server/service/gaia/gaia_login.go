@@ -16,6 +16,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -393,6 +394,13 @@ func getStringByPathOrKeys(m map[string]interface{}, path string, fallbackKeys .
 func (e *SystemIntegratedService) findUserByEmail(mailList []string) (*system.SysUser, error) {
 	// 查询关联邮箱
 	var u system.SysUser
+	if len(mailList) == 1 {
+		parts := strings.Split(mailList[0], "@")
+		defaultMail := os.Getenv(gaia.EmailDomainEnv)
+		if len(defaultMail) > 1 && len(parts) > 1 && len(parts[0]) > 0 {
+			mailList = append(mailList, parts[0]+"@"+defaultMail)
+		}
+	}
 	if err := global.GVA_DB.Where("email IN (?)", mailList).Preload(
 		"Authorities").Preload("Authority").First(&u).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
