@@ -3,20 +3,6 @@
 server {
     listen ${NGINX_PORT};
     server_name ${NGINX_SERVER_NAME};
-    # 管理中心反向代理配置
-    location = /admin {
-      return 301 /admin/;
-    }
-    location /admin/ {
-      proxy_pass http://admin-web:8081/;
-      add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
-      include proxy.conf;
-    }
-    location /admin/api/ {
-      rewrite ^/admin/api/(.*)$ /$1 break;
-      proxy_pass http://admin-server:8888/admin/api/;
-      include proxy.conf;
-    }
 
     location /console/api {
       proxy_pass http://api:5001;
@@ -63,7 +49,7 @@ server {
       proxy_pass http://api:5001;
       include proxy.conf;
     }
-
+    
     # placeholder for acme challenge location
     ${ACME_CHALLENGE_LOCATION}
 
