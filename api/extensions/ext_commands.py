@@ -13,7 +13,8 @@ def init_app(app: DifyApp):
         convert_to_agent_apps,
         create_tenant,
         delete_archived_workflow_runs,
-        extend_db,
+        export_app_messages,  # upstream 1.13.2 新增
+        extend_db,  # extend: 二开数据库迁移
         extract_plugins,
         extract_unique_plugins,
         file_usage,
@@ -67,7 +68,9 @@ def init_app(app: DifyApp):
         restore_workflow_runs,
         clean_workflow_runs,
         clean_expired_messages,
-        extend_db,
+        export_app_messages,  # upstream 1.13.2 新增
+        extend_db,  # extend: 二开数据库迁移
     ]
     for cmd in cmds_to_register:
         app.cli.add_command(cmd)
+
