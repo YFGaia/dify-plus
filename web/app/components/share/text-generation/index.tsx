@@ -180,12 +180,19 @@ const TextGeneration: FC<IMainProps> = ({
   const batchJobsLimit = 5 // 每页5个任务
   const [totalBatchJobs, setTotalBatchJobs] = useState(0)
   const [isLoadingBatchJobs, setIsLoadingBatchJobs] = useState(false)
+  const lastRefreshTimeRef = useRef(0) // 记录上次刷新时间，避免频繁刷新
 
   // 从后端获取批量工作流列表
-  const loadBatchWorkflows = useCallback(async () => {
+  const loadBatchWorkflows = useCallback(async (force = false) => {
     if (!appId || currentTab !== 'batch')
       return
 
+    // 防止过于频繁的刷新（至少间隔 1 秒）
+    const now = Date.now()
+    if (!force && now - lastRefreshTimeRef.current < 1000)
+      return
+
+    lastRefreshTimeRef.current = now
     setIsLoadingBatchJobs(true)
     try {
       const result = await fetchBatchWorkflowListApi(installedAppInfo?.id, currentPage, batchJobsLimit)
@@ -218,25 +225,9 @@ const TextGeneration: FC<IMainProps> = ({
     loadBatchWorkflows()
   }, [loadBatchWorkflows])
 
-  // 自动刷新批量工作流列表（每3秒）
-  useEffect(() => {
-    if (currentTab !== 'batch' || batchJobs.length === 0)
-      return
+  // 注意：不再需要自动刷新逻辑，因为每个批量任务现在自己管理进度刷新
+  // 每个 BatchProgress 组件会独立轮询自己的进度（每 3 秒）
 
-    // 检查是否有进行中的任务
-    const hasActiveJobs = batchJobs.some(job =>
-      job.status === 'pending' || job.status === 'processing',
-    )
-
-    if (!hasActiveJobs)
-      return
-
-    const refreshInterval = setInterval(() => {
-      loadBatchWorkflows()
-    }, 3000) // 每3秒刷新一次
-
-    return () => clearInterval(refreshInterval)
-  }, [currentTab, batchJobs, loadBatchWorkflows])
 
   // 计算分页数据 - 现在数据已经是从后端分页获取的，不需要再切片
   const paginatedBatchJobs = batchJobs
@@ -472,6 +463,28 @@ const TextGeneration: FC<IMainProps> = ({
     loadBatchWorkflows()
     console.log('批量任务重试成功，已刷新列表')
   }
+
+  // 处理单个任务进度更新（只更新列表中的对应项，不刷新整个列表）
+  const handleJobUpdate = useCallback((jobId: string, updatedData: { status: string, processedRows: number, error?: string }) => {
+    setBatchJobs(prevJobs => {
+      // 检查是否真的有变化
+      const job = prevJobs.find(j => j.id === jobId)
+      if (!job)
+        return prevJobs
+
+      // 如果没有变化，不更新
+      if (job.status === updatedData.status && job.processedRows === updatedData.processedRows && job.error === updatedData.error)
+        return prevJobs
+
+      // 有变化才更新
+      return prevJobs.map(job =>
+        job.id === jobId
+          ? { ...job, ...updatedData }
+          : job
+      )
+    })
+  }, [])
+
   // Extend: Stop Batch import
 
   const handleCompleted = (completionRes: string, taskId?: number, isSuccess?: boolean) => {
@@ -662,6 +675,7 @@ const TextGeneration: FC<IMainProps> = ({
                         jobData={job}
                         onDownload={() => handleBatchDownload(job.id)}
                         onRetrySuccess={handleRetrySuccess}
+                        onJobUpdate={(updatedData) => handleJobUpdate(job.id, updatedData)}
                       />
                     ))
                   ) : (

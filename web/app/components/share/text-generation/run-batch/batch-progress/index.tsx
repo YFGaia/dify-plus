@@ -11,7 +11,7 @@ import {
   RiRefreshLine,
   RiStopLine,
 } from '@remixicon/react'
-import { resumeBatchApi, retryFailedTasksApi, stopBatchApi } from '@/service/web-extend' // extend: 批量运行工单
+import { fetchProgressApi, resumeBatchApi, retryFailedTasksApi, stopBatchApi } from '@/service/web-extend' // extend: 批量运行工单
 import type { BatchStatus } from '@/utils/batch-progress-manager' // extend: 批量运行工单
 import ActionButton from '@/app/components/base/action-button'
 
@@ -32,6 +32,7 @@ export type BatchProgressProps = {
   }
   onDownload: () => void
   onRetrySuccess?: () => void
+  onJobUpdate?: (jobData: { status: string, processedRows: number, error?: string }) => void // 新增：任务更新回调
 }
 
 const BatchProgress: FC<BatchProgressProps> = ({
@@ -41,10 +42,62 @@ const BatchProgress: FC<BatchProgressProps> = ({
   jobData,
   onDownload,
   onRetrySuccess,
+  onJobUpdate,
 }) => {
   const { t } = useTranslation()
 
   const [isLoading, setIsLoading] = useState(false)
+  // 本地进度状态，用于独立刷新
+  const [localProgress, setLocalProgress] = useState({
+    status: jobData.status,
+    processedRows: jobData.processedRows,
+    totalRows: jobData.totalRows,
+    error: jobData.error,
+  })
+
+  // 自动刷新单个任务的进度（每 3 秒）
+  useEffect(() => {
+    // 只在任务进行中时刷新
+    if (localProgress.status !== 'pending' && localProgress.status !== 'processing')
+      return
+
+    const refreshInterval = setInterval(async () => {
+      try {
+        const progress = await fetchProgressApi(batchId)
+        if (progress) {
+          const newStatus = progress.status as string
+          const newProcessedRows = progress.processed_rows as number
+          const newError = progress.error as string | undefined
+
+          // 只有当数据有变化时才更新
+          if (
+            newStatus !== localProgress.status
+            || newProcessedRows !== localProgress.processedRows
+            || newError !== localProgress.error
+          ) {
+            const updatedProgress = {
+              status: newStatus,
+              processedRows: newProcessedRows,
+              totalRows: progress.total_rows as number,
+              error: newError,
+            }
+            setLocalProgress(updatedProgress)
+            // 通知父组件数据已更新（用于列表级别的状态同步）
+            onJobUpdate?.({
+              status: newStatus,
+              processedRows: newProcessedRows,
+              error: newError,
+            })
+          }
+        }
+      }
+      catch (error) {
+        console.error('Failed to fetch progress:', error)
+      }
+    }, 3000)
+
+    return () => clearInterval(refreshInterval)
+  }, [batchId, localProgress.status, localProgress.processedRows, localProgress.error, onJobUpdate])
 
   // 停止批量处理
   const handleStop = async () => {
@@ -160,8 +213,8 @@ const BatchProgress: FC<BatchProgressProps> = ({
   })
 
   // 计算进度
-  const progress = jobData.totalRows > 0 ? (jobData.processedRows / jobData.totalRows) * 100 : 0
-  const status = jobData.status as BatchStatus
+  const progress = localProgress.totalRows > 0 ? (localProgress.processedRows / localProgress.totalRows) * 100 : 0
+  const status = localProgress.status as BatchStatus
   const failed_count = 0 // 从列表API没有这个字段，如果需要可以后续添加
 
   const getBorderColor = (status: BatchStatus) => {
@@ -232,18 +285,18 @@ const BatchProgress: FC<BatchProgressProps> = ({
           </div>
 
           {/* 详细进度信息 */}
-          {jobData.totalRows > 0 && (
+          {localProgress.totalRows > 0 && (
             <div className="mt-2 text-xs text-gray-500">
               {t('batchWorkflow.processed', {
-                processed: jobData.processedRows || 0,
-                total: jobData.totalRows || 0,
+                processed: localProgress.processedRows || 0,
+                total: localProgress.totalRows || 0,
                 ns: 'extend',
               })}
             </div>
           )}
 
           {/* 错误信息显示 */}
-          {jobData.error && status === 'failed' && (
+          {localProgress.error && status === 'failed' && (
             <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3">
               <div className="flex items-start space-x-2">
                 <RiErrorWarningLine className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
@@ -252,7 +305,7 @@ const BatchProgress: FC<BatchProgressProps> = ({
                     {t('batchWorkflow.errorOccurred', { ns: 'extend'} )}
                   </div>
                   <div className="text-xs text-red-700 break-words">
-                    {jobData.error}
+                    {localProgress.error}
                   </div>
                 </div>
               </div>
