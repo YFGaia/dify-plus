@@ -21,6 +21,7 @@ DEFAULT_REF_TEMPLATE_SWAGGER_2_0 = "#/definitions/{model}"
 class StatisticTimeRangeQuery(BaseModel):
     start: str | None = Field(default=None, description="Start date (YYYY-MM-DD HH:MM)")
     end: str | None = Field(default=None, description="End date (YYYY-MM-DD HH:MM)")
+    account: str | None = Field(default=None, description="Account ID filter")
 
     @field_validator("start", "end", mode="before")
     @classmethod
@@ -114,14 +115,8 @@ class DailyConversationStatistic(Resource):
         args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))  # type: ignore
 
         converted_created_at = convert_datetime_to_date("created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    COUNT(DISTINCT conversation_id) AS conversation_count
-FROM
-    messages
-WHERE
-    app_id = :app_id
-    AND invoke_from != :invoke_from"""
+        sql_query = f"""SELECT {converted_created_at} AS date, COUNT(DISTINCT conversation_id) AS conversation_count
+        FROM messages WHERE app_id = :app_id AND invoke_from != :invoke_from"""
         arg_dict = {"tz": account.timezone, "app_id": app_model.id, "invoke_from": InvokeFrom.DEBUGGER}
         assert account.timezone is not None
 
@@ -131,33 +126,10 @@ WHERE
             abort(400, description=str(e))
 
         if args.account is not None and args.account:
-            sql_query += ""
-#             stmt = (
-#                 select(
-#                     func.date(
-#                         func.date_trunc("day", text("created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz"))
-#                     ).label("date"),
-#                     func.count(distinct(Message.conversation_id)).label("conversation_count")
-#                 )
-#                 .select_from(Message)
-#                 .where(
-#                     Message.app_id == app_model.id,
-#                     or_(
-#                         Message.from_account_id == account.id,
-#                         Message.from_end_user_id.in_(
-#                             select(EndUser.id)
-#                             .where(EndUser.external_user_id == account.id)
-#                             .distinct()
-#                         )
-#                     )
-#                 )
-#                 .group_by(
-#                     func.date(
-#                         func.date_trunc("day", text("created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz"))
-#                     )
-#                 )
-#                 .params(tz=account.timezone)  # 绑定参数
-#             )
+            sql_query = f"""SELECT {converted_created_at} AS date, COUNT(DISTINCT conversation_id) AS conversation_count
+            FROM messages WHERE app_id = :app_id AND invoke_from != :invoke_from AND (from_account_id = :user_id OR
+            from_end_user_id IN (SELECT DISTINCT(id) FROM end_users WHERE external_user_id = :user_id))"""
+            arg_dict = {"tz": account.timezone, "app_id": app_model.id, "invoke_from": InvokeFrom.DEBUGGER, "user_id": account.id}
 
         if start_datetime_utc:
             sql_query += " AND created_at >= :start"
