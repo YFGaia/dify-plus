@@ -266,6 +266,7 @@ git checkout 1.13.2 -- api/uv.lock
 - 2026-03-27 Phase 4A-4D 完成：确认并保留 `global-public-context.tsx` 两阶段 bootstrap、`service/client.ts` 的 `X-Login-Config-Token` 注入、header 的应用中心落点/余额展示，以及登录链路默认落点到 `/explore/apps-center-extend`；定向 ESLint 通过，仓库级 `type-check:tsgo` 因既有前端类型错误阻塞。
 - 2026-03-27 Phase 4E 完成：合并 `web/app/components/explore/app-card/index.tsx` 与 `web/app/components/apps/app-card.tsx` 的上游 1.13.2 接口形态，保留二开“同步到模板/取消同步”能力；定向验证通过：`vitest run app/components/explore/app-card/index.spec.tsx` 3/3 通过，`vitest run app/components/apps/app-card.spec.tsx` 81/81 通过。
 - 2026-03-27 Phase 4F 进行中：`pnpm install --frozen-lockfile` 已完成；当前 pre-commit 会执行仓库级 `type-check:tsgo`，被既有类型错误阻塞，需在完成本轮合并后统一清理或在阶段提交时使用 `--no-verify` 保留增量提交节奏。
+- 2026-03-27 Phase 4F 补充：为 `web/service/explore.ts` 增加 `fetchInstalledAppList()` 返回类型后，复跑仓库级 `type-check:tsgo`，已确认本轮涉及的 `app-card` 与 `service/explore.ts` 不再出现在错误列表中；剩余错误均为仓库中其他既有问题。
 2. 恢复 AppStatisticsExtend/RecommendedApp 的 import
 3. 在 get_app_list() 中恢复统计初始化代码块
 
