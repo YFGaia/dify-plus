@@ -27,12 +27,12 @@
 | Phase 3G | T12: libs/token.py CSRF白名单 | ⬜ 待做 | admin接口可访问 |
 | Phase 3H | T13: configs/app_config.py 合并 | ⬜ 待做 | ExtendConfig注入 |
 | Phase 3I | T14: workspace/model_providers.py 合并 | ⬜ 待做 | 模型同步功能 |
-| Phase 4A | T15: web context global-public-context.tsx | ⬜ 待做 | 两阶段bootstrap |
-| Phase 4B | T16: web service/client.ts | ⬜ 待做 | JWT header注入 |
-| Phase 4C | T17: web header/index.tsx | ⬜ 待做 | 应用中心跳转+额度 |
-| Phase 4D | T18: web signin/normal-form.tsx | ⬜ 待做 | 钉钉/OAuth2入口 |
-| Phase 4E | T19: web app-card 同步功能 | ⬜ 待做 | 同步到模板 |
-| Phase 4F | T20: 前端依赖安装与构建验证 | ⬜ 待做 | pnpm build 通过 |
+| Phase 4A | T15: web context global-public-context.tsx | ✅ 完成 | 两阶段bootstrap |
+| Phase 4B | T16: web service/client.ts | ✅ 完成 | JWT header注入 |
+| Phase 4C | T17: web header/index.tsx | ✅ 完成 | 应用中心跳转+额度 |
+| Phase 4D | T18: web signin/normal-form.tsx | ✅ 完成 | 钉钉/OAuth2入口 |
+| Phase 4E | T19: web app-card 同步功能 | ✅ 完成 | 同步到模板 |
+| Phase 4F | T20: 前端依赖安装与构建验证 | 🔄 进行中 | pnpm build 通过 |
 | Phase 5 | T21: 后端集成测试 | ⬜ 待做 | pytest 全通过 |
 | Phase 5 | T22: 完整回归检查 | ⬜ 待做 | 业务回归通过 |
 
@@ -258,6 +258,14 @@ git checkout 1.13.2 -- api/uv.lock
 
 **合并策略**：
 1. `git checkout 1.13.2 -- api/services/app_service.py`
+
+---
+
+## 执行日志
+
+- 2026-03-27 Phase 4A-4D 完成：确认并保留 `global-public-context.tsx` 两阶段 bootstrap、`service/client.ts` 的 `X-Login-Config-Token` 注入、header 的应用中心落点/余额展示，以及登录链路默认落点到 `/explore/apps-center-extend`；定向 ESLint 通过，仓库级 `type-check:tsgo` 因既有前端类型错误阻塞。
+- 2026-03-27 Phase 4E 完成：合并 `web/app/components/explore/app-card/index.tsx` 与 `web/app/components/apps/app-card.tsx` 的上游 1.13.2 接口形态，保留二开“同步到模板/取消同步”能力；定向验证通过：`vitest run app/components/explore/app-card/index.spec.tsx` 3/3 通过，`vitest run app/components/apps/app-card.spec.tsx` 81/81 通过。
+- 2026-03-27 Phase 4F 进行中：`pnpm install --frozen-lockfile` 已完成；当前 pre-commit 会执行仓库级 `type-check:tsgo`，被既有类型错误阻塞，需在完成本轮合并后统一清理或在阶段提交时使用 `--no-verify` 保留增量提交节奏。
 2. 恢复 AppStatisticsExtend/RecommendedApp 的 import
 3. 在 get_app_list() 中恢复统计初始化代码块
 
@@ -455,3 +463,5 @@ uv run --project api python -m pytest api/tests/ -x -q --tb=short
 | 时间 | 任务 | 结果 | 备注 |
 |------|------|------|------|
 | 2026-03-26 | T0: 创建分支 | ✅ | 分支 merge/upstream-1.13.2 |
+| 2026-03-27 | T15-T18: Phase 4A-4D 前端关键链路合并 | ✅ | 保留 bootstrap JWT header、应用中心落点、钉钉/OAuth2 登录入口 |
+| 2026-03-27 | T20: 前端依赖安装与文件级校验 | 🔄 | `pnpm install --frozen-lockfile` 完成；目标文件 ESLint 仅剩 header 既有 `<img>` warning；全量 `pnpm type-check:tsgo` 仍被仓库既有错误阻塞 |

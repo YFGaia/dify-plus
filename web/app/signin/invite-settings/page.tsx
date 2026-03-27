@@ -57,13 +57,13 @@ export default function InviteSettingsPage() {
         // Tokens are now stored in cookies by the backend
         await setLocaleOnClient(language, false)
         const redirectUrl = resolvePostLoginRedirect(searchParams)
-        router.replace(redirectUrl || '/apps')
+        router.replace(redirectUrl || '/explore/apps-center-extend')
       }
     }
     catch {
       recheck()
     }
-  }, [language, name, recheck, timezone, token, router, t])
+  }, [language, name, recheck, router, searchParams, t, timezone, token])
 
   if (!checkRes)
     return <Loading />

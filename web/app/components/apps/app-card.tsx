@@ -58,6 +58,16 @@ const AccessControl = dynamic(() => import('@/app/components/app/app-access-cont
   ssr: false,
 })
 
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error && error.message)
+    return error.message
+
+  if (typeof error === 'object' && error && 'message' in error && typeof error.message === 'string')
+    return error.message
+
+  return fallback
+}
+
 export type AppCardProps = {
   app: App
   onRefresh?: () => void
@@ -96,10 +106,10 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
         onRefresh()
       onPlanInfoChanged()
     }
-    catch (e: any) {
+    catch (e: unknown) {
       notify({
         type: 'error',
-        message: `${t('appDeleteFailed', { ns: 'app' })}${'message' in e ? `: ${e.message}` : ''}`,
+        message: `${t('appDeleteFailed', { ns: 'app' })}: ${getErrorMessage(e, t('appDeleteFailed', { ns: 'app' }))}`,
       })
     }
     setShowConfirmDelete(false)
@@ -222,10 +232,10 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
         onRefresh()
       onPlanInfoChanged()
     }
-    catch (e: any) {
+    catch (e: unknown) {
       notify({
         type: 'error',
-        message: `${t('appDeleteFailed', { ns: 'app' })}${'message' in e ? `: ${e.message}` : ''}`,
+        message: getErrorMessage(e, t('appDeleteFailed', { ns: 'app' })),
       })
     }
     setShowCancelSyncApps(false)
@@ -240,10 +250,10 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
         onRefresh()
       onPlanInfoChanged()
     }
-    catch (e: any) {
+    catch (e: unknown) {
       notify({
         type: 'error',
-        message: `${t('appDeleteFailed', { ns: 'app' })}${'message' in e ? `: ${e.message}` : ''}`,
+        message: getErrorMessage(e, t('appDeleteFailed', { ns: 'app' })),
       })
     }
     setShowSyncApps(false)
@@ -297,7 +307,8 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
       e.preventDefault()
       try {
         await openAsyncWindow(async () => {
-          const { installed_apps }: any = await fetchInstalledAppList(app.id) || {}
+          const response = await fetchInstalledAppList(app.id)
+          const installed_apps = response?.installed_apps
           if (installed_apps?.length > 0)
             return `${basePath}/explore/installed/${installed_apps[0].id}`
           throw new Error('No app found in Explore')
@@ -307,8 +318,8 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
           },
         })
       }
-      catch (e: any) {
-        Toast.notify({ type: 'error', message: `${e.message || e}` })
+      catch (e: unknown) {
+        Toast.notify({ type: 'error', message: getErrorMessage(e, 'Open in Explore failed') })
       }
     }
     // ----------------------start SyncToAppTemplate----------------------
@@ -354,21 +365,21 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
           !app.has_draft_trigger && (
             (!systemFeatures.webapp_auth.enabled)
               ? (
-                <>
-                  <Divider className="my-1" />
-                  <button type="button" className="mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 hover:bg-state-base-hover" onClick={onClickInstalledApp}>
-                    <span className="system-sm-regular text-text-secondary">{t('openInExplore', { ns: 'app' })}</span>
-                  </button>
-                </>
-              )
+                  <>
+                    <Divider className="my-1" />
+                    <button type="button" className="mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 hover:bg-state-base-hover" onClick={onClickInstalledApp}>
+                      <span className="system-sm-regular text-text-secondary">{t('openInExplore', { ns: 'app' })}</span>
+                    </button>
+                  </>
+                )
               : !(isGettingUserCanAccessApp || !userCanAccessApp?.result) && (
-              <>
-                <Divider className="my-1" />
-                <button type="button" className="mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 hover:bg-state-base-hover" onClick={onClickInstalledApp}>
-                  <span className="system-sm-regular text-text-secondary">{t('openInExplore', { ns: 'app' })}</span>
-                </button>
-              </>
-            )
+                  <>
+                    <Divider className="my-1" />
+                    <button type="button" className="mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 hover:bg-state-base-hover" onClick={onClickInstalledApp}>
+                      <span className="system-sm-regular text-text-secondary">{t('openInExplore', { ns: 'app' })}</span>
+                    </button>
+                  </>
+                )
           )
         }
         {/* ----------------------start SyncToAppTemplate---------------------- */}

@@ -58,7 +58,7 @@ export default function CheckCode() {
         }
         else {
           const redirectUrl = resolvePostLoginRedirect(searchParams)
-          router.replace(redirectUrl || '/apps')
+          router.replace(redirectUrl || '/explore/apps-center-extend')
         }
       }
     }

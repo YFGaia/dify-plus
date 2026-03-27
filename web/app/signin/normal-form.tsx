@@ -1,3 +1,4 @@
+import type { SystemFeatures } from '@/types/feature'
 import { RiContractLine, RiDoorLockLine, RiErrorWarningFill } from '@remixicon/react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -5,7 +6,9 @@ import * as React from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Toast from '@/app/components/base/toast'
-import { IS_CE_EDITION, CSRF_COOKIE_NAME } from '@/config'
+import DingTalkAuth from '@/app/signin/components/dingtalk-auth'
+import OAuth2 from '@/app/signin/components/oauth2' // extend: add oauth2
+import { CSRF_COOKIE_NAME, IS_CE_EDITION } from '@/config'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import { invitationCheck } from '@/service/common'
 import { useIsLogin } from '@/service/use-common'
@@ -18,23 +21,26 @@ import SocialAuth from './components/social-auth'
 import SSOAuth from './components/sso-auth'
 import Split from './split'
 import { resolvePostLoginRedirect } from './utils/post-login-redirect'
-// Extend: start support ding_talk login
-import DingTalkAuth from '@/app/signin/components/dingtalk-auth'
-import OAuth2 from '@/app/signin/components/oauth2' // extend: add oauth2
-// Extend: end
 
-// Extend: start 声明一个变量来存储钉钉SDK
-// 客户端环境中初始化钉钉SDK
-let dd: any = null
-if (typeof window !== 'undefined') {
-  try {
-    dd = require('dingtalk-jsapi')
-  }
-  catch (e) {
-    console.error('Failed to load dingtalk-jsapi:', e)
+type DingTalkAuthCode = {
+  code: string
+}
+
+type DingTalkClient = {
+  getAuthCode: (options: {
+    corpId: string
+    success: (res: DingTalkAuthCode) => void
+    fail: () => void
+  }) => Promise<void> | void
+  runtime?: {
+    permission?: {
+      requestAuthCode: (options: {
+        corpId: string
+        onSuccess: (result: DingTalkAuthCode) => void
+      }) => void
+    }
   }
 }
-// Extend: end
 
 const NormalForm = () => {
   const { t } = useTranslation()
@@ -56,9 +62,9 @@ const NormalForm = () => {
   const isInviteLink = Boolean(invite_token && invite_token !== 'null')
 
   // Extend: start Ding Talk Auto Login Logic
-  const dingTalkLogin = async (allFeatures: typeof systemFeatures) => {
+  const dingTalkLogin = useCallback(async (allFeatures: SystemFeatures) => {
     // 确保只在客户端环境执行
-    if (typeof window === 'undefined' || !dd)
+    if (typeof window === 'undefined')
       return
 
     const tokenKey = CSRF_COOKIE_NAME()
@@ -94,19 +100,21 @@ const NormalForm = () => {
       // Extend Stop DingTalk login compatible
 
       try {
-        await dd.getAuthCode({
+        const ddModule = await import('dingtalk-jsapi')
+        const dingTalkClient = (ddModule.default ?? ddModule) as unknown as DingTalkClient
+
+        await dingTalkClient.getAuthCode({
           corpId,
           // 获取临时授权ID
-          success: (res: { code: any }) => {
+          success: (res: DingTalkAuthCode) => {
             // 在这里可以将免登授权码发送给后台服务器进行验证和获取用户信息等操作
             window.location.href = `${host}/ding-talk/login?code=${res.code}`
           },
           fail() {
-            if (dd.runtime && dd.runtime.permission) {
-              dd.runtime.permission.requestAuthCode({
+            if (dingTalkClient.runtime?.permission) {
+              dingTalkClient.runtime.permission.requestAuthCode({
                 corpId,
-                // 在这里我们移除了agentId参数，因为类型检查显示它不是有效的参数
-                onSuccess(result: { code: any }) {
+                onSuccess(result: DingTalkAuthCode) {
                   // 在这里可以将免登授权码发送给后台服务器进行验证和获取用户信息等操作
                   window.location.href = `${host}/ding-talk/login?code=${result.code}`
                 },
@@ -119,7 +127,7 @@ const NormalForm = () => {
         console.error('DingTalk auth error:', error)
       }
     }
-  }
+  }, [searchParams])
   // Extend: end Ding Talk Auto Login Logic
 
   const init = useCallback(async () => {
@@ -127,7 +135,7 @@ const NormalForm = () => {
       if (isLoggedIn) {
         setIsRedirecting(true)
         const redirectUrl = resolvePostLoginRedirect(searchParams)
-        router.replace(redirectUrl || '/apps')
+        router.replace(redirectUrl || '/explore/apps-center-extend')
         return
       }
 
@@ -161,7 +169,7 @@ const NormalForm = () => {
       setAllMethodsAreDisabled(true)
     }
     finally { setInitCheckLoading(false) }
-  }, [isLoggedIn, message, router, invite_token, isInviteLink, systemFeatures])
+  }, [dingTalkLogin, invite_token, isInviteLink, isLoggedIn, message, router, searchParams, systemFeatures])
   useEffect(() => {
     init()
   }, [init])

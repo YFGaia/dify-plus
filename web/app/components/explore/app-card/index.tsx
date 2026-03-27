@@ -2,31 +2,34 @@
 import type { App } from '@/models/explore'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { RiInformation2Line } from '@remixicon/react'
-import { useTranslation } from 'react-i18next'
-// extend: start sync app
-import { useContextSelector } from 'use-context-selector'
 import { useCallback, useState } from 'react'
-// extend: atop sync app
-import { useContext } from 'use-context-selector'
+import { useTranslation } from 'react-i18next'
+import { useContext, useContextSelector } from 'use-context-selector'
 import AppIcon from '@/app/components/base/app-icon'
+import Confirm from '@/app/components/base/confirm'
+import { ToastContext } from '@/app/components/base/toast'
+import { useAppContext } from '@/context/app-context'
 import ExploreContext from '@/context/explore-context'
 import { useGlobalPublicStore } from '@/context/global-public-context'
+// extend: start sync app
+import { syncApp } from '@/service/apps'
+// extend: stop sync app
 import { AppModeEnum } from '@/types/app'
 import { cn } from '@/utils/classnames'
 import { AppTypeIcon } from '../../app/type-selector'
 import Button from '../../base/button'
-import Confirm from '@/app/components/base/confirm'
-import Toast, { ToastContext } from '@/app/components/base/toast'
-// extend: start sync app
-import { syncApp } from '@/service/apps'
-// extend: stop sync app
-import { useAppContext } from '@/context/app-context'
+
+type TryAppSelection = {
+  appId: string
+  app: App
+}
 
 export type AppCardProps = {
   app: App
   canCreate: boolean
   onCreate: () => void
-  isExplore: boolean
+  onTry?: (params: TryAppSelection) => void
+  isExplore?: boolean
   // extend: start sync app
   onApp?: boolean // 是否在推荐列表中（已同步）
   onRefresh?: () => void
@@ -37,7 +40,8 @@ const AppCard = ({
   app,
   canCreate,
   onCreate,
-  isExplore,
+  onTry,
+  isExplore = true,
   onApp = false,
   onRefresh,
 }: AppCardProps) => {
@@ -48,12 +52,14 @@ const AppCard = ({
   const { systemFeatures } = useGlobalPublicStore()
   const isTrialApp = app.can_trial && systemFeatures.enable_trial_app
   const setShowTryAppPanel = useContextSelector(ExploreContext, ctx => ctx.setShowTryAppPanel)
-  const showTryAPPPanel = useCallback((appId: string) => {
-    return () => {
-      setShowTryAppPanel?.(true, { appId, app })
+  const handleTryApp = useCallback(() => {
+    if (onTry) {
+      onTry({ appId: app.app_id, app })
+      return
     }
-  }, [setShowTryAppPanel, app])
 
+    setShowTryAppPanel?.(true, { appId: app.app_id, app })
+  }, [app, onTry, setShowTryAppPanel])
 
   // ----------------------start SyncToAppTemplate----------------------
   const [showSyncApps, setShowSyncApps] = useState(false)
@@ -66,10 +72,10 @@ const AppCard = ({
       if (onRefresh)
         onRefresh()
     }
-    catch (e: any) {
+    catch (e: unknown) {
       notify({
         type: 'error',
-        message: e.message || '操作失败',
+        message: e instanceof Error ? e.message : '操作失败',
       })
     }
     setShowSyncApps(false)
@@ -121,7 +127,7 @@ const AppCard = ({
                 </Button>
               )
             }
-            <Button className="h-7" onClick={showTryAPPPanel(app.app_id)}>
+            <Button className="h-7" onClick={handleTryApp}>
               <RiInformation2Line className="mr-1 size-4" />
               <span>{t('appCard.try', { ns: 'explore' })}</span>
             </Button>
@@ -130,7 +136,7 @@ const AppCard = ({
       )}
       {/* ----------------------start SyncToAppTemplate---------------------- */}
       {isExplore && userProfile?.admin_extend && userProfile?.tenant_extend && !onApp && (
-        <div className={cn('absolute top-2 right-2 hidden group-hover:flex items-center gap-1')}>
+        <div className={cn('absolute right-2 top-2 hidden items-center gap-1 group-hover:flex')}>
           <Button
             variant="ghost"
             size="small"

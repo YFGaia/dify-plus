@@ -66,7 +66,7 @@ const OneMoreStep = () => {
         interface_language: state.interface_language,
         timezone: state.timezone,
       })
-      router.push('/apps')
+      router.push('/explore/apps-center-extend')
     }
     catch (error: any) {
       if (error && error.status === 400)
