@@ -25,7 +25,7 @@ from core.errors.error import (
     ProviderTokenNotInitError,
     QuotaExceededError,
 )
-from core.model_runtime.errors.invoke import InvokeError
+from dify_graph.model_runtime.errors.invoke import InvokeError
 from libs import helper
 from libs.helper import uuid_value
 from models.model import AppMode
@@ -52,20 +52,21 @@ from services.app_generate_service_extend import AppGenerateServiceExtend
 
 
 def is_end_login(end_user):
+    """extend: 从 WebApp 当前请求中解析 Console 用户，并在首次识别时绑定 external_user_id。"""
     user_info = None
     try:
         # 从 cookie 中读取 access_token
         auth_token = extract_access_token(request)
         if not auth_token:
             return None
-            
+
         # 验证 access_token
         decoded = PassportService().verify(auth_token)
         user_id = decoded.get("user_id")
-        
+
         # 加载 Console 用户信息
         user_info = AccountService.load_logged_in_account(account_id=user_id)
-        
+
         # 绑定 end_user 与 Console 用户
         if user_info is not None:
             if end_user.external_user_id is None:
@@ -80,6 +81,7 @@ def is_end_login(end_user):
 
 # 额度限制
 def is_money_limit(end_user) -> bool:
+    """extend: 依据 end_user 关联账户额度判断是否超限，异常时按安全默认值拦截。"""
     try:
         # TODO 需要写入缓存，读缓存
         account_money = (
@@ -93,6 +95,8 @@ def is_money_limit(end_user) -> bool:
         return False
     except:
         return True
+
+
 # extend: 您必须登录才能访问您的帐户扩展功能
 
 

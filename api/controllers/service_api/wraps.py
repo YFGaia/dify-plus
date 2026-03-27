@@ -1,29 +1,19 @@
 import logging
 import time
 from collections.abc import Callable
-from datetime import timedelta
 from enum import StrEnum, auto
 from functools import wraps
-from typing import Concatenate, ParamSpec, TypeVar
+from typing import Concatenate, ParamSpec, TypeVar, cast, overload
 
 from flask import current_app, request
 from flask_login import user_logged_in
 from flask_restx import Resource
 from pydantic import BaseModel
-from sqlalchemy import select, update
-from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden, NotFound, Unauthorized
 
-# extend: start 额度限制，API调用计费，新增TenantAccountRole
-from controllers.service_api.app.error_extend import (
-    AccountNoMoneyErrorExtend,
-    ApiTokenDayNoMoneyErrorExtend,
-    ApiTokenMonthNoMoneyErrorExtend,
-)
 from enums.cloud_plan import CloudPlan
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
-from libs.datetime_utils import naive_utc_now
 from libs.login import current_user
 from models import Account, Tenant, TenantAccountJoin, TenantStatus
 from models.account_money_extend import AccountMoneyExtend
@@ -31,11 +21,14 @@ from models.api_token_money_extend import ApiTokenMoneyExtend
 from models.dataset import Dataset, RateLimitLog
 from models.model import ApiToken, App
 from models.model_extend import EndUserAccountJoinsExtend
+from controllers.service_api.app.error_extend import (
+    AccountNoMoneyErrorExtend,
+    ApiTokenDayNoMoneyErrorExtend,
+    ApiTokenMonthNoMoneyErrorExtend,
+)
+from services.api_token_service import ApiTokenCache, fetch_token_with_single_flight, record_token_usage
 from services.end_user_service import EndUserService
 from services.feature_service import FeatureService
-
-# extend: stop 额度限制，API调用计费，新增TenantAccountRole
-
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -59,10 +52,22 @@ class FetchUserArg(BaseModel):
     required: bool = False
 
 
-def validate_app_token(view: Callable[P, R] | None = None, *, fetch_user_arg: FetchUserArg | None = None):
-    def decorator(view_func: Callable[P, R]):
+@overload
+def validate_app_token(view: Callable[P, R]) -> Callable[P, R]: ...
+
+
+@overload
+def validate_app_token(
+    view: None = None, *, fetch_user_arg: FetchUserArg | None = None
+) -> Callable[[Callable[P, R]], Callable[P, R]]: ...
+
+
+def validate_app_token(
+    view: Callable[P, R] | None = None, *, fetch_user_arg: FetchUserArg | None = None
+) -> Callable[P, R] | Callable[[Callable[P, R]], Callable[P, R]]:
+    def decorator(view_func: Callable[P, R]) -> Callable[P, R]:
         @wraps(view_func)
-        def decorated_view(*args: P.args, **kwargs: P.kwargs):
+        def decorated_view(*args: P.args, **kwargs: P.kwargs) -> R:
             api_token = validate_and_get_api_token("app")
 
             app_model = db.session.query(App).where(App.id == api_token.app_id).first()
@@ -81,7 +86,7 @@ def validate_app_token(view: Callable[P, R] | None = None, *, fetch_user_arg: Fe
             if tenant.status == TenantStatus.ARCHIVE:
                 raise Forbidden("The workspace's status is archived.")
 
-            # ---------------------extend: 二开部分Begin  额度限制，API调用计费 ---------------------
+            # extend: API Token 调用前置额度校验（账号总额度 + API Key 日/月额度）
             tenant_account_join = (
                 db.session.query(Tenant, TenantAccountJoin)
                 .filter(Tenant.id == api_token.tenant_id)
@@ -89,10 +94,9 @@ def validate_app_token(view: Callable[P, R] | None = None, *, fetch_user_arg: Fe
                 .filter(TenantAccountJoin.role.in_(["owner"]))
                 .filter(Tenant.status == TenantStatus.NORMAL)
                 .one_or_none()
-            )  # TODO: only owner information is required, so only one is returned.
+            )
             if tenant_account_join:
-                tenant, ta = tenant_account_join
-                # TODO 需要写入缓存，读缓存
+                _, ta = tenant_account_join
                 account_money = (
                     db.session.query(AccountMoneyExtend)
                     .filter(AccountMoneyExtend.account_id == ta.account_id)
@@ -102,11 +106,9 @@ def validate_app_token(view: Callable[P, R] | None = None, *, fetch_user_arg: Fe
                     raise AccountNoMoneyErrorExtend()
             else:
                 raise Unauthorized("Tenant does not exist.")
-            # 密钥额度判断
-            kwargs["api_token"] = api_token  # API token消息数据传递下去
-            api_token_money = (
-                db.session.query(ApiTokenMoneyExtend).filter(ApiTokenMoneyExtend.app_token_id == api_token.id).first()
-            )
+
+            kwargs["api_token"] = api_token
+            api_token_money = db.session.query(ApiTokenMoneyExtend).filter(ApiTokenMoneyExtend.app_token_id == api_token.id).first()
             if api_token_money:
                 if (
                     api_token_money.day_limit_quota != -1
@@ -119,8 +121,7 @@ def validate_app_token(view: Callable[P, R] | None = None, *, fetch_user_arg: Fe
                 ):
                     raise ApiTokenMonthNoMoneyErrorExtend()
             else:
-                logging.warning("数据异常，该密钥没有额度数据: %s", api_token.id)
-            # --------------------- extend: 二开部分End  额度限制，API调用计费 ---------------------
+                logger.warning("数据异常，该密钥没有额度数据: %s", api_token.id)
 
             kwargs["app_model"] = app_model
 
@@ -148,13 +149,14 @@ def validate_app_token(view: Callable[P, R] | None = None, *, fetch_user_arg: Fe
                 current_app.login_manager._update_request_context_with_user(end_user)  # type: ignore
                 user_logged_in.send(current_app._get_current_object(), user=end_user)  # type: ignore
 
-                # ---------------------二开部分Begin  额度限制，API调用计费 ---------------------
-                if kwargs.get("end_user"):
+                # extend: 建立 end_user 与 tenant owner account 映射，供后续计费链路使用
+                if tenant_account_join:
+                    _, ta = tenant_account_join
                     create_or_update_end_user_account_join_extend(
-                        kwargs["end_user"].id, ta.account_id, app_model.id
+                        kwargs["end_user"].id,
+                        ta.account_id,
+                        app_model.id,
                     )
-                # ---------------------二开部分End  额度限制，API调用计费 ---------------------
-
             else:
                 # For service API without end-user context, ensure an Account is logged in
                 # so services relying on current_account_with_tenant() work correctly.
@@ -277,10 +279,22 @@ def cloud_edition_billing_rate_limit_check(resource: str, api_token_type: str):
     return interceptor
 
 
-def validate_dataset_token(view: Callable[Concatenate[T, P], R] | None = None):
-    def decorator(view: Callable[Concatenate[T, P], R]):
-        @wraps(view)
-        def decorated(*args: P.args, **kwargs: P.kwargs):
+@overload
+def validate_dataset_token(view: Callable[Concatenate[T, P], R]) -> Callable[P, R]: ...
+
+
+@overload
+def validate_dataset_token(view: None = None) -> Callable[[Callable[Concatenate[T, P], R]], Callable[P, R]]: ...
+
+
+def validate_dataset_token(
+    view: Callable[Concatenate[T, P], R] | None = None,
+) -> Callable[P, R] | Callable[[Callable[Concatenate[T, P], R]], Callable[P, R]]:
+    def decorator(view_func: Callable[Concatenate[T, P], R]) -> Callable[P, R]:
+        @wraps(view_func)
+        def decorated(*args: P.args, **kwargs: P.kwargs) -> R:
+            api_token = validate_and_get_api_token("dataset")
+
             # get url path dataset_id from positional args or kwargs
             # Flask passes URL path parameters as positional arguments
             dataset_id = None
@@ -317,12 +331,18 @@ def validate_dataset_token(view: Callable[Concatenate[T, P], R] | None = None):
             # Validate dataset if dataset_id is provided
             if dataset_id:
                 dataset_id = str(dataset_id)
-                dataset = db.session.query(Dataset).where(Dataset.id == dataset_id).first()
+                dataset = (
+                    db.session.query(Dataset)
+                    .where(
+                        Dataset.id == dataset_id,
+                        Dataset.tenant_id == api_token.tenant_id,
+                    )
+                    .first()
+                )
                 if not dataset:
                     raise NotFound("Dataset not found.")
                 if not dataset.enable_api:
                     raise Forbidden("Dataset api access is not enabled.")
-            api_token = validate_and_get_api_token("dataset")
             tenant_account_join = (
                 db.session.query(Tenant, TenantAccountJoin)
                 .where(Tenant.id == api_token.tenant_id)
@@ -343,7 +363,7 @@ def validate_dataset_token(view: Callable[Concatenate[T, P], R] | None = None):
                     raise Unauthorized("Tenant owner account does not exist.")
             else:
                 raise Unauthorized("Tenant does not exist.")
-            return view(api_token.tenant_id, *args, **kwargs)
+            return view_func(api_token.tenant_id, *args, **kwargs)  # type: ignore[arg-type]
 
         return decorated
 
@@ -357,7 +377,14 @@ def validate_dataset_token(view: Callable[Concatenate[T, P], R] | None = None):
 
 def validate_and_get_api_token(scope: str | None = None):
     """
-    Validate and get API token.
+    Validate and get API token with Redis caching.
+
+    This function uses a two-tier approach:
+    1. First checks Redis cache for the token
+    2. If not cached, queries database and caches the result
+
+    The last_used_at field is updated asynchronously via Celery task
+    to avoid blocking the request.
     """
     auth_header = request.headers.get("Authorization")
     if auth_header is None or " " not in auth_header:
@@ -369,34 +396,21 @@ def validate_and_get_api_token(scope: str | None = None):
     if auth_scheme != "bearer":
         raise Unauthorized("Authorization scheme must be 'Bearer'")
 
-    current_time = naive_utc_now()
-    cutoff_time = current_time - timedelta(minutes=1)
-    with Session(db.engine, expire_on_commit=False) as session:
-        update_stmt = (
-            update(ApiToken)
-            .where(
-                ApiToken.token == auth_token,
-                (ApiToken.last_used_at.is_(None) | (ApiToken.last_used_at < cutoff_time)),
-                ApiToken.type == scope,
-            )
-            .values(last_used_at=current_time)
-        )
-        stmt = select(ApiToken).where(ApiToken.token == auth_token, ApiToken.type == scope)
-        result = session.execute(update_stmt)
-        api_token = session.scalar(stmt)
+    # Try to get token from cache first
+    # Returns a CachedApiToken (plain Python object), not a SQLAlchemy model
+    cached_token = ApiTokenCache.get(auth_token, scope)
+    if cached_token is not None:
+        logger.debug("Token validation served from cache for scope: %s", scope)
+        # Record usage in Redis for later batch update (no Celery task per request)
+        record_token_usage(auth_token, scope)
+        return cast(ApiToken, cached_token)
 
-        if hasattr(result, "rowcount") and result.rowcount > 0:
-            session.commit()
+    # Cache miss - use Redis lock for single-flight mode
+    # This ensures only one request queries DB for the same token concurrently
+    return fetch_token_with_single_flight(auth_token, scope)
 
-        if not api_token:
-            raise Unauthorized("Access token is invalid")
-
-    return api_token
-
-
-# ---------------------二开部分Begin  额度限制，API调用计费 ---------------------
 def create_or_update_end_user_account_join_extend(end_user_id, account_id, app_id: str) -> EndUserAccountJoinsExtend:
-    # 插入节点账号id和用户账号id关联关系，以方便扣钱查询
+    """extend: 插入 end_user 和 owner account 的关联关系，供计费链路查询使用。"""
     end_user_account_join = (
         db.session.query(EndUserAccountJoinsExtend)
         .filter(EndUserAccountJoinsExtend.end_user_id == end_user_id, EndUserAccountJoinsExtend.app_id == app_id)
@@ -409,9 +423,6 @@ def create_or_update_end_user_account_join_extend(end_user_id, account_id, app_i
     db.session.commit()
 
     return end_user_account_join
-
-
-# ---------------------二开部分End 额度限制，API调用计费 ---------------------
 
 
 class DatasetApiResource(Resource):

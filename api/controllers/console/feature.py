@@ -38,8 +38,9 @@ def _verify_login_config_token(token: Optional[str]) -> bool:
 
 # extend: 防止部分健康监测system-features无响应
 @console_ns.route("/system-features")
-class LoginConfigBootstrapApi(Resource):
+class SystemFeatureHealthApi(Resource):
     """extend: 防止部分健康监测system-features无响应"""
+
     @console_ns.doc("system-features")
     @console_ns.response(200, "Success")
     def get(self):
@@ -54,6 +55,7 @@ class LoginConfigBootstrapApi(Resource):
     写入 features 相关 cookie（值为 JWT，含 ip 与 1h 过期），
     同时返回 token 供前端在跨域时通过 Header 携带。
     """
+
     @console_ns.doc("login_config_bootstrap")
     @console_ns.response(200, "Success")
     def get(self):
@@ -68,6 +70,8 @@ class LoginConfigBootstrapApi(Resource):
             samesite="Lax",
         )
         return resp
+
+
 # extend: stop CVE-2025-63387未授权访问
 
 

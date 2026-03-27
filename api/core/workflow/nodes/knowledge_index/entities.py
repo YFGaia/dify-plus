@@ -3,9 +3,10 @@ from typing import Literal, Union
 from pydantic import BaseModel
 
 from core.rag.retrieval.retrieval_methods import RetrievalMethod
-from core.workflow.nodes.knowledge_index import KNOWLEDGE_INDEX_NODE_TYPE
 from dify_graph.entities.base_node_data import BaseNodeData
 from dify_graph.enums import NodeType
+
+KNOWLEDGE_INDEX_NODE_TYPE = "knowledge-index"
 
 
 class RerankingModelConfig(BaseModel):

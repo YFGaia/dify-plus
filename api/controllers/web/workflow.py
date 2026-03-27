@@ -22,8 +22,9 @@ from core.errors.error import (
     ProviderTokenNotInitError,
     QuotaExceededError,
 )
-from core.model_runtime.errors.invoke import InvokeError
-from core.workflow.graph_engine.manager import GraphEngineManager
+from dify_graph.graph_engine.manager import GraphEngineManager
+from dify_graph.model_runtime.errors.invoke import InvokeError
+from extensions.ext_redis import redis_client
 from libs import helper
 from models.model import App, AppMode, EndUser
 from services.app_generate_service import AppGenerateService
@@ -84,12 +85,8 @@ class WorkflowRunApi(WebApiResource):
             raise AccountNoMoneyErrorExtend()
         # ----------------- 二开部分End - 余额判断-----------------
 
-        parser = (
-            reqparse.RequestParser()
-            .add_argument("inputs", type=dict, required=True, nullable=False, location="json")
-            .add_argument("files", type=list, required=False, location="json")
-        )
-        args = parser.parse_args()
+        payload = WorkflowRunPayload.model_validate(web_ns.payload or {})
+        args = payload.model_dump(exclude_none=True)
 
         # extend: 获取 Console 用户 ID，直接作为 from_account_id 传递
         user_info = is_end_login(end_user)
@@ -156,6 +153,6 @@ class WorkflowTaskStopApi(WebApiResource):
         AppQueueManager.set_stop_flag_no_user_check(task_id)
 
         # New graph engine command channel mechanism
-        GraphEngineManager.send_stop_command(task_id)
+        GraphEngineManager(redis_client).send_stop_command(task_id)
 
         return {"result": "success"}
