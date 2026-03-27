@@ -28,6 +28,31 @@ func (s *BatchWorkflowService) CreateBatchWorkflow(
 		return nil, fmt.Errorf("数据库连接未初始化")
 	}
 
+	// 计算本次上传的有效数据行数（去掉表头和空行）
+	uploadedDataRows := 0
+	if len(fileContent) > 1 {
+		for _, row := range fileContent[1:] {
+			for _, v := range row {
+				if strings.TrimSpace(v) != "" {
+					uploadedDataRows++
+					break
+				}
+			}
+		}
+	}
+
+	// 检查当前用户 pending 状态队列中是否已有相同文件（文件名 + 行数一致视为重复）
+	var duplicateCount int64
+	if err := global.GVA_DB.Model(&gaia.BatchWorkflow{}).Where(
+		"user_id = ? AND file_name = ? AND installed_id = ? AND total_rows = ? AND status = ?",
+		userId, fileName, installedID, uploadedDataRows, gaia.BatchWorkflowStatusPending).
+		Count(&duplicateCount).Error; err != nil {
+		return nil, fmt.Errorf("检查重复文件失败: %v", err)
+	}
+	if duplicateCount > 0 {
+		return nil, fmt.Errorf("文件重复上传：当前队列中已存在相同文件（文件名：%s，行数：%d），请勿重复提交", fileName, uploadedDataRows)
+	}
+
 	// 创建批量处理记录
 	keyByte, _ := json.Marshal(keyNameMapping)
 	batchWorkflow := &gaia.BatchWorkflow{

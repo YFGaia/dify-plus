@@ -32,9 +32,31 @@ const (
 
 // 批量工作流配置常量
 const (
-	MaxTaskRetryCount      = 3  // 最大任务重试次数
-	ErrorPenaltyThreshold  = 50 // 错误惩罚阈值（每50个错误减少1个并发位）
+	MaxTaskRetryCount     = 3  // 最大任务重试次数
+	ErrorPenaltyThreshold = 50 // 错误惩罚阈值（每50个错误减少1个并发位）
 )
+
+// 优先级分档阈值（按 total_rows 划分）
+const (
+	PriorityTier1MaxRows = 300  // 第一优先级：≤300 行
+	PriorityTier2MaxRows = 800  // 第二优先级：≤800 行
+	PriorityTier3MaxRows = 3000 // 第三优先级：≤3000 行
+	// 第四优先级：>3000 行
+)
+
+// UserWorkerAllocation 用户工作器分配信息
+type UserWorkerAllocation struct {
+	UserID   uint `json:"user_id"`
+	Workers  int  `json:"workers"`
+	MaxLimit int  `json:"max_limit"`
+}
+
+// UserErrorInfo 用户错误信息（用于工作器分配计算）
+type UserErrorInfo struct {
+	UserID     uint `json:"user_id"`
+	ErrorCount int  `json:"error_count"`
+	TotalRows  int  `json:"total_rows"`
+}
 
 // BatchWorkflow 批量工作流处理
 type BatchWorkflow struct {
