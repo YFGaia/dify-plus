@@ -2,11 +2,30 @@
 
 > 分支：`merge/upstream-1.13.2`  
 > 创建时间：2026-03-27  
+> 完成时间：2026-03-30  
+> 状态：**✅ 全部完成**  
 > 目标：对合并结果进行代码审查 + 构建本地镜像 + 部署验证可登录访问
 
 ---
 
-## 阶段一：代码 Review（预提交质量门禁）
+## 发现的问题与修复
+
+| 问题 | 原因 | 修复 |
+|---|---|---|
+| NLTK 下载失败 | `unstructured` 0.16.1→0.21.5 移除了 `download_nltk_packages` | 直接调用 `nltk.download()` |
+| `flask_restful` ImportError | 上游 1.13.2 移除了 flask_restful | `ai_draw_extnd.py` 改为 flask_restx |
+| `alibabacloud_dingtalk` 缺失 | 未在 pyproject.toml 声明 | 添加依赖 + uv.lock 更新 |
+| `pypinyin` 缺失 | 未在 pyproject.toml 声明 | 添加依赖 + uv.lock 更新 |
+| nginx 启动失败 | `plugin_daemon` 未启动，nginx 找不到 upstream | 本地测试时临时 `return 503` |
+| db_postgres/redis 端口冲突 | 主机已有其他实例占用 5432/6379 | 端口改为环境变量可配置 |
+
+---
+
+## 验证结果
+
+### ✅ 已验证通过
+
+
 
 ### T1 - Review 后端关键合并文件
 - [ ] `api/controllers/service_api/wraps.py` — 余额/额度校验是否存在
