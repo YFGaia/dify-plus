@@ -193,10 +193,37 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a0/87/1d7019d23891897cb076b2f7e3c81ab3c2ba91de3bb067196f675d60d34c/alibabacloud-credentials-api-1.0.0.tar.gz", hash = "sha256:8c340038d904f0218d7214a8f4088c31912bfcf279af2cbc7d9be4897a97dd2f", size = 2330 }
 
 [[package]]
+name = "alibabacloud-dingtalk"
+version = "2.2.39"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "alibabacloud-endpoint-util" },
+    { name = "alibabacloud-gateway-dingtalk" },
+    { name = "alibabacloud-gateway-spi" },
+    { name = "alibabacloud-openapi-util" },
+    { name = "alibabacloud-tea-openapi" },
+    { name = "alibabacloud-tea-util" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c5/81/e89b6d1d0d9da7f3ac18eed3ec9b5381d85ef4e542015574b35ce13f5c70/alibabacloud_dingtalk-2.2.39.tar.gz", hash = "sha256:351bf61c21e4e12231faf998bb43937b0ebc7bbe1ff09c2f6cf165d42ad153c5", size = 2001086 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/41/a2/21fd16871e2511b3db94202768baad59e12ab25fe72952d3e24cdefebe7c/alibabacloud_dingtalk-2.2.39-py3-none-any.whl", hash = "sha256:e0b35f0388049f477320fc7198264d79cec25150abf6ae24f43f2afc671bc05a", size = 2120988 },
+]
+
+[[package]]
 name = "alibabacloud-endpoint-util"
 version = "0.0.4"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/92/7d/8cc92a95c920e344835b005af6ea45a0db98763ad6ad19299d26892e6c8d/alibabacloud_endpoint_util-0.0.4.tar.gz", hash = "sha256:a593eb8ddd8168d5dc2216cd33111b144f9189fcd6e9ca20e48f358a739bbf90", size = 2813 }
+
+[[package]]
+name = "alibabacloud-gateway-dingtalk"
+version = "1.0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "alibabacloud-gateway-spi" },
+    { name = "alibabacloud-tea-util" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d2/40/751d8bdf133d7fcf053f10c98e8e506810e7bee06458a02eaaa14d30ac26/alibabacloud_gateway_dingtalk-1.0.2.tar.gz", hash = "sha256:acea8b0b1d11e0394913f0b0899ddd19c0bfceab716060449b57fcc250ceb300", size = 2938 }
 
 [[package]]
 name = "alibabacloud-gateway-spi"
@@ -228,13 +255,16 @@ wheels = [
 
 [[package]]
 name = "alibabacloud-openapi-util"
-version = "0.2.2"
+version = "0.2.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alibabacloud-tea-util" },
     { name = "cryptography" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f6/50/5f41ab550d7874c623f6e992758429802c4b52a6804db437017e5387de33/alibabacloud_openapi_util-0.2.2.tar.gz", hash = "sha256:ebbc3906f554cb4bf8f513e43e8a33e8b6a3d4a0ef13617a0e14c3dda8ef52a8", size = 7201 }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/51/be5802851a4ed20ac2c6db50ac8354a6e431e93db6e714ca39b50983626f/alibabacloud_openapi_util-0.2.4.tar.gz", hash = "sha256:87022b9dcb7593a601f7a40ca698227ac3ccb776b58cb7b06b8dc7f510995c34", size = 7981 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/08/46/9b217343648b366eb93447f5d93116e09a61956005794aed5ef95a2e9e2e/alibabacloud_openapi_util-0.2.4-py3-none-any.whl", hash = "sha256:a2474f230b5965ae9a8c286e0dc86132a887928d02d20b8182656cf6b1b6c5bd", size = 7661 },
+]
 
 [[package]]
 name = "alibabacloud-openplatform20191219"
@@ -1513,6 +1543,7 @@ name = "dify-api"
 version = "1.13.2"
 source = { virtual = "." }
 dependencies = [
+    { name = "alibabacloud-dingtalk" },
     { name = "aliyun-log-python-sdk" },
     { name = "apscheduler" },
     { name = "arize-phoenix-otel" },
@@ -1583,6 +1614,7 @@ dependencies = [
     { name = "pydantic-settings" },
     { name = "pyjwt" },
     { name = "pypdfium2" },
+    { name = "pypinyin" },
     { name = "python-docx" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
@@ -1715,6 +1747,7 @@ vdb = [
 
 [package.metadata]
 requires-dist = [
+    { name = "alibabacloud-dingtalk", specifier = ">=2.1.99" },
     { name = "aliyun-log-python-sdk", specifier = "~=0.9.37" },
     { name = "apscheduler", specifier = ">=3.11.0" },
     { name = "arize-phoenix-otel", specifier = "~=0.15.0" },
@@ -1785,6 +1818,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = "~=2.13.1" },
     { name = "pyjwt", specifier = "~=2.12.0" },
     { name = "pypdfium2", specifier = "==5.6.0" },
+    { name = "pypinyin", specifier = "~=0.53.0" },
     { name = "python-docx", specifier = "~=1.2.0" },
     { name = "python-dotenv", specifier = "==1.2.2" },
     { name = "pyyaml", specifier = "~=6.0.1" },
@@ -5417,6 +5451,15 @@ name = "pypika"
 version = "0.48.9"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c7/2c/94ed7b91db81d61d7096ac8f2d325ec562fc75e35f3baea8749c85b28784/PyPika-0.48.9.tar.gz", hash = "sha256:838836a61747e7c8380cd1b7ff638694b7a7335345d0f559b04b2cd832ad5378", size = 67259 }
+
+[[package]]
+name = "pypinyin"
+version = "0.53.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/2d/58c9e7d0825d834fc5ac62a340640953d39a80e78cba70eb73d3bad5b4be/pypinyin-0.53.0.tar.gz", hash = "sha256:a2d39ddc2bd31b55897bbb10d2e11a0c4d399988a97c00ad489c151afd9b106d", size = 824458 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b1/af/a1f9ee31b860ea55985a743b53fc06e61fe156bc1a9d64d94a81afa80470/pypinyin-0.53.0-py2.py3-none-any.whl", hash = "sha256:a906768919da3c31771f2c5e0e5a759214dc38d0087e15e6ff67649e03df8097", size = 834720 },
+]
 
 [[package]]
 name = "pyproject-hooks"

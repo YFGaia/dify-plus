@@ -1,0 +1,30 @@
+# docker-compose override for local build verification
+# Usage: docker compose -f docker-compose.dify-plus.yaml -f docker-compose.local-build.yaml --env-file .env.local-test <cmd>
+#
+# Overrides the pre-built registry images with locally built images from the current source.
+# Host ports for db/redis are configured via POSTGRES_HOST_PORT/REDIS_HOST_PORT in .env.local-test
+
+services:
+  api:
+    image: dify-plus-api:1.13.2-local
+    build:
+      context: ../api
+      dockerfile: Dockerfile
+
+  worker:
+    image: dify-plus-api:1.13.2-local
+
+  worker-gaia:
+    image: dify-plus-api:1.13.2-local
+
+  worker-dataset:
+    image: dify-plus-api:1.13.2-local
+
+  worker_beat:
+    image: dify-plus-api:1.13.2-local
+
+  web:
+    image: dify-plus-web:1.13.2-local
+    build:
+      context: ../web
+      dockerfile: Dockerfile

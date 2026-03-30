@@ -96,8 +96,10 @@ COPY --from=packages --chown=dify:dify ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Download nltk data
+# Note: unstructured >= 0.21.x removed download_nltk_packages from unstructured.nlp.tokenize
 RUN mkdir -p /usr/local/share/nltk_data \
-    && NLTK_DATA=/usr/local/share/nltk_data python -c "import nltk; from unstructured.nlp.tokenize import download_nltk_packages; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('stopwords'); download_nltk_packages()" \
+    && NLTK_DATA=/usr/local/share/nltk_data python -c \
+        "import nltk; nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('averaged_perceptron_tagger'); nltk.download('averaged_perceptron_tagger_eng'); nltk.download('stopwords')" \
     && chmod -R 755 /usr/local/share/nltk_data
 
 ENV TIKTOKEN_CACHE_DIR=/app/api/.tiktoken_cache

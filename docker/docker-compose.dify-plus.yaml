@@ -961,7 +961,7 @@ services:
       timeout: 3s
       retries: 60
     ports:
-      - 5432:5432
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
 
   # The mysql database.
   db_mysql:
@@ -1011,7 +1011,7 @@ services:
           "redis-cli -a ${REDIS_PASSWORD:-difyai123456} ping | grep -q PONG",
         ]
     ports:
-      - 6379:6379
+      - "${REDIS_HOST_PORT:-6379}:6379"
 
   # The DifySandbox
   sandbox:

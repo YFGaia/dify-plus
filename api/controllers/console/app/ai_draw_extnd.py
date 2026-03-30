@@ -7,7 +7,7 @@ import concurrent.futures
 import logging
 
 from flask import Response, current_app, request
-from flask_restful import Resource
+from flask_restx import Resource
 
 from controllers.console import api
 from libs.login_extend import repost_login_required
