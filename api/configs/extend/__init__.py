@@ -6,7 +6,6 @@ from pydantic_settings import BaseSettings
 
 
 class ExtendInfo(BaseSettings):
-
     OAUTH2_CLIENT_ID: Optional[str] = Field(
         description="OA client id for OAuth",
         default=None,
@@ -73,6 +72,16 @@ class ExtendInfo(BaseSettings):
         default=5,
     )
     # Extend: 记忆上下文功能
+
+    # Extend: 控制台首次安装完成后，向内网 Admin 服务触发 /init/initdb（与 DB_* 同源，无需额外密钥文件）
+    ADMIN_INITDB_ENABLED: bool = Field(
+        description="Dify 安装向导完成后是否请求 Admin 初始化业务库表",
+        default=False,
+    )
+    ADMIN_INITDB_URL: str = Field(
+        description="Admin InitDB 接口完整 URL（Docker 默认可为 http://admin-server:8888/admin/api/init/initdb）",
+        default="http://admin-server:8888/admin/api/init/initdb",
+    )
 
 
 class ExtendConfig(ExtendInfo):

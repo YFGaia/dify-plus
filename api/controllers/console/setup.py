@@ -9,6 +9,7 @@ from libs.helper import EmailStr, extract_remote_ip
 from libs.password import valid_password
 from models.model import DifySetup, db
 from services.account_service import RegisterService, TenantService
+from services.admin_initdb_service import trigger_admin_initdb_if_configured
 
 from .error import AlreadySetupError, NotInitValidateError
 from .init_validate import get_init_validate_status
@@ -81,6 +82,8 @@ def setup_system(payload: SetupRequestPayload) -> SetupResponse:
         ip_address=extract_remote_ip(request),
         language=payload.language,
     )
+
+    trigger_admin_initdb_if_configured(admin_password=payload.password)
 
     return SetupResponse(result="success")
 

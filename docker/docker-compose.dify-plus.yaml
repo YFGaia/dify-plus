@@ -717,7 +717,7 @@ services:
 
   # API service
   api:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1.fix.3.2
     restart: always
     environment:
       # Use the shared environment variables.
@@ -734,6 +734,9 @@ services:
       INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
       FULL_CODE_EXECUTION_ENDPOINT: ${FULL_CODE_EXECUTION_ENDPOINT:-http://sandbox-full:8194}
       ALLOW_REGISTER: ${ALLOW_REGISTER:-True}
+      # 安装向导完成后由内网调用 Admin InitDB（库连接与 DB_* 一致，无需用户改本地配置文件）
+      ADMIN_INITDB_ENABLED: ${ADMIN_INITDB_ENABLED:-true}
+      ADMIN_INITDB_URL: ${ADMIN_INITDB_URL:-http://admin-server:8888/admin/api/init/initdb}
     depends_on:
       init_permissions:
         condition: service_completed_successfully
@@ -761,7 +764,7 @@ services:
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
   worker:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1.fix.3.2
     restart: always
     environment:
       # Use the shared environment variables.
@@ -800,7 +803,7 @@ services:
   # worker-gaia service
   # The Celery worker-gaia for processing the queue.
   worker-gaia:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1.fix.3.2
     restart: always
     environment:
       # Use the shared environment variables.
@@ -826,7 +829,7 @@ services:
   # worker-dataset service
   # The Celery worker-dataset for processing the queue.
   worker-dataset:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1.fix.3.2
     restart: always
     environment:
       # Use the shared environment variables.
@@ -852,7 +855,7 @@ services:
   # worker_beat service
   # Celery beat for scheduling periodic tasks.
   worker_beat:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.12.1.fix.3.2
     restart: always
     environment:
       # Use the shared environment variables.
@@ -882,7 +885,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.12.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.12.1.fix.3.2
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -1663,7 +1666,7 @@ services:
 
   # Extend - admin-web
   admin-web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-web:1.12.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-web:1.12.1.fix.3.2
     restart: always
     ports:
       - '8081:8081'
@@ -1675,7 +1678,7 @@ services:
 
   # Extend - admin-server
   admin-server:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.12.1.fix.3.1
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.12.1.fix.3.2
     restart: always
     environment:
       # Use the shared environment variables.
