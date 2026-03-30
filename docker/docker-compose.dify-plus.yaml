@@ -736,7 +736,7 @@ services:
       ALLOW_REGISTER: ${ALLOW_REGISTER:-True}
       # 安装向导完成后由内网调用 Admin InitDB（库连接与 DB_* 一致，无需用户改本地配置文件）
       ADMIN_INITDB_ENABLED: ${ADMIN_INITDB_ENABLED:-true}
-      ADMIN_INITDB_URL: ${ADMIN_INITDB_URL:-http://admin-server:8888/admin/api/init/initdb}
+      ADMIN_INITDB_URL: ${ADMIN_INITDB_URL:-http://admin-server:8888/init/initdb}
     depends_on:
       init_permissions:
         condition: service_completed_successfully
