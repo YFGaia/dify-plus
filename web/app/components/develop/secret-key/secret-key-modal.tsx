@@ -111,8 +111,12 @@ const SecretKeyModal = ({
     const res = await editApikey(params)
     setVisibleExtend(false)
     setNewKey(res)
+    if (appId)
+      invalidateAppApiKeys(appId)
+    else
+      invalidateDatasetApiKeys()
   }
-  // 二开部分 Begin - 密钥额度限制编辑
+  // 二开部分 End - 密钥额度限制编辑
 
   const [delKeyID, setDelKeyId] = useState('')
 
@@ -132,12 +136,19 @@ const SecretKeyModal = ({
       invalidateDatasetApiKeys()
   }
 
+  // 二开部分 Begin - 密钥额度限制：创建密钥时携带额度参数，并关闭额度设置弹窗
   const onCreate = async () => {
+    const body = {
+      description: keyItem.description,
+      day_limit_quota: keyItem.day_limit_quota,
+      month_limit_quota: keyItem.month_limit_quota,
+    }
     const params = appId
-      ? { url: `/apps/${appId}/api-keys`, body: {} }
-      : { url: '/datasets/api-keys', body: {} }
+      ? { url: `/apps/${appId}/api-keys`, body }
+      : { url: '/datasets/api-keys', body }
     const createApikey = appId ? createAppApikey : createDatasetApikey
     const res = await createApikey(params)
+    setVisibleExtend(false) // 关闭额度设置弹窗
     setVisible(true)
     setNewKey(res)
     if (appId)
@@ -145,6 +156,7 @@ const SecretKeyModal = ({
     else
       invalidateDatasetApiKeys()
   }
+  // 二开部分 End - 密钥额度限制
 
   const generateToken = (token: string) => {
     return `${token.slice(0, 3)}...${token.slice(-20)}`
@@ -229,12 +241,14 @@ const SecretKeyModal = ({
           </div>
         )
       }
+      {/* ----------------------二开部分Begin - 密钥额度限制：点击先弹出额度设置弹窗---------------------- */}
       <div className="flex">
-        <Button className={`mt-4 flex shrink-0 ${s.autoWidth}`} onClick={onCreate} disabled={!currentWorkspace || !isCurrentWorkspaceEditor}>
+        <Button className={`mt-4 flex shrink-0 ${s.autoWidth}`} onClick={openSecretKeyQuotaSetModalExtend} disabled={!currentWorkspace || !isCurrentWorkspaceEditor}>
           <PlusIcon className="mr-1 flex h-4 w-4 shrink-0" />
           <div className="text-xs font-medium text-text-secondary">{t('apiKeyModal.createNewSecretKey', { ns: 'appApi' })}</div>
         </Button>
       </div>
+      {/* ----------------------二开部分End - 密钥额度限制---------------------- */}
       <SecretKeyGenerateModal className="shrink-0" isShow={isVisible} onClose={() => setVisible(false)} newKey={newKey} />
       {showConfirmDelete && (
         <Confirm

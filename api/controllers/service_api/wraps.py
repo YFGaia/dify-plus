@@ -11,6 +11,11 @@ from flask_restx import Resource
 from pydantic import BaseModel
 from werkzeug.exceptions import Forbidden, NotFound, Unauthorized
 
+from controllers.service_api.app.error_extend import (
+    AccountNoMoneyErrorExtend,
+    ApiTokenDayNoMoneyErrorExtend,
+    ApiTokenMonthNoMoneyErrorExtend,
+)
 from enums.cloud_plan import CloudPlan
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
@@ -21,11 +26,6 @@ from models.api_token_money_extend import ApiTokenMoneyExtend
 from models.dataset import Dataset, RateLimitLog
 from models.model import ApiToken, App
 from models.model_extend import EndUserAccountJoinsExtend
-from controllers.service_api.app.error_extend import (
-    AccountNoMoneyErrorExtend,
-    ApiTokenDayNoMoneyErrorExtend,
-    ApiTokenMonthNoMoneyErrorExtend,
-)
 from services.api_token_service import ApiTokenCache, fetch_token_with_single_flight, record_token_usage
 from services.end_user_service import EndUserService
 from services.feature_service import FeatureService
@@ -408,6 +408,7 @@ def validate_and_get_api_token(scope: str | None = None):
     # Cache miss - use Redis lock for single-flight mode
     # This ensures only one request queries DB for the same token concurrently
     return fetch_token_with_single_flight(auth_token, scope)
+
 
 def create_or_update_end_user_account_join_extend(end_user_id, account_id, app_id: str) -> EndUserAccountJoinsExtend:
     """extend: 插入 end_user 和 owner account 的关联关系，供计费链路查询使用。"""

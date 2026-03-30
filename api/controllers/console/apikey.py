@@ -88,19 +88,35 @@ class BaseApiKeyListResource(Resource):
         # 定义别名，用于后续的join操作
         ApiTokenAlias = aliased(ApiToken)
 
-        # 连表查询
-        api_token_money_extend_query = (
-            db.session.query(ApiTokenMoneyExtend, ApiTokenAlias)
-            .join(ApiTokenAlias, ApiTokenMoneyExtend.app_token_id == ApiTokenAlias.id)
+        # 连表查询（LEFT JOIN：确保没有额度记录的老密钥也能显示）
+        api_token_quota_query = (
+            db.session.query(ApiTokenAlias, ApiTokenMoneyExtend)
+            .outerjoin(ApiTokenMoneyExtend, ApiTokenAlias.id == ApiTokenMoneyExtend.app_token_id)
             .filter(
                 ApiTokenAlias.type == self.resource_type, getattr(ApiTokenAlias, self.resource_id_field) == resource_id
             )
             .all()
         )
         # 将两个表的数据合并到一个字典中
+        # 注意：ApiTokenAlias在前，ApiTokenMoneyExtend在后，quota字段会覆盖同名字段
+        DEFAULT_QUOTA = {
+            "description": "",
+            "accumulated_quota": 0.0,
+            "day_limit_quota": -1.0,
+            "month_limit_quota": -1.0,
+            "day_used_quota": 0.0,
+            "month_used_quota": 0.0,
+        }
         keys = []
-        for api_token, api_token_money_extend in api_token_money_extend_query:
-            merged_data = {**api_token.__dict__, **api_token_money_extend.__dict__}
+        for token, quota in api_token_quota_query:
+            token_dict = {k: v for k, v in token.__dict__.items() if not k.startswith("_sa")}
+            if quota is not None:
+                quota_dict = {k: v for k, v in quota.__dict__.items() if not k.startswith("_sa")}
+            else:
+                quota_dict = DEFAULT_QUOTA
+            merged_data = {**token_dict, **DEFAULT_QUOTA, **quota_dict}
+            # 确保 id 是 ApiToken 的 id（密钥 ID），而非 ApiTokenMoneyExtend 的 id
+            merged_data["id"] = token_dict["id"]
             keys.append(merged_data)
         # --------------------- 二开部分end - 密钥额度限制 ---------------------
         return {"items": keys}
