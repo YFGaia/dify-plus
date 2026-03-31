@@ -97,7 +97,7 @@ func (initDBService *InitDBService) IfInit() (init bool) {
 		var authority modelSystem.SysAuthority
 		global.GVA_DB.Model(&menu).Count(&menuCount)
 		global.GVA_DB.Model(&authority).Count(&authorityCount)
-		if menuCount == 0 && authorityCount == 1 {
+		if menuCount <= 1 && authorityCount <= 1 {
 			init = false
 		}
 	}

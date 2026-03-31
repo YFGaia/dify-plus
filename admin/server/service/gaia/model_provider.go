@@ -14,6 +14,13 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/gaia"
 	gaiaRequest "github.com/flipped-aurora/gin-vue-admin/server/model/gaia/request"
@@ -23,12 +30,6 @@ import (
 	"go.gnd.pw/crypto/eax"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"io"
-	"net/http"
-	"os"
-	"strings"
-	"sync"
-	"time"
 )
 
 // fetchAdminToken 查询一个管理员用户，生成 Dify Console API 兼容的 JWT。
@@ -205,10 +206,7 @@ func calcQuotaDelta(pricing *gaia.ModelPricing, modelName string, promptTokens, 
 // CheckAccountQuota 检查用户是否还有可用余额（total_quota - used_quota > 0）。
 // total_quota = 0 视为"未设置限额"，不拦截；total_quota > 0 时才做余额校验。
 func (s *ModelProviderService) CheckAccountQuota(userID string) error {
-	var row struct {
-		TotalQuota float64 `gorm:"column:total_quota"`
-		UsedQuota  float64 `gorm:"column:used_quota"`
-	}
+	var row gaiaResponse.CheckAccountQuotaRow
 	err := global.GVA_DB.Table("account_money_extend").
 		Select("total_quota, used_quota").
 		Where("account_id = ?::uuid", userID).
@@ -1209,7 +1207,6 @@ func (s *ModelProviderService) ProxyRequest(
 		requestURL = base + "/" + path
 	}
 
-	fmt.Println("path", requestURL, string(body))
 	httpReq, err := http.NewRequest(method, requestURL, bodyReader)
 	if err != nil {
 		return err
