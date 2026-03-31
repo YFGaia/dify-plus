@@ -3,7 +3,7 @@ from collections.abc import Mapping, Sequence
 from typing import Any, cast
 
 from core.app.apps.base_app_queue_manager import AppQueueManager, PublishFrom
-from core.app.entities.app_invoke_entities import InvokeFrom
+from core.app.entities.app_invoke_entities import InvokeFrom, build_dify_run_context
 from core.app.entities.queue_entities import (
     AppQueueEvent,
     QueueAgentLogEvent,
@@ -25,9 +25,33 @@ from core.app.entities.queue_entities import (
     QueueWorkflowStartedEvent,
     QueueWorkflowSucceededEvent,
 )
-from core.app.workflow.node_factory import DifyNodeFactory
-from core.workflow.entities import GraphInitParams
-from core.workflow.graph import Graph
+from core.workflow.node_factory import DifyNodeFactory, resolve_workflow_node_class
+from dify_graph.graph_events import (
+    GraphEngineEvent as DifyGraphEngineEvent,
+    GraphRunAbortedEvent as DifyGraphRunAbortedEvent,
+    GraphRunFailedEvent as DifyGraphRunFailedEvent,
+    GraphRunPartialSucceededEvent as DifyGraphRunPartialSucceededEvent,
+    GraphRunStartedEvent as DifyGraphRunStartedEvent,
+    GraphRunSucceededEvent as DifyGraphRunSucceededEvent,
+    NodeRunAgentLogEvent as DifyNodeRunAgentLogEvent,
+    NodeRunExceptionEvent as DifyNodeRunExceptionEvent,
+    NodeRunFailedEvent as DifyNodeRunFailedEvent,
+    NodeRunIterationFailedEvent as DifyNodeRunIterationFailedEvent,
+    NodeRunIterationNextEvent as DifyNodeRunIterationNextEvent,
+    NodeRunIterationStartedEvent as DifyNodeRunIterationStartedEvent,
+    NodeRunIterationSucceededEvent as DifyNodeRunIterationSucceededEvent,
+    NodeRunLoopFailedEvent as DifyNodeRunLoopFailedEvent,
+    NodeRunLoopNextEvent as DifyNodeRunLoopNextEvent,
+    NodeRunLoopStartedEvent as DifyNodeRunLoopStartedEvent,
+    NodeRunLoopSucceededEvent as DifyNodeRunLoopSucceededEvent,
+    NodeRunRetrieverResourceEvent as DifyNodeRunRetrieverResourceEvent,
+    NodeRunRetryEvent as DifyNodeRunRetryEvent,
+    NodeRunStartedEvent as DifyNodeRunStartedEvent,
+    NodeRunStreamChunkEvent as DifyNodeRunStreamChunkEvent,
+    NodeRunSucceededEvent as DifyNodeRunSucceededEvent,
+)
+from dify_graph.entities import GraphInitParams
+from dify_graph.graph import Graph
 from core.workflow.graph_engine.layers.base import GraphEngineLayer
 from core.workflow.graph_events import (
     GraphEngineEvent,
@@ -55,12 +79,42 @@ from core.workflow.graph_events import (
 from core.workflow.graph_events.graph import GraphRunAbortedEvent
 from core.workflow.nodes import NodeType
 from core.workflow.nodes.node_mapping import NODE_TYPE_CLASSES_MAPPING
-from core.workflow.runtime import GraphRuntimeState, VariablePool
-from core.workflow.system_variable import SystemVariable
-from core.workflow.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader, load_into_variable_pool
+from dify_graph.runtime import GraphRuntimeState, VariablePool
+from dify_graph.system_variable import SystemVariable
+from dify_graph.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader, load_into_variable_pool
 from core.workflow.workflow_entry import WorkflowEntry
 from models.enums import UserFrom
 from models.workflow import Workflow
+
+GRAPH_RUN_STARTED_EVENT_TYPES = (GraphRunStartedEvent, DifyGraphRunStartedEvent)
+GRAPH_RUN_SUCCEEDED_EVENT_TYPES = (GraphRunSucceededEvent, DifyGraphRunSucceededEvent)
+GRAPH_RUN_PARTIAL_SUCCEEDED_EVENT_TYPES = (GraphRunPartialSucceededEvent, DifyGraphRunPartialSucceededEvent)
+GRAPH_RUN_FAILED_EVENT_TYPES = (GraphRunFailedEvent, DifyGraphRunFailedEvent)
+GRAPH_RUN_ABORTED_EVENT_TYPES = (GraphRunAbortedEvent, DifyGraphRunAbortedEvent)
+NODE_RUN_RETRY_EVENT_TYPES = (NodeRunRetryEvent, DifyNodeRunRetryEvent)
+NODE_RUN_STARTED_EVENT_TYPES = (NodeRunStartedEvent, DifyNodeRunStartedEvent)
+NODE_RUN_SUCCEEDED_EVENT_TYPES = (NodeRunSucceededEvent, DifyNodeRunSucceededEvent)
+NODE_RUN_FAILED_EVENT_TYPES = (NodeRunFailedEvent, DifyNodeRunFailedEvent)
+NODE_RUN_EXCEPTION_EVENT_TYPES = (NodeRunExceptionEvent, DifyNodeRunExceptionEvent)
+NODE_RUN_STREAM_CHUNK_EVENT_TYPES = (NodeRunStreamChunkEvent, DifyNodeRunStreamChunkEvent)
+NODE_RUN_RETRIEVER_RESOURCE_EVENT_TYPES = (NodeRunRetrieverResourceEvent, DifyNodeRunRetrieverResourceEvent)
+NODE_RUN_AGENT_LOG_EVENT_TYPES = (NodeRunAgentLogEvent, DifyNodeRunAgentLogEvent)
+NODE_RUN_ITERATION_STARTED_EVENT_TYPES = (NodeRunIterationStartedEvent, DifyNodeRunIterationStartedEvent)
+NODE_RUN_ITERATION_NEXT_EVENT_TYPES = (NodeRunIterationNextEvent, DifyNodeRunIterationNextEvent)
+NODE_RUN_ITERATION_COMPLETED_EVENT_TYPES = (
+    NodeRunIterationSucceededEvent,
+    NodeRunIterationFailedEvent,
+    DifyNodeRunIterationSucceededEvent,
+    DifyNodeRunIterationFailedEvent,
+)
+NODE_RUN_LOOP_STARTED_EVENT_TYPES = (NodeRunLoopStartedEvent, DifyNodeRunLoopStartedEvent)
+NODE_RUN_LOOP_NEXT_EVENT_TYPES = (NodeRunLoopNextEvent, DifyNodeRunLoopNextEvent)
+NODE_RUN_LOOP_COMPLETED_EVENT_TYPES = (
+    NodeRunLoopSucceededEvent,
+    NodeRunLoopFailedEvent,
+    DifyNodeRunLoopSucceededEvent,
+    DifyNodeRunLoopFailedEvent,
+)
 
 
 class WorkflowBasedAppRunner:
@@ -116,7 +170,24 @@ class WorkflowBasedAppRunner:
             user_from=user_from,
             invoke_from=invoke_from,
             call_depth=0,
+            run_context=build_dify_run_context(
+                tenant_id=tenant_id or "",
+                app_id=self._app_id,
+                user_id=user_id,
+                user_from=user_from,
+                invoke_from=invoke_from,
+            ),
         )
+
+        # If root_node_id not provided, auto-detect the start node from graph config
+        if root_node_id is None:
+            for node in graph_config.get("nodes", []):
+                node_data = node.get("data", {})
+                if node_data.get("type") == "start":
+                    root_node_id = node.get("id")
+                    break
+        if root_node_id is None:
+            raise ValueError("No start node found in workflow graph")
 
         # Use the provided graph_runtime_state for consistent state management
 
@@ -264,6 +335,13 @@ class WorkflowBasedAppRunner:
             user_from=UserFrom.ACCOUNT,
             invoke_from=InvokeFrom.DEBUGGER,
             call_depth=0,
+            run_context=build_dify_run_context(
+                tenant_id=workflow.tenant_id,
+                app_id=self._app_id,
+                user_id="",
+                user_from=UserFrom.ACCOUNT,
+                invoke_from=InvokeFrom.DEBUGGER,
+            ),
         )
 
         node_factory = DifyNodeFactory(
@@ -292,7 +370,7 @@ class WorkflowBasedAppRunner:
         # Get node class
         node_type = NodeType(target_node_config.get("data", {}).get("type"))
         node_version = target_node_config.get("data", {}).get("version", "1")
-        node_cls = NODE_TYPE_CLASSES_MAPPING[node_type][node_version]
+        node_cls = resolve_workflow_node_class(node_type=node_type, node_version=node_version)
 
         # Use the variable pool from graph_runtime_state instead of creating a new one
         variable_pool = graph_runtime_state.variable_pool
@@ -320,25 +398,25 @@ class WorkflowBasedAppRunner:
 
         return graph, variable_pool
 
-    def _handle_event(self, workflow_entry: WorkflowEntry, event: GraphEngineEvent):
+    def _handle_event(self, workflow_entry: WorkflowEntry, event: GraphEngineEvent | DifyGraphEngineEvent):
         """
         Handle event
         :param workflow_entry: workflow entry
         :param event: event
         """
-        if isinstance(event, GraphRunStartedEvent):
+        if isinstance(event, GRAPH_RUN_STARTED_EVENT_TYPES):
             self._publish_event(QueueWorkflowStartedEvent())
-        elif isinstance(event, GraphRunSucceededEvent):
+        elif isinstance(event, GRAPH_RUN_SUCCEEDED_EVENT_TYPES):
             self._publish_event(QueueWorkflowSucceededEvent(outputs=event.outputs))
-        elif isinstance(event, GraphRunPartialSucceededEvent):
+        elif isinstance(event, GRAPH_RUN_PARTIAL_SUCCEEDED_EVENT_TYPES):
             self._publish_event(
                 QueueWorkflowPartialSuccessEvent(outputs=event.outputs, exceptions_count=event.exceptions_count)
             )
-        elif isinstance(event, GraphRunFailedEvent):
+        elif isinstance(event, GRAPH_RUN_FAILED_EVENT_TYPES):
             self._publish_event(QueueWorkflowFailedEvent(error=event.error, exceptions_count=event.exceptions_count))
-        elif isinstance(event, GraphRunAbortedEvent):
+        elif isinstance(event, GRAPH_RUN_ABORTED_EVENT_TYPES):
             self._publish_event(QueueWorkflowFailedEvent(error=event.reason or "Unknown error", exceptions_count=0))
-        elif isinstance(event, NodeRunRetryEvent):
+        elif isinstance(event, NODE_RUN_RETRY_EVENT_TYPES):
             node_run_result = event.node_run_result
             inputs = node_run_result.inputs
             process_data = node_run_result.process_data
@@ -363,7 +441,7 @@ class WorkflowBasedAppRunner:
                     provider_id=event.provider_id,
                 )
             )
-        elif isinstance(event, NodeRunStartedEvent):
+        elif isinstance(event, NODE_RUN_STARTED_EVENT_TYPES):
             self._publish_event(
                 QueueNodeStartedEvent(
                     node_execution_id=event.id,
@@ -373,12 +451,12 @@ class WorkflowBasedAppRunner:
                     start_at=event.start_at,
                     in_iteration_id=event.in_iteration_id,
                     in_loop_id=event.in_loop_id,
-                    agent_strategy=event.agent_strategy,
+                    agent_strategy=getattr(event, "agent_strategy", None),
                     provider_type=event.provider_type,
                     provider_id=event.provider_id,
                 )
             )
-        elif isinstance(event, NodeRunSucceededEvent):
+        elif isinstance(event, NODE_RUN_SUCCEEDED_EVENT_TYPES):
             node_run_result = event.node_run_result
             inputs = node_run_result.inputs
             process_data = node_run_result.process_data
@@ -398,7 +476,7 @@ class WorkflowBasedAppRunner:
                     in_loop_id=event.in_loop_id,
                 )
             )
-        elif isinstance(event, NodeRunFailedEvent):
+        elif isinstance(event, NODE_RUN_FAILED_EVENT_TYPES):
             self._publish_event(
                 QueueNodeFailedEvent(
                     node_execution_id=event.id,
@@ -414,7 +492,7 @@ class WorkflowBasedAppRunner:
                     in_loop_id=event.in_loop_id,
                 )
             )
-        elif isinstance(event, NodeRunExceptionEvent):
+        elif isinstance(event, NODE_RUN_EXCEPTION_EVENT_TYPES):
             self._publish_event(
                 QueueNodeExceptionEvent(
                     node_execution_id=event.id,
@@ -430,7 +508,7 @@ class WorkflowBasedAppRunner:
                     in_loop_id=event.in_loop_id,
                 )
             )
-        elif isinstance(event, NodeRunStreamChunkEvent):
+        elif isinstance(event, NODE_RUN_STREAM_CHUNK_EVENT_TYPES):
             self._publish_event(
                 QueueTextChunkEvent(
                     text=event.chunk,
@@ -439,7 +517,7 @@ class WorkflowBasedAppRunner:
                     in_loop_id=event.in_loop_id,
                 )
             )
-        elif isinstance(event, NodeRunRetrieverResourceEvent):
+        elif isinstance(event, NODE_RUN_RETRIEVER_RESOURCE_EVENT_TYPES):
             self._publish_event(
                 QueueRetrieverResourcesEvent(
                     retriever_resources=event.retriever_resources,
@@ -447,7 +525,7 @@ class WorkflowBasedAppRunner:
                     in_loop_id=event.in_loop_id,
                 )
             )
-        elif isinstance(event, NodeRunAgentLogEvent):
+        elif isinstance(event, NODE_RUN_AGENT_LOG_EVENT_TYPES):
             self._publish_event(
                 QueueAgentLogEvent(
                     id=event.message_id,
@@ -461,7 +539,7 @@ class WorkflowBasedAppRunner:
                     node_id=event.node_id,
                 )
             )
-        elif isinstance(event, NodeRunIterationStartedEvent):
+        elif isinstance(event, NODE_RUN_ITERATION_STARTED_EVENT_TYPES):
             self._publish_event(
                 QueueIterationStartEvent(
                     node_execution_id=event.id,
@@ -474,7 +552,7 @@ class WorkflowBasedAppRunner:
                     metadata=event.metadata,
                 )
             )
-        elif isinstance(event, NodeRunIterationNextEvent):
+        elif isinstance(event, NODE_RUN_ITERATION_NEXT_EVENT_TYPES):
             self._publish_event(
                 QueueIterationNextEvent(
                     node_execution_id=event.id,
@@ -486,7 +564,7 @@ class WorkflowBasedAppRunner:
                     output=event.pre_iteration_output,
                 )
             )
-        elif isinstance(event, (NodeRunIterationSucceededEvent | NodeRunIterationFailedEvent)):
+        elif isinstance(event, NODE_RUN_ITERATION_COMPLETED_EVENT_TYPES):
             self._publish_event(
                 QueueIterationCompletedEvent(
                     node_execution_id=event.id,
@@ -499,10 +577,10 @@ class WorkflowBasedAppRunner:
                     outputs=event.outputs,
                     metadata=event.metadata,
                     steps=event.steps,
-                    error=event.error if isinstance(event, NodeRunIterationFailedEvent) else None,
+                    error=event.error if isinstance(event, (NodeRunIterationFailedEvent, DifyNodeRunIterationFailedEvent)) else None,
                 )
             )
-        elif isinstance(event, NodeRunLoopStartedEvent):
+        elif isinstance(event, NODE_RUN_LOOP_STARTED_EVENT_TYPES):
             self._publish_event(
                 QueueLoopStartEvent(
                     node_execution_id=event.id,
@@ -515,7 +593,7 @@ class WorkflowBasedAppRunner:
                     metadata=event.metadata,
                 )
             )
-        elif isinstance(event, NodeRunLoopNextEvent):
+        elif isinstance(event, NODE_RUN_LOOP_NEXT_EVENT_TYPES):
             self._publish_event(
                 QueueLoopNextEvent(
                     node_execution_id=event.id,
@@ -527,7 +605,7 @@ class WorkflowBasedAppRunner:
                     output=event.pre_loop_output,
                 )
             )
-        elif isinstance(event, (NodeRunLoopSucceededEvent | NodeRunLoopFailedEvent)):
+        elif isinstance(event, NODE_RUN_LOOP_COMPLETED_EVENT_TYPES):
             self._publish_event(
                 QueueLoopCompletedEvent(
                     node_execution_id=event.id,
@@ -540,7 +618,7 @@ class WorkflowBasedAppRunner:
                     outputs=event.outputs,
                     metadata=event.metadata,
                     steps=event.steps,
-                    error=event.error if isinstance(event, NodeRunLoopFailedEvent) else None,
+                    error=event.error if isinstance(event, (NodeRunLoopFailedEvent, DifyNodeRunLoopFailedEvent)) else None,
                 )
             )
 

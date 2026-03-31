@@ -14,6 +14,13 @@ from sqlalchemy import select
 from core.llm_generator.output_parser.errors import OutputParserError
 from core.llm_generator.output_parser.structured_output import invoke_llm_with_structured_output
 from core.model_manager import ModelInstance
+from core.model_runtime.entities.llm_entities import LLMResultChunk as CoreLLMResultChunk
+from core.model_runtime.entities.message_entities import (
+    AssistantPromptMessage as CoreAssistantPromptMessage,
+    SystemPromptMessage as CoreSystemPromptMessage,
+    ToolPromptMessage as CoreToolPromptMessage,
+    UserPromptMessage as CoreUserPromptMessage,
+)
 from core.prompt.entities.advanced_prompt_entities import CompletionModelPromptTemplate, MemoryConfig
 from core.prompt.utils.prompt_message_util import PromptMessageUtil
 from core.tools.signature import sign_upload_file
@@ -88,6 +95,35 @@ if TYPE_CHECKING:
     from dify_graph.runtime import GraphRuntimeState
 
 logger = logging.getLogger(__name__)
+
+# Mapping from role string to the corresponding core.model_runtime PromptMessage subclass.
+# Used to convert dify_graph.PromptMessage objects to core-compatible types before invoking
+# core.ModelInstance.invoke_llm(), which internally creates core.LLMResult and validates types.
+_ROLE_TO_CORE_PM_CLS = {
+    "system": CoreSystemPromptMessage,
+    "user": CoreUserPromptMessage,
+    "assistant": CoreAssistantPromptMessage,
+    "tool": CoreToolPromptMessage,
+}
+
+
+def _to_core_prompt_messages(
+    messages: Sequence[PromptMessage],
+) -> list[CoreSystemPromptMessage | CoreUserPromptMessage | CoreAssistantPromptMessage | CoreToolPromptMessage]:
+    """Convert dify_graph.PromptMessage objects to core.model_runtime PromptMessage objects.
+
+    core.ModelInstance.invoke_llm() ultimately feeds prompt_messages into core.LLMResult
+    (which validates Sequence[core.PromptMessage]).  Passing dify_graph.PromptMessage
+    instances there causes a pydantic model_type ValidationError because the two class
+    hierarchies are completely separate.  Converting via model_dump() + model_validate()
+    is safe because both namespaces define structurally identical fields.
+    """
+    result = []
+    for msg in messages:
+        role_val = msg.role if isinstance(msg.role, str) else msg.role.value
+        cls = _ROLE_TO_CORE_PM_CLS.get(role_val, CoreUserPromptMessage)
+        result.append(cls.model_validate(msg.model_dump()))
+    return result
 
 
 class LLMNode(Node[LLMNodeData]):
@@ -376,7 +412,7 @@ class LLMNode(Node[LLMNodeData]):
                 provider=model_instance.provider,
                 model_schema=model_schema,
                 model_instance=model_instance,
-                prompt_messages=prompt_messages,
+                prompt_messages=_to_core_prompt_messages(prompt_messages),
                 json_schema=output_schema,
                 model_parameters=invoke_model_parameters,
                 stop=list(stop or []),
@@ -387,7 +423,7 @@ class LLMNode(Node[LLMNodeData]):
             request_start_time = time.perf_counter()
 
             invoke_result = model_instance.invoke_llm(
-                prompt_messages=list(prompt_messages),
+                prompt_messages=_to_core_prompt_messages(prompt_messages),
                 model_parameters=invoke_model_parameters,
                 stop=list(stop or []),
                 stream=True,
@@ -453,7 +489,7 @@ class LLMNode(Node[LLMNodeData]):
                     if result.structured_output is not None:
                         collected_structured_output = dict(result.structured_output)
                     yield result
-                if isinstance(result, LLMResultChunk):
+                if isinstance(result, (LLMResultChunk, CoreLLMResultChunk)):
                     contents = result.delta.message.content
                     for text_part in LLMNode._save_multimodal_output_and_convert_result_to_markdown(
                         contents=contents,
@@ -480,7 +516,11 @@ class LLMNode(Node[LLMNodeData]):
                         # What's the purpose of the line below?
                         prompt_messages = list(result.prompt_messages)
                     if usage.prompt_tokens == 0 and result.delta.usage:
-                        usage = result.delta.usage
+                        chunk_usage = result.delta.usage
+                        # Convert core.LLMUsage to dify_graph.LLMUsage if needed.
+                        if not isinstance(chunk_usage, LLMUsage):
+                            chunk_usage = LLMUsage.model_validate(chunk_usage.model_dump())
+                        usage = chunk_usage
                     if finish_reason is None and result.delta.finish_reason:
                         finish_reason = result.delta.finish_reason
         except OutputParserError as e:

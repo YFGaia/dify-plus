@@ -18,13 +18,142 @@ from dify_graph.file import File, FileAttribute, file_manager
 from dify_graph.system_variable import SystemVariable
 from dify_graph.variables import Segment, SegmentGroup, VariableBase
 from dify_graph.variables.consts import SELECTORS_LENGTH
-from dify_graph.variables.segments import FileSegment, ObjectSegment
-from dify_graph.variables.variables import RAGPipelineVariableInput, Variable
+from dify_graph.variables.segments import (
+    ArrayAnySegment,
+    ArrayBooleanSegment,
+    ArrayFileSegment,
+    ArrayNumberSegment,
+    ArrayObjectSegment,
+    ArrayStringSegment,
+    BooleanSegment,
+    FileSegment,
+    FloatSegment,
+    IntegerSegment,
+    NoneSegment,
+    ObjectSegment,
+    StringSegment,
+)
+from dify_graph.variables.variables import (
+    ArrayAnyVariable,
+    ArrayBooleanVariable,
+    ArrayFileVariable,
+    ArrayNumberVariable,
+    ArrayObjectVariable,
+    ArrayStringVariable,
+    BooleanVariable,
+    FileVariable,
+    FloatVariable,
+    IntegerVariable,
+    NoneVariable,
+    ObjectVariable,
+    RAGPipelineVariableInput,
+    SecretVariable,
+    StringVariable,
+    Variable,
+)
 from factories import variable_factory
 
 VariableValue = Union[str, int, float, dict[str, object], list[object], File]
 
 VARIABLE_PATTERN = re.compile(r"\{\{#([a-zA-Z0-9_]{1,50}(?:\.[a-zA-Z_][a-zA-Z0-9_]{0,29}){1,10})#\}\}")
+
+# Map SegmentType string values to dify_graph Variable classes for coercion.
+_SEGMENT_TYPE_TO_DG_VARIABLE: dict[str, type[VariableBase]] = {
+    "none": NoneVariable,
+    "string": StringVariable,
+    "integer": IntegerVariable,
+    "float": FloatVariable,
+    "number": FloatVariable,
+    "boolean": BooleanVariable,
+    "object": ObjectVariable,
+    "file": FileVariable,
+    "secret": SecretVariable,
+    "array[any]": ArrayAnyVariable,
+    "array[string]": ArrayStringVariable,
+    "array[number]": ArrayNumberVariable,
+    "array[object]": ArrayObjectVariable,
+    "array[file]": ArrayFileVariable,
+    "array[boolean]": ArrayBooleanVariable,
+}
+
+
+def _coerce_to_dify_graph_variable(variable: Any, selector: Sequence[str]) -> VariableBase:
+    """Convert a core.variables.* object to the equivalent dify_graph.variables.* Variable.
+
+    This is needed because factories.variable_factory produces core.variables.* types,
+    but dify_graph nodes perform isinstance checks against dify_graph.variables.* types.
+    """
+    from uuid import uuid4
+
+    vt = str(variable.value_type)
+    cls = _SEGMENT_TYPE_TO_DG_VARIABLE.get(vt)
+    if cls is None:
+        raise ValueError(f"Cannot coerce variable with segment type '{vt}' to dify_graph Variable")
+
+    name = getattr(variable, "name", selector[-1] if selector else "")
+    id_ = getattr(variable, "id", str(uuid4()))
+    description = getattr(variable, "description", "")
+    return cls(
+        id=id_,
+        name=name,
+        description=description,
+        value=variable.value,
+        selector=list(selector),
+    )
+
+
+# Map segment type string values to dify_graph Segment classes for build_segment.
+_SEGMENT_TYPE_TO_DG_SEGMENT: dict[type, type[Segment]] = {
+    # This maps Python types to the appropriate dify_graph Segment class.
+}
+
+
+def _build_dg_segment(value: Any) -> Segment:
+    """Build a dify_graph.variables.segments.* Segment from a Python value.
+
+    Replaces factories.variable_factory.build_segment() which creates core.variables.* types.
+    """
+    if value is None:
+        return NoneSegment()
+    # Accept existing dify_graph Segment as-is
+    if isinstance(value, Segment):
+        return value
+    if isinstance(value, str):
+        return StringSegment(value=value)
+    if isinstance(value, bool):
+        return BooleanSegment(value=value)
+    if isinstance(value, int):
+        return IntegerSegment(value=value)
+    if isinstance(value, float):
+        return FloatSegment(value=value)
+    if isinstance(value, dict):
+        return ObjectSegment(value=value)
+    if isinstance(value, File):
+        return FileSegment(value=value)
+    if isinstance(value, list):
+        items = [_build_dg_segment(item) for item in value]
+        types = {item.value_type for item in items}
+        if not items:
+            return ArrayAnySegment(value=[])
+        if all(isinstance(item, FileSegment) for item in items):
+            return ArrayFileSegment(value=[item.value for item in items])  # type: ignore[misc]
+        if len(types) == 1:
+            t = next(iter(types))
+            from dify_graph.variables.types import SegmentType as _ST
+            if t == _ST.STRING:
+                return ArrayStringSegment(value=[item.value for item in items])  # type: ignore[misc]
+            if t in (_ST.NUMBER, _ST.INTEGER, _ST.FLOAT):
+                return ArrayNumberSegment(value=[item.value for item in items])  # type: ignore[misc]
+            if t == _ST.BOOLEAN:
+                return ArrayBooleanSegment(value=[item.value for item in items])  # type: ignore[misc]
+            if t == _ST.OBJECT:
+                return ArrayObjectSegment(value=[item.value for item in items])  # type: ignore[misc]
+        return ArrayAnySegment(value=value)
+    # For core.variables.* segments - extract value and rebuild
+    if hasattr(value, "value_type") and hasattr(value, "value"):
+        return _build_dg_segment(value.value)
+    # Fallback: treat as string
+    return StringSegment(value=str(value))
 
 
 class VariablePool(BaseModel):
@@ -119,6 +248,12 @@ class VariablePool(BaseModel):
             segment = variable_factory.build_segment(value)
             variable = variable_factory.segment_to_variable(segment=segment, selector=selector)
 
+        # Ensure we always store dify_graph.variables.* Variable objects.
+        # variable_factory produces core.variables.* types which are incompatible with dify_graph
+        # node isinstance checks. Convert any non-dify_graph Variable to the equivalent dify_graph type.
+        if not isinstance(variable, VariableBase):
+            variable = _coerce_to_dify_graph_variable(variable, selector)
+
         node_id, name = self._selector_to_keys(selector)
         # Based on the definition of `Variable`,
         # `VariableBase` instances can be safely used as `Variable` since they are compatible.
@@ -180,7 +315,7 @@ class VariablePool(BaseModel):
                 return None
             attr = FileAttribute(attr)
             attr_value = file_manager.get_attr(file=segment.value, attr=attr)
-            return variable_factory.build_segment(attr_value)
+            return _build_dg_segment(attr_value)
 
         # Navigate through nested attributes
         result: Any = segment
@@ -191,7 +326,7 @@ class VariablePool(BaseModel):
                 return None
 
         # Return result as Segment
-        return result if isinstance(result, Segment) else variable_factory.build_segment(result)
+        return result if isinstance(result, Segment) else _build_dg_segment(result)
 
     def _extract_value(self, obj: Any):
         """Extract the actual value from an ObjectSegment."""
@@ -212,7 +347,7 @@ class VariablePool(BaseModel):
         """
         if not isinstance(obj, dict) or attr not in obj:
             return None
-        return variable_factory.build_segment(obj.get(attr))
+        return _build_dg_segment(obj.get(attr))
 
     def remove(self, selector: Sequence[str], /):
         """
@@ -239,7 +374,7 @@ class VariablePool(BaseModel):
             if "." in part and (variable := self.get(part.split("."))):
                 segments.append(variable)
             else:
-                segments.append(variable_factory.build_segment(part))
+                segments.append(_build_dg_segment(part))
         return SegmentGroup(value=segments)
 
     def get_file(self, selector: Sequence[str], /) -> FileSegment | None:
