@@ -1678,7 +1678,7 @@ services:
 
   # Extend - admin-server
   admin-server:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.12.1.fix.3.2
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.12.1.fix.3.3
     restart: always
     environment:
       # Use the shared environment variables.
