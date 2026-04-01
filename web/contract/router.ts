@@ -1,7 +1,39 @@
 import type { InferContractRouterInputs } from '@orpc/contract'
+import { appDeleteContract } from './console/apps'
 import { bindPartnerStackContract, invoicesContract } from './console/billing'
+import {
+  exploreAppDetailContract,
+  exploreAppsContract,
+  exploreBannersContract,
+  exploreInstalledAppAccessModeContract,
+  exploreInstalledAppMetaContract,
+  exploreInstalledAppParametersContract,
+  exploreInstalledAppPinContract,
+  exploreInstalledAppsContract,
+  exploreInstalledAppUninstallContract,
+} from './console/explore'
+import { changePreferredProviderTypeContract, modelProvidersModelsContract } from './console/model-providers'
+import { notificationContract, notificationDismissContract } from './console/notification'
+import { pluginCheckInstalledContract, pluginLatestVersionsContract } from './console/plugins'
 // extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
-import { loginConfigBootstrapContract, loginConfigContract } from './console/system'
+import { loginConfigBootstrapContract, loginConfigContract, systemFeaturesContract } from './console/system'
+import {
+  triggerOAuthConfigContract,
+  triggerOAuthConfigureContract,
+  triggerOAuthDeleteContract,
+  triggerOAuthInitiateContract,
+  triggerProviderInfoContract,
+  triggersContract,
+  triggerSubscriptionBuildContract,
+  triggerSubscriptionBuilderCreateContract,
+  triggerSubscriptionBuilderLogsContract,
+  triggerSubscriptionBuilderUpdateContract,
+  triggerSubscriptionBuilderVerifyUpdateContract,
+  triggerSubscriptionDeleteContract,
+  triggerSubscriptionsContract,
+  triggerSubscriptionUpdateContract,
+  triggerSubscriptionVerifyContract,
+} from './console/trigger'
 import { trialAppDatasetsContract, trialAppInfoContract, trialAppParametersContract, trialAppWorkflowsContract } from './console/try-app'
 import { collectionPluginsContract, collectionsContract, searchAdvancedContract } from './marketplace'
 
@@ -17,15 +49,57 @@ export type MarketPlaceInputs = InferContractRouterInputs<typeof marketplaceRout
 export const consoleRouterContract = {
   loginConfigBootstrap: loginConfigBootstrapContract,
   loginConfig: loginConfigContract,
+  systemFeatures: systemFeaturesContract,
+  apps: {
+    deleteApp: appDeleteContract,
+  },
+  explore: {
+    apps: exploreAppsContract,
+    appDetail: exploreAppDetailContract,
+    installedApps: exploreInstalledAppsContract,
+    uninstallInstalledApp: exploreInstalledAppUninstallContract,
+    updateInstalledApp: exploreInstalledAppPinContract,
+    appAccessMode: exploreInstalledAppAccessModeContract,
+    installedAppParameters: exploreInstalledAppParametersContract,
+    installedAppMeta: exploreInstalledAppMetaContract,
+    banners: exploreBannersContract,
+  },
   trialApps: {
     info: trialAppInfoContract,
     datasets: trialAppDatasetsContract,
     parameters: trialAppParametersContract,
     workflows: trialAppWorkflowsContract,
   },
+  modelProviders: {
+    models: modelProvidersModelsContract,
+    changePreferredProviderType: changePreferredProviderTypeContract,
+  },
+  plugins: {
+    checkInstalled: pluginCheckInstalledContract,
+    latestVersions: pluginLatestVersionsContract,
+  },
   billing: {
     invoices: invoicesContract,
     bindPartnerStack: bindPartnerStackContract,
+  },
+  notification: notificationContract,
+  notificationDismiss: notificationDismissContract,
+  triggers: {
+    list: triggersContract,
+    providerInfo: triggerProviderInfoContract,
+    subscriptions: triggerSubscriptionsContract,
+    subscriptionBuilderCreate: triggerSubscriptionBuilderCreateContract,
+    subscriptionBuilderUpdate: triggerSubscriptionBuilderUpdateContract,
+    subscriptionBuilderVerifyUpdate: triggerSubscriptionBuilderVerifyUpdateContract,
+    subscriptionVerify: triggerSubscriptionVerifyContract,
+    subscriptionBuild: triggerSubscriptionBuildContract,
+    subscriptionDelete: triggerSubscriptionDeleteContract,
+    subscriptionUpdate: triggerSubscriptionUpdateContract,
+    subscriptionBuilderLogs: triggerSubscriptionBuilderLogsContract,
+    oauthConfig: triggerOAuthConfigContract,
+    oauthConfigure: triggerOAuthConfigureContract,
+    oauthDelete: triggerOAuthDeleteContract,
+    oauthInitiate: triggerOAuthInitiateContract,
   },
 }
 

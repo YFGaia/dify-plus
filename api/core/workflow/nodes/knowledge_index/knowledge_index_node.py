@@ -3,7 +3,13 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 from core.rag.index_processor.index_processor import IndexProcessor
+<<<<<<< HEAD
 from core.rag.summary_index.summary_index import SummaryIndex
+=======
+from core.rag.index_processor.index_processor_base import SummaryIndexSettingDict
+from core.rag.summary_index.summary_index import SummaryIndex
+from core.workflow.nodes.knowledge_index import KNOWLEDGE_INDEX_NODE_TYPE
+>>>>>>> 1.13.3
 from dify_graph.entities.graph_config import NodeConfigDict
 from dify_graph.entities.workflow_node_execution import WorkflowNodeExecutionStatus
 from dify_graph.enums import NodeExecutionType, SystemVariableKey
@@ -11,7 +17,11 @@ from dify_graph.node_events import NodeRunResult
 from dify_graph.nodes.base.node import Node
 from dify_graph.nodes.base.template import Template
 
+<<<<<<< HEAD
 from .entities import KNOWLEDGE_INDEX_NODE_TYPE, KnowledgeIndexNodeData
+=======
+from .entities import KnowledgeIndexNodeData
+>>>>>>> 1.13.3
 from .exc import (
     KnowledgeIndexNodeError,
 )
@@ -126,7 +136,11 @@ class KnowledgeIndexNode(Node[KnowledgeIndexNodeData]):
         is_preview: bool,
         batch: Any,
         chunks: Mapping[str, Any],
+<<<<<<< HEAD
         summary_index_setting: dict | None = None,
+=======
+        summary_index_setting: SummaryIndexSettingDict | None = None,
+>>>>>>> 1.13.3
     ):
         if not document_id:
             raise KnowledgeIndexNodeError("document_id is required.")

@@ -41,9 +41,9 @@ EXPOSE 5001
 # set timezone
 ENV TZ=UTC
 
-# Set UTF-8 locale (C.UTF-8 is available in slim images; en_US.UTF-8 would require installing locales)
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
+# Set UTF-8 locale
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 WORKDIR /app/api
@@ -96,10 +96,8 @@ COPY --from=packages --chown=dify:dify ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
 # Download nltk data
-# Note: unstructured >= 0.21.x removed download_nltk_packages from unstructured.nlp.tokenize
 RUN mkdir -p /usr/local/share/nltk_data \
-    && NLTK_DATA=/usr/local/share/nltk_data python -c \
-        "import nltk; nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('averaged_perceptron_tagger'); nltk.download('averaged_perceptron_tagger_eng'); nltk.download('stopwords')" \
+    && NLTK_DATA=/usr/local/share/nltk_data python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('stopwords')" \
     && chmod -R 755 /usr/local/share/nltk_data
 
 ENV TIKTOKEN_CACHE_DIR=/app/api/.tiktoken_cache
@@ -110,9 +108,8 @@ RUN python -c "import tiktoken; tiktoken.encoding_for_model('gpt2')" \
 # Copy source code
 COPY --chown=dify:dify . /app/api/
 
-# Prepare entrypoint script (chmod in RUN for compatibility without BuildKit)
-COPY --chown=dify:dify docker/entrypoint.sh /entrypoint.sh
-RUN chmod 755 /entrypoint.sh
+# Prepare entrypoint script
+COPY --chown=dify:dify --chmod=755 docker/entrypoint.sh /entrypoint.sh
 
 
 ARG COMMIT_SHA

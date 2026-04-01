@@ -11,8 +11,6 @@ export PYTHONIOENCODING=${PYTHONIOENCODING:-utf-8}
 if [[ "${MIGRATION_ENABLED}" == "true" ]]; then
   echo "Running migrations"
   flask upgrade-db
-  echo "Running migrations(dify_plus extend)"
-  flask extend_db upgrade
   # Pure migration mode
   if [[ "${MODE}" == "migration" ]]; then
   echo "Migration completed, exiting normally"
@@ -32,14 +30,15 @@ if [[ "${MODE}" == "worker" ]]; then
   else
     CONCURRENCY_OPTION="-c ${CELERY_WORKER_AMOUNT:-1}"
   fi
+
   # Configure queues based on edition if not explicitly set
   if [[ -z "${CELERY_QUEUES}" ]]; then
     if [[ "${EDITION}" == "CLOUD" ]]; then
       # Cloud edition: separate queues for dataset and trigger tasks
-      DEFAULT_QUEUES="priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow_professional,workflow_team,workflow_sandbox,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention"
+      DEFAULT_QUEUES="api_token,dataset,dataset_summary,priority_dataset,priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow_professional,workflow_team,workflow_sandbox,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention,workflow_based_app_execution"
     else
       # Community edition (SELF_HOSTED): dataset, pipeline and workflow have separate queues
-      DEFAULT_QUEUES="priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention"
+      DEFAULT_QUEUES="api_token,dataset,dataset_summary,priority_dataset,priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention,workflow_based_app_execution"
     fi
   else
     DEFAULT_QUEUES="${CELERY_QUEUES}"
@@ -126,7 +125,7 @@ else
       --bind "${DIFY_BIND_ADDRESS:-0.0.0.0}:${DIFY_PORT:-5001}" \
       --workers ${SERVER_WORKER_AMOUNT:-1} \
       --worker-class ${SERVER_WORKER_CLASS:-gevent} \
-      --worker-connections ${SERVER_WORKER_CONNECTIONS:-1000} \
+      --worker-connections ${SERVER_WORKER_CONNECTIONS:-10} \
       --timeout ${GUNICORN_TIMEOUT:-200} \
       app:app
   fi

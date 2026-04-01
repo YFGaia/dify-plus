@@ -35,6 +35,8 @@ from .dataset import (
     metadata,
     segment,
 )
+from .dataset.rag_pipeline import rag_pipeline_workflow
+from .end_user import end_user
 from .workspace import models
 
 __all__ = [
@@ -45,6 +47,7 @@ __all__ = [
     "conversation",
     "dataset",
     "document",
+    "end_user",
     "file",
     "file_preview",
     "hit_testing",
@@ -52,6 +55,7 @@ __all__ = [
     "message",
     "metadata",
     "models",
+    "rag_pipeline_workflow",
     "segment",
     "site",
     "workflow",

@@ -1,15 +1,10 @@
 'use client'
 import type { App } from '@/models/explore'
+import type { TryAppSelection } from '@/types/try-app'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { RiInformation2Line } from '@remixicon/react'
-import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useContext, useContextSelector } from 'use-context-selector'
 import AppIcon from '@/app/components/base/app-icon'
-import Confirm from '@/app/components/base/confirm'
-import { ToastContext } from '@/app/components/base/toast'
-import { useAppContext } from '@/context/app-context'
-import ExploreContext from '@/context/explore-context'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 // extend: start sync app
 import { syncApp } from '@/service/apps'
@@ -42,8 +37,6 @@ const AppCard = ({
   onCreate,
   onTry,
   isExplore = true,
-  onApp = false,
-  onRefresh,
 }: AppCardProps) => {
   const { t } = useTranslation()
   const { notify } = useContext(ToastContext)
@@ -51,12 +44,9 @@ const AppCard = ({
   const { app: appBasicInfo } = app
   const { systemFeatures } = useGlobalPublicStore()
   const isTrialApp = app.can_trial && systemFeatures.enable_trial_app
-  const setShowTryAppPanel = useContextSelector(ExploreContext, ctx => ctx.setShowTryAppPanel)
-  const handleTryApp = useCallback(() => {
-    if (onTry) {
-      onTry({ appId: app.app_id, app })
-      return
-    }
+  const handleTryApp = () => {
+    onTry({ appId: app.app_id, app })
+  }
 
     setShowTryAppPanel?.(true, { appId: app.app_id, app })
   }, [app, onTry, setShowTryAppPanel])
@@ -111,7 +101,7 @@ const AppCard = ({
           </div>
         </div>
       </div>
-      <div className="description-wrapper system-xs-regular h-[90px] px-[14px] text-text-tertiary">
+      <div className="description-wrapper h-[90px] px-[14px] text-text-tertiary system-xs-regular">
         <div className="line-clamp-4 group-hover:line-clamp-2">
           {app.description}
         </div>

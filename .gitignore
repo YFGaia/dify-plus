@@ -209,9 +209,6 @@ api/.vscode
 .history
 
 .idea/
-.claude/
-.cursor/
-openspec/
 
 # pnpm
 /.pnpm-store
@@ -225,6 +222,7 @@ mise.toml
 
 # AI Assistant
 .roo/
+/.claude/worktrees/
 api/.env.backup
 /clickzetta
 
@@ -240,8 +238,5 @@ scripts/stress-test/reports/
 *.local.json
 *.local.md
 
-# 二开新增
-docker/volumes/admin-server/*
-
-# Next.js build output
-.next/
+# Code Agent Folder
+.qoder/*

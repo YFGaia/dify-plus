@@ -229,32 +229,6 @@ class DefaultWorkflowCodeExecutor:
         return isinstance(error, CodeExecutionError)
 
 
-# extend: ForkWorkflowCodeExecutor - 支持 purview 全量代码执行控制
-class ForkWorkflowCodeExecutor(DefaultWorkflowCodeExecutor):
-    """extend: 支持 control_extend.py 的 purview 权限检查，允许授权租户使用全量代码执行端点"""
-
-    def __init__(self, tenant_id: str) -> None:
-        self._tenant_id = tenant_id
-
-    def execute(
-        self,
-        *,
-        language: CodeLanguage,
-        code: str,
-        inputs: Mapping[str, Any],
-    ) -> Mapping[str, Any]:
-        from dify_graph.nodes.code.control_extend import ExecutionControl
-
-        purview = ExecutionControl().check_code(tenant_id=self._tenant_id)
-        return CodeExecutor.execute_workflow_code_template(
-            language=language,
-            code=code,
-            inputs=inputs,
-            purview=purview,
-        )
-# extend: end ForkWorkflowCodeExecutor
-
-
 class DefaultLLMTemplateRenderer(TemplateRenderer):
     def render_jinja2(self, *, template: str, inputs: Mapping[str, Any]) -> str:
         result = CodeExecutor.execute_workflow_code_template(
@@ -279,8 +253,7 @@ class DifyNodeFactory(NodeFactory):
         self.graph_init_params = graph_init_params
         self.graph_runtime_state = graph_runtime_state
         self._dify_context = self._resolve_dify_context(graph_init_params.run_context)
-        # extend: 使用 ForkWorkflowCodeExecutor 支持 purview 权限检查
-        self._code_executor: WorkflowCodeExecutor = ForkWorkflowCodeExecutor(self._dify_context.tenant_id)
+        self._code_executor: WorkflowCodeExecutor = DefaultWorkflowCodeExecutor()
         self._code_limits = CodeNodeLimits(
             max_string_length=dify_config.CODE_MAX_STRING_LENGTH,
             max_number=dify_config.CODE_MAX_NUMBER,

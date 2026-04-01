@@ -7,14 +7,10 @@ from pydantic import BaseModel, Field, field_validator
 
 from controllers.common.schema import register_enum_models, register_schema_models
 from controllers.console import console_ns
-from controllers.console.wraps import (  # extend: 非admin或者owner返回 Forbidden
-    account_initialization_required,
-    is_admin_or_owner_required,
-    setup_required,
-)
-from core.model_runtime.entities.model_entities import ModelType
-from core.model_runtime.errors.validate import CredentialsValidateFailedError
-from core.model_runtime.utils.encoders import jsonable_encoder
+from controllers.console.wraps import account_initialization_required, is_admin_or_owner_required, setup_required
+from dify_graph.model_runtime.entities.model_entities import ModelType
+from dify_graph.model_runtime.errors.validate import CredentialsValidateFailedError
+from dify_graph.model_runtime.utils.encoders import jsonable_encoder
 from libs.helper import uuid_value
 from libs.login import current_account_with_tenant, login_required
 from services.model_load_balancing_service import ModelLoadBalancingService
@@ -431,11 +427,6 @@ class ModelProviderModelEnableApi(Resource):
     @login_required
     @account_initialization_required
     def patch(self, provider: str):
-        # 二开部分Begin - 新增限制 不允许普通成员开启模型
-        if not current_user.is_admin_or_owner:
-            raise Forbidden()
-        # 二开部分End - 新增限制 不允许普通成员开启模型
-
         _, tenant_id = current_account_with_tenant()
 
         args = ParserDeleteModels.model_validate(console_ns.payload)
@@ -457,11 +448,6 @@ class ModelProviderModelDisableApi(Resource):
     @login_required
     @account_initialization_required
     def patch(self, provider: str):
-        # 二开部分Begin - 新增限制 不允许普通成员关闭模型
-        if not current_user.is_admin_or_owner:
-            raise Forbidden()
-        # 二开部分End - 新增限制 不允许普通成员关闭模型
-
         _, tenant_id = current_account_with_tenant()
 
         args = ParserDeleteModels.model_validate(console_ns.payload)

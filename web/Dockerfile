@@ -1,12 +1,12 @@
 # base image
-FROM node:24-alpine AS base
+FROM node:22-alpine AS base
 LABEL maintainer="takatost@gmail.com"
 
 # if you located in China, you can use aliyun mirror to speed up
 # RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 # if you located in China, you can use taobao registry to speed up
-RUN npm config set registry https://registry.npmmirror.com
+# RUN npm config set registry https://registry.npmmirror.com
 
 RUN apk add --no-cache tzdata
 RUN corepack enable
@@ -26,7 +26,7 @@ COPY package.json pnpm-lock.yaml /app/web/
 # Use packageManager from package.json
 RUN corepack install
 
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # build resources
 FROM base AS builder
@@ -34,13 +34,8 @@ WORKDIR /app/web
 COPY --from=packages /app/web/ .
 COPY . .
 
-ARG USE_PREBUILT_NEXT=auto
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN if [ "$USE_PREBUILT_NEXT" = "1" ] || { [ "$USE_PREBUILT_NEXT" = "auto" ] && [ -d .next/standalone ] && [ -d .next/static ]; }; then \
-            echo "Using prebuilt Next.js standalone output from build context"; \
-        else \
-            pnpm build:docker; \
-        fi
+RUN pnpm build
 
 
 # production stage
@@ -49,30 +44,24 @@ FROM base AS production
 ENV NODE_ENV=production
 ENV EDITION=SELF_HOSTED
 ENV DEPLOY_ENV=PRODUCTION
-ENV APP_API_URL=http://127.0.0.1:5001
 ENV CONSOLE_API_URL=http://127.0.0.1:5001
+ENV APP_API_URL=http://127.0.0.1:5001
 ENV MARKETPLACE_API_URL=https://marketplace.dify.ai
 ENV MARKETPLACE_URL=https://marketplace.dify.ai
 ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PM2_INSTANCES=2
 
 # set timezone
 ENV TZ=UTC
 RUN ln -s /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
-# global runtime packages
-RUN pnpm add -g pm2
-
-
 # Create non-root user
 ARG dify_uid=1001
 RUN addgroup -S -g ${dify_uid} dify && \
     adduser -S -u ${dify_uid} -G dify -s /bin/ash -h /home/dify dify && \
     mkdir /app && \
-    mkdir /.pm2 && \
-    chown -R dify:dify /app /.pm2
+    chown -R dify:dify /app
 
 
 WORKDIR /app/web

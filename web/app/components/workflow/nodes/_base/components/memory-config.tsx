@@ -6,8 +6,8 @@ import * as React from 'react'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Input from '@/app/components/base/input'
-import Slider from '@/app/components/base/slider'
 import Switch from '@/app/components/base/switch'
+import { Slider } from '@/app/components/base/ui/slider'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
 import { cn } from '@/utils/classnames'
 import { MemoryRole } from '../../../types'
@@ -15,7 +15,7 @@ import { MemoryRole } from '../../../types'
 const i18nPrefix = 'nodes.common.memory'
 const WINDOW_SIZE_MIN = 1
 const WINDOW_SIZE_MAX = 100
-const WINDOW_SIZE_DEFAULT = Number(process.env.NEXT_CONTEXT_RETENTION_DEFAULT_COUNT || 5) // Extend: 记忆上下文功能
+const WINDOW_SIZE_DEFAULT = 50
 type RoleItemProps = {
   readonly: boolean
   title: string
@@ -54,7 +54,7 @@ type Props = {
 }
 
 const MEMORY_DEFAULT: Memory = {
-  window: { enabled: true, size: WINDOW_SIZE_DEFAULT }, // Extend: 记忆上下文功能 - 默认启用窗口
+  window: { enabled: false, size: WINDOW_SIZE_DEFAULT },
   query_prompt_template: '{{#sys.query#}}\n\n{{#sys.files#}}',
 }
 
@@ -70,11 +70,21 @@ const MemoryConfig: FC<Props> = ({
   const handleMemoryEnabledChange = useCallback((enabled: boolean) => {
     onChange(enabled ? MEMORY_DEFAULT : undefined)
   }, [onChange])
+  const handleWindowEnabledChange = useCallback((enabled: boolean) => {
+    const newPayload = produce(config.data || MEMORY_DEFAULT, (draft) => {
+      if (!draft.window)
+        draft.window = { enabled: false, size: WINDOW_SIZE_DEFAULT }
+
+      draft.window.enabled = enabled
+    })
+
+    onChange(newPayload)
+  }, [config, onChange])
 
   const handleWindowSizeChange = useCallback((size: number | string) => {
     const newPayload = produce(payload || MEMORY_DEFAULT, (draft) => {
       if (!draft.window)
-        draft.window = { enabled: true, size: WINDOW_SIZE_DEFAULT } // Extend: 记忆上下文功能 - 默认启用
+        draft.window = { enabled: true, size: WINDOW_SIZE_DEFAULT }
       let limitedSize: null | string | number = size
       if (limitedSize === '') {
         limitedSize = null
@@ -92,7 +102,6 @@ const MemoryConfig: FC<Props> = ({
       }
 
       draft.window.size = limitedSize as number
-      draft.window.enabled = true // Extend: 记忆上下文功能 - 始终启用窗口
     })
     onChange(newPayload)
   }, [payload, onChange])
@@ -127,7 +136,7 @@ const MemoryConfig: FC<Props> = ({
         tooltip={t(`${i18nPrefix}.memoryTip`, { ns: 'workflow' })!}
         operations={(
           <Switch
-            defaultValue={!!payload}
+            value={!!payload}
             onChange={handleMemoryEnabledChange}
             size="md"
             disabled={readonly}
@@ -136,11 +145,16 @@ const MemoryConfig: FC<Props> = ({
       >
         {payload && (
           <>
-            {/* Extend: 记忆上下文功能 - 移除记忆窗口开关，只保留窗口大小调整 */}
             {/* window size */}
             <div className="flex justify-between">
-              <div className="flex h-8 items-center">
-                <div className="system-xs-medium-uppercase text-text-tertiary">{t(`${i18nPrefix}.windowSize`, { ns: 'workflow' })}</div>
+              <div className="flex h-8 items-center space-x-2">
+                <Switch
+                  value={payload?.window?.enabled}
+                  onChange={handleWindowEnabledChange}
+                  size="md"
+                  disabled={readonly}
+                />
+                <div className="text-text-tertiary system-xs-medium-uppercase">{t(`${i18nPrefix}.windowSize`, { ns: 'workflow' })}</div>
               </div>
               <div className="flex h-8 items-center space-x-2">
                 <Slider
@@ -149,8 +163,9 @@ const MemoryConfig: FC<Props> = ({
                   min={WINDOW_SIZE_MIN}
                   max={WINDOW_SIZE_MAX}
                   step={1}
-                  onChange={handleWindowSizeChange}
-                  disabled={readonly}
+                  onValueChange={handleWindowSizeChange}
+                  disabled={readonly || !payload.window?.enabled}
+                  aria-label={t(`${i18nPrefix}.windowSize`, { ns: 'workflow' })}
                 />
                 <Input
                   value={(payload.window?.size || WINDOW_SIZE_DEFAULT) as number}
@@ -162,7 +177,7 @@ const MemoryConfig: FC<Props> = ({
                   step={1}
                   onChange={e => handleWindowSizeChange(e.target.value)}
                   onBlur={handleBlur}
-                  disabled={readonly}
+                  disabled={readonly || !payload.window?.enabled}
                 />
               </div>
             </div>

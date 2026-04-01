@@ -46,4 +46,4 @@ export NEXT_PUBLIC_MAX_TREE_DEPTH=${MAX_TREE_DEPTH}
 export NEXT_PUBLIC_ADMIN_API_URL=${CONSOLE_API_URL}/admin/api
 # extend stop: admin
 
-pm2 start /app/web/server.js --name dify-web --cwd /app/web -i ${PM2_INSTANCES} --no-daemon
+exec node /app/web/server.js

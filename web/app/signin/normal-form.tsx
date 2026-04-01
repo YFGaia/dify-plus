@@ -1,7 +1,5 @@
 import type { SystemFeatures } from '@/types/feature'
 import { RiContractLine, RiDoorLockLine, RiErrorWarningFill } from '@remixicon/react'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,6 +8,8 @@ import DingTalkAuth from '@/app/signin/components/dingtalk-auth'
 import OAuth2 from '@/app/signin/components/oauth2' // extend: add oauth2
 import { CSRF_COOKIE_NAME, IS_CE_EDITION } from '@/config'
 import { useGlobalPublicStore } from '@/context/global-public-context'
+import Link from '@/next/link'
+import { useRouter, useSearchParams } from '@/next/navigation'
 import { invitationCheck } from '@/service/common'
 import { useIsLogin } from '@/service/use-common'
 import { LicenseStatus } from '@/types/feature'
@@ -134,16 +134,13 @@ const NormalForm = () => {
     try {
       if (isLoggedIn) {
         setIsRedirecting(true)
-        const redirectUrl = resolvePostLoginRedirect(searchParams)
+        const redirectUrl = resolvePostLoginRedirect()
         router.replace(redirectUrl || '/explore/apps-center-extend')
         return
       }
 
       if (message) {
-        Toast.notify({
-          type: 'error',
-          message,
-        })
+        toast.error(message)
       }
       setAllMethodsAreDisabled(!systemFeatures.enable_social_oauth_login && !systemFeatures.enable_email_code_login && !systemFeatures.enable_email_password_login && !systemFeatures.sso_enforced_for_signin && !systemFeatures.ding_talk && !systemFeatures.is_custom_auth2)
       setShowORLine((systemFeatures.enable_social_oauth_login || systemFeatures.sso_enforced_for_signin || !!systemFeatures.ding_talk || !!systemFeatures.is_custom_auth2) && (systemFeatures.enable_email_code_login || systemFeatures.enable_email_password_login))
@@ -196,8 +193,8 @@ const NormalForm = () => {
               <RiContractLine className="h-5 w-5" />
               <RiErrorWarningFill className="absolute -right-1 -top-1 h-4 w-4 text-text-warning-secondary" />
             </div>
-            <p className="system-sm-medium text-text-primary">{t('licenseLost', { ns: 'login' })}</p>
-            <p className="system-xs-regular mt-1 text-text-tertiary">{t('licenseLostTip', { ns: 'login' })}</p>
+            <p className="text-text-primary system-sm-medium">{t('licenseLost', { ns: 'login' })}</p>
+            <p className="mt-1 text-text-tertiary system-xs-regular">{t('licenseLostTip', { ns: 'login' })}</p>
           </div>
         </div>
       </div>
@@ -212,8 +209,8 @@ const NormalForm = () => {
               <RiContractLine className="h-5 w-5" />
               <RiErrorWarningFill className="absolute -right-1 -top-1 h-4 w-4 text-text-warning-secondary" />
             </div>
-            <p className="system-sm-medium text-text-primary">{t('licenseExpired', { ns: 'login' })}</p>
-            <p className="system-xs-regular mt-1 text-text-tertiary">{t('licenseExpiredTip', { ns: 'login' })}</p>
+            <p className="text-text-primary system-sm-medium">{t('licenseExpired', { ns: 'login' })}</p>
+            <p className="mt-1 text-text-tertiary system-xs-regular">{t('licenseExpiredTip', { ns: 'login' })}</p>
           </div>
         </div>
       </div>
@@ -228,8 +225,8 @@ const NormalForm = () => {
               <RiContractLine className="h-5 w-5" />
               <RiErrorWarningFill className="absolute -right-1 -top-1 h-4 w-4 text-text-warning-secondary" />
             </div>
-            <p className="system-sm-medium text-text-primary">{t('licenseInactive', { ns: 'login' })}</p>
-            <p className="system-xs-regular mt-1 text-text-tertiary">{t('licenseInactiveTip', { ns: 'login' })}</p>
+            <p className="text-text-primary system-sm-medium">{t('licenseInactive', { ns: 'login' })}</p>
+            <p className="mt-1 text-text-tertiary system-xs-regular">{t('licenseInactiveTip', { ns: 'login' })}</p>
           </div>
         </div>
       </div>
@@ -242,12 +239,12 @@ const NormalForm = () => {
         {isInviteLink
           ? (
               <div className="mx-auto w-full">
-                <h2 className="title-4xl-semi-bold text-text-primary">
+                <h2 className="text-text-primary title-4xl-semi-bold">
                   {t('join', { ns: 'login' })}
                   {workspaceName}
                 </h2>
                 {!systemFeatures.branding.enabled && (
-                  <p className="body-md-regular mt-2 text-text-tertiary">
+                  <p className="mt-2 text-text-tertiary body-md-regular">
                     {t('joinTipStart', { ns: 'login' })}
                     {workspaceName}
                     {t('joinTipEnd', { ns: 'login' })}
@@ -257,8 +254,8 @@ const NormalForm = () => {
             )
           : (
               <div className="mx-auto w-full">
-                <h2 className="title-4xl-semi-bold text-text-primary">{systemFeatures.branding.enabled ? t('pageTitleForE', { ns: 'login' }) : t('pageTitle', { ns: 'login' })}</h2>
-                <p className="body-md-regular mt-2 text-text-tertiary">{t('welcome', { ns: 'login' })}</p>
+                <h2 className="text-text-primary title-4xl-semi-bold">{systemFeatures.branding.enabled ? t('pageTitleForE', { ns: 'login' }) : t('pageTitle', { ns: 'login' })}</h2>
+                <p className="mt-2 text-text-tertiary body-md-regular">{t('welcome', { ns: 'login' })}</p>
               </div>
             )}
         <div className="relative">
@@ -279,7 +276,7 @@ const NormalForm = () => {
             <div className="relative mt-6">
               <div className="flex items-center">
                 <div className="h-px flex-1 bg-gradient-to-r from-background-gradient-mask-transparent to-divider-regular"></div>
-                <span className="system-xs-medium-uppercase px-3 text-text-tertiary">{t('or', { ns: 'login' })}</span>
+                <span className="px-3 text-text-tertiary system-xs-medium-uppercase">{t('or', { ns: 'login' })}</span>
                 <div className="h-px flex-1 bg-gradient-to-l from-background-gradient-mask-transparent to-divider-regular"></div>
               </div>
             </div>
@@ -292,7 +289,7 @@ const NormalForm = () => {
                     <MailAndCodeAuth isInvite={isInviteLink} />
                     {systemFeatures.enable_email_password_login && (
                       <div className="cursor-pointer py-1 text-center" onClick={() => { updateAuthType('password') }}>
-                        <span className="system-xs-medium text-components-button-secondary-accent-text">{t('usePassword', { ns: 'login' })}</span>
+                        <span className="text-components-button-secondary-accent-text system-xs-medium">{t('usePassword', { ns: 'login' })}</span>
                       </div>
                     )}
                   </>
@@ -302,7 +299,7 @@ const NormalForm = () => {
                     <MailAndPasswordAuth isInvite={isInviteLink} isEmailSetup={systemFeatures.is_email_setup} allowRegistration={systemFeatures.is_allow_register} />
                     {systemFeatures.enable_email_code_login && (
                       <div className="cursor-pointer py-1 text-center" onClick={() => { updateAuthType('code') }}>
-                        <span className="system-xs-medium text-components-button-secondary-accent-text">{t('useVerificationCode', { ns: 'login' })}</span>
+                        <span className="text-components-button-secondary-accent-text system-xs-medium">{t('useVerificationCode', { ns: 'login' })}</span>
                       </div>
                     )}
                   </>
@@ -329,8 +326,8 @@ const NormalForm = () => {
                 <div className="shadows-shadow-lg mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
                   <RiDoorLockLine className="h-5 w-5" />
                 </div>
-                <p className="system-sm-medium text-text-primary">{t('noLoginMethod', { ns: 'login' })}</p>
-                <p className="system-xs-regular mt-1 text-text-tertiary">{t('noLoginMethodTip', { ns: 'login' })}</p>
+                <p className="text-text-primary system-sm-medium">{t('noLoginMethod', { ns: 'login' })}</p>
+                <p className="mt-1 text-text-tertiary system-xs-regular">{t('noLoginMethodTip', { ns: 'login' })}</p>
               </div>
               <div className="relative my-2 py-2">
                 <div className="absolute inset-0 flex items-center" aria-hidden="true">
@@ -341,11 +338,11 @@ const NormalForm = () => {
           )}
           {!systemFeatures.branding.enabled && (
             <>
-              <div className="system-xs-regular mt-2 block w-full text-text-tertiary">
+              <div className="mt-2 block w-full text-text-tertiary system-xs-regular">
                 {t('tosDesc', { ns: 'login' })}
               &nbsp;
                 <Link
-                  className="system-xs-medium text-text-secondary hover:underline"
+                  className="text-text-secondary system-xs-medium hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"
                   href="https://dify.ai/terms"
@@ -354,7 +351,7 @@ const NormalForm = () => {
                 </Link>
               &nbsp;&&nbsp;
                 <Link
-                  className="system-xs-medium text-text-secondary hover:underline"
+                  className="text-text-secondary system-xs-medium hover:underline"
                   target="_blank"
                   rel="noopener noreferrer"
                   href="https://dify.ai/privacy"
@@ -363,11 +360,11 @@ const NormalForm = () => {
                 </Link>
               </div>
               {IS_CE_EDITION && (
-                <div className="w-hull system-xs-regular mt-2 block text-text-tertiary">
+                <div className="w-hull mt-2 block text-text-tertiary system-xs-regular">
                   {t('goToInit', { ns: 'login' })}
               &nbsp;
                   <Link
-                    className="system-xs-medium text-text-secondary hover:underline"
+                    className="text-text-secondary system-xs-medium hover:underline"
                     href="/install"
                   >
                     {t('setAdminAccount', { ns: 'login' })}

@@ -1,7 +1,13 @@
 from collections.abc import Mapping
+<<<<<<< HEAD
 from typing import Any, cast
 
 from core.trigger.constants import TRIGGER_INFO_METADATA_KEY, TRIGGER_PLUGIN_NODE_TYPE
+=======
+from typing import Any
+
+from core.trigger.constants import TRIGGER_PLUGIN_NODE_TYPE
+>>>>>>> 1.13.3
 from dify_graph.constants import SYSTEM_VARIABLE_NODE_ID
 from dify_graph.entities.workflow_node_execution import WorkflowNodeExecutionStatus
 from dify_graph.enums import NodeExecutionType, WorkflowNodeExecutionMetadataKey
@@ -47,7 +53,11 @@ class TriggerEventNode(Node[TriggerEventNodeData]):
 
         # Get trigger data passed when workflow was triggered
         metadata: dict[WorkflowNodeExecutionMetadataKey, Any] = {
+<<<<<<< HEAD
             cast(WorkflowNodeExecutionMetadataKey, TRIGGER_INFO_METADATA_KEY): {
+=======
+            WorkflowNodeExecutionMetadataKey.TRIGGER_INFO: {
+>>>>>>> 1.13.3
                 "provider_id": self.node_data.provider_id,
                 "event_name": self.node_data.event_name,
                 "plugin_unique_identifier": self.node_data.plugin_unique_identifier,

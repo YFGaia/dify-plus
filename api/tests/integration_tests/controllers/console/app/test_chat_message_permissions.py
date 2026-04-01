@@ -15,6 +15,7 @@ from libs import login as login_lib
 from libs.datetime_utils import naive_utc_now
 from models import App, Tenant
 from models.account import Account, TenantAccountJoin, TenantAccountRole
+from models.enums import ConversationFromSource
 from models.model import AppMode
 from services.app_generate_service import AppGenerateService
 
@@ -202,7 +203,7 @@ class TestChatMessageApiPermissions:
             re_sign_file_url_answer="",
             answer_tokens=0,
             provider_response_latency=0.0,
-            from_source="console",
+            from_source=ConversationFromSource.CONSOLE,
             from_end_user_id=None,
             from_account_id=mock_account.id,
             feedbacks=[],
@@ -213,7 +214,7 @@ class TestChatMessageApiPermissions:
             agent_thoughts=[],
             message_files=[],
             message_metadata_dict={},
-            status="success",
+            status="normal",
             error="",
             parent_message_id=None,
         )

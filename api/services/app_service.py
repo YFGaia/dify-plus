@@ -1,10 +1,9 @@
 import json
 import logging
-from typing import TypedDict, cast
+from typing import Any, TypedDict, cast
 
 import sqlalchemy as sa
 from flask_sqlalchemy.pagination import Pagination
-from sqlalchemy.sql import text  # Extend: App Center - Recommended list sorted by usage frequency
 
 from configs import dify_config
 from constants.model_template import default_app_templates
@@ -20,8 +19,7 @@ from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
 from libs.login import current_user
 from models import Account
-from models.model import App, AppMode, AppModelConfig, AppStatisticsExtend, IconType, RecommendedApp, Site
-from models.model_extend import AppExtend  # Extend: 记忆上下文功能
+from models.model import App, AppMode, AppModelConfig, IconType, Site
 from models.tools import ApiToolProvider
 from services.billing_service import BillingService
 from services.enterprise.enterprise_service import EnterpriseService
@@ -42,15 +40,6 @@ class AppService:
         :return:
         """
         filters = [App.tenant_id == tenant_id, App.is_universal == False]
-
-        # start Extend: App Center - Recommended list sorted by usage frequency
-        rows = db.session.execute(
-            text('SELECT "id" FROM apps WHERE "id" NOT IN (SELECT"app_id" FROM "app_statistics_extend")')
-        )
-        for row in rows.fetchall():
-            db.session.add(AppStatisticsExtend(app_id=str(row[0]), number=0))
-            db.session.commit()
-        # stop Extend: App Center - Recommended list sorted by usage frequency
 
         if args["mode"] == "workflow":
             filters.append(App.mode == AppMode.WORKFLOW)
@@ -85,14 +74,6 @@ class AppService:
             per_page=args["limit"],
             error_out=False,
         )
-
-        # ---------------- start app list
-        # get recommended app list
-        app_list = []
-        for i in db.session.query(RecommendedApp).all():
-            app_list.append(i.app_id)
-        app_models.recommended_apps = app_list
-        # ---------------- stop app list
 
         return app_models
 
@@ -177,9 +158,6 @@ class AppService:
 
             app.app_model_config_id = app_model_config.id
 
-        db.session.add(AppStatisticsExtend(app_id=app.id, number=0))  # Extend: App Center - Recommended list sorted
-        # by usage frequency
-
         db.session.commit()
 
         app_was_created.send(app, account=account)
@@ -199,11 +177,6 @@ class AppService:
         """
         assert isinstance(current_user, Account)
         assert current_user.current_tenant_id is not None
-        # ======= start: Extend: App Center - Recommended list sorted =======
-        if db.session.query(AppStatisticsExtend).filter(AppStatisticsExtend.app_id == app.id).first() is None:
-            db.session.add(AppStatisticsExtend(app_id=app.id, number=0))
-            db.session.commit()
-        # ======= stop: Extend: App Center - Recommended list sorted =======
         # get original app model config
         if app.mode == AppMode.AGENT_CHAT or app.is_agent:
             model_config = app.app_model_config
@@ -262,20 +235,13 @@ class AppService:
                     return model_config
 
             app = ModifiedApp(app)
-        # Extend: 记忆上下文功能 - Start
-        app_extend: AppExtend = db.session.query(AppExtend).filter(AppExtend.app_id == app.id).first()
-        if app_extend is not None:
-            app.retention_number = app_extend.retention_number
-        else:
-            app.retention_number = dify_config.DEFAULT_NUMBER_CONTEXT
-        # Extend: 记忆上下文功能 - Stop
 
         return app
 
     class ArgsDict(TypedDict):
         name: str
         description: str
-        icon_type: str
+        icon_type: IconType | str | None
         icon: str
         icon_background: str
         use_icon_as_answer_icon: bool
@@ -291,19 +257,19 @@ class AppService:
         assert current_user is not None
         app.name = args["name"]
         app.description = args["description"]
-        app.icon_type = IconType(args["icon_type"]) if args["icon_type"] else None
+        icon_type = args.get("icon_type")
+        if icon_type is None:
+            resolved_icon_type = app.icon_type
+        else:
+            resolved_icon_type = IconType(icon_type)
+
+        app.icon_type = resolved_icon_type
         app.icon = args["icon"]
         app.icon_background = args["icon_background"]
         app.use_icon_as_answer_icon = args.get("use_icon_as_answer_icon", False)
         app.max_active_requests = args.get("max_active_requests")
         app.updated_by = current_user.id
         app.updated_at = naive_utc_now()
-
-        # ======= start: Extend: App Center - Recommended list sorted =======
-        if db.session.query(AppStatisticsExtend).filter(AppStatisticsExtend.app_id == app.id).first() is None:
-            db.session.add(AppStatisticsExtend(app_id=app.id, number=0))
-            db.session.commit()
-        # ======= stop: Extend: App Center - Recommended list sorted =======
         db.session.commit()
 
         return app
@@ -431,7 +397,7 @@ class AppService:
             agent_config = app_model_config.agent_mode_dict
 
             # get all tools
-            tools = agent_config.get("tools", [])
+            tools = cast(list[dict[str, Any]], agent_config.get("tools", []))
 
         url_prefix = dify_config.CONSOLE_API_URL + "/console/api/workspaces/current/tool-provider/builtin/"
 

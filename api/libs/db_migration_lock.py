@@ -86,9 +86,11 @@ class DbMigrationAutoRenewLock:
 
         Accepts the same args/kwargs as redis-py `Lock.acquire()`.
         """
+        # Prevent accidental double-acquire which could leave the previous heartbeat thread running.
         if self._acquired:
             raise RuntimeError("DB migration lock is already acquired; call release_safely() before acquiring again.")
 
+        # Reuse the lock object if we already created one.
         if self._lock is None:
             self._lock = self._redis_client.lock(
                 name=self._name,
@@ -107,6 +109,7 @@ class DbMigrationAutoRenewLock:
         try:
             return bool(self._lock.owned())
         except Exception:
+            # Ownership checks are best-effort and must not break callers.
             return False
 
     def _start_heartbeat(self) -> None:
@@ -161,6 +164,7 @@ class DbMigrationAutoRenewLock:
 
         self._stop_heartbeat()
 
+        # Lock release errors should never mask the real error/exit code.
         try:
             lock.release()
         except LockNotOwnedError:
@@ -193,6 +197,7 @@ class DbMigrationAutoRenewLock:
             return
         self._stop_event.set()
         if self._thread is not None:
+            # Best-effort join: if Redis calls are blocked, the daemon thread may remain alive.
             join_timeout_seconds = max(
                 MIN_JOIN_TIMEOUT_SECONDS,
                 min(MAX_JOIN_TIMEOUT_SECONDS, self._renew_interval_seconds * JOIN_TIMEOUT_MULTIPLIER),

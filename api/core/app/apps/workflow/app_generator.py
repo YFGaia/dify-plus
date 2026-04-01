@@ -5,9 +5,7 @@ import logging
 import threading
 import uuid
 from collections.abc import Generator, Mapping, Sequence
-
-# extend: 二开部分 - 密钥额度限制，新增cast
-from typing import TYPE_CHECKING, Any, Literal, Union, cast, overload
+from typing import TYPE_CHECKING, Any, Literal, Union, overload
 
 from flask import Flask, current_app
 from pydantic import ValidationError
@@ -27,23 +25,25 @@ from core.app.apps.workflow.generate_response_converter import WorkflowAppGenera
 from core.app.apps.workflow.generate_task_pipeline import WorkflowAppGenerateTaskPipeline
 from core.app.entities.app_invoke_entities import InvokeFrom, WorkflowAppGenerateEntity
 from core.app.entities.task_entities import WorkflowAppBlockingResponse, WorkflowAppStreamResponse
+from core.app.layers.pause_state_persist_layer import PauseStateLayerConfig, PauseStatePersistenceLayer
 from core.db.session_factory import session_factory
 from core.helper.trace_id_helper import extract_external_trace_id_from_args
-from core.model_runtime.errors.invoke import InvokeAuthorizationError
 from core.ops.ops_trace_manager import TraceQueueManager
 from core.repositories import DifyCoreRepositoryFactory
-from core.workflow.graph_engine.layers.base import GraphEngineLayer
-from core.workflow.repositories.draft_variable_repository import DraftVariableSaverFactory
-from core.workflow.repositories.workflow_execution_repository import WorkflowExecutionRepository
-from core.workflow.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
+from dify_graph.graph_engine.layers.base import GraphEngineLayer
+from dify_graph.model_runtime.errors.invoke import InvokeAuthorizationError
+from dify_graph.repositories.draft_variable_repository import DraftVariableSaverFactory
+from dify_graph.repositories.workflow_execution_repository import WorkflowExecutionRepository
+from dify_graph.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
+from dify_graph.runtime import GraphRuntimeState
 from dify_graph.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader
 from extensions.ext_database import db
 from factories import file_factory
 from libs.flask_utils import preserve_flask_contexts
-
-# extend: 二开部分 - 密钥额度限制，新增ApiToken
-from models import Account, ApiToken, App, EndUser, Workflow, WorkflowNodeExecutionTriggeredFrom
+from models.account import Account
 from models.enums import WorkflowRunTriggeredFrom
+from models.model import App, EndUser
+from models.workflow import Workflow, WorkflowNodeExecutionTriggeredFrom
 from services.workflow_draft_variable_service import DraftVarLoader, WorkflowDraftVariableService
 
 if TYPE_CHECKING:
@@ -70,9 +70,11 @@ class WorkflowAppGenerator(BaseAppGenerator):
         invoke_from: InvokeFrom,
         streaming: Literal[True],
         call_depth: int,
+        workflow_run_id: str | uuid.UUID | None = None,
         triggered_from: WorkflowRunTriggeredFrom | None = None,
         root_node_id: str | None = None,
         graph_engine_layers: Sequence[GraphEngineLayer] = (),
+        pause_state_config: PauseStateLayerConfig | None = None,
     ) -> Generator[Mapping[str, Any] | str, None, None]: ...
 
     @overload
@@ -86,9 +88,11 @@ class WorkflowAppGenerator(BaseAppGenerator):
         invoke_from: InvokeFrom,
         streaming: Literal[False],
         call_depth: int,
+        workflow_run_id: str | uuid.UUID | None = None,
         triggered_from: WorkflowRunTriggeredFrom | None = None,
         root_node_id: str | None = None,
         graph_engine_layers: Sequence[GraphEngineLayer] = (),
+        pause_state_config: PauseStateLayerConfig | None = None,
     ) -> Mapping[str, Any]: ...
 
     @overload
@@ -102,9 +106,11 @@ class WorkflowAppGenerator(BaseAppGenerator):
         invoke_from: InvokeFrom,
         streaming: bool,
         call_depth: int,
+        workflow_run_id: str | uuid.UUID | None = None,
         triggered_from: WorkflowRunTriggeredFrom | None = None,
         root_node_id: str | None = None,
         graph_engine_layers: Sequence[GraphEngineLayer] = (),
+        pause_state_config: PauseStateLayerConfig | None = None,
     ) -> Union[Mapping[str, Any], Generator[Mapping[str, Any] | str, None, None]]: ...
 
     def generate(
@@ -117,9 +123,11 @@ class WorkflowAppGenerator(BaseAppGenerator):
         invoke_from: InvokeFrom,
         streaming: bool = True,
         call_depth: int = 0,
+        workflow_run_id: str | uuid.UUID | None = None,
         triggered_from: WorkflowRunTriggeredFrom | None = None,
         root_node_id: str | None = None,
         graph_engine_layers: Sequence[GraphEngineLayer] = (),
+        pause_state_config: PauseStateLayerConfig | None = None,
     ) -> Union[Mapping[str, Any], Generator[Mapping[str, Any] | str, None, None]]:
         files: Sequence[Mapping[str, Any]] = args.get("files") or []
 
@@ -154,7 +162,7 @@ class WorkflowAppGenerator(BaseAppGenerator):
         extras = {
             **extract_external_trace_id_from_args(args),
         }
-        workflow_run_id = str(uuid.uuid4())
+        workflow_run_id = str(workflow_run_id or uuid.uuid4())
         # FIXME (Yeuoly): we need to remove the SKIP_PREPARE_USER_INPUTS_KEY from the args
         # trigger shouldn't prepare user inputs
         if self._should_prepare_user_inputs(args):
@@ -164,18 +172,6 @@ class WorkflowAppGenerator(BaseAppGenerator):
                 tenant_id=app_model.tenant_id,
                 strict_type_validation=True if invoke_from == InvokeFrom.SERVICE_API else False,
             )
-        # ------------------- 二开部分Begin - 密钥额度限制 -------------------
-        extras = {}
-        api_token = args.get("api_token")
-        if api_token:
-            cast(ApiToken, api_token)
-            extras["app_token_id"] = api_token.id
-        # ------------------- 二开部分End - 密钥额度限制
-
-        # extend: 如果 args 中有 account_id（Web App 登录用户），将其放入 extras
-        if args.get("account_id"):
-            extras["account_id"] = args.get("account_id")
-
         # init application generate entity
         application_generate_entity = WorkflowAppGenerateEntity(
             task_id=str(uuid.uuid4()),
@@ -232,13 +228,40 @@ class WorkflowAppGenerator(BaseAppGenerator):
             streaming=streaming,
             root_node_id=root_node_id,
             graph_engine_layers=graph_engine_layers,
+            pause_state_config=pause_state_config,
         )
 
-    def resume(self, *, workflow_run_id: str) -> None:
+    def resume(
+        self,
+        *,
+        app_model: App,
+        workflow: Workflow,
+        user: Union[Account, EndUser],
+        application_generate_entity: WorkflowAppGenerateEntity,
+        graph_runtime_state: GraphRuntimeState,
+        workflow_execution_repository: WorkflowExecutionRepository,
+        workflow_node_execution_repository: WorkflowNodeExecutionRepository,
+        graph_engine_layers: Sequence[GraphEngineLayer] = (),
+        pause_state_config: PauseStateLayerConfig | None = None,
+        variable_loader: VariableLoader = DUMMY_VARIABLE_LOADER,
+    ) -> Union[Mapping[str, Any], Generator[str | Mapping[str, Any], None, None]]:
         """
-        @TBD
+        Resume a paused workflow execution using the persisted runtime state.
         """
-        pass
+        return self._generate(
+            app_model=app_model,
+            workflow=workflow,
+            user=user,
+            application_generate_entity=application_generate_entity,
+            invoke_from=application_generate_entity.invoke_from,
+            workflow_execution_repository=workflow_execution_repository,
+            workflow_node_execution_repository=workflow_node_execution_repository,
+            streaming=application_generate_entity.stream,
+            variable_loader=variable_loader,
+            graph_engine_layers=graph_engine_layers,
+            graph_runtime_state=graph_runtime_state,
+            pause_state_config=pause_state_config,
+        )
 
     def _generate(
         self,
@@ -254,6 +277,8 @@ class WorkflowAppGenerator(BaseAppGenerator):
         variable_loader: VariableLoader = DUMMY_VARIABLE_LOADER,
         root_node_id: str | None = None,
         graph_engine_layers: Sequence[GraphEngineLayer] = (),
+        graph_runtime_state: GraphRuntimeState | None = None,
+        pause_state_config: PauseStateLayerConfig | None = None,
     ) -> Union[Mapping[str, Any], Generator[str | Mapping[str, Any], None, None]]:
         """
         Generate App response.
@@ -267,6 +292,8 @@ class WorkflowAppGenerator(BaseAppGenerator):
         :param workflow_node_execution_repository: repository for workflow node execution
         :param streaming: is stream
         """
+        graph_layers: list[GraphEngineLayer] = list(graph_engine_layers)
+
         # init queue manager
         queue_manager = WorkflowAppQueueManager(
             task_id=application_generate_entity.task_id,
@@ -274,6 +301,15 @@ class WorkflowAppGenerator(BaseAppGenerator):
             invoke_from=application_generate_entity.invoke_from,
             app_mode=app_model.mode,
         )
+
+        if pause_state_config is not None:
+            graph_layers.append(
+                PauseStatePersistenceLayer(
+                    session_factory=pause_state_config.session_factory,
+                    generate_entity=application_generate_entity,
+                    state_owner_user_id=pause_state_config.state_owner_user_id,
+                )
+            )
 
         # new thread with request context and contextvars
         context = contextvars.copy_context()
@@ -292,7 +328,8 @@ class WorkflowAppGenerator(BaseAppGenerator):
                 "root_node_id": root_node_id,
                 "workflow_execution_repository": workflow_execution_repository,
                 "workflow_node_execution_repository": workflow_node_execution_repository,
-                "graph_engine_layers": graph_engine_layers,
+                "graph_engine_layers": tuple(graph_layers),
+                "graph_runtime_state": graph_runtime_state,
             },
         )
 
@@ -376,8 +413,8 @@ class WorkflowAppGenerator(BaseAppGenerator):
             app_id=application_generate_entity.app_config.app_id,
             triggered_from=WorkflowNodeExecutionTriggeredFrom.SINGLE_STEP,
         )
-        draft_var_srv = WorkflowDraftVariableService(db.session(), user_id=user.id)
-        draft_var_srv.prefill_conversation_variable_default_values(workflow)
+        draft_var_srv = WorkflowDraftVariableService(db.session())
+        draft_var_srv.prefill_conversation_variable_default_values(workflow, user_id=user.id)
         var_loader = DraftVarLoader(
             engine=db.engine,
             app_id=application_generate_entity.app_config.app_id,
@@ -395,6 +432,7 @@ class WorkflowAppGenerator(BaseAppGenerator):
             workflow_node_execution_repository=workflow_node_execution_repository,
             streaming=streaming,
             variable_loader=var_loader,
+            pause_state_config=None,
         )
 
     def single_loop_generate(
@@ -459,8 +497,8 @@ class WorkflowAppGenerator(BaseAppGenerator):
             app_id=application_generate_entity.app_config.app_id,
             triggered_from=WorkflowNodeExecutionTriggeredFrom.SINGLE_STEP,
         )
-        draft_var_srv = WorkflowDraftVariableService(db.session(), user_id=user.id)
-        draft_var_srv.prefill_conversation_variable_default_values(workflow)
+        draft_var_srv = WorkflowDraftVariableService(db.session())
+        draft_var_srv.prefill_conversation_variable_default_values(workflow, user_id=user.id)
         var_loader = DraftVarLoader(
             engine=db.engine,
             app_id=application_generate_entity.app_config.app_id,
@@ -477,6 +515,7 @@ class WorkflowAppGenerator(BaseAppGenerator):
             workflow_node_execution_repository=workflow_node_execution_repository,
             streaming=streaming,
             variable_loader=var_loader,
+            pause_state_config=None,
         )
 
     def _generate_worker(
@@ -490,6 +529,7 @@ class WorkflowAppGenerator(BaseAppGenerator):
         workflow_node_execution_repository: WorkflowNodeExecutionRepository,
         root_node_id: str | None = None,
         graph_engine_layers: Sequence[GraphEngineLayer] = (),
+        graph_runtime_state: GraphRuntimeState | None = None,
     ) -> None:
         """
         Generate worker in a new thread.
@@ -535,6 +575,7 @@ class WorkflowAppGenerator(BaseAppGenerator):
                 workflow_node_execution_repository=workflow_node_execution_repository,
                 root_node_id=root_node_id,
                 graph_engine_layers=graph_engine_layers,
+                graph_runtime_state=graph_runtime_state,
             )
 
             try:

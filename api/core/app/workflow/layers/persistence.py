@@ -15,20 +15,19 @@ from datetime import datetime
 from typing import Any, Union
 
 from core.app.entities.app_invoke_entities import AdvancedChatAppGenerateEntity, WorkflowAppGenerateEntity
-from core.model_runtime.utils.encoders import jsonable_encoder
 from core.ops.entities.trace_entity import TraceTaskName
 from core.ops.ops_trace_manager import TraceQueueManager, TraceTask
-from core.workflow.constants import SYSTEM_VARIABLE_NODE_ID
-from core.workflow.entities import WorkflowExecution, WorkflowNodeExecution
-from core.workflow.enums import (
+from dify_graph.constants import SYSTEM_VARIABLE_NODE_ID
+from dify_graph.entities import WorkflowExecution, WorkflowNodeExecution
+from dify_graph.enums import (
     SystemVariableKey,
     WorkflowExecutionStatus,
     WorkflowNodeExecutionMetadataKey,
     WorkflowNodeExecutionStatus,
     WorkflowType,
 )
-from core.workflow.graph_engine.layers.base import GraphEngineLayer
-from core.workflow.graph_events import (
+from dify_graph.graph_engine.layers.base import GraphEngineLayer
+from dify_graph.graph_events import (
     GraphEngineEvent,
     GraphRunAbortedEvent,
     GraphRunFailedEvent,
@@ -43,67 +42,10 @@ from core.workflow.graph_events import (
     NodeRunStartedEvent,
     NodeRunSucceededEvent,
 )
-from core.workflow.node_events import NodeRunResult
-from core.workflow.repositories.workflow_execution_repository import WorkflowExecutionRepository
-from core.workflow.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
-from dify_graph.graph_events import (
-    GraphRunAbortedEvent as DifyGraphRunAbortedEvent,
-)
-from dify_graph.graph_events import (
-    GraphRunFailedEvent as DifyGraphRunFailedEvent,
-)
-from dify_graph.graph_events import (
-    GraphRunPartialSucceededEvent as DifyGraphRunPartialSucceededEvent,
-)
-from dify_graph.graph_events import (
-    GraphRunPausedEvent as DifyGraphRunPausedEvent,
-)
-from dify_graph.graph_events import (
-    GraphRunStartedEvent as DifyGraphRunStartedEvent,
-)
-from dify_graph.graph_events import (
-    GraphRunSucceededEvent as DifyGraphRunSucceededEvent,
-)
-from dify_graph.graph_events import (
-    NodeRunExceptionEvent as DifyNodeRunExceptionEvent,
-)
-from dify_graph.graph_events import (
-    NodeRunFailedEvent as DifyNodeRunFailedEvent,
-)
-from dify_graph.graph_events import (
-    NodeRunPauseRequestedEvent as DifyNodeRunPauseRequestedEvent,
-)
-from dify_graph.graph_events import (
-    NodeRunRetryEvent as DifyNodeRunRetryEvent,
-)
-from dify_graph.graph_events import (
-    NodeRunStartedEvent as DifyNodeRunStartedEvent,
-)
-from dify_graph.graph_events import (
-    NodeRunSucceededEvent as DifyNodeRunSucceededEvent,
-)
+from dify_graph.node_events import NodeRunResult
+from dify_graph.repositories.workflow_execution_repository import WorkflowExecutionRepository
+from dify_graph.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
 from libs.datetime_utils import naive_utc_now
-
-# extend: start 二开部分 - 计费相关的用户信息
-from models.enums import CreatorUserRole, UserFrom
-from tasks.extend.update_account_money_when_workflow_node_execution_created_extend import (
-    update_account_money_when_workflow_node_execution_created_extend,
-)
-
-# extend: stop 二开部分 - 计费相关的用户信息
-
-GRAPH_RUN_STARTED_EVENT_TYPES = (GraphRunStartedEvent, DifyGraphRunStartedEvent)
-GRAPH_RUN_SUCCEEDED_EVENT_TYPES = (GraphRunSucceededEvent, DifyGraphRunSucceededEvent)
-GRAPH_RUN_PARTIAL_SUCCEEDED_EVENT_TYPES = (GraphRunPartialSucceededEvent, DifyGraphRunPartialSucceededEvent)
-GRAPH_RUN_FAILED_EVENT_TYPES = (GraphRunFailedEvent, DifyGraphRunFailedEvent)
-GRAPH_RUN_ABORTED_EVENT_TYPES = (GraphRunAbortedEvent, DifyGraphRunAbortedEvent)
-GRAPH_RUN_PAUSED_EVENT_TYPES = (GraphRunPausedEvent, DifyGraphRunPausedEvent)
-NODE_RUN_STARTED_EVENT_TYPES = (NodeRunStartedEvent, DifyNodeRunStartedEvent)
-NODE_RUN_RETRY_EVENT_TYPES = (NodeRunRetryEvent, DifyNodeRunRetryEvent)
-NODE_RUN_SUCCEEDED_EVENT_TYPES = (NodeRunSucceededEvent, DifyNodeRunSucceededEvent)
-NODE_RUN_FAILED_EVENT_TYPES = (NodeRunFailedEvent, DifyNodeRunFailedEvent)
-NODE_RUN_EXCEPTION_EVENT_TYPES = (NodeRunExceptionEvent, DifyNodeRunExceptionEvent)
-NODE_RUN_PAUSE_REQUESTED_EVENT_TYPES = (NodeRunPauseRequestedEvent, DifyNodeRunPauseRequestedEvent)
 
 
 @dataclass(slots=True)
@@ -139,7 +81,6 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
         workflow_execution_repository: WorkflowExecutionRepository,
         workflow_node_execution_repository: WorkflowNodeExecutionRepository,
         trace_manager: TraceQueueManager | None = None,
-        user_from: UserFrom | None = None,  # 二开部分 - 用于计费
     ) -> None:
         super().__init__()
         self._application_generate_entity = application_generate_entity
@@ -147,7 +88,6 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
         self._workflow_execution_repository = workflow_execution_repository
         self._workflow_node_execution_repository = workflow_node_execution_repository
         self._trace_manager = trace_manager
-        self._user_from = user_from  # 二开部分 - 用于计费
 
         self._workflow_execution: WorkflowExecution | None = None
         self._node_execution_cache: dict[str, WorkflowNodeExecution] = {}
@@ -164,51 +104,51 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
         self._node_sequence = 0
 
     def on_event(self, event: GraphEngineEvent) -> None:
-        if isinstance(event, GRAPH_RUN_STARTED_EVENT_TYPES):
+        if isinstance(event, GraphRunStartedEvent):
             self._handle_graph_run_started()
             return
 
-        if isinstance(event, GRAPH_RUN_SUCCEEDED_EVENT_TYPES):
+        if isinstance(event, GraphRunSucceededEvent):
             self._handle_graph_run_succeeded(event)
             return
 
-        if isinstance(event, GRAPH_RUN_PARTIAL_SUCCEEDED_EVENT_TYPES):
+        if isinstance(event, GraphRunPartialSucceededEvent):
             self._handle_graph_run_partial_succeeded(event)
             return
 
-        if isinstance(event, GRAPH_RUN_FAILED_EVENT_TYPES):
+        if isinstance(event, GraphRunFailedEvent):
             self._handle_graph_run_failed(event)
             return
 
-        if isinstance(event, GRAPH_RUN_ABORTED_EVENT_TYPES):
+        if isinstance(event, GraphRunAbortedEvent):
             self._handle_graph_run_aborted(event)
             return
 
-        if isinstance(event, GRAPH_RUN_PAUSED_EVENT_TYPES):
+        if isinstance(event, GraphRunPausedEvent):
             self._handle_graph_run_paused(event)
             return
 
-        if isinstance(event, NODE_RUN_STARTED_EVENT_TYPES):
-            self._handle_node_started(event)
-            return
-
-        if isinstance(event, NODE_RUN_RETRY_EVENT_TYPES):
+        if isinstance(event, NodeRunRetryEvent):
             self._handle_node_retry(event)
             return
 
-        if isinstance(event, NODE_RUN_SUCCEEDED_EVENT_TYPES):
+        if isinstance(event, NodeRunStartedEvent):
+            self._handle_node_started(event)
+            return
+
+        if isinstance(event, NodeRunSucceededEvent):
             self._handle_node_succeeded(event)
             return
 
-        if isinstance(event, NODE_RUN_FAILED_EVENT_TYPES):
+        if isinstance(event, NodeRunFailedEvent):
             self._handle_node_failed(event)
             return
 
-        if isinstance(event, NODE_RUN_EXCEPTION_EVENT_TYPES):
+        if isinstance(event, NodeRunExceptionEvent):
             self._handle_node_exception(event)
             return
 
-        if isinstance(event, NODE_RUN_PAUSE_REQUESTED_EVENT_TYPES):
+        if isinstance(event, NodeRunPauseRequestedEvent):
             self._handle_node_pause_requested(event)
 
     def on_graph_end(self, error: Exception | None) -> None:
@@ -328,27 +268,12 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
 
     def _handle_node_succeeded(self, event: NodeRunSucceededEvent) -> None:
         domain_execution = self._get_node_execution(event.id)
-        self._update_node_execution(domain_execution, event.node_run_result, WorkflowNodeExecutionStatus.SUCCEEDED)
-        
-        # 二开部分Begin - 计费
-        # 异步任务计算费用并更新账户额度，将对象转换为字典传递
-        domain_execution_dict = jsonable_encoder(domain_execution)
-        
-        # 添加用户信息到字典中
-        domain_execution_dict['created_by'] = self._application_generate_entity.user_id
-        if self._user_from == UserFrom.ACCOUNT:
-            domain_execution_dict['created_by_role'] = CreatorUserRole.ACCOUNT.value
-        elif self._user_from == UserFrom.END_USER:
-            domain_execution_dict['created_by_role'] = CreatorUserRole.END_USER.value
-        else:
-            domain_execution_dict['created_by_role'] = None
-        
-        # 添加 workflow_run_id
-        if self._workflow_execution:
-            domain_execution_dict['workflow_run_id'] = self._workflow_execution.id_
-        
-        update_account_money_when_workflow_node_execution_created_extend.delay(domain_execution_dict)
-        # 二开部分End - 计费
+        self._update_node_execution(
+            domain_execution,
+            event.node_run_result,
+            WorkflowNodeExecutionStatus.SUCCEEDED,
+            finished_at=event.finished_at,
+        )
 
     def _handle_node_failed(self, event: NodeRunFailedEvent) -> None:
         domain_execution = self._get_node_execution(event.id)
@@ -357,6 +282,7 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
             event.node_run_result,
             WorkflowNodeExecutionStatus.FAILED,
             error=event.error,
+            finished_at=event.finished_at,
         )
 
     def _handle_node_exception(self, event: NodeRunExceptionEvent) -> None:
@@ -366,6 +292,7 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
             event.node_run_result,
             WorkflowNodeExecutionStatus.EXCEPTION,
             error=event.error,
+            finished_at=event.finished_at,
         )
 
     def _handle_node_pause_requested(self, event: NodeRunPauseRequestedEvent) -> None:
@@ -432,13 +359,14 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
         *,
         error: str | None = None,
         update_outputs: bool = True,
+        finished_at: datetime | None = None,
     ) -> None:
-        finished_at = naive_utc_now()
+        actual_finished_at = finished_at or naive_utc_now()
         snapshot = self._node_snapshots.get(domain_execution.id)
         start_at = snapshot.created_at if snapshot else domain_execution.created_at
         domain_execution.status = status
-        domain_execution.finished_at = finished_at
-        domain_execution.elapsed_time = max((finished_at - start_at).total_seconds(), 0.0)
+        domain_execution.finished_at = actual_finished_at
+        domain_execution.elapsed_time = max((actual_finished_at - start_at).total_seconds(), 0.0)
 
         if error:
             domain_execution.error = error
@@ -485,4 +413,3 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
     def _system_variables(self) -> Mapping[str, Any]:
         runtime_state = self.graph_runtime_state
         return runtime_state.variable_pool.get_by_prefix(SYSTEM_VARIABLE_NODE_ID)
- 

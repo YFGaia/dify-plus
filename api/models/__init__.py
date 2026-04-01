@@ -33,10 +33,11 @@ from .enums import (
     AppTriggerStatus,
     AppTriggerType,
     CreatorUserRole,
-    UserFrom,
     WorkflowRunTriggeredFrom,
     WorkflowTriggerStatus,
 )
+from .execution_extra_content import ExecutionExtraContent, HumanInputContent
+from .human_input import HumanInputForm
 from .model import (
     AccountTrialAppRecord,
     ApiRequest,
@@ -159,9 +160,12 @@ __all__ = [
     "DocumentSegment",
     "Embedding",
     "EndUser",
+    "ExecutionExtraContent",
     "ExporleBanner",
     "ExternalKnowledgeApis",
     "ExternalKnowledgeBindings",
+    "HumanInputContent",
+    "HumanInputForm",
     "IconType",
     "InstalledApp",
     "InvitationCode",
@@ -204,7 +208,6 @@ __all__ = [
     "TriggerOAuthTenantClient",
     "TriggerSubscription",
     "UploadFile",
-    "UserFrom",
     "Whitelist",
     "Workflow",
     "WorkflowAppLog",

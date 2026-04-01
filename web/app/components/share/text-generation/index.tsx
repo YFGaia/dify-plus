@@ -1,41 +1,15 @@
 'use client'
 import type { FC } from 'react'
-import type {
-  MoreLikeThisConfig,
-  PromptConfig,
-  SavedMessage,
-  TextToSpeechConfig,
-} from '@/models/debug'
+import type { InputValueTypes, TextGenerationRunControl } from './types'
 import type { InstalledApp } from '@/models/explore'
-import type { SiteInfo } from '@/models/share'
-import type { VisionFile, VisionSettings } from '@/types/app'
-import {
-  RiBookmark3Line,
-  RiErrorWarningFill,
-} from '@remixicon/react'
+import type { VisionFile } from '@/types/app'
 import { useBoolean } from 'ahooks'
-import { useSearchParams } from 'next/navigation'
-import * as React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import SavedItems from '@/app/components/app/text-generate/saved-items'
-import AppIcon from '@/app/components/base/app-icon'
-import Badge from '@/app/components/base/badge'
 import Loading from '@/app/components/base/loading'
-import DifyLogo from '@/app/components/base/logo/dify-logo'
 import Toast from '@/app/components/base/toast'
-import Res from '@/app/components/share/text-generation/result'
-import RunOnce from '@/app/components/share/text-generation/run-once'
-import { appDefaultIconBackground, BATCH_CONCURRENCY } from '@/config'
-import { useGlobalPublicStore } from '@/context/global-public-context'
-import { useWebAppStore } from '@/context/web-app-context'
-import { useAppFavicon } from '@/hooks/use-app-favicon'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
-import useDocumentTitle from '@/hooks/use-document-title'
-import { changeLanguage } from '@/i18n-config/client'
-import { AccessMode } from '@/models/access-control'
-import { AppSourceType, fetchSavedMessage as doFetchSavedMessage, removeMessage, saveMessage } from '@/service/share'
-import { Resolution, TransferMethod } from '@/types/app'
+import { useSearchParams } from '@/next/navigation'
 import { cn } from '@/utils/classnames'
 import { userInputsFormToPromptVariables } from '@/utils/model-config'
 import TabHeader from '../../base/tab-header'
@@ -78,8 +52,6 @@ const TextGeneration: FC<IMainProps> = ({
   isWorkflow = false,
 }) => {
   const { notify } = Toast
-  const appSourceType = isInstalledApp ? AppSourceType.installedApp : AppSourceType.webApp
-
   const { t } = useTranslation()
   const media = useBreakpoints()
   const isPC = media === MediaType.pc
@@ -87,70 +59,80 @@ const TextGeneration: FC<IMainProps> = ({
   const searchParams = useSearchParams()
   const mode = searchParams.get('mode') || 'create'
   const [currentTab, setCurrentTab] = useState<string>(['create', 'batch'].includes(mode) ? mode : 'create')
-
-  // Notice this situation isCallBatchAPI but not in batch tab
-  const [isCallBatchAPI, setIsCallBatchAPI] = useState(false)
-  const isInBatchTab = currentTab === 'batch'
-  const [inputs, doSetInputs] = useState<Record<string, any>>({})
+  const [inputs, setInputs] = useState<Record<string, InputValueTypes>>({})
   const inputsRef = useRef(inputs)
-  const setInputs = useCallback((newInputs: Record<string, any>) => {
-    doSetInputs(newInputs)
-    inputsRef.current = newInputs
-  }, [])
-  const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
-  const [appId, setAppId] = useState<string>('')
-  const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null)
-  const [customConfig, setCustomConfig] = useState<Record<string, any> | null>(null)
-  const [promptConfig, setPromptConfig] = useState<PromptConfig | null>(null)
-  const [moreLikeThisConfig, setMoreLikeThisConfig] = useState<MoreLikeThisConfig | null>(null)
-  const [textToSpeechConfig, setTextToSpeechConfig] = useState<TextToSpeechConfig | null>(null)
-
-  // save message
-  const [savedMessages, setSavedMessages] = useState<SavedMessage[]>([])
-  const fetchSavedMessage = useCallback(async () => {
-    if (!appId)
-      return
-    const res: any = await doFetchSavedMessage(appSourceType, appId)
-    setSavedMessages(res.data)
-  }, [appSourceType, appId])
-  const handleSaveMessage = async (messageId: string) => {
-    await saveMessage(messageId, appSourceType, appId)
-    notify({ type: 'success', message: t('api.saved', { ns: 'common' }) })
-    fetchSavedMessage()
-  }
-  const handleRemoveSavedMessage = async (messageId: string) => {
-    await removeMessage(messageId, appSourceType, appId)
-    notify({ type: 'success', message: t('api.remove', { ns: 'common' }) })
-    fetchSavedMessage()
-  }
-
-  // send message task
+  const [completionFiles, setCompletionFiles] = useState<VisionFile[]>([])
+  const [runControl, setRunControl] = useState<TextGenerationRunControl | null>(null)
   const [controlSend, setControlSend] = useState(0)
   const [controlStopResponding, setControlStopResponding] = useState(0)
-  const [visionConfig, setVisionConfig] = useState<VisionSettings>({
-    enabled: false,
-    number_limits: 2,
-    detail: Resolution.low,
-    transfer_methods: [TransferMethod.local_file],
+  const [resultExisted, setResultExisted] = useState(false)
+  const [isShowResultPanel, { setTrue: showResultPanelState, setFalse: hideResultPanel }] = useBoolean(false)
+
+  const updateInputs = useCallback((newInputs: Record<string, InputValueTypes>) => {
+    setInputs(newInputs)
+    inputsRef.current = newInputs
+  }, [])
+
+  const {
+    accessMode,
+    appId,
+    appSourceType,
+    customConfig,
+    handleRemoveSavedMessage,
+    handleSaveMessage,
+    moreLikeThisConfig,
+    promptConfig,
+    savedMessages,
+    siteInfo,
+    systemFeatures,
+    textToSpeechConfig,
+    visionConfig,
+  } = useTextGenerationAppState({
+    isInstalledApp,
+    isWorkflow,
   })
-  const [completionFiles, setCompletionFiles] = useState<VisionFile[]>([])
-  const [runControl, setRunControl] = useState<{ onStop: () => Promise<void> | void, isStopping: boolean } | null>(null)
+
+  const {
+    allFailedTaskList,
+    allSuccessTaskList,
+    allTaskList,
+    allTasksRun,
+    controlRetry,
+    exportRes,
+    handleCompleted,
+    handleRetryAllFailedTask,
+    handleRunBatch: runBatchExecution,
+    isCallBatchAPI,
+    noPendingTask,
+    resetBatchExecution,
+    setIsCallBatchAPI,
+    showTaskList,
+  } = useTextGenerationBatch({
+    promptConfig,
+    notify,
+    t,
+  })
 
   useEffect(() => {
     if (isCallBatchAPI)
       setRunControl(null)
   }, [isCallBatchAPI])
 
-  const handleSend = () => {
+  const showResultPanel = useCallback(() => {
+    setTimeout(() => {
+      showResultPanelState()
+    }, 0)
+  }, [showResultPanelState])
+  const handleRunStart = useCallback(() => {
+    setResultExisted(true)
+  }, [])
+
+  const handleRunOnce = useCallback(() => {
     setIsCallBatchAPI(false)
     setControlSend(Date.now())
-
-    // eslint-disable-next-line ts/no-use-before-define
-    setAllTaskList([]) // clear batch task running status
-
-    // eslint-disable-next-line ts/no-use-before-define
+    resetBatchExecution()
     showResultPanel()
-  }
+  }, [resetBatchExecution, setIsCallBatchAPI, showResultPanel])
 
   const [controlRetry, setControlRetry] = useState(0)
   const handleRetryAllFailedTask = () => {
@@ -715,13 +697,14 @@ const TextGeneration: FC<IMainProps> = ({
       </div>
     )
   }
+
   return (
-    <div className={cn(
-      'bg-background-default-burn',
-      isPC && 'flex',
-      !isPC && 'flex-col',
-      isInstalledApp ? 'h-full rounded-2xl shadow-md' : 'h-screen',
-    )}
+    <div
+      className={cn(
+        'bg-background-default-burn',
+        isPC ? 'flex' : 'flex-col',
+        isInstalledApp ? 'h-full rounded-2xl shadow-md' : 'h-screen',
+      )}
     >
       {/* Left */}
       <div className={cn(

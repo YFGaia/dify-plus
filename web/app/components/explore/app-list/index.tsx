@@ -2,12 +2,12 @@
 
 import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
 import type { App } from '@/models/explore'
+import type { TryAppSelection } from '@/types/try-app'
 import { useDebounceFn } from 'ahooks'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useContext, useContextSelector } from 'use-context-selector'
 import DSLConfirmModal from '@/app/components/app/create-from-dsl-modal/dsl-confirm-modal'
 import Button from '@/app/components/base/button'
 import Input from '@/app/components/base/input'
@@ -16,13 +16,14 @@ import AppCard from '@/app/components/explore/app-card'
 import Banner from '@/app/components/explore/banner/banner'
 import Category from '@/app/components/explore/category'
 import CreateAppModal from '@/app/components/explore/create-app-modal'
-import ExploreContext from '@/context/explore-context'
+import { useAppContext } from '@/context/app-context'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import { useImportDSL } from '@/hooks/use-import-dsl'
 import {
   DSLImportMode,
 } from '@/models/app'
 import { fetchAppDetail } from '@/service/explore'
+import { useMembers } from '@/service/use-common'
 import { useExploreAppList } from '@/service/use-explore'
 import { cn } from '@/utils/classnames'
 import TryApp from '../try-app'
@@ -40,9 +41,12 @@ const Apps = ({
   onSuccess,
 }: AppsProps) => {
   const { t } = useTranslation()
+  const { userProfile } = useAppContext()
   const { systemFeatures } = useGlobalPublicStore()
-  const { hasEditPermission } = useContext(ExploreContext)
+  const { data: membersData } = useMembers()
   const allCategoriesEn = t('apps.allCategories', { ns: 'explore', lng: 'en' })
+  const userAccount = membersData?.accounts?.find(account => account.id === userProfile.id)
+  const hasEditPermission = !!userAccount && userAccount.role !== 'normal'
 
   // Extend: start Explore Add Search
   const [tagFilterValue, setTagFilterValue] = useState<string[]>([])
@@ -123,8 +127,8 @@ const Apps = ({
   }
   // Extend: stop Filtered list with search and tag filter
 
-  const [currApp, setCurrApp] = React.useState<App | null>(null)
-  const [isShowCreateModal, setIsShowCreateModal] = React.useState(false)
+  const [currApp, setCurrApp] = useState<App | null>(null)
+  const [isShowCreateModal, setIsShowCreateModal] = useState(false)
 
   const {
     handleImportDSL,
@@ -134,16 +138,18 @@ const Apps = ({
   } = useImportDSL()
   const [showDSLConfirmModal, setShowDSLConfirmModal] = useState(false)
 
-  const isShowTryAppPanel = useContextSelector(ExploreContext, ctx => ctx.isShowTryAppPanel)
-  const setShowTryAppPanel = useContextSelector(ExploreContext, ctx => ctx.setShowTryAppPanel)
+  const [currentTryApp, setCurrentTryApp] = useState<TryAppSelection | undefined>(undefined)
+  const isShowTryAppPanel = !!currentTryApp
   const hideTryAppPanel = useCallback(() => {
-    setShowTryAppPanel(false)
-  }, [setShowTryAppPanel])
-  const appParams = useContextSelector(ExploreContext, ctx => ctx.currentApp)
+    setCurrentTryApp(undefined)
+  }, [])
+  const handleTryApp = useCallback((params: TryAppSelection) => {
+    setCurrentTryApp(params)
+  }, [])
   const handleShowFromTryApp = useCallback(() => {
-    setCurrApp(appParams?.app || null)
+    setCurrApp(currentTryApp?.app || null)
     setIsShowCreateModal(true)
-  }, [appParams?.app])
+  }, [currentTryApp?.app])
 
   const onCreate: CreateAppModalProps['onConfirm'] = async ({
     name,
@@ -197,7 +203,7 @@ const Apps = ({
 
   return (
     <div className={cn(
-      'flex h-full flex-col border-l-[0.5px] border-divider-regular',
+      'flex h-full min-h-0 flex-col overflow-hidden border-l-[0.5px] border-divider-regular',
     )}
     >
       {systemFeatures.enable_explore_banner && (
@@ -248,8 +254,42 @@ const Apps = ({
               onRefresh={() => refetch()}
               // extend: stop sync app
             />
-          ))}
-        </nav>
+          </div>
+
+          <div className="px-12 pb-4 pt-2">
+            <Category
+              list={categories}
+              value={currCategory}
+              onChange={setCurrCategory}
+              allCategoriesEn={allCategoriesEn}
+            />
+          </div>
+        </div>
+
+        <div className={cn(
+          'relative flex flex-1 shrink-0 grow flex-col pb-6',
+        )}
+        >
+          <nav
+            className={cn(
+              s.appList,
+              'grid shrink-0 content-start gap-4 px-6 sm:px-12',
+            )}
+          >
+            {searchFilteredList.map(app => (
+              <AppCard
+                key={app.app_id}
+                app={app}
+                canCreate={hasEditPermission}
+                onCreate={() => {
+                  setCurrApp(app)
+                  setIsShowCreateModal(true)
+                }}
+                onTry={handleTryApp}
+              />
+            ))}
+          </nav>
+        </div>
       </div>
       {isShowCreateModal && (
         <CreateAppModal
@@ -278,9 +318,9 @@ const Apps = ({
 
       {isShowTryAppPanel && (
         <TryApp
-          appId={appParams?.appId || ''}
-          app={appParams?.app}
-          category={appParams?.app?.category}
+          appId={currentTryApp?.appId || ''}
+          app={currentTryApp?.app}
+          category={currentTryApp?.app?.category}
           onClose={hideTryAppPanel}
           onCreate={handleShowFromTryApp}
         />

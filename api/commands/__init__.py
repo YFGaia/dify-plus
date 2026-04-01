@@ -3,7 +3,6 @@ CLI command modules extracted from `commands.py`.
 """
 
 from .account import create_tenant, reset_email, reset_password
-from .extend import extend_db  # extend: 二开数据库迁移命令组
 from .plugin import (
     extract_plugins,
     extract_unique_plugins,
@@ -47,7 +46,6 @@ __all__ = [
     "create_tenant",
     "delete_archived_workflow_runs",
     "export_app_messages",
-    "extend_db",  # extend
     "extract_plugins",
     "extract_unique_plugins",
     "file_usage",
