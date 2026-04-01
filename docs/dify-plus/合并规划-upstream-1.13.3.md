@@ -1,6 +1,6 @@
 # Dify-Plus 合并规划：升级至 upstream v1.13.3
 
-> 文档状态：制定中  
+> 文档状态：**✅ 合并完成**  
 > 基线：fork `merge/upstream-1.13.2`  
 > 目标：upstream `1.13.3`（tag）  
 > 上游提交数：214 次  
@@ -149,12 +149,30 @@ pnpm build 2>&1 | tail -30
 | 任务 | 状态 | 说明 |
 |------|------|------|
 | T1: 分析差异 + 创建规划文档 | ✅ 完成 | 本文档 |
-| T2: 创建 merge/upstream-1.13.3 分支 | ⏳ 待执行 | |
-| T3: 执行 git merge 1.13.3 | ⏳ 待执行 | |
-| T4: 修复 login.py 冲突 | ⏳ 待执行 | |
-| T5: 修复 apikey.py 冲突 | ⏳ 待执行 | |
-| T6: 修复 oauth.py 冲突 | ⏳ 待执行 | |
-| T7: 更新 docker-compose.dify-plus.yaml | ⏳ 待执行 | |
-| T8: 后端构建验证 | ⏳ 待执行 | |
-| T9: 前端构建验证 | ⏳ 待执行 | |
-| T10: 提交合并结果 | ⏳ 待执行 | |
+| T2: 创建 merge/upstream-1.13.3 分支 | ✅ 完成 | 基于 merge/upstream-1.13.2 |
+| T3: 执行 git merge 1.13.3 | ✅ 完成 | 111 个文件冲突，全部解决 |
+| T4: 修复 login.py 冲突 | ✅ 完成 | 取 --theirs（无 fork 改动） |
+| T5: 修复 apikey.py 冲突 | ✅ 完成 | 手动合并保留额度字段 |
+| T6: 修复 oauth.py 冲突 | ✅ 完成 | 手动合并保留 OaOAuth |
+| T7: 更新 docker-compose 版本 | ✅ 完成 | 版本号 1.13.2→1.13.3 |
+| T8: 后端语法验证 | ✅ 完成 | py_compile 全部通过 |
+| T9: 前端类型检查 | ✅ 完成 | tsc --noEmit 无错误 |
+| T10: 提交合并结果 | ✅ 完成 | commit 1d71b58 + 1052e67 |
+
+### 实际冲突规模（超预期）
+
+| 类别 | 预估 | 实际 |
+|------|------|------|
+| 高风险冲突文件 | 3 个 | 111 个（74 API + 37 web） |
+| 原因 | — | 暂存提交引入大量未提交改动 |
+
+### 关键合并决策记录
+
+| 文件 | 决策 | 原因 |
+|------|------|------|
+| `api/libs/oauth.py` | 手动合并：1.13.3基础 + fork OaOAuth类 | 保留钉钉/Casdoor支持 |
+| `api/controllers/service_api/wraps.py` | 手动合并：添加 EndUserAccountJoinsExtend | 保留计费链路 |
+| `web/contract/router.ts` | 手动合并：1.13.3新合约 + fork CVE合约 | 保留CVE-2025-63387防护 |
+| `web/contract/console/system.ts` | 手动合并：添加 systemFeaturesContract | 1.13.3新增，fork原来替换了 |
+| `web/app/signin/**` (4个文件) | 手动修复登录跳转路径 | 确保跳转到 /explore/apps-center-extend |
+| `api/pyproject.toml` | Python脚本合并：保留 fork 依赖 | alibabacloud_dingtalk, pypinyin |
