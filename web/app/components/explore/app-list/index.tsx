@@ -249,47 +249,14 @@ const Apps = ({
                 setCurrApp(app)
                 setIsShowCreateModal(true)
               }}
+              onTry={handleTryApp}
               // extend: start sync app
               onApp={recommendedAppIds.has(app.app_id)}
               onRefresh={() => refetch()}
               // extend: stop sync app
             />
-          </div>
-
-          <div className="px-12 pb-4 pt-2">
-            <Category
-              list={categories}
-              value={currCategory}
-              onChange={setCurrCategory}
-              allCategoriesEn={allCategoriesEn}
-            />
-          </div>
-        </div>
-
-        <div className={cn(
-          'relative flex flex-1 shrink-0 grow flex-col pb-6',
-        )}
-        >
-          <nav
-            className={cn(
-              s.appList,
-              'grid shrink-0 content-start gap-4 px-6 sm:px-12',
-            )}
-          >
-            {searchFilteredList.map(app => (
-              <AppCard
-                key={app.app_id}
-                app={app}
-                canCreate={hasEditPermission}
-                onCreate={() => {
-                  setCurrApp(app)
-                  setIsShowCreateModal(true)
-                }}
-                onTry={handleTryApp}
-              />
-            ))}
-          </nav>
-        </div>
+          ))}
+        </nav>
       </div>
       {isShowCreateModal && (
         <CreateAppModal

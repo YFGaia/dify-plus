@@ -3,8 +3,13 @@ import type { App } from '@/models/explore'
 import type { TryAppSelection } from '@/types/try-app'
 import { PlusIcon } from '@heroicons/react/20/solid'
 import { RiInformation2Line } from '@remixicon/react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useContext } from 'use-context-selector'
 import AppIcon from '@/app/components/base/app-icon'
+import Confirm from '@/app/components/base/confirm'
+import { ToastContext } from '@/app/components/base/toast'
+import { useAppContext } from '@/context/app-context'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 // extend: start sync app
 import { syncApp } from '@/service/apps'
@@ -13,11 +18,6 @@ import { AppModeEnum } from '@/types/app'
 import { cn } from '@/utils/classnames'
 import { AppTypeIcon } from '../../app/type-selector'
 import Button from '../../base/button'
-
-type TryAppSelection = {
-  appId: string
-  app: App
-}
 
 export type AppCardProps = {
   app: App
@@ -37,6 +37,8 @@ const AppCard = ({
   onCreate,
   onTry,
   isExplore = true,
+  onApp,
+  onRefresh,
 }: AppCardProps) => {
   const { t } = useTranslation()
   const { notify } = useContext(ToastContext)
@@ -45,11 +47,8 @@ const AppCard = ({
   const { systemFeatures } = useGlobalPublicStore()
   const isTrialApp = app.can_trial && systemFeatures.enable_trial_app
   const handleTryApp = () => {
-    onTry({ appId: app.app_id, app })
+    onTry?.({ appId: app.app_id, app })
   }
-
-    setShowTryAppPanel?.(true, { appId: app.app_id, app })
-  }, [app, onTry, setShowTryAppPanel])
 
   // ----------------------start SyncToAppTemplate----------------------
   const [showSyncApps, setShowSyncApps] = useState(false)

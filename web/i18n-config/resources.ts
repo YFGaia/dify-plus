@@ -28,6 +28,7 @@ import type share from '../i18n/en-US/share.json'
 import type time from '../i18n/en-US/time.json'
 import type tools from '../i18n/en-US/tools.json'
 import type workflow from '../i18n/en-US/workflow.json'
+import extend from '../i18n/en-US/extend.json'
 import { kebabCase } from 'string-ts'
 
 export type Resources = {
@@ -61,9 +62,8 @@ export type Resources = {
   time: typeof time
   tools: typeof tools
   workflow: typeof workflow
-// extend: 二开部分：新增的多语言
-import extend from '../i18n/en-US/extend.json'
   // extend: 二开部分：新增的多语言
+  extend: typeof extend
 }
 
 export const namespaces = [
@@ -97,6 +97,7 @@ export const namespaces = [
   'time',
   'tools',
   'workflow',
+  'extend',
 ] as const satisfies ReadonlyArray<keyof Resources>
 export type Namespace = typeof namespaces[number]
 

@@ -177,7 +177,7 @@ export default function AccountSetting({
                         >
                           {activeMenu === item.key ? item.activeIcon : item.icon}
                           {!isMobile && <div className="truncate">{item.name}</div>}
-                        </button>
+                        </div>
                       ))
                     }
                   </div>
