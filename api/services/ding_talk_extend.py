@@ -1,15 +1,37 @@
+"""DingTalk login integration helpers.
+
+The DingTalk endpoints are fork-specific optional integrations. Missing DingTalk
+SDK packages must not prevent the core API, workers, or workflow execution from
+starting, because most deployments do not enable this login path.
+"""
+
 import json
 import logging
 import secrets
 import time
+from typing import Any
 
 import requests
-from alibabacloud_dingtalk.oauth2_1_0 import models as dingtalkoauth_2__1__0_models
-from alibabacloud_dingtalk.oauth2_1_0.client import Client as dingtalkoauth2_1_0Client
-from alibabacloud_tea_openapi import models as open_api_models
-from alibabacloud_tea_util.client import Client as UtilClient
 from flask import request
-from pypinyin import lazy_pinyin
+
+try:
+    from alibabacloud_dingtalk.oauth2_1_0 import models as dingtalkoauth_2__1__0_models
+    from alibabacloud_dingtalk.oauth2_1_0.client import Client as dingtalkoauth2_1_0Client
+    from alibabacloud_tea_openapi import models as open_api_models
+    from alibabacloud_tea_util.client import Client as UtilClient
+except ModuleNotFoundError as exc:
+    dingtalkoauth_2__1__0_models = None
+    dingtalkoauth2_1_0Client = None
+    open_api_models = None
+    UtilClient = None
+    DINGTALK_SDK_IMPORT_ERROR: ModuleNotFoundError | None = exc
+else:
+    DINGTALK_SDK_IMPORT_ERROR = None
+
+try:
+    from pypinyin import lazy_pinyin
+except ModuleNotFoundError:
+    lazy_pinyin = None
 
 from configs import dify_config
 from extensions.ext_database import db
@@ -25,12 +47,25 @@ DINGTALK_ACCOUNT_TOKEN = {"time": 0, "token": ""}
 
 class DingTalkService:
     @classmethod
-    def create_client(cls) -> dingtalkoauth2_1_0Client:
+    def _get_sdk_unavailable_error(cls) -> str:
+        if DINGTALK_SDK_IMPORT_ERROR is None:
+            return ""
+
+        package_name = DINGTALK_SDK_IMPORT_ERROR.name or "alibabacloud_dingtalk"
+        logger.warning("DingTalk SDK is unavailable: %s", DINGTALK_SDK_IMPORT_ERROR)
+        return f"DingTalk integration dependency is not installed: {package_name}"
+
+    @classmethod
+    def create_client(cls) -> Any:
         """
         使用 Token 初始化账号Client
         @return: Client
         @throws Exception
         """
+        dependency_error = cls._get_sdk_unavailable_error()
+        if dependency_error:
+            raise RuntimeError(dependency_error)
+
         config = open_api_models.Config()
         config.protocol = "https"
         config.region_id = "central"
@@ -226,6 +261,10 @@ class DingTalkService:
 
     @classmethod
     def get_user_token(cls, code: str) -> (str, str):
+        dependency_error = cls._get_sdk_unavailable_error()
+        if dependency_error:
+            return "", dependency_error
+
         # get token
         client = cls.create_client()
         integration: SystemIntegrationExtend = (
@@ -251,6 +290,10 @@ class DingTalkService:
     @classmethod
     def get_access_token(cls) -> (str, str):
         global DINGTALK_ACCOUNT_TOKEN
+        dependency_error = cls._get_sdk_unavailable_error()
+        if dependency_error:
+            return "", dependency_error
+
         if DINGTALK_ACCOUNT_TOKEN["time"] > time.time():
             return DINGTALK_ACCOUNT_TOKEN["token"], ""
         integration: SystemIntegrationExtend = (
@@ -314,8 +357,15 @@ class DingTalkService:
 
         # 最终降级：使用拼音生成邮箱
         if not email:
-            email = f"{''.join(lazy_pinyin(username))}@{dify_config.EMAIL_DOMAIN}"
-            logger.info("Using pinyin-generated email for user %s: %s", userid, email)
+            if lazy_pinyin is not None:
+                email = f"{''.join(lazy_pinyin(username))}@{dify_config.EMAIL_DOMAIN}"
+                logger.info("Using pinyin-generated email for user %s: %s", userid, email)
+            else:
+                email = f"{userid}@{dify_config.EMAIL_DOMAIN}"
+                logger.warning(
+                    "pypinyin is unavailable, using DingTalk userid as email local part for %s",
+                    userid,
+                )
 
         account: Account = (
             db.session.query(Account).filter(Account.email == email).first()

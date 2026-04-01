@@ -46,6 +46,42 @@ from core.workflow.graph_events import (
 from core.workflow.node_events import NodeRunResult
 from core.workflow.repositories.workflow_execution_repository import WorkflowExecutionRepository
 from core.workflow.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
+from dify_graph.graph_events import (
+    GraphRunAbortedEvent as DifyGraphRunAbortedEvent,
+)
+from dify_graph.graph_events import (
+    GraphRunFailedEvent as DifyGraphRunFailedEvent,
+)
+from dify_graph.graph_events import (
+    GraphRunPartialSucceededEvent as DifyGraphRunPartialSucceededEvent,
+)
+from dify_graph.graph_events import (
+    GraphRunPausedEvent as DifyGraphRunPausedEvent,
+)
+from dify_graph.graph_events import (
+    GraphRunStartedEvent as DifyGraphRunStartedEvent,
+)
+from dify_graph.graph_events import (
+    GraphRunSucceededEvent as DifyGraphRunSucceededEvent,
+)
+from dify_graph.graph_events import (
+    NodeRunExceptionEvent as DifyNodeRunExceptionEvent,
+)
+from dify_graph.graph_events import (
+    NodeRunFailedEvent as DifyNodeRunFailedEvent,
+)
+from dify_graph.graph_events import (
+    NodeRunPauseRequestedEvent as DifyNodeRunPauseRequestedEvent,
+)
+from dify_graph.graph_events import (
+    NodeRunRetryEvent as DifyNodeRunRetryEvent,
+)
+from dify_graph.graph_events import (
+    NodeRunStartedEvent as DifyNodeRunStartedEvent,
+)
+from dify_graph.graph_events import (
+    NodeRunSucceededEvent as DifyNodeRunSucceededEvent,
+)
 from libs.datetime_utils import naive_utc_now
 
 # extend: start 二开部分 - 计费相关的用户信息
@@ -55,6 +91,19 @@ from tasks.extend.update_account_money_when_workflow_node_execution_created_exte
 )
 
 # extend: stop 二开部分 - 计费相关的用户信息
+
+GRAPH_RUN_STARTED_EVENT_TYPES = (GraphRunStartedEvent, DifyGraphRunStartedEvent)
+GRAPH_RUN_SUCCEEDED_EVENT_TYPES = (GraphRunSucceededEvent, DifyGraphRunSucceededEvent)
+GRAPH_RUN_PARTIAL_SUCCEEDED_EVENT_TYPES = (GraphRunPartialSucceededEvent, DifyGraphRunPartialSucceededEvent)
+GRAPH_RUN_FAILED_EVENT_TYPES = (GraphRunFailedEvent, DifyGraphRunFailedEvent)
+GRAPH_RUN_ABORTED_EVENT_TYPES = (GraphRunAbortedEvent, DifyGraphRunAbortedEvent)
+GRAPH_RUN_PAUSED_EVENT_TYPES = (GraphRunPausedEvent, DifyGraphRunPausedEvent)
+NODE_RUN_STARTED_EVENT_TYPES = (NodeRunStartedEvent, DifyNodeRunStartedEvent)
+NODE_RUN_RETRY_EVENT_TYPES = (NodeRunRetryEvent, DifyNodeRunRetryEvent)
+NODE_RUN_SUCCEEDED_EVENT_TYPES = (NodeRunSucceededEvent, DifyNodeRunSucceededEvent)
+NODE_RUN_FAILED_EVENT_TYPES = (NodeRunFailedEvent, DifyNodeRunFailedEvent)
+NODE_RUN_EXCEPTION_EVENT_TYPES = (NodeRunExceptionEvent, DifyNodeRunExceptionEvent)
+NODE_RUN_PAUSE_REQUESTED_EVENT_TYPES = (NodeRunPauseRequestedEvent, DifyNodeRunPauseRequestedEvent)
 
 
 @dataclass(slots=True)
@@ -115,51 +164,51 @@ class WorkflowPersistenceLayer(GraphEngineLayer):
         self._node_sequence = 0
 
     def on_event(self, event: GraphEngineEvent) -> None:
-        if isinstance(event, GraphRunStartedEvent):
+        if isinstance(event, GRAPH_RUN_STARTED_EVENT_TYPES):
             self._handle_graph_run_started()
             return
 
-        if isinstance(event, GraphRunSucceededEvent):
+        if isinstance(event, GRAPH_RUN_SUCCEEDED_EVENT_TYPES):
             self._handle_graph_run_succeeded(event)
             return
 
-        if isinstance(event, GraphRunPartialSucceededEvent):
+        if isinstance(event, GRAPH_RUN_PARTIAL_SUCCEEDED_EVENT_TYPES):
             self._handle_graph_run_partial_succeeded(event)
             return
 
-        if isinstance(event, GraphRunFailedEvent):
+        if isinstance(event, GRAPH_RUN_FAILED_EVENT_TYPES):
             self._handle_graph_run_failed(event)
             return
 
-        if isinstance(event, GraphRunAbortedEvent):
+        if isinstance(event, GRAPH_RUN_ABORTED_EVENT_TYPES):
             self._handle_graph_run_aborted(event)
             return
 
-        if isinstance(event, GraphRunPausedEvent):
+        if isinstance(event, GRAPH_RUN_PAUSED_EVENT_TYPES):
             self._handle_graph_run_paused(event)
             return
 
-        if isinstance(event, NodeRunStartedEvent):
+        if isinstance(event, NODE_RUN_STARTED_EVENT_TYPES):
             self._handle_node_started(event)
             return
 
-        if isinstance(event, NodeRunRetryEvent):
+        if isinstance(event, NODE_RUN_RETRY_EVENT_TYPES):
             self._handle_node_retry(event)
             return
 
-        if isinstance(event, NodeRunSucceededEvent):
+        if isinstance(event, NODE_RUN_SUCCEEDED_EVENT_TYPES):
             self._handle_node_succeeded(event)
             return
 
-        if isinstance(event, NodeRunFailedEvent):
+        if isinstance(event, NODE_RUN_FAILED_EVENT_TYPES):
             self._handle_node_failed(event)
             return
 
-        if isinstance(event, NodeRunExceptionEvent):
+        if isinstance(event, NODE_RUN_EXCEPTION_EVENT_TYPES):
             self._handle_node_exception(event)
             return
 
-        if isinstance(event, NodeRunPauseRequestedEvent):
+        if isinstance(event, NODE_RUN_PAUSE_REQUESTED_EVENT_TYPES):
             self._handle_node_pause_requested(event)
 
     def on_graph_end(self, error: Exception | None) -> None:

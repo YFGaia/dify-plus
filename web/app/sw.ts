@@ -77,7 +77,9 @@ const serwist = new Serwist({
       }),
     },
     {
-      matcher: ({ url, sameOrigin }) => sameOrigin && url.pathname.startsWith('/api/'),
+      // Only cache GET requests to /api/ — POST requests include SSE streaming endpoints
+      // (e.g. /api/workflows/run, /api/chat-messages) which must not be served from cache.
+      matcher: ({ url, sameOrigin, request }) => sameOrigin && url.pathname.startsWith('/api/') && request.method === 'GET',
       handler: new NetworkFirst({
         cacheName: 'api-cache',
         networkTimeoutSeconds: 10,

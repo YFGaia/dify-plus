@@ -4,49 +4,56 @@ server {
     listen ${NGINX_PORT};
     server_name ${NGINX_SERVER_NAME};
 
+    # Resolve Docker service names at request time so upstream containers can be
+    # recreated without forcing an nginx restart to refresh cached IPs.
+    resolver 127.0.0.11 ipv6=off valid=10s;
+    set $api_upstream http://api:5001;
+    set $web_upstream http://web:3000;
+    set $plugin_daemon_upstream http://plugin_daemon:5002;
+
     location /console/api {
-      proxy_pass http://api:5001;
+      proxy_pass $api_upstream;
       include proxy.conf;
     }
 
     location /api {
-      proxy_pass http://api:5001;
+      proxy_pass $api_upstream;
       include proxy.conf;
     }
 
     location /v1 {
-      proxy_pass http://api:5001;
+      proxy_pass $api_upstream;
       include proxy.conf;
     }
 
     location /files {
-      proxy_pass http://api:5001;
+      proxy_pass $api_upstream;
       include proxy.conf;
     }
 
     location /explore {
-      proxy_pass http://web:3000;
+      proxy_pass $web_upstream;
       include proxy.conf;
     }
 
     location /e/ {
-      proxy_pass http://plugin_daemon:5002;
+      proxy_pass $plugin_daemon_upstream;
       proxy_set_header Dify-Hook-Url $scheme://$host$request_uri;
       include proxy.conf;
     }
 
     location / {
-      proxy_pass http://web:3000;
+      proxy_pass $web_upstream;
       include proxy.conf;
     }
 
     location /mcp {
-      proxy_pass http://api:5001;
+      proxy_pass $api_upstream;
       include proxy.conf;
     }
 
     location /triggers {
-      proxy_pass http://api:5001;
+      proxy_pass $api_upstream;
       include proxy.conf;
     }
     

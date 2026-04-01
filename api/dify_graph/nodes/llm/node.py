@@ -17,8 +17,14 @@ from core.model_manager import ModelInstance
 from core.model_runtime.entities.llm_entities import LLMResultChunk as CoreLLMResultChunk
 from core.model_runtime.entities.message_entities import (
     AssistantPromptMessage as CoreAssistantPromptMessage,
+)
+from core.model_runtime.entities.message_entities import (
     SystemPromptMessage as CoreSystemPromptMessage,
+)
+from core.model_runtime.entities.message_entities import (
     ToolPromptMessage as CoreToolPromptMessage,
+)
+from core.model_runtime.entities.message_entities import (
     UserPromptMessage as CoreUserPromptMessage,
 )
 from core.prompt.entities.advanced_prompt_entities import CompletionModelPromptTemplate, MemoryConfig

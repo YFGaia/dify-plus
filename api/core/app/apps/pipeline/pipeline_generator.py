@@ -39,7 +39,7 @@ from core.repositories.factory import DifyCoreRepositoryFactory
 from core.workflow.repositories.draft_variable_repository import DraftVariableSaverFactory
 from core.workflow.repositories.workflow_execution_repository import WorkflowExecutionRepository
 from core.workflow.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
-from core.workflow.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader
+from dify_graph.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader
 from extensions.ext_database import db
 from libs.flask_utils import preserve_flask_contexts
 from models import Account, EndUser, Workflow, WorkflowNodeExecutionTriggeredFrom
@@ -418,12 +418,13 @@ class PipelineGenerator(BaseAppGenerator):
             app_id=application_generate_entity.app_config.app_id,
             triggered_from=WorkflowNodeExecutionTriggeredFrom.SINGLE_STEP,
         )
-        draft_var_srv = WorkflowDraftVariableService(db.session())
+        draft_var_srv = WorkflowDraftVariableService(db.session(), user_id=user.id)
         draft_var_srv.prefill_conversation_variable_default_values(workflow)
         var_loader = DraftVarLoader(
             engine=db.engine,
             app_id=application_generate_entity.app_config.app_id,
             tenant_id=application_generate_entity.app_config.tenant_id,
+            user_id=user.id,
         )
 
         return self._generate(
@@ -513,12 +514,13 @@ class PipelineGenerator(BaseAppGenerator):
             app_id=application_generate_entity.app_config.app_id,
             triggered_from=WorkflowNodeExecutionTriggeredFrom.SINGLE_STEP,
         )
-        draft_var_srv = WorkflowDraftVariableService(db.session())
+        draft_var_srv = WorkflowDraftVariableService(db.session(), user_id=user.id)
         draft_var_srv.prefill_conversation_variable_default_values(workflow)
         var_loader = DraftVarLoader(
             engine=db.engine,
             app_id=application_generate_entity.app_config.app_id,
             tenant_id=application_generate_entity.app_config.tenant_id,
+            user_id=user.id,
         )
 
         return self._generate(

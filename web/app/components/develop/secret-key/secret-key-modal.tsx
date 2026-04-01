@@ -172,46 +172,39 @@ const SecretKeyModal = ({
       {
         !!apiKeysList?.data?.length && (
           <div className="mt-4 flex grow flex-col overflow-hidden">
-            <div className="flex h-9 shrink-0 items-center border-b border-divider-regular text-xs font-semibold text-text-tertiary">
-              <div className="w-64 shrink-0 px-3">{t('apiKeyModal.secretKey', { ns: 'appApi' })}</div>
-              <div className="w-[200px] shrink-0 px-3">{t('apiKeyModal.created', { ns: 'appApi' })}</div>
-              <div className="w-[200px] shrink-0 px-3">{t('apiKeyModal.lastUsed', { ns: 'appApi' })}</div>
-              {/* ---------------------- 二开部分Begin - 密钥额度限制 ---------------------- */}
-              <div className="w-[100px] shrink-0 px-3">{t('apiKeyModal.descriptionPlaceholder', { ns: 'extend' })}</div>
-              <div className="w-[200px] shrink-0 px-3">{t('apiKeyModal.dayLimit', { ns: 'extend' })}</div>
-              <div className="w-[200px] shrink-0 px-3">{t('apiKeyModal.monthLimit', { ns: 'extend' })}</div>
-              <div className="w-[200px] shrink-0 px-3">{t('apiKeyModal.accumulatedLimit', { ns: 'extend' })}</div>
-              {/* ---------------------- 二开部分End - 密钥额度限制 ---------------------- */}
-              <div className="grow px-3"></div>
-            </div>
+            {/* 表头和行放在同一个 overflow-auto 容器，保证横向滚动同步 */}
             <div className="grow overflow-auto">
+              {/* 表头：sticky top-0 使其垂直滚动时不离开视口，同时跟随横向滚动 */}
+              <div className="sticky top-0 z-10 flex h-9 shrink-0 items-center border-b border-divider-regular bg-components-panel-bg text-xs font-semibold text-text-tertiary">
+                <div className="w-52 shrink-0 px-3">{t('apiKeyModal.secretKey', { ns: 'appApi' })}</div>
+                <div className="w-[155px] shrink-0 px-3">{t('apiKeyModal.created', { ns: 'appApi' })}</div>
+                <div className="w-[155px] shrink-0 px-3">{t('apiKeyModal.lastUsed', { ns: 'appApi' })}</div>
+                {/* ---------------------- 二开部分Begin - 密钥额度限制 ---------------------- */}
+                <div className="w-20 shrink-0 px-3">{t('apiKeyModal.descriptionPlaceholder', { ns: 'extend' })}</div>
+                <div className="w-[135px] shrink-0 px-3">{t('apiKeyModal.dayLimit', { ns: 'extend' })}</div>
+                <div className="w-[135px] shrink-0 px-3">{t('apiKeyModal.monthLimit', { ns: 'extend' })}</div>
+                <div className="w-[110px] shrink-0 px-3">{t('apiKeyModal.accumulatedLimit', { ns: 'extend' })}</div>
+                {/* ---------------------- 二开部分End - 密钥额度限制 ---------------------- */}
+                <div className="w-[88px] shrink-0 px-3"></div>
+              </div>
               {apiKeysList.data.map(api => (
                 <div className="flex h-9 items-center border-b border-divider-regular text-sm font-normal text-text-secondary" key={api.id}>
-                  <div className="w-64 shrink-0 truncate px-3 font-mono">{generateToken(api.token)}</div>
-                  <div className="w-[200px] shrink-0 truncate px-3">{formatTime(Number(api.created_at), t('dateTimeFormat', { ns: 'appLog' }) as string)}</div>
-                  <div className="w-[200px] shrink-0 truncate px-3">{api.last_used_at ? formatTime(Number(api.last_used_at), t('dateTimeFormat', { ns: 'appLog' }) as string) : t('never', { ns: 'appApi' })}</div>
+                  <div className="w-52 shrink-0 truncate px-3 font-mono">{generateToken(api.token)}</div>
+                  <div className="w-[155px] shrink-0 truncate px-3">{formatTime(Number(api.created_at), t('dateTimeFormat', { ns: 'appLog' }) as string)}</div>
+                  <div className="w-[155px] shrink-0 truncate px-3">{api.last_used_at ? formatTime(Number(api.last_used_at), t('dateTimeFormat', { ns: 'appLog' }) as string) : t('never', { ns: 'appApi' })}</div>
                   {/* ---------------------- 二开部分Begin - 密钥额度限制 ---------------------- */}
-                  <div className="w-[100px] shrink-0 truncate px-3">{api.description}</div>
-                  <div className="w-[200px] shrink-0 truncate px-3">
-                    $
-                    {api.day_used_quota}
-                    {' '}
-                    /
-                    {api.day_limit_quota === -1 ? t('apiKeyModal.noLimit', { ns: 'extend' }) : `$ ${api.day_limit_quota}`}
+                  <div className="w-20 shrink-0 truncate px-3">{api.description}</div>
+                  <div className="w-[135px] shrink-0 truncate px-3">
+                    ${api.day_used_quota}&nbsp;/&nbsp;{api.day_limit_quota === -1 ? t('apiKeyModal.noLimit', { ns: 'extend' }) : `$${api.day_limit_quota}`}
                   </div>
-                  <div className="w-[200px] shrink-0 truncate px-3">
-                    $
-                    {api.month_used_quota}
-                    {' '}
-                    /
-                    {api.month_limit_quota === -1 ? t('apiKeyModal.noLimit', { ns: 'extend' }) : `$ ${api.month_limit_quota}`}
+                  <div className="w-[135px] shrink-0 truncate px-3">
+                    ${api.month_used_quota}&nbsp;/&nbsp;{api.month_limit_quota === -1 ? t('apiKeyModal.noLimit', { ns: 'extend' }) : `$${api.month_limit_quota}`}
                   </div>
-                  <div className="w-[200px] shrink-0 truncate px-3">
-                    $
-                    {api.accumulated_quota}
+                  <div className="w-[110px] shrink-0 truncate px-3">
+                    ${api.accumulated_quota}
                   </div>
                   {/* ---------------------- 二开部分End - 密钥额度限制 ---------------------- */}
-                  <div className="flex grow space-x-2 px-3">
+                  <div className="flex w-[88px] shrink-0 items-center space-x-1 px-3">
                     <CopyFeedback content={api.token} />
                     {isCurrentWorkspaceManager && (
                       <ActionButton

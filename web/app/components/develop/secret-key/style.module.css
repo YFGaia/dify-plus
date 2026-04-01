@@ -1,5 +1,6 @@
 .customModal {
-    max-width: 800px !important;
+    max-width: 1200px !important;
+    width: 90vw !important;
     max-height: calc(100vh - 80px);
 }
 

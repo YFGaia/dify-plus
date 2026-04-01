@@ -18,15 +18,14 @@ from core.variables.variables import Variable
 from core.workflow.entities import WorkflowNodeExecution
 from core.workflow.enums import ErrorStrategy, WorkflowNodeExecutionMetadataKey, WorkflowNodeExecutionStatus
 from core.workflow.errors import WorkflowNodeRunFailedError
-from core.workflow.graph_events import GraphNodeEventBase, NodeRunFailedEvent, NodeRunSucceededEvent
 from core.workflow.node_events import NodeRunResult
 from core.workflow.nodes import NodeType
-from core.workflow.nodes.base.node import Node
-from core.workflow.nodes.node_mapping import LATEST_VERSION, NODE_TYPE_CLASSES_MAPPING
 from core.workflow.nodes.start.entities import StartNodeData
-from core.workflow.runtime import VariablePool
-from core.workflow.system_variable import SystemVariable
 from core.workflow.workflow_entry import WorkflowEntry
+from dify_graph.graph_events import GraphNodeEventBase, NodeRunFailedEvent, NodeRunSucceededEvent
+from dify_graph.nodes.base.node import Node
+from dify_graph.runtime import VariablePool
+from dify_graph.system_variable import SystemVariable
 from enums.cloud_plan import CloudPlan
 from events.app_event import app_draft_workflow_was_synced, app_published_workflow_was_updated
 from extensions.ext_database import db
@@ -641,7 +640,7 @@ class WorkflowService:
         files = files or []
 
         with Session(bind=db.engine, expire_on_commit=False) as session, session.begin():
-            draft_var_srv = WorkflowDraftVariableService(session)
+            draft_var_srv = WorkflowDraftVariableService(session, user_id=account.id)
             draft_var_srv.prefill_conversation_variable_default_values(draft_workflow)
 
         node_config = draft_workflow.get_node_config_by_id(node_id)
@@ -649,7 +648,7 @@ class WorkflowService:
         node_data = node_config.get("data", {})
         if node_type.is_start_node:
             with Session(bind=db.engine) as session, session.begin():
-                draft_var_srv = WorkflowDraftVariableService(session)
+                draft_var_srv = WorkflowDraftVariableService(session, user_id=account.id)
                 conversation_id = draft_var_srv.get_or_create_conversation(
                     account_id=account.id,
                     app=app_model,
@@ -685,6 +684,7 @@ class WorkflowService:
             engine=db.engine,
             app_id=app_model.id,
             tenant_id=app_model.tenant_id,
+            user_id=account.id,
         )
 
         enclosing_node_type_and_id = draft_workflow.get_enclosing_node_type_and_id(node_config)

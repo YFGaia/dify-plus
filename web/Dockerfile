@@ -34,8 +34,13 @@ WORKDIR /app/web
 COPY --from=packages /app/web/ .
 COPY . .
 
+ARG USE_PREBUILT_NEXT=auto
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-RUN pnpm build:docker
+RUN if [ "$USE_PREBUILT_NEXT" = "1" ] || { [ "$USE_PREBUILT_NEXT" = "auto" ] && [ -d .next/standalone ] && [ -d .next/static ]; }; then \
+            echo "Using prebuilt Next.js standalone output from build context"; \
+        else \
+            pnpm build:docker; \
+        fi
 
 
 # production stage

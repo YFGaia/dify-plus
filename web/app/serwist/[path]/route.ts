@@ -9,6 +9,9 @@ export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } =
   additionalPrecacheEntries: [{ url: `${basePath}/_offline.html`, revision }],
   swSrc: 'app/sw.ts',
   nextConfig: {
-    basePath,
+    // Use '/' as fallback instead of '' so path.posix.join generates absolute URLs
+    // for public folder files (e.g. '/logo/logo.svg' instead of relative 'logo/logo.svg').
+    // Relative paths would resolve against the SW scope (/serwist/) causing 404s.
+    basePath: basePath || '/',
   },
 })

@@ -27,7 +27,7 @@ from core.workflow.constants import CONVERSATION_VARIABLE_NODE_ID, ENVIRONMENT_V
 from core.workflow.enums import SystemVariableKey
 from core.workflow.nodes import NodeType
 from core.workflow.nodes.variable_assigner.common.helpers import get_updated_variables
-from core.workflow.variable_loader import VariableLoader
+from dify_graph.variable_loader import VariableLoader
 from extensions.ext_storage import storage
 from factories.file_factory import StorageKeyLoader
 from factories.variable_factory import build_segment, segment_to_variable
@@ -70,13 +70,14 @@ class UpdateNotSupportedError(WorkflowDraftVariableError):
 class DraftVarLoader(VariableLoader):
     # This implements the VariableLoader interface for loading draft variables.
     #
-    # ref: core.workflow.variable_loader.VariableLoader
+    # ref: dify_graph.variable_loader.VariableLoader
 
     # Database engine used for loading variables.
     _engine: Engine
     # Application ID for which variables are being loaded.
     _app_id: str
     _tenant_id: str
+    _user_id: str | None
     _fallback_variables: Sequence[VariableBase]
 
     def __init__(
@@ -84,11 +85,13 @@ class DraftVarLoader(VariableLoader):
         engine: Engine,
         app_id: str,
         tenant_id: str,
+        user_id: str | None = None,
         fallback_variables: Sequence[VariableBase] | None = None,
     ):
         self._engine = engine
         self._app_id = app_id
         self._tenant_id = tenant_id
+        self._user_id = user_id
         self._fallback_variables = fallback_variables or []
 
     def _selector_to_tuple(self, selector: Sequence[str]) -> tuple[str, str]:
@@ -102,7 +105,7 @@ class DraftVarLoader(VariableLoader):
         variable_by_selector: dict[tuple[str, str], VariableBase] = {}
 
         with Session(bind=self._engine, expire_on_commit=False) as session:
-            srv = WorkflowDraftVariableService(session)
+            srv = WorkflowDraftVariableService(session, user_id=self._user_id)
             draft_vars = srv.get_draft_variables_by_selectors(self._app_id, selectors)
 
         # Important:
@@ -184,19 +187,23 @@ class DraftVarLoader(VariableLoader):
 
 class WorkflowDraftVariableService:
     _session: Session
+    _user_id: str | None
 
-    def __init__(self, session: Session):
+    def __init__(self, session: Session, user_id: str | None = None):
         """
         Initialize the WorkflowDraftVariableService with a SQLAlchemy session.
 
         Args:
             session (Session): The SQLAlchemy session used to execute database queries.
             The provided session must be bound to an `Engine` object, not a specific `Connection`.
+            user_id: Optional draft-variable owner scope. When provided, all draft variable
+            reads and writes are restricted to this user to match the database unique index.
 
         Raises:
             AssertionError: If the provided session is not bound to an `Engine` object.
         """
         self._session = session
+        self._user_id = user_id
         engine = session.get_bind()
         # Ensure the session is bound to a engine.
         assert isinstance(engine, Engine)
@@ -206,12 +213,13 @@ class WorkflowDraftVariableService:
         )
 
     def get_variable(self, variable_id: str) -> WorkflowDraftVariable | None:
-        return (
+        query = (
             self._session.query(WorkflowDraftVariable)
             .options(orm.selectinload(WorkflowDraftVariable.variable_file))
             .where(WorkflowDraftVariable.id == variable_id)
-            .first()
         )
+        query = self._apply_user_scope(query)
+        return query.first()
 
     def get_draft_variables_by_selectors(
         self,
@@ -244,15 +252,14 @@ class WorkflowDraftVariableService:
                     WorkflowDraftVariableFile.upload_file
                 )
             )
-            .where(WorkflowDraftVariable.app_id == app_id, or_(*ors))
-            .all()
         )
+        variables = self._apply_user_scope(variables).where(WorkflowDraftVariable.app_id == app_id, or_(*ors)).all()
         return variables
 
     def list_variables_without_values(self, app_id: str, page: int, limit: int) -> WorkflowDraftVariableList:
         criteria = WorkflowDraftVariable.app_id == app_id
         total = None
-        query = self._session.query(WorkflowDraftVariable).where(criteria)
+        query = self._apply_user_scope(self._session.query(WorkflowDraftVariable)).where(criteria)
         if page == 1:
             total = query.count()
         variables = (
@@ -273,7 +280,7 @@ class WorkflowDraftVariableService:
             WorkflowDraftVariable.app_id == app_id,
             WorkflowDraftVariable.node_id == node_id,
         )
-        query = self._session.query(WorkflowDraftVariable).where(*criteria)
+        query = self._apply_user_scope(self._session.query(WorkflowDraftVariable)).where(*criteria)
         variables = (
             query.options(orm.selectinload(WorkflowDraftVariable.variable_file))
             .order_by(WorkflowDraftVariable.created_at.desc())
@@ -300,16 +307,13 @@ class WorkflowDraftVariableService:
         return self._get_variable(app_id, node_id, name)
 
     def _get_variable(self, app_id: str, node_id: str, name: str) -> WorkflowDraftVariable | None:
-        variable = (
-            self._session.query(WorkflowDraftVariable)
-            .options(orm.selectinload(WorkflowDraftVariable.variable_file))
-            .where(
-                WorkflowDraftVariable.app_id == app_id,
-                WorkflowDraftVariable.node_id == node_id,
-                WorkflowDraftVariable.name == name,
-            )
-            .first()
-        )
+        variable = self._apply_user_scope(
+            self._session.query(WorkflowDraftVariable).options(orm.selectinload(WorkflowDraftVariable.variable_file))
+        ).where(
+            WorkflowDraftVariable.app_id == app_id,
+            WorkflowDraftVariable.node_id == node_id,
+            WorkflowDraftVariable.name == name,
+        ).first()
         return variable
 
     def update_variable(
@@ -462,11 +466,9 @@ class WorkflowDraftVariableService:
         self._session.delete(variable)
 
     def delete_workflow_variables(self, app_id: str):
-        (
-            self._session.query(WorkflowDraftVariable)
-            .where(WorkflowDraftVariable.app_id == app_id)
-            .delete(synchronize_session=False)
-        )
+        self._apply_user_scope(self._session.query(WorkflowDraftVariable)).where(
+            WorkflowDraftVariable.app_id == app_id
+        ).delete(synchronize_session=False)
 
     def delete_workflow_draft_variable_file(self, deletions: list[DraftVarFileDeletion]):
         variable_files_query = (
@@ -504,7 +506,7 @@ class WorkflowDraftVariableService:
         return self._delete_node_variables(app_id, node_id)
 
     def _delete_node_variables(self, app_id: str, node_id: str):
-        self._session.query(WorkflowDraftVariable).where(
+        self._apply_user_scope(self._session.query(WorkflowDraftVariable)).where(
             WorkflowDraftVariable.app_id == app_id,
             WorkflowDraftVariable.node_id == node_id,
         ).delete()
@@ -585,6 +587,7 @@ class WorkflowDraftVariableService:
         for conv_var in workflow.conversation_variables:
             draft_var = WorkflowDraftVariable.new_conversation_variable(
                 app_id=workflow.app_id,
+                user_id=self._user_id,
                 name=conv_var.name,
                 value=conv_var,
                 description=conv_var.description,
@@ -595,6 +598,12 @@ class WorkflowDraftVariableService:
             draft_conv_vars,
             policy=_UpsertPolicy.IGNORE,
         )
+
+    def _apply_user_scope(self, query: orm.Query[WorkflowDraftVariable]) -> orm.Query[WorkflowDraftVariable]:
+        if self._user_id is None:
+            return query
+
+        return query.where(WorkflowDraftVariable.user_id == self._user_id)
 
 
 class _UpsertPolicy(StrEnum):
@@ -634,7 +643,7 @@ def _batch_upsert_draft_variable(
         stmt = pg_insert(WorkflowDraftVariable).values([_model_to_insertion_dict(v) for v in draft_vars])
         if policy == _UpsertPolicy.OVERWRITE:
             stmt = stmt.on_conflict_do_update(
-                index_elements=WorkflowDraftVariable.unique_app_id_node_id_name(),
+                index_elements=WorkflowDraftVariable.unique_app_id_user_id_node_id_name(),
                 set_={
                     # Refresh creation timestamp to ensure updated variables
                     # appear first in chronologically sorted result sets.
@@ -651,7 +660,9 @@ def _batch_upsert_draft_variable(
                 },
             )
         elif policy == _UpsertPolicy.IGNORE:
-            stmt = stmt.on_conflict_do_nothing(index_elements=WorkflowDraftVariable.unique_app_id_node_id_name())
+            stmt = stmt.on_conflict_do_nothing(
+                index_elements=WorkflowDraftVariable.unique_app_id_user_id_node_id_name()
+            )
     else:
         stmt = mysql_insert(WorkflowDraftVariable).values([_model_to_insertion_dict(v) for v in draft_vars])  # type: ignore[assignment]
         if policy == _UpsertPolicy.OVERWRITE:
@@ -681,6 +692,7 @@ def _model_to_insertion_dict(model: WorkflowDraftVariable) -> dict[str, Any]:
     d: dict[str, Any] = {
         "id": model.id,
         "app_id": model.app_id,
+        "user_id": model.user_id,
         "last_edited_at": None,
         "node_id": model.node_id,
         "name": model.name,
@@ -806,6 +818,7 @@ class DraftVariableSaver:
     def _create_dummy_output_variable(self):
         return WorkflowDraftVariable.new_node_variable(
             app_id=self._app_id,
+            user_id=self._user.id,
             node_id=self._node_id,
             name=self._DUMMY_OUTPUT_IDENTITY,
             node_execution_id=self._node_execution_id,
@@ -841,6 +854,7 @@ class DraftVariableSaver:
             draft_vars.append(
                 WorkflowDraftVariable.new_conversation_variable(
                     app_id=self._app_id,
+                    user_id=self._user.id,
                     name=item.name,
                     value=segment,
                 )
@@ -861,6 +875,7 @@ class DraftVariableSaver:
                 draft_vars.append(
                     WorkflowDraftVariable.new_node_variable(
                         app_id=self._app_id,
+                        user_id=self._user.id,
                         node_id=self._node_id,
                         name=name,
                         node_execution_id=self._node_execution_id,
@@ -883,6 +898,7 @@ class DraftVariableSaver:
                 draft_vars.append(
                     WorkflowDraftVariable.new_sys_variable(
                         app_id=self._app_id,
+                        user_id=self._user.id,
                         name=name,
                         node_execution_id=self._node_execution_id,
                         value=value_seg,
@@ -1018,6 +1034,7 @@ class DraftVariableSaver:
             # Create the draft variable
             draft_var = WorkflowDraftVariable.new_node_variable(
                 app_id=self._app_id,
+                user_id=self._user.id,
                 node_id=self._node_id,
                 name=name,
                 node_execution_id=self._node_execution_id,
@@ -1031,6 +1048,7 @@ class DraftVariableSaver:
             # Create the draft variable
             draft_var = WorkflowDraftVariable.new_node_variable(
                 app_id=self._app_id,
+                user_id=self._user.id,
                 node_id=self._node_id,
                 name=name,
                 node_execution_id=self._node_execution_id,
