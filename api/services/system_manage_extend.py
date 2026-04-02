@@ -8,7 +8,7 @@ import json
 import logging
 import secrets
 import urllib.parse
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import requests
 from Crypto.Cipher import Blowfish
@@ -287,7 +287,7 @@ class SystemIntegrationManageService:
             "seq": max_seq + 1,
             "name": name.strip(),
             "token": secrets.token_hex(32),
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         tokens.append(new_token)
 
@@ -323,4 +323,106 @@ class SystemIntegrationManageService:
         forward_config["tokens"] = tokens
         config["forward_config"] = forward_config
         record.config = json.dumps(config, ensure_ascii=False)
+        db.session.commit()
+
+
+# ==================== 用户额度管理 ====================
+
+
+class QuotaManageService:
+    """用户额度管理 Service — 迁移自 Admin QuotaService"""
+
+    @staticmethod
+    def get_quota_list(page: int, page_size: int, keyword: str = "") -> dict:
+        """
+        分页查询用户额度列表，按已使用配额从高到低排序。
+        keyword 非空时按 accounts.name 或 accounts.email 模糊搜索。
+        """
+        from sqlalchemy import or_
+
+        from models.account import Account
+        from models.account_money_extend import AccountMoneyExtend
+
+        page = max(1, page)
+        page_size = max(1, min(100, page_size))
+        offset = (page - 1) * page_size
+
+        query = db.session.query(AccountMoneyExtend).order_by(
+            AccountMoneyExtend.used_quota.desc()
+        )
+
+        # keyword 过滤：先从 accounts 查匹配 account_id，再筛选
+        if keyword and keyword.strip():
+            kw = f"%{keyword.strip()}%"
+            matched_ids = (
+                db.session.query(Account.id)
+                .filter(or_(Account.name.ilike(kw), Account.email.ilike(kw)))
+                .all()
+            )
+            id_list = [str(row.id) for row in matched_ids]
+            if id_list:
+                query = query.filter(AccountMoneyExtend.account_id.in_(id_list))
+            else:
+                # 无匹配结果
+                return {"list": [], "total": 0, "page": page, "page_size": page_size}
+
+        total = query.count()
+        rows = query.offset(offset).limit(page_size).all()
+
+        # 批量查询账户信息，避免 N+1
+        account_ids = [r.account_id for r in rows]
+        accounts: dict = {}
+        if account_ids:
+            accs = (
+                db.session.query(Account)
+                .filter(Account.id.in_(account_ids))
+                .all()
+            )
+            accounts = {str(a.id): a for a in accs}
+
+        result = []
+        for i, row in enumerate(rows):
+            acc = accounts.get(str(row.account_id))
+            if acc is None:
+                logger.warning("account_money_extend 有孤儿记录 account_id=%s", row.account_id)
+                continue
+            used = float(row.used_quota or 0)
+            total_q = float(row.total_quota or 0)
+            result.append(
+                {
+                    "account_id": str(row.account_id),
+                    "ranking": offset + i + 1,
+                    "name": acc.name,
+                    "email": acc.email,
+                    "avatar": acc.avatar,
+                    "used_quota": used,
+                    "total_quota": total_q,
+                    "balance": total_q - used,
+                }
+            )
+
+        return {"list": result, "total": total, "page": page, "page_size": page_size}
+
+    @staticmethod
+    def set_user_quota(account_id: str, quota: float) -> None:
+        """
+        设置指定用户的总额度（UPSERT）。
+        若 account_money_extend 无记录则自动创建。
+        """
+        from sqlalchemy.dialects.postgresql import insert as pg_insert
+
+        from models.account_money_extend import AccountMoneyExtend
+
+        if quota < 0:
+            raise ValueError("quota 不能为负数")
+
+        stmt = (
+            pg_insert(AccountMoneyExtend)
+            .values(account_id=account_id, total_quota=quota, used_quota=0)
+            .on_conflict_do_update(
+                index_elements=["account_id"],
+                set_={"total_quota": quota},
+            )
+        )
+        db.session.execute(stmt)
         db.session.commit()

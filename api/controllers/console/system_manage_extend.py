@@ -3,7 +3,6 @@ Extend: 系统管理功能 — Controller 路由与权限装饰器
 迁移自 Admin Center (Go+Vue) 至 Dify Console 原生技术栈
 """
 
-import json
 import logging
 from collections.abc import Callable
 from functools import wraps
@@ -15,7 +14,7 @@ from flask_restx import Resource, reqparse
 from controllers.console import api
 from controllers.console.wraps import account_initialization_required, setup_required
 from libs.login import current_user, login_required
-from services.system_manage_extend import SystemIntegrationManageService
+from services.system_manage_extend import QuotaManageService, SystemIntegrationManageService
 
 logger = logging.getLogger(__name__)
 
@@ -262,3 +261,68 @@ api.add_resource(OAuth2TestExtend, "/system-manage-extend/integration/oauth2/tes
 api.add_resource(EmailApiTestExtend, "/system-manage-extend/integration/email-api/test")
 api.add_resource(ForwardTokenListExtend, "/system-manage-extend/forward-tokens")
 api.add_resource(ForwardTokenDetailExtend, "/system-manage-extend/forward-tokens/<int:seq>")
+
+
+# ==================== 用户额度管理 ====================
+
+
+class QuotaManagementListExtend(Resource):
+    """用户额度管理 — 分页列表查询"""
+
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    def get(self):
+        """获取用户额度分页列表，支持按 name/email 搜索"""
+        parser = reqparse.RequestParser()
+        parser.add_argument("page", type=int, default=1, location="args")
+        parser.add_argument("page_size", type=int, default=10, location="args")
+        parser.add_argument("keyword", type=str, default="", location="args")
+        args = parser.parse_args()
+
+        try:
+            result = QuotaManageService.get_quota_list(
+                page=args["page"],
+                page_size=args["page_size"],
+                keyword=args["keyword"] or "",
+            )
+            return result, 200
+        except Exception as e:
+            logger.exception("Failed to get quota list")
+            abort(500, f"Failed to get quota list: {e}")
+
+
+class QuotaManagementSetExtend(Resource):
+    """用户额度管理 — 设置单用户额度"""
+
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    def post(self):
+        """设置指定用户的总额度（UPSERT）"""
+        data = request.get_json()
+        if not data:
+            abort(400, "Request body is required.")
+
+        account_id = data.get("account_id", "").strip()
+        quota = data.get("quota")
+
+        if not account_id:
+            abort(400, "account_id is required.")
+        if quota is None or not isinstance(quota, (int, float)):
+            abort(400, "quota must be a number.")
+
+        try:
+            QuotaManageService.set_user_quota(account_id=account_id, quota=float(quota))
+            return {"result": "success"}, 200
+        except ValueError as e:
+            abort(400, str(e))
+        except Exception as e:
+            logger.exception("Failed to set user quota")
+            abort(500, f"Failed to set quota: {e}")
+
+
+api.add_resource(QuotaManagementListExtend, "/system-manage-extend/quota-management")
+api.add_resource(QuotaManagementSetExtend, "/system-manage-extend/quota-management/set")

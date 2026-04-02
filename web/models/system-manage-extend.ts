@@ -49,3 +49,23 @@ export type TestResult = {
   status_code?: number
   user_info?: Record<string, any>
 }
+
+// ==================== 用户额度管理 ====================
+
+export type QuotaListItem = {
+  account_id: string
+  ranking: number
+  name: string
+  email: string
+  avatar: string | null
+  used_quota: number
+  total_quota: number
+  balance: number
+}
+
+export type QuotaListResponse = {
+  list: QuotaListItem[]
+  total: number
+  page: number
+  page_size: number
+}

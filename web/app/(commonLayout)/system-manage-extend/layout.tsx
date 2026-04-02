@@ -35,6 +35,11 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
       label: t('systemManage.integration', { ns: 'extend' }),
       href: '/system-manage-extend/system-integration',
     },
+    {
+      key: 'quota-management',
+      label: t('systemManage.quota', { ns: 'extend' }),
+      href: '/system-manage-extend/quota-management',
+    },
   ]
 
   return (
