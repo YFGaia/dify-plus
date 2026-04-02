@@ -1,0 +1,326 @@
+"""
+Extend: 系统集成管理 Service 层
+迁移自 Admin Center (Go+Vue) 至 Dify Console 原生技术栈
+"""
+
+import base64
+import json
+import logging
+import secrets
+import urllib.parse
+from datetime import datetime, timezone
+
+import requests
+from Crypto.Cipher import Blowfish
+from Crypto.Util.Padding import pad, unpad
+
+from configs import dify_config
+from extensions.ext_database import db
+from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend
+
+logger = logging.getLogger(__name__)
+
+
+def _mask_string(s: str) -> str:
+    """将字符串部分替换为星号，保留前后各 2 位"""
+    if not s or len(s) <= 4:
+        return "****"
+    return s[:2] + "*" * (len(s) - 4) + s[-2:]
+
+
+def _encrypt_blowfish(plaintext: str, key: str) -> str:
+    """使用 Blowfish CBC 加密并 base64 编码（与 Go 侧 EncryptBlowfish 兼容）"""
+    key_bytes = key.encode("utf-8")
+    cipher = Blowfish.new(key_bytes, Blowfish.MODE_CBC)
+    iv = cipher.iv
+    padded = pad(plaintext.encode("utf-8"), Blowfish.block_size)
+    encrypted = cipher.encrypt(padded)
+    return base64.b64encode(iv + encrypted).decode("utf-8")
+
+
+def _decrypt_blowfish(encoded: str, key: str) -> str:
+    """使用 Blowfish CBC 解密（与 Go 侧 DecryptBlowfish 兼容）"""
+    if not encoded:
+        return ""
+    ciphertext = base64.b64decode(encoded)
+    if len(ciphertext) < Blowfish.block_size:
+        raise ValueError("Invalid ciphertext")
+    iv = ciphertext[: Blowfish.block_size]
+    ciphertext = ciphertext[Blowfish.block_size :]
+    cipher = Blowfish.new(key.encode("utf-8"), Blowfish.MODE_CBC, iv)
+    plaintext = cipher.decrypt(ciphertext)
+    plaintext = unpad(plaintext, Blowfish.block_size)
+    return plaintext.decode("utf-8")
+
+
+class SystemIntegrationManageService:
+    """系统集成配置管理服务"""
+
+    @staticmethod
+    def _get_or_create_record(classify: int) -> SystemIntegrationExtend:
+        """获取指定 classify 的配置记录，不存在则创建"""
+        record = (
+            db.session.query(SystemIntegrationExtend)
+            .filter(SystemIntegrationExtend.classify == classify)
+            .first()
+        )
+        if not record:
+            record = SystemIntegrationExtend(classify=classify, status=False)
+            db.session.add(record)
+            db.session.commit()
+        return record
+
+    @staticmethod
+    def get_config(classify: int) -> dict:
+        """获取指定分类的集成配置，敏感字段做脱敏处理"""
+        record = SystemIntegrationManageService._get_or_create_record(classify)
+
+        result: dict = {
+            "status": record.status or False,
+            "corp_id": _mask_string(record.corp_id or ""),
+            "agent_id": record.agent_id or "",
+            "app_key": record.app_key or "",
+            "app_id": record.app_id or "",
+            "app_secret": "",
+            "config": {},
+        }
+
+        # 解密 app_secret 并脱敏
+        if record.app_secret:
+            try:
+                secret = _decrypt_blowfish(record.app_secret, dify_config.SECRET_KEY)
+                result["app_secret"] = _mask_string(secret)
+            except Exception:
+                result["app_secret"] = "****"
+
+        # 解析 config JSON
+        if record.config:
+            try:
+                result["config"] = json.loads(record.config)
+            except (json.JSONDecodeError, TypeError):
+                result["config"] = {}
+
+        return result
+
+    @staticmethod
+    def set_config(classify: int, data: dict) -> None:
+        """保存指定分类的集成配置"""
+        record = SystemIntegrationManageService._get_or_create_record(classify)
+
+        # 处理 status
+        if "status" in data:
+            record.status = bool(data["status"])
+
+        # 处理 corp_id — 若包含星号则说明是脱敏后的值，不更新
+        if "corp_id" in data and "*" not in data["corp_id"]:
+            record.corp_id = data["corp_id"]
+
+        # 处理 agent_id
+        if "agent_id" in data:
+            record.agent_id = data["agent_id"]
+
+        # 处理 app_key
+        if "app_key" in data:
+            record.app_key = data["app_key"]
+
+        # 处理 app_id
+        if "app_id" in data:
+            record.app_id = data["app_id"]
+
+        # 处理 app_secret — 若包含星号则说明是脱敏后的值，不更新
+        if "app_secret" in data and "*" not in data["app_secret"]:
+            record.app_secret = _encrypt_blowfish(data["app_secret"], dify_config.SECRET_KEY)
+
+        # 处理 config JSON
+        if "config" in data:
+            record.config = json.dumps(data["config"], ensure_ascii=False)
+
+        db.session.commit()
+
+    @staticmethod
+    def test_dingtalk_connection() -> dict:
+        """测试钉钉 AppKey/AppSecret 是否有效"""
+        record = SystemIntegrationManageService._get_or_create_record(
+            SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK
+        )
+
+        app_key = record.app_key
+        if not app_key:
+            raise ValueError("AppKey 未配置")
+
+        app_secret = ""
+        if record.app_secret:
+            try:
+                app_secret = _decrypt_blowfish(record.app_secret, dify_config.SECRET_KEY)
+            except Exception:
+                raise ValueError("AppSecret 解密失败")
+
+        if not app_secret:
+            raise ValueError("AppSecret 未配置")
+
+        # 调用钉钉 gettoken 验证
+        params = urllib.parse.urlencode({"appkey": app_key, "appsecret": app_secret})
+        resp = requests.get(f"https://oapi.dingtalk.com/gettoken?{params}", timeout=10)
+        resp.raise_for_status()
+        data = resp.json()
+
+        if data.get("errcode", -1) != 0:
+            raise ValueError(f"钉钉连接失败: errcode={data.get('errcode')}, errmsg={data.get('errmsg')}")
+
+        return {"result": "success", "message": "钉钉连接测试成功"}
+
+    @staticmethod
+    def dingtalk_test_callback(code: str) -> dict:
+        """处理钉钉测试回调，用授权码获取用户信息"""
+        record = SystemIntegrationManageService._get_or_create_record(
+            SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK
+        )
+
+        app_key = record.app_key
+        if not app_key or not record.app_secret:
+            raise ValueError("钉钉配置不完整")
+
+        app_secret = _decrypt_blowfish(record.app_secret, dify_config.SECRET_KEY)
+
+        # 获取 access_token
+        params = urllib.parse.urlencode({"appkey": app_key, "appsecret": app_secret})
+        token_resp = requests.get(f"https://oapi.dingtalk.com/gettoken?{params}", timeout=10)
+        token_data = token_resp.json()
+        if token_data.get("errcode", -1) != 0:
+            raise ValueError(f"获取 access_token 失败: {token_data.get('errmsg')}")
+
+        access_token = token_data["access_token"]
+
+        # 使用授权码获取用户信息
+        user_resp = requests.post(
+            "https://oapi.dingtalk.com/topapi/v2/user/getuserinfo",
+            params={"access_token": access_token},
+            json={"code": code},
+            timeout=10,
+        )
+        user_data = user_resp.json()
+        if user_data.get("errcode", -1) != 0:
+            raise ValueError(f"获取用户信息失败: {user_data.get('errmsg')}")
+
+        return {
+            "result": "success",
+            "user_info": user_data.get("result", {}),
+        }
+
+    @staticmethod
+    def test_oauth2_connection(data: dict) -> dict:
+        """测试 OAuth2 连接"""
+        config = data.get("config", {})
+        server_url = config.get("server_url", "")
+        token_url = config.get("token_url", "")
+
+        if not server_url or not token_url:
+            raise ValueError("请填写完整的 OAuth2 配置信息（server_url 和 token_url）")
+
+        # 简单测试 token endpoint 是否可达
+        full_url = f"{server_url.rstrip('/')}{token_url}"
+        try:
+            resp = requests.options(full_url, timeout=10)
+            # 只要服务器有响应即认为连接成功（可能返回 405 但说明服务可达）
+            return {"result": "success", "message": f"OAuth2 服务可达 (HTTP {resp.status_code})"}
+        except requests.RequestException as e:
+            raise ValueError(f"OAuth2 服务连接失败: {e}")
+
+    @staticmethod
+    def test_email_api(api_url: str, api_key: str) -> dict:
+        """测试邮箱 API 连通性"""
+        if not api_url:
+            raise ValueError("API 地址不能为空")
+
+        try:
+            headers = {}
+            if api_key:
+                headers["Authorization"] = f"Bearer {api_key}"
+            resp = requests.get(api_url, headers=headers, timeout=10)
+            return {
+                "result": "success" if resp.status_code < 400 else "failed",
+                "status_code": resp.status_code,
+                "message": f"API 响应状态码: {resp.status_code}",
+            }
+        except requests.RequestException as e:
+            raise ValueError(f"邮箱 API 连接失败: {e}")
+
+    @staticmethod
+    def get_forward_tokens() -> list:
+        """获取转发 Token 列表"""
+        record = SystemIntegrationManageService._get_or_create_record(
+            SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK
+        )
+        if not record.config:
+            return []
+
+        try:
+            config = json.loads(record.config)
+            forward_config = config.get("forward_config", {})
+            return forward_config.get("tokens", [])
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    @staticmethod
+    def create_forward_token(name: str) -> dict:
+        """创建转发 Token"""
+        if not name or not name.strip():
+            raise ValueError("Token 名称不能为空")
+
+        record = SystemIntegrationManageService._get_or_create_record(
+            SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK
+        )
+
+        config: dict = {}
+        if record.config:
+            try:
+                config = json.loads(record.config)
+            except (json.JSONDecodeError, TypeError):
+                config = {}
+
+        forward_config = config.setdefault("forward_config", {})
+        tokens: list = forward_config.setdefault("tokens", [])
+
+        # 计算下一个 seq
+        max_seq = max((t.get("seq", 0) for t in tokens), default=0)
+        new_token = {
+            "seq": max_seq + 1,
+            "name": name.strip(),
+            "token": secrets.token_hex(32),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        tokens.append(new_token)
+
+        record.config = json.dumps(config, ensure_ascii=False)
+        db.session.commit()
+
+        return new_token
+
+    @staticmethod
+    def delete_forward_token(seq: int) -> None:
+        """删除指定 seq 的转发 Token"""
+        record = SystemIntegrationManageService._get_or_create_record(
+            SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK
+        )
+
+        if not record.config:
+            raise ValueError("未找到配置")
+
+        try:
+            config = json.loads(record.config)
+        except (json.JSONDecodeError, TypeError):
+            raise ValueError("配置解析失败")
+
+        forward_config = config.get("forward_config", {})
+        tokens: list = forward_config.get("tokens", [])
+
+        original_len = len(tokens)
+        tokens = [t for t in tokens if t.get("seq") != seq]
+
+        if len(tokens) == original_len:
+            raise ValueError(f"未找到 seq={seq} 的 Token")
+
+        forward_config["tokens"] = tokens
+        config["forward_config"] = forward_config
+        record.config = json.dumps(config, ensure_ascii=False)
+        db.session.commit()

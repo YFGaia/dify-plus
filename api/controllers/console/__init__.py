@@ -43,6 +43,7 @@ from . import (
     ping,
     setup,
     spec,
+    system_manage_extend,  # Extend: 系统管理功能迁移
     version,
 )
 
@@ -225,4 +226,5 @@ __all__ = [
     "workspace",
     # extend: 二开
     "register_extend",
+    "system_manage_extend",
 ]

@@ -18,6 +18,7 @@ import DatasetNav from './dataset-nav'
 import EnvNav from './env-nav'
 import ExploreNav from './explore-nav'
 import LicenseNav from './license-env'
+import SystemManageNavExtend from './system-manage-nav-extend' // Extend: 系统管理导航入口
 import PlanBadge from './plan-badge'
 import PluginsNav from './plugins-nav'
 import ToolsNav from './tools-nav'
@@ -92,6 +93,8 @@ const Header = () => {
           { /* <DrawNav className={navClassName} /> */ }
           { /* <AmazonMarketingNav className={navClassName} /> */ }
           {/* gaia extend end */}
+          {/* Extend: 系统管理入口 */}
+          <SystemManageNavExtend className={navClassName} />
           {/* 二开部分 - 额度限制 */}
           <AccountMoneyExtend />
         </div>
@@ -118,6 +121,8 @@ const Header = () => {
         {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />}
       </div>
       <div className="flex min-w-0 flex-[1] items-center justify-end pl-2 pr-3 min-[1280px]:pl-3">
+        {/* Extend: 系统管理入口 */}
+        <SystemManageNavExtend className={navClassName} />
         <EnvNav />
         <div className="mr-2">
           <PluginsNav />

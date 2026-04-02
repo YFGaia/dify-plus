@@ -1,0 +1,40 @@
+// Extend: 系统管理 API 服务封装
+import { del, get, post } from '@/service/base'
+import type { DingTalkConfig, ForwardToken, OAuth2Config, TestResult } from '@/models/system-manage-extend'
+
+// ==================== 钉钉 ====================
+export const getDingTalkConfig = () =>
+  get<DingTalkConfig>('/system-manage-extend/integration/dingtalk')
+
+export const setDingTalkConfig = (data: Partial<DingTalkConfig>) =>
+  post<{ result: string }>('/system-manage-extend/integration/dingtalk', { body: data })
+
+export const testDingTalkConnection = () =>
+  get<TestResult>('/system-manage-extend/integration/dingtalk/test')
+
+export const dingtalkTestCallback = (code: string) =>
+  post<TestResult>('/system-manage-extend/integration/dingtalk/test-callback', { body: { code } })
+
+// ==================== OAuth2 ====================
+export const getOAuth2Config = () =>
+  get<OAuth2Config>('/system-manage-extend/integration/oauth2')
+
+export const setOAuth2Config = (data: Partial<OAuth2Config>) =>
+  post<{ result: string }>('/system-manage-extend/integration/oauth2', { body: data })
+
+export const testOAuth2Connection = (data: Partial<OAuth2Config>) =>
+  post<TestResult>('/system-manage-extend/integration/oauth2/test', { body: data })
+
+// ==================== 邮箱 API ====================
+export const testEmailApi = (url: string, key: string) =>
+  post<TestResult>('/system-manage-extend/integration/email-api/test', { body: { url, key } })
+
+// ==================== 转发 Token ====================
+export const getForwardTokens = () =>
+  get<{ tokens: ForwardToken[] }>('/system-manage-extend/forward-tokens')
+
+export const createForwardToken = (name: string) =>
+  post<ForwardToken>('/system-manage-extend/forward-tokens', { body: { name } })
+
+export const deleteForwardToken = (seq: number) =>
+  del(`/system-manage-extend/forward-tokens/${seq}`)
