@@ -1,7 +1,7 @@
 from collections.abc import Mapping
 
-from core.workflow.enums import NodeType
-from core.workflow.nodes.base.node import Node
+from dify_graph.enums import NodeType
+from dify_graph.nodes.base.node import Node
 
 LATEST_VERSION = "latest"
 

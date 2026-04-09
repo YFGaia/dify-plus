@@ -9,7 +9,7 @@ from sqlalchemy import exists
 from sqlalchemy.exc import SQLAlchemyError
 
 from configs import dify_config
-from core.workflow.enums import NodeType
+from dify_graph.enums import NodeType
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
 from models.account import Account

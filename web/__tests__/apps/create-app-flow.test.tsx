@@ -215,6 +215,7 @@ const createPage = (apps: App[]): AppListResponse => ({
   limit: 30,
   page: 1,
   total: apps.length,
+  recommended_apps: [],
 })
 
 const renderList = () => {

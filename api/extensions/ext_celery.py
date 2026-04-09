@@ -106,6 +106,7 @@ def init_app(app: DifyApp) -> Celery:
     app.extensions["celery"] = celery_app
 
     imports = [
+        "tasks.app_generate",  # workflow-based app execution (streaming workflow/advanced-chat)
         "tasks.async_workflow_tasks",  # trigger workers
         "tasks.trigger_processing_tasks",  # async trigger processing
         "tasks.generate_summary_index_task",  # summary index generation

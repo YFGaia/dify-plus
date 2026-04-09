@@ -162,6 +162,7 @@ const createPage = (apps: App[], hasMore = false, page = 1): AppListResponse => 
   limit: 30,
   page,
   total: apps.length,
+  recommended_apps: [],
 })
 
 const renderList = (searchParams?: Record<string, string>) => {

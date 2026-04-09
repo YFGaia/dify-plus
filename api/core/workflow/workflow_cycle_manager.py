@@ -25,11 +25,11 @@ from core.workflow.entities.workflow_node_execution import (
     WorkflowNodeExecutionMetadataKey,
     WorkflowNodeExecutionStatus,
 )
-from core.workflow.enums import SystemVariableKey
 from core.workflow.repositories.workflow_execution_repository import WorkflowExecutionRepository
 from core.workflow.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
 from core.workflow.system_variable import SystemVariable
 from core.workflow.workflow_entry import WorkflowEntry
+from dify_graph.enums import SystemVariableKey
 from libs.datetime_utils import naive_utc_now
 from libs.uuid_utils import uuidv7
 from tasks.extend.update_account_money_when_workflow_node_execution_created_extend import (

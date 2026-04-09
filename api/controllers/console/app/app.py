@@ -428,7 +428,7 @@ class AppPagination(ResponseModel):
     total: int
     has_more: bool = Field(validation_alias=AliasChoices("has_next", "has_more"))
     data: list[AppPartial] = Field(validation_alias=AliasChoices("items", "data"))
-    recommended_apps: list[str]  # extend: recommended apps
+    recommended_apps: list[str] = Field(default_factory=list)  # extend: recommended app ids
 
 
 class AppExportResponse(ResponseModel):
@@ -545,6 +545,7 @@ class AppListApi(Resource):
             app.has_draft_trigger = str(app.id) in draft_trigger_app_ids
 
         pagination_model = AppPagination.model_validate(app_pagination, from_attributes=True)
+        pagination_model.recommended_apps = []
         return pagination_model.model_dump(mode="json"), 200
 
     @console_ns.doc("create_app")

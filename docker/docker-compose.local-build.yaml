@@ -3,6 +3,9 @@
 #
 # Overrides the pre-built registry images with locally built images from the current source.
 # Host ports for db/redis are configured via POSTGRES_HOST_PORT/REDIS_HOST_PORT in .env.local-test
+#
+# Source code is bind-mounted from host to containers, so changes take effect after restart.
+# The .venv directory is kept as a container-managed anonymous volume to preserve installed packages.
 
 services:
   api:
@@ -10,9 +13,18 @@ services:
     build:
       context: ../api
       dockerfile: Dockerfile
+    volumes:
+      - ../api:/app/api
+      - api_venv:/app/api/.venv
+      - ./volumes/app/storage:/app/api/storage
 
   worker:
     image: dify-plus-api:1.13.2-local
+    volumes:
+      - ../api:/app/api
+      - worker_venv:/app/api/.venv
+      - ./volumes/app/storage:/app/api/storage
+      - ../api/docker/entrypoint.sh:/entrypoint.sh:ro
 
   worker-gaia:
     image: dify-plus-api:1.13.2-local
@@ -28,3 +40,7 @@ services:
     build:
       context: ../web
       dockerfile: Dockerfile
+
+volumes:
+  api_venv:
+  worker_venv:

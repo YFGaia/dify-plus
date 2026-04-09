@@ -1,7 +1,7 @@
 from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
 
-from core.variables.variables import Variable
+from dify_graph.variables.variables import Variable
 from models.engine import db
 from models.workflow import ConversationVariable
 
