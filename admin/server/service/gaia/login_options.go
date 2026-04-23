@@ -34,7 +34,7 @@ func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res re
 		if err := json.Unmarshal([]byte(integrateOAuth.Config), &configMap); err != nil {
 			return res
 		}
-		if configMap.ServerURL == "" || configMap.AuthorizeURL == "" {
+		if configMap.AuthorizeURL == "" {
 			return res
 		}
 		res.OAuth2.Enabled = true
@@ -48,7 +48,12 @@ func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res re
 			scope = "openid"
 		}
 		// Extend: 兼容 Casdoor 等 provider。用 net/url 解析并合并 query，保证 client_id 等参数一定被附加上去
-		baseURLStr := strings.TrimSuffix(configMap.ServerURL, "/") + configMap.AuthorizeURL
+		var baseURLStr string
+		if strings.HasPrefix(configMap.AuthorizeURL, "http") {
+			baseURLStr = configMap.AuthorizeURL
+		} else {
+			baseURLStr = strings.TrimSuffix(configMap.ServerURL, "/") + configMap.AuthorizeURL
+		}
 		u, err := url.Parse(baseURLStr)
 		if err != nil {
 			// 解析失败时退回字符串拼接

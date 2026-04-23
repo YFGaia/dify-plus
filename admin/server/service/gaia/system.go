@@ -534,7 +534,7 @@ func (e *SystemIntegratedService) TestOAuth2Connection(integrate gaia.SystemInte
 		return nil
 	}
 	// 检查必要字段
-	if configMap.ServerURL == "" || configMap.TokenURL == "" || integrate.AppID == "" || integrate.AppSecret == "" {
+	if configMap.TokenURL == "" || integrate.AppID == "" || integrate.AppSecret == "" {
 		return errors.New("请填写完整的 OAuth2 配置信息")
 	}
 
@@ -556,8 +556,11 @@ func (e *SystemIntegratedService) TestOAuth2Connection(integrate gaia.SystemInte
 	// 发送请求
 	var req *http.Request
 	client := &http.Client{}
-	req, err = http.NewRequest("POST", fmt.Sprintf(
-		"%s%s", configMap.ServerURL, configMap.TokenURL), strings.NewReader(formData.Encode()))
+	tokenEndpoint := configMap.TokenURL
+	if !strings.HasPrefix(tokenEndpoint, "http") {
+		tokenEndpoint = configMap.ServerURL + tokenEndpoint
+	}
+	req, err = http.NewRequest("POST", tokenEndpoint, strings.NewReader(formData.Encode()))
 	if err != nil {
 		global.GVA_LOG.Error("创建测试请求失败", zap.Error(err))
 		return errors.New(fmt.Sprintf("创建测试请求失败: %s", err.Error()))
