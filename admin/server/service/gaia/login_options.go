@@ -40,7 +40,7 @@ func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res re
 		res.OAuth2.Enabled = true
 		redirectURI := strings.TrimSpace(configMap.RedirectUri)
 		if redirectURI == "" {
-			redirectURI = frontendOrigin + "/#/loginCallback?provider=oauth2"
+			redirectURI = frontendOrigin + "/api/base/auth2/callback"
 		}
 		res.OAuth2.RedirectURI = redirectURI
 		scope := strings.TrimSpace(configMap.Scope)
