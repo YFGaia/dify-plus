@@ -645,11 +645,13 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 
 	// 尝试方式1: 从 providers + provider_credentials 表查询
 	var row gaia.ProviderCredential
+	// 将短名转为 Dify 内部 provider_name 的 LIKE 模式（避免 aws 匹配不到 bedrock_claude）
+	likePattern := s.difyProviderLikePattern(providerName)
 	err = global.GVA_DB.Table("providers").
 		Select("provider_credentials.encrypted_config, providers.tenant_id").
 		Joins("LEFT JOIN provider_credentials ON providers.credential_id = provider_credentials.id").
 		Where("providers.tenant_id = ? AND providers.provider_name LIKE ? AND providers.provider_type = ? AND providers.is_valid = ?",
-			tenantID, fmt.Sprintf("%%%s%%", providerName), gaia.DifyProviderTypeCustom, true).
+			tenantID, likePattern, gaia.DifyProviderTypeCustom, true).
 		Order("provider_credentials.updated_at DESC").
 		First(&row).Error
 
@@ -658,7 +660,7 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 		var pmcRow gaia.ProviderCredential
 		if pmcErr := global.GVA_DB.Table("provider_model_credentials").
 			Select("encrypted_config, tenant_id, provider_name, updated_at").
-			Where("tenant_id = ? AND provider_name LIKE ?", tenantID, fmt.Sprintf("%%%s%%", providerName)).
+			Where("tenant_id = ? AND provider_name LIKE ?", tenantID, likePattern).
 			Order("updated_at DESC"). // 按 updated_at 倒序，取最新的凭证
 			First(&pmcRow).Error; pmcErr == nil && pmcRow.EncryptedConfig != "" {
 			row = pmcRow
@@ -1350,7 +1352,7 @@ func (s *ModelProviderService) ProxyRequest(
 		}
 	}
 
-	// 流式响应：按行扫描，顺带从最后一条含 usage 的 data 行中提取 token 数
+	// 流式响应：按行扫描，顺带从最后一条含 usage 的 data 行返回
 	if strings.Contains(resp.Header.Get("Content-Type"), "text/event-stream") {
 		if flusher, ok := writer.(http.Flusher); ok {
 			scanner := bufio.NewScanner(resp.Body)
@@ -1436,3 +1438,22 @@ func isImageOrPerRequestPath(path string) bool {
 	}
 	return false
 }
+
+// difyProviderLikePattern 将 Gaia 短名（openai/aws/...）转换为 Dify providers 表
+// provider_name 字段的 LIKE 搜索模式。
+// Dify 内部以 "langgenius/<plugin>/<plugin>" 格式存储提供商名，例如：
+//   - aws     → langgenius/bedrock_claude/bedrock_claude 或 langgenius/bedrock/bedrock
+//   - openai  → langgenius/openai/openai
+//   - anthropic → langgenius/anthropic/anthropic
+//
+// 对于 AWS，Dify 有两种插件包：bedrock_claude 和 bedrock；使用 bedrock 作为公共关键字可同时命中。
+func (s *ModelProviderService) difyProviderLikePattern(providerName string) string {
+	switch providerName {
+	case gaia.ProviderAWS:
+		// langgenius/bedrock_claude/bedrock_claude 和 langgenius/bedrock/bedrock 都含 "bedrock"
+		return "%bedrock%"
+	default:
+		return fmt.Sprintf("%%%s%%", providerName)
+	}
+}
+
