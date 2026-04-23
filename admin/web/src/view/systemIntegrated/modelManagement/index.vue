@@ -146,7 +146,12 @@ const providerList = ref([])
 const providerDisplayNames = {
   openai: 'OpenAI',
   tongyi: '千问（通义）',
-  google: 'Google Gemini'
+  google: 'Google Gemini',
+  anthropic: 'Anthropic',
+  aws: 'AWS Bedrock',
+  azure: 'Azure OpenAI',
+  zhipuai: '智谱 AI',
+  minimax: 'MiniMax'
 }
 
 const getProviderDisplayName = (providerName) => {
@@ -395,7 +400,7 @@ onMounted(() => {
 :deep(.el-select-dropdown) {
   .el-select-dropdown__item {
     padding: 8px 16px;
-    
+
     &.is-selected {
       font-weight: 600;
       color: #409eff;

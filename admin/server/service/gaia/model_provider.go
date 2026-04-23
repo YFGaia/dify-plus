@@ -443,6 +443,9 @@ func (s *ModelProviderService) GetAvailableModelsFromDify(providerName string) (
 		return s.fetchGeminiModels(client, base, creds.APIKey)
 	case gaia.ProviderAnthropic:
 		return nil, nil
+	case gaia.ProviderAWS:
+		// AWS Bedrock 没有统一的 OpenAI 兼容 /v1/models 接口，模型由前端 allow-create 手输
+		return nil, nil
 	default:
 		if creds.Endpoint != "" {
 			return s.fetchOpenAICompatibleModels(client, creds.Endpoint, creds.APIKey)
@@ -708,8 +711,8 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 			return nil, fmt.Errorf("解密凭证失败: %w", err)
 		}
 	}
-	if creds.APIKey == "" {
-		return nil, fmt.Errorf("未能从配置中提取API Key")
+	if creds.APIKey == "" && creds.AWSAccessKeyID == "" {
+		return nil, fmt.Errorf("未能从配置中提取API Key（也未找到 AWS 凭证）")
 	}
 
 	// 缓存凭证（1小时）
@@ -987,7 +990,12 @@ func (s *ModelProviderService) getProviderCandidatesByModel(modelName string) []
 		return []string{gaia.ProviderGoogle}
 	}
 	if strings.Contains(modelLower, "claude") || strings.Contains(modelLower, "anthropic") {
-		return []string{gaia.ProviderAnthropic}
+		// 顺序即优先级：anthropic 直连优先，未开启则回落到 AWS Bedrock；都开则走 anthropic
+		return []string{gaia.ProviderAnthropic, gaia.ProviderAWS}
+	}
+	// Kimi / Moonshot 系列经由 tongyi（百炼）渠道转发
+	if strings.HasPrefix(modelLower, "kimi") || strings.Contains(modelLower, "moonshot") {
+		return []string{gaia.ProviderTongyi}
 	}
 	// GLM/智谱 可能配置在 tongyi（统一入口）或 zhipuai 下，先试 tongyi
 	if strings.HasPrefix(modelLower, "glm") || strings.Contains(modelLower, "zhipu") || strings.Contains(modelLower, "chatglm") {
@@ -1029,7 +1037,12 @@ func (s *ModelProviderService) getProviderByModel(modelName string) (string, err
 		return gaia.ProviderGoogle, nil
 	}
 	if strings.Contains(modelLower, "claude") || strings.Contains(modelLower, "anthropic") {
+		// 仅按名字推断时默认 anthropic；实际渠道（含 AWS Bedrock）由 resolveProviderByModel 决定
 		return gaia.ProviderAnthropic, nil
+	}
+	// Kimi / Moonshot 默认走 tongyi（百炼）渠道
+	if strings.HasPrefix(modelLower, "kimi") || strings.Contains(modelLower, "moonshot") {
+		return gaia.ProviderTongyi, nil
 	}
 	if strings.Contains(modelLower, "azure") {
 		return gaia.ProviderAzure, nil

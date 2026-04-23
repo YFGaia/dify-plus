@@ -5,6 +5,12 @@ type ProviderCredentials struct {
 	APIKey     string `json:"api_key"`
 	Endpoint   string `json:"endpoint,omitempty"`
 	APIVersion string `json:"api_version,omitempty"` // Azure OpenAI API 版本
+
+	// AWS Bedrock 直连用：access key + secret + region（不走 APIKey/Endpoint）
+	AWSAccessKeyID     string `json:"aws_access_key_id,omitempty"`
+	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
+	AWSSessionToken    string `json:"aws_session_token,omitempty"`
+	AWSRegion          string `json:"aws_region,omitempty"`
 }
 
 // ModelInfo 模型信息
@@ -40,10 +46,10 @@ type OpenAIModelsListResponse struct {
 type TongyiModelsListResponse struct {
 	Success bool `json:"success"`
 	Output  struct {
-		Total   int               `json:"total"`
-		PageNo  int               `json:"page_no"`
-		PageSize int              `json:"page_size"`
-		Models  []TongyiModelItem `json:"models"`
+		Total    int               `json:"total"`
+		PageNo   int               `json:"page_no"`
+		PageSize int               `json:"page_size"`
+		Models   []TongyiModelItem `json:"models"`
 	} `json:"output"`
 }
 
@@ -55,8 +61,8 @@ type TongyiModelItem struct {
 
 // GeminiModelsListResponse Google Gemini GET /v1beta/models 返回：models[] + nextPageToken
 type GeminiModelsListResponse struct {
-	Models         []GeminiModelItem `json:"models"`
-	NextPageToken  string            `json:"nextPageToken"`
+	Models        []GeminiModelItem `json:"models"`
+	NextPageToken string            `json:"nextPageToken"`
 }
 
 // GeminiModelItem Gemini 模型单项，name 为 "models/gemini-xxx"，baseModelId 用于请求
