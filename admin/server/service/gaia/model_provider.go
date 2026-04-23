@@ -418,6 +418,10 @@ func (s *ModelProviderService) GetAvailableModelsFromDify(providerName string) (
 	if providerName == gaia.ProviderAzure {
 		return s.getAvailableModelsFromProviderModelCredentials(providerName)
 	}
+	// AWS Bedrock 没有统一的 /v1/models 接口，模型由前端手输；直接返回空列表
+	if providerName == gaia.ProviderAWS || providerName == gaia.ProviderAnthropic {
+		return nil, nil
+	}
 
 	creds, err := s.GetDifyProviderCredentials(providerName)
 	if err != nil || creds.APIKey == "" {
@@ -441,11 +445,6 @@ func (s *ModelProviderService) GetAvailableModelsFromDify(providerName string) (
 			base = gaia.DefaultAPIBase[gaia.ProviderGoogle]
 		}
 		return s.fetchGeminiModels(client, base, creds.APIKey)
-	case gaia.ProviderAnthropic:
-		return nil, nil
-	case gaia.ProviderAWS:
-		// AWS Bedrock 没有统一的 OpenAI 兼容 /v1/models 接口，模型由前端 allow-create 手输
-		return nil, nil
 	default:
 		if creds.Endpoint != "" {
 			return s.fetchOpenAICompatibleModels(client, creds.Endpoint, creds.APIKey)
@@ -689,6 +688,26 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 			creds.APIKey, err = s.decryptConfig(config.(string), row.TenantID)
 		} else if config, ok = configMap[gaia.ConfigKeyAPIKey]; ok {
 			creds.APIKey, err = s.decryptConfig(config.(string), row.TenantID)
+		} else if _, hasAWSKey := configMap[gaia.ConfigKeyAWSAccessKeyID]; hasAWSKey {
+			// AWS Bedrock 凭证：解析 aws_access_key_id / aws_secret_access_key / aws_region
+			if v, ok2 := configMap[gaia.ConfigKeyAWSAccessKeyID].(string); ok2 && v != "" {
+				if creds.AWSAccessKeyID, err = s.decryptConfig(v, row.TenantID); err != nil {
+					return nil, fmt.Errorf("解密 aws_access_key_id 失败: %w", err)
+				}
+			}
+			if v, ok2 := configMap[gaia.ConfigKeyAWSSecretAccessKey].(string); ok2 && v != "" {
+				if creds.AWSSecretAccessKey, err = s.decryptConfig(v, row.TenantID); err != nil {
+					return nil, fmt.Errorf("解密 aws_secret_access_key 失败: %w", err)
+				}
+			}
+			if v, ok2 := configMap[gaia.ConfigKeyAWSSessionToken].(string); ok2 && v != "" {
+				if creds.AWSSessionToken, err = s.decryptConfig(v, row.TenantID); err != nil {
+					return nil, fmt.Errorf("解密 aws_session_token 失败: %w", err)
+				}
+			}
+			if v, ok2 := configMap[gaia.ConfigKeyAWSRegion].(string); ok2 && v != "" {
+				creds.AWSRegion = strings.TrimSpace(v)
+			}
 		} else {
 			// 尝试从备选字段中查找
 			for _, key := range gaia.CredentialKeyFallback {
@@ -1165,6 +1184,11 @@ func (s *ModelProviderService) ProxyRequest(
 	var creds *gaiaResponse.ProviderCredentials
 	if creds, err = s.GetDifyProviderCredentials(providerName); err != nil {
 		return err
+	}
+
+	// AWS Bedrock 直连：不走通用 HTTP 转发，改用 SigV4 签名的 Bedrock 原生 API
+	if providerName == gaia.ProviderAWS {
+		return s.proxyBedrockRequest(userID, path, method, reqHeader, body, writer, creds)
 	}
 
 	if base = s.getUpstreamBase(providerName, creds); base == "" {

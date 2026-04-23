@@ -22,6 +22,12 @@ const (
 	ConfigKeyOpenaiAPIVersion = "openai_api_version"
 	ConfigKeyDashScopeAPIKey  = "dashscope_api_key"
 	ConfigKeyAPIKey           = "api_key"
+
+	// AWS Bedrock 凭证字段（Dify bedrock provider 的 encrypted_config 中使用）
+	ConfigKeyAWSAccessKeyID     = "aws_access_key_id"
+	ConfigKeyAWSSecretAccessKey = "aws_secret_access_key"
+	ConfigKeyAWSSessionToken    = "aws_session_token"
+	ConfigKeyAWSRegion          = "aws_region"
 )
 
 // SupportedProviders 列表展示的提供商顺序
