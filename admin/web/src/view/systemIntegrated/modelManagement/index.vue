@@ -114,7 +114,21 @@
               </div>
 
               <div v-if="!(provider.available_models && provider.available_models.length > 0)" class="models-hint">
-                未从接口拉取到可用模型，可输入模型 ID 后按回车直接新增
+                <template v-if="provider.provider_name === 'aws'">
+                  AWS Bedrock 无统一模型列表接口，请手动输入模型 ID 后按回车新增，例如：<br>
+                  <code>anthropic.claude-sonnet-4-6-v1:0</code>&nbsp;
+                  <code>anthropic.claude-opus-4-6-v1:0</code>&nbsp;
+                  <code>anthropic.claude-opus-4-7-v1:0</code>
+                </template>
+                <template v-else-if="provider.provider_name === 'anthropic'">
+                  Anthropic 无统一模型列表接口，请手动输入模型 ID 后按回车新增，例如：<br>
+                  <code>claude-sonnet-4-6</code>&nbsp;
+                  <code>claude-opus-4-6</code>&nbsp;
+                  <code>claude-opus-4-7</code>
+                </template>
+                <template v-else>
+                  未从接口拉取到可用模型，可输入模型 ID 后按回车直接新增
+                </template>
               </div>
             </div>
           </el-collapse-transition>
@@ -258,8 +272,18 @@ const testCredentials = async(providerName) => {
   try {
     const res = await testProviderCredentialsApi(providerName)
     if (res.code === 0) {
+      const d = res.data
+      let msg = `提供商: ${d.provider}\n`
+      if (d.aws_access_key_id) {
+        // AWS Bedrock
+        msg += `Access Key ID: ${d.aws_access_key_id}\n`
+        msg += `Region: ${d.aws_region}\n`
+        msg += `Session Token: ${d.has_session_token ? '已配置' : '未配置'}`
+      } else {
+        msg += `API Key: ${d.api_key}\n凭证状态: ${d.has_api_key ? '已配置' : '未配置'}`
+      }
       ElMessageBox.alert(
-        `提供商: ${res.data.provider}\nAPI Key: ${res.data.api_key}\n凭证状态: ${res.data.has_api_key ? '已配置' : '未配置'}`,
+        msg,
         '凭证测试结果',
         {
           confirmButtonText: '确定',
@@ -379,6 +403,15 @@ onMounted(() => {
         margin-top: 8px;
         font-size: 12px;
         color: #909399;
+        line-height: 1.8;
+
+        code {
+          background: #f0f2f5;
+          border-radius: 3px;
+          padding: 1px 5px;
+          font-family: monospace;
+          color: #606266;
+        }
       }
     }
   }

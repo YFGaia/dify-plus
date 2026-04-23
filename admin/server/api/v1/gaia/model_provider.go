@@ -190,18 +190,39 @@ func (m *ModelProviderApi) TestProviderCredentials(c *gin.Context) {
 		return
 	}
 
-	// 隐藏API Key的大部分内容
-	maskedKey := ""
-	if len(creds.APIKey) > 8 {
-		maskedKey = creds.APIKey[:4] + "****" + creds.APIKey[len(creds.APIKey)-4:]
-	} else {
-		maskedKey = "****"
-	}
+	var result map[string]interface{}
 
-	result := map[string]interface{}{
-		"provider":    providerName,
-		"has_api_key": creds.APIKey != "",
-		"api_key":     maskedKey,
+	// AWS Bedrock：展示 access key 信息
+	if creds.AWSAccessKeyID != "" {
+		maskedKey := "****"
+		if len(creds.AWSAccessKeyID) > 8 {
+			maskedKey = creds.AWSAccessKeyID[:4] + "****" + creds.AWSAccessKeyID[len(creds.AWSAccessKeyID)-4:]
+		}
+		region := creds.AWSRegion
+		if region == "" {
+			region = "us-east-1（默认）"
+		}
+		result = map[string]interface{}{
+			"provider":           providerName,
+			"has_api_key":        true,
+			"api_key":            maskedKey,
+			"aws_access_key_id":  maskedKey,
+			"aws_region":         region,
+			"has_session_token":  creds.AWSSessionToken != "",
+		}
+	} else {
+		// 隐藏API Key的大部分内容
+		maskedKey := ""
+		if len(creds.APIKey) > 8 {
+			maskedKey = creds.APIKey[:4] + "****" + creds.APIKey[len(creds.APIKey)-4:]
+		} else {
+			maskedKey = "****"
+		}
+		result = map[string]interface{}{
+			"provider":    providerName,
+			"has_api_key": creds.APIKey != "",
+			"api_key":     maskedKey,
+		}
 	}
 
 	response.OkWithData(result, c)
