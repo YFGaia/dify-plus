@@ -84,12 +84,14 @@ func (s *ModelProviderService) proxyBedrockRequest(
 	}
 
 	// 3) 构建 Bedrock URL
+	// modelID 中可能含有 `:` 等需要 URL 编码的字符（如 anthropic.claude-3-5-sonnet-20241022-v2:0），
+	// 使用 url.PathEscape 保证 URL 合法。
 	host := fmt.Sprintf("bedrock-runtime.%s.amazonaws.com", region)
 	op := "invoke"
 	if streaming {
 		op = "invoke-with-response-stream"
 	}
-	requestURL := fmt.Sprintf("https://%s/model/%s/%s", host, modelID, op)
+	requestURL := fmt.Sprintf("https://%s/model/%s/%s", host, url.PathEscape(modelID), op)
 
 	httpReq, err := http.NewRequest(method, requestURL, bytes.NewReader(rewritten))
 	if err != nil {
