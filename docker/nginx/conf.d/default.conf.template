@@ -3,6 +3,9 @@
 server {
     listen ${NGINX_PORT};
     server_name ${NGINX_SERVER_NAME};
+    keepalive_timeout 1800s;
+    client_header_timeout ${NGINX_CLIENT_HEADER_TIMEOUT};
+    client_body_timeout ${NGINX_CLIENT_BODY_TIMEOUT};
     # 管理中心反向代理配置
     location = /admin {
       return 301 /admin/;
