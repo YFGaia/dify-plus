@@ -714,6 +714,15 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 			if v, ok2 := configMap[gaia.ConfigKeyAWSRegion].(string); ok2 && v != "" {
 				creds.AWSRegion = strings.TrimSpace(v)
 			}
+			// 可选：HTTP 代理地址（用于从受限地区中转 Bedrock 请求）。
+			// 支持 "host:port" 或 "http(s)://host:port"；若值被加密则先解密，失败时按原文处理。
+			if v, ok2 := configMap[gaia.ConfigKeyBedrockProxyURL].(string); ok2 && strings.TrimSpace(v) != "" {
+				proxyVal := strings.TrimSpace(v)
+				if decrypted, decErr := s.decryptConfig(proxyVal, row.TenantID); decErr == nil && decrypted != "" {
+					proxyVal = strings.TrimSpace(decrypted)
+				}
+				creds.BedrockProxyURL = proxyVal
+			}
 		} else {
 			// 尝试从备选字段中查找
 			for _, key := range gaia.CredentialKeyFallback {

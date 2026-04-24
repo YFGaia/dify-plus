@@ -93,6 +93,14 @@ func (s *ModelProviderService) proxyBedrockRequest(
 	}
 	requestURL := fmt.Sprintf("https://%s/model/%s/%s", host, url.PathEscape(modelID), op)
 
+	// 打印请求地址、参数和代理地址
+	global.GVA_LOG.Info("Bedrock 请求详情",
+		zap.String("request_url", requestURL),
+		zap.String("method", method),
+		zap.ByteString("body", rewritten),
+		zap.String("proxy_url", creds.BedrockProxyURL),
+	)
+
 	httpReq, err := http.NewRequest(method, requestURL, bytes.NewReader(rewritten))
 	if err != nil {
 		return fmt.Errorf("构建 Bedrock 请求失败：%w", err)
