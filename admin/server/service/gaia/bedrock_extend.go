@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
@@ -74,17 +73,39 @@ func (s *ModelProviderService) proxyBedrockRequest(
 		return fmt.Errorf("重写 Bedrock 请求 body 失败：%w", err)
 	}
 
-	// 3) 构建 Bedrock URL
-	host := fmt.Sprintf("bedrock-runtime.%s.amazonaws.com", region)
+	// 3) 确定代理地址（优先凭证内 bedrock_proxy_url，其次全局 BEDROCK_PROXY env）
+	proxyAddr := creds.BedrockProxyURL
+	if proxyAddr == "" {
+		proxyAddr = global.GVA_CONFIG.Gaia.BedrockProxy
+	}
+	// 规范化：去除 scheme，仅保留 host:port
+	proxyHost := strings.TrimPrefix(strings.TrimPrefix(proxyAddr, "https://"), "http://")
+	proxyHost = strings.TrimRight(proxyHost, "/")
+
+	// 4) 构建请求 URL
+	// 真实 Bedrock host（SigV4 & Host 头使用）
+	bedrockHost := fmt.Sprintf("bedrock-runtime.%s.amazonaws.com", region)
 	op := "invoke"
 	if streaming {
 		op = "invoke-with-response-stream"
 	}
-	requestURL := fmt.Sprintf("https://%s/model/%s/%s", host, modelID, op)
+	var requestURL string
+	if proxyHost != "" {
+		// 反向代理模式：发普通 HTTP 到代理地址，不需要代理支持 CONNECT 隧道
+		requestURL = fmt.Sprintf("http://%s/model/%s/%s", proxyHost, modelID, op)
+	} else {
+		requestURL = fmt.Sprintf("https://%s/model/%s/%s", bedrockHost, modelID, op)
+	}
 
 	httpReq, err := http.NewRequest(method, requestURL, bytes.NewReader(rewritten))
 	if err != nil {
 		return fmt.Errorf("构建 Bedrock 请求失败：%w", err)
+	}
+	// 代理模式下显式设置 Host 为真实 Bedrock 地址，使 SigV4 校验通过
+	if proxyHost != "" {
+		httpReq.Host = bedrockHost
+		global.GVA_LOG.Info("Bedrock 经反向代理转发",
+			zap.String("proxy", proxyHost), zap.String("bedrockHost", bedrockHost), zap.String("model", modelID))
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 	if streaming {
@@ -94,30 +115,23 @@ func (s *ModelProviderService) proxyBedrockRequest(
 		httpReq.Header.Set("Accept", "application/json")
 	}
 
-	// 4) SigV4 签名（service=bedrock）
+	// 5) SigV4 签名（始终针对真实 Bedrock HTTPS URL 签名，再把签名头复制到实际请求）
 	awsCreds := credentials.NewStaticCredentials(creds.AWSAccessKeyID, creds.AWSSecretAccessKey, creds.AWSSessionToken)
 	signer := v4.NewSigner(awsCreds)
-	if _, err = signer.Sign(httpReq, bytes.NewReader(rewritten), "bedrock", region, time.Now()); err != nil {
+	signURL := fmt.Sprintf("https://%s/model/%s/%s", bedrockHost, modelID, op)
+	signReq, _ := http.NewRequest(method, signURL, bytes.NewReader(rewritten))
+	signReq.Header.Set("Content-Type", "application/json")
+	if _, err = signer.Sign(signReq, bytes.NewReader(rewritten), "bedrock", region, time.Now()); err != nil {
 		return fmt.Errorf("Bedrock SigV4 签名失败：%w", err)
 	}
+	// 把签名产生的 Authorization / X-Amz-* 头复制到实际发送的请求
+	for k, vals := range signReq.Header {
+		httpReq.Header[k] = vals
+	}
 
-	// 5) 发起请求（若配置了代理则经 HTTP 代理转发：优先用凭证内 bedrock_proxy_url，其次用全局 BEDROCK_PROXY）
+	// 6) 发起请求
 	startTime := time.Now()
-	proxyAddr := creds.BedrockProxyURL
-	if proxyAddr == "" {
-		proxyAddr = global.GVA_CONFIG.Gaia.BedrockProxy
-	}
-	transport := http.DefaultTransport
-	if proxyAddr != "" {
-		if !strings.HasPrefix(proxyAddr, "http://") && !strings.HasPrefix(proxyAddr, "https://") {
-			proxyAddr = "http://" + proxyAddr
-		}
-		if proxyURL, parseErr := url.Parse(proxyAddr); parseErr == nil {
-			transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
-			global.GVA_LOG.Info("Bedrock 请求经代理转发", zap.String("proxy", proxyAddr), zap.String("model", modelID))
-		}
-	}
-	client := &http.Client{Timeout: 5 * time.Minute, Transport: transport}
+	client := &http.Client{Timeout: 5 * time.Minute}
 	resp, err := client.Do(httpReq)
 	if err != nil {
 		s.logBedrock(userID, modelID, "error", err.Error(), startTime, 0, 0)
@@ -125,7 +139,7 @@ func (s *ModelProviderService) proxyBedrockRequest(
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	// 6) 写回响应头/状态码（流式改写 Content-Type 为 SSE）
+	// 7) 写回响应头/状态码（流式改写 Content-Type 为 SSE）
 	if w, ok := writer.(http.ResponseWriter); ok {
 		for k, v := range resp.Header {
 			lower := strings.ToLower(k)
@@ -152,7 +166,7 @@ func (s *ModelProviderService) proxyBedrockRequest(
 		return nil
 	}
 
-	// 7) 处理响应体
+	// 8) 处理响应体
 	var inputTokens, outputTokens int
 	if streaming {
 		inputTokens, outputTokens, err = s.streamBedrockEventStream(resp.Body, writer)
@@ -170,7 +184,7 @@ func (s *ModelProviderService) proxyBedrockRequest(
 		inputTokens, outputTokens = parseAnthropicUsage(buf.Bytes())
 	}
 
-	// 8) 记录日志 + 计费扣款
+	// 9) 记录日志 + 计费扣款
 	s.logBedrock(userID, modelID, "success", "", startTime, inputTokens, outputTokens)
 	if inputTokens > 0 || outputTokens > 0 {
 		pricing, _ := s.fetchModelPricingFromDify(modelID)
@@ -286,7 +300,5 @@ func (s *ModelProviderService) logBedrock(userID, modelID, status, errMsg string
 		global.GVA_LOG.Warn("logBedrock 写日志失败", zap.Error(err))
 	}
 }
-
-
 
 
