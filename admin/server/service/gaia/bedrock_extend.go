@@ -101,16 +101,20 @@ func (s *ModelProviderService) proxyBedrockRequest(
 		return fmt.Errorf("Bedrock SigV4 签名失败：%w", err)
 	}
 
-	// 5) 发起请求（若配置了 bedrock_proxy_url 则经 HTTP 代理转发）
+	// 5) 发起请求（若配置了代理则经 HTTP 代理转发：优先用凭证内 bedrock_proxy_url，其次用全局 BEDROCK_PROXY）
 	startTime := time.Now()
+	proxyAddr := creds.BedrockProxyURL
+	if proxyAddr == "" {
+		proxyAddr = global.GVA_CONFIG.Gaia.BedrockProxy
+	}
 	transport := http.DefaultTransport
-	if creds.BedrockProxyURL != "" {
-		proxyAddr := creds.BedrockProxyURL
+	if proxyAddr != "" {
 		if !strings.HasPrefix(proxyAddr, "http://") && !strings.HasPrefix(proxyAddr, "https://") {
 			proxyAddr = "http://" + proxyAddr
 		}
 		if proxyURL, parseErr := url.Parse(proxyAddr); parseErr == nil {
 			transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+			global.GVA_LOG.Info("Bedrock 请求经代理转发", zap.String("proxy", proxyAddr), zap.String("model", modelID))
 		}
 	}
 	client := &http.Client{Timeout: 5 * time.Minute, Transport: transport}
@@ -282,6 +286,7 @@ func (s *ModelProviderService) logBedrock(userID, modelID, status, errMsg string
 		global.GVA_LOG.Warn("logBedrock 写日志失败", zap.Error(err))
 	}
 }
+
 
 
 
