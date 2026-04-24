@@ -1011,8 +1011,8 @@ func (s *ModelProviderService) getProviderCandidatesByModel(modelName string) []
 		return []string{gaia.ProviderGoogle}
 	}
 	if strings.Contains(modelLower, "claude") || strings.Contains(modelLower, "anthropic") {
-		// 顺序即优先级：anthropic 直连优先，未开启则回落到 AWS Bedrock；都开则走 anthropic
-		return []string{gaia.ProviderAnthropic, gaia.ProviderAWS}
+		// 顺序即优先级：AWS Bedrock 优先（配置成本更高、可覆盖受限地区），未开启再回落到 anthropic 直连
+		return []string{gaia.ProviderAWS, gaia.ProviderAnthropic}
 	}
 	// Kimi / Moonshot 系列经由 tongyi（百炼）渠道转发
 	if strings.HasPrefix(modelLower, "kimi") || strings.Contains(modelLower, "moonshot") {
