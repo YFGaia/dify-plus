@@ -65,6 +65,15 @@ func (s *ModelProviderService) proxyBedrockRequest(
 	delete(bodyObj, "model")
 	delete(bodyObj, "stream")
 	delete(bodyObj, "stream_options")
+	// OpenAI 兼容字段转换：max_completion_tokens → max_tokens（Bedrock/Anthropic 使用 max_tokens）
+	if _, hasMaxTokens := bodyObj["max_tokens"]; !hasMaxTokens {
+		if v, ok := bodyObj["max_completion_tokens"]; ok {
+			bodyObj["max_tokens"] = v
+			delete(bodyObj, "max_completion_tokens")
+		}
+	} else {
+		delete(bodyObj, "max_completion_tokens")
+	}
 	// 注入 Bedrock 必需的 anthropic_version
 	if _, ok := bodyObj["anthropic_version"]; !ok {
 		bodyObj["anthropic_version"] = "bedrock-2023-05-31"

@@ -1014,6 +1014,11 @@ func (s *ModelProviderService) getProviderCandidatesByModel(modelName string) []
 	if strings.HasPrefix(modelLower, "gemini") || strings.Contains(modelLower, "google") {
 		return []string{gaia.ProviderGoogle}
 	}
+	if strings.HasPrefix(modelLower, "anthropic.") {
+		// anthropic.* 前缀是 AWS Bedrock 专用模型 ID 格式（如 anthropic.claude-sonnet-4-6），
+		// 仅走 Bedrock 渠道，不回落到 Anthropic 直连（直连不支持此格式且可能因地区受限）。
+		return []string{gaia.ProviderAWS}
+	}
 	if strings.Contains(modelLower, "claude") || strings.Contains(modelLower, "anthropic") {
 		// 顺序即优先级：AWS Bedrock 优先（配置成本更高、可覆盖受限地区），未开启再回落到 anthropic 直连
 		return []string{gaia.ProviderAWS, gaia.ProviderAnthropic}
@@ -1064,6 +1069,10 @@ func (s *ModelProviderService) getProviderByModel(modelName string) (string, err
 	}
 	if strings.HasPrefix(modelLower, "gemini") || strings.Contains(modelLower, "google") {
 		return gaia.ProviderGoogle, nil
+	}
+	if strings.HasPrefix(modelLower, "anthropic.") {
+		// anthropic.* 前缀是 AWS Bedrock 专用格式，直接归 aws 渠道
+		return gaia.ProviderAWS, nil
 	}
 	if strings.Contains(modelLower, "claude") || strings.Contains(modelLower, "anthropic") {
 		// 仅按名字推断时默认 anthropic；实际渠道（含 AWS Bedrock）由 resolveProviderByModel 决定
