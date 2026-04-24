@@ -28,6 +28,7 @@ const (
 	ConfigKeyAWSSecretAccessKey = "aws_secret_access_key"
 	ConfigKeyAWSSessionToken    = "aws_session_token"
 	ConfigKeyAWSRegion          = "aws_region"
+	ConfigKeyBedrockProxyURL    = "bedrock_proxy_url" // 可选：HTTP 代理地址，格式 host:port 或 http://host:port
 )
 
 // SupportedProviders 列表展示的提供商顺序

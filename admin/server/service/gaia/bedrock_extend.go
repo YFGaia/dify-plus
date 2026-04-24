@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -100,9 +101,19 @@ func (s *ModelProviderService) proxyBedrockRequest(
 		return fmt.Errorf("Bedrock SigV4 签名失败：%w", err)
 	}
 
-	// 5) 发起请求
+	// 5) 发起请求（若配置了 bedrock_proxy_url 则经 HTTP 代理转发）
 	startTime := time.Now()
-	client := &http.Client{Timeout: 5 * time.Minute}
+	transport := http.DefaultTransport
+	if creds.BedrockProxyURL != "" {
+		proxyAddr := creds.BedrockProxyURL
+		if !strings.HasPrefix(proxyAddr, "http://") && !strings.HasPrefix(proxyAddr, "https://") {
+			proxyAddr = "http://" + proxyAddr
+		}
+		if proxyURL, parseErr := url.Parse(proxyAddr); parseErr == nil {
+			transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+		}
+	}
+	client := &http.Client{Timeout: 5 * time.Minute, Transport: transport}
 	resp, err := client.Do(httpReq)
 	if err != nil {
 		s.logBedrock(userID, modelID, "error", err.Error(), startTime, 0, 0)
@@ -271,3 +282,6 @@ func (s *ModelProviderService) logBedrock(userID, modelID, status, errMsg string
 		global.GVA_LOG.Warn("logBedrock 写日志失败", zap.Error(err))
 	}
 }
+
+
+

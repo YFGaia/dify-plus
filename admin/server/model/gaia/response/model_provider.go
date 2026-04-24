@@ -11,6 +11,8 @@ type ProviderCredentials struct {
 	AWSSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
 	AWSSessionToken    string `json:"aws_session_token,omitempty"`
 	AWSRegion          string `json:"aws_region,omitempty"`
+	// Bedrock 可选代理地址（host:port 或 http://host:port），非空时请求经该代理转发到 AWS
+	BedrockProxyURL string `json:"bedrock_proxy_url,omitempty"`
 }
 
 // ModelInfo 模型信息
