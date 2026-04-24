@@ -643,6 +643,11 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 	cacheKey := gaia.RedisKeyModelProviderCredentialsPrefix + providerName
 	if cached, err = global.GVA_Dify_REDIS.Get(context.Background(), cacheKey).Result(); err == nil {
 		if err = json.Unmarshal([]byte(cached), &creds); err == nil {
+			global.GVA_LOG.Info("GetDifyProviderCredentials 命中缓存",
+				zap.String("provider", providerName),
+				zap.String("aws_region", creds.AWSRegion),
+				zap.String("bedrock_proxy_url", creds.BedrockProxyURL),
+			)
 			return creds, nil
 		}
 	}
@@ -651,7 +656,7 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 	var row gaia.ProviderCredential
 	// 将短名转为 Dify 内部 provider_name 的 LIKE 模式（避免 aws 匹配不到 bedrock_claude）
 	likePattern := s.difyProviderLikePattern(providerName)
-	err = global.GVA_DB.Table("providers").
+	err = global.GVA_DB.Debug().Table("providers").
 		Select("provider_credentials.encrypted_config, providers.tenant_id").
 		Joins("LEFT JOIN provider_credentials ON providers.credential_id = provider_credentials.id").
 		Where("providers.tenant_id = ? AND providers.provider_name LIKE ? AND providers.provider_type = ? AND providers.is_valid = ?",
@@ -662,7 +667,7 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 	// 如果方式1 未找到记录，尝试方式2: 从 provider_model_credentials 表查询
 	if err != nil || row.EncryptedConfig == "" {
 		var pmcRow gaia.ProviderCredential
-		if pmcErr := global.GVA_DB.Table("provider_model_credentials").
+		if pmcErr := global.GVA_DB.Debug().Table("provider_model_credentials").
 			Select("encrypted_config, tenant_id, provider_name, updated_at").
 			Where("tenant_id = ? AND provider_name LIKE ?", tenantID, likePattern).
 			Order("updated_at DESC"). // 按 updated_at 倒序，取最新的凭证
@@ -679,6 +684,7 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 	// 兼容两种存储：1) 明文 JSON（如 {"openai_api_key":"...", "openai_api_base":"..."}）；2) Dify RSA+AES-EAX 加密后再 base64
 	var base, apiVersion string
 	var configMap map[string]interface{}
+	fmt.Println("row.EncryptedConfig", row.EncryptedConfig)
 	if err = json.Unmarshal([]byte(row.EncryptedConfig), &configMap); err == nil {
 		// 解密函数用于处理加密的值
 		if config, ok := configMap[gaia.ConfigKeyOpenaiAPIKey]; ok {
@@ -752,6 +758,7 @@ func (s *ModelProviderService) GetDifyProviderCredentials(providerName string) (
 	// 缓存凭证（1小时）
 	var cacheJSON []byte
 	if cacheJSON, err = json.Marshal(creds); err == nil {
+		fmt.Println("row.EncryptedConfig", string(cacheJSON))
 		global.GVA_Dify_REDIS.Set(context.Background(), cacheKey, cacheJSON, time.Hour)
 	}
 
