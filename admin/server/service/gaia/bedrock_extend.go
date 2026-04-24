@@ -84,14 +84,23 @@ func (s *ModelProviderService) proxyBedrockRequest(
 	}
 
 	// 3) 构建 Bedrock URL
-	// modelID 中可能含有 `:` 等需要 URL 编码的字符（如 anthropic.claude-3-5-sonnet-20241022-v2:0），
-	// 使用 url.PathEscape 保证 URL 合法。
+	// 新一代 Claude 模型（3.5v2、3.7、Sonnet-4、Opus-4 等）要求通过跨区域推理配置文件调用，
+	// 模型 ID 需加地理前缀（us. / eu. / ap.），否则 Bedrock 返回 "on-demand throughput isn't supported" 错误。
+	// 若调用方已传入带前缀的 ID（如 us.anthropic.xxx）则直接使用，不重复添加。
+	invokeModelID := bedrockResolveModelID(modelID, region)
+	if invokeModelID != modelID {
+		global.GVA_LOG.Info("Bedrock 模型 ID 已映射为跨区域推理配置文件",
+			zap.String("original", modelID),
+			zap.String("resolved", invokeModelID),
+			zap.String("region", region),
+		)
+	}
 	host := fmt.Sprintf("bedrock-runtime.%s.amazonaws.com", region)
 	op := "invoke"
 	if streaming {
 		op = "invoke-with-response-stream"
 	}
-	requestURL := fmt.Sprintf("https://%s/model/%s/%s", host, url.PathEscape(modelID), op)
+	requestURL := fmt.Sprintf("https://%s/model/%s/%s", host, url.PathEscape(invokeModelID), op)
 
 	// 打印请求地址、参数和代理地址
 	global.GVA_LOG.Info("Bedrock 请求详情",
@@ -284,6 +293,93 @@ func parseAnthropicUsage(data []byte) (input, output int) {
 		return obj.Usage.InputTokens, obj.Usage.OutputTokens
 	}
 	return 0, 0
+}
+
+// bedrockCrossRegionPrefixes 是需要跨区域推理配置文件的模型 ID 前缀列表（anthropic. 开头）。
+// 来源：https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html
+// 规则：凡模型不在旧版 on-demand 列表中，均需加地理前缀才能调用。
+var bedrockCrossRegionPrefixes = []string{
+	// Claude 3.5 v2
+	"anthropic.claude-3-5-sonnet-20241022-v2",
+	"anthropic.claude-3-5-haiku-20241022",
+	// Claude 3.7
+	"anthropic.claude-3-7-sonnet",
+	// Claude Sonnet 4 / Opus 4 / Haiku 4（及后续新版本）
+	"anthropic.claude-sonnet-4",
+	"anthropic.claude-opus-4",
+	"anthropic.claude-haiku-4",
+}
+
+// bedrockResolveModelID 将用户输入的模型 ID 解析为正确的 Bedrock 调用 ID。
+//
+// 支持以下输入格式（会自动规范化）：
+//   - 完整带前缀：us.anthropic.claude-sonnet-4-6      → 直接使用
+//   - 带厂商前缀：anthropic.claude-sonnet-4-6         → 按需加 us./eu./ap.
+//   - 短横线名称：claude-sonnet-4-6                   → 补 anthropic. 再按需加前缀
+//   - 空格+点号： "claude sonnet 4.6"                  → 规范化后同上
+func bedrockResolveModelID(modelID, region string) string {
+	// Step 1: 规范化输入
+	// 小写、空格→横线、版本中的点→横线（如 4.6 → 4-6，但保留 : 用于版本后缀如 v2:0）
+	normalized := strings.ToLower(strings.TrimSpace(modelID))
+	normalized = strings.ReplaceAll(normalized, " ", "-")
+	// 仅将数字之间的 `.` 替换为 `-`（处理 "4.6" → "4-6"），保留 anthropic. 这样的厂商点
+	normalized = replaceVersionDots(normalized)
+
+	// Step 2: 补全 anthropic. 前缀（用户只填了 claude-xxx）
+	if !strings.HasPrefix(normalized, "anthropic.") &&
+		!strings.HasPrefix(normalized, "us.") &&
+		!strings.HasPrefix(normalized, "eu.") &&
+		!strings.HasPrefix(normalized, "ap.") {
+		normalized = "anthropic." + normalized
+	}
+
+	// Step 3: 已经带地理前缀 → 直接使用
+	if strings.HasPrefix(normalized, "us.") || strings.HasPrefix(normalized, "eu.") || strings.HasPrefix(normalized, "ap.") {
+		return normalized
+	}
+
+	// Step 4: 判断是否属于需要跨区域推理配置文件的模型
+	needsCrossRegion := false
+	for _, prefix := range bedrockCrossRegionPrefixes {
+		if strings.HasPrefix(normalized, prefix) {
+			needsCrossRegion = true
+			break
+		}
+	}
+	if !needsCrossRegion {
+		return normalized
+	}
+
+	// Step 5: 根据 region 推导地理前缀
+	geoPrefix := "us" // 默认
+	switch {
+	case strings.HasPrefix(region, "us-"):
+		geoPrefix = "us"
+	case strings.HasPrefix(region, "eu-"):
+		geoPrefix = "eu"
+	case strings.HasPrefix(region, "ap-"):
+		geoPrefix = "ap"
+	}
+	return geoPrefix + "." + normalized
+}
+
+// replaceVersionDots 将版本号中数字之间的 `.` 替换为 `-`（如 4.6 → 4-6），
+// 保留厂商命名空间中的点（如 anthropic. 开头不受影响，因为点后紧跟字母）。
+func replaceVersionDots(s string) string {
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		if s[i] == '.' && i > 0 && i < len(s)-1 {
+			prev := s[i-1]
+			next := s[i+1]
+			// 仅当点号两侧都是数字时才替换为 -
+			if prev >= '0' && prev <= '9' && next >= '0' && next <= '9' {
+				b.WriteByte('-')
+				continue
+			}
+		}
+		b.WriteByte(s[i])
+	}
+	return b.String()
 }
 
 // logBedrock 记录代理日志（与 ProxyRequest 中的 ModelProxyLog 行为一致）。
