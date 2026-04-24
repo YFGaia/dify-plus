@@ -121,16 +121,6 @@ func overrideRedisFromEnv() {
 
 // overrideAllFromEnv 从环境变量覆盖所有配置
 func overrideAllFromEnv() {
-        overrideDBFromEnv()
-        overrideRedisFromEnv()
-        overrideGaiaFromEnv()
-}
-
-// overrideGaiaFromEnv 从环境变量覆盖 Gaia 配置
-func overrideGaiaFromEnv() {
-        // BEDROCK_PROXY: 全局 Bedrock 反向代理地址，与 Dify Python 侧 BEDROCK_PROXY 含义一致
-        if proxy := os.Getenv("BEDROCK_PROXY"); proxy != "" {
-                global.GVA_CONFIG.Gaia.BedrockProxy = proxy
-                fmt.Printf("Bedrock proxy overridden from BEDROCK_PROXY environment variable: %s\n", proxy)
-        }
+	overrideDBFromEnv()
+	overrideRedisFromEnv()
 }

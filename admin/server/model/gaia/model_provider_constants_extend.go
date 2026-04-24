@@ -9,7 +9,8 @@ const (
 	ProviderAzure     = "azure"
 	ProviderZhipuai   = "zhipuai"
 	ProviderMinimax   = "minimax"
-	ProviderAWS       = "aws" // AWS Bedrock 渠道（用于转发 Claude 等 Anthropic 模型）
+	ProviderAWS       = "aws"      // AWS Bedrock 渠道（用于转发 Claude 等 Anthropic 模型）
+	ProviderDeepSeek  = "deepseek" // DeepSeek 渠道
 )
 
 // DifyProviderTypeCustom Dify providers 表 provider_type 枚举
@@ -32,15 +33,16 @@ const (
 )
 
 // SupportedProviders 列表展示的提供商顺序
-var SupportedProviders = []string{ProviderOpenai, ProviderTongyi, ProviderGoogle, ProviderAnthropic, ProviderAWS, ProviderAzure, ProviderZhipuai, ProviderMinimax}
+var SupportedProviders = []string{ProviderOpenai, ProviderTongyi, ProviderGoogle, ProviderAnthropic, ProviderAWS, ProviderAzure, ProviderZhipuai, ProviderMinimax, ProviderDeepSeek}
 
 // DefaultChatCompletionsEndpoints 各提供商聊天接口默认完整 URL（兼容旧 ProxyChat）
 var DefaultChatCompletionsEndpoints = map[string]string{
-	ProviderOpenai:  "https://api.openai.com/v1/chat/completions",
-	ProviderTongyi:  "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
-	ProviderGoogle:  "https://generativelanguage.googleapis.com/v1beta/chat/completions",
-	ProviderZhipuai: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-	ProviderMinimax: "https://api.minimax.chat/v1/text/chatcompletion_v2",
+	ProviderOpenai:   "https://api.openai.com/v1/chat/completions",
+	ProviderTongyi:   "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
+	ProviderGoogle:   "https://generativelanguage.googleapis.com/v1beta/chat/completions",
+	ProviderZhipuai:  "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+	ProviderMinimax:  "https://api.minimax.chat/v1/text/chatcompletion_v2",
+	ProviderDeepSeek: "https://api.deepseek.com/v1/chat/completions",
 	// Azure 需要动态构建 URL，不使用默认值
 }
 
@@ -53,6 +55,7 @@ var DefaultAPIBase = map[string]string{
 	ProviderAWS:       "https://bedrock-runtime.us-east-1.amazonaws.com",
 	ProviderZhipuai:   "https://open.bigmodel.cn",
 	ProviderMinimax:   "https://api.minimax.chat",
+	ProviderDeepSeek:  "https://api.deepseek.com",
 	// Azure 的 base URL 来自 openai_api_base 配置，不设置默认值
 }
 
@@ -129,4 +132,10 @@ var BuiltinModelPricing = map[string]ModelPricing{
 	// 命中分支见 service/gaia/model_provider.go 中的 isImageOrPerRequestPath 与 ProxyRequest 计费逻辑
 	"gpt-image-1": {Input: 0.04, Currency: "USD"},
 	"gpt-image-2": {Input: 0.05, Currency: "USD"},
+
+	// ──── DeepSeek 系列（USD / 百万 token） ────
+	// deepseek-v4-pro：旗舰推理模型，定价参考官方 https://platform.deepseek.com/api-docs/pricing
+	"deepseek-v4-pro": {Input: 2.19 / 1000, Output: 8.19 / 1000, Unit: 0.001, Currency: "USD"},
+	// deepseek-v4-flash：高速轻量模型
+	"deepseek-v4-flash": {Input: 0.27 / 1000, Output: 1.10 / 1000, Unit: 0.001, Currency: "USD"},
 }

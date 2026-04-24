@@ -151,7 +151,8 @@ const providerDisplayNames = {
   aws: 'AWS Bedrock',
   azure: 'Azure OpenAI',
   zhipuai: '智谱 AI',
-  minimax: 'MiniMax'
+  minimax: 'MiniMax',
+  deepseek: 'DeepSeek'
 }
 
 const getProviderDisplayName = (providerName) => {

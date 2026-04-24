@@ -422,6 +422,10 @@ func (s *ModelProviderService) GetAvailableModelsFromDify(providerName string) (
 	if providerName == gaia.ProviderAWS || providerName == gaia.ProviderAnthropic {
 		return nil, nil
 	}
+	// DeepSeek 模型由前端手输（避免拉取全量列表），直接返回空列表
+	if providerName == gaia.ProviderDeepSeek {
+		return nil, nil
+	}
 
 	creds, err := s.GetDifyProviderCredentials(providerName)
 	if err != nil || creds.APIKey == "" {
@@ -1026,6 +1030,10 @@ func (s *ModelProviderService) getProviderCandidatesByModel(modelName string) []
 	if strings.HasPrefix(modelLower, "minimax") || strings.Contains(modelLower, "abab") {
 		return []string{gaia.ProviderTongyi, gaia.ProviderMinimax}
 	}
+	// DeepSeek 系列模型走 deepseek 渠道
+	if strings.HasPrefix(modelLower, "deepseek") {
+		return []string{gaia.ProviderDeepSeek}
+	}
 	return nil
 }
 
@@ -1075,6 +1083,10 @@ func (s *ModelProviderService) getProviderByModel(modelName string) (string, err
 	// MiniMax 类模型可能走 tongyi 或 minimax，仅推断时默认 tongyi（实际以 resolveProviderByModel + 已选模型为准）
 	if strings.HasPrefix(modelLower, "minimax") || strings.Contains(modelLower, "abab") {
 		return gaia.ProviderTongyi, nil
+	}
+	// DeepSeek 系列走 deepseek 渠道
+	if strings.HasPrefix(modelLower, "deepseek") {
+		return gaia.ProviderDeepSeek, nil
 	}
 	return "", fmt.Errorf("无法识别模型 %s 的提供商", modelName)
 }
@@ -1456,4 +1468,3 @@ func (s *ModelProviderService) difyProviderLikePattern(providerName string) stri
 		return fmt.Sprintf("%%%s%%", providerName)
 	}
 }
-
