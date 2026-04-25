@@ -127,6 +127,9 @@ func proxyWithAccountId(c *gin.Context, accountId string) {
 
 	if err = modelProviderService.ProxyRequest(
 		accountId, path, c.Request.Method, reqHeader, body, c.Writer); err != nil {
+		global.GVA_LOG.Info("Gaia代理请求body",
+			zap.String("body", string(body)),
+		)
 		global.GVA_LOG.Error("代理请求失败", zap.String("account_id", accountId), zap.String("path", path), zap.Error(err))
 		if !c.Writer.Written() {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": gin.H{"message": err.Error()}})
