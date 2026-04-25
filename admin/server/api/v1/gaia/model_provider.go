@@ -116,6 +116,7 @@ func proxyWithAccountId(c *gin.Context, accountId string) {
 		zap.String("method", c.Request.Method),
 		zap.Int("body_len", len(body)),
 		zap.String("body_model", bodyModel),
+		zap.String("client_ip", c.ClientIP()),
 	)
 
 	// 余额前置检查：余额耗尽时直接拦截，不继续请求上游
@@ -203,12 +204,12 @@ func (m *ModelProviderApi) TestProviderCredentials(c *gin.Context) {
 			region = "us-east-1（默认）"
 		}
 		result = map[string]interface{}{
-			"provider":           providerName,
-			"has_api_key":        true,
-			"api_key":            maskedKey,
-			"aws_access_key_id":  maskedKey,
-			"aws_region":         region,
-			"has_session_token":  creds.AWSSessionToken != "",
+			"provider":          providerName,
+			"has_api_key":       true,
+			"api_key":           maskedKey,
+			"aws_access_key_id": maskedKey,
+			"aws_region":        region,
+			"has_session_token": creds.AWSSessionToken != "",
 		}
 	} else {
 		// 隐藏API Key的大部分内容
