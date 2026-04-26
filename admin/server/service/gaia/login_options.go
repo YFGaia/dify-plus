@@ -12,6 +12,25 @@ import (
 	"strings"
 )
 
+// isAbsoluteHTTP returns true only for URLs starting with "http://" or "https://".
+func isAbsoluteHTTP(s string) bool {
+	return strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://")
+}
+
+// resolveEndpointURL returns an absolute endpoint URL.
+// If endpointURL is absolute (http:// or https://), it is returned as-is.
+// Otherwise serverURL is prepended with trailing-slash normalization.
+// Returns an error if endpointURL is relative and serverURL is empty.
+func resolveEndpointURL(serverURL, endpointURL string) (string, error) {
+	if isAbsoluteHTTP(endpointURL) {
+		return endpointURL, nil
+	}
+	if strings.TrimSpace(serverURL) == "" {
+		return "", fmt.Errorf("server_url 未配置，且端点 %q 不是绝对 URL", endpointURL)
+	}
+	return strings.TrimSuffix(serverURL, "/") + endpointURL, nil
+}
+
 // GetLoginOptions 获取登录方式选项（供登录页展示钉钉/OAuth2 按钮，不暴露密钥）
 func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res response.LoginOptionsResponse) {
 	// 非本地的需要加上 admin（若 Referer 已带 /admin 则不再追加，避免 /admin/admin）
@@ -34,13 +53,13 @@ func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res re
 		if err := json.Unmarshal([]byte(integrateOAuth.Config), &configMap); err != nil {
 			return res
 		}
-		if configMap.ServerURL == "" || configMap.AuthorizeURL == "" {
+		if configMap.AuthorizeURL == "" {
 			return res
 		}
 		res.OAuth2.Enabled = true
 		redirectURI := strings.TrimSpace(configMap.RedirectUri)
 		if redirectURI == "" {
-			redirectURI = frontendOrigin + "/#/loginCallback?provider=oauth2"
+			redirectURI = frontendOrigin + "/api/base/auth2/callback"
 		}
 		res.OAuth2.RedirectURI = redirectURI
 		scope := strings.TrimSpace(configMap.Scope)
@@ -48,7 +67,10 @@ func (e *SystemIntegratedService) GetLoginOptions(frontendOrigin string) (res re
 			scope = "openid"
 		}
 		// Extend: 兼容 Casdoor 等 provider。用 net/url 解析并合并 query，保证 client_id 等参数一定被附加上去
-		baseURLStr := strings.TrimSuffix(configMap.ServerURL, "/") + configMap.AuthorizeURL
+		baseURLStr, err := resolveEndpointURL(configMap.ServerURL, configMap.AuthorizeURL)
+		if err != nil {
+			return res
+		}
 		u, err := url.Parse(baseURLStr)
 		if err != nil {
 			// 解析失败时退回字符串拼接

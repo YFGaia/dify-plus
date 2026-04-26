@@ -205,10 +205,9 @@ const config = ref({
   test: false,
 })
 
-// 验证配置是否有效
+// 验证配置是否有效（server_url 为可选，支持 token_url/authorize_url 填绝对 URL 的场景）
 const isConfigValid = computed(() => {
   return !!(
-    config.value.server_url &&
     config.value.token_url &&
     config.value.userinfo_url &&
     config.value.app_id &&
