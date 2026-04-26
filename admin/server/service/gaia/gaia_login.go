@@ -62,7 +62,10 @@ func (e *SystemIntegratedService) OAuth2CodeLogin(
 			formData.Set("client_id", integrate.AppID)
 			formData.Set("client_secret", integrate.AppSecret)
 		}
-		tokenURL := strings.TrimSuffix(configMap.ServerURL, "/") + configMap.TokenURL
+		tokenURL, err := resolveEndpointURL(configMap.ServerURL, configMap.TokenURL)
+		if err != nil {
+			return nil, fmt.Errorf("token_url 配置错误: %w", err)
+		}
 		httpReq, err := http.NewRequest("POST", tokenURL, strings.NewReader(formData.Encode()))
 		if err != nil {
 			return nil, err
@@ -97,7 +100,10 @@ func (e *SystemIntegratedService) OAuth2CodeLogin(
 	// Extend Stop: 兼容 casdoor
 
 	// 拉用户信息
-	userInfoURL := strings.TrimSuffix(configMap.ServerURL, "/") + configMap.UserinfoURL
+	userInfoURL, err := resolveEndpointURL(configMap.ServerURL, configMap.UserinfoURL)
+	if err != nil {
+		return nil, fmt.Errorf("userinfo_url 配置错误: %w", err)
+	}
 	userReq, err := http.NewRequest("GET", userInfoURL, nil)
 	if err != nil {
 		return nil, err

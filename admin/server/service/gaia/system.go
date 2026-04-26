@@ -556,9 +556,9 @@ func (e *SystemIntegratedService) TestOAuth2Connection(integrate gaia.SystemInte
 	// 发送请求
 	var req *http.Request
 	client := &http.Client{}
-	tokenEndpoint := configMap.TokenURL
-	if !strings.HasPrefix(tokenEndpoint, "http") {
-		tokenEndpoint = configMap.ServerURL + tokenEndpoint
+	tokenEndpoint, err := resolveEndpointURL(configMap.ServerURL, configMap.TokenURL)
+	if err != nil {
+		return errors.New(fmt.Sprintf("token_url 配置错误: %s", err.Error()))
 	}
 	req, err = http.NewRequest("POST", tokenEndpoint, strings.NewReader(formData.Encode()))
 	if err != nil {
