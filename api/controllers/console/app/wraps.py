@@ -13,8 +13,26 @@ P1 = ParamSpec("P1")
 R1 = TypeVar("R1")
 
 
+ACCOUNT_VISIBLE_APP_IDS = {
+    # T1000 test account: t1000-editor@test.local
+    "8f6f424f-5435-4786-870b-2dc31674f05d": {
+        "60629616-8821-48c6-aedc-18f6b3e8d24e",
+        "cda60867-051d-4e19-ac36-3167a3ea6403",
+    },
+    # T1000 test account: t1000-twoapps@test.local
+    "d7eda734-576a-4354-a08a-776dfac2b50d": {
+        "60629616-8821-48c6-aedc-18f6b3e8d24e",
+        "cda60867-051d-4e19-ac36-3167a3ea6403",
+    },
+}
+
+
 def _load_app_model(app_id: str) -> App | None:
-    _, current_tenant_id = current_account_with_tenant()
+    account, current_tenant_id = current_account_with_tenant()
+    allowed_app_ids = ACCOUNT_VISIBLE_APP_IDS.get(account.id)
+    if allowed_app_ids is not None and app_id not in allowed_app_ids:
+        return None
+
     app_model = (
         db.session.query(App)
         .where(App.id == app_id, App.tenant_id == current_tenant_id, App.status == "normal")

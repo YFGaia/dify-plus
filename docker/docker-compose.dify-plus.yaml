@@ -26,7 +26,7 @@ x-shared-env: &shared-api-worker-env
   DEBUG: ${DEBUG:-false}
   FLASK_DEBUG: ${FLASK_DEBUG:-false}
   ENABLE_REQUEST_LOGGING: ${ENABLE_REQUEST_LOGGING:-False}
-  SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
+  SECRET_KEY: ${SECRET_KEY}
   INIT_PASSWORD: ${INIT_PASSWORD:-}
   DEPLOY_ENV: ${DEPLOY_ENV:-PRODUCTION}
   CHECK_UPDATE_URL: ${CHECK_UPDATE_URL:-https://updates.dify.ai}
@@ -1668,8 +1668,10 @@ services:
   admin-web:
     image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-web:1.12.1.fix.3.2
     restart: always
+    volumes:
+      - ./admin-web/my.conf:/etc/nginx/conf.d/my.conf:ro
     ports:
-      - '8081:8081'
+      - '18081:8081'
     depends_on:
       - admin-server
     command: [ 'nginx-debug', '-g', 'daemon off;' ]
@@ -1684,8 +1686,8 @@ services:
       # Use the shared environment variables.
       <<: *shared-api-worker-env
       # JWT signing key must match API's SECRET_KEY for token compatibility
-      JWT_SIGNING_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
-      SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
+      JWT_SIGNING_KEY: ${SECRET_KEY}
+      SECRET_KEY: ${SECRET_KEY}
       EMAIL_DOMAIN: ${EMAIL_DOMAIN:-}
       # 与 Dify 使用同一套数据库配置，避免密码不一致导致认证失败
       DB_TYPE: ${DB_TYPE:-postgresql}
@@ -1695,7 +1697,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-difyai123456}
       DB_DATABASE: ${DB_DATABASE:-dify}
     ports:
-      - '8888:8888'
+      - '18888:8888'
     depends_on:
       init_permissions:
         condition: service_completed_successfully

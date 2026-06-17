@@ -45,6 +45,15 @@ installed_app_list_fields_copy["installed_apps"] = fields.List(fields.Nested(ins
 installed_app_list_model = get_or_create_model("InstalledAppList", installed_app_list_fields_copy)
 
 
+ACCOUNT_VISIBLE_APP_IDS = {
+    # T1000 test account: t1000-twoapps@test.local
+    "d7eda734-576a-4354-a08a-776dfac2b50d": {
+        "60629616-8821-48c6-aedc-18f6b3e8d24e",
+        "cda60867-051d-4e19-ac36-3167a3ea6403",
+    },
+}
+
+
 @console_ns.route("/installed-apps")
 class InstalledAppsListApi(Resource):
     @login_required
@@ -53,16 +62,22 @@ class InstalledAppsListApi(Resource):
     def get(self):
         query = InstalledAppsListQuery.model_validate(request.args.to_dict())
         current_user, current_tenant_id = current_account_with_tenant()
+        allowed_app_ids = ACCOUNT_VISIBLE_APP_IDS.get(current_user.id)
 
         if query.app_id:
+            if allowed_app_ids is not None and query.app_id not in allowed_app_ids:
+                return {"installed_apps": []}
             installed_apps = db.session.scalars(
                 select(InstalledApp).where(
                     and_(InstalledApp.tenant_id == current_tenant_id, InstalledApp.app_id == query.app_id)
                 )
             ).all()
         else:
+            filters = [InstalledApp.tenant_id == current_tenant_id]
+            if allowed_app_ids is not None:
+                filters.append(InstalledApp.app_id.in_(allowed_app_ids))
             installed_apps = db.session.scalars(
-                select(InstalledApp).where(InstalledApp.tenant_id == current_tenant_id)
+                select(InstalledApp).where(*filters)
             ).all()
 
         if current_user.current_tenant is None:
