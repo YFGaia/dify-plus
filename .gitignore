@@ -242,6 +242,10 @@ scripts/stress-test/reports/
 
 # 二开新增
 docker/volumes/admin-server/*
+docker/.env.bak*
+docker/backups/
+docker/**/*.bak
+docker/nginx/conf.d/*.before_*
 
 # Next.js build output
 .next/

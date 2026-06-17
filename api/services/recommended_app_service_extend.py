@@ -14,6 +14,15 @@ from models.model import (
 from services.account_service_extend import TenantExtendService
 
 
+ACCOUNT_VISIBLE_APP_IDS = {
+    # T1000 test account: t1000-twoapps@test.local
+    "d7eda734-576a-4354-a08a-776dfac2b50d": {
+        "60629616-8821-48c6-aedc-18f6b3e8d24e",
+        "cda60867-051d-4e19-ac36-3167a3ea6403",
+    },
+}
+
+
 class RecommendedAppService:
     @classmethod
     def installed_app_list(cls, tenant_id: str) -> dict:
@@ -29,6 +38,10 @@ class RecommendedAppService:
         recommended_apps_result = []
 
         for app in apps:
+            allowed_app_ids = ACCOUNT_VISIBLE_APP_IDS.get(current_user.id)
+            if allowed_app_ids is not None and str(app.id) not in allowed_app_ids:
+                continue
+
             classList = app.tags
             description = app.description
             config = app.app_model_config
@@ -38,7 +51,7 @@ class RecommendedAppService:
                 classList.append(type('Tag', (), {'name': '未分类'})())
             # Extend: stop Handle apps without tags
             if (
-                len(description) == 0
+                not description
                 and config is not None
                 and config.pre_prompt is not None
                 and len(config.pre_prompt) > 0
@@ -51,6 +64,8 @@ class RecommendedAppService:
                 installed_app: InstalledApp = (
                     db.session.query(InstalledApp).filter(InstalledApp.app_id == app.id).first()
                 )
+                if installed_app is None:
+                    continue
                 recommended_apps_result.append(
                     {
                         "id": installed_app.id,

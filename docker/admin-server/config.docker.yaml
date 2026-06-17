@@ -7,7 +7,7 @@ aliyun-oss:
     base-path: yourBasePath
 autocode:
     web: web/src
-    root:
+    root: /
     server: server
     module: github.com/flipped-aurora/gin-vue-admin/server
     ai-path: ""
@@ -64,6 +64,13 @@ db-list:
       singular: false
       log-zap: false
       disable: true
+dify-redis:
+    name: ""
+    addr: redis:6379
+    password: difyai123456
+    db: 0
+    useCluster: false
+    clusterAddrs: []
 disk-list:
     - mount-point: /
 email:
@@ -79,8 +86,8 @@ excel:
 gaia:
     url: http://api:5001
     login_max_error_limit: 5
-    SUPER_ADMIN_ACCOUNT_ID:
-    SUPER_ADMIN_TENANT_ID:
+    SUPER_ADMIN_ACCOUNT_ID: 30af9017-381a-46f0-b381-89eadbb5bb55
+    SUPER_ADMIN_TENANT_ID: a2799e8d-9dca-4e8b-a522-d425d67c55d5
     storage-path: /app/storage
 hua-wei-obs:
     path: you-path
@@ -104,20 +111,75 @@ minio:
     use-ssl: false
     base-path: ""
     bucket-url: http://host:9000/yourBucketName
+mongo:
+    coll: ""
+    options: ""
+    database: ""
+    username: ""
+    password: ""
+    auth-source: ""
+    min-pool-size: 0
+    max-pool-size: 0
+    socket-timeout-ms: 0
+    connect-timeout-ms: 0
+    is-zap: false
+    hosts: []
+mssql:
+    prefix: ""
+    port: ""
+    config: ""
+    db-name: ""
+    username: ""
+    password: ""
+    path: ""
+    engine: ""
+    log-mode: ""
+    max-idle-conns: 0
+    max-open-conns: 0
+    singular: false
+    log-zap: false
+mysql:
+    prefix: ""
+    port: ""
+    config: ""
+    db-name: ""
+    username: ""
+    password: ""
+    path: ""
+    engine: ""
+    log-mode: ""
+    max-idle-conns: 0
+    max-open-conns: 0
+    singular: false
+    log-zap: false
 oa-login:
-    url:
-    oauth2-client-id:
-    oauth2-client-secret:
-    get-user-info-api-path:
-    get-token-by-code-api-path:
+    url: ""
+    oauth2-client-id: ""
+    oauth2-client-secret: ""
+    get-user-info-api-path: ""
+    get-token-by-code-api-path: ""
+oracle:
+    prefix: ""
+    port: ""
+    config: ""
+    db-name: ""
+    username: ""
+    password: ""
+    path: ""
+    engine: ""
+    log-mode: ""
+    max-idle-conns: 0
+    max-open-conns: 0
+    singular: false
+    log-zap: false
 pgsql:
     prefix: ""
     port: "5432"
     config: sslmode=disable TimeZone=Asia/Shanghai
-    db-name:
-    username:
-    password:
-    path:
+    db-name: dify
+    username: postgres
+    password: difyai123456
+    path: db_postgres
     engine: ""
     log-mode: error
     max-idle-conns: 10
@@ -132,22 +194,31 @@ qiniu:
     secret-key: ""
     use-https: false
     use-cdn-domains: false
-dify-redis:
+redis:
     name: ""
     addr: redis:6379
     password: difyai123456
     db: 0
     useCluster: false
-redis:
-    name: ""
-    addr: redis:6379
-    password: difyai123456
-    db: 8
-    useCluster: false
     clusterAddrs:
         - 172.21.0.3:7000
         - 172.21.0.4:7001
         - 172.21.0.2:7002
+redis-list: []
+sqlite:
+    prefix: ""
+    port: ""
+    config: ""
+    db-name: ""
+    username: ""
+    password: ""
+    path: ""
+    engine: ""
+    log-mode: ""
+    max-idle-conns: 0
+    max-open-conns: 0
+    singular: false
+    log-zap: false
 system:
     db-type: pgsql
     oss-type: local
@@ -159,8 +230,9 @@ system:
     use-redis: true
     use-mongo: false
     use-strict-auth: false
+    work_flow_number: 0
     user_default-group-id: "888"
-    docker-run: true
+    dockerrun: true
 tencent-cos:
     bucket: xxxxx-10005608
     region: ap-shanghai

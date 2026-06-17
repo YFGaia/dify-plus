@@ -50,6 +50,9 @@ server {
     }
 
     location / {
+      proxy_set_header Accept-Encoding "";
+      sub_filter_once on;
+      sub_filter "</head>" "<style id=t1000-plus-app-card-cjk-hotfix>.group.relative.col-span-1.inline-flex,.group.relative.col-span-1.inline-flex *{writing-mode:horizontal-tb!important;text-orientation:mixed!important;letter-spacing:0!important}.group.relative.col-span-1.inline-flex .w-0.grow{min-width:0!important;max-width:100%!important}.group.relative.col-span-1.inline-flex .truncate{display:block!important;min-width:0!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important}.group.relative.col-span-1.inline-flex .title-wrapper{word-break:normal!important;overflow-wrap:anywhere!important;white-space:normal!important}.group.relative.col-span-1.inline-flex .title-wrapper [class*=line-clamp]{word-break:normal!important;overflow-wrap:anywhere!important;white-space:normal!important}</style></head>";
       proxy_pass http://web:3000;
       include proxy.conf;
     }

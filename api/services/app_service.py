@@ -32,6 +32,20 @@ from tasks.remove_app_and_related_data_task import remove_app_and_related_data_t
 logger = logging.getLogger(__name__)
 
 
+ACCOUNT_VISIBLE_APP_IDS = {
+    # T1000 test account: t1000-editor@test.local
+    "8f6f424f-5435-4786-870b-2dc31674f05d": {
+        "60629616-8821-48c6-aedc-18f6b3e8d24e",
+        "cda60867-051d-4e19-ac36-3167a3ea6403",
+    },
+    # T1000 test account: t1000-twoapps@test.local
+    "d7eda734-576a-4354-a08a-776dfac2b50d": {
+        "60629616-8821-48c6-aedc-18f6b3e8d24e",
+        "cda60867-051d-4e19-ac36-3167a3ea6403",
+    },
+}
+
+
 class AppService:
     def get_paginate_apps(self, user_id: str, tenant_id: str, args: dict) -> Pagination | None:
         """
@@ -42,6 +56,9 @@ class AppService:
         :return:
         """
         filters = [App.tenant_id == tenant_id, App.is_universal == False]
+        allowed_app_ids = ACCOUNT_VISIBLE_APP_IDS.get(user_id)
+        if allowed_app_ids is not None:
+            filters.append(App.id.in_(allowed_app_ids))
 
         # start Extend: App Center - Recommended list sorted by usage frequency
         rows = db.session.execute(
