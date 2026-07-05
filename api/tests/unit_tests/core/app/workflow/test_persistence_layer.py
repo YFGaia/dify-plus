@@ -270,7 +270,13 @@ class TestWorkflowPersistenceLayer:
         layer._handle_node_retry(retry_event)
         assert node_repo.saved_exec_data
 
-    def test_handle_node_result_events_update_execution(self):
+    def test_handle_node_result_events_update_execution(self, monkeypatch):
+        # 二开部分 - 计费：屏蔽节点成功后的 Celery 计费派发（单测无 broker）
+        monkeypatch.setattr(
+            "core.app.workflow.layers.persistence."
+            "update_account_money_when_workflow_node_execution_created_extend.delay",
+            lambda *args, **kwargs: None,
+        )
         layer, _, node_repo, _ = _make_layer()
         layer._handle_graph_run_started()
 
