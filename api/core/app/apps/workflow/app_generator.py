@@ -5,7 +5,7 @@ import logging
 import threading
 import uuid
 from collections.abc import Generator, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Literal, Union, overload
+from typing import TYPE_CHECKING, Any, Literal, Union, cast, overload  # extend: 二开部分 - 密钥额度限制，新增cast
 
 from flask import Flask, current_app
 from pydantic import ValidationError
@@ -42,7 +42,7 @@ from factories import file_factory
 from libs.flask_utils import preserve_flask_contexts
 from models.account import Account
 from models.enums import WorkflowRunTriggeredFrom
-from models.model import App, EndUser
+from models.model import ApiToken, App, EndUser  # extend: 二开部分 - 密钥额度限制，新增ApiToken
 from models.workflow import Workflow, WorkflowNodeExecutionTriggeredFrom
 from services.workflow_draft_variable_service import DraftVarLoader, WorkflowDraftVariableService
 
@@ -162,6 +162,20 @@ class WorkflowAppGenerator(BaseAppGenerator):
         extras = {
             **extract_external_trace_id_from_args(args),
         }
+
+        # ------------------- 二开部分Begin - 密钥额度限制 -------------------
+        # 注：origin/main 中此块曾以 `extras = {}` 重新赋值（疑似合并残留，会丢弃
+        # external_trace_id）；此处按行为等价原则改为在既有 extras 上追加键。
+        api_token = args.get("api_token")
+        if api_token:
+            cast(ApiToken, api_token)
+            extras["app_token_id"] = api_token.id
+        # ------------------- 二开部分End - 密钥额度限制 -------------------
+
+        # extend: 如果 args 中有 account_id（Web App 登录用户），将其放入 extras
+        if args.get("account_id"):
+            extras["account_id"] = args.get("account_id")
+
         workflow_run_id = str(workflow_run_id or uuid.uuid4())
         # FIXME (Yeuoly): we need to remove the SKIP_PREPARE_USER_INPUTS_KEY from the args
         # trigger shouldn't prepare user inputs

@@ -75,7 +75,15 @@ from dify_graph.runtime import GraphRuntimeState
 from dify_graph.system_variable import SystemVariable
 from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
-from models import Account, Conversation, EndUser, Message, MessageFile
+from models import (  # extend: 二开部分 - 密钥额度限制，新增AppMode
+    Account,
+    AppMode,
+    Conversation,
+    EndUser,
+    Message,
+    MessageFile,
+)
+from models.api_token_money_extend import ApiTokenMessageJoinsExtend  # extend: 二开部分 - 密钥额度限制
 from models.enums import CreatorUserRole, MessageFileBelongsTo, MessageStatus
 from models.execution_extra_content import HumanInputContent
 from models.workflow import Workflow
@@ -316,6 +324,14 @@ class AdvancedChatAppGenerateTaskPipeline(GraphRuntimeStateSupport):
                 raise ValueError(f"Message not found: {self._message_id}")
 
             message.workflow_run_id = run_id
+
+        # ------------------- 二开部分Begin - 密钥额度限制 -------------------
+        app_token_id = self._application_generate_entity.extras.get("app_token_id")
+        if app_token_id:
+            ApiTokenMessageJoinsExtend(
+                app_token_id=app_token_id, record_id=run_id, app_mode=AppMode.ADVANCED_CHAT.value
+            ).add_app_token_record_id()
+        # ------------------- 二开部分End - 密钥额度限制 -------------------
 
         workflow_start_resp = self._workflow_response_converter.workflow_start_to_stream_response(
             task_id=self._application_generate_entity.task_id,

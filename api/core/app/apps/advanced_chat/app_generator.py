@@ -5,7 +5,15 @@ import logging
 import threading
 import uuid
 from collections.abc import Generator, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, overload
+from typing import (  # extend: 二开部分 - 密钥额度限制，新增cast
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    TypeVar,
+    Union,
+    cast,
+    overload,
+)
 
 from flask import Flask, current_app
 from pydantic import ValidationError
@@ -46,7 +54,16 @@ from dify_graph.variable_loader import DUMMY_VARIABLE_LOADER, VariableLoader
 from extensions.ext_database import db
 from factories import file_factory
 from libs.flask_utils import preserve_flask_contexts
-from models import Account, App, Conversation, EndUser, Message, Workflow, WorkflowNodeExecutionTriggeredFrom
+from models import (  # extend: 二开部分 - 密钥额度限制，新增ApiToken
+    Account,
+    ApiToken,
+    App,
+    Conversation,
+    EndUser,
+    Message,
+    Workflow,
+    WorkflowNodeExecutionTriggeredFrom,
+)
 from models.base import Base
 from models.enums import WorkflowRunTriggeredFrom
 from services.conversation_service import ConversationService
@@ -135,6 +152,17 @@ class AdvancedChatAppGenerator(MessageBasedAppGenerator):
             "auto_generate_conversation_name": args.get("auto_generate_name", False),
             **extract_external_trace_id_from_args(args),
         }
+
+        # ------------------- 二开部分Begin - 密钥额度限制 -------------------
+        api_token = args.get("api_token")
+        if api_token:
+            cast(ApiToken, api_token)
+            extras["app_token_id"] = api_token.id
+        # ------------------- 二开部分End - 密钥额度限制 -------------------
+
+        # extend: 如果 args 中有 account_id（Web App 登录用户），将其放入 extras
+        if args.get("account_id"):
+            extras["account_id"] = args.get("account_id")
 
         # get conversation
         conversation = None
