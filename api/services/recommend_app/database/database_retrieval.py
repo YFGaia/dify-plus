@@ -6,7 +6,8 @@ from constants.languages import languages
 from extensions.ext_database import db
 
 # extend add category to categories
-from models.model import App, RecommendedApp, RecommendedAppsCategoryJoinExtend, RecommendedCategoryExtend
+from models.model import App, RecommendedApp
+from models.model_extend import RecommendedAppsCategoryJoinExtend, RecommendedCategoryExtend
 from services.app_dsl_service import AppDslService
 from services.recommend_app.recommend_app_base import RecommendAppRetrievalBase
 from services.recommend_app.recommend_app_type import RecommendAppType

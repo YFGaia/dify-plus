@@ -1,7 +1,8 @@
 from typing import Any
 
 from extensions.ext_database import db
-from models.model import App, AppStatisticsExtend
+from models.model import App
+from models.model_extend import AppStatisticsExtend
 
 
 class AppGenerateServiceExtend:

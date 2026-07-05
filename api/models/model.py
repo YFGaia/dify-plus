@@ -629,18 +629,6 @@ class App(Base):
         return None
 
 
-class AppStatisticsExtend(db.Model):
-    __tablename__ = "app_statistics_extend"
-    __table_args__ = (
-        db.PrimaryKeyConstraint("id", name="app_statistics_extend_pkey"),
-        db.Index("app_statistics_extend_app_id_idx", "app_id"),
-    )
-
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
-    app_id = db.Column(StringUUID, nullable=False)
-    number = db.Column(db.Integer, nullable=False, default=0)
-
-
 class AppModelConfig(TypeBase):
     __tablename__ = "app_model_configs"
     __table_args__ = (sa.PrimaryKeyConstraint("id", name="app_model_config_pkey"), sa.Index("app_app_id_idx", "app_id"))
@@ -868,36 +856,6 @@ class AppModelConfig(TypeBase):
         self.dataset_configs = self._dump_optional(model_config.get("dataset_configs"))
         self.file_upload = self._dump_optional(model_config.get("file_upload"))
         return self
-
-
-# 二开部分Begin - 应用中心分类（外迁到独立 *_extend 文件的工作在合并定稿后的单独提交执行）
-class RecommendedCategoryExtend(db.Model):
-    __tablename__ = "recommended_category_extend"
-    __table_args__ = (
-        db.PrimaryKeyConstraint("id", name="category_extend_id_pkey"),
-        db.Index("idx_extend_tag_bind_tag_id", "tag_id"),
-        db.Index("idx_extend_table", "table"),
-    )
-
-    id = db.Column(StringUUID, primary_key=True, server_default=db.text("uuid_generate_v4()"))
-    table = db.Column(db.String(255), nullable=False)
-    tag_id = db.Column(StringUUID, nullable=True)
-
-
-class RecommendedAppsCategoryJoinExtend(db.Model):
-    __tablename__ = "recommended_apps_category_join_extend"
-    __table_args__ = (
-        db.PrimaryKeyConstraint("id", name="recommended_apps_category_id_pkey"),
-        db.Index("idx_recommended_id", "recommended_id"),
-        db.Index("idx_recommended_category_id", "category_id"),
-    )
-
-    id = db.Column(StringUUID, primary_key=True, server_default=db.text("uuid_generate_v4()"))
-    recommended_id = db.Column(StringUUID, nullable=False)
-    category_id = db.Column(StringUUID, nullable=False)
-
-
-# 二开部分End - 应用中心分类
 
 
 class RecommendedApp(TypeBase):

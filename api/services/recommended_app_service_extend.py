@@ -3,13 +3,15 @@ from flask_login import current_user
 from extensions.ext_database import db
 from models.model import (
     App,
-    AppStatisticsExtend,  # Extend: App Center - Recommended list sorted by usage frequency
     InstalledApp,
     RecommendedApp,
-    RecommendedAppsCategoryJoinExtend,
-    RecommendedCategoryExtend,
     Tag,
     TagBinding,
+)
+from models.model_extend import (  # Extend: App Center
+    AppStatisticsExtend,
+    RecommendedAppsCategoryJoinExtend,
+    RecommendedCategoryExtend,
 )
 from services.account_service_extend import TenantExtendService
 
