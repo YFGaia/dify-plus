@@ -15,6 +15,7 @@ from services.ai_draw_extend import AiDrawForwarding
 from services.billing_extend import AiDrawBilling
 
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 # 创建一个线程池
 executor = concurrent.futures.ThreadPoolExecutor()
 
@@ -45,7 +46,7 @@ class AiDrawTransit(Resource):
     @repost_login_required
     def dispatch_request(self, *args, **kwargs):
         # Replace with the address of the target server
-        print('1111')
+        logger.debug('1111')
         path = kwargs.get("path", "")
         path_list = path.split("/")
         auth_header = request.headers.get("Authorization")
@@ -54,10 +55,10 @@ class AiDrawTransit(Resource):
         if len(path_list) < 1:
             return Response("router error", status=500)
         # obtains forwarding domain name
-        logging.warning("obtains forwarding domain name: {}".format(path_list[0]))
+        logging.warning("obtains forwarding domain name: %s", path_list[0])
         forwarding = AiDrawForwarding.get_forwarding(path_list[0])
-        print(forwarding)
-        logging.warning("forwarding: {}".format(forwarding.id))
+        logger.debug(forwarding)
+        logging.warning("forwarding: %s", forwarding.id)
         if forwarding is None:
             return Response("router is none", status=500)
         # 使用线程池来运行异步函数

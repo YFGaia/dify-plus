@@ -18,7 +18,8 @@ def handle(sender, **kwargs):
         payerId = message.from_account_id
     else:
         # web应用的请求，from_end_user_id记录的是登录账号的ID，可以拿这个ID来扣钱
-        # API调用，from_end_user_id记录的是节点登录账号ID，真正需要扣钱的在关联表EndUserAccountJoinsExtend，需要多做一层查询
+        # API调用，from_end_user_id记录的是节点登录账号ID，
+        # 真正需要扣钱的在关联表EndUserAccountJoinsExtend，需要多做一层查询
         account = db.session.query(Account).filter(Account.id == message.from_end_user_id).first()
         if not account:
             end_user_account_joins = (
@@ -31,7 +32,10 @@ def handle(sender, **kwargs):
                 payerId = end_user_account_joins.account_id
 
     account_money = db.session.query(AccountMoneyExtend).filter(AccountMoneyExtend.account_id == payerId).first()
-    price = float(message.total_price) if message.currency == "USD" else (float(message.total_price) / float(dify_config.RMB_TO_USD_RATE))
+    if message.currency == "USD":
+        price = float(message.total_price)
+    else:
+        price = float(message.total_price) / float(dify_config.RMB_TO_USD_RATE)
     if account_money:
         db.session.query(AccountMoneyExtend).filter(AccountMoneyExtend.account_id == payerId).update(
             {"used_quota": float(account_money.used_quota) + price}

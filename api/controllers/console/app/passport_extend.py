@@ -1,3 +1,4 @@
+import logging
 from datetime import UTC, datetime, timedelta
 
 from flask import request
@@ -14,6 +15,8 @@ from libs.login import login_required
 from libs.passport import PassportService
 from models.model import App, EndUser, Site
 from services.feature_service import FeatureService
+
+logger = logging.getLogger(__name__)
 
 
 class PassportResourceExtend(Resource):
@@ -52,13 +55,12 @@ class PassportResourceExtend(Resource):
         # get site from db and check if it is normal
         site = db.session.query(Site).filter(Site.code == app_code, Site.status == "normal").first()
         if not site:
-            print("site", site, flush=True)
+            logger.debug("site %s", site)
             raise NotFound()
         # get app from db and check if it is normal and enable_site
         app_model = db.session.query(App).filter(App.id == site.app_id).first()
         if not app_model or app_model.status != "normal" or not app_model.enable_site:
-            print("app_model", app_model, flush=True)
-            print("app_model", app_model, flush=True)
+            logger.debug("app_model %s", app_model)
             raise NotFound()
 
         endUser_ta = db.session.query(EndUser).filter(EndUser.id == user_id).first()

@@ -454,7 +454,8 @@ class ExcelReportGenerator:
                 try:
                     if cell.value:
                         max_length = max(max_length, len(str(cell.value)))
-                except:
+                except:  # noqa: S110
+                    # 有意忽略：个别单元格取值失败不影响整体列宽计算
                     pass
             adjusted_width = min(max_length + 2, 50)
             ws.column_dimensions[column_letter].width = adjusted_width
@@ -761,7 +762,12 @@ class ExcelReportGenerator:
             ws.cell(row=row, column=5, value=example["error"])
 
         if error_stats["error_examples"]:
-            self._apply_data_style(ws, examples_start_row + 2, examples_start_row + 1 + len(error_stats["error_examples"]), len(example_headers))
+            self._apply_data_style(
+                ws,
+                examples_start_row + 2,
+                examples_start_row + 1 + len(error_stats["error_examples"]),
+                len(example_headers),
+            )
 
         # 4. 错误统计汇总
         summary_start_row = examples_start_row + 2 + len(error_stats["error_examples"]) + 3
@@ -836,19 +842,20 @@ def generate_batch_workflow_report(output_path: str | None = None) -> str:
     with app.app_context():
         generator = ExcelReportGenerator()
         filepath = generator.generate_report(output_path)
-        print(f"✅ Excel报表已生成: {filepath}")
+        # CLI 脚本语义输出，保留 print 以便终端直接查看结果
+        print(f"✅ Excel报表已生成: {filepath}")  # noqa: T201
         return filepath
 
 
 if __name__ == "__main__":
-    # 生成Excel报表
+    # 生成Excel报表；以下 print 为 CLI 脚本语义输出，保留
     report_path = generate_batch_workflow_report()
-    print("\n📊 批量工作流统计报表已生成")
-    print(f"📁 文件路径: {report_path}")
-    print("📈 报表包含以下工作表:")
-    print("   1. 概览汇总 - 当前执行状态概览")
-    print("   2. APP使用统计 - 各APP使用情况及图表")
-    print("   3. 小时执行统计 - 24小时执行趋势")
-    print("   4. 用户统计 - 用户批量处理统计")
-    print("   5. 错误分析 - 错误类型TOP10、APP错误分布、具体错误示例")
+    print("\n📊 批量工作流统计报表已生成")  # noqa: T201
+    print(f"📁 文件路径: {report_path}")  # noqa: T201
+    print("📈 报表包含以下工作表:")  # noqa: T201
+    print("   1. 概览汇总 - 当前执行状态概览")  # noqa: T201
+    print("   2. APP使用统计 - 各APP使用情况及图表")  # noqa: T201
+    print("   3. 小时执行统计 - 24小时执行趋势")  # noqa: T201
+    print("   4. 用户统计 - 用户批量处理统计")  # noqa: T201
+    print("   5. 错误分析 - 错误类型TOP10、APP错误分布、具体错误示例")  # noqa: T201
 

@@ -59,7 +59,8 @@ class MessageListApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))
-    def get(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def get(self, app_model: App, end_user: EndUser, api_token: ApiToken):
         """List messages in a conversation.
 
         Retrieves messages with pagination support using first_id.
@@ -103,7 +104,8 @@ class MessageFeedbackApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def post(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken):
         """Submit feedback for a message.
 
         Allows users to rate messages as like/dislike and provide optional feedback content.
@@ -163,7 +165,8 @@ class MessageSuggestedApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY, required=True))
-    def get(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def get(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken):
         """Get suggested follow-up questions for a message.
 
         Returns AI-generated follow-up questions based on the message content.

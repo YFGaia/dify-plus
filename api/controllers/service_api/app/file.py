@@ -36,7 +36,8 @@ class FileApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))  # type: ignore
     @service_api_ns.response(HTTPStatus.CREATED, "File uploaded", service_api_ns.models[FileResponse.__name__])
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):
         """Upload a file for use in conversations.
 
         Accepts a single file upload via multipart/form-data.

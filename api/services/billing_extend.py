@@ -197,8 +197,8 @@ class AiDrawBilling:
         # Disable gzip compression
         headers["Accept-Encoding"] = "identity"
         # Forward the request according to the request method
-        logging.warning("target_url: {}. json: {}".format(target_url, json.dumps(request.args)))
-        logging.warning("headers: {}".format(json.dumps(headers)))
+        logging.warning("target_url: %s. json: %s", target_url, json.dumps(request.args))
+        logging.warning("headers: %s", json.dumps(headers))
         try:
             if method == 'GET':
                 resp = requests.get(target_url, headers=headers, params=request.args, allow_redirects=False)
@@ -211,9 +211,9 @@ class AiDrawBilling:
             else:
                 return Response("Method not allowed", status=405)
             
-            logging.warning("Response status: {}, content: {}".format(resp.status_code, resp.text[:500]))
+            logging.warning("Response status: %s, content: %s", resp.status_code, resp.text[:500])
         except Exception as e:
-            logging.exception("Request failed: {}".format(str(e)))
+            logging.exception("Request failed")
             return Response("Forward request failed: {}".format(str(e)), status=500)
 
         # Create response
@@ -230,8 +230,8 @@ class AiDrawBilling:
             # Compatible processing
             body = response.get_json()
             if body is not None and isinstance(body, dict):
-                if "metadata" in body.keys():
-                    if "usage" in body["metadata"].keys():
+                if "metadata" in body:
+                    if "usage" in body["metadata"]:
                         body["metadata"]["usage"]["total_price"] = money
                     else:
                         body["metadata"]["usage"] = {"total_price": money}
@@ -239,8 +239,9 @@ class AiDrawBilling:
                     body["metadata"] = {"usage": {"total_price": money}}
                 # json encode
                 body = json.dumps(body)
-                if body is not None and body != "null" and body != any:
+                if body is not None and body not in ("null", any):
                     response.data = body
-        except:
+        except:  # noqa: S110
+            # 有意忽略：响应体不是 JSON 时保持原样返回，不做计费信息注入
             pass
         return response

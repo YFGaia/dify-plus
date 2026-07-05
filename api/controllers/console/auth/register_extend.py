@@ -3,7 +3,8 @@ from datetime import UTC, datetime
 
 import jwt
 from flask import request
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
+from pydantic import BaseModel
 
 from configs import dify_config
 from extensions.ext_database import db
@@ -17,18 +18,22 @@ from services.account_service_extend import TenantExtendService
 from .. import console_ns
 
 
+class AdminRegisterPayload(BaseModel):
+    """管理员注册用户请求体（原 reqparse 参数定义的等价 Pydantic 模型）"""
+
+    name: str
+    nick: str
+    email: str
+
+
 @console_ns.route("/admin_register_user")
 class AdminRegisterApi(Resource):
     """Resource for user login."""
     @login_required
     def post(self):
         """Authenticate user and login."""
-        parser = reqparse.RequestParser()
         auth_header = request.headers.get("Authorization")
-        parser.add_argument("name", type=str, required=True, location="json")
-        parser.add_argument("nick", type=str, required=True, location="json")
-        parser.add_argument("email", type=str, required=True, location="json")
-        args = parser.parse_args()
+        args = AdminRegisterPayload.model_validate(request.get_json() or {})
         auth_scheme, auth_token = auth_header.split(None, 1)
         auth_scheme = auth_scheme.lower()
         if auth_scheme == "bearer":
@@ -36,7 +41,7 @@ class AdminRegisterApi(Resource):
         decoded_jwt = jwt.decode(
             auth_header, dify_config.SECRET_KEY.encode(), algorithms=["HS256"], options={"verify_signature": False})
         # 解析jwt
-        if not ("AuthorityId" in decoded_jwt.keys() and int(
+        if not ("AuthorityId" in decoded_jwt and int(
                 decoded_jwt["AuthorityId"]) == int(dify_config.ADMIN_GROUP_ID)):
             return {"error": "Unable to add a new backend super admin groups."}, 351
         try:

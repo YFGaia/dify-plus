@@ -157,6 +157,6 @@ class ForwardingAddressExtend(db.Model):
                     cache_funds, cache_money = self.funds_settlement(data, i.children)
                     funds.update(cache_funds)
                     money += cache_money
-            except:
+            except:  # noqa: S110 - 单条计费项解析异常时跳过，继续结算其余项
                 pass
         return funds, money

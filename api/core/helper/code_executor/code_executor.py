@@ -76,7 +76,8 @@ class CodeExecutor:
         :return:
         """
         # extend: global code
-        url = URL(dify_config.FULL_CODE_EXECUTION_ENDPOINT if purview else code_execution_endpoint_url) / "v1" / "sandbox" / "run"
+        endpoint = dify_config.FULL_CODE_EXECUTION_ENDPOINT if purview else code_execution_endpoint_url
+        url = URL(endpoint) / "v1" / "sandbox" / "run"
 
         headers = {"X-Api-Key": dify_config.CODE_EXECUTION_API_KEY}
 
@@ -135,7 +136,10 @@ class CodeExecutor:
         return response_code.data.stdout or ""
 
     @classmethod
-    def execute_workflow_code_template(cls, language: CodeLanguage, code: str, inputs: Mapping[str, Any], purview: bool = False):  # Extend global code
+    # Extend global code: 新增 purview 参数
+    def execute_workflow_code_template(
+        cls, language: CodeLanguage, code: str, inputs: Mapping[str, Any], purview: bool = False
+    ):
         """
         Execute code
         :param language: code language

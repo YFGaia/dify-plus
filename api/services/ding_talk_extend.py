@@ -21,7 +21,8 @@ try:
     from alibabacloud_tea_util.client import Client as UtilClient
 except ModuleNotFoundError as exc:
     dingtalkoauth_2__1__0_models = None
-    dingtalkoauth2_1_0Client = None
+    # 命名与上方 SDK 导入别名保持一致，便于降级赋值，故豁免 mixedCase 检查
+    dingtalkoauth2_1_0Client = None  # noqa: N816
     open_api_models = None
     UtilClient = None
     DINGTALK_SDK_IMPORT_ERROR: ModuleNotFoundError | None = exc
@@ -235,7 +236,7 @@ class DingTalkService:
 
             # 检查响应
             if response.status_code != 200:
-                logger.error(f"Third-party email API returned status code: {response.status_code}")
+                logger.error("Third-party email API returned status code: %s", response.status_code)
                 return ""
 
             # 解析响应
@@ -249,14 +250,14 @@ class DingTalkService:
                 logger.warning("Failed to extract valid email from response using path: %s", email_field)
                 return ""
 
-        except json.JSONDecodeError as e:
-            logger.error("Failed to parse email API config: %s", e)
+        except json.JSONDecodeError:
+            logger.exception("Failed to parse email API config")
             return ""
-        except requests.exceptions.RequestException as e:
-            logger.error("Failed to call third-party email API: %s", e)
+        except requests.exceptions.RequestException:
+            logger.exception("Failed to call third-party email API")
             return ""
-        except Exception as e:
-            logger.error("Unexpected error in get_email_from_third_party_api: %s", e)
+        except Exception:
+            logger.exception("Unexpected error in get_email_from_third_party_api")
             return ""
 
     @classmethod
@@ -416,7 +417,7 @@ class DingTalkService:
             return None, "", f"Request failed, status code: {response.status_code}, msg: {response.text}"
         # Print the response content
         req = response.json()
-        if "statusCode" in req.keys() and req["statusCode"] != 200:
+        if "statusCode" in req and req["statusCode"] != 200:
             return None, "", f"Request failed,  msg: {req.message}"
         # 提取userid
         dingTalkToken, err = cls.get_access_token()
@@ -426,7 +427,11 @@ class DingTalkService:
         )
         # Check the response status code
         if unionIdResponse.status_code != 200:
-            return None, "", f"unionIdResponse failed, status code: {unionIdResponse.status_code}, msg: {unionIdResponse.text}"
+            return (
+                None,
+                "",
+                f"unionIdResponse failed, status code: {unionIdResponse.status_code}, msg: {unionIdResponse.text}",
+            )
         # Print the response content
         unionIdReq = unionIdResponse.json()
         if unionIdReq["errcode"] != 0:

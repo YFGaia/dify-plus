@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.engine.reflection import Inspector
 
-import models as models
+import models
 
 # revision identifiers, used by Alembic.
 revision = '001_recommended_list_sorted'

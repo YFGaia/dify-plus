@@ -36,7 +36,8 @@ def upgrade():
         )
         with op.batch_alter_table('end_user_account_joins_extend', schema=None) as batch_op:
             batch_op.create_index('end_user_account_joins_account_id_idx', ['account_id'], unique=False)
-            batch_op.create_index('end_user_account_joins_end_user_id_app_id_idx', ['end_user_id', 'app_id'], unique=False)
+            batch_op.create_index('end_user_account_joins_end_user_id_app_id_idx', ['end_user_id', 'app_id'],
+                                  unique=False)
     # ### end Alembic commands ###
 
 

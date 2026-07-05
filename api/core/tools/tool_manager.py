@@ -173,22 +173,21 @@ class ToolManager:
                     # Clear cache and retry once more
                     if attempt < max_retries - 1:
                         logger.warning(
-                            f"Plugin {provider} not found on attempt {attempt + 1}, clearing cache and retrying. "
-                            f"Error: {str(e)}"
+                            "Plugin %s not found on attempt %s, clearing cache and retrying. Error: %s",
+                            provider,
+                            attempt + 1,
+                            e,
                         )
                         # Remove from cache if exists
                         plugin_tool_providers.pop(provider, None)
                         # Small delay before retry
                         time.sleep(0.5)
                     else:
-                        logger.error(
-                            f"Plugin {provider} not found after {max_retries} attempts. "
-                            f"Last error: {str(e)}"
-                        )
+                        logger.exception("Plugin %s not found after %s attempts", provider, max_retries)
                         raise ToolProviderNotFoundError(f"plugin provider {provider} not found after retries: {str(e)}")
-                except Exception as e:
+                except Exception:
                     # For other errors, don't retry
-                    logger.exception(f"Error fetching plugin provider {provider}: {str(e)}")
+                    logger.exception("Error fetching plugin provider %s", provider)
                     raise
 
             # Should not reach here, but just in case

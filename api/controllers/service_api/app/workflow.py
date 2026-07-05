@@ -114,7 +114,8 @@ class WorkflowRunDetailApi(Resource):
     )
     @validate_app_token
     @service_api_ns.marshal_with(build_workflow_run_model(service_api_ns))
-    def get(self, app_model: App, workflow_run_id: str, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token参数
+    # extend - 密钥额度限制，新增api_token参数
+    def get(self, app_model: App, workflow_run_id: str, api_token: ApiToken):
         """Get a workflow task running detail.
 
         Returns detailed information about a specific workflow run.
@@ -280,7 +281,8 @@ class WorkflowTaskStopApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, task_id: str, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def post(self, app_model: App, end_user: EndUser, task_id: str, api_token: ApiToken):
         """Stop a running workflow task."""
         app_mode = AppMode.value_of(app_model.mode)
         if app_mode != AppMode.WORKFLOW:

@@ -49,7 +49,8 @@ class AudioApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # 二开部分End - 密钥额度限制，新增api_token,否则上传文件会报错
+    # 二开部分End - 密钥额度限制，新增api_token,否则上传文件会报错
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):
         """Convert audio to text using speech-to-text.
 
         Accepts an audio file upload and returns the transcribed text.
@@ -110,7 +111,8 @@ class TextApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend 二开部分End - 密钥额度限制，新增api_token
+    # extend 二开部分End - 密钥额度限制，新增api_token
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):
         """Convert text to audio using text-to-speech.
 
         Converts the provided text to audio using the specified voice.

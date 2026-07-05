@@ -103,7 +103,8 @@ class ConversationApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))
-    def get(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def get(self, app_model: App, end_user: EndUser, api_token: ApiToken):
         """List all conversations for the current user.
 
         Supports pagination using last_id and limit parameters.
@@ -150,7 +151,8 @@ class ConversationDetailApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))
-    def delete(self, app_model: App, end_user: EndUser, c_id, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def delete(self, app_model: App, end_user: EndUser, c_id, api_token: ApiToken):
         """Delete a specific conversation."""
         app_mode = AppMode.value_of(app_model.mode)
         if app_mode not in {AppMode.CHAT, AppMode.AGENT_CHAT, AppMode.ADVANCED_CHAT}:
@@ -179,7 +181,8 @@ class ConversationRenameApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))
-    def post(self, app_model: App, end_user: EndUser, c_id, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def post(self, app_model: App, end_user: EndUser, c_id, api_token: ApiToken):
         """Rename a conversation or auto-generate a name."""
         app_mode = AppMode.value_of(app_model.mode)
         if app_mode not in {AppMode.CHAT, AppMode.AGENT_CHAT, AppMode.ADVANCED_CHAT}:
@@ -217,7 +220,8 @@ class ConversationVariablesApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))
     @service_api_ns.marshal_with(build_conversation_variable_infinite_scroll_pagination_model(service_api_ns))
-    def get(self, app_model: App, end_user: EndUser, c_id, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def get(self, app_model: App, end_user: EndUser, c_id, api_token: ApiToken):
         """List all variables for a conversation.
 
         Conversational variables are only available for chat applications.
@@ -256,7 +260,8 @@ class ConversationVariableDetailApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))
     @service_api_ns.marshal_with(build_conversation_variable_model(service_api_ns))
-    def put(self, app_model: App, end_user: EndUser, c_id, variable_id, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    # extend - 密钥额度限制，新增api_token,否则上传文件会报错
+    def put(self, app_model: App, end_user: EndUser, c_id, variable_id, api_token: ApiToken):
         """Update a conversation variable's value.
 
         Allows updating the value of a specific conversation variable.

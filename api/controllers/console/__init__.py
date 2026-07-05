@@ -206,11 +206,13 @@ __all__ = [
     "rag_pipeline_import",
     "rag_pipeline_workflow",
     "recommended_app",
+    "register_extend",  # extend: 二开
     "saved_message",
     "setup",
     "site",
     "spec",
     "statistic",
+    "system_manage_extend",  # extend: 二开
     "tags",
     "tool_providers",
     "trial",
@@ -224,7 +226,4 @@ __all__ = [
     "workflow_statistic",
     "workflow_trigger",
     "workspace",
-    # extend: 二开
-    "register_extend",
-    "system_manage_extend",
 ]

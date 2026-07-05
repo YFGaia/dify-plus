@@ -30,7 +30,8 @@ def upgrade():
 
     if 'test' not in existing_columns:
         columns_to_add.append(
-            sa.Column('test', sa.Boolean(), server_default=sa.text('false'), nullable=True, comment='是否测试链接联通性')
+            sa.Column('test', sa.Boolean(), server_default=sa.text('false'), nullable=True,
+                      comment='是否测试链接联通性')
         )
     if 'config' not in existing_columns:
         columns_to_add.append(sa.Column('config', sa.Text(), nullable=True, comment='其他配置'))

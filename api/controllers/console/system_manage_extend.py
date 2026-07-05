@@ -9,7 +9,8 @@ from functools import wraps
 from typing import ParamSpec, TypeVar
 
 from flask import abort, request
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
+from pydantic import BaseModel
 
 from controllers.console import api
 from controllers.console.wraps import account_initialization_required, setup_required
@@ -266,6 +267,14 @@ api.add_resource(ForwardTokenDetailExtend, "/system-manage-extend/forward-tokens
 # ==================== 用户额度管理 ====================
 
 
+class QuotaListQueryExtend(BaseModel):
+    """用户额度分页列表查询参数（原 reqparse 参数定义的等价 Pydantic 模型）"""
+
+    page: int = 1
+    page_size: int = 10
+    keyword: str = ""
+
+
 class QuotaManagementListExtend(Resource):
     """用户额度管理 — 分页列表查询"""
 
@@ -275,17 +284,13 @@ class QuotaManagementListExtend(Resource):
     @system_admin_required_extend
     def get(self):
         """获取用户额度分页列表，支持按 name/email 搜索"""
-        parser = reqparse.RequestParser()
-        parser.add_argument("page", type=int, default=1, location="args")
-        parser.add_argument("page_size", type=int, default=10, location="args")
-        parser.add_argument("keyword", type=str, default="", location="args")
-        args = parser.parse_args()
+        args = QuotaListQueryExtend.model_validate(request.args.to_dict(flat=True))
 
         try:
             result = QuotaManageService.get_quota_list(
-                page=args["page"],
-                page_size=args["page_size"],
-                keyword=args["keyword"] or "",
+                page=args.page,
+                page_size=args.page_size,
+                keyword=args.keyword or "",
             )
             return result, 200
         except Exception as e:

@@ -102,7 +102,8 @@ class RecommendedAppService:
             db.session.commit()
             try:
                 recommendedApp = db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).first()
-            except:
+            except:  # noqa: S110
+                # 有意忽略：查询失败按不存在处理，走下方创建逻辑
                 # create
                 pass
             if recommendedApp is None:

@@ -108,7 +108,11 @@ def validate_app_token(
                 raise Unauthorized("Tenant does not exist.")
 
             kwargs["api_token"] = api_token
-            api_token_money = db.session.query(ApiTokenMoneyExtend).filter(ApiTokenMoneyExtend.app_token_id == api_token.id).first()
+            api_token_money = (
+                db.session.query(ApiTokenMoneyExtend)
+                .filter(ApiTokenMoneyExtend.app_token_id == api_token.id)
+                .first()
+            )
             if api_token_money:
                 if (
                     api_token_money.day_limit_quota != -1

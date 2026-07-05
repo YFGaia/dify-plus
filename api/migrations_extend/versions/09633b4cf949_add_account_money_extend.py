@@ -26,12 +26,15 @@ def upgrade():
     
     if 'account_money_extend' not in tables:
         op.create_table('account_money_extend',
-                        sa.Column('id', types.StringUUID(), server_default=sa.text('uuid_generate_v4()'), nullable=False),
+                        sa.Column('id', types.StringUUID(), server_default=sa.text('uuid_generate_v4()'),
+                                  nullable=False),
                         sa.Column('account_id', types.StringUUID(), nullable=False),
                         sa.Column('total_quota', sa.Numeric(precision=16, scale=7), nullable=True),
                         sa.Column('used_quota', sa.Numeric(precision=16, scale=7), nullable=True),
-                        sa.Column('created_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP(0)'), nullable=False),
-                        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP(0)'), nullable=False),
+                        sa.Column('created_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP(0)'),
+                                  nullable=False),
+                        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP(0)'),
+                                  nullable=False),
                         sa.PrimaryKeyConstraint('id', name='account_money_pkey')
                         )
         with op.batch_alter_table('account_money_extend', schema=None) as batch_op:

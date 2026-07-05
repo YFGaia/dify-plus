@@ -43,7 +43,8 @@ def thread_forwarding_read(key) -> ForwardingExtend | None:
                     address=forwarding_dict_back["address"],
                     description=forwarding_dict_back["description"],
                 )
-            except Exception as e:
+            except Exception:  # noqa: S110
+                # 有意忽略：缓存反序列化失败时回退到数据库查询
                 pass
         else:
             return None

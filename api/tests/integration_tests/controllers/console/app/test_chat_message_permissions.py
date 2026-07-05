@@ -135,7 +135,9 @@ class TestChatMessageApiPermissions:
         monkeypatch.setattr(login_lib, "current_user", mock_account.test_current_user_proxy)
         monkeypatch.setattr(login_lib, "check_csrf_token", lambda *args, **kwargs: None)
         monkeypatch.setattr(completion_api, "current_user", mock_account)
-        monkeypatch.setattr(completion_api.ChatMessagePayload, "model_validate", mock.Mock(return_value=_MockChatMessagePayload()))
+        monkeypatch.setattr(
+            completion_api.ChatMessagePayload, "model_validate", mock.Mock(return_value=_MockChatMessagePayload())
+        )
 
         mock_generate = mock.Mock(return_value={"message": "Test response"})
         monkeypatch.setattr(AppGenerateService, "generate", mock_generate)

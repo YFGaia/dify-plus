@@ -161,7 +161,8 @@ class CompletionStopApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, task_id: str, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
+    # extend - 密钥额度限制，新增api_token
+    def post(self, app_model: App, end_user: EndUser, task_id: str, api_token: ApiToken):
         """Stop a running completion task."""
         if app_model.mode != AppMode.COMPLETION:
             raise AppUnavailableError()

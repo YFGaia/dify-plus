@@ -37,7 +37,7 @@ def upgrade():
         with op.batch_alter_table('account_money_extend', schema=None) as batch_op:
             try:
                 batch_op.drop_index('idx_account_money_account_id')
-            except Exception:
+            except Exception:  # noqa: S110 - 迁移场景：索引不存在时忽略错误
                 # 如果索引不存在，忽略错误
                 pass
         
@@ -53,7 +53,7 @@ def downgrade():
         with op.batch_alter_table('account_money_extend', schema=None) as batch_op:
             try:
                 batch_op.drop_constraint('idx_account_money_account_id_unique', type_='unique')
-            except Exception:
+            except Exception:  # noqa: S110 - 迁移场景：约束不存在时忽略错误
                 # 如果约束不存在，忽略错误
                 pass
             

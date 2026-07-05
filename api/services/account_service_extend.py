@@ -1,8 +1,7 @@
 from sqlalchemy import or_
 
 from extensions.ext_database import db
-from models.account import *
-from models.account import TenantAccountJoin
+from models.account import Account, Tenant, TenantAccountJoin, TenantAccountRole, TenantStatus
 from models.provider import Provider, ProviderModel
 from models.tenant_model_sync_extend import ModelSyncConfigExtend, TenantModelSyncExtend
 
@@ -136,7 +135,9 @@ class TenantExtendService:
     @staticmethod
     def delete_model_sync_config(model_id: str) -> bool:
 
-        model_sync_record = db.session.query(ModelSyncConfigExtend).filter(ModelSyncConfigExtend.model_id == model_id).first()
+        model_sync_record = (
+            db.session.query(ModelSyncConfigExtend).filter(ModelSyncConfigExtend.model_id == model_id).first()
+        )
 
         if model_sync_record is None:
             return True

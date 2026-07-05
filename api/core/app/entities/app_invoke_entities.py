@@ -61,40 +61,6 @@ def build_dify_run_context(
     invoke_from: InvokeFrom,
     extra_context: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """
-    Build graph run_context with the reserved Dify runtime payload.
-
-    `extra_context` can carry user-defined context keys. The reserved `_dify`
-    payload is always overwritten by this function to keep one canonical source.
-    """
-    run_context = dict(extra_context) if extra_context else {}
-    run_context[DIFY_RUN_CONTEXT_KEY] = DifyRunContext(
-        tenant_id=tenant_id,
-        app_id=app_id,
-        user_id=user_id,
-        user_from=user_from,
-        invoke_from=invoke_from,
-    )
-    return run_context
-
-
-class DifyRunContext(BaseModel):
-    tenant_id: str
-    app_id: str
-    user_id: str
-    user_from: UserFrom
-    invoke_from: InvokeFrom
-
-
-def build_dify_run_context(
-    *,
-    tenant_id: str,
-    app_id: str,
-    user_id: str,
-    user_from: UserFrom,
-    invoke_from: InvokeFrom,
-    extra_context: Mapping[str, Any] | None = None,
-) -> dict[str, Any]:
     """Build graph run_context with the reserved Dify runtime payload."""
     run_context = dict(extra_context) if extra_context else {}
     run_context[DIFY_RUN_CONTEXT_KEY] = DifyRunContext(

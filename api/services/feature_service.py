@@ -289,7 +289,7 @@ class FeatureService:
                 elif i.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_OAUTH_TWO:
                     config = json.loads(i.config)
                     system_features.is_custom_auth2 = i.status
-                    if "logout_url" in config.keys():
+                    if "logout_url" in config:
                         system_features.is_custom_auth2_logout = "{}{}".format(
                             config['server_url'], config['logout_url'])
                     # Extend: OAuth2 Stop

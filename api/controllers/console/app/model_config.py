@@ -75,7 +75,7 @@ class ModelConfigResource(Resource):
 
         # Extend: 记忆上下文功能 - Start
         config = request.json
-        if app_model.mode == AppMode.AGENT_CHAT.value or app_model.mode == AppMode.CHAT.value or app_model.is_agent:
+        if app_model.mode in {AppMode.AGENT_CHAT.value, AppMode.CHAT.value} or app_model.is_agent:
             retention_number = int(config.get("retention_number", dify_config.DEFAULT_NUMBER_CONTEXT))
             # 循环移除相关键
             redis_client.delete(f"retention_number_{app_model.id}")
