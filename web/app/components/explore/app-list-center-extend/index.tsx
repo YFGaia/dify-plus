@@ -1,8 +1,6 @@
 'use client'
 
 import type { App } from '@/models/explore'
-// extend: /installed/apps（recommended_app_service_extend）按 tag 每行输出单数 category
-type AppWithCategoryExtend = App & { category?: string }
 import { cn } from '@langgenius/dify-ui/cn'
 import { useDebounceFn } from 'ahooks'
 import { useRouter } from 'next/navigation'
@@ -12,12 +10,14 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/app/components/base/loading'
 // Extend: start Explore Add Search
-import SearchInput from '@/app/components/base/search-input'
+import { SearchInput } from '@/app/components/base/search-input'
 import AppCard from '@/app/components/explore/app-card-extend'
 import Category from '@/app/components/explore/category'
 import { TagFilter } from '@/features/tag-management/components/tag-filter'
 import { useInstalledAppList } from '@/service/use-explore'
 import s from './style.module.css'
+// extend: /installed/apps（recommended_app_service_extend）按 tag 每行输出单数 category
+type AppWithCategoryExtend = App & { category?: string }
 // Extend: stop Explore Add Search
 
 type AppsProps = {
@@ -143,7 +143,7 @@ const Apps = ({
         {/* Extend: start Explore Add Search */}
         <div className="flex items-center gap-2">
           <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
-          <SearchInput className="w-[200px]" value={keywordsValue} onChange={handleKeywordsChange} />
+          <SearchInput className="w-[200px]" value={keywordsValue} onValueChange={handleKeywordsChange} />
         </div>
         {/* Extend: stop Explore Add Search */}
       </div>

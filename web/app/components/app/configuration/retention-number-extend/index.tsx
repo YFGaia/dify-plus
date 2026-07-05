@@ -4,7 +4,6 @@ import { Switch } from '@langgenius/dify-ui/switch'
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
-import Webhooks from '@/app/components/base/icons/src/vender/line/development/Webhooks'
 import Input from '@/app/components/base/input'
 import Slider from '@/app/components/base/slider'
 import DebugConfigurationContext from '@/context/debug-configuration'
@@ -29,7 +28,8 @@ const RetentionNumber: FC = () => {
         <div className="flex h-8 items-center justify-between">
           <div className="flex shrink-0 items-center space-x-1">
             <div className="flex h-6 w-6 items-center justify-center">
-              <Webhooks className="text-orange-500" />
+              {/* Webhooks 图标随上游删除，改用 iconify 同形图标 */}
+              <span aria-hidden className="i-ri-webhook-line size-4 text-orange-500" />
             </div>
             <div className="system-sm-semibold text-text-secondary">{t('nodes.common.memory.memory', { ns: 'workflow' })}</div>
           </div>

@@ -1,4 +1,3 @@
-import type { SystemFeatures } from '@/types/feature'
 import { cn } from '@langgenius/dify-ui/cn'
 import { toast } from '@langgenius/dify-ui/toast'
 import { RiContractLine, RiDoorLockLine, RiErrorWarningFill } from '@remixicon/react'

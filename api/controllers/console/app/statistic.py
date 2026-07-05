@@ -392,7 +392,6 @@ WHERE
             arg_dict = {"tz": account.timezone, "app_id": app_model.id, "user_id": account.id}
         # Extend Stop: added a new app personal expenses page
 
-
         try:
             start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
         except ValueError as e:

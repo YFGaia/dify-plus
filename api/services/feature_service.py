@@ -11,6 +11,7 @@ from configs import dify_config
 from constants.dsl_version import CURRENT_APP_DSL_VERSION
 from enums.cloud_plan import CloudPlan
 from enums.hosted_provider import HostedTrialProvider
+
 # extend: oauth2 and DingTalk third-party login
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client

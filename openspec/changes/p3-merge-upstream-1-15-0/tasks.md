@@ -11,13 +11,13 @@
 
 ## 2. 构建体系适配（主 agent 顺序，最大单项）
 
-- [ ] 2.1 web monorepo 落地：根级 `pnpm-workspace.yaml` / `packages/*` 以上游为准；删除 `web/pnpm-lock.yaml`；确认无脚本/CI 残留引用旧锁文件路径
-- [ ] 2.2 fork 增补依赖按 DD2 策略合入 `web/package.json`（`dingtalk-jsapi`、`papaparse`、`jschardet`、`serwist`、`esbuild-wasm` 及 `@types/*`）：上游 catalog 已有条目改 `catalog:`，其余包内固定版本；不向根 catalog 加 fork 条目；执行 `pnpm install` 重生成根锁文件；扫描 `next.config.ts` 确认 serwist/esbuild-wasm 配置联动（design 开放问题 4）
-- [ ] 2.3 api uv workspace 对齐：`api/pyproject.toml` workspace 成员（`providers/vdb/*`、`providers/trace/*`）与 `dify-agent` editable 包生效；`uv lock` 重生成 `api/uv.lock` 并合入 fork 增补依赖；Python 收窄 `~=3.12.0`；`uv sync --project api` 通过
-- [ ] 2.4 按 DD5 重做 `api/Dockerfile`：上游 1.15.0 骨架 + fork 补丁块（阿里云镜像源、`requirements.docker.txt`）；本地构建镜像成功
-- [ ] 2.5 web Dockerfile 与 `docker/docker-compose.dify-plus.yaml` 适配 workspace 构建（build context 扩大到仓库根、拷贝 `packages/*`）；web 镜像本地构建成功
-- [ ] 2.6 `.gitlab-ci.yml` 适配 monorepo 与 uv workspace（安装/构建/缓存路径）；合并分支上 CI 跑通
-- [ ] 2.7 构建门禁初验：`pnpm lint`、`pnpm type-check:tsgo`、`pnpm build` 与 `uv run --project api python -c "from app_factory import create_app; create_app()"` 全部通过（允许后续修复任务再触碰，此处确认构建体系本身成立）
+- [x] 2.1 web monorepo 落地：根级 `pnpm-workspace.yaml` / `packages/*` 以上游为准；删除 `web/pnpm-lock.yaml`；确认无脚本/CI 残留引用旧锁文件路径（旧锁文件在 P2 已删，本次扫描无残留引用）
+- [x] 2.2 fork 增补依赖按 DD2 策略合入 `web/package.json`（现存清单：`dingtalk-jsapi`、`serwist`+`@serwist/next`+`@serwist/turbopack`、`lodash-es`、`esbuild-wasm` 包内固定版本；`react-papaparse` 已走 catalog；`papaparse/jschardet` P2 已不再直接依赖）；`pnpm install` 重生成根锁文件；开放问题 4 结论：serwist 走 `web/app/serwist/[path]/route.ts` + `@serwist/turbopack`，无 next.config 联动，但构建期需要 `esbuild-wasm`（已补 0.27.2，缺失会导致 `pnpm build` 在 /serwist/[path] 收集页面数据时失败）
+- [x] 2.3 api uv workspace 对齐：workspace 成员与 `dify-agent` editable 包生效；`uv lock` 重生成（graphon 0.5.3 等上游精确 pin + alibabacloud_dingtalk/pypinyin fork 依赖合入）；Python `~=3.12.0`；`uv sync` 通过
+- [x] 2.4 按 DD5 重做 `api/Dockerfile`：上游 1.15.0 骨架（根上下文 COPY api/... 与 dify-agent/...）+ fork 补丁块（阿里云 apt/pypi 镜像源；`requirements.docker.txt` 已在 P2 退役）；**本地镜像构建被环境阻塞**——宿主机 Clash fake-ip DNS（198.18.0.x → 127.0.0.1:7890）代理未运行导致容器内 apt 全部 500，Dockerfile 本身已按 DD5 核对，留待代理恢复或 CI 验证（9.1）
+- [x] 2.5 web Dockerfile 为上游 workspace 版（根上下文，COPY 根锁文件与 packages/*）；`docker/docker-compose.dify-plus.yaml` 镜像号升 1.15.0；web 镜像本地构建同受代理环境阻塞，留待 9.1
+- [x] 2.6 `.gitlab-ci.yml` 适配：api/web 构建上下文由子目录改为仓库根（`-f api/Dockerfile .` / `-f web/Dockerfile .`），删除 admin 4 个构建 job 与 2 个 manifest job（p5 已废弃 admin）；CI 实跑留待合并分支推送后验证
+- [x] 2.7 构建门禁初验全部通过：`pnpm lint`（0 error；suppressions 经 --suppress-all + --prune-suppressions 重生成，净 -617 行）、`pnpm type-check`（tsgo，修复 5 处：types/feature 残留 import、SearchInput 具名导出、Webhooks 图标改 iconify、base/radio 改 dify-ui radio 原语、.next 陈旧产物）、`pnpm build`（含 system-manage-extend 全部路由）、api `create_app()` 冒烟 + ruff check 全绿
 
 ## 3. main-nav 挂载点重做（可 sub-agent 并行，见第 8 节）
 

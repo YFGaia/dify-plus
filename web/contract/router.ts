@@ -29,14 +29,6 @@ import { fileUploadContract } from './console/files'
 import { changePreferredProviderTypeContract, modelProvidersModelsContract } from './console/model-providers'
 import { notificationContract, notificationDismissContract } from './console/notification'
 import { pluginCheckInstalledContract, pluginLatestVersionsContract } from './console/plugins'
-// extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
-import { loginConfigBootstrapContract, loginConfigContract } from './console/system'
-// extend: 系统管理 — 代码执行控制（sandbox-full 授权名单）
-import {
-  codeExecutionControlAddContract,
-  codeExecutionControlListContract,
-  codeExecutionControlRemoveContract,
-} from './console/system-manage'
 import {
   checkSnippetDependenciesContract,
   confirmSnippetImportContract,
@@ -64,6 +56,14 @@ import {
   syncSnippetDraftWorkflowContract,
   updateCustomizedSnippetContract,
 } from './console/snippets'
+// extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
+import { loginConfigBootstrapContract, loginConfigContract } from './console/system'
+// extend: 系统管理 — 代码执行控制（sandbox-full 授权名单）
+import {
+  codeExecutionControlAddContract,
+  codeExecutionControlListContract,
+  codeExecutionControlRemoveContract,
+} from './console/system-manage'
 import {
   tagBindingCreateContract,
   tagBindingRemoveContract,

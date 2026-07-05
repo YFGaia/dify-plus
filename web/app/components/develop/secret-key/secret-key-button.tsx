@@ -20,7 +20,6 @@ const SecretKeyButton = ({ className, appId, textCls, canManage = false }: ISecr
   if (!isCurrentWorkspaceManager)
     return null
 
-
   return (
     <>
       <Button

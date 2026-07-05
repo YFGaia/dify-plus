@@ -1,12 +1,15 @@
 import type { FC } from 'react'
 import type { ModelParameterRule } from '../declarations'
 import { cn } from '@langgenius/dify-ui/cn'
+import { FieldItem, FieldLabel, FieldRoot } from '@langgenius/dify-ui/field'
+import { FieldsetLegend, FieldsetRoot } from '@langgenius/dify-ui/fieldset'
+import { Radio } from '@langgenius/dify-ui/radio' // 上游 base/radio 已删除，改用 dify-ui radio 原语
+import { RadioGroup } from '@langgenius/dify-ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectItemIndicator, SelectItemText, SelectTrigger, SelectValue } from '@langgenius/dify-ui/select'
 import { Slider } from '@langgenius/dify-ui/slider'
 import { Switch } from '@langgenius/dify-ui/switch'
 import { useState } from 'react'
 import { Infotip } from '@/app/components/base/infotip'
-import Radio from '@/app/components/base/radio'
 import TagInput from '@/app/components/base/tag-input'
 import { useLanguage } from '../hooks'
 import { isNullOrUndefined } from '../utils'
@@ -70,8 +73,8 @@ const ParameterItem: FC<ParameterItemProps> = ({
     handleInputChange(num)
   }
 
-  const handleRadioChange = (v: number) => {
-    handleInputChange(v === 1)
+  const handleRadioChange = (v: boolean) => {
+    handleInputChange(v)
   }
 
   const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -123,15 +126,35 @@ const ParameterItem: FC<ParameterItemProps> = ({
     }
 
     if (parameterRule.type === 'boolean') {
+      const booleanValue = typeof renderValue === 'boolean' ? renderValue : undefined
+      const translatedLabel = parameterRule.label[language] || parameterRule.label.en_US
+
       return (
-        <Radio.Group
-          className="flex w-[200px] items-center"
-          value={renderValue ? 1 : 0}
-          onChange={handleRadioChange}
-        >
-          <Radio value={1} className="!mr-1 w-[94px]">True</Radio>
-          <Radio value={0} className="w-[94px]">False</Radio>
-        </Radio.Group>
+        <FieldRoot name={parameterRule.name} className="contents">
+          <FieldsetRoot
+            render={(
+              <RadioGroup<boolean>
+                className="flex w-[200px] items-center gap-3"
+                value={booleanValue}
+                onValueChange={handleRadioChange}
+              />
+            )}
+          >
+            <FieldsetLegend className="sr-only">{translatedLabel}</FieldsetLegend>
+            <FieldItem>
+              <FieldLabel className="flex w-[94px] items-center gap-1.5 system-sm-regular text-text-secondary">
+                <Radio value={true} />
+                True
+              </FieldLabel>
+            </FieldItem>
+            <FieldItem>
+              <FieldLabel className="flex w-[94px] items-center gap-1.5 system-sm-regular text-text-secondary">
+                <Radio value={false} />
+                False
+              </FieldLabel>
+            </FieldItem>
+          </FieldsetRoot>
+        </FieldRoot>
       )
     }
 

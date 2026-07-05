@@ -102,6 +102,7 @@
     "embla-carousel-react": "catalog:",
     "emoji-mart": "catalog:",
     "es-toolkit": "catalog:",
+    "esbuild-wasm": "0.27.2",
     "fast-deep-equal": "catalog:",
     "foxact": "catalog:",
     "fuse.js": "catalog:",

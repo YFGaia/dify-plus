@@ -20,7 +20,6 @@ from services.feature_service import (
 )
 
 # extend: stop CVE-2025-63387未授权访问
-
 from . import console_ns
 from .wraps import (
     account_initialization_required,
