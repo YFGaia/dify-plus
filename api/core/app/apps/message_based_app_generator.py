@@ -28,6 +28,7 @@ from core.app.entities.task_entities import (
 )
 from core.app.task_pipeline.easy_ui_based_generate_task_pipeline import EasyUIBasedGenerateTaskPipeline
 from core.prompt.utils.prompt_template_parser import PromptTemplateParser
+from core.workflow.file_reference import resolve_file_record_id
 from extensions.ext_database import db
 from extensions.ext_redis import get_pubsub_broadcast_channel
 from libs.broadcast_channel.channel import Topic
@@ -133,8 +134,9 @@ class MessageBasedAppGenerator(BaseAppGenerator):
             from_source = ConversationFromSource.API
             end_user_id = application_generate_entity.user_id
             # 如果 extras 中提供了 account_id（Web App 登录用户），优先使用
-            if application_generate_entity.extras and application_generate_entity.extras.get("account_id"):
-                account_id = application_generate_entity.extras.get("account_id")
+            extras = getattr(application_generate_entity, "extras", None)
+            if extras and extras.get("account_id"):
+                account_id = extras.get("account_id")
         else:
             from_source = ConversationFromSource.CONSOLE
             account_id = application_generate_entity.user_id
@@ -230,7 +232,7 @@ class MessageBasedAppGenerator(BaseAppGenerator):
                     transfer_method=file.transfer_method,
                     belongs_to=MessageFileBelongsTo.USER,
                     url=file.remote_url,
-                    upload_file_id=file.related_id,
+                    upload_file_id=resolve_file_record_id(file.reference),
                     created_by_role=(CreatorUserRole.ACCOUNT if account_id else CreatorUserRole.END_USER),
                     created_by=account_id or end_user_id or "",
                 )

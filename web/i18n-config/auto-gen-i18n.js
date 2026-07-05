@@ -3,8 +3,10 @@ const path = require('node:path')
 const vm = require('node:vm')
 const transpile = require('typescript').transpile
 const magicast = require('magicast')
+
 const { parseModule, generateCode, loadFile } = magicast
 const bingTranslate = require('bing-translate-api')
+
 const { translate } = bingTranslate
 const data = require('./languages.json')
 
@@ -85,7 +87,7 @@ async function translateMissingKeyDeeply(sourceObj, targetObject, toLanguage) {
               translatedKeys.push(`${key}: ${translation}`)
               console.log(`✅ Retry successful: "${translation}"`)
             }
- catch (retryError) {
+            catch (retryError) {
               console.error(`❌ Retry failed for key ${key}:`, retryError.message)
             }
           }
@@ -198,13 +200,13 @@ export default translation
       fs.writeFileSync(toGenLanguageFilePath, res)
       console.log(`💾 Saved translations to ${toGenLanguageFilePath}`)
     }
- else {
+    else {
       console.log(`🔍 [DRY RUN] Would save translations to ${toGenLanguageFilePath}`)
     }
 
     return result
   }
- catch (error) {
+  catch (error) {
     console.error(`Error processing file ${fullKeyFilePath}:`, error.message)
     throw error
   }

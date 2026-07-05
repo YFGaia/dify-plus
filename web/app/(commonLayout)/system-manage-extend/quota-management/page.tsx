@@ -1,9 +1,9 @@
 'use client'
 
 import type { QuotaListItem } from '@/models/system-manage-extend'
+import { toast } from '@langgenius/dify-ui/toast'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toast } from '@/app/components/base/ui/toast'
 import { getQuotaList, setUserQuota } from '@/service/system-manage-extend'
 
 const PAGE_SIZE_OPTIONS = [10, 30, 50, 100]

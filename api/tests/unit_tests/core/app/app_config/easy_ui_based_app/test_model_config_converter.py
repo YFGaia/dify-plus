@@ -2,6 +2,7 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
+from pytest_mock import MockerFixture
 
 from core.app.app_config.easy_ui_based_app.model_config.converter import ModelConfigConverter
 from core.entities.model_entities import ModelStatus
@@ -10,13 +11,13 @@ from core.errors.error import (
     ProviderTokenNotInitError,
     QuotaExceededError,
 )
-from dify_graph.model_runtime.entities.llm_entities import LLMMode
-from dify_graph.model_runtime.entities.model_entities import ModelPropertyKey
+from graphon.model_runtime.entities.llm_entities import LLMMode
+from graphon.model_runtime.entities.model_entities import ModelPropertyKey
 
 
 class TestModelConfigConverter:
     @pytest.fixture(autouse=True)
-    def patch_response_entity(self, mocker):
+    def patch_response_entity(self, mocker: MockerFixture):
         """
         Patch ModelConfigWithCredentialsEntity to bypass Pydantic validation
         and return a simple namespace object instead.
@@ -69,11 +70,11 @@ class TestModelConfigConverter:
         return bundle
 
     @pytest.fixture
-    def patch_provider_manager(self, mocker, mock_provider_bundle):
+    def patch_provider_manager(self, mocker: MockerFixture, mock_provider_bundle):
         mock_manager = MagicMock()
         mock_manager.get_provider_model_bundle.return_value = mock_provider_bundle
         mocker.patch(
-            "core.app.app_config.easy_ui_based_app.model_config.converter.ProviderManager",
+            "core.app.app_config.easy_ui_based_app.model_config.converter.create_plugin_provider_manager",
             return_value=mock_manager,
         )
         return mock_manager
@@ -99,7 +100,7 @@ class TestModelConfigConverter:
         assert result.parameters == {"temperature": 0.7}
         assert result.stop == ["\n"]
 
-    def test_convert_mode_from_schema_valid(self, mock_app_config, mock_provider_bundle, mocker):
+    def test_convert_mode_from_schema_valid(self, mock_app_config, mock_provider_bundle, mocker: MockerFixture):
         mock_app_config.model.mode = None
 
         mock_provider_bundle.model_type_instance.get_model_schema.return_value.model_properties = {
@@ -109,14 +110,16 @@ class TestModelConfigConverter:
         mock_manager = MagicMock()
         mock_manager.get_provider_model_bundle.return_value = mock_provider_bundle
         mocker.patch(
-            "core.app.app_config.easy_ui_based_app.model_config.converter.ProviderManager",
+            "core.app.app_config.easy_ui_based_app.model_config.converter.create_plugin_provider_manager",
             return_value=mock_manager,
         )
 
         result = ModelConfigConverter.convert(mock_app_config)
         assert result.mode == LLMMode.COMPLETION
 
-    def test_convert_mode_from_schema_invalid_fallback(self, mock_app_config, mock_provider_bundle, mocker):
+    def test_convert_mode_from_schema_invalid_fallback(
+        self, mock_app_config, mock_provider_bundle, mocker: MockerFixture
+    ):
         mock_provider_bundle.model_type_instance.get_model_schema.return_value.model_properties = {
             ModelPropertyKey.MODE: "invalid"
         }
@@ -124,7 +127,7 @@ class TestModelConfigConverter:
         mock_manager = MagicMock()
         mock_manager.get_provider_model_bundle.return_value = mock_provider_bundle
         mocker.patch(
-            "core.app.app_config.easy_ui_based_app.model_config.converter.ProviderManager",
+            "core.app.app_config.easy_ui_based_app.model_config.converter.create_plugin_provider_manager",
             return_value=mock_manager,
         )
 
@@ -135,13 +138,13 @@ class TestModelConfigConverter:
     # Credential Errors
     # =============================
 
-    def test_convert_credentials_none_raises(self, mock_app_config, mock_provider_bundle, mocker):
+    def test_convert_credentials_none_raises(self, mock_app_config, mock_provider_bundle, mocker: MockerFixture):
         mock_provider_bundle.configuration.get_current_credentials.return_value = None
 
         mock_manager = MagicMock()
         mock_manager.get_provider_model_bundle.return_value = mock_provider_bundle
         mocker.patch(
-            "core.app.app_config.easy_ui_based_app.model_config.converter.ProviderManager",
+            "core.app.app_config.easy_ui_based_app.model_config.converter.create_plugin_provider_manager",
             return_value=mock_manager,
         )
 
@@ -152,13 +155,13 @@ class TestModelConfigConverter:
     # Provider Model Errors
     # =============================
 
-    def test_convert_provider_model_none_raises(self, mock_app_config, mock_provider_bundle, mocker):
+    def test_convert_provider_model_none_raises(self, mock_app_config, mock_provider_bundle, mocker: MockerFixture):
         mock_provider_bundle.configuration.get_provider_model.return_value = None
 
         mock_manager = MagicMock()
         mock_manager.get_provider_model_bundle.return_value = mock_provider_bundle
         mocker.patch(
-            "core.app.app_config.easy_ui_based_app.model_config.converter.ProviderManager",
+            "core.app.app_config.easy_ui_based_app.model_config.converter.create_plugin_provider_manager",
             return_value=mock_manager,
         )
 
@@ -174,7 +177,7 @@ class TestModelConfigConverter:
         ],
     )
     def test_convert_provider_model_status_errors(
-        self, mock_app_config, mock_provider_bundle, mocker, status, expected_exception
+        self, mock_app_config, mock_provider_bundle, mocker: MockerFixture, status, expected_exception
     ):
         mock_provider = MagicMock()
         mock_provider.status = status
@@ -183,7 +186,7 @@ class TestModelConfigConverter:
         mock_manager = MagicMock()
         mock_manager.get_provider_model_bundle.return_value = mock_provider_bundle
         mocker.patch(
-            "core.app.app_config.easy_ui_based_app.model_config.converter.ProviderManager",
+            "core.app.app_config.easy_ui_based_app.model_config.converter.create_plugin_provider_manager",
             return_value=mock_manager,
         )
 
@@ -194,13 +197,13 @@ class TestModelConfigConverter:
     # Schema Errors
     # =============================
 
-    def test_convert_model_schema_none_raises(self, mock_app_config, mock_provider_bundle, mocker):
+    def test_convert_model_schema_none_raises(self, mock_app_config, mock_provider_bundle, mocker: MockerFixture):
         mock_provider_bundle.model_type_instance.get_model_schema.return_value = None
 
         mock_manager = MagicMock()
         mock_manager.get_provider_model_bundle.return_value = mock_provider_bundle
         mocker.patch(
-            "core.app.app_config.easy_ui_based_app.model_config.converter.ProviderManager",
+            "core.app.app_config.easy_ui_based_app.model_config.converter.create_plugin_provider_manager",
             return_value=mock_manager,
         )
 

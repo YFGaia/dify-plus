@@ -135,8 +135,7 @@ class ModelProviderExtendService:
         )
 
     @staticmethod
-    def delete_syned_tenants(origin_model_id, tenant_id: str
-    ) -> bool:
+    def delete_syned_tenants(origin_model_id, tenant_id: str) -> bool:
         syned_tenant = (
             db.session.query(TenantModelSyncExtend)
             .filter(

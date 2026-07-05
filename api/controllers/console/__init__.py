@@ -33,7 +33,6 @@ for module_name in RESOURCE_MODULES:
 # Ensure resource modules are imported so route decorators are evaluated.
 # Import other controllers
 from . import (
-    admin,
     apikey,
     extension,
     feature,
@@ -70,6 +69,7 @@ from .app import (
     statistic,
     workflow,
     workflow_app_log,
+    workflow_comment,
     workflow_draft_variable,
     workflow_run,
     workflow_statistic,
@@ -86,7 +86,6 @@ from .auth import (
     login,
     oauth,
     oauth_server,
-    register_extend,  # 二开部分: 新增用户（调用dify注册接口）
 )
 
 # Import billing controllers
@@ -122,6 +121,7 @@ from .explore import (
     saved_message,
     trial,
 )
+from .socketio import workflow as socketio_workflow
 
 # Import tag controllers
 from .tag import tags
@@ -148,14 +148,15 @@ __all__ = [
     "account",
     "account_extend",  # 二开部分：新增account_extend
     "activate",
-    "admin",
     "advanced_prompt_template",
     "agent",
     "agent_providers",
+    "ai_draw_extnd",
     "annotation",
     "api",
     "apikey",
     "app",
+    "app_extend",
     "audio",
     "banner",
     "billing",
@@ -173,6 +174,7 @@ __all__ = [
     "datasets_segments",
     "datasource_auth",
     "datasource_content_preview",
+    "ding_talk_extend",
     "email_register",
     "endpoint",
     "extension",
@@ -198,6 +200,7 @@ __all__ = [
     "oauth_server",
     "ops_trace",
     "parameter",
+    "passport_extend",
     "ping",
     "plugin",
     "rag_pipeline",
@@ -206,10 +209,10 @@ __all__ = [
     "rag_pipeline_import",
     "rag_pipeline_workflow",
     "recommended_app",
-    "register_extend",  # extend: 二开
     "saved_message",
     "setup",
     "site",
+    "socketio_workflow",
     "spec",
     "statistic",
     "system_manage_extend",  # extend: 二开
@@ -221,6 +224,7 @@ __all__ = [
     "website",
     "workflow",
     "workflow_app_log",
+    "workflow_comment",
     "workflow_draft_variable",
     "workflow_run",
     "workflow_statistic",

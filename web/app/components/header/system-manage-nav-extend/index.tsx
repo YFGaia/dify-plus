@@ -1,9 +1,9 @@
 'use client'
 
-import { useTranslation } from 'react-i18next'
-import { useSelectedLayoutSegment } from 'next/navigation'
+import { cn } from '@langgenius/dify-ui/cn'
 import { RiSettings3Fill, RiSettings3Line } from '@remixicon/react'
-import { cn } from '@/utils/classnames'
+import { useSelectedLayoutSegment } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { useAppContext } from '@/context/app-context'
 import Link from '@/next/link'
 
@@ -25,7 +25,8 @@ const SystemManageNavExtend = ({ className }: Props) => {
     <Link
       href="/system-manage-extend/system-integration"
       className={cn(
-        className, 'group',
+        className,
+        'group',
         activated && 'bg-components-main-nav-nav-button-bg-active shadow-md',
         activated
           ? 'text-components-main-nav-nav-button-text-active'

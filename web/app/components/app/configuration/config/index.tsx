@@ -6,6 +6,7 @@ import * as React from 'react'
 import { useContext } from 'use-context-selector'
 import ConfigPrompt from '@/app/components/app/configuration/config-prompt'
 import ConfigVar from '@/app/components/app/configuration/config-var'
+import RetentionNumberExtend from '@/app/components/app/configuration/retention-number-extend' // Extend: 记忆上下文功能
 import ConfigContext from '@/context/debug-configuration'
 import { AppModeEnum, ModelModeType } from '@/types/app'
 import HistoryPanel from '../config-prompt/conversation-history/history-panel'
@@ -15,7 +16,6 @@ import { useFormattingChangedDispatcher } from '../debug/hooks'
 import AgentTools from './agent/agent-tools'
 import ConfigAudio from './config-audio'
 import ConfigDocument from './config-document'
-import RetentionNumberExtend from '@/app/components/app/configuration/retention-number-extend' // Extend: 记忆上下文功能
 
 const Config: FC = () => {
   const {

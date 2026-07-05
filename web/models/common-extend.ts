@@ -1,4 +1,4 @@
 export type UserMoney = {
-  used_quota: Number
-  total_quota: Number
+  used_quota: number
+  total_quota: number
 }

@@ -1,9 +1,9 @@
 'use client'
 
 import type { ForwardToken } from '@/models/system-manage-extend'
+import { toast } from '@langgenius/dify-ui/toast'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Toast from '@/app/components/base/toast'
 import { createForwardToken, deleteForwardToken, getForwardTokens } from '@/service/system-manage-extend'
 
 const ForwardTokenList = () => {
@@ -21,7 +21,7 @@ const ForwardTokenList = () => {
       setTokens(data.tokens || [])
     }
     catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || 'Failed to load tokens' })
+      toast.error(e.message || 'Failed to load tokens')
     }
     finally {
       setLoading(false)
@@ -38,13 +38,13 @@ const ForwardTokenList = () => {
     try {
       setCreating(true)
       await createForwardToken(newName.trim())
-      Toast.notify({ type: 'success', message: t('systemManage.common.saveSuccess', { ns: 'extend' }) })
+      toast.success(t('systemManage.common.saveSuccess', { ns: 'extend' }))
       setNewName('')
       setShowAdd(false)
       fetchTokens()
     }
     catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || 'Failed to create token' })
+      toast.error(e.message || 'Failed to create token')
     }
     finally {
       setCreating(false)
@@ -56,11 +56,11 @@ const ForwardTokenList = () => {
       return
     try {
       await deleteForwardToken(seq)
-      Toast.notify({ type: 'success', message: 'Token deleted' })
+      toast.success('Token deleted')
       fetchTokens()
     }
     catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || 'Failed to delete token' })
+      toast.error(e.message || 'Failed to delete token')
     }
   }
 

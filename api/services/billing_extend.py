@@ -132,32 +132,32 @@ class AiDrawBilling:
 
         # 计算签名
         sign_str = dify_config.YOUDAO_APP_KEY + input_str + salt + curtime + dify_config.YOUDAO_APP_SECRET
-        sign = hashlib.sha256(sign_str.encode('utf-8')).hexdigest()
+        sign = hashlib.sha256(sign_str.encode("utf-8")).hexdigest()
 
         # 发送请求
         try:
             response = requests.post(
-                'https://openapi.youdao.com/ocrtransapi',
+                "https://openapi.youdao.com/ocrtransapi",
                 data={
-                    'type': '1',  # Base64类型
-                    'q': image_base64,
-                    'from': from_code,
-                    'to': to_lang_code,
-                    'appKey': dify_config.YOUDAO_APP_KEY,
-                    'salt': salt,
-                    'sign': sign,
-                    'signType': 'v3',
-                    'curtime': curtime,
-                    'render': '1',
-                    'docType': 'json'
+                    "type": "1",  # Base64类型
+                    "q": image_base64,
+                    "from": from_code,
+                    "to": to_lang_code,
+                    "appKey": dify_config.YOUDAO_APP_KEY,
+                    "salt": salt,
+                    "sign": sign,
+                    "signType": "v3",
+                    "curtime": curtime,
+                    "render": "1",
+                    "docType": "json",
                 },
-                timeout=30
+                timeout=30,
             )
             result = response.json()
 
             # 检查错误码
-            if result.get('errorCode') == '0':
-                return result.get('render_image', ''), ""
+            if result.get("errorCode") == "0":
+                return result.get("render_image", ""), ""
             return "", f"请求失败: {result.get('msg')}"
 
         except Exception as e:
@@ -186,7 +186,7 @@ class AiDrawBilling:
         # Wait for an asynchronous task to complete and get the return value
         headers = {key: value for key, value in request.headers if key != "Host"}
         # Wait for an asynchronous task to complete and get the return value
-        money, err = cls.calculate_user_billing_information(kwargs.get("account", ''), forwarding.id, path, cache_data)
+        money, err = cls.calculate_user_billing_information(kwargs.get("account", ""), forwarding.id, path, cache_data)
         if len(err) > 0 and money == 500:
             return Response(err, status=500)
         for key, value in json.loads(forwarding.header):
@@ -200,7 +200,7 @@ class AiDrawBilling:
         logging.warning("target_url: %s. json: %s", target_url, json.dumps(request.args))
         logging.warning("headers: %s", json.dumps(headers))
         try:
-            if method == 'GET':
+            if method == "GET":
                 resp = requests.get(target_url, headers=headers, params=request.args, allow_redirects=False)
             elif method == "POST":
                 resp = requests.post(target_url, headers=headers, data=data, params=request.args)
@@ -210,7 +210,7 @@ class AiDrawBilling:
                 resp = requests.delete(target_url, headers=headers, data=data, params=request.args)
             else:
                 return Response("Method not allowed", status=405)
-            
+
             logging.warning("Response status: %s, content: %s", resp.status_code, resp.text[:500])
         except Exception as e:
             logging.exception("Request failed")

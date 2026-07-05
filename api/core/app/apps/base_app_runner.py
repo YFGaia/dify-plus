@@ -29,22 +29,22 @@ from core.prompt.advanced_prompt_transform import AdvancedPromptTransform
 from core.prompt.entities.advanced_prompt_entities import ChatModelMessage, CompletionModelPromptTemplate, MemoryConfig
 from core.prompt.simple_prompt_transform import ModelMode, SimplePromptTransform
 from core.tools.tool_file_manager import ToolFileManager
-from dify_graph.file.enums import FileTransferMethod, FileType
-from dify_graph.model_runtime.entities.llm_entities import LLMResult, LLMResultChunk, LLMResultChunkDelta, LLMUsage
-from dify_graph.model_runtime.entities.message_entities import (
+from extensions.ext_database import db
+from graphon.file import FileTransferMethod, FileType
+from graphon.model_runtime.entities.llm_entities import LLMResult, LLMResultChunk, LLMResultChunkDelta, LLMUsage
+from graphon.model_runtime.entities.message_entities import (
     AssistantPromptMessage,
     ImagePromptMessageContent,
     PromptMessage,
     TextPromptMessageContent,
 )
-from dify_graph.model_runtime.entities.model_entities import ModelPropertyKey
-from dify_graph.model_runtime.errors.invoke import InvokeBadRequestError
-from extensions.ext_database import db
+from graphon.model_runtime.entities.model_entities import ModelPropertyKey
+from graphon.model_runtime.errors.invoke import InvokeBadRequestError
 from models.enums import CreatorUserRole, MessageFileBelongsTo
 from models.model import App, AppMode, Message, MessageAnnotation, MessageFile
 
 if TYPE_CHECKING:
-    from dify_graph.file.models import File
+    from graphon.file import File
 
 _logger = logging.getLogger(__name__)
 
@@ -84,6 +84,35 @@ class AppRunner:
                 ):
                     model_config.parameters[parameter_rule.name] = max_tokens
 
+    # Extend: start messages_context_handling（1.13.3 合并时丢失，1.14.2 合并恢复）
+    def add_messages_context(self, prompt_messages, app_id, conversation_id, message_id):
+        """记忆上下文：当对话轮数超过应用配置的保留条数时，登记一条上下文分割记录。"""
+        # 延迟导入，避免 core.app ↔ models 顶层循环依赖
+        from extensions.ext_redis import redis_client
+        from models.model_extend import AppExtend, MessageContextExtend
+
+        key = f"retention_number_{app_id}"
+        retention_number = redis_client.get(key)
+        if retention_number is None:
+            app_extend: AppExtend | None = db.session.query(AppExtend).filter(AppExtend.app_id == app_id).first()
+            if app_extend is None:
+                return
+            retention_number = int(app_extend.retention_number)
+            redis_client.set(key, app_extend.retention_number)
+        else:
+            retention_number = int(retention_number)
+        if (len(prompt_messages) + 2) / 2 > retention_number:
+            # 插入替换
+            db.session.add(
+                MessageContextExtend(
+                    conversation_id=conversation_id,
+                    message_id=message_id,
+                )
+            )
+            db.session.commit()
+
+    # Extend: stop messages_context_handling
+
     def organize_prompt_messages(
         self,
         app_record: App,
@@ -96,6 +125,7 @@ class AppRunner:
         memory: TokenBufferMemory | None = None,
         image_detail_config: ImagePromptMessageContent.DETAIL | None = None,
         context_files: list["File"] | None = None,
+        control_registers: bool = True,  # Extend: messages context handling
     ) -> tuple[list[PromptMessage], list[str] | None]:
         """
         Organize prompt messages
@@ -108,6 +138,7 @@ class AppRunner:
         :param query: query
         :param memory: memory
         :param image_detail_config: the image quality config
+        :param control_registers: is messages context # Extend: messages context handling
         :return:
         """
         # get prompt without memory and context
@@ -125,6 +156,7 @@ class AppRunner:
                 model_config=model_config,
                 image_detail_config=image_detail_config,
                 context_files=context_files,
+                control_registers=control_registers,  # Extend: messages context handling
             )
         else:
             memory_config = MemoryConfig(window=MemoryConfig.WindowConfig(enabled=False))

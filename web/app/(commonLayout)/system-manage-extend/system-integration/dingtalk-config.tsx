@@ -1,10 +1,10 @@
 'use client'
 
 import type { DingTalkConfig as DingTalkConfigType } from '@/models/system-manage-extend'
+import { Switch } from '@langgenius/dify-ui/switch'
+import { toast } from '@langgenius/dify-ui/toast'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Switch from '@/app/components/base/switch'
-import { toast } from '@/app/components/base/ui/toast'
 import { getDingTalkConfig, setDingTalkConfig, testDingTalkConnection } from '@/service/system-manage-extend'
 
 type DingTalkFieldKey = 'corp_id' | 'agent_id' | 'app_key' | 'app_secret'
@@ -99,8 +99,8 @@ const DingTalkConfig = () => {
             {t(config.status ? 'systemManage.common.enabled' : 'systemManage.common.disabled', { ns: 'extend' })}
           </span>
           <Switch
-            value={config.status}
-            onChange={status => setConfig(prev => ({ ...prev, status }))}
+            checked={config.status}
+            onCheckedChange={(status: boolean) => setConfig(prev => ({ ...prev, status }))}
             aria-label={t('systemManage.common.enable', { ns: 'extend' })}
           />
         </div>

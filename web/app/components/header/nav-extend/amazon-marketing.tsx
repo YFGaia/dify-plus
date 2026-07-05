@@ -1,12 +1,13 @@
 'use client'
 
-import Link from 'next/link'
-import { useSelectedLayoutSegment } from 'next/navigation'
-import { cn } from '@/utils/classnames'
+import { cn } from '@langgenius/dify-ui/cn'
 import {
   RiAmazonFill,
   RiAmazonLine,
 } from '@remixicon/react'
+import Link from 'next/link'
+import { useSelectedLayoutSegment } from 'next/navigation'
+
 type ExploreNavProps = {
   className?: string
 }
@@ -17,18 +18,21 @@ const AmazonMarketingNav = ({
   const selectedSegment = useSelectedLayoutSegment()
   const activated = selectedSegment === 'amazon-marketing-extend'
   return (
-    <Link href="/amazon-marketing-extend" className={cn(
-      'group text-sm font-medium',
-      activated && 'font-semibold bg-components-main-nav-nav-button-bg-active hover:bg-components-main-nav-nav-button-bg-active-hover shadow-md',
-      activated ? 'text-components-main-nav-nav-button-text-active' : 'text-components-main-nav-nav-button-text hover:bg-components-main-nav-nav-button-bg-hover',
-      className,
-    )}>
+    <Link
+      href="/amazon-marketing-extend"
+      className={cn(
+        'group text-sm font-medium',
+        activated && 'hover:bg-components-main-nav-nav-button-bg-active-hover bg-components-main-nav-nav-button-bg-active font-semibold shadow-md',
+        activated ? 'text-components-main-nav-nav-button-text-active' : 'text-components-main-nav-nav-button-text hover:bg-components-main-nav-nav-button-bg-hover',
+        className,
+      )}
+    >
       {
         activated
-          ? <RiAmazonFill className='mr-2 h-4 w-4' />
-          : <RiAmazonLine className='h-4 w-4' />
+          ? <RiAmazonFill className="mr-2 h-4 w-4" />
+          : <RiAmazonLine className="h-4 w-4" />
       }
-      <span className="text-ellipsis">{'广告运营'}</span>
+      <span className="text-ellipsis">广告运营</span>
     </Link>
   )
 }

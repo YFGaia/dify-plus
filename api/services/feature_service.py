@@ -8,6 +8,7 @@ from flask import has_app_context, has_request_context, request
 from pydantic import BaseModel, ConfigDict, Field
 
 from configs import dify_config
+from constants.dsl_version import CURRENT_APP_DSL_VERSION
 from enums.cloud_plan import CloudPlan
 from enums.hosted_provider import HostedTrialProvider
 
@@ -167,6 +168,7 @@ class PluginManagerModel(BaseModel):
 
 
 class SystemFeatureModel(BaseModel):
+    app_dsl_version: str = ""
     sso_enforced_for_signin: bool = False
     sso_enforced_for_signin_protocol: str = ""
     enable_marketplace: bool = False
@@ -174,6 +176,7 @@ class SystemFeatureModel(BaseModel):
     enable_email_code_login: bool = False
     enable_email_password_login: bool = True
     enable_social_oauth_login: bool = False
+    enable_collaboration_mode: bool = True
     is_allow_register: bool = False
     is_allow_create_workspace: bool = False
     is_email_setup: bool = False
@@ -184,6 +187,7 @@ class SystemFeatureModel(BaseModel):
     enable_change_email: bool = True
     plugin_manager: PluginManagerModel = PluginManagerModel()
     trial_models: list[str] = []
+    enable_creators_platform: bool = False
     enable_trial_app: bool = False
     enable_explore_banner: bool = False
     is_custom_auth2: str = ""  # extend: Customizing AUTH2
@@ -239,12 +243,13 @@ class FeatureService:
     @classmethod
     def get_system_features(cls, is_authenticated: bool = False) -> SystemFeatureModel:
         system_features = SystemFeatureModel()
+        system_features.app_dsl_version = CURRENT_APP_DSL_VERSION
         # extend start: oauth2
         # 检查是否有请求上下文（在 Celery worker 中可能没有）
         if has_request_context():
             api_host = request.host_url
             # 通过nginx代理转发会导致 request.host_url 获取的是内网ip，这个时候使用.env的配置
-            if bool(re.search(r'^(?:[0-9]{1,3}\.){3}[0-9]{1,3}', request.host_url)):
+            if bool(re.search(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}", request.host_url)):
                 api_host = dify_config.CONSOLE_WEB_URL
         else:
             # 没有请求上下文时（如 Celery worker），直接使用配置值
@@ -264,6 +269,9 @@ class FeatureService:
         if dify_config.MARKETPLACE_ENABLED:
             system_features.enable_marketplace = True
 
+        if dify_config.CREATORS_PLATFORM_FEATURES_ENABLED:
+            system_features.enable_creators_platform = True
+
         return system_features
 
     @classmethod
@@ -271,6 +279,7 @@ class FeatureService:
         system_features.enable_email_code_login = dify_config.ENABLE_EMAIL_CODE_LOGIN
         system_features.enable_email_password_login = dify_config.ENABLE_EMAIL_PASSWORD_LOGIN
         system_features.enable_social_oauth_login = dify_config.ENABLE_SOCIAL_OAUTH_LOGIN
+        system_features.enable_collaboration_mode = dify_config.ENABLE_COLLABORATION_MODE
         system_features.is_allow_register = dify_config.ALLOW_REGISTER
         system_features.is_allow_create_workspace = dify_config.ALLOW_CREATE_WORKSPACE
         system_features.is_email_setup = dify_config.MAIL_TYPE is not None and dify_config.MAIL_TYPE != ""
@@ -278,9 +287,16 @@ class FeatureService:
         system_features.enable_trial_app = dify_config.ENABLE_TRIAL_APP
         system_features.enable_explore_banner = dify_config.ENABLE_EXPLORE_BANNER
         # extend start: DingTalk third-party login
-        # 检查是否有应用上下文（访问 db.session 需要应用上下文）
+        # 检查是否有应用上下文（访问 db.session 需要应用上下文）；
+        # db 不可用时（如单测/初始化早期）静默跳过，登录页特性降级为默认值而不是 500
         if has_app_context():
-            for i in db.session.query(SystemIntegrationExtend).filter(SystemIntegrationExtend.status == True).all():
+            try:
+                integrations = (
+                    db.session.query(SystemIntegrationExtend).filter(SystemIntegrationExtend.status == True).all()
+                )
+            except RuntimeError:
+                integrations = []
+            for i in integrations:
                 if i.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK:
                     system_features.ding_talk_client_id = i.app_key
                     system_features.ding_talk_corp_id = i.corp_id
@@ -291,7 +307,8 @@ class FeatureService:
                     system_features.is_custom_auth2 = i.status
                     if "logout_url" in config:
                         system_features.is_custom_auth2_logout = "{}{}".format(
-                            config['server_url'], config['logout_url'])
+                            config["server_url"], config["logout_url"]
+                        )
                     # Extend: OAuth2 Stop
         # extend stop: DingTalk third-party login
 
@@ -325,7 +342,7 @@ class FeatureService:
     def _fulfill_params_from_billing_api(cls, features: FeatureModel, tenant_id: str):
         billing_info = BillingService.get_info(tenant_id)
 
-        features_usage_info = BillingService.get_tenant_feature_plan_usage_info(tenant_id)
+        features_usage_info = BillingService.get_quota_info(tenant_id)
 
         features.billing.enabled = billing_info["enabled"]
         features.billing.subscription.plan = billing_info["subscription"]["plan"]
@@ -356,7 +373,10 @@ class FeatureService:
             features.apps.limit = billing_info["apps"]["limit"]
 
         if "vector_space" in billing_info:
-            features.vector_space.size = billing_info["vector_space"]["size"]
+            # NOTE (hj24): billing API returns vector_space.size as float (e.g. 0.0)
+            # but LimitationModel.size is int; truncate here for compatibility
+            features.vector_space.size = int(billing_info["vector_space"]["size"])
+            # NOTE END
             features.vector_space.limit = billing_info["vector_space"]["limit"]
 
         if "documents_upload_quota" in billing_info:
@@ -377,7 +397,11 @@ class FeatureService:
             features.model_load_balancing_enabled = billing_info["model_load_balancing_enabled"]
 
         if "knowledge_rate_limit" in billing_info:
+            # NOTE (hj24):
+            # 1. knowledge_rate_limit size is nullable, currently it's defined but never used, only limit is used.
+            # 2. So be careful if later we decide to use [size], we cannot assume it is always present.
             features.knowledge_rate_limit = billing_info["knowledge_rate_limit"]["limit"]
+            # NOTE END
 
         if "knowledge_pipeline_publish_enabled" in billing_info:
             features.knowledge_pipeline.publish_enabled = billing_info["knowledge_pipeline_publish_enabled"]

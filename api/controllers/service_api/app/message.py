@@ -1,5 +1,4 @@
 import logging
-from typing import Literal
 
 from flask import request
 from flask_restx import Resource
@@ -7,6 +6,7 @@ from pydantic import BaseModel, Field, TypeAdapter
 from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 
 import services
+from controllers.common.controller_schemas import MessageFeedbackPayload, MessageListQuery
 from controllers.common.schema import register_schema_models
 from controllers.service_api import service_api_ns
 from controllers.service_api.app.error import NotChatAppError
@@ -14,7 +14,6 @@ from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate
 from core.app.entities.app_invoke_entities import InvokeFrom
 from fields.conversation_fields import ResultResponse
 from fields.message_fields import MessageInfiniteScrollPagination, MessageListItem
-from libs.helper import UUIDStrOrEmpty
 from models.enums import FeedbackRating
 from models.model import ApiToken, App, AppMode, EndUser  # extend - 密钥额度限制，新增ApiToken
 from services.errors.message import (
@@ -25,17 +24,6 @@ from services.errors.message import (
 from services.message_service import MessageService
 
 logger = logging.getLogger(__name__)
-
-
-class MessageListQuery(BaseModel):
-    conversation_id: UUIDStrOrEmpty
-    first_id: UUIDStrOrEmpty | None = None
-    limit: int = Field(default=20, ge=1, le=100, description="Number of messages to return")
-
-
-class MessageFeedbackPayload(BaseModel):
-    rating: Literal["like", "dislike"] | None = Field(default=None, description="Feedback rating")
-    content: str | None = Field(default=None, description="Feedback content")
 
 
 class FeedbackListQuery(BaseModel):
@@ -60,7 +48,7 @@ class MessageListApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))
     # extend - 密钥额度限制，新增api_token,否则上传文件会报错
-    def get(self, app_model: App, end_user: EndUser, api_token: ApiToken):
+    def get(self, app_model: App, end_user: EndUser, api_token: ApiToken | None = None):
         """List messages in a conversation.
 
         Retrieves messages with pagination support using first_id.
@@ -105,7 +93,7 @@ class MessageFeedbackApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
     # extend - 密钥额度限制，新增api_token,否则上传文件会报错
-    def post(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken):
+    def post(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken | None = None):
         """Submit feedback for a message.
 
         Allows users to rate messages as like/dislike and provide optional feedback content.
@@ -140,7 +128,7 @@ class AppGetFeedbacksApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
+    def get(self, app_model: App, api_token: ApiToken | None = None):  # extend - 密钥额度限制，新增api_token
         """Get all feedbacks for the application.
 
         Returns paginated list of all feedback submitted for messages in this app.
@@ -166,7 +154,7 @@ class MessageSuggestedApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY, required=True))
     # extend - 密钥额度限制，新增api_token,否则上传文件会报错
-    def get(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken):
+    def get(self, app_model: App, end_user: EndUser, message_id, api_token: ApiToken | None = None):
         """Get suggested follow-up questions for a message.
 
         Returns AI-generated follow-up questions based on the message content.

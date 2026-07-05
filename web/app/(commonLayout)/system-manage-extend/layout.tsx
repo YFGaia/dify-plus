@@ -1,11 +1,11 @@
 'use client'
 
 import type { ReactNode } from 'react'
+import { cn } from '@langgenius/dify-ui/cn'
 import { useTranslation } from 'react-i18next'
 import { useAppContext } from '@/context/app-context'
 import Link from '@/next/link'
 import { useSelectedLayoutSegment } from '@/next/navigation'
-import { cn } from '@/utils/classnames'
 
 type MenuItemType = {
   key: string
@@ -39,6 +39,11 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
       key: 'quota-management',
       label: t('systemManage.menu.quota', { ns: 'extend' }),
       href: '/system-manage-extend/quota-management',
+    },
+    {
+      key: 'code-execution-control',
+      label: t('systemManage.menu.codeExecutionControl', { ns: 'extend' }),
+      href: '/system-manage-extend/code-execution-control',
     },
   ]
 

@@ -6,6 +6,7 @@ Extend: 系统集成管理 Service 层
 import base64
 import json
 import logging
+import re
 import secrets
 import urllib.parse
 from datetime import UTC, datetime
@@ -16,7 +17,8 @@ from Crypto.Util.Padding import pad, unpad
 
 from configs import dify_config
 from extensions.ext_database import db
-from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend
+from extensions.ext_redis import redis_client
+from models.system_extend import CodeExecutionControlExtend, SystemIntegrationClassify, SystemIntegrationExtend
 
 logger = logging.getLogger(__name__)
 
@@ -59,11 +61,7 @@ class SystemIntegrationManageService:
     @staticmethod
     def _get_or_create_record(classify: int) -> SystemIntegrationExtend:
         """获取指定 classify 的配置记录，不存在则创建"""
-        record = (
-            db.session.query(SystemIntegrationExtend)
-            .filter(SystemIntegrationExtend.classify == classify)
-            .first()
-        )
+        record = db.session.query(SystemIntegrationExtend).filter(SystemIntegrationExtend.classify == classify).first()
         if not record:
             record = SystemIntegrationExtend(classify=classify, status=False)
             db.session.add(record)
@@ -326,6 +324,98 @@ class SystemIntegrationManageService:
         db.session.commit()
 
 
+# ==================== 代码执行控制（sandbox-full 授权名单） ====================
+
+# 简单邮箱格式校验：非空本地部分 @ 非空域名（含点）。名单为人工维护的小名单，无需 RFC 级校验。
+_EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+# redis 投影缓存键：JSON 邮箱数组，persistent 无 TTL。
+# 读侧为 core.workflow.nodes.code.control_extend.ExecutionControl.check_code。
+CONTROL_MAIL_CACHE_KEY = "control_mail"
+
+
+class CodeExecutionControlService:
+    """code 节点 sandbox-full 授权名单管理（p5-admin-decommission，替代 GVA SyncExecuteCode 写入链路）。
+
+    数据库表 code_execution_control_extend 是 source of truth；每次写操作在 DB commit 后
+    全量重建 redis 键 control_mail。redis 写失败不回滚 DB，只返回 cache_synced=False
+    （controller 据此在响应中提示重试/重建）。
+    """
+
+    @staticmethod
+    def list_emails() -> list[CodeExecutionControlExtend]:
+        """返回全部授权记录，按 created_at 升序（同刻按 id 保证稳定排序）。"""
+        return (
+            db.session.query(CodeExecutionControlExtend)
+            .order_by(CodeExecutionControlExtend.created_at.asc(), CodeExecutionControlExtend.id.asc())
+            .all()
+        )
+
+    @staticmethod
+    def add_email(email: str, created_by: str | None) -> tuple[CodeExecutionControlExtend, bool]:
+        """添加授权邮箱。
+
+        邮箱先 strip+lower 规范化再校验/查重。格式非法或已存在时抛 ValueError（controller 转 400）。
+        DB commit 后重建 redis 缓存，返回 (记录, cache_synced)。
+        """
+        normalized = (email or "").strip().lower()
+        if not _EMAIL_PATTERN.match(normalized):
+            raise ValueError(f"Invalid email format: {email!r}")
+
+        existing = (
+            db.session.query(CodeExecutionControlExtend).filter(CodeExecutionControlExtend.email == normalized).first()
+        )
+        if existing:
+            raise ValueError(f"Email already exists: {normalized}")
+
+        record = CodeExecutionControlExtend(email=normalized, created_by=created_by)
+        db.session.add(record)
+        db.session.commit()
+        logger.info("Code execution control email added: %s by account %s", normalized, created_by)
+
+        cache_synced = CodeExecutionControlService.rebuild_control_mail_cache()
+        return record, cache_synced
+
+    @staticmethod
+    def remove_email(record_id: str) -> bool:
+        """删除授权记录。记录不存在时抛 ValueError（controller 转 404）。
+
+        DB commit 后重建 redis 缓存，返回 cache_synced。
+        """
+        record = db.session.query(CodeExecutionControlExtend).filter(CodeExecutionControlExtend.id == record_id).first()
+        if not record:
+            raise ValueError(f"Record not found: {record_id}")
+
+        email = record.email
+        db.session.delete(record)
+        db.session.commit()
+        logger.info("Code execution control email removed: %s (record %s)", email, record_id)
+
+        return CodeExecutionControlService.rebuild_control_mail_cache()
+
+    @staticmethod
+    def rebuild_control_mail_cache() -> bool:
+        """幂等重建 redis 投影缓存：DB 全量名单 → SET control_mail <json array>（无 TTL）。
+
+        供写操作、存量数据迁移命令与故障恢复复用。redis 异常时记 error 日志并返回 False，
+        不抛出（DB 已 commit 的写入不回滚，名单以 DB 为准，可重跑本方法收敛）。
+        """
+        emails = [
+            row.email
+            for row in db.session.query(CodeExecutionControlExtend.email)
+            .order_by(CodeExecutionControlExtend.created_at.asc(), CodeExecutionControlExtend.id.asc())
+            .all()
+        ]
+        try:
+            redis_client.set(CONTROL_MAIL_CACHE_KEY, json.dumps(emails))
+        except Exception:
+            # 广捕获以保证「绝不因缓存同步中断管理写路径」的契约；redis 客户端异常类型
+            # 因部署形态（哨兵/集群/单机）而异，精确列举易漏。
+            logger.exception("Failed to rebuild %s cache in redis; DB is source of truth", CONTROL_MAIL_CACHE_KEY)
+            return False
+        return True
+
+
 # ==================== 用户额度管理 ====================
 
 
@@ -347,17 +437,13 @@ class QuotaManageService:
         page_size = max(1, min(100, page_size))
         offset = (page - 1) * page_size
 
-        query = db.session.query(AccountMoneyExtend).order_by(
-            AccountMoneyExtend.used_quota.desc()
-        )
+        query = db.session.query(AccountMoneyExtend).order_by(AccountMoneyExtend.used_quota.desc())
 
         # keyword 过滤：先从 accounts 查匹配 account_id，再筛选
         if keyword and keyword.strip():
             kw = f"%{keyword.strip()}%"
             matched_ids = (
-                db.session.query(Account.id)
-                .filter(or_(Account.name.ilike(kw), Account.email.ilike(kw)))
-                .all()
+                db.session.query(Account.id).filter(or_(Account.name.ilike(kw), Account.email.ilike(kw))).all()
             )
             id_list = [str(row.id) for row in matched_ids]
             if id_list:
@@ -373,11 +459,7 @@ class QuotaManageService:
         account_ids = [r.account_id for r in rows]
         accounts: dict = {}
         if account_ids:
-            accs = (
-                db.session.query(Account)
-                .filter(Account.id.in_(account_ids))
-                .all()
-            )
+            accs = db.session.query(Account).filter(Account.id.in_(account_ids)).all()
             accounts = {str(a.id): a for a in accs}
 
         result = []

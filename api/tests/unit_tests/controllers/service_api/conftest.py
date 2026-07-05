@@ -15,7 +15,16 @@ from flask import Flask
 from core.rag.index_processor.constant.index_type import IndexStructureType
 from models.account import TenantStatus
 from models.model import App, AppMode, EndUser
-from tests.unit_tests.conftest import setup_mock_tenant_account_query
+from tests.unit_tests.conftest import (
+    setup_mock_dataset_owner_execute_result,
+    setup_mock_tenant_owner_execute_result,
+)
+
+
+@pytest.fixture(autouse=True)
+def _bypass_token_quota_extend(monkeypatch: pytest.MonkeyPatch):
+    """extend: 单测统一绕过 fork 的密钥额度前置校验（额度校验逻辑有专属用例覆盖）。"""
+    monkeypatch.setattr("controllers.service_api.wraps.validate_token_quota_extend", lambda api_token: None)
 
 
 @pytest.fixture
@@ -119,16 +128,11 @@ class AuthenticationMocker:
 
     @staticmethod
     def setup_db_queries(mock_db, mock_app, mock_tenant, mock_account=None):
-        """Configure mock_db to return app and tenant in sequence."""
-        mock_db.session.query.return_value.where.return_value.first.side_effect = [
-            mock_app,
-            mock_tenant,
-        ]
+        """Configure mock_db to return app and tenant via session.get()."""
+        mock_db.session.get.side_effect = [mock_app, mock_tenant]
 
         if mock_account:
-            mock_ta = Mock()
-            mock_ta.account_id = mock_account.id
-            setup_mock_tenant_account_query(mock_db, mock_tenant, mock_ta)
+            setup_mock_tenant_owner_execute_result(mock_db, mock_tenant, mock_account)
 
     @staticmethod
     def setup_dataset_auth(mock_db, mock_tenant, mock_account):
@@ -136,11 +140,8 @@ class AuthenticationMocker:
         mock_ta = Mock()
         mock_ta.account_id = mock_account.id
 
-        mock_query = mock_db.session.query.return_value
-        target_mock = mock_query.where.return_value.where.return_value.where.return_value.where.return_value
-        target_mock.one_or_none.return_value = (mock_tenant, mock_ta)
-
-        mock_db.session.query.return_value.where.return_value.first.return_value = mock_account
+        setup_mock_dataset_owner_execute_result(mock_db, mock_tenant, mock_ta)
+        mock_db.session.get.return_value = mock_account
 
 
 @pytest.fixture

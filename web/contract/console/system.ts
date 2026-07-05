@@ -7,7 +7,6 @@ export const systemFeaturesContract = base
     path: '/system-features',
     method: 'GET',
   })
-  .input(type<unknown>())
   .output(type<SystemFeatures>())
 
 // extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的

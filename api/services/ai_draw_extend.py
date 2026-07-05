@@ -77,10 +77,8 @@ class AiDrawForwarding:
         address = {}
         for i in db.session.query(ForwardingExtend).all():
             # 1. 替换 https://  http:// :8000
-            url = i.address.replace('https://', '', 1).replace('http://', '', 1).replace(':8000', '', 1)
+            url = i.address.replace("https://", "", 1).replace("http://", "", 1).replace(":8000", "", 1)
             # 2. 移除末尾的/（如果有）
-            url = url.rstrip('/')
+            url = url.rstrip("/")
             address[url] = i.path
         return address
-
-

@@ -1,11 +1,9 @@
 import logging
 import urllib.parse
-from typing import Optional  # Extend: OAuto third-party login
 
 import httpx
 from flask import current_app, redirect, request
 from flask_restx import Resource
-from sqlalchemy.orm import sessionmaker
 from werkzeug.exceptions import Unauthorized
 
 from configs import dify_config
@@ -14,7 +12,14 @@ from events.tenant_event import tenant_was_created
 from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
 from libs.helper import extract_remote_ip
-from libs.oauth import GitHubOAuth, GoogleOAuth, OaOAuth, OAuthUserInfo  # Extend: OAuto third-party login
+from libs.helper import timezone as validate_timezone_string
+from libs.oauth import (  # Extend: OAuto third-party login (OaOAuth)
+    GitHubOAuth,
+    GoogleOAuth,
+    OaOAuth,
+    OAuthUserInfo,
+    decode_oauth_state,
+)
 from libs.token import (
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,
@@ -51,10 +56,35 @@ def get_oauth_providers():
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
 
-        oauth2 = OaOAuth(client_id='', client_secret='', redirect_uri='')  # Extend: oauth2
+        oauth2 = OaOAuth(client_id="", client_secret="", redirect_uri="")  # Extend: oauth2
 
         OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth, "oauth2": oauth2}
         return OAUTH_PROVIDERS
+
+
+def _validated_timezone(value: str | None) -> str | None:
+    if not value:
+        return None
+    try:
+        return validate_timezone_string(value)
+    except ValueError:
+        return None
+
+
+def _validated_language(value: str | None) -> str | None:
+    if value and value in languages:
+        return value
+    return None
+
+
+def _preferred_interface_language(language: str | None = None) -> str:
+    if language:
+        return language
+
+    preferred_lang = request.accept_languages.best_match(languages)
+    if preferred_lang and preferred_lang in languages:
+        return preferred_lang
+    return languages[0]
 
 
 @console_ns.route("/oauth/login/<provider>")
@@ -68,13 +98,19 @@ class OAuthLogin(Resource):
     @console_ns.response(400, "Invalid provider")
     def get(self, provider: str):
         invite_token = request.args.get("invite_token") or None
+        timezone = _validated_timezone(request.args.get("timezone") or None)
+        language = _validated_language(request.args.get("language") or None)
         OAUTH_PROVIDERS = get_oauth_providers()
         with current_app.app_context():
             oauth_provider = OAUTH_PROVIDERS.get(provider)
         if not oauth_provider:
             return {"error": "Invalid provider"}, 400
 
-        auth_url = oauth_provider.get_authorization_url(invite_token=invite_token)
+        auth_url = oauth_provider.get_authorization_url(
+            invite_token=invite_token,
+            timezone=timezone,
+            language=language,
+        )
         return redirect(auth_url)
 
 
@@ -104,7 +140,7 @@ class OAuthCallback(Resource):
         state = request.args.get("state")
         # Extend: Start 兼容casdoor
         # Fallback: some providers may return tokens directly in query (implicit/hybrid flow)
-        token_from_query: Optional[str] = None
+        token_from_query: str | None = None
         if not code:
             token_from_query = request.args.get("access_token")
             if token_from_query:
@@ -119,11 +155,12 @@ class OAuthCallback(Resource):
             else:
                 return {"error": "Missing authorization code"}, 400
         # Extend: Stop 兼容casdoor
-        invite_token = None
-        if state:
-            invite_token = state
+        oauth_state = decode_oauth_state(state)
+        invite_token = oauth_state.get("invite_token")
+        timezone = _validated_timezone(oauth_state.get("timezone"))
+        language = _validated_language(oauth_state.get("language"))
 
-        if not code:
+        if not code and token_from_query is None:
             return {"error": "Authorization code is required"}, 400
 
         try:
@@ -167,7 +204,7 @@ class OAuthCallback(Resource):
             return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin/invite-settings?invite_token={invite_token}")
 
         try:
-            account, oauth_new_user = _generate_account(provider, user_info)
+            account, oauth_new_user = _generate_account(provider, user_info, timezone=timezone, language=language)
         except AccountNotFoundError:
             return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Account not found.")
         except (WorkSpaceNotFoundError, WorkSpaceNotAllowedCreateError):
@@ -218,13 +255,17 @@ def _get_account_by_openid_or_email(provider: str, user_info: OAuthUserInfo) -> 
     account: Account | None = Account.get_by_openid(provider, user_info.id)
 
     if not account:
-        with sessionmaker(db.engine).begin() as session:
-            account = AccountService.get_account_by_email_with_case_fallback(user_info.email, session=session)
+        account = AccountService.get_account_by_email_with_case_fallback(user_info.email)
 
     return account
 
 
-def _generate_account(provider: str, user_info: OAuthUserInfo) -> tuple[Account, bool]:
+def _generate_account(
+    provider: str,
+    user_info: OAuthUserInfo,
+    timezone: str | None = None,
+    language: str | None = None,
+) -> tuple[Account, bool]:
     # Get account by openid or email.
     account = _get_account_by_openid_or_email(provider, user_info)
     oauth_new_user = False
@@ -251,25 +292,18 @@ def _generate_account(provider: str, user_info: OAuthUserInfo) -> tuple[Account,
                         "30 days and is temporarily unavailable for new account registration"
                     )
                 )
-            else:
-                raise AccountRegisterError(description=("Invalid email or password"))
+            raise AccountRegisterError(description=("Invalid email or password"))
         account_name = user_info.name or "Dify"
+        interface_language = _preferred_interface_language(language)
         account = RegisterService.register(
             email=normalized_email,
             name=account_name,
             password=None,
             open_id=user_info.id,
             provider=provider,
+            language=interface_language,
+            timezone=timezone,
         )
-
-        # Set interface language
-        preferred_lang = request.accept_languages.best_match(languages)
-        if preferred_lang and preferred_lang in languages:
-            interface_language = preferred_lang
-        else:
-            interface_language = languages[0]
-        account.interface_language = interface_language
-        db.session.commit()
 
     # Link account
     AccountService.link_account_integrate(provider, user_info.id, account)

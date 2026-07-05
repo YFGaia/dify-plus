@@ -1,8 +1,8 @@
 'use client'
 
+import { toast } from '@langgenius/dify-ui/toast'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Toast from '@/app/components/base/toast'
 import { testEmailApi } from '@/service/system-manage-extend'
 
 const EmailApiConfig = () => {
@@ -13,19 +13,19 @@ const EmailApiConfig = () => {
 
   const handleTest = async () => {
     if (!url.trim()) {
-      Toast.notify({ type: 'error', message: 'API URL is required' })
+      toast.error('API URL is required')
       return
     }
     try {
       setTesting(true)
       const result = await testEmailApi(url, key)
       if (result.result === 'success')
-        Toast.notify({ type: 'success', message: t('systemManage.common.testSuccess', { ns: 'extend' }) })
+        toast.success(t('systemManage.common.testSuccess', { ns: 'extend' }))
       else
-        Toast.notify({ type: 'error', message: result.message || t('systemManage.common.testFailed', { ns: 'extend' }) })
+        toast.error(result.message || t('systemManage.common.testFailed', { ns: 'extend' }))
     }
     catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || t('systemManage.common.testFailed', { ns: 'extend' }) })
+      toast.error(e.message || t('systemManage.common.testFailed', { ns: 'extend' }))
     }
     finally {
       setTesting(false)

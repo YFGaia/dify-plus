@@ -3,8 +3,10 @@ FROM python:3.12-slim-bookworm AS base
 
 WORKDIR /app/api
 
-# Configure aliyun mirrors now so pip/apt works in this stage too
-RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+# Install uv
+ENV UV_VERSION=0.8.9
+
+RUN pip install --no-cache-dir uv==${UV_VERSION}
 
 
 FROM base AS packages
@@ -19,12 +21,13 @@ RUN apt-get update \
           # for building gmpy2
           libmpfr-dev libmpc-dev
 
-# Install Python dependencies via pip (pre-generated from uv.lock via `uv export`)
-COPY requirements.docker.txt ./
-RUN pip install --no-cache-dir \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -r requirements.docker.txt
+# Install Python dependencies (workspace members under providers/vdb/)
+COPY pyproject.toml uv.lock ./
+COPY providers ./providers
+# Trust the checked-in lock during image builds; dev-only path sources live outside the api/ context.
+# Use aliyun pypi mirror to speed up dependency downloads in China
+ENV UV_DEFAULT_INDEX=https://mirrors.aliyun.com/pypi/simple/
+RUN uv sync --frozen --no-dev
 
 # production stage
 FROM base AS production

@@ -1,9 +1,9 @@
 'use client'
 import type { UserMoney } from '@/models/common-extend'
+import { cn } from '@langgenius/dify-ui/cn'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchUserMoney } from '@/service/common-extend'
-import { cn } from '@/utils/classnames'
 
 const AccountMoneyExtend = () => {
   const [userMoney, setUserMoney] = useState<UserMoney>({ used_quota: 0, total_quota: 0 })

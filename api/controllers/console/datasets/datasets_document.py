@@ -3,18 +3,19 @@ import logging
 from argparse import ArgumentTypeError
 from collections.abc import Sequence
 from contextlib import ExitStack
+from datetime import datetime
 from typing import Any, Literal, cast
-from uuid import UUID
 
 import sqlalchemy as sa
 from flask import request, send_file
-from flask_restx import Resource, fields, marshal, marshal_with
-from pydantic import BaseModel, Field
+from flask_restx import Resource, marshal
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import asc, desc, func, select
 from werkzeug.exceptions import Forbidden, NotFound
 
 import services
-from controllers.common.schema import get_or_create_model, register_schema_models
+from controllers.common.controller_schemas import DocumentBatchDownloadZipPayload
+from controllers.common.schema import register_schema_models
 from controllers.console import console_ns
 from core.errors.error import (
     LLMBadRequestError,
@@ -28,18 +29,17 @@ from core.plugin.impl.exc import PluginDaemonClientSideError
 from core.rag.extractor.entity.datasource_type import DatasourceType
 from core.rag.extractor.entity.extract_setting import ExtractSetting, NotionInfo, WebsiteInfo
 from core.rag.index_processor.constant.index_type import IndexTechniqueType
-from dify_graph.model_runtime.entities.model_entities import ModelType
-from dify_graph.model_runtime.errors.invoke import InvokeAuthorizationError
 from extensions.ext_database import db
-from fields.dataset_fields import dataset_fields
+from fields.base import ResponseModel
 from fields.document_fields import (
-    dataset_and_document_fields,
     document_fields,
-    document_metadata_fields,
     document_status_fields,
     document_with_segments_fields,
 )
+from graphon.model_runtime.entities.model_entities import ModelType
+from graphon.model_runtime.errors.invoke import InvokeAuthorizationError
 from libs.datetime_utils import naive_utc_now
+from libs.helper import to_timestamp
 from libs.login import current_account_with_tenant, login_required
 from models import DatasetProcessRule, Document, DocumentSegment, UploadFile
 from models.dataset import DocumentPipelineExecutionLog
@@ -71,31 +71,95 @@ from ..wraps import (
 
 logger = logging.getLogger(__name__)
 
-# NOTE: Keep constants near the top of the module for discoverability.
-DOCUMENT_BATCH_DOWNLOAD_ZIP_MAX_DOCS = 100
+
+def _normalize_enum(value: Any) -> Any:
+    if isinstance(value, str) or value is None:
+        return value
+    return getattr(value, "value", value)
 
 
-# Register models for flask_restx to avoid dict type issues in Swagger
-dataset_model = get_or_create_model("Dataset", dataset_fields)
+class DatasetResponse(ResponseModel):
+    id: str
+    name: str
+    description: str | None = None
+    permission: str | None = None
+    data_source_type: str | None = None
+    indexing_technique: str | None = None
+    created_by: str | None = None
+    created_at: int | None = None
 
-document_metadata_model = get_or_create_model("DocumentMetadata", document_metadata_fields)
+    @field_validator("data_source_type", "indexing_technique", mode="before")
+    @classmethod
+    def _normalize_enum_fields(cls, value: Any) -> Any:
+        return _normalize_enum(value)
 
-document_fields_copy = document_fields.copy()
-document_fields_copy["doc_metadata"] = fields.List(
-    fields.Nested(document_metadata_model), attribute="doc_metadata_details"
-)
-document_model = get_or_create_model("Document", document_fields_copy)
+    @field_validator("created_at", mode="before")
+    @classmethod
+    def _normalize_timestamp(cls, value: datetime | int | None) -> int | None:
+        return to_timestamp(value)
 
-document_with_segments_fields_copy = document_with_segments_fields.copy()
-document_with_segments_fields_copy["doc_metadata"] = fields.List(
-    fields.Nested(document_metadata_model), attribute="doc_metadata_details"
-)
-document_with_segments_model = get_or_create_model("DocumentWithSegments", document_with_segments_fields_copy)
 
-dataset_and_document_fields_copy = dataset_and_document_fields.copy()
-dataset_and_document_fields_copy["dataset"] = fields.Nested(dataset_model)
-dataset_and_document_fields_copy["documents"] = fields.List(fields.Nested(document_model))
-dataset_and_document_model = get_or_create_model("DatasetAndDocument", dataset_and_document_fields_copy)
+class DocumentMetadataResponse(ResponseModel):
+    id: str
+    name: str
+    type: str
+    value: str | None = None
+
+
+class DocumentResponse(ResponseModel):
+    id: str
+    position: int | None = None
+    data_source_type: str | None = None
+    data_source_info: Any = Field(default=None, validation_alias="data_source_info_dict")
+    data_source_detail_dict: Any = None
+    dataset_process_rule_id: str | None = None
+    name: str
+    created_from: str | None = None
+    created_by: str | None = None
+    created_at: int | None = None
+    tokens: int | None = None
+    indexing_status: str | None = None
+    error: str | None = None
+    enabled: bool | None = None
+    disabled_at: int | None = None
+    disabled_by: str | None = None
+    archived: bool | None = None
+    display_status: str | None = None
+    word_count: int | None = None
+    hit_count: int | None = None
+    doc_form: str | None = None
+    doc_metadata: list[DocumentMetadataResponse] = Field(default_factory=list, validation_alias="doc_metadata_details")
+    summary_index_status: str | None = None
+    need_summary: bool | None = None
+
+    @field_validator("data_source_type", "indexing_status", "display_status", "doc_form", mode="before")
+    @classmethod
+    def _normalize_enum_fields(cls, value: Any) -> Any:
+        return _normalize_enum(value)
+
+    @field_validator("doc_metadata", mode="before")
+    @classmethod
+    def _normalize_doc_metadata(cls, value: Any) -> list[Any]:
+        if value is None:
+            return []
+        return value
+
+    @field_validator("created_at", "disabled_at", mode="before")
+    @classmethod
+    def _normalize_timestamp(cls, value: datetime | int | None) -> int | None:
+        return to_timestamp(value)
+
+
+class DocumentWithSegmentsResponse(DocumentResponse):
+    process_rule_dict: Any = None
+    completed_segments: int | None = None
+    total_segments: int | None = None
+
+
+class DatasetAndDocumentResponse(ResponseModel):
+    dataset: DatasetResponse
+    documents: list[DocumentResponse]
+    batch: str
 
 
 class DocumentRetryPayload(BaseModel):
@@ -110,10 +174,9 @@ class GenerateSummaryPayload(BaseModel):
     document_list: list[str]
 
 
-class DocumentBatchDownloadZipPayload(BaseModel):
-    """Request payload for bulk downloading documents as a zip archive."""
-
-    document_ids: list[UUID] = Field(..., min_length=1, max_length=DOCUMENT_BATCH_DOWNLOAD_ZIP_MAX_DOCS)
+class DocumentMetadataUpdatePayload(BaseModel):
+    doc_type: str | None = None
+    doc_metadata: Any = None
 
 
 class DocumentDatasetListParam(BaseModel):
@@ -133,7 +196,13 @@ register_schema_models(
     DocumentRetryPayload,
     DocumentRenamePayload,
     GenerateSummaryPayload,
+    DocumentMetadataUpdatePayload,
     DocumentBatchDownloadZipPayload,
+    DatasetResponse,
+    DocumentMetadataResponse,
+    DocumentResponse,
+    DocumentWithSegmentsResponse,
+    DatasetAndDocumentResponse,
 )
 
 
@@ -280,7 +349,7 @@ class DatasetDocumentListApi(Resource):
         except services.errors.account.NoPermissionError as e:
             raise Forbidden(str(e))
 
-        query = select(Document).filter_by(dataset_id=str(dataset_id), tenant_id=current_tenant_id)
+        query = select(Document).where(Document.dataset_id == str(dataset_id), Document.tenant_id == current_tenant_id)
 
         if status:
             query = DocumentService.apply_display_status_filter(query, status)
@@ -295,28 +364,31 @@ class DatasetDocumentListApi(Resource):
         else:
             sort_logic = asc
 
-        if sort == "hit_count":
-            sub_query = (
-                sa.select(DocumentSegment.document_id, sa.func.sum(DocumentSegment.hit_count).label("total_hit_count"))
-                .where(DocumentSegment.dataset_id == str(dataset_id))
-                .group_by(DocumentSegment.document_id)
-                .subquery()
-            )
+        match sort:
+            case "hit_count":
+                sub_query = (
+                    sa.select(
+                        DocumentSegment.document_id, sa.func.sum(DocumentSegment.hit_count).label("total_hit_count")
+                    )
+                    .where(DocumentSegment.dataset_id == str(dataset_id))
+                    .group_by(DocumentSegment.document_id)
+                    .subquery()
+                )
 
-            query = query.outerjoin(sub_query, sub_query.c.document_id == Document.id).order_by(
-                sort_logic(sa.func.coalesce(sub_query.c.total_hit_count, 0)),
-                sort_logic(Document.position),
-            )
-        elif sort == "created_at":
-            query = query.order_by(
-                sort_logic(Document.created_at),
-                sort_logic(Document.position),
-            )
-        else:
-            query = query.order_by(
-                desc(Document.created_at),
-                desc(Document.position),
-            )
+                query = query.outerjoin(sub_query, sub_query.c.document_id == Document.id).order_by(
+                    sort_logic(sa.func.coalesce(sub_query.c.total_hit_count, 0)),
+                    sort_logic(Document.position),
+                )
+            case "created_at":
+                query = query.order_by(
+                    sort_logic(Document.created_at),
+                    sort_logic(Document.position),
+                )
+            case _:
+                query = query.order_by(
+                    desc(Document.created_at),
+                    desc(Document.position),
+                )
 
         paginated_documents = db.paginate(select=query, page=page, per_page=limit, max_per_page=100, error_out=False)
         documents = paginated_documents.items
@@ -366,10 +438,10 @@ class DatasetDocumentListApi(Resource):
     @setup_required
     @login_required
     @account_initialization_required
-    @marshal_with(dataset_and_document_model)
     @cloud_edition_billing_resource_check("vector_space")
     @cloud_edition_billing_rate_limit_check("knowledge")
     @console_ns.expect(console_ns.models[KnowledgeConfig.__name__])
+    @console_ns.response(200, "Documents created successfully", console_ns.models[DatasetAndDocumentResponse.__name__])
     def post(self, dataset_id):
         current_user, _ = current_account_with_tenant()
         dataset_id = str(dataset_id)
@@ -407,7 +479,9 @@ class DatasetDocumentListApi(Resource):
         except ModelCurrentlyNotSupportError:
             raise ProviderModelCurrentlyNotSupportError()
 
-        return {"dataset": dataset, "documents": documents, "batch": batch}
+        return DatasetAndDocumentResponse.model_validate(
+            {"dataset": dataset, "documents": documents, "batch": batch}, from_attributes=True
+        ).model_dump(mode="json")
 
     @setup_required
     @login_required
@@ -435,12 +509,13 @@ class DatasetInitApi(Resource):
     @console_ns.doc("init_dataset")
     @console_ns.doc(description="Initialize dataset with documents")
     @console_ns.expect(console_ns.models[KnowledgeConfig.__name__])
-    @console_ns.response(201, "Dataset initialized successfully", dataset_and_document_model)
+    @console_ns.response(
+        201, "Dataset initialized successfully", console_ns.models[DatasetAndDocumentResponse.__name__]
+    )
     @console_ns.response(400, "Invalid request parameters")
     @setup_required
     @login_required
     @account_initialization_required
-    @marshal_with(dataset_and_document_model)
     @cloud_edition_billing_resource_check("vector_space")
     @cloud_edition_billing_rate_limit_check("knowledge")
     def post(self):
@@ -454,7 +529,7 @@ class DatasetInitApi(Resource):
             if knowledge_config.embedding_model is None or knowledge_config.embedding_model_provider is None:
                 raise ValueError("embedding model and embedding model provider are required for high quality indexing.")
             try:
-                model_manager = ModelManager()
+                model_manager = ModelManager.for_tenant(tenant_id=current_tenant_id)
                 model_manager.get_model_instance(
                     tenant_id=current_tenant_id,
                     provider=knowledge_config.embedding_model_provider,
@@ -488,9 +563,9 @@ class DatasetInitApi(Resource):
         except ModelCurrentlyNotSupportError:
             raise ProviderModelCurrentlyNotSupportError()
 
-        response = {"dataset": dataset, "documents": documents, "batch": batch}
-
-        return response
+        return DatasetAndDocumentResponse.model_validate(
+            {"dataset": dataset, "documents": documents, "batch": batch}, from_attributes=True
+        ).model_dump(mode="json")
 
 
 @console_ns.route("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/indexing-estimate")
@@ -997,15 +1072,7 @@ class DocumentMetadataApi(DocumentResource):
     @console_ns.doc("update_document_metadata")
     @console_ns.doc(description="Update document metadata")
     @console_ns.doc(params={"dataset_id": "Dataset ID", "document_id": "Document ID"})
-    @console_ns.expect(
-        console_ns.model(
-            "UpdateDocumentMetadataRequest",
-            {
-                "doc_type": fields.String(description="Document type"),
-                "doc_metadata": fields.Raw(description="Document metadata"),
-            },
-        )
-    )
+    @console_ns.expect(console_ns.models[DocumentMetadataUpdatePayload.__name__])
     @console_ns.response(200, "Document metadata updated successfully")
     @console_ns.response(404, "Document not found")
     @console_ns.response(403, "Permission denied")
@@ -1018,10 +1085,10 @@ class DocumentMetadataApi(DocumentResource):
         document_id = str(document_id)
         document = self.get_document(dataset_id, document_id)
 
-        req_data = request.get_json()
+        req_data = DocumentMetadataUpdatePayload.model_validate(request.get_json() or {})
 
-        doc_type = req_data.get("doc_type")
-        doc_metadata = req_data.get("doc_metadata")
+        doc_type = req_data.doc_type
+        doc_metadata = req_data.doc_metadata
 
         # The role of the current user in the ta table must be admin, owner, dataset_operator, or editor
         if not current_user.is_dataset_editor:
@@ -1035,7 +1102,7 @@ class DocumentMetadataApi(DocumentResource):
 
         if not isinstance(doc_metadata, dict):
             raise ValueError("doc_metadata must be a dictionary.")
-        metadata_schema: dict = cast(dict, DocumentService.DOCUMENT_METADATA_SCHEMA[doc_type])
+        metadata_schema: dict[str, Any] = cast(dict[str, Any], DocumentService.DOCUMENT_METADATA_SCHEMA[doc_type])
 
         document.doc_metadata = {}
         if doc_type == "others":
@@ -1203,7 +1270,7 @@ class DocumentRenameApi(DocumentResource):
     @setup_required
     @login_required
     @account_initialization_required
-    @marshal_with(document_model)
+    @console_ns.response(200, "Document renamed successfully", console_ns.models[DocumentResponse.__name__])
     @console_ns.expect(console_ns.models[DocumentRenamePayload.__name__])
     def post(self, dataset_id, document_id):
         # The role of the current user in the ta table must be admin, owner, editor, or dataset_operator
@@ -1221,7 +1288,7 @@ class DocumentRenameApi(DocumentResource):
         except services.errors.document.DocumentIndexingError:
             raise DocumentIndexingError("Cannot delete document during indexing.")
 
-        return document
+        return DocumentResponse.model_validate(document, from_attributes=True).model_dump(mode="json")
 
 
 @console_ns.route("/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/website-sync")

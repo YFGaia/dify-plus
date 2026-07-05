@@ -1,8 +1,9 @@
+import { cn } from '@langgenius/dify-ui/cn'
 import React, { useState } from 'react'
-import { ReactMultiEmail, isEmail } from 'react-multi-email'
-import 'react-multi-email/dist/style.css'
-import { cn } from '@/utils/classnames'
+import { useTranslation } from 'react-i18next'
+import { isEmail, ReactMultiEmail } from 'react-multi-email'
 import s from './index.module.css'
+import 'react-multi-email/dist/style.css'
 
 type CustomEmailInputProps = {
   emails: string[]
@@ -12,6 +13,7 @@ type CustomEmailInputProps = {
 }
 
 const CustomEmailInput: React.FC<CustomEmailInputProps> = ({ emails, onChange, className, placeholder }) => {
+  const { t } = useTranslation()
   const [inputValue, setInputValue] = useState<string>('')
   const defaultDomain = process.env.NEXT_PUBLIC_DEFAULT_DOMAIN
 
@@ -42,24 +44,32 @@ const CustomEmailInput: React.FC<CustomEmailInputProps> = ({ emails, onChange, c
   return (
     <ReactMultiEmail
       className={cn(
-        'w-full pt-2 px-3 outline-none border-none',
-        'appearance-none text-sm text-gray-900 rounded-lg overflow-y-auto',
+        'w-full border-none px-3 pt-2 outline-none',
+        'appearance-none overflow-y-auto rounded-lg text-sm text-gray-900',
         s.emailsInput,
         className,
       )}
       autoFocus
       emails={emails}
       allowDuplicate={false}
-      inputClassName='bg-transparent'
+      inputClassName="bg-transparent"
       onChange={onChange}
-      autoComplete={'on'}
+      autoComplete="on"
       onBlur={setBlur}
       onChangeInput={setInputValue}
       initialInputValue={inputValue}
       getLabel={(email: string, index: number, removeEmail: (index: number) => void) => (
-        <div data-tag key={index} className='!bg-components-button-secondary-bg'>
+        <div data-tag key={index} className="bg-components-button-secondary-bg!">
           <div data-tag-item>{email}</div>
-          <span data-tag-handle onClick={() => removeEmail(index)}>×</span>
+          <button
+            type="button"
+            data-tag-handle
+            aria-label={`${t('operation.remove', { ns: 'common' })} ${email}`}
+            className="border-none bg-transparent p-0 text-inherit"
+            onClick={() => removeEmail(index)}
+          >
+            ×
+          </button>
         </div>
       )}
       onKeyDown={handleKeyDown}

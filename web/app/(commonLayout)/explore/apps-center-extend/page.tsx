@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useEffect } from 'react'
 import AppListCenter from '@/app/components/explore/app-list-center-extend'
 
 const Apps = () => {

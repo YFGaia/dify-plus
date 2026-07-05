@@ -31,6 +31,8 @@ class AppExtend(db.Model):
     id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
     app_id = db.Column(StringUUID, nullable=False)
     retention_number = db.Column(db.Integer, nullable=True)
+
+
 # Extend: 记忆上下文功能
 
 
@@ -47,4 +49,6 @@ class MessageContextExtend(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, server_default=db.text("CURRENT_TIMESTAMP(0)"))
     conversation_id = db.Column(db.String(36), nullable=True)
     message_id = db.Column(db.String(36), nullable=False)
+
+
 # Extend: 消息上下文分割功能

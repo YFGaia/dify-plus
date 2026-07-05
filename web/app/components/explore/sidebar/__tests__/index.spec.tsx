@@ -43,7 +43,7 @@ vi.mock('@/context/app-context', () => ({
 
 vi.mock('@/service/use-explore', () => ({
   useGetInstalledApps: () => ({
-    isFetching: mockIsPending,
+    isPending: mockIsPending,
     data: { installed_apps: mockInstalledApps },
   }),
   useUninstallApp: () => ({
@@ -55,8 +55,8 @@ vi.mock('@/service/use-explore', () => ({
   }),
 }))
 
-vi.mock('@/app/components/base/ui/toast', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/app/components/base/ui/toast')>()
+vi.mock('@langgenius/dify-ui/toast', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@langgenius/dify-ui/toast')>()
   return {
     ...actual,
     toast: {

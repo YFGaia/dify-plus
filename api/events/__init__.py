@@ -67,13 +67,13 @@ class Events:
                 self.__events__ = events
 
     def __getattr__(self, name: str):
-        if name.startswith('__'):
+        if name.startswith("__"):
             raise AttributeError(f"type object '{self.__class__.__name__}' has no attribute '{name}'")
 
-        if hasattr(self, '__events__') and name not in self.__events__:
+        if hasattr(self, "__events__") and name not in self.__events__:
             raise EventsException(f"Event '{name}' is not declared")
 
-        if hasattr(self.__class__, '__events__') and name not in self.__class__.__events__:
+        if hasattr(self.__class__, "__events__") and name not in self.__class__.__events__:
             raise EventsException(f"Event '{name}' is not declared")
 
         self.__dict__[name] = event = self.__event_slot_cls__(name)
@@ -83,7 +83,7 @@ class Events:
         return self.__dict__[item]
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}>'
+        return f"<{self.__class__.__module__}.{self.__class__.__name__} object at {hex(id(self))}>"
 
     __str__ = __repr__
 
@@ -102,6 +102,6 @@ class Events:
 
 
 __all__ = [
-    'Events',
-    'EventsException',
+    "Events",
+    "EventsException",
 ]

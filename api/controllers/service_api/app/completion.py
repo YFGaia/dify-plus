@@ -28,7 +28,7 @@ from core.errors.error import (
     QuotaExceededError,
 )
 from core.helper.trace_id_helper import get_external_trace_id
-from dify_graph.model_runtime.errors.invoke import InvokeError
+from graphon.model_runtime.errors.invoke import InvokeError
 from libs import helper
 from libs.helper import UUIDStrOrEmpty
 from models.model import ApiToken, App, AppMode, EndUser  # extend: 密钥额度限制，新增ApiToken
@@ -93,7 +93,9 @@ class CompletionApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # extend: 密钥额度限制，新增api_token
+    def post(
+        self, app_model: App, end_user: EndUser, api_token: ApiToken | None = None
+    ):  # extend: 密钥额度限制，新增api_token
         """Create a completion for the given prompt.
 
         This endpoint generates a completion based on the provided inputs and query.
@@ -162,7 +164,7 @@ class CompletionStopApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
     # extend - 密钥额度限制，新增api_token
-    def post(self, app_model: App, end_user: EndUser, task_id: str, api_token: ApiToken):
+    def post(self, app_model: App, end_user: EndUser, task_id: str, api_token: ApiToken | None = None):
         """Stop a running completion task."""
         if app_model.mode != AppMode.COMPLETION:
             raise AppUnavailableError()
@@ -193,7 +195,9 @@ class ChatApi(Resource):
         }
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):  # 二开部分End - 密钥额度限制，新增api_token
+    def post(
+        self, app_model: App, end_user: EndUser, api_token: ApiToken | None = None
+    ):  # 二开部分End - 密钥额度限制，新增api_token
         """Send a message in a chat conversation.
 
         This endpoint handles chat messages for chat, agent chat, and advanced chat applications.

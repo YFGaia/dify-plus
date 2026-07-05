@@ -1,12 +1,12 @@
 'use client'
 import type { FC } from 'react'
+import { Switch } from '@langgenius/dify-ui/switch'
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
-import { Webhooks } from '@/app/components/base/icons/src/vender/line/development'
+import Webhooks from '@/app/components/base/icons/src/vender/line/development/Webhooks'
 import Input from '@/app/components/base/input'
 import Slider from '@/app/components/base/slider'
-import Switch from '@/app/components/base/switch'
 import DebugConfigurationContext from '@/context/debug-configuration'
 
 // Extend: 记忆上下文功能
@@ -23,7 +23,7 @@ const RetentionNumber: FC = () => {
   const minCount = Number(process.env.NEXT_CONTEXT_RETENTION_MIN_COUNT || 1) // Extend: 记忆上下文功能
 
   return (
-    <div className="mt-2 rounded-xl border-l-[0.5px] border-t-[0.5px] bg-background-section-burn pb-3">
+    <div className="mt-2 rounded-xl border-t-[0.5px] border-l-[0.5px] bg-background-section-burn pb-3">
       {/* Header */}
       <div className="px-3 pt-2">
         <div className="flex h-8 items-center justify-between">
@@ -31,13 +31,13 @@ const RetentionNumber: FC = () => {
             <div className="flex h-6 w-6 items-center justify-center">
               <Webhooks className="text-orange-500" />
             </div>
-            <div className="text-text-secondary system-sm-semibold">{t('nodes.common.memory.memory', { ns: 'workflow' })}</div>
+            <div className="system-sm-semibold text-text-secondary">{t('nodes.common.memory.memory', { ns: 'workflow' })}</div>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex h-8 items-center space-x-2">
               <Switch
-                value={retentionNumber !== 999}
-                onChange={(v) => {
+                checked={retentionNumber !== 999}
+                onCheckedChange={(v: boolean) => {
                   setRetentionNumber(v ? defaultCount : 999)
                 }}
               />

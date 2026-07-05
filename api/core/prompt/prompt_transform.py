@@ -4,8 +4,8 @@ from core.app.entities.app_invoke_entities import ModelConfigWithCredentialsEnti
 from core.memory.token_buffer_memory import TokenBufferMemory
 from core.model_manager import ModelInstance
 from core.prompt.entities.advanced_prompt_entities import MemoryConfig
-from dify_graph.model_runtime.entities.message_entities import PromptMessage
-from dify_graph.model_runtime.entities.model_entities import AIModelEntity, ModelPropertyKey
+from graphon.model_runtime.entities.message_entities import PromptMessage
+from graphon.model_runtime.entities.model_entities import AIModelEntity, ModelPropertyKey
 
 
 class PromptTransform:
@@ -44,13 +44,14 @@ class PromptTransform:
         *,
         model_config: ModelConfigWithCredentialsEntity | None = None,
         model_instance: ModelInstance | None = None,
+        control_registers: bool = True,  # Extend: messages context handling
     ) -> list[PromptMessage]:
         rest_tokens = self._calculate_rest_token(
             prompt_messages,
             model_config=model_config,
             model_instance=model_instance,
         )
-        histories = self._get_history_messages_list_from_memory(memory, memory_config, rest_tokens)
+        histories = self._get_history_messages_list_from_memory(memory, memory_config, rest_tokens, control_registers)
         prompt_messages.extend(histories)
 
         return prompt_messages
@@ -111,7 +112,11 @@ class PromptTransform:
         return memory.get_history_prompt_text(**kwargs)
 
     def _get_history_messages_list_from_memory(
-        self, memory: TokenBufferMemory, memory_config: MemoryConfig, max_token_limit: int
+        self,
+        memory: TokenBufferMemory,
+        memory_config: MemoryConfig,
+        max_token_limit: int,
+        control_registers: bool = True,  # Extend: messages context handling
     ) -> list[PromptMessage]:
         """Get memory messages."""
         return list(
@@ -124,5 +129,6 @@ class PromptTransform:
                     and memory_config.window.size > 0
                 )
                 else None,
+                control_registers=control_registers,  # Extend: messages context handling
             )
         )

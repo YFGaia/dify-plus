@@ -1,6 +1,6 @@
 import type { AppIconType, AppModeEnum } from '@/types/app'
 
-export type AppBasicInfo = {
+type AppBasicInfo = {
   id: string
   mode: AppModeEnum
   icon_type: AppIconType | null
@@ -12,7 +12,7 @@ export type AppBasicInfo = {
   use_icon_as_answer_icon: boolean
 }
 
-export type AppCategory = 'Writing' | 'Translate' | 'HR' | 'Programming' | 'Assistant' | 'Agent' | 'Recommended' | 'Workflow' | '未分类' // 二开部分，新增未分类
+export type AppCategory = string // 上游 1.14.2 起分类为自由字符串（fork 的「未分类」兼容）
 
 export type App = {
   app: AppBasicInfo
@@ -22,7 +22,7 @@ export type App = {
   copyright: string
   privacy_policy: string | null
   custom_disclaimer: string | null
-  category: AppCategory
+  categories: AppCategory[]
   position: number
   is_listed: boolean
   install_count: number

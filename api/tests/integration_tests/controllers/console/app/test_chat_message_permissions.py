@@ -6,50 +6,16 @@ from unittest import mock
 
 import pytest
 from flask.testing import FlaskClient
-from werkzeug.exceptions import Forbidden
 
 from controllers.console.app import completion as completion_api
 from controllers.console.app import message as message_api
 from controllers.console.app import wraps
-from libs import login as login_lib
 from libs.datetime_utils import naive_utc_now
 from models import App, Tenant
 from models.account import Account, TenantAccountJoin, TenantAccountRole
-from models.enums import ConversationFromSource
+from models.enums import AppStatus, ConversationFromSource
 from models.model import AppMode
 from services.app_generate_service import AppGenerateService
-
-
-class _CurrentUserProxy:
-    def __init__(self, user: Account):
-        self._user = user
-
-    def _get_current_object(self) -> Account:
-        return self._user
-
-    def __getattr__(self, name: str):
-        return getattr(self._user, name)
-
-
-class _MockChatMessagePayload:
-    response_mode = "blocking"
-
-    def model_dump(self, *, exclude_none: bool, by_alias: bool):
-        return {
-            "inputs": {},
-            "query": "Hello, world!",
-            "model_config": {
-                "model": {"provider": "openai", "name": "gpt-4", "mode": "chat", "completion_params": {}}
-            },
-            "response_mode": "blocking",
-        }
-
-
-def _post_with_edit_permission_only():
-    handler = completion_api.ChatMessageApi.post
-    for _ in range(5):
-        handler = handler.__wrapped__
-    return handler
 
 
 class TestChatMessageApiPermissions:
@@ -62,7 +28,7 @@ class TestChatMessageApiPermissions:
         app.id = str(uuid.uuid4())
         app.mode = AppMode.CHAT
         app.tenant_id = str(uuid.uuid4())
-        app.status = "normal"
+        app.status = AppStatus.NORMAL
         return app
 
     @pytest.fixture
@@ -82,26 +48,20 @@ class TestChatMessageApiPermissions:
         tenant = Tenant(name="Test Tenant")
         tenant.id = str(uuid.uuid4())
 
-        mock_session_instance = mock.MagicMock()
+        mock_session_instance = mock.Mock()
 
-        mock_tenant_join = TenantAccountJoin(
-            tenant_id=tenant.id,
-            account_id=account.id,
-            role=TenantAccountRole.OWNER,
-        )
+        mock_tenant_join = TenantAccountJoin(role=TenantAccountRole.OWNER)
         monkeypatch.setattr(mock_session_instance, "scalar", mock.Mock(return_value=mock_tenant_join))
 
         mock_scalars_result = mock.Mock()
         mock_scalars_result.one.return_value = tenant
         monkeypatch.setattr(mock_session_instance, "scalars", mock.Mock(return_value=mock_scalars_result))
 
-        mock_session_context = mock.MagicMock()
+        mock_session_context = mock.Mock()
         mock_session_context.__enter__.return_value = mock_session_instance
         monkeypatch.setattr("models.account.Session", lambda _, expire_on_commit: mock_session_context)
 
-        account._current_tenant = tenant
-        account.role = TenantAccountRole.OWNER
-        account.test_current_user_proxy = _CurrentUserProxy(account)
+        account.current_tenant = tenant
         return account
 
     @pytest.mark.parametrize(
@@ -117,7 +77,8 @@ class TestChatMessageApiPermissions:
     def test_post_with_owner_role_succeeds(
         self,
         test_client: FlaskClient,
-        monkeypatch,
+        auth_header,
+        monkeypatch: pytest.MonkeyPatch,
         mock_app_model,
         mock_account,
         role: TenantAccountRole,
@@ -132,12 +93,7 @@ class TestChatMessageApiPermissions:
         monkeypatch.setattr(wraps, "_load_app_model", mock_load_app_model)
 
         # Mock current user
-        monkeypatch.setattr(login_lib, "current_user", mock_account.test_current_user_proxy)
-        monkeypatch.setattr(login_lib, "check_csrf_token", lambda *args, **kwargs: None)
         monkeypatch.setattr(completion_api, "current_user", mock_account)
-        monkeypatch.setattr(
-            completion_api.ChatMessagePayload, "model_validate", mock.Mock(return_value=_MockChatMessagePayload())
-        )
 
         mock_generate = mock.Mock(return_value={"message": "Test response"})
         monkeypatch.setattr(AppGenerateService, "generate", mock_generate)
@@ -145,9 +101,9 @@ class TestChatMessageApiPermissions:
         # Set user role to OWNER
         mock_account.role = role
 
-        with test_client.application.test_request_context(
+        response = test_client.post(
             f"/console/api/apps/{mock_app_model.id}/chat-messages",
-            method="POST",
+            headers=auth_header,
             json={
                 "inputs": {},
                 "query": "Hello, world!",
@@ -156,15 +112,9 @@ class TestChatMessageApiPermissions:
                 },
                 "response_mode": "blocking",
             },
-        ):
-            post_handler = _post_with_edit_permission_only()
-            if status == 200:
-                response = post_handler(completion_api.ChatMessageApi(), mock_app_model)
-                assert response.status_code == status
-            else:
-                with pytest.raises(Forbidden) as exc_info:
-                    post_handler(completion_api.ChatMessageApi(), mock_app_model)
-                assert exc_info.value.code == status
+        )
+
+        assert response.status_code == status
 
     @pytest.mark.parametrize(
         ("role", "status"),
@@ -180,7 +130,7 @@ class TestChatMessageApiPermissions:
         self,
         test_client: FlaskClient,
         auth_header,
-        monkeypatch,
+        monkeypatch: pytest.MonkeyPatch,
         mock_app_model,
         mock_account,
         role: TenantAccountRole,
@@ -221,36 +171,13 @@ class TestChatMessageApiPermissions:
             parent_message_id=None,
         )
 
-        class MockQuery:
-            def __init__(self, model):
-                self.model = model
-
-            def where(self, *args, **kwargs):
-                return self
-
-            def first(self):
-                if getattr(self.model, "__name__", "") == "Conversation":
-                    return mock_conversation
-                return None
-
-            def order_by(self, *args, **kwargs):
-                return self
-
-            def limit(self, *_):
-                return self
-
-            def all(self):
-                if getattr(self.model, "__name__", "") == "Message":
-                    return [mock_message]
-                return []
-
         mock_session = mock.Mock()
-        mock_session.query.side_effect = MockQuery
-        mock_session.scalar.return_value = False
+        mock_session.scalar.return_value = mock_conversation
+        mock_session.scalars.return_value.all.return_value = [mock_message]
 
         monkeypatch.setattr(message_api, "db", SimpleNamespace(session=mock_session))
-        monkeypatch.setattr(login_lib, "current_user", mock_account.test_current_user_proxy)
-        monkeypatch.setattr(login_lib, "check_csrf_token", lambda *args, **kwargs: None)
+        monkeypatch.setattr(message_api, "current_user", mock_account)
+        monkeypatch.setattr(message_api, "attach_message_extra_contents", mock.Mock())
 
         class DummyPagination:
             def __init__(self, data, limit, has_more):
@@ -268,4 +195,4 @@ class TestChatMessageApiPermissions:
             query_string={"conversation_id": str(conversation_id)},
         )
 
-        assert response.status_code == status, response.get_json()
+        assert response.status_code == status

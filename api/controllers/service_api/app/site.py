@@ -1,4 +1,5 @@
 from flask_restx import Resource
+from sqlalchemy import select
 from werkzeug.exceptions import Forbidden
 
 from controllers.common.fields import Site as SiteResponse
@@ -23,12 +24,12 @@ class AppSiteApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
+    def get(self, app_model: App, api_token: ApiToken | None = None):  # extend - 密钥额度限制，新增api_token
         """Retrieve app site info.
 
         Returns the site configuration for the application including theme, icons, and text.
         """
-        site = db.session.query(Site).where(Site.app_id == app_model.id).first()
+        site = db.session.scalar(select(Site).where(Site.app_id == app_model.id).limit(1))
 
         if not site:
             raise Forbidden()

@@ -22,9 +22,7 @@ from controllers.console.files import (
 
 
 def unwrap(func):
-    """
-    Recursively unwrap decorated functions.
-    """
+    """Recursively unwrap decorated functions."""
     while hasattr(func, "__wrapped__"):
         func = func.__wrapped__
     return func
@@ -82,7 +80,7 @@ def mock_file_service(mock_db):
 
 
 class TestFileApiGet:
-    def test_get_upload_config(self, app):
+    def test_get_upload_config(self, app: Flask):
         api = FileApi()
         get_method = unwrap(api.get)
 
@@ -95,7 +93,7 @@ class TestFileApiGet:
 
 
 class TestFileApiPost:
-    def test_no_file_uploaded(self, app, mock_account_context):
+    def test_no_file_uploaded(self, app: Flask, mock_account_context):
         api = FileApi()
         post_method = unwrap(api.post)
 
@@ -103,7 +101,7 @@ class TestFileApiPost:
             with pytest.raises(NoFileUploadedError):
                 post_method(api)
 
-    def test_too_many_files(self, app, mock_account_context):
+    def test_too_many_files(self, app: Flask, mock_account_context):
         api = FileApi()
         post_method = unwrap(api.post)
 
@@ -120,7 +118,7 @@ class TestFileApiPost:
                 with pytest.raises(TooManyFilesError):
                     post_method(api)
 
-    def test_filename_missing(self, app, mock_account_context):
+    def test_filename_missing(self, app: Flask, mock_account_context):
         api = FileApi()
         post_method = unwrap(api.post)
 
@@ -132,7 +130,7 @@ class TestFileApiPost:
             with pytest.raises(FilenameNotExistsError):
                 post_method(api)
 
-    def test_dataset_upload_without_permission(self, app, mock_current_user):
+    def test_dataset_upload_without_permission(self, app: Flask, mock_current_user):
         mock_current_user.is_dataset_editor = False
 
         with patch(
@@ -151,7 +149,7 @@ class TestFileApiPost:
                 with pytest.raises(Forbidden):
                     post_method(api)
 
-    def test_successful_upload(self, app, mock_account_context, mock_file_service):
+    def test_successful_upload(self, app: Flask, mock_account_context, mock_file_service):
         api = FileApi()
         post_method = unwrap(api.post)
 
@@ -185,7 +183,7 @@ class TestFileApiPost:
         assert response["id"] == "file-id-123"
         assert response["name"] == "test.txt"
 
-    def test_upload_with_invalid_source(self, app, mock_account_context, mock_file_service):
+    def test_upload_with_invalid_source(self, app: Flask, mock_account_context, mock_file_service):
         """Test that invalid source parameter gets normalized to None"""
         api = FileApi()
         post_method = unwrap(api.post)
@@ -225,7 +223,7 @@ class TestFileApiPost:
         call_kwargs = mock_file_service.upload_file.call_args[1]
         assert call_kwargs["source"] is None
 
-    def test_file_too_large_error(self, app, mock_account_context, mock_file_service):
+    def test_file_too_large_error(self, app: Flask, mock_account_context, mock_file_service):
         api = FileApi()
         post_method = unwrap(api.post)
 
@@ -242,7 +240,7 @@ class TestFileApiPost:
             with pytest.raises(FileTooLargeError):
                 post_method(api)
 
-    def test_unsupported_file_type(self, app, mock_account_context, mock_file_service):
+    def test_unsupported_file_type(self, app: Flask, mock_account_context, mock_file_service):
         api = FileApi()
         post_method = unwrap(api.post)
 
@@ -259,7 +257,7 @@ class TestFileApiPost:
             with pytest.raises(UnsupportedFileTypeError):
                 post_method(api)
 
-    def test_blocked_extension(self, app, mock_account_context, mock_file_service):
+    def test_blocked_extension(self, app: Flask, mock_account_context, mock_file_service):
         api = FileApi()
         post_method = unwrap(api.post)
 
@@ -278,7 +276,7 @@ class TestFileApiPost:
 
 
 class TestFilePreviewApi:
-    def test_get_preview(self, app, mock_file_service):
+    def test_get_preview(self, app: Flask, mock_account_context, mock_file_service):
         api = FilePreviewApi()
         get_method = unwrap(api.get)
         mock_file_service.get_file_preview.return_value = "preview text"
@@ -290,7 +288,7 @@ class TestFilePreviewApi:
 
 
 class TestFileSupportTypeApi:
-    def test_get_supported_types(self, app):
+    def test_get_supported_types(self, app: Flask):
         api = FileSupportTypeApi()
         get_method = unwrap(api.get)
 

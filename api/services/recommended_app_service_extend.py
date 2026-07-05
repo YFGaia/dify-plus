@@ -35,7 +35,7 @@ class RecommendedAppService:
             # Extend: start Handle apps without tags
             if len(classList) == 0:
                 # Create a simple object with name attribute for "未分类" category
-                classList.append(type('Tag', (), {'name': '未分类'})())
+                classList.append(type("Tag", (), {"name": "未分类"})())
             # Extend: stop Handle apps without tags
             if (
                 len(description) == 0
@@ -196,10 +196,14 @@ class RecommendedAppService:
     @classmethod
     def message_context(cls, conversation_id: str):
         from models.model_extend import MessageContextExtend
+
         message_list = []
-        message_context = db.session.query(MessageContextExtend).filter(
-            MessageContextExtend.conversation_id == conversation_id).order_by(
-            MessageContextExtend.created_at.desc()).all()
+        message_context = (
+            db.session.query(MessageContextExtend)
+            .filter(MessageContextExtend.conversation_id == conversation_id)
+            .order_by(MessageContextExtend.created_at.desc())
+            .all()
+        )
         for v in message_context:
             message_list.append(v.message_id)
         return message_list
@@ -207,10 +211,12 @@ class RecommendedAppService:
     @classmethod
     def delete_message_context(cls, conversation_id, message_id: str):
         from models.model_extend import MessageContextExtend
+
         db.session.query(MessageContextExtend).filter(
             MessageContextExtend.conversation_id == conversation_id,
             MessageContextExtend.message_id == message_id,
         ).delete()
         db.session.commit()
-        return 'ok'
+        return "ok"
+
     # Extend: stop messages context handling

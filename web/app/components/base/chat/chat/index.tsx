@@ -13,32 +13,25 @@ import type {
 import type { InputForm } from './type'
 import type { Emoji } from '@/app/components/tools/types'
 import type { AppData } from '@/models/share'
-import { debounce } from 'es-toolkit/compat'
+import { Button } from '@langgenius/dify-ui/button'
+import { cn } from '@langgenius/dify-ui/cn'
 // extend: start messages context handling
-import {
-  Fragment,
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { Fragment, memo, useEffect, useState } from 'react'
+// extend: stop messages context handling
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore as useAppStore } from '@/app/components/app/store'
-import AgentLogModal from '@/app/components/base/agent-log-modal'
-import Button from '@/app/components/base/button'
-import PromptLogModal from '@/app/components/base/prompt-log-modal'
-import { cn } from '@/utils/classnames'
+// Extend: start messages context handling
+import { useChatWithHistoryContext } from '@/app/components/base/chat/chat-with-history/context'
+import { deleteMessageContext, messageContextList } from '@/service/apps'
 import Answer from './answer'
 import ChatInputArea from './chat-input-area'
+import ChatLogModals from './chat-log-modals'
 import { ChatContextProvider } from './context-provider'
 import Question from './question'
-import TryToAsk from './try-to-ask'
-// Extend: start messages context handling
-import { deleteMessageContext, messageContextList } from '@/service/apps'
-import { useChatWithHistoryContext } from '@/app/components/base/chat/chat-with-history/context'
 import s from './style.module.css'
+import TryToAsk from './try-to-ask'
+import { useChatLayout } from './use-chat-layout'
 // Extend: stop messages context handling
 
 export type ChatProps = {
@@ -140,19 +133,14 @@ const Chat: FC<ChatProps> = ({
     showAgentLogModal: state.showAgentLogModal,
     setShowAgentLogModal: state.setShowAgentLogModal,
   })))
-  const [width, setWidth] = useState(0)
-  const chatContainerRef = useRef<HTMLDivElement>(null)
-  const chatContainerInnerRef = useRef<HTMLDivElement>(null)
-  const chatFooterRef = useRef<HTMLDivElement>(null)
-  const chatFooterInnerRef = useRef<HTMLDivElement>(null)
-  const userScrolledRef = useRef(false)
-  const isAutoScrollingRef = useRef(false)
+
   // Extend: start add Message Context List
   let currentConversationId = ''
   try {
     const context = useChatWithHistoryContext()
     currentConversationId = context?.currentConversationId || ''
-  } catch {
+  }
+  catch {
     // Context not available, skip
   }
   const [contextList, setContextList] = useState<string[]>([])
@@ -161,8 +149,9 @@ const Chat: FC<ChatProps> = ({
     if (currentConversationId) {
       try {
         const historyList = await messageContextList({ conversation_id: currentConversationId })
-        setContextList(historyList)
-      } catch (error) {
+        setContextList(Array.isArray(historyList) ? historyList : [])
+      }
+      catch (error) {
         // Handle error silently
         console.error('Failed to fetch message context list:', error)
       }
@@ -173,122 +162,19 @@ const Chat: FC<ChatProps> = ({
     if (isResponding)
       return
     handleResponding().then()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isResponding, currentConversationId])
   // Extend: stop add Message Context List
-
-  const handleScrollToBottom = useCallback(() => {
-    if (chatList.length > 1 && chatContainerRef.current && !userScrolledRef.current) {
-      isAutoScrollingRef.current = true
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
-
-      requestAnimationFrame(() => {
-        isAutoScrollingRef.current = false
-      })
-    }
-  }, [chatList.length])
-
-  const handleWindowResize = useCallback(() => {
-    if (chatContainerRef.current)
-      setWidth(document.body.clientWidth - (chatContainerRef.current?.clientWidth + 16) - 8)
-
-    if (chatContainerRef.current && chatFooterRef.current)
-      chatFooterRef.current.style.width = `${chatContainerRef.current.clientWidth}px`
-
-    if (chatContainerInnerRef.current && chatFooterInnerRef.current)
-      chatFooterInnerRef.current.style.width = `${chatContainerInnerRef.current.clientWidth}px`
-  }, [])
-
-  useEffect(() => {
-    handleScrollToBottom()
-    handleWindowResize()
-  }, [handleScrollToBottom, handleWindowResize])
-
-  useEffect(() => {
-    /* v8 ignore next - @preserve */
-    if (chatContainerRef.current) {
-      requestAnimationFrame(() => {
-        handleScrollToBottom()
-        handleWindowResize()
-      })
-    }
+  const {
+    width,
+    chatContainerRef,
+    chatContainerInnerRef,
+    chatFooterRef,
+    chatFooterInnerRef,
+  } = useChatLayout({
+    chatList,
+    sidebarCollapseState,
   })
-
-  useEffect(() => {
-    const debouncedHandler = debounce(handleWindowResize, 200)
-    window.addEventListener('resize', debouncedHandler)
-
-    return () => {
-      window.removeEventListener('resize', debouncedHandler)
-      debouncedHandler.cancel()
-    }
-  }, [handleWindowResize])
-
-  useEffect(() => {
-    /* v8 ignore next - @preserve */
-    if (chatFooterRef.current && chatContainerRef.current) {
-      const resizeContainerObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          const { blockSize } = entry.borderBoxSize[0]
-          chatContainerRef.current!.style.paddingBottom = `${blockSize}px`
-          handleScrollToBottom()
-        }
-      })
-      resizeContainerObserver.observe(chatFooterRef.current)
-
-      const resizeFooterObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          const { inlineSize } = entry.borderBoxSize[0]
-          chatFooterRef.current!.style.width = `${inlineSize}px`
-        }
-      })
-      resizeFooterObserver.observe(chatContainerRef.current)
-
-      return () => {
-        resizeContainerObserver.disconnect()
-        resizeFooterObserver.disconnect()
-      }
-    }
-  }, [handleScrollToBottom])
-
-  useEffect(() => {
-    const setUserScrolled = () => {
-      const container = chatContainerRef.current
-      /* v8 ignore next 2 - @preserve */
-      if (!container)
-        return
-      /* v8 ignore next 2 - @preserve */
-      if (isAutoScrollingRef.current)
-        return
-
-      const distanceToBottom = container.scrollHeight - container.clientHeight - container.scrollTop
-      const SCROLL_UP_THRESHOLD = 100
-
-      userScrolledRef.current = distanceToBottom > SCROLL_UP_THRESHOLD
-    }
-
-    const container = chatContainerRef.current
-    /* v8 ignore next 2 - @preserve */
-    if (!container)
-      return
-
-    container.addEventListener('scroll', setUserScrolled)
-    return () => container.removeEventListener('scroll', setUserScrolled)
-  }, [])
-
-  const prevFirstMessageIdRef = useRef<string | undefined>(undefined)
-  useEffect(() => {
-    const firstMessageId = chatList[0]?.id
-    if (chatList.length <= 1 || (firstMessageId && prevFirstMessageIdRef.current !== firstMessageId))
-      userScrolledRef.current = false
-    prevFirstMessageIdRef.current = firstMessageId
-  }, [chatList])
-
-  useEffect(() => {
-    if (!sidebarCollapseState) {
-      const timer = setTimeout(handleWindowResize, 200)
-      return () => clearTimeout(timer)
-    }
-  }, [handleWindowResize, sidebarCollapseState])
 
   const hasTryToAsk = config?.suggested_questions_after_answer?.enabled && !!suggestedQuestions?.length && onSend
 
@@ -314,7 +200,7 @@ const Chat: FC<ChatProps> = ({
         <div
           data-testid="chat-container"
           ref={chatContainerRef}
-          className={cn('relative h-full overflow-y-auto overflow-x-hidden', isTryApp && 'h-0 grow', chatContainerClassName)}
+          className={cn('relative h-full overflow-x-hidden overflow-y-auto', isTryApp && 'h-0 grow', chatContainerClassName)}
         >
           {chatNode}
           <div
@@ -324,7 +210,7 @@ const Chat: FC<ChatProps> = ({
             {
               chatList.map((item, index) => {
                 if (item.isAnswer) {
-                  const isLast = item.id === chatList[chatList.length - 1]?.id
+                  const isLast = item.id === chatList.at(-1)?.id
                   // Extend: start messages context handling
                   const clearContext = async (message_id: string) => {
                     if (currentConversationId) {
@@ -338,7 +224,7 @@ const Chat: FC<ChatProps> = ({
                       <Answer
                         appData={appData}
                         item={item}
-                        question={chatList[index - 1]?.content}
+                        question={chatList[index - 1]?.content!}
                         index={index}
                         config={config}
                         answerIcon={answerIcon}
@@ -348,6 +234,8 @@ const Chat: FC<ChatProps> = ({
                         hideProcessDetail={hideProcessDetail}
                         noChatInput={noChatInput}
                         switchSibling={switchSibling}
+                        hideAvatar={hideAvatar}
+                        onHumanInputFormSubmit={onHumanInputFormSubmit}
                       />
                       {/* Extend: start messages context handling */}
                       {
@@ -395,7 +283,7 @@ const Chat: FC<ChatProps> = ({
               !noStopResponding && isResponding && (
                 <div data-testid="stop-responding-container" className="mb-2 flex justify-center">
                   <Button className="border-components-panel-border bg-components-panel-bg text-components-button-secondary-text" onClick={onStopResponding}>
-                    <div className="i-custom-vender-solid-mediaAndDevices-stop-circle mr-[5px] h-3.5 w-3.5" />
+                    <div className="mr-[5px] i-custom-vender-solid-mediaAndDevices-stop-circle h-3.5 w-3.5" />
                     <span className="text-xs font-normal">{t('operation.stopResponding', { ns: 'appDebug' })}</span>
                   </Button>
                 </div>
@@ -432,26 +320,16 @@ const Chat: FC<ChatProps> = ({
             }
           </div>
         </div>
-        {showPromptLogModal && !hideLogModal && (
-          <PromptLogModal
-            width={width}
-            currentLogItem={currentLogItem}
-            onCancel={() => {
-              setCurrentLogItem()
-              setShowPromptLogModal(false)
-            }}
-          />
-        )}
-        {showAgentLogModal && !hideLogModal && (
-          <AgentLogModal
-            width={width}
-            currentLogItem={currentLogItem}
-            onCancel={() => {
-              setCurrentLogItem()
-              setShowAgentLogModal(false)
-            }}
-          />
-        )}
+        <ChatLogModals
+          width={width}
+          currentLogItem={currentLogItem}
+          showPromptLogModal={showPromptLogModal}
+          showAgentLogModal={showAgentLogModal}
+          hideLogModal={hideLogModal}
+          setCurrentLogItem={setCurrentLogItem}
+          setShowPromptLogModal={setShowPromptLogModal}
+          setShowAgentLogModal={setShowAgentLogModal}
+        />
       </div>
     </ChatContextProvider>
   )

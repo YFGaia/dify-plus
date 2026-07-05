@@ -35,8 +35,11 @@ class DatasourceFileManager:
         timestamp = str(int(time.time()))
         nonce = os.urandom(16).hex()
         data_to_sign = f"file-preview|{datasource_file_id}|{timestamp}|{nonce}"
-        secret_key = dify_config.SECRET_KEY.encode() if dify_config.SECRET_KEY else b""
-        sign = hmac.new(secret_key, data_to_sign.encode(), hashlib.sha256).digest()
+        sign = hmac.new(
+            dify_config.SECRET_KEY.encode(),
+            data_to_sign.encode(),
+            hashlib.sha256,
+        ).digest()
         encoded_sign = base64.urlsafe_b64encode(sign).decode()
 
         return f"{file_preview_url}?timestamp={timestamp}&nonce={nonce}&sign={encoded_sign}"
@@ -47,8 +50,11 @@ class DatasourceFileManager:
         verify signature
         """
         data_to_sign = f"file-preview|{datasource_file_id}|{timestamp}|{nonce}"
-        secret_key = dify_config.SECRET_KEY.encode() if dify_config.SECRET_KEY else b""
-        recalculated_sign = hmac.new(secret_key, data_to_sign.encode(), hashlib.sha256).digest()
+        recalculated_sign = hmac.new(
+            dify_config.SECRET_KEY.encode(),
+            data_to_sign.encode(),
+            hashlib.sha256,
+        ).digest()
         recalculated_encoded_sign = base64.urlsafe_b64encode(recalculated_sign).decode()
 
         # verify signature
@@ -153,7 +159,7 @@ class DatasourceFileManager:
 
         :return: the binary of the file, mime type
         """
-        upload_file: UploadFile | None = db.session.query(UploadFile).where(UploadFile.id == id).first()
+        upload_file: UploadFile | None = db.session.get(UploadFile, id)
 
         if not upload_file:
             return None
@@ -171,7 +177,7 @@ class DatasourceFileManager:
 
         :return: the binary of the file, mime type
         """
-        message_file: MessageFile | None = db.session.query(MessageFile).where(MessageFile.id == id).first()
+        message_file: MessageFile | None = db.session.get(MessageFile, id)
 
         # Check if message_file is not None
         if message_file is not None:
@@ -185,7 +191,7 @@ class DatasourceFileManager:
         else:
             tool_file_id = None
 
-        tool_file: ToolFile | None = db.session.query(ToolFile).where(ToolFile.id == tool_file_id).first()
+        tool_file: ToolFile | None = db.session.get(ToolFile, tool_file_id)
 
         if not tool_file:
             return None
@@ -203,7 +209,7 @@ class DatasourceFileManager:
 
         :return: the binary of the file, mime type
         """
-        upload_file: UploadFile | None = db.session.query(UploadFile).where(UploadFile.id == upload_file_id).first()
+        upload_file: UploadFile | None = db.session.get(UploadFile, upload_file_id)
 
         if not upload_file:
             return None, None
@@ -214,6 +220,6 @@ class DatasourceFileManager:
 
 
 # init tool_file_parser
-# from dify_graph.file.datasource_file_parser import datasource_file_manager
+# from graphon.file.datasource_file_parser import datasource_file_manager
 #
 # datasource_file_manager["manager"] = DatasourceFileManager

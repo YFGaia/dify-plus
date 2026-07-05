@@ -1,5 +1,8 @@
 import type { InferContractRouterInputs } from '@orpc/contract'
-import { appDeleteContract } from './console/apps'
+import { contract as communityContract } from '@dify/contracts/api/console/orpc.gen'
+import { contract as enterpriseContract } from '@dify/contracts/enterprise/orpc.gen'
+import { accountAvatarContract } from './console/account'
+import { appDeleteContract, appListContract, workflowOnlineUsersContract } from './console/apps'
 import { bindPartnerStackContract, invoicesContract } from './console/billing'
 import {
   exploreAppDetailContract,
@@ -17,6 +20,20 @@ import { notificationContract, notificationDismissContract } from './console/not
 import { pluginCheckInstalledContract, pluginLatestVersionsContract } from './console/plugins'
 // extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
 import { loginConfigBootstrapContract, loginConfigContract, systemFeaturesContract } from './console/system'
+// extend: 系统管理 — 代码执行控制（p5-admin-decommission 在途工作，contract 文件随其提交）
+import {
+  codeExecutionControlAddContract,
+  codeExecutionControlListContract,
+  codeExecutionControlRemoveContract,
+} from './console/system-manage'
+import {
+  tagBindingCreateContract,
+  tagBindingRemoveContract,
+  tagCreateContract,
+  tagDeleteContract,
+  tagListContract,
+  tagUpdateContract,
+} from './console/tags'
 import {
   triggerOAuthConfigContract,
   triggerOAuthConfigureContract,
@@ -35,25 +52,54 @@ import {
   triggerSubscriptionVerifyContract,
 } from './console/trigger'
 import { trialAppDatasetsContract, trialAppInfoContract, trialAppParametersContract, trialAppWorkflowsContract } from './console/try-app'
-import { collectionPluginsContract, collectionsContract, searchAdvancedContract } from './marketplace'
+import {
+  workflowDraftEnvironmentVariablesContract,
+  workflowDraftUpdateConversationVariablesContract,
+  workflowDraftUpdateEnvironmentVariablesContract,
+  workflowDraftUpdateFeaturesContract,
+} from './console/workflow'
+import { workflowCommentContracts } from './console/workflow-comment'
+import { collectionPluginsContract, collectionsContract, searchAdvancedContract, templateDetailContract } from './marketplace'
 
 export const marketplaceRouterContract = {
   collections: collectionsContract,
   collectionPlugins: collectionPluginsContract,
   searchAdvanced: searchAdvancedContract,
+  templateDetail: templateDetailContract,
 }
 
 export type MarketPlaceInputs = InferContractRouterInputs<typeof marketplaceRouterContract>
 
-// extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
+// Hand-written console contracts below are temporary overrides for gaps in the
+// generated community contract. Prefer fixing backend OpenAPI annotations so
+// generated contracts include accurate method, path, input, and output types;
+// once generated contracts are correct, the matching hand-written contracts
+// should be removed instead of kept in parallel.
 export const consoleRouterContract = {
+  enterprise: enterpriseContract,
+  ...communityContract,
+  // extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
   loginConfigBootstrap: loginConfigBootstrapContract,
   loginConfig: loginConfigContract,
+  account: {
+    ...communityContract.account,
+    avatar: accountAvatarContract,
+  },
   systemFeatures: systemFeaturesContract,
+  // extend: 系统管理 — 代码执行控制（sandbox-full 授权名单）
+  systemManage: {
+    codeExecutionControlList: codeExecutionControlListContract,
+    codeExecutionControlAdd: codeExecutionControlAddContract,
+    codeExecutionControlRemove: codeExecutionControlRemoveContract,
+  },
   apps: {
+    ...communityContract.apps,
+    list: appListContract,
     deleteApp: appDeleteContract,
+    workflowOnlineUsers: workflowOnlineUsersContract,
   },
   explore: {
+    ...communityContract.explore,
     apps: exploreAppsContract,
     appDetail: exploreAppDetailContract,
     installedApps: exploreInstalledAppsContract,
@@ -65,6 +111,7 @@ export const consoleRouterContract = {
     banners: exploreBannersContract,
   },
   trialApps: {
+    ...communityContract.trialApps,
     info: trialAppInfoContract,
     datasets: trialAppDatasetsContract,
     parameters: trialAppParametersContract,
@@ -79,11 +126,28 @@ export const consoleRouterContract = {
     latestVersions: pluginLatestVersionsContract,
   },
   billing: {
+    ...communityContract.billing,
     invoices: invoicesContract,
     bindPartnerStack: bindPartnerStackContract,
   },
+  workflowDraft: {
+    environmentVariables: workflowDraftEnvironmentVariablesContract,
+    updateEnvironmentVariables: workflowDraftUpdateEnvironmentVariablesContract,
+    updateConversationVariables: workflowDraftUpdateConversationVariablesContract,
+    updateFeatures: workflowDraftUpdateFeaturesContract,
+  },
+  workflowComments: workflowCommentContracts,
   notification: notificationContract,
   notificationDismiss: notificationDismissContract,
+  tags: {
+    ...communityContract.tags,
+    list: tagListContract,
+    create: tagCreateContract,
+    update: tagUpdateContract,
+    delete: tagDeleteContract,
+    bind: tagBindingCreateContract,
+    unbind: tagBindingRemoveContract,
+  },
   triggers: {
     list: triggersContract,
     providerInfo: triggerProviderInfoContract,
@@ -102,5 +166,3 @@ export const consoleRouterContract = {
     oauthInitiate: triggerOAuthInitiateContract,
   },
 }
-
-export type ConsoleInputs = InferContractRouterInputs<typeof consoleRouterContract>

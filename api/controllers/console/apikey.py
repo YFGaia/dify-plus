@@ -1,16 +1,19 @@
+from datetime import datetime
+from itertools import starmap
+
 import flask_restx
 from flask import request  # 二开部分 - 密钥额度限制
-from flask_restx import Resource, fields, marshal_with
+from flask_restx import Resource
 from flask_restx._http import HTTPStatus
-from sqlalchemy import delete, func, select
-from sqlalchemy.orm import (
-    Session,
-    aliased,  # 二开部分 - 密钥额度限制
-)
+from pydantic import field_validator
+from sqlalchemy import delete, func, select, update
+from sqlalchemy.orm import sessionmaker
 from werkzeug.exceptions import Forbidden
 
+from controllers.common.schema import register_schema_models
 from extensions.ext_database import db
-from libs.helper import TimestampField
+from fields.base import ResponseModel
+from libs.helper import to_timestamp
 from libs.login import current_account_with_tenant, login_required
 from models.api_token_money_extend import ApiTokenMoneyExtend  # 二开部分 - 密钥额度限制
 from models.dataset import Dataset
@@ -21,33 +24,59 @@ from services.api_token_service import ApiTokenCache
 from . import console_ns
 from .wraps import account_initialization_required, edit_permission_required, setup_required
 
-api_key_fields = {
-    "id": fields.String,
-    "type": fields.String,
-    "token": fields.String,
-    "last_used_at": TimestampField,
-    "created_at": TimestampField,
-    # 二开部分begin - 密钥额度限制
-    "description": fields.String,
-    "accumulated_quota": fields.Float,
-    "day_limit_quota": fields.Float,
-    "month_limit_quota": fields.Float,
-    "month_used_quota": fields.Float,
-    "day_used_quota": fields.Float,
-    # 二开部分end - 密钥额度限制
+# 二开部分 - 密钥额度限制：无额度记录（老密钥）时的兜底展示值
+DEFAULT_QUOTA_EXTEND = {
+    "description": "",
+    "accumulated_quota": 0.0,
+    "day_limit_quota": -1.0,
+    "month_limit_quota": -1.0,
+    "day_used_quota": 0.0,
+    "month_used_quota": 0.0,
 }
 
-api_key_item_model = console_ns.model("ApiKeyItem", api_key_fields)
 
-api_key_list = {"data": fields.List(fields.Nested(api_key_item_model), attribute="items")}
+class ApiKeyItem(ResponseModel):
+    id: str
+    type: str
+    token: str
+    last_used_at: int | None = None
+    created_at: int | None = None
+    # 二开部分begin - 密钥额度限制
+    description: str | None = None
+    accumulated_quota: float | None = None
+    day_limit_quota: float | None = None
+    month_limit_quota: float | None = None
+    month_used_quota: float | None = None
+    day_used_quota: float | None = None
+    # 二开部分end - 密钥额度限制
 
-api_key_list_model = console_ns.model(
-    "ApiKeyList", {"data": fields.List(fields.Nested(api_key_item_model), attribute="items")}
-)
+    @field_validator("last_used_at", "created_at", mode="before")
+    @classmethod
+    def _normalize_timestamp(cls, value: datetime | int | None) -> int | None:
+        return to_timestamp(value)
+
+
+class ApiKeyList(ResponseModel):
+    data: list[ApiKeyItem]
+
+
+register_schema_models(console_ns, ApiKeyItem, ApiKeyList)
+
+
+def _merge_token_with_quota_extend(token: ApiToken, quota: ApiTokenMoneyExtend | None) -> dict:
+    """二开部分 - 密钥额度限制：合并 ApiToken 与额度记录为响应 dict（额度字段覆盖同名键，id 保持密钥 ID）。"""
+    token_dict = {k: v for k, v in token.__dict__.items() if not k.startswith("_sa")}
+    if quota is not None:
+        quota_dict = {k: v for k, v in quota.__dict__.items() if not k.startswith("_sa")}
+    else:
+        quota_dict = DEFAULT_QUOTA_EXTEND
+    merged_data = {**token_dict, **DEFAULT_QUOTA_EXTEND, **quota_dict}
+    merged_data["id"] = token_dict["id"]
+    return merged_data
 
 
 def _get_resource(resource_id, tenant_id, resource_model):
-    with Session(db.engine) as session:
+    with sessionmaker(db.engine).begin() as session:
         resource = session.execute(
             select(resource_model).filter_by(id=resource_id, tenant_id=tenant_id)
         ).scalar_one_or_none()
@@ -67,57 +96,24 @@ class BaseApiKeyListResource(Resource):
     token_prefix: str | None = None
     max_keys = 10
 
-    @marshal_with(api_key_list_model)
     def get(self, resource_id):
         assert self.resource_id_field is not None, "resource_id_field must be set"
         resource_id = str(resource_id)
         _, current_tenant_id = current_account_with_tenant()
 
         _get_resource(resource_id, current_tenant_id, self.resource_model)
-        # keys = db.session.scalars(
-        #     select(ApiToken).where(
-        #         ApiToken.type == self.resource_type, getattr(ApiToken, self.resource_id_field) == resource_id
-        #     )
-        # ).all()
 
         # --------------------- 二开部分begin - 密钥额度限制 ---------------------
-        # 定义别名，用于后续的join操作
-        ApiTokenAlias = aliased(ApiToken)
-
-        # 连表查询（LEFT JOIN：确保没有额度记录的老密钥也能显示）
-        api_token_quota_query = (
-            db.session.query(ApiTokenAlias, ApiTokenMoneyExtend)
-            .outerjoin(ApiTokenMoneyExtend, ApiTokenAlias.id == ApiTokenMoneyExtend.app_token_id)
-            .filter(
-                ApiTokenAlias.type == self.resource_type, getattr(ApiTokenAlias, self.resource_id_field) == resource_id
-            )
-            .all()
-        )
-        # 将两个表的数据合并到一个字典中
-        # 注意：ApiTokenAlias在前，ApiTokenMoneyExtend在后，quota字段会覆盖同名字段
-        DEFAULT_QUOTA = {
-            "description": "",
-            "accumulated_quota": 0.0,
-            "day_limit_quota": -1.0,
-            "month_limit_quota": -1.0,
-            "day_used_quota": 0.0,
-            "month_used_quota": 0.0,
-        }
-        keys = []
-        for token, quota in api_token_quota_query:
-            token_dict = {k: v for k, v in token.__dict__.items() if not k.startswith("_sa")}
-            if quota is not None:
-                quota_dict = {k: v for k, v in quota.__dict__.items() if not k.startswith("_sa")}
-            else:
-                quota_dict = DEFAULT_QUOTA
-            merged_data = {**token_dict, **DEFAULT_QUOTA, **quota_dict}
-            # 确保 id 是 ApiToken 的 id（密钥 ID），而非 ApiTokenMoneyExtend 的 id
-            merged_data["id"] = token_dict["id"]
-            keys.append(merged_data)
+        # LEFT JOIN 额度表：确保没有额度记录的老密钥也能显示
+        rows = db.session.execute(
+            select(ApiToken, ApiTokenMoneyExtend)
+            .outerjoin(ApiTokenMoneyExtend, ApiToken.id == ApiTokenMoneyExtend.app_token_id)
+            .where(ApiToken.type == self.resource_type, getattr(ApiToken, self.resource_id_field) == resource_id)
+        ).all()
+        keys = list(starmap(_merge_token_with_quota_extend, rows))
         # --------------------- 二开部分end - 密钥额度限制 ---------------------
-        return {"items": keys}
+        return ApiKeyList.model_validate({"data": keys}, from_attributes=True).model_dump(mode="json")
 
-    @marshal_with(api_key_item_model)
     @edit_permission_required
     def post(self, resource_id):
         assert self.resource_id_field is not None, "resource_id_field must be set"
@@ -151,40 +147,27 @@ class BaseApiKeyListResource(Resource):
         db.session.commit()
 
         # --------------------- 二开部分Begin - 密钥额度限制 ---------------------
-        content_type = request.headers.get("Content-Type")
-        if content_type == "application/json":
-            try:
-                data = request.get_json(silent=True)
-            except:
-                data = {}
-        else:
-            data = {}
-        if data is None:
-            data = {}
-
-        # 获取day_limit_quota和month_limit_quota，如果不存在则使用默认值-1
-        day_limit_quota = data.get("day_limit_quota", -1)
-        month_limit_quota = data.get("month_limit_quota", -1)
-        description = data.get("description", "默认")
+        data = request.get_json(silent=True) or {}
         db.session.add(
             ApiTokenMoneyExtend(
                 app_token_id=api_token.id,
-                description=description,
+                description=data.get("description", "默认"),
                 accumulated_quota=0,
                 day_used_quota=0,
                 month_used_quota=0,
-                day_limit_quota=day_limit_quota,
-                month_limit_quota=month_limit_quota,
+                day_limit_quota=data.get("day_limit_quota", -1),
+                month_limit_quota=data.get("month_limit_quota", -1),
             )
         )
         db.session.commit()
         # --------------------- 二开部分End - 密钥额度限制 ---------------------
 
-        return api_token, 201
+        return ApiKeyItem.model_validate(api_token, from_attributes=True).model_dump(mode="json"), 201
 
     # --------------------- 二开部分Begin - 密钥额度限制 ---------------------
-    @marshal_with(api_key_fields)
     def put(self, resource_id):
+        """更新密钥的额度配置（description / day_limit_quota / month_limit_quota），admin/owner 限定。"""
+        assert self.resource_id_field is not None, "resource_id_field must be set"
         resource_id = str(resource_id)
         current_user, current_tenant_id = current_account_with_tenant()
         _get_resource(resource_id, current_tenant_id, self.resource_model)
@@ -192,59 +175,37 @@ class BaseApiKeyListResource(Resource):
         if not current_user.is_admin_or_owner:
             raise Forbidden()
 
-        content_type = request.headers.get("Content-Type")
-        if content_type == "application/json":
-            try:
-                data = request.get_json(silent=True)
-            except:
-                data = {}
-        else:
-            data = {}
-        if data is None:
-            data = {}
+        data = request.get_json(silent=True) or {}
         api_key_id = data.get("id", "")
 
-        key = (
-            db.session.query(ApiToken)
-            .filter(
+        key = db.session.scalar(
+            select(ApiToken)
+            .where(
                 getattr(ApiToken, self.resource_id_field) == resource_id,
                 ApiToken.type == self.resource_type,
                 ApiToken.id == api_key_id,
             )
-            .first()
+            .limit(1)
         )
 
         if key is None:
-            flask_restx.abort(404, message="API密钥未找到")
+            flask_restx.abort(HTTPStatus.NOT_FOUND, message="API key not found")
 
-        data = request.get_json()
-
-        # 更新ApiTokenMoneyExtend表中的相关字段
-        api_token_money_extend = ApiTokenMoneyExtend.query.filter_by(app_token_id=api_key_id).first()
+        api_token_money_extend = db.session.scalar(
+            select(ApiTokenMoneyExtend).where(ApiTokenMoneyExtend.app_token_id == api_key_id).limit(1)
+        )
         if api_token_money_extend:
-            if 'description' in data:
-                api_token_money_extend.description = data['description']
-            if 'day_limit_quota' in data:
-                api_token_money_extend.day_limit_quota = data['day_limit_quota']
-            if 'month_limit_quota' in data:
-                api_token_money_extend.month_limit_quota = data['month_limit_quota']
-
+            if "description" in data:
+                api_token_money_extend.description = data["description"]
+            if "day_limit_quota" in data:
+                api_token_money_extend.day_limit_quota = data["day_limit_quota"]
+            if "month_limit_quota" in data:
+                api_token_money_extend.month_limit_quota = data["month_limit_quota"]
         db.session.commit()
 
-        # 重新查询以获取更新后的数据
-        updated_key = (
-            db.session.query(ApiToken, ApiTokenMoneyExtend)
-            .join(ApiTokenMoneyExtend, ApiToken.id == ApiTokenMoneyExtend.app_token_id)
-            .filter(ApiToken.id == api_key_id)
-            .first()
-        )
+        merged_data = _merge_token_with_quota_extend(key, api_token_money_extend)
+        return ApiKeyItem.model_validate(merged_data, from_attributes=True).model_dump(mode="json"), 200
 
-        if updated_key:
-            api_token, api_token_money_extend = updated_key
-            merged_data = {**api_token.__dict__, **api_token_money_extend.__dict__}
-            return merged_data, 200
-        else:
-            flask_restx.abort(500, message="更新API密钥时发生错误")
     # --------------------- 二开部分End - 密钥额度限制 ---------------------
 
 
@@ -284,9 +245,9 @@ class BaseApiKeyResource(Resource):
         db.session.execute(delete(ApiToken).where(ApiToken.id == api_key_id))
         db.session.commit()
 
-        # 二开部分Begin - 密钥额度限制
-        db.session.query(ApiTokenMoneyExtend).filter(ApiTokenMoneyExtend.app_token_id == api_key_id).update(
-            {ApiTokenMoneyExtend.is_deleted: True}
+        # 二开部分Begin - 密钥额度限制：额度记录软删，保留历史用量
+        db.session.execute(
+            update(ApiTokenMoneyExtend).where(ApiTokenMoneyExtend.app_token_id == api_key_id).values(is_deleted=True)
         )
         db.session.commit()
         # 二开部分End - 密钥额度限制
@@ -299,7 +260,7 @@ class AppApiKeyListResource(BaseApiKeyListResource):
     @console_ns.doc("get_app_api_keys")
     @console_ns.doc(description="Get all API keys for an app")
     @console_ns.doc(params={"resource_id": "App ID"})
-    @console_ns.response(200, "Success", api_key_list_model)
+    @console_ns.response(200, "API keys retrieved successfully", console_ns.models[ApiKeyList.__name__])
     def get(self, resource_id):  # type: ignore
         """Get all API keys for an app"""
         return super().get(resource_id)
@@ -307,7 +268,7 @@ class AppApiKeyListResource(BaseApiKeyListResource):
     @console_ns.doc("create_app_api_key")
     @console_ns.doc(description="Create a new API key for an app")
     @console_ns.doc(params={"resource_id": "App ID"})
-    @console_ns.response(201, "API key created successfully", api_key_item_model)
+    @console_ns.response(201, "API key created successfully", console_ns.models[ApiKeyItem.__name__])
     @console_ns.response(400, "Maximum keys exceeded")
     def post(self, resource_id):  # type: ignore
         """Create a new API key for an app"""
@@ -339,7 +300,7 @@ class DatasetApiKeyListResource(BaseApiKeyListResource):
     @console_ns.doc("get_dataset_api_keys")
     @console_ns.doc(description="Get all API keys for a dataset")
     @console_ns.doc(params={"resource_id": "Dataset ID"})
-    @console_ns.response(200, "Success", api_key_list_model)
+    @console_ns.response(200, "API keys retrieved successfully", console_ns.models[ApiKeyList.__name__])
     def get(self, resource_id):  # type: ignore
         """Get all API keys for a dataset"""
         return super().get(resource_id)
@@ -347,7 +308,7 @@ class DatasetApiKeyListResource(BaseApiKeyListResource):
     @console_ns.doc("create_dataset_api_key")
     @console_ns.doc(description="Create a new API key for a dataset")
     @console_ns.doc(params={"resource_id": "Dataset ID"})
-    @console_ns.response(201, "API key created successfully", api_key_item_model)
+    @console_ns.response(201, "API key created successfully", console_ns.models[ApiKeyItem.__name__])
     @console_ns.response(400, "Maximum keys exceeded")
     def post(self, resource_id):  # type: ignore
         """Create a new API key for a dataset"""

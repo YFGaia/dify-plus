@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach } from 'vitest'
 import SecretKeyModal from '../secret-key-modal'
@@ -88,7 +88,7 @@ describe('SecretKeyModal', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    // Suppress expected React act() warnings from Headless UI Dialog transitions and async API state updates
+    // Suppress expected React act() warnings from modal transitions and async API state updates.
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.useFakeTimers({ shouldAdvanceTime: true })
     mockCurrentWorkspace.mockReturnValue({ id: 'workspace-1', name: 'Test Workspace' })
@@ -251,10 +251,17 @@ describe('SecretKeyModal', () => {
         await user.click(createButton)
       })
 
+      // extend: 密钥额度限制 — 先经过额度设置弹窗再创建
+      const quotaCreateButton = await screen.findByText('common.operation.create')
+      await act(async () => {
+        await user.click(quotaCreateButton)
+      })
+
       await waitFor(() => {
         expect(mockCreateAppApikey).toHaveBeenCalledWith({
           url: '/apps/app-123/api-keys',
-          body: {},
+          // extend: 密钥额度限制 — 创建时携带额度默认值
+          body: { description: '', day_limit_quota: -1, month_limit_quota: -1 },
         })
       })
     })
@@ -268,10 +275,17 @@ describe('SecretKeyModal', () => {
         await user.click(createButton)
       })
 
+      // extend: 密钥额度限制 — 先经过额度设置弹窗再创建
+      const quotaCreateButton = await screen.findByText('common.operation.create')
+      await act(async () => {
+        await user.click(quotaCreateButton)
+      })
+
       await waitFor(() => {
         expect(mockCreateDatasetApikey).toHaveBeenCalledWith({
           url: '/datasets/api-keys',
-          body: {},
+          // extend: 密钥额度限制 — 创建时携带额度默认值
+          body: { description: '', day_limit_quota: -1, month_limit_quota: -1 },
         })
       })
     })
@@ -285,9 +299,51 @@ describe('SecretKeyModal', () => {
         await user.click(createButton)
       })
 
+      // extend: 密钥额度限制 — 先经过额度设置弹窗再创建
+      const quotaCreateButton = await screen.findByText('common.operation.create')
+      await act(async () => {
+        await user.click(quotaCreateButton)
+      })
+
       await waitFor(() => {
         expect(screen.getByText('appApi.apiKeyModal.generateTips')).toBeInTheDocument()
       })
+    })
+
+    it('should place the generated key backdrop above the API keys modal', async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+      mockAppApiKeysData.mockReturnValue({
+        data: [
+          { id: 'key-1', token: 'sk-abc123def456ghi789', created_at: 1700000000, last_used_at: null },
+        ],
+      })
+      await renderModal(<SecretKeyModal {...defaultProps} appId="app-123" />)
+
+      const createButton = screen.getByText('appApi.apiKeyModal.createNewSecretKey')
+      await act(async () => {
+        await user.click(createButton)
+      })
+
+      // extend: 密钥额度限制 — 先经过额度设置弹窗再创建
+      const quotaCreateButton = await screen.findByText('common.operation.create')
+      await act(async () => {
+        await user.click(quotaCreateButton)
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('appApi.apiKeyModal.generateTips')).toBeInTheDocument()
+      })
+
+      const parentDialog = screen.getByText('appApi.apiKeyModal.apiSecretKeyTips').closest('[role="dialog"]')
+      const generatedKeyDialog = screen.getByText('appApi.apiKeyModal.generateTips').closest('[role="dialog"]')
+      const backdrops = document.body.querySelectorAll('.bg-background-overlay')
+      const generatedKeyBackdrop = backdrops[1]
+
+      expect(parentDialog).toBeInTheDocument()
+      expect(generatedKeyDialog).toBeInTheDocument()
+      expect(backdrops).toHaveLength(2)
+      expect(parentDialog!.compareDocumentPosition(generatedKeyBackdrop!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+      expect(generatedKeyBackdrop!.compareDocumentPosition(generatedKeyDialog!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     })
 
     it('should invalidate app API keys after creating', async () => {
@@ -297,6 +353,12 @@ describe('SecretKeyModal', () => {
       const createButton = screen.getByText('appApi.apiKeyModal.createNewSecretKey')
       await act(async () => {
         await user.click(createButton)
+      })
+
+      // extend: 密钥额度限制 — 先经过额度设置弹窗再创建
+      const quotaCreateButton = await screen.findByText('common.operation.create')
+      await act(async () => {
+        await user.click(quotaCreateButton)
       })
 
       await waitFor(() => {
@@ -311,6 +373,12 @@ describe('SecretKeyModal', () => {
       const createButton = screen.getByText('appApi.apiKeyModal.createNewSecretKey')
       await act(async () => {
         await user.click(createButton)
+      })
+
+      // extend: 密钥额度限制 — 先经过额度设置弹窗再创建
+      const quotaCreateButton = await screen.findByText('common.operation.create')
+      await act(async () => {
+        await user.click(quotaCreateButton)
       })
 
       await waitFor(() => {
@@ -360,7 +428,7 @@ describe('SecretKeyModal', () => {
     it('should have action buttons in the key row', async () => {
       await renderModal(<SecretKeyModal {...defaultProps} appId="app-123" />)
 
-      const actionContainers = document.body.querySelectorAll('[class*="space-x-2"]')
+      const actionContainers = document.body.querySelectorAll('[class*="space-x-1"]') // extend: fork 行内多一个编辑按钮，容器为 space-x-1
       expect(actionContainers.length).toBeGreaterThan(0)
     })
 
@@ -476,6 +544,32 @@ describe('SecretKeyModal', () => {
       })
 
       expect(mockDelAppApikey).not.toHaveBeenCalled()
+    })
+
+    it('should close confirm dialog when Escape is pressed', async () => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+      await renderModal(<SecretKeyModal {...defaultProps} appId="app-123" />)
+
+      const actionButtons = document.body.querySelectorAll('button.action-btn')
+      const deleteButton = actionButtons[1]
+      await act(async () => {
+        await user.click(deleteButton!)
+        vi.runAllTimers()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('appApi.actionMsg.deleteConfirmTitle')).toBeInTheDocument()
+      })
+      await flushTransitions()
+
+      await act(async () => {
+        fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' })
+        vi.runAllTimers()
+      })
+
+      await waitFor(() => {
+        expect(screen.queryByText('appApi.actionMsg.deleteConfirmTitle')).not.toBeInTheDocument()
+      })
     })
   })
 
@@ -596,6 +690,13 @@ describe('SecretKeyModal', () => {
       const createButton = screen.getByText('appApi.apiKeyModal.createNewSecretKey')
       await act(async () => {
         await user.click(createButton)
+        vi.runAllTimers()
+      })
+
+      // extend: 密钥额度限制 — 先经过额度设置弹窗再创建
+      const quotaCreateButton = await screen.findByText('common.operation.create')
+      await act(async () => {
+        await user.click(quotaCreateButton)
         vi.runAllTimers()
       })
 

@@ -6,7 +6,6 @@ Extend: 系统管理功能 — Controller 路由与权限装饰器
 import logging
 from collections.abc import Callable
 from functools import wraps
-from typing import ParamSpec, TypeVar
 
 from flask import abort, request
 from flask_restx import Resource
@@ -15,15 +14,17 @@ from pydantic import BaseModel
 from controllers.console import api
 from controllers.console.wraps import account_initialization_required, setup_required
 from libs.login import current_user, login_required
-from services.system_manage_extend import QuotaManageService, SystemIntegrationManageService
+from models.system_extend import CodeExecutionControlExtend
+from services.system_manage_extend import (
+    CodeExecutionControlService,
+    QuotaManageService,
+    SystemIntegrationManageService,
+)
 
 logger = logging.getLogger(__name__)
 
-P = ParamSpec("P")
-R = TypeVar("R")
 
-
-def system_admin_required_extend(f: Callable[P, R]) -> Callable[P, R]:
+def system_admin_required_extend[**P, R](f: Callable[P, R]) -> Callable[P, R]:
     """
     确保当前用户有系统管理权限:
     1. 用户已登录（由外层 @login_required 保证）
@@ -41,6 +42,7 @@ def system_admin_required_extend(f: Callable[P, R]) -> Callable[P, R]:
 
 
 # ==================== 钉钉配置 ====================
+
 
 class DingTalkConfigExtend(Resource):
     """钉钉 SSO 配置管理"""
@@ -116,6 +118,7 @@ class DingTalkTestCallbackExtend(Resource):
 
 # ==================== OAuth2 配置 ====================
 
+
 class OAuth2ConfigExtend(Resource):
     """OAuth2.0 集成配置管理"""
 
@@ -171,6 +174,7 @@ class OAuth2TestExtend(Resource):
 
 # ==================== 邮箱 API ====================
 
+
 class EmailApiTestExtend(Resource):
     """测试邮箱 API"""
 
@@ -197,6 +201,7 @@ class EmailApiTestExtend(Resource):
 
 
 # ==================== 转发 Token ====================
+
 
 class ForwardTokenListExtend(Resource):
     """转发 Token 列表管理"""
@@ -331,3 +336,71 @@ class QuotaManagementSetExtend(Resource):
 
 api.add_resource(QuotaManagementListExtend, "/system-manage-extend/quota-management")
 api.add_resource(QuotaManagementSetExtend, "/system-manage-extend/quota-management/set")
+
+
+# ==================== 代码执行控制（sandbox-full 授权名单） ====================
+
+
+def _serialize_code_execution_control(record: CodeExecutionControlExtend) -> dict:
+    """按 API 契约序列化单条授权记录（created_at 为 ISO8601 字符串）"""
+    return {
+        "id": str(record.id),
+        "email": record.email,
+        "created_by": str(record.created_by) if record.created_by else None,
+        "created_at": record.created_at.isoformat() if record.created_at else None,
+    }
+
+
+class CodeExecutionControlListExtend(Resource):
+    """sandbox-full 授权邮箱名单 — 查询与添加"""
+
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    def get(self):
+        """获取授权邮箱名单（created_at 升序）"""
+        records = CodeExecutionControlService.list_emails()
+        return {"items": [_serialize_code_execution_control(r) for r in records]}, 200
+
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    def post(self):
+        """添加授权邮箱；邮箱格式非法或重复返回 400"""
+        data = request.get_json(silent=True)
+        if not data or "email" not in data:
+            abort(400, "email is required.")
+        try:
+            record, cache_synced = CodeExecutionControlService.add_email(
+                email=data["email"],
+                created_by=current_user.id,
+            )
+        except ValueError as e:
+            abort(400, str(e))
+        return {
+            "result": "success",
+            "item": _serialize_code_execution_control(record),
+            "cache_synced": cache_synced,
+        }, 201
+
+
+class CodeExecutionControlDetailExtend(Resource):
+    """sandbox-full 授权邮箱名单 — 删除单条记录"""
+
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    def delete(self, record_id: str):
+        """删除授权记录；记录不存在返回 404"""
+        try:
+            cache_synced = CodeExecutionControlService.remove_email(record_id=record_id)
+        except ValueError as e:
+            abort(404, str(e))
+        return {"result": "success", "cache_synced": cache_synced}, 200
+
+
+api.add_resource(CodeExecutionControlListExtend, "/system-manage-extend/code-execution-control")
+api.add_resource(CodeExecutionControlDetailExtend, "/system-manage-extend/code-execution-control/<string:record_id>")

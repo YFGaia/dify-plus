@@ -4,10 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
 from core.app.app_config.features.file_upload.manager import FileUploadConfigManager
+from core.app.file_access import DatabaseFileAccessController
 from core.model_manager import ModelInstance
 from core.prompt.utils.extract_thread_messages import extract_thread_messages
-from dify_graph.file import file_manager
-from dify_graph.model_runtime.entities import (
+from extensions.ext_database import db
+from factories import file_factory
+from graphon.file import file_manager
+from graphon.model_runtime.entities import (
     AssistantPromptMessage,
     ImagePromptMessageContent,
     PromptMessage,
@@ -15,9 +18,7 @@ from dify_graph.model_runtime.entities import (
     TextPromptMessageContent,
     UserPromptMessage,
 )
-from dify_graph.model_runtime.entities.message_entities import PromptMessageContentUnionTypes
-from extensions.ext_database import db
-from factories import file_factory
+from graphon.model_runtime.entities.message_entities import PromptMessageContentUnionTypes
 from models.model import AppMode, Conversation, Message, MessageFile
 
 # Extend: start messages context handling
@@ -25,6 +26,8 @@ from models.model_extend import MessageContextExtend
 from models.workflow import Workflow
 from repositories.api_workflow_run_repository import APIWorkflowRunRepository
 from repositories.factory import DifyAPIRepositoryFactory
+
+_file_access_controller = DatabaseFileAccessController()
 
 
 class TokenBufferMemory:
@@ -44,11 +47,17 @@ class TokenBufferMemory:
         prompt_messages: tuple[list[AssistantPromptMessage]],
     ) -> tuple[list[AssistantPromptMessage]]:
         # check if there is a segmentation context
-        message_context = db.session.query(MessageContextExtend).filter(
-                MessageContextExtend.conversation_id == conversation_id).order_by(
-                MessageContextExtend.created_at.desc()).all()
+        message_context = (
+            db.session.query(MessageContextExtend)
+            .filter(MessageContextExtend.conversation_id == conversation_id)
+            .order_by(MessageContextExtend.created_at.desc())
+            .all()
+        )
         # Is there a split
         if not message_context:
+            # 无分割记录时也要清掉 name 标记，避免带 message.id 的 name 进入 LLM 上下文
+            for v in prompt_messages:
+                v.name = None
             return prompt_messages
         # for
         messages = []
@@ -60,6 +69,7 @@ class TokenBufferMemory:
                         messages = []
             v.name = None
         return messages
+
     # Extend: stop messages context handling
 
     @property
@@ -86,34 +96,36 @@ class TokenBufferMemory:
         :param is_user_message: whether this is a user message
         :return: PromptMessage
         """
-        if self.conversation.mode in {AppMode.AGENT_CHAT, AppMode.COMPLETION, AppMode.CHAT}:
-            file_extra_config = FileUploadConfigManager.convert(self.conversation.model_config)
-        elif self.conversation.mode in {AppMode.ADVANCED_CHAT, AppMode.WORKFLOW}:
-            app = self.conversation.app
-            if not app:
-                raise ValueError("App not found for conversation")
+        match self.conversation.mode:
+            case AppMode.AGENT_CHAT | AppMode.COMPLETION | AppMode.CHAT:
+                file_extra_config = FileUploadConfigManager.convert(self.conversation.model_config)
+            case AppMode.ADVANCED_CHAT | AppMode.WORKFLOW:
+                app = self.conversation.app
+                if not app:
+                    raise ValueError("App not found for conversation")
 
-            if not message.workflow_run_id:
-                raise ValueError("Workflow run ID not found")
+                if not message.workflow_run_id:
+                    raise ValueError("Workflow run ID not found")
 
-            workflow_run = self.workflow_run_repo.get_workflow_run_by_id(
-                tenant_id=app.tenant_id, app_id=app.id, run_id=message.workflow_run_id
-            )
-            if not workflow_run:
-                raise ValueError(f"Workflow run not found: {message.workflow_run_id}")
-            workflow = db.session.scalar(select(Workflow).where(Workflow.id == workflow_run.workflow_id))
-            if not workflow:
-                raise ValueError(f"Workflow not found: {workflow_run.workflow_id}")
-            file_extra_config = FileUploadConfigManager.convert(workflow.features_dict, is_vision=False)
-        else:
-            raise AssertionError(f"Invalid app mode: {self.conversation.mode}")
+                workflow_run = self.workflow_run_repo.get_workflow_run_by_id(
+                    tenant_id=app.tenant_id, app_id=app.id, run_id=message.workflow_run_id
+                )
+                if not workflow_run:
+                    raise ValueError(f"Workflow run not found: {message.workflow_run_id}")
+                workflow = db.session.scalar(select(Workflow).where(Workflow.id == workflow_run.workflow_id))
+                if not workflow:
+                    raise ValueError(f"Workflow not found: {workflow_run.workflow_id}")
+                file_extra_config = FileUploadConfigManager.convert(workflow.features_dict, is_vision=False)
+            case _:
+                raise AssertionError(f"Invalid app mode: {self.conversation.mode}")
 
         detail = ImagePromptMessageContent.DETAIL.HIGH
         if file_extra_config and app_record:
-            # Build files directly without filtering by belongs_to
             file_objs = [
                 file_factory.build_from_message_file(
-                    message_file=message_file, tenant_id=app_record.tenant_id, config=file_extra_config
+                    message_file=message_file,
+                    tenant_id=app_record.tenant_id,
+                    access_controller=_file_access_controller,
                 )
                 for message_file in message_files
             ]
@@ -143,7 +155,9 @@ class TokenBufferMemory:
                 return AssistantPromptMessage(content=prompt_message_contents)
 
     def get_history_prompt_messages(
-        self, max_token_limit: int = 2000, message_limit: int | None = None,
+        self,
+        max_token_limit: int = 2000,
+        message_limit: int | None = None,
         control_registers: bool = True,  # Extend: messages context handling
     ) -> Sequence[PromptMessage]:
         """
@@ -216,10 +230,9 @@ class TokenBufferMemory:
                 )
                 prompt_messages.append(assistant_prompt_message)
             else:
-                prompt_messages.append(AssistantPromptMessage(content=message.answer))
-
-            # Extend Contextual dividing line
-            prompt_messages.append(AssistantPromptMessage(name=message.id, content=message.answer))
+                # Extend Contextual dividing line：assistant 消息携带 name=message.id 供上下文分割匹配，
+                # messages_context_handling 处理后会把 name 置回 None（修复合并前重复追加同内容消息的问题）
+                prompt_messages.append(AssistantPromptMessage(name=message.id, content=message.answer))
 
         # Extend: start messages context handling
         if control_registers:

@@ -1,6 +1,6 @@
+import type { DingTalkConfig, ForwardToken, OAuth2Config, QuotaListResponse, TestResult } from '@/models/system-manage-extend'
 // Extend: 系统管理 API 服务封装
 import { del, get, post } from '@/service/base'
-import type { DingTalkConfig, ForwardToken, OAuth2Config, QuotaListResponse, TestResult } from '@/models/system-manage-extend'
 
 // ==================== 钉钉 ====================
 export const getDingTalkConfig = () =>
@@ -48,5 +48,5 @@ export const getQuotaList = (params: {
 }) =>
   get<QuotaListResponse>('/system-manage-extend/quota-management', { params })
 
-export const setUserQuota = (data: { account_id: string; quota: number }) =>
+export const setUserQuota = (data: { account_id: string, quota: number }) =>
   post<{ result: string }>('/system-manage-extend/quota-management/set', { body: data })

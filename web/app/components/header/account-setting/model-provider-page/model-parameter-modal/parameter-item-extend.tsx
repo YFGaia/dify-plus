@@ -1,13 +1,13 @@
 import type { FC } from 'react'
 import type { ModelParameterRule } from '../declarations'
+import { cn } from '@langgenius/dify-ui/cn'
+import { Select, SelectContent, SelectItem, SelectItemIndicator, SelectItemText, SelectTrigger, SelectValue } from '@langgenius/dify-ui/select'
+import { Slider } from '@langgenius/dify-ui/slider'
+import { Switch } from '@langgenius/dify-ui/switch'
 import { useState } from 'react'
+import { Infotip } from '@/app/components/base/infotip'
 import Radio from '@/app/components/base/radio'
-import { SimpleSelect } from '@/app/components/base/select'
-import Slider from '@/app/components/base/slider'
-import Switch from '@/app/components/base/switch'
 import TagInput from '@/app/components/base/tag-input'
-import Tooltip from '@/app/components/base/tooltip'
-import { cn } from '@/utils/classnames'
 import { useLanguage } from '../hooks'
 import { isNullOrUndefined } from '../utils'
 
@@ -78,10 +78,6 @@ const ParameterItem: FC<ParameterItemProps> = ({
     handleInputChange(e.target.value)
   }
 
-  const handleSelect = (option: { value: string | number, name: string }) => {
-    handleInputChange(option.value)
-  }
-
   const handleTagChange = (newSequences: string[]) => {
     handleInputChange(newSequences)
   }
@@ -120,7 +116,7 @@ const ParameterItem: FC<ParameterItemProps> = ({
             min={parameterRule.min}
             max={parameterRule.max}
             step={step}
-            onChange={handleSlideChange}
+            onValueChange={handleSlideChange}
           />
         )
       )
@@ -161,13 +157,22 @@ const ParameterItem: FC<ParameterItemProps> = ({
 
     if (parameterRule.type === 'string' && !!parameterRule?.options?.length) {
       return (
-        <SimpleSelect
-          className="!py-0"
-          wrapperClassName={cn(isInWorkflow ? '!w-[200px]' : 'w-full', 'ml-4 !h-8')}
-          defaultValue={renderValue as string}
-          onSelect={handleSelect}
-          items={parameterRule.options.map(option => ({ value: option, name: option }))}
-        />
+        <Select
+          value={renderValue as string}
+          onValueChange={v => handleInputChange(v ?? undefined)}
+        >
+          <SelectTrigger className={cn(isInWorkflow ? 'w-[200px]' : 'w-full', 'ml-4 h-8')}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {parameterRule.options!.map(option => (
+              <SelectItem key={option} value={option}>
+                <SelectItemText>{option}</SelectItemText>
+                <SelectItemIndicator />
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       )
     }
 
@@ -200,23 +205,22 @@ const ParameterItem: FC<ParameterItemProps> = ({
           {
             parameterRule.help && (
               <>
-                <Tooltip
-                  popupContent={(
-                    <div className="w-[200px] whitespace-pre-wrap">{parameterRule.help[language] || parameterRule.help.en_US}</div>
-                  )}
-                  popupClassName="mr-1"
-                  triggerClassName="mr-1 w-4 h-4 shrink-0"
+                <Infotip
+                  aria-label={parameterRule.help[language] || parameterRule.help.en_US}
+                  className="mr-1 shrink-0"
+                  popupClassName="w-[200px] whitespace-pre-wrap"
                 >
-                </Tooltip>
-                <span className="absolute bottom-[-3px] right-16 text-xs text-orange-600">{renderValue}</span>
+                  {parameterRule.help[language] || parameterRule.help.en_US}
+                </Infotip>
+                <span className="absolute right-16 bottom-[-3px] text-xs text-orange-600">{renderValue}</span>
               </>
             )
           }
           {
             !parameterRule.required && parameterRule.name !== 'stop' && (
               <Switch
-                value={!isNullOrUndefined(value)}
-                onChange={handleSwitch}
+                checked={!isNullOrUndefined(value)}
+                onCheckedChange={handleSwitch}
                 size="md"
               />
             )

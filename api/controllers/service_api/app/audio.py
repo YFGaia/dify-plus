@@ -2,10 +2,10 @@ import logging
 
 from flask import request
 from flask_restx import Resource
-from pydantic import BaseModel, Field
 from werkzeug.exceptions import InternalServerError
 
 import services
+from controllers.common.controller_schemas import TextToAudioPayload
 from controllers.common.schema import register_schema_model
 from controllers.service_api import service_api_ns
 from controllers.service_api.app.error import (
@@ -21,7 +21,7 @@ from controllers.service_api.app.error import (
 )
 from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate_app_token
 from core.errors.error import ModelCurrentlyNotSupportError, ProviderTokenNotInitError, QuotaExceededError
-from dify_graph.model_runtime.errors.invoke import InvokeError
+from graphon.model_runtime.errors.invoke import InvokeError
 from models.model import ApiToken, App, EndUser  # extend: 二开部分 密钥额度限制，新增api_token
 from services.audio_service import AudioService
 from services.errors.audio import (
@@ -50,7 +50,7 @@ class AudioApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))
     # 二开部分End - 密钥额度限制，新增api_token,否则上传文件会报错
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken | None = None):
         """Convert audio to text using speech-to-text.
 
         Accepts an audio file upload and returns the transcribed text.
@@ -87,13 +87,6 @@ class AudioApi(Resource):
             raise InternalServerError()
 
 
-class TextToAudioPayload(BaseModel):
-    message_id: str | None = Field(default=None, description="Message ID")
-    voice: str | None = Field(default=None, description="Voice to use for TTS")
-    text: str | None = Field(default=None, description="Text to convert to audio")
-    streaming: bool | None = Field(default=None, description="Enable streaming response")
-
-
 register_schema_model(service_api_ns, TextToAudioPayload)
 
 
@@ -112,7 +105,7 @@ class TextApi(Resource):
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))
     # extend 二开部分End - 密钥额度限制，新增api_token
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken):
+    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken | None = None):
         """Convert text to audio using text-to-speech.
 
         Converts the provided text to audio using the specified voice.

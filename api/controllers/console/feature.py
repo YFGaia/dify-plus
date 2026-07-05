@@ -1,5 +1,4 @@
 from datetime import UTC, datetime, timedelta
-from typing import Optional
 
 import jwt
 from flask import make_response, request
@@ -25,7 +24,7 @@ def _issue_login_config_jwt(ip: str) -> str:
     return jwt.encode(payload, dify_config.SECRET_KEY, algorithm="HS256")
 
 
-def _verify_login_config_token(token: Optional[str]) -> bool:
+def _verify_login_config_token(token: str | None) -> bool:
     """extend: CVE-2025-63387 校验 JWT 签名、过期时间，以及当前请求 IP 与 payload.ip 一致。"""
     if not token:
         return False
@@ -103,6 +102,7 @@ class LoginConfigApi(Resource):
     仅当请求带有 login_config_bootstrap 写入的 cookie 时才返回登录配置，
     避免未经过控制台入口的扫描直接获取系统配置。
     """
+
     @console_ns.doc("get_login_config")
     @console_ns.doc(description="Get system-wide login/feature configuration")
     @console_ns.response(

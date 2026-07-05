@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from functools import wraps
-from typing import Concatenate, ParamSpec, TypeVar
+from typing import Concatenate
 
 from flask import abort
 from flask_restx import Resource
@@ -14,12 +14,8 @@ from libs.login import current_account_with_tenant, login_required
 from models import AccountTrialAppRecord, App, InstalledApp, TrialApp
 from services.feature_service import FeatureService
 
-P = ParamSpec("P")
-R = TypeVar("R")
-T = TypeVar("T")
 
-
-def installed_app_required(view: Callable[Concatenate[InstalledApp, P], R] | None = None):
+def installed_app_required[**P, R](view: Callable[Concatenate[InstalledApp, P], R] | None = None):
     def decorator(view: Callable[Concatenate[InstalledApp, P], R]):
         @wraps(view)
         def decorated(installed_app_id: str, *args: P.args, **kwargs: P.kwargs):
@@ -48,7 +44,7 @@ def installed_app_required(view: Callable[Concatenate[InstalledApp, P], R] | Non
     return decorator
 
 
-def user_allowed_to_access_app(view: Callable[Concatenate[InstalledApp, P], R] | None = None):
+def user_allowed_to_access_app[**P, R](view: Callable[Concatenate[InstalledApp, P], R] | None = None):
     def decorator(view: Callable[Concatenate[InstalledApp, P], R]):
         @wraps(view)
         def decorated(installed_app: InstalledApp, *args: P.args, **kwargs: P.kwargs):
@@ -61,7 +57,7 @@ def user_allowed_to_access_app(view: Callable[Concatenate[InstalledApp, P], R] |
     return decorator
 
 
-def trial_app_required(view: Callable[Concatenate[App, P], R] | None = None):
+def trial_app_required[**P, R](view: Callable[Concatenate[App, P], R] | None = None):
     def decorator(view: Callable[Concatenate[App, P], R]):
         @wraps(view)
         def decorated(app_id: str, *args: P.args, **kwargs: P.kwargs):
@@ -94,7 +90,7 @@ def trial_app_required(view: Callable[Concatenate[App, P], R] | None = None):
     return decorator
 
 
-def trial_feature_enable(view: Callable[P, R]):
+def trial_feature_enable[**P, R](view: Callable[P, R]):
     @wraps(view)
     def decorated(*args: P.args, **kwargs: P.kwargs):
         features = FeatureService.get_system_features()
@@ -105,7 +101,7 @@ def trial_feature_enable(view: Callable[P, R]):
     return decorated
 
 
-def explore_banner_enabled(view: Callable[P, R]):
+def explore_banner_enabled[**P, R](view: Callable[P, R]):
     @wraps(view)
     def decorated(*args: P.args, **kwargs: P.kwargs):
         features = FeatureService.get_system_features()

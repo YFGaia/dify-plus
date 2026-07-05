@@ -1,7 +1,7 @@
 'use client'
 
 import type { FC } from 'react'
-import { Slider as UISlider } from '@/app/components/base/ui/slider'
+import { Slider as UISlider } from '@langgenius/dify-ui/slider'
 
 type SliderProps = {
   className?: string

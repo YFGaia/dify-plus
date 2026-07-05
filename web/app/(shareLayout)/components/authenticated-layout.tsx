@@ -37,7 +37,7 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  
+
   // 检查 Console 用户登录状态
   useEffect(() => {
     const checkConsoleAuth = async () => {
@@ -50,13 +50,15 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
       }
       setIsCheckingAuth(false)
     }
-    
+
     checkConsoleAuth()
   }, [pathname, router])
   const getSigninUrl = useCallback(() => {
     const params = new URLSearchParams(searchParams)
     params.delete('message')
-    params.set('redirect_url', pathname)
+    const query = params.toString()
+    const fullPath = query ? `${pathname}?${query}` : pathname
+    params.set('redirect_url', fullPath)
     return `/webapp-signin?${params.toString()}`
   }, [searchParams, pathname])
 
@@ -98,7 +100,7 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-y-2">
         <AppUnavailable className="h-auto w-auto" code={403} unknownReason="no permission." />
-        <span className="system-sm-regular cursor-pointer text-text-tertiary" onClick={backToHome}>{t('userProfile.logout', { ns: 'common' })}</span>
+        <span className="cursor-pointer system-sm-regular text-text-tertiary" onClick={backToHome}>{t('userProfile.logout', { ns: 'common' })}</span>
       </div>
     )
   }

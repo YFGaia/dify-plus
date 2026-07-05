@@ -1,13 +1,14 @@
 'use client'
 
-import { useTranslation } from 'react-i18next'
-import Link from 'next/link'
-import { useSelectedLayoutSegment } from 'next/navigation'
-import { cn } from '@/utils/classnames'
+import { cn } from '@langgenius/dify-ui/cn'
 import {
   RiImage2Fill,
   RiImage2Line,
 } from '@remixicon/react'
+import Link from 'next/link'
+import { useSelectedLayoutSegment } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
+
 type ExploreNavProps = {
   className?: string
 }
@@ -20,17 +21,21 @@ const DrawNav = ({
   const actived = selectedSegment === 'draw-extend'
 
   return (
-    <Link href="https://gaia-x.yafex.cn/draw" className={cn(
-      className, 'group',
-      actived && 'bg-white shadow-md',
-      actived ? 'text-primary-600' : 'text-gray-500 hover:bg-gray-200',
-    )}>
+    <Link
+      href="https://gaia-x.yafex.cn/draw"
+      className={cn(
+        className,
+        'group',
+        actived && 'bg-white shadow-md',
+        actived ? 'text-primary-600' : 'text-gray-500 hover:bg-gray-200',
+      )}
+    >
       {
         actived
-          ? <RiImage2Fill className='mr-2 h-4 w-4' />
-          : <RiImage2Line className='mr-2 h-4 w-4' />
+          ? <RiImage2Fill className="mr-2 h-4 w-4" />
+          : <RiImage2Line className="mr-2 h-4 w-4" />
       }
-      {t("aiDraw.title", { ns: "extend" } )}
+      {t('aiDraw.title', { ns: 'extend' })}
     </Link>
   )
 }

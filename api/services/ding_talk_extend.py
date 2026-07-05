@@ -91,8 +91,8 @@ class DingTalkService:
         import re
 
         # 处理路径中的数组索引，如 data[0].userName -> data.[0].userName
-        path = re.sub(r'\[(\d+)\]', r'.[\1]', path)
-        parts = path.split('.')
+        path = re.sub(r"\[(\d+)\]", r".[\1]", path)
+        parts = path.split(".")
         current = dictionary
 
         for part in parts:
@@ -100,7 +100,7 @@ class DingTalkService:
                 continue
 
             # 处理数组索引
-            array_match = re.match(r'\[(\d+)\]', part)
+            array_match = re.match(r"\[(\d+)\]", part)
             if array_match:
                 index = int(array_match.group(1))
                 if isinstance(current, list) and 0 <= index < len(current):
@@ -167,6 +167,7 @@ class DingTalkService:
                 password = authorization.get("password", "")
                 if username and password:
                     from requests.auth import HTTPBasicAuth
+
                     auth = HTTPBasicAuth(username, password)
 
             # 构建请求数据
@@ -187,8 +188,7 @@ class DingTalkService:
                     request_data[param_field] = userid
                     # form-data使用data参数
                     response = requests.request(
-                        method, api_url, data=request_data,
-                        headers=request_headers, auth=auth, timeout=10
+                        method, api_url, data=request_data, headers=request_headers, auth=auth, timeout=10
                     )
                 elif body_type == "x-www-form-urlencoded":
                     # x-www-form-urlencoded: 合并body_data中的urlencoded
@@ -205,8 +205,7 @@ class DingTalkService:
                     if "Content-Type" not in request_headers:
                         request_headers["Content-Type"] = "application/x-www-form-urlencoded"
                     response = requests.request(
-                        method, api_url, data=request_data,
-                        headers=request_headers, auth=auth, timeout=10
+                        method, api_url, data=request_data, headers=request_headers, auth=auth, timeout=10
                     )
                 else:  # raw (JSON)
                     # raw: 合并body_data中的raw JSON
@@ -224,15 +223,11 @@ class DingTalkService:
                     if "Content-Type" not in request_headers:
                         request_headers["Content-Type"] = "application/json"
                     response = requests.request(
-                        method, api_url, json=request_data,
-                        headers=request_headers, auth=auth, timeout=10
+                        method, api_url, json=request_data, headers=request_headers, auth=auth, timeout=10
                     )
             else:  # GET请求
                 # GET请求：所有数据作为URL参数
-                response = requests.get(
-                    api_url, params=request_data,
-                    headers=request_headers, auth=auth, timeout=10
-                )
+                response = requests.get(api_url, params=request_data, headers=request_headers, auth=auth, timeout=10)
 
             # 检查响应
             if response.status_code != 200:
@@ -269,9 +264,12 @@ class DingTalkService:
         # get token
         client = cls.create_client()
         integration: SystemIntegrationExtend = (
-            db.session.query(SystemIntegrationExtend).filter(
+            db.session.query(SystemIntegrationExtend)
+            .filter(
                 SystemIntegrationExtend.status == True,
-                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK).first()
+                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK,
+            )
+            .first()
         )
         if integration is None:
             return "", "尚未配置钉钉登录"
@@ -298,9 +296,12 @@ class DingTalkService:
         if DINGTALK_ACCOUNT_TOKEN["time"] > time.time():
             return DINGTALK_ACCOUNT_TOKEN["token"], ""
         integration: SystemIntegrationExtend = (
-            db.session.query(SystemIntegrationExtend).filter(
+            db.session.query(SystemIntegrationExtend)
+            .filter(
                 SystemIntegrationExtend.status == True,
-                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK).first()
+                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK,
+            )
+            .first()
         )
         if integration is None:
             return "", "尚未配置钉钉登录"
@@ -328,14 +329,17 @@ class DingTalkService:
     def auto_create_user(cls, userid: str) -> (str, str):
         # 获取集成配置
         integration: SystemIntegrationExtend = (
-            db.session.query(SystemIntegrationExtend).filter(
+            db.session.query(SystemIntegrationExtend)
+            .filter(
                 SystemIntegrationExtend.status == True,
-                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK).first()
+                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK,
+            )
+            .first()
         )
 
         dingTalkToken, err = cls.get_access_token()
         responses = requests.post(
-            f'https://oapi.dingtalk.com/topapi/v2/user/get?access_token={dingTalkToken}',
+            f"https://oapi.dingtalk.com/topapi/v2/user/get?access_token={dingTalkToken}",
             json={"userid": userid},
         )
         # Check the response status code
@@ -345,7 +349,7 @@ class DingTalkService:
         if reqs["errcode"] != 0:
             return "", "Request for user information failed: " + userid + " " + json.dumps(reqs)
         # Check if the user exists
-        username = reqs["result"]['name']
+        username = reqs["result"]["name"]
 
         # 优先尝试从第三方API获取邮箱
         email = ""
@@ -368,9 +372,7 @@ class DingTalkService:
                     userid,
                 )
 
-        account: Account = (
-            db.session.query(Account).filter(Account.email == email).first()
-        )
+        account: Account = db.session.query(Account).filter(Account.email == email).first()
         if account is None:
             # registered user
             try:
@@ -423,7 +425,7 @@ class DingTalkService:
         dingTalkToken, err = cls.get_access_token()
         unionIdResponse = requests.post(
             f"https://oapi.dingtalk.com/topapi/user/getbyunionid?access_token={dingTalkToken}",
-            json={"unionid": req["unionId"]}
+            json={"unionid": req["unionId"]},
         )
         # Check the response status code
         if unionIdResponse.status_code != 200:

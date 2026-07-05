@@ -1,9 +1,8 @@
 /* eslint-disable ts/no-explicit-any */
 import type { ScheduleTriggerNodeType } from '../../types'
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import FrequencySelector from '../frequency-selector'
-import ModeSwitcher from '../mode-switcher'
 import ModeToggle from '../mode-toggle'
 import MonthlyDaysSelector from '../monthly-days-selector'
 import NextExecutionTimes from '../next-execution-times'
@@ -43,29 +42,14 @@ describe('trigger-schedule components', () => {
         />,
       )
 
-      const trigger = screen.getByRole('button', { name: 'workflow.nodes.triggerSchedule.frequency.daily' })
-      fireEvent.click(trigger)
-
-      await waitFor(() => {
-        expect(trigger).toHaveAttribute('aria-expanded', 'true')
-      })
-
-      const listbox = await screen.findByRole('listbox')
-      await user.click(within(listbox).getByText('workflow.nodes.triggerSchedule.frequency.weekly'))
+      const trigger = screen.getByRole('combobox')
+      await user.click(trigger)
+      await user.keyboard('{ArrowDown}')
+      await user.keyboard('{Enter}')
 
       await waitFor(() => {
         expect(onChange).toHaveBeenCalledWith('weekly')
       })
-    })
-
-    it('should switch between visual and cron modes', async () => {
-      const user = userEvent.setup()
-      const onChange = vi.fn()
-      render(<ModeSwitcher mode="visual" onChange={onChange} />)
-
-      await user.click(screen.getByText('workflow.nodes.triggerSchedule.modeCron'))
-
-      expect(onChange).toHaveBeenCalledWith('cron')
     })
 
     it('should toggle the mode from visual to cron', async () => {

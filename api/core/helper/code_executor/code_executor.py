@@ -13,7 +13,7 @@ from core.helper.code_executor.jinja2.jinja2_transformer import Jinja2TemplateTr
 from core.helper.code_executor.python3.python3_transformer import Python3TemplateTransformer
 from core.helper.code_executor.template_transformer import TemplateTransformer
 from core.helper.http_client_pooling import get_pooled_http_client
-from dify_graph.nodes.code.entities import CodeLanguage
+from graphon.nodes.code.entities import CodeLanguage
 
 logger = logging.getLogger(__name__)
 code_execution_endpoint_url = URL(str(dify_config.CODE_EXECUTION_ENDPOINT))
@@ -66,13 +66,13 @@ class CodeExecutor:
     supported_dependencies_languages: set[CodeLanguage] = {CodeLanguage.PYTHON3}
 
     @classmethod
-    def execute_code(cls, purview: bool, language: CodeLanguage, preload: str, code: str) -> str:
+    def execute_code(cls, language: CodeLanguage, preload: str, code: str, purview: bool = False) -> str:
         """
         Execute code
-        :param purview: bool # Extend global code
         :param language: code language
         :param preload: the preload script
         :param code: code
+        :param purview: bool # Extend global code（True 时走 FULL_CODE_EXECUTION_ENDPOINT）
         :return:
         """
         # extend: global code
@@ -154,5 +154,5 @@ class CodeExecutor:
 
         runner, preload = template_transformer.transform_caller(code, inputs)
         # extend: global code
-        response = cls.execute_code(purview, language, preload, runner)
+        response = cls.execute_code(language, preload, runner, purview)
         return template_transformer.transform_response(response)

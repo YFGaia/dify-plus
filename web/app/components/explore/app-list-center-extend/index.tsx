@@ -1,21 +1,21 @@
 'use client'
 
 import type { App } from '@/models/explore'
+import { cn } from '@langgenius/dify-ui/cn'
 import { useDebounceFn } from 'ahooks'
-import { useQueryState } from 'nuqs'
 import { useRouter } from 'next/navigation'
+import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/app/components/base/loading'
-import Category from '@/app/components/explore/category'
-import { useInstalledAppList } from '@/service/use-explore'
-import { cn } from '@/utils/classnames'
-import s from './style.module.css'
 // Extend: start Explore Add Search
 import SearchInput from '@/app/components/base/search-input'
-import TagFilter from '@/app/components/base/tag-management/filter'
 import AppCard from '@/app/components/explore/app-card-extend'
+import Category from '@/app/components/explore/category'
+import { TagFilter } from '@/features/tag-management/components/tag-filter'
+import { useInstalledAppList } from '@/service/use-explore'
+import s from './style.module.css'
 // Extend: stop Explore Add Search
 
 type AppsProps = {
@@ -68,20 +68,20 @@ const Apps = ({
 
     // Apply category filter
     if (currCategory !== allCategoriesEn) {
-      result = result.filter(item => item.category === currCategory)
+      result = result.filter(item => item.categories?.includes(currCategory))
     }
 
     // Apply tag filter
     if (tagFilterValue.length > 0) {
-      result = result.filter(item => tagFilterValue.includes(item.category))
+      result = result.filter(item => item.categories?.some(category => tagFilterValue.includes(category)))
     }
 
     // Apply keyword search
     if (keywordsValue.length > 0) {
       const lowerCaseKeywords = keywordsValue.toLowerCase()
       result = result.filter(item =>
-        item.description?.toLowerCase().includes(lowerCaseKeywords) ||
-        item.app?.name?.toLowerCase().includes(lowerCaseKeywords)
+        item.description?.toLowerCase().includes(lowerCaseKeywords)
+        || item.app?.name?.toLowerCase().includes(lowerCaseKeywords),
       )
     }
 
@@ -141,7 +141,7 @@ const Apps = ({
         {/* Extend: start Explore Add Search */}
         <div className="flex items-center gap-2">
           <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
-          <SearchInput className="w-[200px]" value={keywordsValue} onChange={handleKeywordsChange}/>
+          <SearchInput className="w-[200px]" value={keywordsValue} onChange={handleKeywordsChange} />
         </div>
         {/* Extend: stop Explore Add Search */}
       </div>

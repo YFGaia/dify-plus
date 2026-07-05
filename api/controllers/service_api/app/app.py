@@ -25,7 +25,7 @@ class AppParameterApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
+    def get(self, app_model: App, api_token: ApiToken | None = None):  # extend - 密钥额度限制，新增api_token
         """Retrieve app parameters.
 
         Returns the input form parameters and configuration for the application.
@@ -62,7 +62,7 @@ class AppMetaApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
+    def get(self, app_model: App, api_token: ApiToken | None = None):  # extend - 密钥额度限制，新增api_token
         """Get app metadata.
 
         Returns metadata about the application including configuration and settings.
@@ -82,7 +82,7 @@ class AppInfoApi(Resource):
         }
     )
     @validate_app_token
-    def get(self, app_model: App, api_token: ApiToken):  # extend - 密钥额度限制，新增api_token
+    def get(self, app_model: App, api_token: ApiToken | None = None):  # extend - 密钥额度限制，新增api_token
         """Get app information.
 
         Returns basic information about the application including name, description, tags, and mode.

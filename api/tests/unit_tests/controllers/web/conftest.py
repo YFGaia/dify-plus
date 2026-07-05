@@ -9,6 +9,22 @@ import pytest
 from flask import Flask
 
 
+@pytest.fixture(autouse=True)
+def _bypass_web_login_and_quota_extend(monkeypatch: pytest.MonkeyPatch):
+    """extend: 单测统一绕过 fork 的 WebApp Console 登录态与额度前置校验（有专属用例覆盖）。"""
+    monkeypatch.setattr(
+        "controllers.web.completion.is_end_login",
+        lambda end_user: SimpleNamespace(id="test-account-id"),
+    )
+    monkeypatch.setattr("controllers.web.completion.is_money_limit", lambda end_user: False)
+    # workflow.py 以 from-import 方式引用，需同步替换其模块内引用
+    monkeypatch.setattr(
+        "controllers.web.workflow.is_end_login",
+        lambda end_user: SimpleNamespace(id="test-account-id"),
+    )
+    monkeypatch.setattr("controllers.web.workflow.is_money_limit", lambda end_user: False)
+
+
 @pytest.fixture
 def app() -> Flask:
     """Minimal Flask app for request contexts."""
@@ -22,18 +38,16 @@ class FakeSession:
 
     def __init__(self, mapping: dict[str, Any] | None = None):
         self._mapping: dict[str, Any] = mapping or {}
-        self._model_name: str | None = None
 
-    def query(self, model: type) -> FakeSession:
-        self._model_name = model.__name__
-        return self
+    def get(self, model: type, _ident: object) -> Any:
+        return self._mapping.get(model.__name__)
 
-    def where(self, *_args: object, **_kwargs: object) -> FakeSession:
-        return self
-
-    def first(self) -> Any:
-        assert self._model_name is not None
-        return self._mapping.get(self._model_name)
+    def scalar(self, stmt: Any) -> Any:
+        try:
+            model = stmt.column_descriptions[0]["entity"]
+        except (AttributeError, IndexError, KeyError, TypeError):
+            return None
+        return self._mapping.get(model.__name__)
 
 
 class FakeDB:

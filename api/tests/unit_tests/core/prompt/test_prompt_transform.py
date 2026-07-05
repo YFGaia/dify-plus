@@ -4,14 +4,14 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from core.prompt.prompt_transform import PromptTransform
-from dify_graph.model_runtime.entities.model_entities import ModelPropertyKey
+from graphon.model_runtime.entities.model_entities import ModelPropertyKey
 
 # from core.app.app_config.entities import ModelConfigEntity
 # from core.entities.provider_configuration import ProviderConfiguration, ProviderModelBundle
-# from dify_graph.model_runtime.entities.message_entities import UserPromptMessage
-# from dify_graph.model_runtime.entities.model_entities import AIModelEntity, ModelPropertyKey, ParameterRule
-# from dify_graph.model_runtime.entities.provider_entities import ProviderEntity
-# from dify_graph.model_runtime.model_providers.__base.large_language_model import LargeLanguageModel
+# from graphon.model_runtime.entities.message_entities import UserPromptMessage
+# from graphon.model_runtime.entities.model_entities import AIModelEntity, ModelPropertyKey, ParameterRule
+# from graphon.model_runtime.entities.provider_entities import ProviderEntity
+# from graphon.model_runtime.model_providers.base.large_language_model import LargeLanguageModel
 # from core.prompt.prompt_transform import PromptTransform
 
 
@@ -200,16 +200,20 @@ class TestPromptTransform:
         memory_config_window = SimpleNamespace(window=SimpleNamespace(enabled=True, size=2))
         result = transform._get_history_messages_list_from_memory(memory, memory_config_window, 120)
         assert result == ["m1", "m2"]
-        memory.get_history_prompt_messages.assert_called_with(max_token_limit=120, message_limit=2)
+        memory.get_history_prompt_messages.assert_called_with(
+            max_token_limit=120, message_limit=2, control_registers=True
+        )  # extend
 
         memory.reset_mock()
         memory.get_history_prompt_messages.return_value = ["only"]
         memory_config_no_window = SimpleNamespace(window=SimpleNamespace(enabled=True, size=0))
         result = transform._get_history_messages_list_from_memory(memory, memory_config_no_window, 10)
         assert result == ["only"]
-        memory.get_history_prompt_messages.assert_called_with(max_token_limit=10, message_limit=None)
+        memory.get_history_prompt_messages.assert_called_with(
+            max_token_limit=10, message_limit=None, control_registers=True
+        )  # extend
 
-    def test_append_chat_histories_extends_prompt_messages(self, monkeypatch):
+    def test_append_chat_histories_extends_prompt_messages(self, monkeypatch: pytest.MonkeyPatch):
         transform = PromptTransform()
         memory = MagicMock()
         memory_config = SimpleNamespace(window=SimpleNamespace(enabled=False, size=None))
@@ -218,7 +222,7 @@ class TestPromptTransform:
         monkeypatch.setattr(
             transform,
             "_get_history_messages_list_from_memory",
-            lambda memory, memory_config, max_token_limit: ["h1", "h2"],
+            lambda memory, memory_config, max_token_limit, control_registers=True: ["h1", "h2"],  # extend
         )
 
         result = transform._append_chat_histories(

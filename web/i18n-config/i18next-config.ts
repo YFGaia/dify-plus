@@ -43,7 +43,7 @@ const NAMESPACES = [
   'time',
   'tools',
   'workflow',
-  'extend'// 二开部分：新增的多语言
+  'extend', // 二开部分：新增的多语言
 ]
 
 export const loadLangResources = async (lang: string) => {
@@ -89,7 +89,8 @@ if (!i18n.isInitialized) {
 }
 
 export const changeLanguage = async (lng?: string) => {
-  if (!lng) return
+  if (!lng)
+    return
   const resource = await loadLangResources(lng)
   if (!i18n.hasResourceBundle(lng, 'translation'))
     i18n.addResourceBundle(lng, 'translation', resource, true, true)

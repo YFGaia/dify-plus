@@ -18,7 +18,7 @@ describe('ExploreNav', () => {
 
     const link = screen.getByRole('link')
     expect(link).toBeInTheDocument()
-    expect(link).toHaveAttribute('href', '/explore/apps')
+    expect(link).toHaveAttribute('href', '/explore/apps-center-extend') // extend: 导航指向应用中心
     expect(link).toHaveClass('text-components-main-nav-nav-button-text')
     expect(link).not.toHaveClass('bg-components-main-nav-nav-button-bg-active')
     expect(screen.getByText('common.menus.explore')).toBeInTheDocument()

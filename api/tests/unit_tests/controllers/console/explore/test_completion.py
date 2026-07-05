@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
+from flask import Flask
 from werkzeug.exceptions import InternalServerError
 
 import controllers.console.explore.completion as completion_module
@@ -15,8 +16,12 @@ from services.errors.llm import InvokeRateLimitError
 
 
 def unwrap(func):
+    # extend: fork 装饰器（如 money_limit）会引入 __wrapped__ 链，解包后重新绑定实例
+    bound_self = getattr(func, "__self__", None)
     while hasattr(func, "__wrapped__"):
         func = func.__wrapped__
+    if bound_self is not None:
+        return func.__get__(bound_self, bound_self.__class__)
     return func
 
 
@@ -51,7 +56,7 @@ def payload_patch(payload_data):
 
 
 class TestCompletionApi:
-    def test_post_success(self, app, completion_app, user, payload_patch):
+    def test_post_success(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -83,7 +88,7 @@ class TestCompletionApi:
         with pytest.raises(NotCompletionAppError):
             method(installed_app)
 
-    def test_conversation_completed(self, app, completion_app, user, payload_patch):
+    def test_conversation_completed(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -100,7 +105,7 @@ class TestCompletionApi:
             with pytest.raises(ConversationCompletedError):
                 method(completion_app)
 
-    def test_internal_error(self, app, completion_app, user, payload_patch):
+    def test_internal_error(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -117,7 +122,7 @@ class TestCompletionApi:
             with pytest.raises(InternalServerError):
                 method(completion_app)
 
-    def test_conversation_not_exists(self, app, completion_app, user, payload_patch):
+    def test_conversation_not_exists(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -134,7 +139,7 @@ class TestCompletionApi:
             with pytest.raises(completion_module.NotFound):
                 method(completion_app)
 
-    def test_app_unavailable(self, app, completion_app, user, payload_patch):
+    def test_app_unavailable(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -151,7 +156,7 @@ class TestCompletionApi:
             with pytest.raises(completion_module.AppUnavailableError):
                 method(completion_app)
 
-    def test_provider_not_initialized(self, app, completion_app, user, payload_patch):
+    def test_provider_not_initialized(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -168,7 +173,7 @@ class TestCompletionApi:
             with pytest.raises(completion_module.ProviderNotInitializeError):
                 method(completion_app)
 
-    def test_quota_exceeded(self, app, completion_app, user, payload_patch):
+    def test_quota_exceeded(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -185,7 +190,7 @@ class TestCompletionApi:
             with pytest.raises(completion_module.ProviderQuotaExceededError):
                 method(completion_app)
 
-    def test_model_not_supported(self, app, completion_app, user, payload_patch):
+    def test_model_not_supported(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -202,7 +207,7 @@ class TestCompletionApi:
             with pytest.raises(completion_module.ProviderModelCurrentlyNotSupportError):
                 method(completion_app)
 
-    def test_invoke_error(self, app, completion_app, user, payload_patch):
+    def test_invoke_error(self, app: Flask, completion_app, user, payload_patch):
         api = completion_module.CompletionApi()
         method = unwrap(api.post)
 
@@ -247,7 +252,7 @@ class TestCompletionStopApi:
 
 
 class TestChatApi:
-    def test_post_success(self, app, chat_app, user, payload_patch):
+    def test_post_success(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -279,7 +284,7 @@ class TestChatApi:
         with pytest.raises(NotChatAppError):
             method(installed_app)
 
-    def test_rate_limit_error(self, app, chat_app, user, payload_patch):
+    def test_rate_limit_error(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -296,7 +301,7 @@ class TestChatApi:
             with pytest.raises(InvokeRateLimitHttpError):
                 method(chat_app)
 
-    def test_conversation_completed_chat(self, app, chat_app, user, payload_patch):
+    def test_conversation_completed_chat(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -313,7 +318,7 @@ class TestChatApi:
             with pytest.raises(ConversationCompletedError):
                 method(chat_app)
 
-    def test_conversation_not_exists_chat(self, app, chat_app, user, payload_patch):
+    def test_conversation_not_exists_chat(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -330,7 +335,7 @@ class TestChatApi:
             with pytest.raises(completion_module.NotFound):
                 method(chat_app)
 
-    def test_app_unavailable_chat(self, app, chat_app, user, payload_patch):
+    def test_app_unavailable_chat(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -347,7 +352,7 @@ class TestChatApi:
             with pytest.raises(completion_module.AppUnavailableError):
                 method(chat_app)
 
-    def test_provider_not_initialized_chat(self, app, chat_app, user, payload_patch):
+    def test_provider_not_initialized_chat(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -364,7 +369,7 @@ class TestChatApi:
             with pytest.raises(completion_module.ProviderNotInitializeError):
                 method(chat_app)
 
-    def test_quota_exceeded_chat(self, app, chat_app, user, payload_patch):
+    def test_quota_exceeded_chat(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -381,7 +386,7 @@ class TestChatApi:
             with pytest.raises(completion_module.ProviderQuotaExceededError):
                 method(chat_app)
 
-    def test_model_not_supported_chat(self, app, chat_app, user, payload_patch):
+    def test_model_not_supported_chat(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -398,7 +403,7 @@ class TestChatApi:
             with pytest.raises(completion_module.ProviderModelCurrentlyNotSupportError):
                 method(chat_app)
 
-    def test_invoke_error_chat(self, app, chat_app, user, payload_patch):
+    def test_invoke_error_chat(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 
@@ -415,7 +420,7 @@ class TestChatApi:
             with pytest.raises(completion_module.CompletionRequestError):
                 method(chat_app)
 
-    def test_internal_error_chat(self, app, chat_app, user, payload_patch):
+    def test_internal_error_chat(self, app: Flask, chat_app, user, payload_patch):
         api = completion_module.ChatApi()
         method = unwrap(api.post)
 

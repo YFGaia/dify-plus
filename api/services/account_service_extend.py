@@ -10,7 +10,8 @@ class TenantExtendService:
     @staticmethod
     def create_default_tenant_member_if_not_exist(tenant_id: str, account_id: str, role: str = "normal") -> bool:
         available_ta = (
-            db.session.query(TenantAccountJoin).filter_by(account_id=account_id, tenant_id=tenant_id)
+            db.session.query(TenantAccountJoin)
+            .filter_by(account_id=account_id, tenant_id=tenant_id)
             .order_by(TenantAccountJoin.id.asc())
             .first()
         )
@@ -31,7 +32,10 @@ class TenantExtendService:
     @staticmethod
     def create_model_sync_config_if_not_exist(model_id: str, is_all: bool = True) -> bool:
         available_ta = (
-            db.session.query(ModelSyncConfigExtend).filter_by(model_id=model_id).order_by(ModelSyncConfigExtend.id.asc()).first()
+            db.session.query(ModelSyncConfigExtend)
+            .filter_by(model_id=model_id)
+            .order_by(ModelSyncConfigExtend.id.asc())
+            .first()
         )
 
         if available_ta:
@@ -91,7 +95,10 @@ class TenantExtendService:
     @staticmethod
     def create_provider_sync_config_if_not_exist(provider_id: str, is_all: bool = True) -> bool:
         available_ta = (
-            db.session.query(ModelSyncConfigExtend).filter_by(model_id=provider_id).order_by(ModelSyncConfigExtend.id.asc()).first()
+            db.session.query(ModelSyncConfigExtend)
+            .filter_by(model_id=provider_id)
+            .order_by(ModelSyncConfigExtend.id.asc())
+            .first()
         )
 
         if available_ta:
