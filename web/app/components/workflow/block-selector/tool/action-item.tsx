@@ -24,14 +24,14 @@ const normalizeProviderIcon = (icon?: ToolWithProvider['icon']) => {
   return icon
 }
 
-type Props = {
+type Props = Readonly<{
   provider: ToolWithProvider
   payload: Tool
   previewCardHandle: PreviewCardHandle
   disabled?: boolean
   isAdded?: boolean
   onSelect: (type: BlockEnum, tool: ToolDefaultValue) => void
-}
+}>
 
 export type ToolActionPreviewPayload = {
   providerIcon: ToolWithProvider['icon']
@@ -85,6 +85,7 @@ const ToolItem: FC<Props> = ({
           provider_id: provider.id,
           provider_type: provider.type,
           provider_name: provider.name,
+          provider_show_name: provider.label[language],
           plugin_id: provider.plugin_id,
           plugin_unique_identifier: provider.plugin_unique_identifier,
           provider_icon: normalizedIcon,
@@ -152,7 +153,7 @@ export function ToolActionPreviewCard({
           type={BlockEnum.Tool}
           toolIcon={payload.providerIcon}
         />
-        <div className="mb-1 text-sm leading-5 text-text-primary">{payload.payload.label[payload.language]}</div>
+        <div className="mb-1 text-sm/5 text-text-primary">{payload.payload.label[payload.language]}</div>
         <div className="text-xs leading-[18px] wrap-break-word text-text-secondary">{payload.payload.description[payload.language]}</div>
       </div>
     </PreviewCardContent>

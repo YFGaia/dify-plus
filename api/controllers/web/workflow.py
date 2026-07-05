@@ -3,7 +3,8 @@ import logging
 from werkzeug.exceptions import InternalServerError
 
 from controllers.common.controller_schemas import WorkflowRunPayload
-from controllers.common.schema import register_schema_models
+from controllers.common.fields import GeneratedAppResponse, SimpleResultResponse
+from controllers.common.schema import register_response_schema_models, register_schema_models
 from controllers.web import web_ns
 from controllers.web.error import (
     CompletionRequestError,
@@ -42,6 +43,7 @@ from services.app_generate_service_extend import AppGenerateServiceExtend
 # extend: stop 您必须登录才能访问您的帐户扩展功能
 
 register_schema_models(web_ns, WorkflowRunPayload)
+register_response_schema_models(web_ns, GeneratedAppResponse, SimpleResultResponse)
 
 
 @web_ns.route("/workflows/run")
@@ -59,6 +61,7 @@ class WorkflowRunApi(WebApiResource):
             500: "Internal Server Error",
         }
     )
+    @web_ns.response(200, "Success", web_ns.models[GeneratedAppResponse.__name__])
     def post(self, app_model: App, end_user: EndUser):
         """
         Run workflow
@@ -133,6 +136,7 @@ class WorkflowTaskStopApi(WebApiResource):
             500: "Internal Server Error",
         }
     )
+    @web_ns.response(200, "Success", web_ns.models[SimpleResultResponse.__name__])
     def post(self, app_model: App, end_user: EndUser, task_id: str):
         """
         Stop workflow task

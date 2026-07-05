@@ -1,67 +1,141 @@
 'use client'
 
 import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
+import type { Banner as BannerType } from '@/models/app'
 import type { App } from '@/models/explore'
+import type { App as WorkspaceApp } from '@/types/app'
 import type { TryAppSelection } from '@/types/try-app'
 import type { TrackCreateAppParams } from '@/utils/create-app-tracking'
-import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { queryOptions, useQueries, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useDebounceFn } from 'ahooks'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import DSLConfirmModal from '@/app/components/app/create-from-dsl-modal/dsl-confirm-modal'
-import Input from '@/app/components/base/input'
-import Loading from '@/app/components/base/loading'
 import AppCard from '@/app/components/explore/app-card'
 // Extend: stop Explore Add Search
 import Banner from '@/app/components/explore/banner/banner'
-import Category from '@/app/components/explore/category'
 import CreateAppModal from '@/app/components/explore/create-app-modal'
 import { useAppContext } from '@/context/app-context'
+import { useLocale } from '@/context/i18n'
+import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 // Extend: start Explore Add Search
 import { TagFilter } from '@/features/tag-management/components/tag-filter'
+// Extend: stop Explore Add Search
 import { useImportDSL } from '@/hooks/use-import-dsl'
-import {
-  DSLImportMode,
-} from '@/models/app'
-import { fetchAppDetail } from '@/service/explore'
-import { systemFeaturesQueryOptions } from '@/service/system-features'
-import { useMembers } from '@/service/use-common'
-import { useExploreAppList } from '@/service/use-explore'
+import { DSLImportMode } from '@/models/app'
+import dynamic from '@/next/dynamic'
+import { consoleQuery } from '@/service/client'
+import { fetchAppDetail, fetchAppList, fetchBanners } from '@/service/explore'
 import { trackCreateApp } from '@/utils/create-app-tracking'
-import TryApp from '../try-app'
+import { hasPermission } from '@/utils/permission'
+import { ExploreAppListHeader } from './explore-app-list-header'
+import { ExploreRecommendations } from './explore-recommendations'
+import { ExploreHomeSkeleton } from './loading-skeletons'
 import s from './style.module.css'
 
-type AppsProps = {
-  onSuccess?: () => void
+const TryApp = dynamic(() => import('../try-app'), { ssr: false })
+
+type ExploreAppListData = {
+  categories: string[]
+  allList: App[]
 }
 
-const Apps = ({
-  onSuccess,
-}: AppsProps) => {
+const homeContinueWorkAppsInput = {
+  query: {
+    page: 1,
+    limit: 8,
+    name: '',
+  },
+}
+
+const disabledBannersQueryKey = ['explore', 'home', 'banners', 'disabled'] as const
+
+function getLocaleQueryInput(locale?: string) {
+  return locale
+    ? { query: { language: locale } }
+    : {}
+}
+
+function getExploreAppListQueryOptions(locale?: string) {
+  const input = getLocaleQueryInput(locale)
+  const language = input.query?.language
+
+  return queryOptions<ExploreAppListData>({
+    queryKey: [...consoleQuery.explore.apps.queryKey({ input }), language],
+    queryFn: async () => {
+      const { categories, recommended_apps } = await fetchAppList(language)
+      return {
+        categories,
+        allList: [...recommended_apps].sort((a, b) => a.position - b.position),
+      }
+    },
+  })
+}
+
+function getContinueWorkAppsQueryOptions() {
+  return consoleQuery.apps.list.queryOptions({
+    input: homeContinueWorkAppsInput,
+    select: (response): WorkspaceApp[] => response.data ?? [],
+  })
+}
+
+function getBannersQueryOptions(locale?: string) {
+  const input = getLocaleQueryInput(locale)
+  const language = input.query?.language
+
+  return queryOptions<BannerType[]>({
+    queryKey: [...consoleQuery.explore.banners.queryKey({ input }), language],
+    queryFn: () => fetchBanners(language),
+  })
+}
+
+function getDisabledBannersQueryOptions() {
+  return queryOptions<BannerType[]>({
+    queryKey: disabledBannersQueryKey,
+    queryFn: async () => [],
+    initialData: [],
+    staleTime: 'static',
+  })
+}
+
+const Apps = ({ onSuccess }: { onSuccess?: () => void }) => {
   const { t } = useTranslation()
-  const { userProfile } = useAppContext()
-  const { data: systemFeatures } = useSuspenseQuery(systemFeaturesQueryOptions())
-  const { data: membersData } = useMembers()
+  const locale = useLocale()
+  const { workspacePermissionKeys } = useAppContext()
+  const { data: systemFeatures } = useSuspenseQuery(
+    systemFeaturesQueryOptions(),
+  )
+  const homeQueries = useQueries({
+    queries: [
+      getExploreAppListQueryOptions(locale),
+      getContinueWorkAppsQueryOptions(),
+      systemFeatures.enable_explore_banner
+        ? getBannersQueryOptions(locale)
+        : getDisabledBannersQueryOptions(),
+    ],
+    combine: ([exploreAppListQuery, continueWorkAppsQuery, bannersQuery]) => ({
+      appListData: exploreAppListQuery.data,
+      continueWorkApps: continueWorkAppsQuery.data ?? [],
+      banners: bannersQuery.data ?? [],
+      isPending: exploreAppListQuery.isPending || continueWorkAppsQuery.isPending || bannersQuery.isPending,
+      isAppListError: exploreAppListQuery.isError || (!exploreAppListQuery.isPending && !exploreAppListQuery.data),
+    }),
+  })
   const allCategoriesEn = t('apps.allCategories', { ns: 'explore', lng: 'en' })
-  const userAccount = membersData?.accounts?.find(account => account.id === userProfile.id)
-  const hasEditPermission = !!userAccount && userAccount.role !== 'normal'
+  const canCreateApp = hasPermission(workspacePermissionKeys, 'app.create_and_management')
 
   const [keywords, setKeywords] = useState('')
   const [searchKeywords, setSearchKeywords] = useState('')
 
-  const hasFilterCondition = !!keywords
-  const handleResetFilter = useCallback(() => {
-    setKeywords('')
-    setSearchKeywords('')
-  }, [])
-
-  const { run: handleSearch } = useDebounceFn(() => {
-    setSearchKeywords(keywords)
-  }, { wait: 500 })
+  const { run: handleSearch } = useDebounceFn(
+    () => {
+      setSearchKeywords(keywords)
+    },
+    { wait: 500 },
+  )
 
   const handleKeywordsChange = (value: string) => {
     setKeywords(value)
@@ -79,36 +153,48 @@ const Apps = ({
   }
   // Extend: stop Explore Add Search
 
-  const {
-    data,
-    isLoading,
-    isError,
-    // extend: start sync app
-    refetch,
-    // extend: stop sync app
-  } = useExploreAppList()
+  const visibleCategories = useMemo(() => {
+    if (!homeQueries.appListData)
+      return []
+
+    const categoriesWithApps = new Set<string>()
+    homeQueries.appListData.allList.forEach((app) => {
+      app.categories.forEach(category => categoriesWithApps.add(category))
+    })
+
+    return homeQueries.appListData.categories.filter(category => categoriesWithApps.has(category))
+  }, [homeQueries.appListData])
+
+  const activeCategory = visibleCategories.includes(currCategory)
+    ? currCategory
+    : allCategoriesEn
 
   // extend: start sync app — 推荐列表中的 app_id 集合，用于判断是否已同步
   const recommendedAppIds = useMemo(() => {
-    if (!data)
+    if (!homeQueries.appListData)
       return new Set<string>()
-    return new Set(data.allList.map(item => item.app_id))
-  }, [data])
+    return new Set(homeQueries.appListData.allList.map(item => item.app_id))
+  }, [homeQueries.appListData])
+  const queryClient = useQueryClient()
+  const refreshExploreAppList = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: consoleQuery.explore.apps.key() })
+  }, [queryClient])
   // extend: stop sync app
 
   const filteredList = useMemo(() => {
-    if (!data)
+    if (!homeQueries.appListData)
       return []
-    let result = data.allList.filter(item => (
-      currCategory === allCategoriesEn
-      || item.categories?.includes(currCategory)
-    ))
+    let result = homeQueries.appListData.allList.filter(
+      item =>
+        activeCategory === allCategoriesEn
+        || item.categories?.includes(activeCategory),
+    )
     // Extend: start Explore Add Search — 标签过滤（基于分类名）
     if (tagFilterValue.length > 0)
       result = result.filter(item => item.categories?.some(category => tagFilterValue.includes(category)))
     // Extend: stop Explore Add Search
     return result
-  }, [data, currCategory, allCategoriesEn, tagFilterValue])
+  }, [homeQueries.appListData, activeCategory, allCategoriesEn, tagFilterValue])
 
   const searchFilteredList = useMemo(() => {
     if (!searchKeywords || !filteredList || filteredList.length === 0)
@@ -126,17 +212,18 @@ const Apps = ({
   const [currApp, setCurrApp] = useState<App | null>(null)
   const [isShowCreateModal, setIsShowCreateModal] = useState(false)
 
-  const {
-    handleImportDSL,
-    handleImportDSLConfirm,
-    versions,
-    isFetching,
-  } = useImportDSL()
+  const { handleImportDSL, handleImportDSLConfirm, versions, isFetching }
+    = useImportDSL()
   const [showDSLConfirmModal, setShowDSLConfirmModal] = useState(false)
 
-  const [currentTryApp, setCurrentTryApp] = useState<TryAppSelection | undefined>(undefined)
+  const [currentTryApp, setCurrentTryApp] = useState<
+    TryAppSelection | undefined
+  >(undefined)
   const currentCreateAppModeRef = useRef<App['app']['mode'] | null>(null)
-  const currentCreateAppTrackingRef = useRef<Pick<TrackCreateAppParams, 'source' | 'templateId'> | null>(null)
+  const currentCreateAppTrackingRef = useRef<Pick<
+    TrackCreateAppParams,
+    'source' | 'templateId'
+  > | null>(null)
   const isShowTryAppPanel = !!currentTryApp
   const hideTryAppPanel = useCallback(() => {
     setCurrentTryApp(undefined)
@@ -152,52 +239,64 @@ const Apps = ({
     }
     setIsShowCreateModal(true)
   }, [currentTryApp?.app, currentTryApp?.appId])
-  const trackCurrentCreateApp = useCallback((appMode?: App['app']['mode'] | null) => {
-    const currentCreateAppTracking = currentCreateAppTrackingRef.current
-    const resolvedAppMode = appMode ?? currentCreateAppModeRef.current
-    if (!resolvedAppMode || !currentCreateAppTracking)
-      return
-
-    trackCreateApp({
-      ...currentCreateAppTracking,
-      appMode: resolvedAppMode,
-    })
-    currentCreateAppTrackingRef.current = null
-    currentCreateAppModeRef.current = null
+  const handleCreateFromLearnDify = useCallback((app: App) => {
+    setCurrApp(app)
+    setIsShowCreateModal(true)
   }, [])
-
-  const onCreate: CreateAppModalProps['onConfirm'] = useCallback(async ({
-    name,
-    icon_type,
-    icon,
-    icon_background,
-    description,
-  }) => {
-    hideTryAppPanel()
-
-    const { export_data, mode } = await fetchAppDetail(
-      currApp?.app.id as string,
-    )
-    currentCreateAppModeRef.current = mode
-    const payload = {
-      mode: DSLImportMode.YAML_CONTENT,
-      yaml_content: export_data,
-      name,
-      icon_type,
-      icon,
-      icon_background,
-      description,
+  const handleCreateFromAppList = useCallback((app: App) => {
+    currentCreateAppTrackingRef.current = {
+      source: 'explore_template_list',
+      templateId: app.app_id,
     }
-    await handleImportDSL(payload, {
-      onSuccess: (response) => {
-        trackCurrentCreateApp(response.app_mode)
-        setIsShowCreateModal(false)
-      },
-      onPending: () => {
-        setShowDSLConfirmModal(true)
-      },
-    })
-  }, [currApp?.app.id, handleImportDSL, hideTryAppPanel, trackCurrentCreateApp])
+    setCurrApp(app)
+    setIsShowCreateModal(true)
+  }, [])
+  const trackCurrentCreateApp = useCallback(
+    (appMode?: App['app']['mode'] | null) => {
+      const currentCreateAppTracking = currentCreateAppTrackingRef.current
+      const resolvedAppMode = appMode ?? currentCreateAppModeRef.current
+      if (!resolvedAppMode || !currentCreateAppTracking)
+        return
+
+      trackCreateApp({
+        ...currentCreateAppTracking,
+        appMode: resolvedAppMode,
+      })
+      currentCreateAppTrackingRef.current = null
+      currentCreateAppModeRef.current = null
+    },
+    [],
+  )
+
+  const onCreate: CreateAppModalProps['onConfirm'] = useCallback(
+    async ({ name, icon_type, icon, icon_background, description }) => {
+      hideTryAppPanel()
+
+      const { export_data, mode } = await fetchAppDetail(
+        currApp?.app.id as string,
+      )
+      currentCreateAppModeRef.current = mode
+      const payload = {
+        mode: DSLImportMode.YAML_CONTENT,
+        yaml_content: export_data,
+        name,
+        icon_type,
+        icon,
+        icon_background,
+        description,
+      }
+      await handleImportDSL(payload, {
+        onSuccess: (response) => {
+          trackCurrentCreateApp(response.app_mode)
+          setIsShowCreateModal(false)
+        },
+        onPending: () => {
+          setShowDSLConfirmModal(true)
+        },
+      })
+    },
+    [currApp?.app.id, handleImportDSL, hideTryAppPanel, trackCurrentCreateApp],
+  )
 
   const onConfirmDSL = useCallback(async () => {
     await handleImportDSLConfirm({
@@ -208,102 +307,70 @@ const Apps = ({
     })
   }, [handleImportDSLConfirm, onSuccess, trackCurrentCreateApp])
 
-  if (isLoading) {
-    return (
-      <div className="flex h-full items-center">
-        <Loading type="area" />
-      </div>
-    )
-  }
-
-  if (isError || !data)
+  if (homeQueries.isAppListError)
     return null
 
-  const { categories } = data
-
   return (
-    <div className={cn(
-      'flex h-full min-h-0 flex-col overflow-hidden border-l-[0.5px] border-divider-regular',
-    )}
+    <div
+      className={cn(
+        'flex h-full min-h-0 flex-col overflow-hidden border-l-[0.5px] border-divider-regular',
+      )}
     >
       <div className="flex flex-1 flex-col overflow-y-auto">
-        {systemFeatures.enable_explore_banner && (
-          <div className="mt-4 px-12">
-            <Banner />
-          </div>
-        )}
+        {homeQueries.isPending
+          ? (
+              <ExploreHomeSkeleton showBanner={systemFeatures.enable_explore_banner} />
+            )
+          : (
+              <>
+                {systemFeatures.enable_explore_banner && (
+                  <Banner banners={homeQueries.banners} />
+                )}
+                <ExploreRecommendations
+                  canCreate={canCreateApp}
+                  continueWorkApps={homeQueries.continueWorkApps}
+                  onCreate={handleCreateFromLearnDify}
+                  onTry={handleTryApp}
+                />
 
-        <div className="sticky top-0 z-10 bg-background-body">
-          <div className={cn(
-            'flex items-center justify-between px-12 pt-6',
-          )}
-          >
-            <div className="flex items-center">
-              <div className="grow truncate system-xl-semibold text-text-primary">{!hasFilterCondition ? t('apps.title', { ns: 'explore' }) : t('apps.resultNum', { num: searchFilteredList.length, ns: 'explore' })}</div>
-              {hasFilterCondition && (
-                <>
-                  <div className="mx-3 h-4 w-px bg-divider-regular"></div>
-                  <Button size="medium" onClick={handleResetFilter}>{t('apps.resetFilter', { ns: 'explore' })}</Button>
-                </>
-              )}
-            </div>
-            {/* Extend: start Explore Add Search */}
-            <div className="flex items-center gap-2 self-start">
-              <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
-              <Input
-                showLeftIcon
-                showClearIcon
-                wrapperClassName="w-[200px]"
-                value={keywords}
-                onChange={e => handleKeywordsChange(e.target.value)}
-                onClear={() => handleKeywordsChange('')}
-              />
-            </div>
-            {/* Extend: stop Explore Add Search */}
-          </div>
+                <ExploreAppListHeader
+                  allCategoriesEn={allCategoriesEn}
+                  categories={visibleCategories}
+                  currCategory={activeCategory}
+                  keywords={keywords}
+                  onCategoryChange={setCurrCategory}
+                  onKeywordsChange={handleKeywordsChange}
+                />
+                {/* Extend: start Explore Add Search — 标签过滤 */}
+                <div className="flex items-center justify-end px-8 pb-3">
+                  <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
+                </div>
+                {/* Extend: stop Explore Add Search */}
 
-          <div className="px-12 pt-2 pb-4">
-            <Category
-              list={categories}
-              value={currCategory}
-              onChange={setCurrCategory}
-              allCategoriesEn={allCategoriesEn}
-            />
-          </div>
-        </div>
-
-        <div className={cn(
-          'relative flex flex-1 shrink-0 grow flex-col pb-6',
-        )}
-        >
-          <nav
-            className={cn(
-              s.appList,
-              'grid shrink-0 content-start gap-4 px-6 sm:px-12',
+                <div className={cn('relative flex flex-1 shrink-0 grow flex-col pb-6')}>
+                  <nav
+                    className={cn(
+                      s.appList,
+                      'grid shrink-0 content-start gap-3 px-8',
+                    )}
+                  >
+                    {searchFilteredList.map(app => (
+                      <AppCard
+                        key={app.app_id}
+                        app={app}
+                        canCreate={canCreateApp}
+                        onCreate={() => handleCreateFromAppList(app)}
+                        onTry={handleTryApp}
+                        // extend: start sync app
+                        onApp={recommendedAppIds.has(app.app_id)}
+                        onRefresh={refreshExploreAppList}
+                        // extend: stop sync app
+                      />
+                    ))}
+                  </nav>
+                </div>
+              </>
             )}
-          >
-            {searchFilteredList.map(app => (
-              <AppCard
-                key={app.app_id}
-                app={app}
-                canCreate={hasEditPermission}
-                onCreate={() => {
-                  currentCreateAppTrackingRef.current = {
-                    source: 'explore_template_list',
-                    templateId: app.app_id,
-                  }
-                  setCurrApp(app)
-                  setIsShowCreateModal(true)
-                }}
-                onTry={handleTryApp}
-                // extend: start sync app
-                onApp={recommendedAppIds.has(app.app_id)}
-                onRefresh={() => refetch()}
-                // extend: stop sync app
-              />
-            ))}
-          </nav>
-        </div>
       </div>
       {isShowCreateModal && (
         <CreateAppModal
@@ -319,16 +386,14 @@ const Apps = ({
           onHide={() => setIsShowCreateModal(false)}
         />
       )}
-      {
-        showDSLConfirmModal && (
-          <DSLConfirmModal
-            versions={versions}
-            onCancel={() => setShowDSLConfirmModal(false)}
-            onConfirm={onConfirmDSL}
-            confirmDisabled={isFetching}
-          />
-        )
-      }
+      {showDSLConfirmModal && (
+        <DSLConfirmModal
+          versions={versions}
+          onCancel={() => setShowDSLConfirmModal(false)}
+          onConfirm={onConfirmDSL}
+          confirmDisabled={isFetching}
+        />
+      )}
 
       {isShowTryAppPanel && (
         <TryApp

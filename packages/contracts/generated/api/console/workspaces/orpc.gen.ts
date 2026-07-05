@@ -4,6 +4,8 @@ import { oc } from '@orpc/contract'
 import * as z from 'zod'
 
 import {
+  zDeleteWorkspacesCurrentCustomizedSnippetsBySnippetIdPath,
+  zDeleteWorkspacesCurrentCustomizedSnippetsBySnippetIdResponse,
   zDeleteWorkspacesCurrentEndpointsByIdPath,
   zDeleteWorkspacesCurrentEndpointsByIdResponse,
   zDeleteWorkspacesCurrentMembersByMemberIdPath,
@@ -17,6 +19,14 @@ import {
   zDeleteWorkspacesCurrentModelProvidersByProviderModelsCredentialsResponse,
   zDeleteWorkspacesCurrentModelProvidersByProviderModelsPath,
   zDeleteWorkspacesCurrentModelProvidersByProviderModelsResponse,
+  zDeleteWorkspacesCurrentRbacAccessPoliciesByPolicyIdPath,
+  zDeleteWorkspacesCurrentRbacAccessPoliciesByPolicyIdResponse,
+  zDeleteWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindingsPath,
+  zDeleteWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindingsResponse,
+  zDeleteWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindingsPath,
+  zDeleteWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindingsResponse,
+  zDeleteWorkspacesCurrentRbacRolesByRoleIdPath,
+  zDeleteWorkspacesCurrentRbacRolesByRoleIdResponse,
   zDeleteWorkspacesCurrentToolProviderBuiltinByProviderOauthCustomClientPath,
   zDeleteWorkspacesCurrentToolProviderBuiltinByProviderOauthCustomClientResponse,
   zDeleteWorkspacesCurrentToolProviderMcpBody,
@@ -28,6 +38,15 @@ import {
   zGetWorkspacesCurrentAgentProviderByProviderNamePath,
   zGetWorkspacesCurrentAgentProviderByProviderNameResponse,
   zGetWorkspacesCurrentAgentProvidersResponse,
+  zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdCheckDependenciesPath,
+  zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdCheckDependenciesResponse,
+  zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdExportPath,
+  zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdExportQuery,
+  zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdExportResponse,
+  zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdPath,
+  zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdResponse,
+  zGetWorkspacesCurrentCustomizedSnippetsQuery,
+  zGetWorkspacesCurrentCustomizedSnippetsResponse,
   zGetWorkspacesCurrentDatasetOperatorsResponse,
   zGetWorkspacesCurrentDefaultModelQuery,
   zGetWorkspacesCurrentDefaultModelResponse,
@@ -56,6 +75,11 @@ import {
   zGetWorkspacesCurrentPermissionResponse,
   zGetWorkspacesCurrentPluginAssetQuery,
   zGetWorkspacesCurrentPluginAssetResponse,
+  zGetWorkspacesCurrentPluginAutoUpgradeFetchQuery,
+  zGetWorkspacesCurrentPluginAutoUpgradeFetchResponse,
+  zGetWorkspacesCurrentPluginByCategoryListPath,
+  zGetWorkspacesCurrentPluginByCategoryListQuery,
+  zGetWorkspacesCurrentPluginByCategoryListResponse,
   zGetWorkspacesCurrentPluginDebuggingKeyResponse,
   zGetWorkspacesCurrentPluginFetchManifestQuery,
   zGetWorkspacesCurrentPluginFetchManifestResponse,
@@ -68,22 +92,70 @@ import {
   zGetWorkspacesCurrentPluginParametersDynamicOptionsQuery,
   zGetWorkspacesCurrentPluginParametersDynamicOptionsResponse,
   zGetWorkspacesCurrentPluginPermissionFetchResponse,
-  zGetWorkspacesCurrentPluginPreferencesFetchResponse,
   zGetWorkspacesCurrentPluginReadmeQuery,
   zGetWorkspacesCurrentPluginReadmeResponse,
   zGetWorkspacesCurrentPluginTasksByTaskIdPath,
   zGetWorkspacesCurrentPluginTasksByTaskIdResponse,
   zGetWorkspacesCurrentPluginTasksQuery,
   zGetWorkspacesCurrentPluginTasksResponse,
+  zGetWorkspacesCurrentRbacAccessPoliciesByPolicyIdPath,
+  zGetWorkspacesCurrentRbacAccessPoliciesByPolicyIdResponse,
+  zGetWorkspacesCurrentRbacAccessPoliciesResponse,
+  zGetWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindingsPath,
+  zGetWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindingsResponse,
+  zGetWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdRoleBindingsPath,
+  zGetWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdRoleBindingsResponse,
+  zGetWorkspacesCurrentRbacAppsByAppIdAccessPolicyPath,
+  zGetWorkspacesCurrentRbacAppsByAppIdAccessPolicyResponse,
+  zGetWorkspacesCurrentRbacAppsByAppIdUserAccessPoliciesPath,
+  zGetWorkspacesCurrentRbacAppsByAppIdUserAccessPoliciesResponse,
+  zGetWorkspacesCurrentRbacAppsByAppIdWhitelistPath,
+  zGetWorkspacesCurrentRbacAppsByAppIdWhitelistResponse,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindingsPath,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindingsResponse,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdRoleBindingsPath,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdRoleBindingsResponse,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPolicyPath,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPolicyResponse,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdUserAccessPoliciesPath,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdUserAccessPoliciesResponse,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdWhitelistPath,
+  zGetWorkspacesCurrentRbacDatasetsByDatasetIdWhitelistResponse,
+  zGetWorkspacesCurrentRbacMembersByMemberIdRbacRolesPath,
+  zGetWorkspacesCurrentRbacMembersByMemberIdRbacRolesResponse,
+  zGetWorkspacesCurrentRbacMyPermissionsResponse,
+  zGetWorkspacesCurrentRbacRolePermissionsCatalogAppResponse,
+  zGetWorkspacesCurrentRbacRolePermissionsCatalogDatasetResponse,
+  zGetWorkspacesCurrentRbacRolePermissionsCatalogResponse,
+  zGetWorkspacesCurrentRbacRolesByRoleIdMembersPath,
+  zGetWorkspacesCurrentRbacRolesByRoleIdMembersResponse,
+  zGetWorkspacesCurrentRbacRolesByRoleIdPath,
+  zGetWorkspacesCurrentRbacRolesByRoleIdResponse,
+  zGetWorkspacesCurrentRbacRolesResponse,
+  zGetWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdMemberBindingsPath,
+  zGetWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdMemberBindingsResponse,
+  zGetWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdRoleBindingsPath,
+  zGetWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdRoleBindingsResponse,
+  zGetWorkspacesCurrentRbacWorkspaceAppsAccessPolicyResponse,
+  zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdMemberBindingsPath,
+  zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdMemberBindingsResponse,
+  zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdRoleBindingsPath,
+  zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdRoleBindingsResponse,
+  zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPolicyResponse,
   zGetWorkspacesCurrentToolLabelsResponse,
+  zGetWorkspacesCurrentToolProviderApiGetQuery,
   zGetWorkspacesCurrentToolProviderApiGetResponse,
+  zGetWorkspacesCurrentToolProviderApiRemoteQuery,
   zGetWorkspacesCurrentToolProviderApiRemoteResponse,
+  zGetWorkspacesCurrentToolProviderApiToolsQuery,
   zGetWorkspacesCurrentToolProviderApiToolsResponse,
   zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialInfoPath,
+  zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialInfoQuery,
   zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialInfoResponse,
   zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialSchemaByCredentialTypePath,
   zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialSchemaByCredentialTypeResponse,
   zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialsPath,
+  zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialsQuery,
   zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialsResponse,
   zGetWorkspacesCurrentToolProviderBuiltinByProviderIconPath,
   zGetWorkspacesCurrentToolProviderBuiltinByProviderIconResponse,
@@ -99,8 +171,11 @@ import {
   zGetWorkspacesCurrentToolProviderMcpToolsByProviderIdResponse,
   zGetWorkspacesCurrentToolProviderMcpUpdateByProviderIdPath,
   zGetWorkspacesCurrentToolProviderMcpUpdateByProviderIdResponse,
+  zGetWorkspacesCurrentToolProvidersQuery,
   zGetWorkspacesCurrentToolProvidersResponse,
+  zGetWorkspacesCurrentToolProviderWorkflowGetQuery,
   zGetWorkspacesCurrentToolProviderWorkflowGetResponse,
+  zGetWorkspacesCurrentToolProviderWorkflowToolsQuery,
   zGetWorkspacesCurrentToolProviderWorkflowToolsResponse,
   zGetWorkspacesCurrentToolsApiResponse,
   zGetWorkspacesCurrentToolsBuiltinResponse,
@@ -122,6 +197,9 @@ import {
   zGetWorkspacesCurrentTriggerProviderByProviderSubscriptionsOauthAuthorizeResponse,
   zGetWorkspacesCurrentTriggersResponse,
   zGetWorkspacesResponse,
+  zPatchWorkspacesCurrentCustomizedSnippetsBySnippetIdBody,
+  zPatchWorkspacesCurrentCustomizedSnippetsBySnippetIdPath,
+  zPatchWorkspacesCurrentCustomizedSnippetsBySnippetIdResponse,
   zPatchWorkspacesCurrentEndpointsByIdBody,
   zPatchWorkspacesCurrentEndpointsByIdPath,
   zPatchWorkspacesCurrentEndpointsByIdResponse,
@@ -131,6 +209,14 @@ import {
   zPatchWorkspacesCurrentModelProvidersByProviderModelsEnableBody,
   zPatchWorkspacesCurrentModelProvidersByProviderModelsEnablePath,
   zPatchWorkspacesCurrentModelProvidersByProviderModelsEnableResponse,
+  zPostWorkspacesCurrentCustomizedSnippetsBody,
+  zPostWorkspacesCurrentCustomizedSnippetsBySnippetIdUseCountIncrementPath,
+  zPostWorkspacesCurrentCustomizedSnippetsBySnippetIdUseCountIncrementResponse,
+  zPostWorkspacesCurrentCustomizedSnippetsImportsBody,
+  zPostWorkspacesCurrentCustomizedSnippetsImportsByImportIdConfirmPath,
+  zPostWorkspacesCurrentCustomizedSnippetsImportsByImportIdConfirmResponse,
+  zPostWorkspacesCurrentCustomizedSnippetsImportsResponse,
+  zPostWorkspacesCurrentCustomizedSnippetsResponse,
   zPostWorkspacesCurrentDefaultModelBody,
   zPostWorkspacesCurrentDefaultModelResponse,
   zPostWorkspacesCurrentEndpointsBody,
@@ -184,6 +270,10 @@ import {
   zPostWorkspacesCurrentModelProvidersByProviderPreferredProviderTypeBody,
   zPostWorkspacesCurrentModelProvidersByProviderPreferredProviderTypePath,
   zPostWorkspacesCurrentModelProvidersByProviderPreferredProviderTypeResponse,
+  zPostWorkspacesCurrentPluginAutoUpgradeChangeBody,
+  zPostWorkspacesCurrentPluginAutoUpgradeChangeResponse,
+  zPostWorkspacesCurrentPluginAutoUpgradeExcludeBody,
+  zPostWorkspacesCurrentPluginAutoUpgradeExcludeResponse,
   zPostWorkspacesCurrentPluginInstallGithubBody,
   zPostWorkspacesCurrentPluginInstallGithubResponse,
   zPostWorkspacesCurrentPluginInstallMarketplaceBody,
@@ -198,10 +288,6 @@ import {
   zPostWorkspacesCurrentPluginParametersDynamicOptionsWithCredentialsResponse,
   zPostWorkspacesCurrentPluginPermissionChangeBody,
   zPostWorkspacesCurrentPluginPermissionChangeResponse,
-  zPostWorkspacesCurrentPluginPreferencesAutoupgradeExcludeBody,
-  zPostWorkspacesCurrentPluginPreferencesAutoupgradeExcludeResponse,
-  zPostWorkspacesCurrentPluginPreferencesChangeBody,
-  zPostWorkspacesCurrentPluginPreferencesChangeResponse,
   zPostWorkspacesCurrentPluginTasksByTaskIdDeleteByIdentifierPath,
   zPostWorkspacesCurrentPluginTasksByTaskIdDeleteByIdentifierResponse,
   zPostWorkspacesCurrentPluginTasksByTaskIdDeletePath,
@@ -217,6 +303,12 @@ import {
   zPostWorkspacesCurrentPluginUploadGithubBody,
   zPostWorkspacesCurrentPluginUploadGithubResponse,
   zPostWorkspacesCurrentPluginUploadPkgResponse,
+  zPostWorkspacesCurrentRbacAccessPoliciesByPolicyIdCopyPath,
+  zPostWorkspacesCurrentRbacAccessPoliciesByPolicyIdCopyResponse,
+  zPostWorkspacesCurrentRbacAccessPoliciesResponse,
+  zPostWorkspacesCurrentRbacRolesByRoleIdCopyPath,
+  zPostWorkspacesCurrentRbacRolesByRoleIdCopyResponse,
+  zPostWorkspacesCurrentRbacRolesResponse,
   zPostWorkspacesCurrentResponse,
   zPostWorkspacesCurrentToolProviderApiAddBody,
   zPostWorkspacesCurrentToolProviderApiAddResponse,
@@ -292,22 +384,38 @@ import {
   zPutWorkspacesCurrentModelProvidersByProviderModelsCredentialsBody,
   zPutWorkspacesCurrentModelProvidersByProviderModelsCredentialsPath,
   zPutWorkspacesCurrentModelProvidersByProviderModelsCredentialsResponse,
+  zPutWorkspacesCurrentRbacAccessPoliciesByPolicyIdPath,
+  zPutWorkspacesCurrentRbacAccessPoliciesByPolicyIdResponse,
+  zPutWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdLockPath,
+  zPutWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdLockResponse,
+  zPutWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdUnlockPath,
+  zPutWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdUnlockResponse,
+  zPutWorkspacesCurrentRbacAppsByAppIdUsersByTargetAccountIdAccessPoliciesPath,
+  zPutWorkspacesCurrentRbacAppsByAppIdUsersByTargetAccountIdAccessPoliciesResponse,
+  zPutWorkspacesCurrentRbacAppsByAppIdWhitelistPath,
+  zPutWorkspacesCurrentRbacAppsByAppIdWhitelistResponse,
+  zPutWorkspacesCurrentRbacDatasetsByDatasetIdUsersByTargetAccountIdAccessPoliciesPath,
+  zPutWorkspacesCurrentRbacDatasetsByDatasetIdUsersByTargetAccountIdAccessPoliciesResponse,
+  zPutWorkspacesCurrentRbacDatasetsByDatasetIdWhitelistPath,
+  zPutWorkspacesCurrentRbacDatasetsByDatasetIdWhitelistResponse,
+  zPutWorkspacesCurrentRbacMembersByMemberIdRbacRolesPath,
+  zPutWorkspacesCurrentRbacMembersByMemberIdRbacRolesResponse,
+  zPutWorkspacesCurrentRbacRolesByRoleIdPath,
+  zPutWorkspacesCurrentRbacRolesByRoleIdResponse,
+  zPutWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdBindingsPath,
+  zPutWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdBindingsResponse,
+  zPutWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdBindingsPath,
+  zPutWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdBindingsResponse,
   zPutWorkspacesCurrentToolProviderMcpBody,
   zPutWorkspacesCurrentToolProviderMcpResponse,
 } from './zod.gen'
 
 /**
  * Get specific agent provider details
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
 export const get = oc
   .route({
-    deprecated: true,
-    description:
-      'Get specific agent provider details\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+    description: 'Get specific agent provider details',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentAgentProviderByProviderName',
@@ -327,16 +435,10 @@ export const agentProvider = {
 
 /**
  * Get list of available agent providers
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
 export const get2 = oc
   .route({
-    deprecated: true,
-    description:
-      'Get list of available agent providers\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+    description: 'Get list of available agent providers',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentAgentProviders',
@@ -349,7 +451,233 @@ export const agentProviders = {
   get: get2,
 }
 
+/**
+ * Confirm a pending snippet import
+ *
+ * Confirm a pending snippet import
+ */
+export const post = oc
+  .route({
+    description: 'Confirm a pending snippet import',
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentCustomizedSnippetsImportsByImportIdConfirm',
+    path: '/workspaces/current/customized-snippets/imports/{import_id}/confirm',
+    summary: 'Confirm a pending snippet import',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPostWorkspacesCurrentCustomizedSnippetsImportsByImportIdConfirmPath }))
+  .output(zPostWorkspacesCurrentCustomizedSnippetsImportsByImportIdConfirmResponse)
+
+export const confirm = {
+  post,
+}
+
+export const byImportId = {
+  confirm,
+}
+
+/**
+ * Import snippet from DSL
+ *
+ * Import snippet from DSL
+ */
+export const post2 = oc
+  .route({
+    description: 'Import snippet from DSL',
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentCustomizedSnippetsImports',
+    path: '/workspaces/current/customized-snippets/imports',
+    summary: 'Import snippet from DSL',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostWorkspacesCurrentCustomizedSnippetsImportsBody }))
+  .output(zPostWorkspacesCurrentCustomizedSnippetsImportsResponse)
+
+export const imports = {
+  post: post2,
+  byImportId,
+}
+
+/**
+ * Check dependencies for a snippet
+ *
+ * Check dependencies for a snippet
+ */
 export const get3 = oc
+  .route({
+    description: 'Check dependencies for a snippet',
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentCustomizedSnippetsBySnippetIdCheckDependencies',
+    path: '/workspaces/current/customized-snippets/{snippet_id}/check-dependencies',
+    summary: 'Check dependencies for a snippet',
+    tags: ['console'],
+  })
+  .input(
+    z.object({ params: zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdCheckDependenciesPath }),
+  )
+  .output(zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdCheckDependenciesResponse)
+
+export const checkDependencies = {
+  get: get3,
+}
+
+/**
+ * Export snippet as DSL
+ *
+ * Export snippet configuration as DSL
+ */
+export const get4 = oc
+  .route({
+    description: 'Export snippet configuration as DSL',
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentCustomizedSnippetsBySnippetIdExport',
+    path: '/workspaces/current/customized-snippets/{snippet_id}/export',
+    summary: 'Export snippet as DSL',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdExportPath,
+      query: zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdExportQuery.optional(),
+    }),
+  )
+  .output(zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdExportResponse)
+
+export const export_ = {
+  get: get4,
+}
+
+/**
+ * Increment snippet use count when it is inserted into a workflow
+ *
+ * Increment snippet use count by 1
+ */
+export const post3 = oc
+  .route({
+    description: 'Increment snippet use count by 1',
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentCustomizedSnippetsBySnippetIdUseCountIncrement',
+    path: '/workspaces/current/customized-snippets/{snippet_id}/use-count/increment',
+    summary: 'Increment snippet use count when it is inserted into a workflow',
+    tags: ['console'],
+  })
+  .input(
+    z.object({ params: zPostWorkspacesCurrentCustomizedSnippetsBySnippetIdUseCountIncrementPath }),
+  )
+  .output(zPostWorkspacesCurrentCustomizedSnippetsBySnippetIdUseCountIncrementResponse)
+
+export const increment = {
+  post: post3,
+}
+
+export const useCount = {
+  increment,
+}
+
+/**
+ * Delete customized snippet
+ */
+export const delete_ = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'DELETE',
+    operationId: 'deleteWorkspacesCurrentCustomizedSnippetsBySnippetId',
+    path: '/workspaces/current/customized-snippets/{snippet_id}',
+    successStatus: 204,
+    summary: 'Delete customized snippet',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zDeleteWorkspacesCurrentCustomizedSnippetsBySnippetIdPath }))
+  .output(zDeleteWorkspacesCurrentCustomizedSnippetsBySnippetIdResponse)
+
+/**
+ * Get customized snippet details
+ */
+export const get5 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentCustomizedSnippetsBySnippetId',
+    path: '/workspaces/current/customized-snippets/{snippet_id}',
+    summary: 'Get customized snippet details',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdPath }))
+  .output(zGetWorkspacesCurrentCustomizedSnippetsBySnippetIdResponse)
+
+/**
+ * Update customized snippet
+ */
+export const patch = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PATCH',
+    operationId: 'patchWorkspacesCurrentCustomizedSnippetsBySnippetId',
+    path: '/workspaces/current/customized-snippets/{snippet_id}',
+    summary: 'Update customized snippet',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      body: zPatchWorkspacesCurrentCustomizedSnippetsBySnippetIdBody,
+      params: zPatchWorkspacesCurrentCustomizedSnippetsBySnippetIdPath,
+    }),
+  )
+  .output(zPatchWorkspacesCurrentCustomizedSnippetsBySnippetIdResponse)
+
+export const bySnippetId = {
+  delete: delete_,
+  get: get5,
+  patch,
+  checkDependencies,
+  export: export_,
+  useCount,
+}
+
+/**
+ * List customized snippets with pagination and search
+ */
+export const get6 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentCustomizedSnippets',
+    path: '/workspaces/current/customized-snippets',
+    summary: 'List customized snippets with pagination and search',
+    tags: ['console'],
+  })
+  .input(z.object({ query: zGetWorkspacesCurrentCustomizedSnippetsQuery.optional() }))
+  .output(zGetWorkspacesCurrentCustomizedSnippetsResponse)
+
+/**
+ * Create a new customized snippet
+ */
+export const post4 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentCustomizedSnippets',
+    path: '/workspaces/current/customized-snippets',
+    successStatus: 201,
+    summary: 'Create a new customized snippet',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostWorkspacesCurrentCustomizedSnippetsBody }))
+  .output(zPostWorkspacesCurrentCustomizedSnippetsResponse)
+
+export const customizedSnippets = {
+  get: get6,
+  post: post4,
+  imports,
+  bySnippetId,
+}
+
+export const get7 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -360,19 +688,11 @@ export const get3 = oc
   .output(zGetWorkspacesCurrentDatasetOperatorsResponse)
 
 export const datasetOperators = {
-  get: get3,
+  get: get7,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get4 = oc
+export const get8 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentDefaultModel',
@@ -382,16 +702,8 @@ export const get4 = oc
   .input(z.object({ query: zGetWorkspacesCurrentDefaultModelQuery }))
   .output(zGetWorkspacesCurrentDefaultModelResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post = oc
+export const post5 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentDefaultModel',
@@ -402,22 +714,20 @@ export const post = oc
   .output(zPostWorkspacesCurrentDefaultModelResponse)
 
 export const defaultModel = {
-  get: get4,
-  post,
+  get: get8,
+  post: post5,
 }
 
 /**
  * Deprecated legacy alias for creating a plugin endpoint. Use POST /workspaces/current/endpoints instead.
  *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
  * @deprecated
  */
-export const post2 = oc
+export const post6 = oc
   .route({
     deprecated: true,
     description:
-      'Deprecated legacy alias for creating a plugin endpoint. Use POST /workspaces/current/endpoints instead.\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+      'Deprecated legacy alias for creating a plugin endpoint. Use POST /workspaces/current/endpoints instead.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentEndpointsCreate',
@@ -428,7 +738,7 @@ export const post2 = oc
   .output(zPostWorkspacesCurrentEndpointsCreateResponse)
 
 export const create = {
-  post: post2,
+  post: post6,
 }
 
 /**
@@ -436,7 +746,7 @@ export const create = {
  *
  * @deprecated
  */
-export const post3 = oc
+export const post7 = oc
   .route({
     deprecated: true,
     description:
@@ -450,14 +760,14 @@ export const post3 = oc
   .input(z.object({ body: zPostWorkspacesCurrentEndpointsDeleteBody }))
   .output(zPostWorkspacesCurrentEndpointsDeleteResponse)
 
-export const delete_ = {
-  post: post3,
+export const delete2 = {
+  post: post7,
 }
 
 /**
  * Disable a plugin endpoint
  */
-export const post4 = oc
+export const post8 = oc
   .route({
     description: 'Disable a plugin endpoint',
     inputStructure: 'detailed',
@@ -470,13 +780,13 @@ export const post4 = oc
   .output(zPostWorkspacesCurrentEndpointsDisableResponse)
 
 export const disable = {
-  post: post4,
+  post: post8,
 }
 
 /**
  * Enable a plugin endpoint
  */
-export const post5 = oc
+export const post9 = oc
   .route({
     description: 'Enable a plugin endpoint',
     inputStructure: 'detailed',
@@ -489,21 +799,15 @@ export const post5 = oc
   .output(zPostWorkspacesCurrentEndpointsEnableResponse)
 
 export const enable = {
-  post: post5,
+  post: post9,
 }
 
 /**
  * List endpoints for a specific plugin
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get5 = oc
+export const get9 = oc
   .route({
-    deprecated: true,
-    description:
-      'List endpoints for a specific plugin\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+    description: 'List endpoints for a specific plugin',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentEndpointsListPlugin',
@@ -514,21 +818,15 @@ export const get5 = oc
   .output(zGetWorkspacesCurrentEndpointsListPluginResponse)
 
 export const plugin = {
-  get: get5,
+  get: get9,
 }
 
 /**
  * List plugin endpoints with pagination
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get6 = oc
+export const get10 = oc
   .route({
-    deprecated: true,
-    description:
-      'List plugin endpoints with pagination\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+    description: 'List plugin endpoints with pagination',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentEndpointsList',
@@ -539,22 +837,20 @@ export const get6 = oc
   .output(zGetWorkspacesCurrentEndpointsListResponse)
 
 export const list = {
-  get: get6,
+  get: get10,
   plugin,
 }
 
 /**
  * Deprecated legacy alias for updating a plugin endpoint. Use PATCH /workspaces/current/endpoints/{id} instead.
  *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
  * @deprecated
  */
-export const post6 = oc
+export const post10 = oc
   .route({
     deprecated: true,
     description:
-      'Deprecated legacy alias for updating a plugin endpoint. Use PATCH /workspaces/current/endpoints/{id} instead.\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+      'Deprecated legacy alias for updating a plugin endpoint. Use PATCH /workspaces/current/endpoints/{id} instead.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentEndpointsUpdate',
@@ -565,13 +861,13 @@ export const post6 = oc
   .output(zPostWorkspacesCurrentEndpointsUpdateResponse)
 
 export const update = {
-  post: post6,
+  post: post10,
 }
 
 /**
  * Delete a plugin endpoint
  */
-export const delete2 = oc
+export const delete3 = oc
   .route({
     description: 'Delete a plugin endpoint',
     inputStructure: 'detailed',
@@ -585,16 +881,10 @@ export const delete2 = oc
 
 /**
  * Update a plugin endpoint
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const patch = oc
+export const patch2 = oc
   .route({
-    deprecated: true,
-    description:
-      'Update a plugin endpoint\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+    description: 'Update a plugin endpoint',
     inputStructure: 'detailed',
     method: 'PATCH',
     operationId: 'patchWorkspacesCurrentEndpointsById',
@@ -610,22 +900,16 @@ export const patch = oc
   .output(zPatchWorkspacesCurrentEndpointsByIdResponse)
 
 export const byId = {
-  delete: delete2,
-  patch,
+  delete: delete3,
+  patch: patch2,
 }
 
 /**
  * Create a new plugin endpoint
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post7 = oc
+export const post11 = oc
   .route({
-    deprecated: true,
-    description:
-      'Create a new plugin endpoint\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+    description: 'Create a new plugin endpoint',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentEndpoints',
@@ -636,9 +920,9 @@ export const post7 = oc
   .output(zPostWorkspacesCurrentEndpointsResponse)
 
 export const endpoints = {
-  post: post7,
+  post: post11,
   create,
-  delete: delete_,
+  delete: delete2,
   disable,
   enable,
   list,
@@ -646,39 +930,24 @@ export const endpoints = {
   byId,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post8 = oc
+export const post12 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentMembersInviteEmail',
     path: '/workspaces/current/members/invite-email',
+    successStatus: 201,
     tags: ['console'],
   })
   .input(z.object({ body: zPostWorkspacesCurrentMembersInviteEmailBody }))
   .output(zPostWorkspacesCurrentMembersInviteEmailResponse)
 
 export const inviteEmail = {
-  post: post8,
+  post: post12,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post9 = oc
+export const post13 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentMembersOwnerTransferCheck',
@@ -689,19 +958,11 @@ export const post9 = oc
   .output(zPostWorkspacesCurrentMembersOwnerTransferCheckResponse)
 
 export const ownerTransferCheck = {
-  post: post9,
+  post: post13,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post10 = oc
+export const post14 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentMembersSendOwnerTransferConfirmEmail',
@@ -712,19 +973,11 @@ export const post10 = oc
   .output(zPostWorkspacesCurrentMembersSendOwnerTransferConfirmEmailResponse)
 
 export const sendOwnerTransferConfirmEmail = {
-  post: post10,
+  post: post14,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post11 = oc
+export const post15 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentMembersByMemberIdOwnerTransfer',
@@ -740,19 +993,11 @@ export const post11 = oc
   .output(zPostWorkspacesCurrentMembersByMemberIdOwnerTransferResponse)
 
 export const ownerTransfer = {
-  post: post11,
+  post: post15,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
 export const put = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'PUT',
     operationId: 'putWorkspacesCurrentMembersByMemberIdUpdateRole',
@@ -771,16 +1016,8 @@ export const updateRole = {
   put,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const delete3 = oc
+export const delete4 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'DELETE',
     operationId: 'deleteWorkspacesCurrentMembersByMemberId',
@@ -791,12 +1028,12 @@ export const delete3 = oc
   .output(zDeleteWorkspacesCurrentMembersByMemberIdResponse)
 
 export const byMemberId = {
-  delete: delete3,
+  delete: delete4,
   ownerTransfer,
   updateRole,
 }
 
-export const get7 = oc
+export const get11 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -807,23 +1044,15 @@ export const get7 = oc
   .output(zGetWorkspacesCurrentMembersResponse)
 
 export const members = {
-  get: get7,
+  get: get11,
   inviteEmail,
   ownerTransferCheck,
   sendOwnerTransferConfirmEmail,
   byMemberId,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get8 = oc
+export const get12 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentModelProvidersByProviderCheckoutUrl',
@@ -834,19 +1063,11 @@ export const get8 = oc
   .output(zGetWorkspacesCurrentModelProvidersByProviderCheckoutUrlResponse)
 
 export const checkoutUrl = {
-  get: get8,
+  get: get12,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post12 = oc
+export const post16 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentModelProvidersByProviderCredentialsSwitch',
@@ -862,19 +1083,11 @@ export const post12 = oc
   .output(zPostWorkspacesCurrentModelProvidersByProviderCredentialsSwitchResponse)
 
 export const switch_ = {
-  post: post12,
+  post: post16,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post13 = oc
+export const post17 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentModelProvidersByProviderCredentialsValidate',
@@ -890,23 +1103,16 @@ export const post13 = oc
   .output(zPostWorkspacesCurrentModelProvidersByProviderCredentialsValidateResponse)
 
 export const validate = {
-  post: post13,
+  post: post17,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const delete4 = oc
+export const delete5 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'DELETE',
     operationId: 'deleteWorkspacesCurrentModelProvidersByProviderCredentials',
     path: '/workspaces/current/model-providers/{provider}/credentials',
+    successStatus: 204,
     tags: ['console'],
   })
   .input(
@@ -917,16 +1123,8 @@ export const delete4 = oc
   )
   .output(zDeleteWorkspacesCurrentModelProvidersByProviderCredentialsResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get9 = oc
+export const get13 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentModelProvidersByProviderCredentials',
@@ -941,20 +1139,13 @@ export const get9 = oc
   )
   .output(zGetWorkspacesCurrentModelProvidersByProviderCredentialsResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post14 = oc
+export const post18 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentModelProvidersByProviderCredentials',
     path: '/workspaces/current/model-providers/{provider}/credentials',
+    successStatus: 201,
     tags: ['console'],
   })
   .input(
@@ -965,16 +1156,8 @@ export const post14 = oc
   )
   .output(zPostWorkspacesCurrentModelProvidersByProviderCredentialsResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
 export const put2 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'PUT',
     operationId: 'putWorkspacesCurrentModelProvidersByProviderCredentials',
@@ -990,24 +1173,16 @@ export const put2 = oc
   .output(zPutWorkspacesCurrentModelProvidersByProviderCredentialsResponse)
 
 export const credentials = {
-  delete: delete4,
-  get: get9,
-  post: post14,
+  delete: delete5,
+  get: get13,
+  post: post18,
   put: put2,
   switch: switch_,
   validate,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post15 = oc
+export const post19 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentModelProvidersByProviderModelsCredentialsSwitch',
@@ -1023,19 +1198,11 @@ export const post15 = oc
   .output(zPostWorkspacesCurrentModelProvidersByProviderModelsCredentialsSwitchResponse)
 
 export const switch2 = {
-  post: post15,
+  post: post19,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post16 = oc
+export const post20 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentModelProvidersByProviderModelsCredentialsValidate',
@@ -1051,23 +1218,16 @@ export const post16 = oc
   .output(zPostWorkspacesCurrentModelProvidersByProviderModelsCredentialsValidateResponse)
 
 export const validate2 = {
-  post: post16,
+  post: post20,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const delete5 = oc
+export const delete6 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'DELETE',
     operationId: 'deleteWorkspacesCurrentModelProvidersByProviderModelsCredentials',
     path: '/workspaces/current/model-providers/{provider}/models/credentials',
+    successStatus: 204,
     tags: ['console'],
   })
   .input(
@@ -1078,16 +1238,8 @@ export const delete5 = oc
   )
   .output(zDeleteWorkspacesCurrentModelProvidersByProviderModelsCredentialsResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get10 = oc
+export const get14 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentModelProvidersByProviderModelsCredentials',
@@ -1102,20 +1254,13 @@ export const get10 = oc
   )
   .output(zGetWorkspacesCurrentModelProvidersByProviderModelsCredentialsResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post17 = oc
+export const post21 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentModelProvidersByProviderModelsCredentials',
     path: '/workspaces/current/model-providers/{provider}/models/credentials',
+    successStatus: 201,
     tags: ['console'],
   })
   .input(
@@ -1126,16 +1271,8 @@ export const post17 = oc
   )
   .output(zPostWorkspacesCurrentModelProvidersByProviderModelsCredentialsResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
 export const put3 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'PUT',
     operationId: 'putWorkspacesCurrentModelProvidersByProviderModelsCredentials',
@@ -1151,24 +1288,16 @@ export const put3 = oc
   .output(zPutWorkspacesCurrentModelProvidersByProviderModelsCredentialsResponse)
 
 export const credentials2 = {
-  delete: delete5,
-  get: get10,
-  post: post17,
+  delete: delete6,
+  get: get14,
+  post: post21,
   put: put3,
   switch: switch2,
   validate: validate2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const patch2 = oc
+export const patch3 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'PATCH',
     operationId: 'patchWorkspacesCurrentModelProvidersByProviderModelsDisable',
@@ -1184,19 +1313,11 @@ export const patch2 = oc
   .output(zPatchWorkspacesCurrentModelProvidersByProviderModelsDisableResponse)
 
 export const disable2 = {
-  patch: patch2,
+  patch: patch3,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const patch3 = oc
+export const patch4 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'PATCH',
     operationId: 'patchWorkspacesCurrentModelProvidersByProviderModelsEnable',
@@ -1212,19 +1333,11 @@ export const patch3 = oc
   .output(zPatchWorkspacesCurrentModelProvidersByProviderModelsEnableResponse)
 
 export const enable2 = {
-  patch: patch3,
+  patch: patch4,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post18 = oc
+export const post22 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId:
@@ -1244,19 +1357,11 @@ export const post18 = oc
   )
 
 export const credentialsValidate = {
-  post: post18,
+  post: post22,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post19 = oc
+export const post23 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId:
@@ -1276,7 +1381,7 @@ export const post19 = oc
   )
 
 export const credentialsValidate2 = {
-  post: post19,
+  post: post23,
 }
 
 export const byConfigId = {
@@ -1288,16 +1393,8 @@ export const loadBalancingConfigs = {
   byConfigId,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get11 = oc
+export const get15 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentModelProvidersByProviderModelsParameterRules',
@@ -1313,23 +1410,16 @@ export const get11 = oc
   .output(zGetWorkspacesCurrentModelProvidersByProviderModelsParameterRulesResponse)
 
 export const parameterRules = {
-  get: get11,
+  get: get15,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const delete6 = oc
+export const delete7 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'DELETE',
     operationId: 'deleteWorkspacesCurrentModelProvidersByProviderModels',
     path: '/workspaces/current/model-providers/{provider}/models',
+    successStatus: 204,
     tags: ['console'],
   })
   .input(
@@ -1340,16 +1430,8 @@ export const delete6 = oc
   )
   .output(zDeleteWorkspacesCurrentModelProvidersByProviderModelsResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get12 = oc
+export const get16 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentModelProvidersByProviderModels',
@@ -1359,16 +1441,8 @@ export const get12 = oc
   .input(z.object({ params: zGetWorkspacesCurrentModelProvidersByProviderModelsPath }))
   .output(zGetWorkspacesCurrentModelProvidersByProviderModelsResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post20 = oc
+export const post24 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentModelProvidersByProviderModels',
@@ -1384,9 +1458,9 @@ export const post20 = oc
   .output(zPostWorkspacesCurrentModelProvidersByProviderModelsResponse)
 
 export const models = {
-  delete: delete6,
-  get: get12,
-  post: post20,
+  delete: delete7,
+  get: get16,
+  post: post24,
   credentials: credentials2,
   disable: disable2,
   enable: enable2,
@@ -1394,16 +1468,8 @@ export const models = {
   parameterRules,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post21 = oc
+export const post25 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentModelProvidersByProviderPreferredProviderType',
@@ -1419,7 +1485,7 @@ export const post21 = oc
   .output(zPostWorkspacesCurrentModelProvidersByProviderPreferredProviderTypeResponse)
 
 export const preferredProviderType = {
-  post: post21,
+  post: post25,
 }
 
 export const byProvider = {
@@ -1429,16 +1495,8 @@ export const byProvider = {
   preferredProviderType,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get13 = oc
+export const get17 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentModelProviders',
@@ -1449,20 +1507,12 @@ export const get13 = oc
   .output(zGetWorkspacesCurrentModelProvidersResponse)
 
 export const modelProviders = {
-  get: get13,
+  get: get17,
   byProvider,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get14 = oc
+export const get18 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentModelsModelTypesByModelType',
@@ -1473,7 +1523,7 @@ export const get14 = oc
   .output(zGetWorkspacesCurrentModelsModelTypesByModelTypeResponse)
 
 export const byModelType = {
-  get: get14,
+  get: get18,
 }
 
 export const modelTypes = {
@@ -1488,16 +1538,11 @@ export const models2 = {
  * Get workspace permission settings
  *
  * Returns permission flags that control workspace features like member invitations and owner transfer.
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get15 = oc
+export const get19 = oc
   .route({
-    deprecated: true,
     description:
-      'Returns permission flags that control workspace features like member invitations and owner transfer.\n\nGenerated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+      'Returns permission flags that control workspace features like member invitations and owner transfer.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPermission',
@@ -1508,19 +1553,11 @@ export const get15 = oc
   .output(zGetWorkspacesCurrentPermissionResponse)
 
 export const permission = {
-  get: get15,
+  get: get19,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get16 = oc
+export const get20 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginAsset',
@@ -1531,19 +1568,62 @@ export const get16 = oc
   .output(zGetWorkspacesCurrentPluginAssetResponse)
 
 export const asset = {
-  get: get16,
+  get: get20,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get17 = oc
+export const post26 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentPluginAutoUpgradeChange',
+    path: '/workspaces/current/plugin/auto-upgrade/change',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostWorkspacesCurrentPluginAutoUpgradeChangeBody }))
+  .output(zPostWorkspacesCurrentPluginAutoUpgradeChangeResponse)
+
+export const change = {
+  post: post26,
+}
+
+export const post27 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentPluginAutoUpgradeExclude',
+    path: '/workspaces/current/plugin/auto-upgrade/exclude',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostWorkspacesCurrentPluginAutoUpgradeExcludeBody }))
+  .output(zPostWorkspacesCurrentPluginAutoUpgradeExcludeResponse)
+
+export const exclude = {
+  post: post27,
+}
+
+export const get21 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentPluginAutoUpgradeFetch',
+    path: '/workspaces/current/plugin/auto-upgrade/fetch',
+    tags: ['console'],
+  })
+  .input(z.object({ query: zGetWorkspacesCurrentPluginAutoUpgradeFetchQuery }))
+  .output(zGetWorkspacesCurrentPluginAutoUpgradeFetchResponse)
+
+export const fetch_ = {
+  get: get21,
+}
+
+export const autoUpgrade = {
+  change,
+  exclude,
+  fetch: fetch_,
+}
+
+export const get22 = oc
+  .route({
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginDebuggingKey',
@@ -1553,19 +1633,11 @@ export const get17 = oc
   .output(zGetWorkspacesCurrentPluginDebuggingKeyResponse)
 
 export const debuggingKey = {
-  get: get17,
+  get: get22,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get18 = oc
+export const get23 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginFetchManifest',
@@ -1576,19 +1648,11 @@ export const get18 = oc
   .output(zGetWorkspacesCurrentPluginFetchManifestResponse)
 
 export const fetchManifest = {
-  get: get18,
+  get: get23,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get19 = oc
+export const get24 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginIcon',
@@ -1599,19 +1663,11 @@ export const get19 = oc
   .output(zGetWorkspacesCurrentPluginIconResponse)
 
 export const icon = {
-  get: get19,
+  get: get24,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post22 = oc
+export const post28 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginInstallGithub',
@@ -1622,19 +1678,11 @@ export const post22 = oc
   .output(zPostWorkspacesCurrentPluginInstallGithubResponse)
 
 export const github = {
-  post: post22,
+  post: post28,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post23 = oc
+export const post29 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginInstallMarketplace',
@@ -1645,19 +1693,11 @@ export const post23 = oc
   .output(zPostWorkspacesCurrentPluginInstallMarketplaceResponse)
 
 export const marketplace = {
-  post: post23,
+  post: post29,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post24 = oc
+export const post30 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginInstallPkg',
@@ -1668,7 +1708,7 @@ export const post24 = oc
   .output(zPostWorkspacesCurrentPluginInstallPkgResponse)
 
 export const pkg = {
-  post: post24,
+  post: post30,
 }
 
 export const install = {
@@ -1677,16 +1717,8 @@ export const install = {
   pkg,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post25 = oc
+export const post31 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginListInstallationsIds',
@@ -1697,23 +1729,15 @@ export const post25 = oc
   .output(zPostWorkspacesCurrentPluginListInstallationsIdsResponse)
 
 export const ids = {
-  post: post25,
+  post: post31,
 }
 
 export const installations = {
   ids,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post26 = oc
+export const post32 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginListLatestVersions',
@@ -1724,19 +1748,11 @@ export const post26 = oc
   .output(zPostWorkspacesCurrentPluginListLatestVersionsResponse)
 
 export const latestVersions = {
-  post: post26,
+  post: post32,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get20 = oc
+export const get25 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginList',
@@ -1747,21 +1763,13 @@ export const get20 = oc
   .output(zGetWorkspacesCurrentPluginListResponse)
 
 export const list2 = {
-  get: get20,
+  get: get25,
   installations,
   latestVersions,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get21 = oc
+export const get26 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginMarketplacePkg',
@@ -1772,23 +1780,15 @@ export const get21 = oc
   .output(zGetWorkspacesCurrentPluginMarketplacePkgResponse)
 
 export const pkg2 = {
-  get: get21,
+  get: get26,
 }
 
 export const marketplace2 = {
   pkg: pkg2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get22 = oc
+export const get27 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginParametersDynamicOptions',
@@ -1799,21 +1799,14 @@ export const get22 = oc
   .output(zGetWorkspacesCurrentPluginParametersDynamicOptionsResponse)
 
 export const dynamicOptions = {
-  get: get22,
+  get: get27,
 }
 
 /**
  * Fetch dynamic options using credentials directly (for edit mode)
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post27 = oc
+export const post33 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginParametersDynamicOptionsWithCredentials',
@@ -1827,7 +1820,7 @@ export const post27 = oc
   .output(zPostWorkspacesCurrentPluginParametersDynamicOptionsWithCredentialsResponse)
 
 export const dynamicOptionsWithCredentials = {
-  post: post27,
+  post: post33,
 }
 
 export const parameters = {
@@ -1835,16 +1828,8 @@ export const parameters = {
   dynamicOptionsWithCredentials,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post28 = oc
+export const post34 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginPermissionChange',
@@ -1854,20 +1839,12 @@ export const post28 = oc
   .input(z.object({ body: zPostWorkspacesCurrentPluginPermissionChangeBody }))
   .output(zPostWorkspacesCurrentPluginPermissionChangeResponse)
 
-export const change = {
-  post: post28,
+export const change2 = {
+  post: post34,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get23 = oc
+export const get28 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginPermissionFetch',
@@ -1876,103 +1853,17 @@ export const get23 = oc
   })
   .output(zGetWorkspacesCurrentPluginPermissionFetchResponse)
 
-export const fetch_ = {
-  get: get23,
+export const fetch2 = {
+  get: get28,
 }
 
 export const permission2 = {
-  change,
-  fetch: fetch_,
-}
-
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post29 = oc
-  .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
-    inputStructure: 'detailed',
-    method: 'POST',
-    operationId: 'postWorkspacesCurrentPluginPreferencesAutoupgradeExclude',
-    path: '/workspaces/current/plugin/preferences/autoupgrade/exclude',
-    tags: ['console'],
-  })
-  .input(z.object({ body: zPostWorkspacesCurrentPluginPreferencesAutoupgradeExcludeBody }))
-  .output(zPostWorkspacesCurrentPluginPreferencesAutoupgradeExcludeResponse)
-
-export const exclude = {
-  post: post29,
-}
-
-export const autoupgrade = {
-  exclude,
-}
-
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post30 = oc
-  .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
-    inputStructure: 'detailed',
-    method: 'POST',
-    operationId: 'postWorkspacesCurrentPluginPreferencesChange',
-    path: '/workspaces/current/plugin/preferences/change',
-    tags: ['console'],
-  })
-  .input(z.object({ body: zPostWorkspacesCurrentPluginPreferencesChangeBody }))
-  .output(zPostWorkspacesCurrentPluginPreferencesChangeResponse)
-
-export const change2 = {
-  post: post30,
-}
-
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get24 = oc
-  .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
-    inputStructure: 'detailed',
-    method: 'GET',
-    operationId: 'getWorkspacesCurrentPluginPreferencesFetch',
-    path: '/workspaces/current/plugin/preferences/fetch',
-    tags: ['console'],
-  })
-  .output(zGetWorkspacesCurrentPluginPreferencesFetchResponse)
-
-export const fetch2 = {
-  get: get24,
-}
-
-export const preferences = {
-  autoupgrade,
   change: change2,
   fetch: fetch2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get25 = oc
+export const get29 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginReadme',
@@ -1983,19 +1874,11 @@ export const get25 = oc
   .output(zGetWorkspacesCurrentPluginReadmeResponse)
 
 export const readme = {
-  get: get25,
+  get: get29,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post31 = oc
+export const post35 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginTasksDeleteAll',
@@ -2005,19 +1888,11 @@ export const post31 = oc
   .output(zPostWorkspacesCurrentPluginTasksDeleteAllResponse)
 
 export const deleteAll = {
-  post: post31,
+  post: post35,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post32 = oc
+export const post36 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginTasksByTaskIdDeleteByIdentifier',
@@ -2028,19 +1903,11 @@ export const post32 = oc
   .output(zPostWorkspacesCurrentPluginTasksByTaskIdDeleteByIdentifierResponse)
 
 export const byIdentifier = {
-  post: post32,
+  post: post36,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post33 = oc
+export const post37 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginTasksByTaskIdDelete',
@@ -2050,21 +1917,13 @@ export const post33 = oc
   .input(z.object({ params: zPostWorkspacesCurrentPluginTasksByTaskIdDeletePath }))
   .output(zPostWorkspacesCurrentPluginTasksByTaskIdDeleteResponse)
 
-export const delete7 = {
-  post: post33,
+export const delete8 = {
+  post: post37,
   byIdentifier,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get26 = oc
+export const get30 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginTasksByTaskId',
@@ -2075,20 +1934,12 @@ export const get26 = oc
   .output(zGetWorkspacesCurrentPluginTasksByTaskIdResponse)
 
 export const byTaskId = {
-  get: get26,
-  delete: delete7,
+  get: get30,
+  delete: delete8,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get27 = oc
+export const get31 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentPluginTasks',
@@ -2099,21 +1950,13 @@ export const get27 = oc
   .output(zGetWorkspacesCurrentPluginTasksResponse)
 
 export const tasks = {
-  get: get27,
+  get: get31,
   deleteAll,
   byTaskId,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post34 = oc
+export const post38 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginUninstall',
@@ -2124,19 +1967,11 @@ export const post34 = oc
   .output(zPostWorkspacesCurrentPluginUninstallResponse)
 
 export const uninstall = {
-  post: post34,
+  post: post38,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post35 = oc
+export const post39 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginUpgradeGithub',
@@ -2147,19 +1982,11 @@ export const post35 = oc
   .output(zPostWorkspacesCurrentPluginUpgradeGithubResponse)
 
 export const github2 = {
-  post: post35,
+  post: post39,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post36 = oc
+export const post40 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginUpgradeMarketplace',
@@ -2170,7 +1997,7 @@ export const post36 = oc
   .output(zPostWorkspacesCurrentPluginUpgradeMarketplaceResponse)
 
 export const marketplace3 = {
-  post: post36,
+  post: post40,
 }
 
 export const upgrade = {
@@ -2178,16 +2005,8 @@ export const upgrade = {
   marketplace: marketplace3,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post37 = oc
+export const post41 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginUploadBundle',
@@ -2197,19 +2016,11 @@ export const post37 = oc
   .output(zPostWorkspacesCurrentPluginUploadBundleResponse)
 
 export const bundle = {
-  post: post37,
+  post: post41,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post38 = oc
+export const post42 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginUploadGithub',
@@ -2220,19 +2031,11 @@ export const post38 = oc
   .output(zPostWorkspacesCurrentPluginUploadGithubResponse)
 
 export const github3 = {
-  post: post38,
+  post: post42,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post39 = oc
+export const post43 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentPluginUploadPkg',
@@ -2242,7 +2045,7 @@ export const post39 = oc
   .output(zPostWorkspacesCurrentPluginUploadPkgResponse)
 
 export const pkg3 = {
-  post: post39,
+  post: post43,
 }
 
 export const upload = {
@@ -2251,8 +2054,33 @@ export const upload = {
   pkg: pkg3,
 }
 
+export const get32 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentPluginByCategoryList',
+    path: '/workspaces/current/plugin/{category}/list',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentPluginByCategoryListPath,
+      query: zGetWorkspacesCurrentPluginByCategoryListQuery.optional(),
+    }),
+  )
+  .output(zGetWorkspacesCurrentPluginByCategoryListResponse)
+
+export const list3 = {
+  get: get32,
+}
+
+export const byCategory = {
+  list: list3,
+}
+
 export const plugin2 = {
   asset,
+  autoUpgrade,
   debuggingKey,
   fetchManifest,
   icon,
@@ -2261,24 +2089,849 @@ export const plugin2 = {
   marketplace: marketplace2,
   parameters,
   permission: permission2,
-  preferences,
   readme,
   tasks,
   uninstall,
   upgrade,
   upload,
+  byCategory,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get28 = oc
+export const post44 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentRbacAccessPoliciesByPolicyIdCopy',
+    path: '/workspaces/current/rbac/access-policies/{policy_id}/copy',
+    successStatus: 201,
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPostWorkspacesCurrentRbacAccessPoliciesByPolicyIdCopyPath }))
+  .output(zPostWorkspacesCurrentRbacAccessPoliciesByPolicyIdCopyResponse)
+
+export const copy = {
+  post: post44,
+}
+
+export const delete9 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'DELETE',
+    operationId: 'deleteWorkspacesCurrentRbacAccessPoliciesByPolicyId',
+    path: '/workspaces/current/rbac/access-policies/{policy_id}',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zDeleteWorkspacesCurrentRbacAccessPoliciesByPolicyIdPath }))
+  .output(zDeleteWorkspacesCurrentRbacAccessPoliciesByPolicyIdResponse)
+
+export const get33 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacAccessPoliciesByPolicyId',
+    path: '/workspaces/current/rbac/access-policies/{policy_id}',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacAccessPoliciesByPolicyIdPath }))
+  .output(zGetWorkspacesCurrentRbacAccessPoliciesByPolicyIdResponse)
+
+export const put4 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacAccessPoliciesByPolicyId',
+    path: '/workspaces/current/rbac/access-policies/{policy_id}',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPutWorkspacesCurrentRbacAccessPoliciesByPolicyIdPath }))
+  .output(zPutWorkspacesCurrentRbacAccessPoliciesByPolicyIdResponse)
+
+export const byPolicyId = {
+  delete: delete9,
+  get: get33,
+  put: put4,
+  copy,
+}
+
+export const get34 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacAccessPolicies',
+    path: '/workspaces/current/rbac/access-policies',
+    tags: ['console'],
+  })
+  .output(zGetWorkspacesCurrentRbacAccessPoliciesResponse)
+
+export const post45 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentRbacAccessPolicies',
+    path: '/workspaces/current/rbac/access-policies',
+    successStatus: 201,
+    tags: ['console'],
+  })
+  .output(zPostWorkspacesCurrentRbacAccessPoliciesResponse)
+
+export const accessPolicies = {
+  get: get34,
+  post: post45,
+  byPolicyId,
+}
+
+export const put5 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdLock',
+    path: '/workspaces/current/rbac/access-policy-bindings/{binding_id}/lock',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPutWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdLockPath }))
+  .output(zPutWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdLockResponse)
+
+export const lock = {
+  put: put5,
+}
+
+export const put6 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdUnlock',
+    path: '/workspaces/current/rbac/access-policy-bindings/{binding_id}/unlock',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPutWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdUnlockPath }))
+  .output(zPutWorkspacesCurrentRbacAccessPolicyBindingsByBindingIdUnlockResponse)
+
+export const unlock = {
+  put: put6,
+}
+
+export const byBindingId = {
+  lock,
+  unlock,
+}
+
+export const accessPolicyBindings = {
+  byBindingId,
+}
+
+export const delete10 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'DELETE',
+    operationId: 'deleteWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindings',
+    path: '/workspaces/current/rbac/apps/{app_id}/access-policies/{policy_id}/member-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zDeleteWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindingsPath,
+    }),
+  )
+  .output(zDeleteWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindingsResponse)
+
+export const get35 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindings',
+    path: '/workspaces/current/rbac/apps/{app_id}/access-policies/{policy_id}/member-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindingsPath,
+    }),
+  )
+  .output(zGetWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdMemberBindingsResponse)
+
+export const memberBindings = {
+  delete: delete10,
+  get: get35,
+}
+
+export const get36 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdRoleBindings',
+    path: '/workspaces/current/rbac/apps/{app_id}/access-policies/{policy_id}/role-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdRoleBindingsPath,
+    }),
+  )
+  .output(zGetWorkspacesCurrentRbacAppsByAppIdAccessPoliciesByPolicyIdRoleBindingsResponse)
+
+export const roleBindings = {
+  get: get36,
+}
+
+export const byPolicyId2 = {
+  memberBindings,
+  roleBindings,
+}
+
+export const accessPolicies2 = {
+  byPolicyId: byPolicyId2,
+}
+
+export const get37 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacAppsByAppIdAccessPolicy',
+    path: '/workspaces/current/rbac/apps/{app_id}/access-policy',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacAppsByAppIdAccessPolicyPath }))
+  .output(zGetWorkspacesCurrentRbacAppsByAppIdAccessPolicyResponse)
+
+export const accessPolicy = {
+  get: get37,
+}
+
+export const get38 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacAppsByAppIdUserAccessPolicies',
+    path: '/workspaces/current/rbac/apps/{app_id}/user-access-policies',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacAppsByAppIdUserAccessPoliciesPath }))
+  .output(zGetWorkspacesCurrentRbacAppsByAppIdUserAccessPoliciesResponse)
+
+export const userAccessPolicies = {
+  get: get38,
+}
+
+export const put7 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacAppsByAppIdUsersByTargetAccountIdAccessPolicies',
+    path: '/workspaces/current/rbac/apps/{app_id}/users/{target_account_id}/access-policies',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zPutWorkspacesCurrentRbacAppsByAppIdUsersByTargetAccountIdAccessPoliciesPath,
+    }),
+  )
+  .output(zPutWorkspacesCurrentRbacAppsByAppIdUsersByTargetAccountIdAccessPoliciesResponse)
+
+export const accessPolicies3 = {
+  put: put7,
+}
+
+export const byTargetAccountId = {
+  accessPolicies: accessPolicies3,
+}
+
+export const users = {
+  byTargetAccountId,
+}
+
+export const get39 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacAppsByAppIdWhitelist',
+    path: '/workspaces/current/rbac/apps/{app_id}/whitelist',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacAppsByAppIdWhitelistPath }))
+  .output(zGetWorkspacesCurrentRbacAppsByAppIdWhitelistResponse)
+
+export const put8 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacAppsByAppIdWhitelist',
+    path: '/workspaces/current/rbac/apps/{app_id}/whitelist',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPutWorkspacesCurrentRbacAppsByAppIdWhitelistPath }))
+  .output(zPutWorkspacesCurrentRbacAppsByAppIdWhitelistResponse)
+
+export const whitelist = {
+  get: get39,
+  put: put8,
+}
+
+export const byAppId = {
+  accessPolicies: accessPolicies2,
+  accessPolicy,
+  userAccessPolicies,
+  users,
+  whitelist,
+}
+
+export const apps = {
+  byAppId,
+}
+
+export const delete11 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'DELETE',
+    operationId:
+      'deleteWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindings',
+    path: '/workspaces/current/rbac/datasets/{dataset_id}/access-policies/{policy_id}/member-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params:
+        zDeleteWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindingsPath,
+    }),
+  )
+  .output(
+    zDeleteWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindingsResponse,
+  )
+
+export const get40 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId:
+      'getWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindings',
+    path: '/workspaces/current/rbac/datasets/{dataset_id}/access-policies/{policy_id}/member-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params:
+        zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindingsPath,
+    }),
+  )
+  .output(
+    zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdMemberBindingsResponse,
+  )
+
+export const memberBindings2 = {
+  delete: delete11,
+  get: get40,
+}
+
+export const get41 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdRoleBindings',
+    path: '/workspaces/current/rbac/datasets/{dataset_id}/access-policies/{policy_id}/role-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdRoleBindingsPath,
+    }),
+  )
+  .output(zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPoliciesByPolicyIdRoleBindingsResponse)
+
+export const roleBindings2 = {
+  get: get41,
+}
+
+export const byPolicyId3 = {
+  memberBindings: memberBindings2,
+  roleBindings: roleBindings2,
+}
+
+export const accessPolicies4 = {
+  byPolicyId: byPolicyId3,
+}
+
+export const get42 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacDatasetsByDatasetIdAccessPolicy',
+    path: '/workspaces/current/rbac/datasets/{dataset_id}/access-policy',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPolicyPath }))
+  .output(zGetWorkspacesCurrentRbacDatasetsByDatasetIdAccessPolicyResponse)
+
+export const accessPolicy2 = {
+  get: get42,
+}
+
+export const get43 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacDatasetsByDatasetIdUserAccessPolicies',
+    path: '/workspaces/current/rbac/datasets/{dataset_id}/user-access-policies',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacDatasetsByDatasetIdUserAccessPoliciesPath }))
+  .output(zGetWorkspacesCurrentRbacDatasetsByDatasetIdUserAccessPoliciesResponse)
+
+export const userAccessPolicies2 = {
+  get: get43,
+}
+
+export const put9 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacDatasetsByDatasetIdUsersByTargetAccountIdAccessPolicies',
+    path: '/workspaces/current/rbac/datasets/{dataset_id}/users/{target_account_id}/access-policies',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zPutWorkspacesCurrentRbacDatasetsByDatasetIdUsersByTargetAccountIdAccessPoliciesPath,
+    }),
+  )
+  .output(zPutWorkspacesCurrentRbacDatasetsByDatasetIdUsersByTargetAccountIdAccessPoliciesResponse)
+
+export const accessPolicies5 = {
+  put: put9,
+}
+
+export const byTargetAccountId2 = {
+  accessPolicies: accessPolicies5,
+}
+
+export const users2 = {
+  byTargetAccountId: byTargetAccountId2,
+}
+
+export const get44 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacDatasetsByDatasetIdWhitelist',
+    path: '/workspaces/current/rbac/datasets/{dataset_id}/whitelist',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacDatasetsByDatasetIdWhitelistPath }))
+  .output(zGetWorkspacesCurrentRbacDatasetsByDatasetIdWhitelistResponse)
+
+export const put10 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacDatasetsByDatasetIdWhitelist',
+    path: '/workspaces/current/rbac/datasets/{dataset_id}/whitelist',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPutWorkspacesCurrentRbacDatasetsByDatasetIdWhitelistPath }))
+  .output(zPutWorkspacesCurrentRbacDatasetsByDatasetIdWhitelistResponse)
+
+export const whitelist2 = {
+  get: get44,
+  put: put10,
+}
+
+export const byDatasetId = {
+  accessPolicies: accessPolicies4,
+  accessPolicy: accessPolicy2,
+  userAccessPolicies: userAccessPolicies2,
+  users: users2,
+  whitelist: whitelist2,
+}
+
+export const datasets = {
+  byDatasetId,
+}
+
+export const get45 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacMembersByMemberIdRbacRoles',
+    path: '/workspaces/current/rbac/members/{member_id}/rbac-roles',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacMembersByMemberIdRbacRolesPath }))
+  .output(zGetWorkspacesCurrentRbacMembersByMemberIdRbacRolesResponse)
+
+export const put11 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacMembersByMemberIdRbacRoles',
+    path: '/workspaces/current/rbac/members/{member_id}/rbac-roles',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPutWorkspacesCurrentRbacMembersByMemberIdRbacRolesPath }))
+  .output(zPutWorkspacesCurrentRbacMembersByMemberIdRbacRolesResponse)
+
+export const rbacRoles = {
+  get: get45,
+  put: put11,
+}
+
+export const byMemberId2 = {
+  rbacRoles,
+}
+
+export const members2 = {
+  byMemberId: byMemberId2,
+}
+
+export const get46 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacMyPermissions',
+    path: '/workspaces/current/rbac/my-permissions',
+    tags: ['console'],
+  })
+  .output(zGetWorkspacesCurrentRbacMyPermissionsResponse)
+
+export const myPermissions = {
+  get: get46,
+}
+
+export const get47 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacRolePermissionsCatalogApp',
+    path: '/workspaces/current/rbac/role-permissions/catalog/app',
+    tags: ['console'],
+  })
+  .output(zGetWorkspacesCurrentRbacRolePermissionsCatalogAppResponse)
+
+export const app = {
+  get: get47,
+}
+
+export const get48 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacRolePermissionsCatalogDataset',
+    path: '/workspaces/current/rbac/role-permissions/catalog/dataset',
+    tags: ['console'],
+  })
+  .output(zGetWorkspacesCurrentRbacRolePermissionsCatalogDatasetResponse)
+
+export const dataset = {
+  get: get48,
+}
+
+export const get49 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacRolePermissionsCatalog',
+    path: '/workspaces/current/rbac/role-permissions/catalog',
+    tags: ['console'],
+  })
+  .output(zGetWorkspacesCurrentRbacRolePermissionsCatalogResponse)
+
+export const catalog = {
+  get: get49,
+  app,
+  dataset,
+}
+
+export const rolePermissions = {
+  catalog,
+}
+
+export const post46 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentRbacRolesByRoleIdCopy',
+    path: '/workspaces/current/rbac/roles/{role_id}/copy',
+    successStatus: 201,
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPostWorkspacesCurrentRbacRolesByRoleIdCopyPath }))
+  .output(zPostWorkspacesCurrentRbacRolesByRoleIdCopyResponse)
+
+export const copy2 = {
+  post: post46,
+}
+
+export const get50 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacRolesByRoleIdMembers',
+    path: '/workspaces/current/rbac/roles/{role_id}/members',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacRolesByRoleIdMembersPath }))
+  .output(zGetWorkspacesCurrentRbacRolesByRoleIdMembersResponse)
+
+export const members3 = {
+  get: get50,
+}
+
+export const delete12 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'DELETE',
+    operationId: 'deleteWorkspacesCurrentRbacRolesByRoleId',
+    path: '/workspaces/current/rbac/roles/{role_id}',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zDeleteWorkspacesCurrentRbacRolesByRoleIdPath }))
+  .output(zDeleteWorkspacesCurrentRbacRolesByRoleIdResponse)
+
+export const get51 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacRolesByRoleId',
+    path: '/workspaces/current/rbac/roles/{role_id}',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zGetWorkspacesCurrentRbacRolesByRoleIdPath }))
+  .output(zGetWorkspacesCurrentRbacRolesByRoleIdResponse)
+
+export const put12 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacRolesByRoleId',
+    path: '/workspaces/current/rbac/roles/{role_id}',
+    tags: ['console'],
+  })
+  .input(z.object({ params: zPutWorkspacesCurrentRbacRolesByRoleIdPath }))
+  .output(zPutWorkspacesCurrentRbacRolesByRoleIdResponse)
+
+export const byRoleId = {
+  delete: delete12,
+  get: get51,
+  put: put12,
+  copy: copy2,
+  members: members3,
+}
+
+export const get52 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacRoles',
+    path: '/workspaces/current/rbac/roles',
+    tags: ['console'],
+  })
+  .output(zGetWorkspacesCurrentRbacRolesResponse)
+
+export const post47 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postWorkspacesCurrentRbacRoles',
+    path: '/workspaces/current/rbac/roles',
+    successStatus: 201,
+    tags: ['console'],
+  })
+  .output(zPostWorkspacesCurrentRbacRolesResponse)
+
+export const roles = {
+  get: get52,
+  post: post47,
+  byRoleId,
+}
+
+export const put13 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdBindings',
+    path: '/workspaces/current/rbac/workspace/apps/access-policies/{policy_id}/bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zPutWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdBindingsPath,
+    }),
+  )
+  .output(zPutWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdBindingsResponse)
+
+export const bindings = {
+  put: put13,
+}
+
+export const get53 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdMemberBindings',
+    path: '/workspaces/current/rbac/workspace/apps/access-policies/{policy_id}/member-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdMemberBindingsPath,
+    }),
+  )
+  .output(zGetWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdMemberBindingsResponse)
+
+export const memberBindings3 = {
+  get: get53,
+}
+
+export const get54 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdRoleBindings',
+    path: '/workspaces/current/rbac/workspace/apps/access-policies/{policy_id}/role-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdRoleBindingsPath,
+    }),
+  )
+  .output(zGetWorkspacesCurrentRbacWorkspaceAppsAccessPoliciesByPolicyIdRoleBindingsResponse)
+
+export const roleBindings3 = {
+  get: get54,
+}
+
+export const byPolicyId4 = {
+  bindings,
+  memberBindings: memberBindings3,
+  roleBindings: roleBindings3,
+}
+
+export const accessPolicies6 = {
+  byPolicyId: byPolicyId4,
+}
+
+export const get55 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacWorkspaceAppsAccessPolicy',
+    path: '/workspaces/current/rbac/workspace/apps/access-policy',
+    tags: ['console'],
+  })
+  .output(zGetWorkspacesCurrentRbacWorkspaceAppsAccessPolicyResponse)
+
+export const accessPolicy3 = {
+  get: get55,
+}
+
+export const apps2 = {
+  accessPolicies: accessPolicies6,
+  accessPolicy: accessPolicy3,
+}
+
+export const put14 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdBindings',
+    path: '/workspaces/current/rbac/workspace/datasets/access-policies/{policy_id}/bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zPutWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdBindingsPath,
+    }),
+  )
+  .output(zPutWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdBindingsResponse)
+
+export const bindings2 = {
+  put: put14,
+}
+
+export const get56 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdMemberBindings',
+    path: '/workspaces/current/rbac/workspace/datasets/access-policies/{policy_id}/member-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdMemberBindingsPath,
+    }),
+  )
+  .output(zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdMemberBindingsResponse)
+
+export const memberBindings4 = {
+  get: get56,
+}
+
+export const get57 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdRoleBindings',
+    path: '/workspaces/current/rbac/workspace/datasets/access-policies/{policy_id}/role-bindings',
+    tags: ['console'],
+  })
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdRoleBindingsPath,
+    }),
+  )
+  .output(zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPoliciesByPolicyIdRoleBindingsResponse)
+
+export const roleBindings4 = {
+  get: get57,
+}
+
+export const byPolicyId5 = {
+  bindings: bindings2,
+  memberBindings: memberBindings4,
+  roleBindings: roleBindings4,
+}
+
+export const accessPolicies7 = {
+  byPolicyId: byPolicyId5,
+}
+
+export const get58 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getWorkspacesCurrentRbacWorkspaceDatasetsAccessPolicy',
+    path: '/workspaces/current/rbac/workspace/datasets/access-policy',
+    tags: ['console'],
+  })
+  .output(zGetWorkspacesCurrentRbacWorkspaceDatasetsAccessPolicyResponse)
+
+export const accessPolicy4 = {
+  get: get58,
+}
+
+export const datasets2 = {
+  accessPolicies: accessPolicies7,
+  accessPolicy: accessPolicy4,
+}
+
+export const workspace = {
+  apps: apps2,
+  datasets: datasets2,
+}
+
+export const rbac = {
+  accessPolicies,
+  accessPolicyBindings,
+  apps,
+  datasets,
+  members: members2,
+  myPermissions,
+  rolePermissions,
+  roles,
+  workspace,
+}
+
+export const get59 = oc
+  .route({
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolLabels',
@@ -2288,19 +2941,11 @@ export const get28 = oc
   .output(zGetWorkspacesCurrentToolLabelsResponse)
 
 export const toolLabels = {
-  get: get28,
+  get: get59,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post40 = oc
+export const post48 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderApiAdd',
@@ -2311,19 +2956,11 @@ export const post40 = oc
   .output(zPostWorkspacesCurrentToolProviderApiAddResponse)
 
 export const add = {
-  post: post40,
+  post: post48,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post41 = oc
+export const post49 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderApiDelete',
@@ -2333,64 +2970,42 @@ export const post41 = oc
   .input(z.object({ body: zPostWorkspacesCurrentToolProviderApiDeleteBody }))
   .output(zPostWorkspacesCurrentToolProviderApiDeleteResponse)
 
-export const delete8 = {
-  post: post41,
+export const delete13 = {
+  post: post49,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get29 = oc
+export const get60 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderApiGet',
     path: '/workspaces/current/tool-provider/api/get',
     tags: ['console'],
   })
+  .input(z.object({ query: zGetWorkspacesCurrentToolProviderApiGetQuery }))
   .output(zGetWorkspacesCurrentToolProviderApiGetResponse)
 
-export const get30 = {
-  get: get29,
+export const get61 = {
+  get: get60,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get31 = oc
+export const get62 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderApiRemote',
     path: '/workspaces/current/tool-provider/api/remote',
     tags: ['console'],
   })
+  .input(z.object({ query: zGetWorkspacesCurrentToolProviderApiRemoteQuery }))
   .output(zGetWorkspacesCurrentToolProviderApiRemoteResponse)
 
 export const remote = {
-  get: get31,
+  get: get62,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post42 = oc
+export const post50 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderApiSchema',
@@ -2401,19 +3016,11 @@ export const post42 = oc
   .output(zPostWorkspacesCurrentToolProviderApiSchemaResponse)
 
 export const schema = {
-  post: post42,
+  post: post50,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post43 = oc
+export const post51 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderApiTestPre',
@@ -2424,45 +3031,30 @@ export const post43 = oc
   .output(zPostWorkspacesCurrentToolProviderApiTestPreResponse)
 
 export const pre = {
-  post: post43,
+  post: post51,
 }
 
 export const test = {
   pre,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get32 = oc
+export const get63 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderApiTools',
     path: '/workspaces/current/tool-provider/api/tools',
     tags: ['console'],
   })
+  .input(z.object({ query: zGetWorkspacesCurrentToolProviderApiToolsQuery }))
   .output(zGetWorkspacesCurrentToolProviderApiToolsResponse)
 
 export const tools = {
-  get: get32,
+  get: get63,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post44 = oc
+export const post52 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderApiUpdate',
@@ -2473,13 +3065,13 @@ export const post44 = oc
   .output(zPostWorkspacesCurrentToolProviderApiUpdateResponse)
 
 export const update2 = {
-  post: post44,
+  post: post52,
 }
 
 export const api = {
   add,
-  delete: delete8,
-  get: get30,
+  delete: delete13,
+  get: get61,
   remote,
   schema,
   test,
@@ -2487,16 +3079,8 @@ export const api = {
   update: update2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post45 = oc
+export const post53 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderBuiltinByProviderAdd',
@@ -2512,42 +3096,31 @@ export const post45 = oc
   .output(zPostWorkspacesCurrentToolProviderBuiltinByProviderAddResponse)
 
 export const add2 = {
-  post: post45,
+  post: post53,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get33 = oc
+export const get64 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderBuiltinByProviderCredentialInfo',
     path: '/workspaces/current/tool-provider/builtin/{provider}/credential/info',
     tags: ['console'],
   })
-  .input(z.object({ params: zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialInfoPath }))
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialInfoPath,
+      query: zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialInfoQuery.optional(),
+    }),
+  )
   .output(zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialInfoResponse)
 
 export const info = {
-  get: get33,
+  get: get64,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get34 = oc
+export const get65 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId:
@@ -2566,7 +3139,7 @@ export const get34 = oc
   )
 
 export const byCredentialType = {
-  get: get34,
+  get: get65,
 }
 
 export const schema2 = {
@@ -2578,39 +3151,28 @@ export const credential = {
   schema: schema2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get35 = oc
+export const get66 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderBuiltinByProviderCredentials',
     path: '/workspaces/current/tool-provider/builtin/{provider}/credentials',
     tags: ['console'],
   })
-  .input(z.object({ params: zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialsPath }))
+  .input(
+    z.object({
+      params: zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialsPath,
+      query: zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialsQuery.optional(),
+    }),
+  )
   .output(zGetWorkspacesCurrentToolProviderBuiltinByProviderCredentialsResponse)
 
 export const credentials3 = {
-  get: get35,
+  get: get66,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post46 = oc
+export const post54 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderBuiltinByProviderDefaultCredential',
@@ -2626,19 +3188,11 @@ export const post46 = oc
   .output(zPostWorkspacesCurrentToolProviderBuiltinByProviderDefaultCredentialResponse)
 
 export const defaultCredential = {
-  post: post46,
+  post: post54,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post47 = oc
+export const post55 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderBuiltinByProviderDelete',
@@ -2653,20 +3207,12 @@ export const post47 = oc
   )
   .output(zPostWorkspacesCurrentToolProviderBuiltinByProviderDeleteResponse)
 
-export const delete9 = {
-  post: post47,
+export const delete14 = {
+  post: post55,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get36 = oc
+export const get67 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderBuiltinByProviderIcon',
@@ -2677,19 +3223,11 @@ export const get36 = oc
   .output(zGetWorkspacesCurrentToolProviderBuiltinByProviderIconResponse)
 
 export const icon2 = {
-  get: get36,
+  get: get67,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get37 = oc
+export const get68 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderBuiltinByProviderInfo',
@@ -2700,19 +3238,11 @@ export const get37 = oc
   .output(zGetWorkspacesCurrentToolProviderBuiltinByProviderInfoResponse)
 
 export const info2 = {
-  get: get37,
+  get: get68,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get38 = oc
+export const get69 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderBuiltinByProviderOauthClientSchema',
@@ -2725,19 +3255,11 @@ export const get38 = oc
   .output(zGetWorkspacesCurrentToolProviderBuiltinByProviderOauthClientSchemaResponse)
 
 export const clientSchema = {
-  get: get38,
+  get: get69,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const delete10 = oc
+export const delete15 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'DELETE',
     operationId: 'deleteWorkspacesCurrentToolProviderBuiltinByProviderOauthCustomClient',
@@ -2751,16 +3273,8 @@ export const delete10 = oc
   )
   .output(zDeleteWorkspacesCurrentToolProviderBuiltinByProviderOauthCustomClientResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get39 = oc
+export const get70 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderBuiltinByProviderOauthCustomClient',
@@ -2772,16 +3286,8 @@ export const get39 = oc
   )
   .output(zGetWorkspacesCurrentToolProviderBuiltinByProviderOauthCustomClientResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post48 = oc
+export const post56 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderBuiltinByProviderOauthCustomClient',
@@ -2797,9 +3303,9 @@ export const post48 = oc
   .output(zPostWorkspacesCurrentToolProviderBuiltinByProviderOauthCustomClientResponse)
 
 export const customClient = {
-  delete: delete10,
-  get: get39,
-  post: post48,
+  delete: delete15,
+  get: get70,
+  post: post56,
 }
 
 export const oauth = {
@@ -2807,16 +3313,8 @@ export const oauth = {
   customClient,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get40 = oc
+export const get71 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderBuiltinByProviderTools',
@@ -2827,19 +3325,11 @@ export const get40 = oc
   .output(zGetWorkspacesCurrentToolProviderBuiltinByProviderToolsResponse)
 
 export const tools2 = {
-  get: get40,
+  get: get71,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post49 = oc
+export const post57 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderBuiltinByProviderUpdate',
@@ -2855,7 +3345,7 @@ export const post49 = oc
   .output(zPostWorkspacesCurrentToolProviderBuiltinByProviderUpdateResponse)
 
 export const update3 = {
-  post: post49,
+  post: post57,
 }
 
 export const byProvider2 = {
@@ -2863,7 +3353,7 @@ export const byProvider2 = {
   credential,
   credentials: credentials3,
   defaultCredential,
-  delete: delete9,
+  delete: delete14,
   icon: icon2,
   info: info2,
   oauth,
@@ -2875,16 +3365,8 @@ export const builtin = {
   byProvider: byProvider2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post50 = oc
+export const post58 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderMcpAuth',
@@ -2895,19 +3377,11 @@ export const post50 = oc
   .output(zPostWorkspacesCurrentToolProviderMcpAuthResponse)
 
 export const auth = {
-  post: post50,
+  post: post58,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get41 = oc
+export const get72 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderMcpToolsByProviderId',
@@ -2918,23 +3392,15 @@ export const get41 = oc
   .output(zGetWorkspacesCurrentToolProviderMcpToolsByProviderIdResponse)
 
 export const byProviderId = {
-  get: get41,
+  get: get72,
 }
 
 export const tools3 = {
   byProviderId,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get42 = oc
+export const get73 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderMcpUpdateByProviderId',
@@ -2945,23 +3411,15 @@ export const get42 = oc
   .output(zGetWorkspacesCurrentToolProviderMcpUpdateByProviderIdResponse)
 
 export const byProviderId2 = {
-  get: get42,
+  get: get73,
 }
 
 export const update4 = {
   byProviderId: byProviderId2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const delete11 = oc
+export const delete16 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'DELETE',
     operationId: 'deleteWorkspacesCurrentToolProviderMcp',
@@ -2971,16 +3429,8 @@ export const delete11 = oc
   .input(z.object({ body: zDeleteWorkspacesCurrentToolProviderMcpBody }))
   .output(zDeleteWorkspacesCurrentToolProviderMcpResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post51 = oc
+export const post59 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderMcp',
@@ -2990,16 +3440,8 @@ export const post51 = oc
   .input(z.object({ body: zPostWorkspacesCurrentToolProviderMcpBody }))
   .output(zPostWorkspacesCurrentToolProviderMcpResponse)
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const put4 = oc
+export const put15 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'PUT',
     operationId: 'putWorkspacesCurrentToolProviderMcp',
@@ -3010,24 +3452,16 @@ export const put4 = oc
   .output(zPutWorkspacesCurrentToolProviderMcpResponse)
 
 export const mcp = {
-  delete: delete11,
-  post: post51,
-  put: put4,
+  delete: delete16,
+  post: post59,
+  put: put15,
   auth,
   tools: tools3,
   update: update4,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post52 = oc
+export const post60 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderWorkflowCreate',
@@ -3038,19 +3472,11 @@ export const post52 = oc
   .output(zPostWorkspacesCurrentToolProviderWorkflowCreateResponse)
 
 export const create2 = {
-  post: post52,
+  post: post60,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post53 = oc
+export const post61 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderWorkflowDelete',
@@ -3060,64 +3486,42 @@ export const post53 = oc
   .input(z.object({ body: zPostWorkspacesCurrentToolProviderWorkflowDeleteBody }))
   .output(zPostWorkspacesCurrentToolProviderWorkflowDeleteResponse)
 
-export const delete12 = {
-  post: post53,
+export const delete17 = {
+  post: post61,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get43 = oc
+export const get74 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderWorkflowGet',
     path: '/workspaces/current/tool-provider/workflow/get',
     tags: ['console'],
   })
+  .input(z.object({ query: zGetWorkspacesCurrentToolProviderWorkflowGetQuery.optional() }))
   .output(zGetWorkspacesCurrentToolProviderWorkflowGetResponse)
 
-export const get44 = {
-  get: get43,
+export const get75 = {
+  get: get74,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get45 = oc
+export const get76 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviderWorkflowTools',
     path: '/workspaces/current/tool-provider/workflow/tools',
     tags: ['console'],
   })
+  .input(z.object({ query: zGetWorkspacesCurrentToolProviderWorkflowToolsQuery }))
   .output(zGetWorkspacesCurrentToolProviderWorkflowToolsResponse)
 
 export const tools4 = {
-  get: get45,
+  get: get76,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post54 = oc
+export const post62 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentToolProviderWorkflowUpdate',
@@ -3128,13 +3532,13 @@ export const post54 = oc
   .output(zPostWorkspacesCurrentToolProviderWorkflowUpdateResponse)
 
 export const update5 = {
-  post: post54,
+  post: post62,
 }
 
 export const workflow = {
   create: create2,
-  delete: delete12,
-  get: get44,
+  delete: delete17,
+  get: get75,
   tools: tools4,
   update: update5,
 }
@@ -3146,38 +3550,23 @@ export const toolProvider = {
   workflow,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get46 = oc
+export const get77 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolProviders',
     path: '/workspaces/current/tool-providers',
     tags: ['console'],
   })
+  .input(z.object({ query: zGetWorkspacesCurrentToolProvidersQuery.optional() }))
   .output(zGetWorkspacesCurrentToolProvidersResponse)
 
 export const toolProviders = {
-  get: get46,
+  get: get77,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get47 = oc
+export const get78 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolsApi',
@@ -3187,19 +3576,11 @@ export const get47 = oc
   .output(zGetWorkspacesCurrentToolsApiResponse)
 
 export const api2 = {
-  get: get47,
+  get: get78,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get48 = oc
+export const get79 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolsBuiltin',
@@ -3209,19 +3590,11 @@ export const get48 = oc
   .output(zGetWorkspacesCurrentToolsBuiltinResponse)
 
 export const builtin2 = {
-  get: get48,
+  get: get79,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get49 = oc
+export const get80 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolsMcp',
@@ -3231,19 +3604,11 @@ export const get49 = oc
   .output(zGetWorkspacesCurrentToolsMcpResponse)
 
 export const mcp2 = {
-  get: get49,
+  get: get80,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get50 = oc
+export const get81 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentToolsWorkflow',
@@ -3253,7 +3618,7 @@ export const get50 = oc
   .output(zGetWorkspacesCurrentToolsWorkflowResponse)
 
 export const workflow2 = {
-  get: get50,
+  get: get81,
 }
 
 export const tools5 = {
@@ -3263,16 +3628,8 @@ export const tools5 = {
   workflow: workflow2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get51 = oc
+export const get82 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentTriggerProviderByProviderIcon',
@@ -3283,21 +3640,14 @@ export const get51 = oc
   .output(zGetWorkspacesCurrentTriggerProviderByProviderIconResponse)
 
 export const icon3 = {
-  get: get51,
+  get: get82,
 }
 
 /**
  * Get info for a trigger provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get52 = oc
+export const get83 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentTriggerProviderByProviderInfo',
@@ -3309,21 +3659,14 @@ export const get52 = oc
   .output(zGetWorkspacesCurrentTriggerProviderByProviderInfoResponse)
 
 export const info3 = {
-  get: get52,
+  get: get83,
 }
 
 /**
  * Remove custom OAuth client configuration
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const delete13 = oc
+export const delete18 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'DELETE',
     operationId: 'deleteWorkspacesCurrentTriggerProviderByProviderOauthClient',
@@ -3336,16 +3679,9 @@ export const delete13 = oc
 
 /**
  * Get OAuth client configuration for a provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get53 = oc
+export const get84 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentTriggerProviderByProviderOauthClient',
@@ -3358,16 +3694,9 @@ export const get53 = oc
 
 /**
  * Configure custom OAuth client for a provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post55 = oc
+export const post63 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentTriggerProviderByProviderOauthClient',
@@ -3384,9 +3713,9 @@ export const post55 = oc
   .output(zPostWorkspacesCurrentTriggerProviderByProviderOauthClientResponse)
 
 export const client = {
-  delete: delete13,
-  get: get53,
-  post: post55,
+  delete: delete18,
+  get: get84,
+  post: post63,
 }
 
 export const oauth2 = {
@@ -3395,16 +3724,9 @@ export const oauth2 = {
 
 /**
  * Build a subscription instance for a trigger provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post56 = oc
+export const post64 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId:
@@ -3425,7 +3747,7 @@ export const post56 = oc
   )
 
 export const bySubscriptionBuilderId = {
-  post: post56,
+  post: post64,
 }
 
 export const build = {
@@ -3434,16 +3756,9 @@ export const build = {
 
 /**
  * Add a new subscription instance for a trigger provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post57 = oc
+export const post65 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentTriggerProviderByProviderSubscriptionsBuilderCreate',
@@ -3460,21 +3775,14 @@ export const post57 = oc
   .output(zPostWorkspacesCurrentTriggerProviderByProviderSubscriptionsBuilderCreateResponse)
 
 export const create3 = {
-  post: post57,
+  post: post65,
 }
 
 /**
  * Get the request logs for a subscription instance for a trigger provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get54 = oc
+export const get85 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId:
@@ -3494,7 +3802,7 @@ export const get54 = oc
   )
 
 export const bySubscriptionBuilderId2 = {
-  get: get54,
+  get: get85,
 }
 
 export const logs = {
@@ -3503,16 +3811,9 @@ export const logs = {
 
 /**
  * Update a subscription instance for a trigger provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post58 = oc
+export const post66 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId:
@@ -3533,7 +3834,7 @@ export const post58 = oc
   )
 
 export const bySubscriptionBuilderId3 = {
-  post: post58,
+  post: post66,
 }
 
 export const update6 = {
@@ -3542,16 +3843,9 @@ export const update6 = {
 
 /**
  * Verify and update a subscription instance for a trigger provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post59 = oc
+export const post67 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId:
@@ -3572,7 +3866,7 @@ export const post59 = oc
   )
 
 export const bySubscriptionBuilderId4 = {
-  post: post59,
+  post: post67,
 }
 
 export const verifyAndUpdate = {
@@ -3581,16 +3875,9 @@ export const verifyAndUpdate = {
 
 /**
  * Get a subscription instance for a trigger provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get55 = oc
+export const get86 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId:
@@ -3610,7 +3897,7 @@ export const get55 = oc
   )
 
 export const bySubscriptionBuilderId5 = {
-  get: get55,
+  get: get86,
 }
 
 export const builder = {
@@ -3624,16 +3911,9 @@ export const builder = {
 
 /**
  * List all trigger subscriptions for the current tenant's provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get56 = oc
+export const get87 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentTriggerProviderByProviderSubscriptionsList',
@@ -3644,22 +3924,15 @@ export const get56 = oc
   .input(z.object({ params: zGetWorkspacesCurrentTriggerProviderByProviderSubscriptionsListPath }))
   .output(zGetWorkspacesCurrentTriggerProviderByProviderSubscriptionsListResponse)
 
-export const list3 = {
-  get: get56,
+export const list4 = {
+  get: get87,
 }
 
 /**
  * Initiate OAuth authorization flow for a trigger provider
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get57 = oc
+export const get88 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentTriggerProviderByProviderSubscriptionsOauthAuthorize',
@@ -3675,7 +3948,7 @@ export const get57 = oc
   .output(zGetWorkspacesCurrentTriggerProviderByProviderSubscriptionsOauthAuthorizeResponse)
 
 export const authorize = {
-  get: get57,
+  get: get88,
 }
 
 export const oauth3 = {
@@ -3684,16 +3957,9 @@ export const oauth3 = {
 
 /**
  * Verify credentials for an existing subscription (edit mode only)
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post60 = oc
+export const post68 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId:
@@ -3714,7 +3980,7 @@ export const post60 = oc
   )
 
 export const bySubscriptionId = {
-  post: post60,
+  post: post68,
 }
 
 export const verify = {
@@ -3723,7 +3989,7 @@ export const verify = {
 
 export const subscriptions = {
   builder,
-  list: list3,
+  list: list4,
   oauth: oauth3,
   verify,
 }
@@ -3737,16 +4003,9 @@ export const byProvider3 = {
 
 /**
  * Delete a subscription instance
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post61 = oc
+export const post69 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentTriggerProviderBySubscriptionIdSubscriptionsDelete',
@@ -3761,22 +4020,15 @@ export const post61 = oc
   )
   .output(zPostWorkspacesCurrentTriggerProviderBySubscriptionIdSubscriptionsDeleteResponse)
 
-export const delete14 = {
-  post: post61,
+export const delete19 = {
+  post: post69,
 }
 
 /**
  * Update a subscription instance
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const post62 = oc
+export const post70 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrentTriggerProviderBySubscriptionIdSubscriptionsUpdate',
@@ -3793,11 +4045,11 @@ export const post62 = oc
   .output(zPostWorkspacesCurrentTriggerProviderBySubscriptionIdSubscriptionsUpdateResponse)
 
 export const update7 = {
-  post: post62,
+  post: post70,
 }
 
 export const subscriptions2 = {
-  delete: delete14,
+  delete: delete19,
   update: update7,
 }
 
@@ -3812,16 +4064,9 @@ export const triggerProvider = {
 
 /**
  * List all trigger providers for the current tenant
- *
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
  */
-export const get58 = oc
+export const get89 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesCurrentTriggers',
@@ -3832,19 +4077,11 @@ export const get58 = oc
   .output(zGetWorkspacesCurrentTriggersResponse)
 
 export const triggers = {
-  get: get58,
+  get: get89,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post63 = oc
+export const post71 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCurrent',
@@ -3854,9 +4091,10 @@ export const post63 = oc
   .output(zPostWorkspacesCurrentResponse)
 
 export const current = {
-  post: post63,
+  post: post71,
   agentProvider,
   agentProviders,
+  customizedSnippets,
   datasetOperators,
   defaultModel,
   endpoints,
@@ -3865,6 +4103,7 @@ export const current = {
   models: models2,
   permission,
   plugin: plugin2,
+  rbac,
   toolLabels,
   toolProvider,
   toolProviders,
@@ -3873,42 +4112,27 @@ export const current = {
   triggers,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post64 = oc
+export const post72 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCustomConfigWebappLogoUpload',
     path: '/workspaces/custom-config/webapp-logo/upload',
+    successStatus: 201,
     tags: ['console'],
   })
   .output(zPostWorkspacesCustomConfigWebappLogoUploadResponse)
 
 export const upload2 = {
-  post: post64,
+  post: post72,
 }
 
 export const webappLogo = {
   upload: upload2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post65 = oc
+export const post73 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesCustomConfig',
@@ -3919,20 +4143,12 @@ export const post65 = oc
   .output(zPostWorkspacesCustomConfigResponse)
 
 export const customConfig = {
-  post: post65,
+  post: post73,
   webappLogo,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post66 = oc
+export const post74 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesInfo',
@@ -3943,19 +4159,11 @@ export const post66 = oc
   .output(zPostWorkspacesInfoResponse)
 
 export const info4 = {
-  post: post66,
+  post: post74,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const post67 = oc
+export const post75 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postWorkspacesSwitch',
@@ -3966,19 +4174,11 @@ export const post67 = oc
   .output(zPostWorkspacesSwitchResponse)
 
 export const switch3 = {
-  post: post67,
+  post: post75,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get59 = oc
+export const get90 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspacesByTenantIdModelProvidersByProviderByIconTypeByLang',
@@ -3989,7 +4189,7 @@ export const get59 = oc
   .output(zGetWorkspacesByTenantIdModelProvidersByProviderByIconTypeByLangResponse)
 
 export const byLang = {
-  get: get59,
+  get: get90,
 }
 
 export const byIconType = {
@@ -4008,16 +4208,8 @@ export const byTenantId = {
   modelProviders: modelProviders2,
 }
 
-/**
- * Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.
- *
- * @deprecated
- */
-export const get60 = oc
+export const get91 = oc
   .route({
-    deprecated: true,
-    description:
-      'Generated contract types may be inaccurate because backend OpenAPI annotations are incomplete. Do not migrate callers until the generated contract is accurate.',
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getWorkspaces',
@@ -4027,7 +4219,7 @@ export const get60 = oc
   .output(zGetWorkspacesResponse)
 
 export const workspaces = {
-  get: get60,
+  get: get91,
   current,
   customConfig,
   info: info4,

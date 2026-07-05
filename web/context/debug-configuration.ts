@@ -30,6 +30,7 @@ import { AppModeEnum, ModelModeType, Resolution, RETRIEVE_TYPE, TransferMethod }
 
 type IDebugConfiguration = {
   readonly?: boolean
+  canTestAndRun?: boolean
   appId: string
   isAPIKeySet: boolean
   isTrailFinished: boolean
@@ -114,6 +115,7 @@ type IDebugConfiguration = {
 
 const DebugConfigurationContext = createContext<IDebugConfiguration>({
   readonly: false,
+  canTestAndRun: false,
   appId: '',
   isAPIKeySet: false,
   isTrailFinished: false,

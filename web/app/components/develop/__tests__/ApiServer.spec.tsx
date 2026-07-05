@@ -85,7 +85,7 @@ describe('ApiServer', () => {
   describe('SecretKeyButton interaction', () => {
     it('should open modal when API key button is clicked', async () => {
       const user = userEvent.setup()
-      render(<ApiServer {...defaultProps} appId="app-123" />)
+      render(<ApiServer {...defaultProps} appId="app-123" canManageApiKey />)
 
       const apiKeyButton = screen.getByText('appApi.apiKey')
       await act(async () => {
@@ -97,7 +97,7 @@ describe('ApiServer', () => {
 
     it('should close modal when close button is clicked', async () => {
       const user = userEvent.setup()
-      render(<ApiServer {...defaultProps} appId="app-123" />)
+      render(<ApiServer {...defaultProps} appId="app-123" canManageApiKey />)
 
       const apiKeyButton = screen.getByText('appApi.apiKey')
       await act(async () => {
@@ -109,6 +109,20 @@ describe('ApiServer', () => {
       const closeButton = screen.getByRole('button', { name: 'Close Modal' })
       await act(async () => {
         await user.click(closeButton)
+      })
+
+      expect(screen.queryByRole('dialog', { name: 'Secret key' })).not.toBeInTheDocument()
+    })
+
+    it('should disable API key button by default', async () => {
+      const user = userEvent.setup()
+      render(<ApiServer {...defaultProps} appId="app-123" />)
+
+      const apiKeyButton = screen.getByRole('button', { name: /apiKey/i })
+      expect(apiKeyButton).toBeDisabled()
+
+      await act(async () => {
+        await user.click(apiKeyButton)
       })
 
       expect(screen.queryByRole('dialog', { name: 'Secret key' })).not.toBeInTheDocument()

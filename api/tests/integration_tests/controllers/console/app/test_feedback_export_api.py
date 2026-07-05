@@ -163,7 +163,7 @@ class TestFeedbackExportApi:
 
         # Setup mocks
         mock_load_app_model = mock.Mock(return_value=mock_app_model)
-        monkeypatch.setattr(wraps, "_load_app_model", mock_load_app_model)
+        monkeypatch.setattr(wraps, "_load_app_model_from_scoped_session", mock_load_app_model)
 
         mock_export_feedbacks = mock.Mock(return_value="mock csv response")
         monkeypatch.setattr(FeedbackService, "export_feedbacks", mock_export_feedbacks)
@@ -198,7 +198,7 @@ class TestFeedbackExportApi:
 
         # Setup mocks
         mock_load_app_model = mock.Mock(return_value=mock_app_model)
-        monkeypatch.setattr(wraps, "_load_app_model", mock_load_app_model)
+        monkeypatch.setattr(wraps, "_load_app_model_from_scoped_session", mock_load_app_model)
 
         # Create mock CSV response using real Flask Response
         mock_csv_content = (
@@ -238,7 +238,7 @@ class TestFeedbackExportApi:
 
         # Setup mocks
         mock_load_app_model = mock.Mock(return_value=mock_app_model)
-        monkeypatch.setattr(wraps, "_load_app_model", mock_load_app_model)
+        monkeypatch.setattr(wraps, "_load_app_model_from_scoped_session", mock_load_app_model)
 
         mock_json_response = {
             "export_info": {
@@ -284,7 +284,7 @@ class TestFeedbackExportApi:
 
         # Setup mocks
         mock_load_app_model = mock.Mock(return_value=mock_app_model)
-        monkeypatch.setattr(wraps, "_load_app_model", mock_load_app_model)
+        monkeypatch.setattr(wraps, "_load_app_model_from_scoped_session", mock_load_app_model)
 
         mock_export_feedbacks = mock.Mock(return_value="mock filtered response")
         monkeypatch.setattr(FeedbackService, "export_feedbacks", mock_export_feedbacks)
@@ -310,6 +310,7 @@ class TestFeedbackExportApi:
 
         # Verify service was called with correct parameters
         mock_export_feedbacks.assert_called_once_with(
+            mock.ANY,
             app_id=mock_app_model.id,
             from_source=FeedbackFromSource.USER,
             rating=FeedbackRating.DISLIKE,
@@ -326,7 +327,7 @@ class TestFeedbackExportApi:
 
         # Setup mocks
         mock_load_app_model = mock.Mock(return_value=mock_app_model)
-        monkeypatch.setattr(wraps, "_load_app_model", mock_load_app_model)
+        monkeypatch.setattr(wraps, "_load_app_model_from_scoped_session", mock_load_app_model)
 
         # Mock the service to raise ValueError for invalid date
         mock_export_feedbacks = mock.Mock(side_effect=ValueError("Invalid date format"))
@@ -352,7 +353,7 @@ class TestFeedbackExportApi:
 
         # Setup mocks
         mock_load_app_model = mock.Mock(return_value=mock_app_model)
-        monkeypatch.setattr(wraps, "_load_app_model", mock_load_app_model)
+        monkeypatch.setattr(wraps, "_load_app_model_from_scoped_session", mock_load_app_model)
 
         # Mock the service to raise an exception
         mock_export_feedbacks = mock.Mock(side_effect=Exception("Database connection failed"))

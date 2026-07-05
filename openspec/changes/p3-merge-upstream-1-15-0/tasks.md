@@ -4,10 +4,10 @@
 
 ## 1. 合并准备与执行（主 agent 顺序）
 
-- [ ] 1.1 确认前置条件：P2 回归全绿、D2 结论在案；从 P2 完成点切出合并分支 `merge/upstream-1.15.0`；对旧 header 导航（owner 与普通用户双角色）截图留档，用于 main-nav 迁移后对比
-- [ ] 1.2 执行 `git merge 1.15.0 --no-commit`；机械冲突批量解决（蓝图注册、`models/__init__.py`、i18n namespace、锁文件直接取上游等）
-- [ ] 1.3 逐个人工核对高危冲突文件（线路图 4.3 清单）：api 侧 `service_api/wraps.py`、`console/apikey.py`、`persistence.py`、`*/app_generator.py`、`*/generate_task_pipeline.py`、`models/model.py`、`libs/oauth.py` + `console/auth/oauth.py`、`console/feature.py`、`token_buffer_memory.py`、`events/__init__.py`、`ext_celery.py`、`services/account_service.py`；web 侧 `contract/router.ts`、`contract/console/system.ts`、`context/app-context*`、`config/index.ts`、`i18n-config/*`
-- [ ] 1.4 提交 merge commit（允许暂时构建不过），确保 `git grep -l '<<<<<<<' -- api/ web/` 为空——作为后续修复阶段的稳定基点
+- [x] 1.1 确认前置条件：P2 回归全绿、D2 结论在案；从 P2 完成点切出合并分支 `merge/upstream-1.15.0`；对旧 header 导航（owner 与普通用户双角色）截图留档，用于 main-nav 迁移后对比（P2 已归档 `archive/2026-07-05-p2-merge-upstream-1-14-2`，回归以代码级验证全绿收口；D2=删除批量功能（提交 4071db17）；分支已从 `ffb0c5303f` 切出；本地无运行环境无法截图，以代码级基线 `nav-mount-baseline.md` 替代留档）
+- [x] 1.2 执行 `git merge 1.15.0 --no-commit`；机械冲突批量解决（蓝图注册、`models/__init__.py`、i18n namespace、锁文件直接取上游等）（79 个冲突：锁文件/uk-UA/AU 测试脚本取上游；uk-UA 8 个 DU 文件按"取上游恢复"处理以消除后续冲突税——languages.ts 中 uk-UA 仍启用，删除策略与之矛盾，已统一为跟随上游）
+- [x] 1.3 逐个人工核对高危冲突文件：api 侧 `service_api/wraps.py`（validate_token_quota_extend 保留）、`console/apikey.py`（额度字段/软删/put 全保留+上游 dump_response 路线）、`persistence.py`（计费派发在位）、`*/app_generator.py`（account_id extras 重挂）、`console/feature.py`（CVE login_config JWT 门禁保留、SystemFeatureHealthApi 保留）、`feature_service.py`（钉钉/OAuth2 字段并入新模型）、`account_service.py`/`workspace_service.py`（额度初始化与 admin_extend 标记保留）；`generate_task_pipeline/oauth/token_buffer/ext_celery` 本次干净合并，挂点扫描确认全部在位；web 侧 `contract/router.ts`（loginConfig+systemManage 重挂、上游 snippets 合入）、`contract/console/system.ts`（重写为纯 fork contract，类型迁 `features/system-features/extend.ts`）、`app-context*`（admin_extend/tenant_extend 以 UserProfileWithExtend 重对位）、`i18n` 干净合并
+- [x] 1.4 提交 merge commit（允许暂时构建不过），确保 `git grep -l '<<<<<<<' -- api/ web/` 为空——作为后续修复阶段的稳定基点（冲突标记扫描为零）
 
 ## 2. 构建体系适配（主 agent 顺序，最大单项）
 

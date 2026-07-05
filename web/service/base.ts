@@ -21,6 +21,7 @@ import type {
   NodeStartedResponse,
   ParallelBranchFinishedResponse,
   ParallelBranchStartedResponse,
+  ReasoningChunkResponse,
   TextChunkResponse,
   TextReplaceResponse,
   WorkflowFinishedResponse,
@@ -31,6 +32,7 @@ import { toast } from '@langgenius/dify-ui/toast'
 import Cookies from 'js-cookie'
 import { API_PREFIX, CSRF_COOKIE_NAME, CSRF_HEADER_NAME, IS_CE_EDITION, PASSPORT_HEADER_NAME, PUBLIC_API_PREFIX, WEB_APP_SHARE_CODE_HEADER_NAME } from '@/config'
 import { asyncRunSafe } from '@/utils'
+import { isClient } from '@/utils/client'
 import { basePath } from '@/utils/var'
 import { base, ContentType, getBaseOptions } from './fetch'
 import { refreshAccessTokenOrReLogin } from './refresh-token'
@@ -65,6 +67,7 @@ type IOnIterationFinished = (workflowFinished: IterationFinishedResponse) => voi
 type IOnParallelBranchStarted = (parallelBranchStarted: ParallelBranchStartedResponse) => void
 type IOnParallelBranchFinished = (parallelBranchFinished: ParallelBranchFinishedResponse) => void
 type IOnTextChunk = (textChunk: TextChunkResponse) => void
+type IOnReasoning = (reasoningChunk: ReasoningChunkResponse) => void
 type IOnTTSChunk = (messageId: string, audioStr: string, audioType?: string) => void
 type IOnTTSEnd = (messageId: string, audioStr: string, audioType?: string) => void
 type IOnTextReplace = (textReplace: TextReplaceResponse) => void
@@ -95,6 +98,7 @@ export type IOtherOptions = {
   request?: Request
 
   onData?: IOnData // for stream
+  onReasoning?: IOnReasoning
   onThought?: IOnThought
   onFile?: IOnFile
   onMessageEnd?: IOnMessageEnd
@@ -133,22 +137,22 @@ export type IOtherOptions = {
 }
 
 function jumpTo(url: string) {
-  if (!url)
+  if (!url || !isClient)
     return
-  const targetPath = new URL(url, globalThis.location.origin).pathname
-  if (targetPath === globalThis.location.pathname)
+  const targetPath = new URL(url, window.location.origin).pathname
+  if (targetPath === window.location.pathname)
     return
-  globalThis.location.href = url
+  window.location.href = url
 }
 
 const OAUTH_AUTHORIZE_PATH = '/account/oauth/authorize'
 
 export const buildSigninUrlWithRedirect = (): string => {
-  const loginUrl = `${globalThis.location.origin}${basePath}/signin`
+  const loginUrl = `${isClient ? window.location.origin : ''}${basePath}/signin`
 
   // Only preserve redirect URL for OAuth authorize pages
-  if (globalThis.location.pathname.includes(OAUTH_AUTHORIZE_PATH)) {
-    const currentUrl = globalThis.location.href
+  if (isClient && window.location.pathname.includes(OAUTH_AUTHORIZE_PATH)) {
+    const currentUrl = window.location.href
     return `${loginUrl}?redirect_url=${encodeURIComponent(currentUrl)}`
   }
 
@@ -166,17 +170,20 @@ function unicodeToChar(text: string) {
 
 const WBB_APP_LOGIN_PATH = '/webapp-signin'
 function requiredWebSSOLogin(message?: string, code?: number) {
-  const params = new URLSearchParams()
-  // prevent redirect loop
-  if (globalThis.location.pathname === WBB_APP_LOGIN_PATH)
+  if (!isClient)
     return
 
-  params.append('redirect_url', encodeURIComponent(`${globalThis.location.pathname}${globalThis.location.search}`))
+  const params = new URLSearchParams()
+  // prevent redirect loop
+  if (window.location.pathname === WBB_APP_LOGIN_PATH)
+    return
+
+  params.append('redirect_url', encodeURIComponent(`${window.location.pathname}${window.location.search}`))
   if (message)
     params.append('message', message)
   if (code)
     params.append('code', String(code))
-  globalThis.location.href = `${globalThis.location.origin}${basePath}${WBB_APP_LOGIN_PATH}?${params.toString()}`
+  window.location.href = `${window.location.origin}${basePath}${WBB_APP_LOGIN_PATH}?${params.toString()}`
 }
 
 function formatURL(url: string, isPublicAPI: boolean) {
@@ -220,6 +227,7 @@ export const handleStream = (
   onDataSourceNodeProcessing?: IOnDataSourceNodeProcessing,
   onDataSourceNodeCompleted?: IOnDataSourceNodeCompleted,
   onDataSourceNodeError?: IOnDataSourceNodeError,
+  onReasoning?: IOnReasoning,
 ) => {
   if (!response.ok)
     throw new Error('Network response was not ok')
@@ -336,6 +344,9 @@ export const handleStream = (
             }
             else if (bufferObj.event === 'text_chunk') {
               onTextChunk?.(bufferObj as TextChunkResponse)
+            }
+            else if (bufferObj.event === 'reasoning_chunk') {
+              onReasoning?.(bufferObj as ReasoningChunkResponse)
             }
             else if (bufferObj.event === 'text_replace') {
               onTextReplace?.(bufferObj as TextReplaceResponse)
@@ -458,6 +469,7 @@ export const ssePost = async (
   const {
     isPublicAPI = false,
     onData,
+    onReasoning,
     onCompleted,
     onThought,
     onFile,
@@ -506,6 +518,7 @@ export const ssePost = async (
       [PASSPORT_HEADER_NAME]: getWebAppPassport(shareCode!),
     }),
   } as RequestInit, fetchOptions)
+  options.headers = new Headers(options.headers)
 
   const contentType = (options.headers as Headers).get('Content-Type')
   if (!contentType)
@@ -595,6 +608,7 @@ export const ssePost = async (
         onDataSourceNodeProcessing,
         onDataSourceNodeCompleted,
         onDataSourceNodeError,
+        onReasoning,
       )
     })
     .catch((e) => {
@@ -612,6 +626,7 @@ export const sseGet = async (
   const {
     isPublicAPI = false,
     onData,
+    onReasoning,
     onCompleted,
     onThought,
     onFile,
@@ -657,6 +672,7 @@ export const sseGet = async (
       [PASSPORT_HEADER_NAME]: getWebAppPassport(shareCode!),
     }),
   } as RequestInit, fetchOptions)
+  options.headers = new Headers(options.headers)
 
   const contentType = (options.headers as Headers).get('Content-Type')
   if (!contentType)
@@ -742,6 +758,7 @@ export const sseGet = async (
         onDataSourceNodeProcessing,
         onDataSourceNodeCompleted,
         onDataSourceNodeError,
+        onReasoning,
       )
     })
     .catch((e) => {
@@ -760,10 +777,13 @@ export const request = async<T>(url: string, options = {}, otherOptions?: IOther
       return resp
     const errResp: Response = err as any
     if (errResp.status === 401) {
+      if (!isClient)
+        return Promise.reject(err)
+
       const [parseErr, errRespData] = await asyncRunSafe<ResponseError>(errResp.json())
-      const loginUrl = `${globalThis.location.origin}${basePath}/signin`
+      const loginUrl = `${window.location.origin}${basePath}/signin`
       if (parseErr) {
-        globalThis.location.href = loginUrl
+        window.location.href = loginUrl
         return Promise.reject(err)
       }
       if (/\/login/.test(url))
@@ -781,7 +801,7 @@ export const request = async<T>(url: string, options = {}, otherOptions?: IOther
       }
       if (code === 'unauthorized_and_force_logout') {
         // Cookies will be cleared by the backend
-        globalThis.location.reload()
+        window.location.reload()
         return Promise.reject(err)
       }
       const {
@@ -797,11 +817,11 @@ export const request = async<T>(url: string, options = {}, otherOptions?: IOther
         return Promise.reject(err)
       }
       if (code === 'not_init_validated' && IS_CE_EDITION) {
-        jumpTo(`${globalThis.location.origin}${basePath}/init`)
+        jumpTo(`${window.location.origin}${basePath}/init`)
         return Promise.reject(err)
       }
       if (code === 'not_setup' && IS_CE_EDITION) {
-        jumpTo(`${globalThis.location.origin}${basePath}/install`)
+        jumpTo(`${window.location.origin}${basePath}/install`)
         return Promise.reject(err)
       }
 
@@ -809,7 +829,12 @@ export const request = async<T>(url: string, options = {}, otherOptions?: IOther
       const [refreshErr] = await asyncRunSafe(refreshAccessTokenOrReLogin(TIME_OUT))
       if (refreshErr === null)
         return baseFetch<T>(url, options, otherOptionsForBaseFetch)
-      if (location.pathname !== `${basePath}/signin` || !IS_CE_EDITION) {
+      // /device is the device-flow chooser; logged-out is a valid state
+      // there. Redirecting to /signin loses the user_code context and
+      // the post-login flow lands on /apps instead of returning here.
+      if (window.location.pathname === `${basePath}/device`)
+        return Promise.reject(err)
+      if (window.location.pathname !== `${basePath}/signin` || !IS_CE_EDITION) {
         jumpTo(buildSigninUrlWithRedirect())
         return Promise.reject(err)
       }

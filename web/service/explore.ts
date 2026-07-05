@@ -1,7 +1,8 @@
 import type { ChatConfig } from '@/app/components/base/chat/types'
-import type { App, AppCategory, InstalledApp } from '@/models/explore'
+import type { ExploreAppDetailResponse } from '@/contract/console/explore'
+import type { App, AppCategory, InstalledApp } from '@/models/explore' // extend: 应用中心数据类型
 import type { AppMeta } from '@/models/share'
-import { get } from './base'
+import { get } from './base' // extend: fetchOpenInstalledAppList/fetchInstalledAppList 仍走 legacy get
 import { consoleClient } from './client'
 
 export const fetchAppList = (language?: string) => {
@@ -22,11 +23,25 @@ export const fetchOpenInstalledAppList = () => {
 }
 // -------------- extend: stop fetch Open Installed App List ---------------
 
-// eslint-disable-next-line ts/no-explicit-any
-export const fetchAppDetail = (id: string): Promise<any> => {
-  return get(`/explore/apps/${id}`)
+export const fetchLearnDifyAppList = (language?: string) => {
+  if (!language)
+    return consoleClient.explore.learnDifyApps({})
+
+  return consoleClient.explore.learnDifyApps({
+    query: { language },
+  })
 }
 
+export const fetchAppDetail = async (id: string): Promise<ExploreAppDetailResponse> => {
+  const response = await consoleClient.explore.appDetail({
+    params: { id },
+  })
+  if (!response)
+    throw new Error('Recommended app not found')
+  return response
+}
+
+// extend: 保留 legacy get 版本 — fork 后端 /installed-apps 响应含二开字段，contract 版会丢字段
 export const fetchInstalledAppList = (app_id?: string | null) => {
   return get<{
     installed_apps: InstalledApp[]

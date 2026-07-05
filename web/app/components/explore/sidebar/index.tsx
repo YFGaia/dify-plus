@@ -20,7 +20,7 @@ import Divider from '@/app/components/base/divider'
 import { useAppContext } from '@/context/app-context'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import Link from '@/next/link'
-import { useSelectedLayoutSegments } from '@/next/navigation'
+import { usePathname, useSelectedLayoutSegments } from '@/next/navigation'
 import { useGetInstalledApps, useUninstallApp, useUpdateAppPinStatus } from '@/service/use-explore'
 import Item from './app-nav-item'
 import NoApps from './no-apps'
@@ -33,9 +33,10 @@ const expandedSidebarScrollAreaClassNames = {
 
 const SideBar = () => {
   const { t } = useTranslation()
+  const pathname = usePathname()
   const segments = useSelectedLayoutSegments()
   const lastSegment = segments.slice(-1)[0]
-  const isDiscoverySelected = lastSegment === 'apps'
+  const isDiscoverySelected = pathname === '/' || lastSegment === 'apps'
   // ----------------------- 二开部分Begin 新增应用中心 -----------------------
   const isAppCenterSelected = lastSegment === 'apps-center-extend'
   const { currentWorkspace } = useAppContext()
@@ -97,7 +98,7 @@ const SideBar = () => {
       {(currentWorkspace?.role === 'owner') && (
         <div className={cn(isDiscoverySelected ? 'text-text-accent' : 'text-text-tertiary')}>
           <Link
-            href="/explore/apps"
+            href="/"
             aria-label={isMobile || isFold ? t('sidebar.discovery', { ns: 'extend' }) : undefined}
             className={cn(isDiscoverySelected ? 'bg-state-base-active' : 'hover:bg-state-base-hover', 'flex h-8 items-center gap-2 rounded-lg px-1 mobile:w-fit mobile:justify-center pc:w-full pc:justify-start')}
           >
@@ -155,7 +156,7 @@ const SideBar = () => {
       )}
 
       {!isMobile && (
-        <div className="mt-auto flex pt-3 pb-3">
+        <div className="mt-auto flex py-3">
           <button
             type="button"
             aria-label={isFold ? t('sidebar.expandSidebar', { ns: 'layout' }) : t('sidebar.collapseSidebar', { ns: 'layout' })}
@@ -173,7 +174,7 @@ const SideBar = () => {
 
       <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
         <AlertDialogContent>
-          <div className="flex flex-col items-start gap-2 self-stretch pt-6 pr-6 pb-4 pl-6">
+          <div className="flex flex-col items-start gap-2 self-stretch px-6 pt-6 pb-4">
             <AlertDialogTitle className="w-full title-2xl-semi-bold text-text-primary">
               {t('sidebar.delete.title', { ns: 'explore' })}
             </AlertDialogTitle>

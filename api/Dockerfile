@@ -17,17 +17,19 @@ RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debia
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
           # basic environment
-          g++ \
+          git g++ \
           # for building gmpy2
           libmpfr-dev libmpc-dev
 
 # Install Python dependencies (workspace members under providers/vdb/)
-COPY pyproject.toml uv.lock ./
-COPY providers ./providers
-# Trust the checked-in lock during image builds; dev-only path sources live outside the api/ context.
-# Use aliyun pypi mirror to speed up dependency downloads in China
+COPY api/pyproject.toml api/uv.lock ./
+COPY api/providers ./providers
+COPY dify-agent/pyproject.toml dify-agent/README.md /app/dify-agent/
+COPY dify-agent/src /app/dify-agent/src
+# Trust the checked-in lock during image builds; local path sources are copied from the repository context.
+# extend: Use aliyun pypi mirror to speed up dependency downloads in China
 ENV UV_DEFAULT_INDEX=https://mirrors.aliyun.com/pypi/simple/
-RUN uv sync --frozen --no-dev
+RUN uv sync --frozen --no-dev --no-editable
 
 # production stage
 FROM base AS production
@@ -113,10 +115,10 @@ RUN python -c "import tiktoken; tiktoken.encoding_for_model('gpt2')" \
     && chown -R dify:dify ${TIKTOKEN_CACHE_DIR}
 
 # Copy source code
-COPY --chown=dify:dify . /app/api/
+COPY --chown=dify:dify api /app/api/
 
 # Prepare entrypoint script
-COPY --chown=dify:dify --chmod=755 docker/entrypoint.sh /entrypoint.sh
+COPY --chown=dify:dify --chmod=755 api/docker/entrypoint.sh /entrypoint.sh
 
 
 ARG COMMIT_SHA

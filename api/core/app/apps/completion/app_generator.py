@@ -20,6 +20,7 @@ from core.app.apps.exc import GenerateTaskStoppedError
 from core.app.apps.message_based_app_generator import MessageBasedAppGenerator
 from core.app.apps.message_based_app_queue_manager import MessageBasedAppQueueManager
 from core.app.entities.app_invoke_entities import CompletionAppGenerateEntity, InvokeFrom
+from core.helper.trace_id_helper import extract_trace_session_id_from_args
 from core.ops.ops_trace_manager import TraceQueueManager
 from extensions.ext_database import db
 from factories import file_factory
@@ -154,7 +155,10 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
                 user_id=user.id,
                 stream=streaming,
                 invoke_from=invoke_from,
-                extras=extras,
+                extras={
+                    **extract_trace_session_id_from_args(args),
+                    **extras,  # extend: account_id（Web App 登录用户）
+                },
                 trace_manager=trace_manager,
             )
 

@@ -18,16 +18,6 @@ from controllers.console.explore.wraps import (
 )
 
 
-def unwrap(func):
-    # extend: fork 装饰器（如 money_limit）会引入 __wrapped__ 链，解包后重新绑定实例
-    bound_self = getattr(func, "__self__", None)
-    while hasattr(func, "__wrapped__"):
-        func = func.__wrapped__
-    if bound_self is not None:
-        return func.__get__(bound_self, bound_self.__class__)
-    return func
-
-
 def test_installed_app_required_not_found():
     @installed_app_required
     def view(installed_app):

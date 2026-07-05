@@ -1,19 +1,29 @@
 import type { App, AppCategory } from '@/models/explore'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useLocale } from '@/context/i18n'
+import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { AccessMode } from '@/models/access-control'
-import { systemFeaturesQueryOptions } from '@/service/system-features'
 import { consoleQuery } from './client'
-import { fetchAppList, fetchBanners, fetchInstalledAppList, fetchInstalledAppMeta, fetchInstalledAppParams, fetchOpenInstalledAppList, getAppAccessModeByAppId, uninstallApp, updatePinStatus } from './explore'
+import {
+  fetchAppList,
+  fetchInstalledAppList,
+  fetchInstalledAppMeta,
+  fetchInstalledAppParams,
+  fetchLearnDifyAppList,
+  fetchOpenInstalledAppList, // extend: 应用中心
+  getAppAccessModeByAppId,
+  uninstallApp,
+  updatePinStatus,
+} from './explore'
 
-const NAME_SPACE = 'explore'
+const NAME_SPACE = 'explore' // extend: 应用中心 queryKey 命名空间
 
 type ExploreAppListData = {
   categories: AppCategory[]
   allList: App[]
 }
 
-export const useExploreAppList = () => {
+export const useExploreAppList = (options: { enabled?: boolean } = {}) => {
   const locale = useLocale()
   const exploreAppsInput = locale
     ? { query: { language: locale } }
@@ -28,6 +38,23 @@ export const useExploreAppList = () => {
         categories,
         allList: [...recommended_apps].sort((a, b) => a.position - b.position),
       }
+    },
+    enabled: options.enabled,
+  })
+}
+
+export const useLearnDifyAppList = () => {
+  const locale = useLocale()
+  const learnDifyAppsInput = locale
+    ? { query: { language: locale } }
+    : {}
+  const learnDifyAppsLanguage = learnDifyAppsInput?.query?.language
+
+  return useQuery({
+    queryKey: [...consoleQuery.explore.learnDifyApps.queryKey({ input: learnDifyAppsInput }), learnDifyAppsLanguage],
+    queryFn: async () => {
+      const { recommended_apps } = await fetchLearnDifyAppList(learnDifyAppsLanguage)
+      return [...recommended_apps].sort((a, b) => a.position - b.position)
     },
   })
 }
@@ -140,19 +167,5 @@ export const useGetInstalledAppMeta = (appId: string | null) => {
       return fetchInstalledAppMeta(installedAppId)
     },
     enabled: !!installedAppId,
-  })
-}
-
-export const useGetBanners = (locale?: string) => {
-  const bannersInput = locale
-    ? { query: { language: locale } }
-    : {}
-  const bannersLanguage = bannersInput?.query?.language
-
-  return useQuery({
-    queryKey: [...consoleQuery.explore.banners.queryKey({ input: bannersInput }), bannersLanguage],
-    queryFn: () => {
-      return fetchBanners(bannersLanguage)
-    },
   })
 }

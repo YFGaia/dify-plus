@@ -4,7 +4,7 @@ import json
 import logging
 import urllib.parse
 from dataclasses import dataclass
-from typing import NotRequired, TypedDict
+from typing import NotRequired, TypedDict, override
 
 import httpx
 import requests
@@ -149,6 +149,7 @@ class GitHubOAuth(OAuth):
     _USER_INFO_URL = "https://api.github.com/user"
     _EMAIL_INFO_URL = "https://api.github.com/user/emails"
 
+    @override
     def get_authorization_url(
         self,
         invite_token: str | None = None,
@@ -165,6 +166,7 @@ class GitHubOAuth(OAuth):
             params["state"] = state
         return f"{self._AUTH_URL}?{urllib.parse.urlencode(params)}"
 
+    @override
     def get_access_token(self, code: str) -> str:
         data = {
             "client_id": self.client_id,
@@ -183,6 +185,7 @@ class GitHubOAuth(OAuth):
 
         return access_token
 
+    @override
     def get_raw_user_info(self, token: str) -> JsonObject:
         headers = {"Authorization": f"token {token}"}
         response = _http_client.get(self._USER_INFO_URL, headers=headers)
@@ -223,6 +226,7 @@ class GitHubOAuth(OAuth):
 
         return ""
 
+    @override
     def _transform_user_info(self, raw_info: JsonObject) -> OAuthUserInfo:
         payload = GITHUB_RAW_USER_INFO_ADAPTER.validate_python(raw_info)
         email = payload.get("email") or ""
@@ -242,6 +246,7 @@ class GoogleOAuth(OAuth):
     _TOKEN_URL = "https://oauth2.googleapis.com/token"
     _USER_INFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
+    @override
     def get_authorization_url(
         self,
         invite_token: str | None = None,
@@ -259,6 +264,7 @@ class GoogleOAuth(OAuth):
             params["state"] = state
         return f"{self._AUTH_URL}?{urllib.parse.urlencode(params)}"
 
+    @override
     def get_access_token(self, code: str) -> str:
         data = {
             "client_id": self.client_id,
@@ -278,12 +284,14 @@ class GoogleOAuth(OAuth):
 
         return access_token
 
+    @override
     def get_raw_user_info(self, token: str) -> JsonObject:
         headers = {"Authorization": f"Bearer {token}"}
         response = _http_client.get(self._USER_INFO_URL, headers=headers)
         response.raise_for_status()
         return _json_object(response)
 
+    @override
     def _transform_user_info(self, raw_info: JsonObject) -> OAuthUserInfo:
         payload = GOOGLE_RAW_USER_INFO_ADAPTER.validate_python(raw_info)
         return OAuthUserInfo(id=str(payload["sub"]), name="", email=payload["email"])

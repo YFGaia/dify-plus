@@ -25,6 +25,7 @@ type ChatInputAreaProps = {
   botName?: string
   showFeatureBar?: boolean
   showFileUpload?: boolean
+  featureBarReadonly?: boolean
   featureBarDisabled?: boolean
   onFeatureBarClick?: (state: boolean) => void
   visionConfig?: FileUpload
@@ -43,7 +44,7 @@ type ChatInputAreaProps = {
    */
   sendOnEnter?: boolean
 }
-const ChatInputArea = ({ readonly, botName, showFeatureBar, showFileUpload, featureBarDisabled, onFeatureBarClick, visionConfig, speechToTextConfig = { enabled: true }, onSend, inputs = {}, inputsForm = [], theme, isResponding, disabled, sendOnEnter = true }: ChatInputAreaProps) => {
+const ChatInputArea = ({ readonly, botName, showFeatureBar, showFileUpload, featureBarReadonly = readonly, featureBarDisabled, onFeatureBarClick, visionConfig, speechToTextConfig = { enabled: true }, onSend, inputs = {}, inputsForm = [], theme, isResponding, disabled, sendOnEnter = true }: ChatInputAreaProps) => {
   const { t } = useTranslation()
   const { wrapperRef, textareaRef, textValueRef, holdSpaceRef, handleTextareaResize, isMultipleLine } = useTextAreaHeight()
   const [query, setQuery] = useState('')
@@ -143,7 +144,7 @@ const ChatInputArea = ({ readonly, botName, showFeatureBar, showFileUpload, feat
           <FileListInChatInput fileConfig={visionConfig!} />
           <div ref={wrapperRef} className="flex items-center justify-between">
             <div className="relative flex w-full grow items-center">
-              <div ref={textValueRef} className="pointer-events-none invisible absolute h-auto w-auto p-1 body-lg-regular leading-6 whitespace-pre">
+              <div ref={textValueRef} className="pointer-events-none invisible absolute size-auto p-1 body-lg-regular leading-6 whitespace-pre">
                 {query}
               </div>
               <Textarea ref={ref => textareaRef.current = ref as any} className={cn('w-full resize-none bg-transparent p-1 body-lg-regular leading-6 text-text-primary outline-hidden')} placeholder={decode(t(readonly ? 'chat.inputDisabledPlaceholder' : 'chat.inputPlaceholder', { ns: 'common', botName }) || '')} autoFocus minRows={1} value={query} onChange={e => handleQueryChange(e.target.value)} onKeyDown={handleKeyDown} onCompositionStart={handleCompositionStart} onCompositionEnd={handleCompositionEnd} onPaste={handleClipboardPasteFile} onDragEnter={handleDragFileEnter} onDragLeave={handleDragFileLeave} onDragOver={handleDragFileOver} onDrop={handleDropFile} readOnly={readonly} />
@@ -154,7 +155,7 @@ const ChatInputArea = ({ readonly, botName, showFeatureBar, showFileUpload, feat
         </div>
         {isMultipleLine && (<div className="px-[9px]">{operation}</div>)}
       </div>
-      {showFeatureBar && (<FeatureBar showFileUpload={showFileUpload} disabled={featureBarDisabled} onFeatureBarClick={readonly ? noop : onFeatureBarClick} hideEditEntrance={readonly} />)}
+      {showFeatureBar && (<FeatureBar showFileUpload={showFileUpload} disabled={featureBarDisabled} onFeatureBarClick={featureBarReadonly ? noop : onFeatureBarClick} hideEditEntrance={featureBarReadonly} />)}
     </>
   )
 }

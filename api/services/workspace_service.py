@@ -44,11 +44,12 @@ class WorkspaceService:
         tenant_info["tenant_extend"] = super_admin_tenant_id == tenant.id
         # ----------------------- 二开部分Stop 添加用户权限 - ----------------------
 
-        can_replace_logo = FeatureService.get_features(tenant.id).can_replace_logo
-        feature = FeatureService.get_features(tenant.id)
+        feature = FeatureService.get_features(tenant.id, exclude_vector_space=True)
         can_replace_logo = feature.can_replace_logo
 
-        if can_replace_logo and TenantService.has_roles(tenant, [TenantAccountRole.OWNER, TenantAccountRole.ADMIN]):
+        if can_replace_logo and TenantService.has_roles(
+            tenant, [TenantAccountRole.OWNER, TenantAccountRole.ADMIN], session=db.session
+        ):
             base_url = dify_config.FILES_URL
             replace_webapp_logo = (
                 f"{base_url}/files/workspaces/{tenant.id}/webapp-logo"

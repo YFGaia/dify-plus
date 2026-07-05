@@ -3,18 +3,18 @@ import { cn } from '@langgenius/dify-ui/cn'
 import { toast } from '@langgenius/dify-ui/toast'
 import { RiContractLine, RiDoorLockLine, RiErrorWarningFill } from '@remixicon/react'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
-import * as React from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import DingTalkAuth from '@/app/signin/components/dingtalk-auth'
+import DingTalkAuth from '@/app/signin/components/dingtalk-auth' // extend: ding_talk login
 import OAuth2 from '@/app/signin/components/oauth2' // extend: add oauth2
 import { CSRF_COOKIE_NAME, IS_CE_EDITION } from '@/config'
+import { isLegacyBase401, userProfileQueryOptions } from '@/features/account-profile/client'
+import { systemFeaturesQueryOptions } from '@/features/system-features/client'
+import { LicenseStatus } from '@/features/system-features/constants'
+import { asSystemFeaturesExtend } from '@/features/system-features/extend' // extend: 二开系统特性字段
 import Link from '@/next/link'
 import { useRouter, useSearchParams } from '@/next/navigation'
 import { invitationCheck } from '@/service/common'
-import { systemFeaturesQueryOptions } from '@/service/system-features'
-import { isLegacyBase401, userProfileQueryOptions } from '@/service/use-common'
-import { LicenseStatus } from '@/types/feature'
 import Loading from '../components/base/loading'
 import MailAndCodeAuth from './components/mail-and-code-auth'
 import MailAndPasswordAuth from './components/mail-and-password-auth'
@@ -23,6 +23,7 @@ import SSOAuth from './components/sso-auth'
 import Split from './split'
 import { resolvePostLoginRedirect } from './utils/post-login-redirect'
 
+// Extend: start Ding Talk types
 type DingTalkAuthCode = {
   code: string
 }
@@ -42,8 +43,11 @@ type DingTalkClient = {
     }
   }
 }
+// Extend: end
 
-const NormalForm = () => {
+type AuthType = 'code' | 'password'
+
+function NormalForm() {
   const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -53,130 +57,141 @@ const NormalForm = () => {
   const { isPending: isCheckLoading, data: userResp, error: probeError } = useQuery({
     ...userProfileQueryOptions(),
     throwOnError: err => !isLegacyBase401(err),
+    refetchOnWindowFocus: false,
   })
   const isLoggedIn = !!userResp && !probeError
   const message = decodeURIComponent(searchParams.get('message') || '')
-  const invite_token = decodeURIComponent(searchParams.get('invite_token') || '')
-  const [isInitCheckLoading, setInitCheckLoading] = useState(true)
-  const [isRedirecting, setIsRedirecting] = useState(false)
-  const isLoading = isCheckLoading || isInitCheckLoading || isRedirecting
+  const inviteToken = decodeURIComponent(searchParams.get('invite_token') || '')
   const { data: systemFeatures } = useSuspenseQuery(systemFeaturesQueryOptions())
-  const [authType, updateAuthType] = useState<'code' | 'password'>('password')
-  const [showORLine, setShowORLine] = useState(false)
-  const [allMethodsAreDisabled, setAllMethodsAreDisabled] = useState(false)
-  const [workspaceName, setWorkSpaceName] = useState('')
+  const [selectedAuthType, setSelectedAuthType] = useState<AuthType | null>(null)
 
-  const isInviteLink = Boolean(invite_token && invite_token !== 'null')
+  const isInviteLink = Boolean(inviteToken && inviteToken !== 'null')
+  const { data: invitationCheckResp, isPending: isInviteCheckLoading, isError: isInviteCheckError } = useQuery({
+    queryKey: ['signin', 'invite-check', inviteToken],
+    queryFn: () => invitationCheck({
+      url: '/activate/check',
+      params: {
+        token: inviteToken,
+      },
+    }),
+    enabled: isInviteLink,
+    retry: false,
+    refetchOnWindowFocus: false,
+  })
+
+  const workspaceName = invitationCheckResp?.data?.workspace_name || ''
+  // extend: 二开系统特性字段（钉钉/OAuth2）
+  const systemFeaturesExtend = asSystemFeaturesExtend(systemFeatures)
+  const hasSocialLogin = systemFeatures.enable_social_oauth_login
+  const hasSsoLogin = Boolean(systemFeatures.sso_enforced_for_signin)
+  const hasEmailCodeLogin = systemFeatures.enable_email_code_login
+  const hasEmailPasswordLogin = systemFeatures.enable_email_password_login
+  const hasEmailLogin = hasEmailCodeLogin || hasEmailPasswordLogin
+  const hasDingTalkLogin = Boolean(systemFeaturesExtend.ding_talk) // extend: ding_talk
+  const hasOAuth2Login = Boolean(systemFeaturesExtend.is_custom_auth2) // extend: oauth2
+  const defaultAuthType: AuthType = hasEmailPasswordLogin ? 'password' : 'code'
+  const authType = selectedAuthType === 'password' && hasEmailPasswordLogin
+    ? 'password'
+    : selectedAuthType === 'code' && hasEmailCodeLogin
+      ? 'code'
+      : defaultAuthType
+  const showORLine = (hasSocialLogin || hasSsoLogin || hasDingTalkLogin || hasOAuth2Login) && hasEmailLogin // extend: ding_talk / oauth2
+  const noLoginMethodsConfigured = !hasSocialLogin && !hasEmailCodeLogin && !hasEmailPasswordLogin && !hasSsoLogin && !hasDingTalkLogin && !hasOAuth2Login // extend: ding_talk / oauth2
+  const allMethodsAreDisabled = noLoginMethodsConfigured || isInviteCheckError
+  const isLoading = isCheckLoading || isLoggedIn || (isInviteLink && isInviteCheckLoading)
 
   // Extend: start Ding Talk Auto Login Logic
-  const dingTalkLogin = useCallback(async (allFeatures: SystemFeatures) => {
+  const dingTalkCorpId = systemFeaturesExtend.ding_talk_corp_id
+  useEffect(() => {
     // 确保只在客户端环境执行
     if (typeof window === 'undefined')
       return
 
-    const tokenKey = CSRF_COOKIE_NAME()
-    let consoleToken: string | null | undefined = decodeURIComponent(searchParams.get('console_token') || '')
-    const consoleTokenFromLocalStorage = localStorage?.getItem(tokenKey)
-    const jumpsNumber = Number(localStorage?.getItem('jumps_number'))
-    if (consoleToken || consoleTokenFromLocalStorage) {
-      if (!consoleToken)
-        consoleToken = consoleTokenFromLocalStorage
-      if (consoleToken) {
-        if (jumpsNumber) {
-          // token无效
-          localStorage.removeItem(tokenKey)
+    const dingTalkLogin = async () => {
+      const tokenKey = CSRF_COOKIE_NAME()
+      let consoleToken: string | null | undefined = decodeURIComponent(searchParams.get('console_token') || '')
+      const consoleTokenFromLocalStorage = localStorage?.getItem(tokenKey)
+      const jumpsNumber = Number(localStorage?.getItem('jumps_number'))
+      if (consoleToken || consoleTokenFromLocalStorage) {
+        if (!consoleToken)
+          consoleToken = consoleTokenFromLocalStorage
+        if (consoleToken) {
+          if (jumpsNumber) {
+            // token无效
+            localStorage.removeItem(tokenKey)
+            window.location.href = '/explore/apps-center-extend'
+            return
+          }
+          localStorage.setItem(tokenKey, consoleToken)
+          localStorage?.setItem('jumps_number', (jumpsNumber + 1).toString())
+          window.location.href = `/explore/apps-center-extend?console_token=${consoleToken}`
+          return
+        }
+        else {
           window.location.href = '/explore/apps-center-extend'
           return
         }
-        localStorage.setItem(tokenKey, consoleToken)
-        localStorage?.setItem('jumps_number', (jumpsNumber + 1).toString())
-        window.location.href = `/explore/apps-center-extend?console_token=${consoleToken}`
-        return
       }
-      else {
-        window.location.href = '/explore/apps-center-extend'
-        return
+      const userAgent = navigator.userAgent.toLowerCase()
+      const host = process.env.NEXT_PUBLIC_API_PREFIX
+      const corpId = dingTalkCorpId
+      if (userAgent.includes('dingtalk') && corpId && host) {
+        // Extend Start DingTalk login compatible
+        localStorage?.removeItem('redirect_url')
+        // Extend Stop DingTalk login compatible
+
+        try {
+          const ddModule = await import('dingtalk-jsapi')
+          const dingTalkClient = (ddModule.default ?? ddModule) as unknown as DingTalkClient
+
+          await dingTalkClient.getAuthCode({
+            corpId,
+            // 获取临时授权ID
+            success: (res: DingTalkAuthCode) => {
+              // 在这里可以将免登授权码发送给后台服务器进行验证和获取用户信息等操作
+              window.location.href = `${host}/ding-talk/login?code=${res.code}`
+            },
+            fail() {
+              if (dingTalkClient.runtime?.permission) {
+                dingTalkClient.runtime.permission.requestAuthCode({
+                  corpId,
+                  onSuccess(result: DingTalkAuthCode) {
+                    // 在这里可以将免登授权码发送给后台服务器进行验证和获取用户信息等操作
+                    window.location.href = `${host}/ding-talk/login?code=${result.code}`
+                  },
+                })
+              }
+            },
+          })
+        }
+        catch (error) {
+          console.error('DingTalk auth error:', error)
+        }
       }
     }
-    const userAgent = navigator.userAgent.toLowerCase()
-    const host = process.env.NEXT_PUBLIC_API_PREFIX
-    const corpId = allFeatures.ding_talk_corp_id
-    if (userAgent.includes('dingtalk') && corpId && host) {
-      // Extend Start DingTalk login compatible
-      localStorage?.removeItem('redirect_url')
-      // Extend Stop DingTalk login compatible
 
-      try {
-        const ddModule = await import('dingtalk-jsapi')
-        const dingTalkClient = (ddModule.default ?? ddModule) as unknown as DingTalkClient
-
-        await dingTalkClient.getAuthCode({
-          corpId,
-          // 获取临时授权ID
-          success: (res: DingTalkAuthCode) => {
-            // 在这里可以将免登授权码发送给后台服务器进行验证和获取用户信息等操作
-            window.location.href = `${host}/ding-talk/login?code=${res.code}`
-          },
-          fail() {
-            if (dingTalkClient.runtime?.permission) {
-              dingTalkClient.runtime.permission.requestAuthCode({
-                corpId,
-                onSuccess(result: DingTalkAuthCode) {
-                  // 在这里可以将免登授权码发送给后台服务器进行验证和获取用户信息等操作
-                  window.location.href = `${host}/ding-talk/login?code=${result.code}`
-                },
-              })
-            }
-          },
-        })
-      }
-      catch (error) {
-        console.error('DingTalk auth error:', error)
-      }
-    }
-  }, [searchParams])
+    void dingTalkLogin()
+  }, [dingTalkCorpId, searchParams])
   // Extend: end Ding Talk Auto Login Logic
 
-  const init = useCallback(async () => {
-    try {
-      if (isLoggedIn) {
-        setIsRedirecting(true)
-        const redirectUrl = resolvePostLoginRedirect(searchParams)
-        router.replace(redirectUrl || '/explore/apps-center-extend') // extend: 默认跳转应用中心
-        return
-      }
-
-      if (message) {
-        toast.error(message)
-      }
-      setAllMethodsAreDisabled(!systemFeatures.enable_social_oauth_login && !systemFeatures.enable_email_code_login && !systemFeatures.enable_email_password_login && !systemFeatures.sso_enforced_for_signin && !systemFeatures.ding_talk && !systemFeatures.is_custom_auth2) // extend: ding_talk / oauth2
-      setShowORLine((systemFeatures.enable_social_oauth_login || systemFeatures.sso_enforced_for_signin || !!systemFeatures.ding_talk || !!systemFeatures.is_custom_auth2) && (systemFeatures.enable_email_code_login || systemFeatures.enable_email_password_login)) // extend: ding_talk / oauth2
-      updateAuthType(systemFeatures.enable_email_password_login ? 'password' : 'code')
-
-      // Extend: start 只在客户端执行钉钉登录
-      if (typeof window !== 'undefined')
-        await dingTalkLogin(systemFeatures)
-      // Extend: end
-
-      if (isInviteLink) {
-        const checkRes = await invitationCheck({
-          url: '/activate/check',
-          params: {
-            token: invite_token,
-          },
-        })
-        setWorkSpaceName(checkRes?.data?.workspace_name || '')
-      }
-    }
-    catch (error) {
-      console.error(error)
-      setAllMethodsAreDisabled(true)
-    }
-    finally { setInitCheckLoading(false) }
-  }, [dingTalkLogin, invite_token, isInviteLink, isLoggedIn, message, router, searchParams, systemFeatures])
   useEffect(() => {
-    init()
-  }, [init])
+    if (!isLoggedIn)
+      return
+
+    if (isInviteLink) {
+      router.replace(`/signin/invite-settings?${searchParams.toString()}`)
+      return
+    }
+
+    const redirectUrl = resolvePostLoginRedirect(searchParams)
+    router.replace(redirectUrl || '/explore/apps-center-extend') // extend: 默认跳转应用中心
+  }, [isInviteLink, isLoggedIn, router, searchParams])
+
+  useEffect(() => {
+    if (message)
+      toast.error(message)
+  }, [message])
+
   if (isLoading) {
     return (
       <div className={
@@ -196,9 +211,9 @@ const NormalForm = () => {
       <div className="mx-auto mt-8 w-full">
         <div className="relative">
           <div className="rounded-lg bg-linear-to-r from-workflow-workflow-progress-bg-1 to-workflow-workflow-progress-bg-2 p-4">
-            <div className="shadows-shadow-lg relative mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
-              <RiContractLine className="h-5 w-5" />
-              <RiErrorWarningFill className="absolute -top-1 -right-1 h-4 w-4 text-text-warning-secondary" />
+            <div className="shadows-shadow-lg relative mb-2 flex size-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
+              <RiContractLine className="size-5" />
+              <RiErrorWarningFill className="absolute -top-1 -right-1 size-4 text-text-warning-secondary" />
             </div>
             <p className="system-sm-medium text-text-primary">{t('licenseLost', { ns: 'login' })}</p>
             <p className="mt-1 system-xs-regular text-text-tertiary">{t('licenseLostTip', { ns: 'login' })}</p>
@@ -212,9 +227,9 @@ const NormalForm = () => {
       <div className="mx-auto mt-8 w-full">
         <div className="relative">
           <div className="rounded-lg bg-linear-to-r from-workflow-workflow-progress-bg-1 to-workflow-workflow-progress-bg-2 p-4">
-            <div className="shadows-shadow-lg relative mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
-              <RiContractLine className="h-5 w-5" />
-              <RiErrorWarningFill className="absolute -top-1 -right-1 h-4 w-4 text-text-warning-secondary" />
+            <div className="shadows-shadow-lg relative mb-2 flex size-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
+              <RiContractLine className="size-5" />
+              <RiErrorWarningFill className="absolute -top-1 -right-1 size-4 text-text-warning-secondary" />
             </div>
             <p className="system-sm-medium text-text-primary">{t('licenseExpired', { ns: 'login' })}</p>
             <p className="mt-1 system-xs-regular text-text-tertiary">{t('licenseExpiredTip', { ns: 'login' })}</p>
@@ -228,9 +243,9 @@ const NormalForm = () => {
       <div className="mx-auto mt-8 w-full">
         <div className="relative">
           <div className="rounded-lg bg-linear-to-r from-workflow-workflow-progress-bg-1 to-workflow-workflow-progress-bg-2 p-4">
-            <div className="shadows-shadow-lg relative mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
-              <RiContractLine className="h-5 w-5" />
-              <RiErrorWarningFill className="absolute -top-1 -right-1 h-4 w-4 text-text-warning-secondary" />
+            <div className="shadows-shadow-lg relative mb-2 flex size-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
+              <RiContractLine className="size-5" />
+              <RiErrorWarningFill className="absolute -top-1 -right-1 size-4 text-text-warning-secondary" />
             </div>
             <p className="system-sm-medium text-text-primary">{t('licenseInactive', { ns: 'login' })}</p>
             <p className="mt-1 system-xs-regular text-text-tertiary">{t('licenseInactiveTip', { ns: 'login' })}</p>
@@ -267,15 +282,15 @@ const NormalForm = () => {
             )}
         <div className="relative">
           <div className="mt-6 flex flex-col gap-3">
-            {systemFeatures.enable_social_oauth_login && <SocialAuth />}
-            {systemFeatures.sso_enforced_for_signin && (
+            {hasSocialLogin && <SocialAuth />}
+            {hasSsoLogin && (
               <div className="w-full">
                 <SSOAuth protocol={systemFeatures.sso_enforced_for_signin_protocol} />
               </div>
             )}
             {/* Extend: start ding_talk login */}
-            {systemFeatures.ding_talk && (<DingTalkAuth clientId={systemFeatures.ding_talk_client_id}></DingTalkAuth>)}
-            {systemFeatures.is_custom_auth2 && (<OAuth2 title={systemFeatures.is_custom_auth2_button}></OAuth2>)}
+            {hasDingTalkLogin && (<DingTalkAuth clientId={systemFeaturesExtend.ding_talk_client_id}></DingTalkAuth>)}
+            {hasOAuth2Login && (<OAuth2 title={systemFeaturesExtend.is_custom_auth2_button}></OAuth2>)}
             {/* Extend: end oauth2 login */}
           </div>
 
@@ -289,25 +304,33 @@ const NormalForm = () => {
             </div>
           )}
           {
-            (systemFeatures.enable_email_code_login || systemFeatures.enable_email_password_login) && (
+            hasEmailLogin && (
               <>
-                {systemFeatures.enable_email_code_login && authType === 'code' && (
+                {hasEmailCodeLogin && authType === 'code' && (
                   <>
                     <MailAndCodeAuth isInvite={isInviteLink} />
-                    {systemFeatures.enable_email_password_login && (
-                      <div className="cursor-pointer py-1 text-center" onClick={() => { updateAuthType('password') }}>
+                    {hasEmailPasswordLogin && (
+                      <button
+                        type="button"
+                        className="w-full cursor-pointer py-1 text-center"
+                        onClick={() => { setSelectedAuthType('password') }}
+                      >
                         <span className="system-xs-medium text-components-button-secondary-accent-text">{t('usePassword', { ns: 'login' })}</span>
-                      </div>
+                      </button>
                     )}
                   </>
                 )}
-                {systemFeatures.enable_email_password_login && authType === 'password' && (
+                {hasEmailPasswordLogin && authType === 'password' && (
                   <>
-                    <MailAndPasswordAuth isInvite={isInviteLink} isEmailSetup={systemFeatures.is_email_setup} allowRegistration={systemFeatures.is_allow_register} />
-                    {systemFeatures.enable_email_code_login && (
-                      <div className="cursor-pointer py-1 text-center" onClick={() => { updateAuthType('code') }}>
+                    <MailAndPasswordAuth isInvite={isInviteLink} isEmailSetup={systemFeatures.is_email_setup} />
+                    {hasEmailCodeLogin && (
+                      <button
+                        type="button"
+                        className="w-full cursor-pointer py-1 text-center"
+                        onClick={() => { setSelectedAuthType('code') }}
+                      >
                         <span className="system-xs-medium text-components-button-secondary-accent-text">{t('useVerificationCode', { ns: 'login' })}</span>
-                      </div>
+                      </button>
                     )}
                   </>
                 )}
@@ -330,8 +353,8 @@ const NormalForm = () => {
           {allMethodsAreDisabled && (
             <>
               <div className="rounded-lg bg-linear-to-r from-workflow-workflow-progress-bg-1 to-workflow-workflow-progress-bg-2 p-4">
-                <div className="shadows-shadow-lg mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
-                  <RiDoorLockLine className="h-5 w-5" />
+                <div className="shadows-shadow-lg mb-2 flex size-10 items-center justify-center rounded-xl bg-components-card-bg shadow">
+                  <RiDoorLockLine className="size-5" />
                 </div>
                 <p className="system-sm-medium text-text-primary">{t('noLoginMethod', { ns: 'login' })}</p>
                 <p className="mt-1 system-xs-regular text-text-tertiary">{t('noLoginMethodTip', { ns: 'login' })}</p>

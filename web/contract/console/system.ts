@@ -1,13 +1,6 @@
-import type { SystemFeatures } from '@/types/feature'
+import type { SystemFeaturesExtend } from '@/features/system-features/extend'
 import { type } from '@orpc/contract'
 import { base } from '../base'
-
-export const systemFeaturesContract = base
-  .route({
-    path: '/system-features',
-    method: 'GET',
-  })
-  .output(type<SystemFeatures>())
 
 // extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的
 export const loginConfigBootstrapContract = base
@@ -25,4 +18,4 @@ export const loginConfigContract = base
     method: 'GET',
   })
   .input(type<unknown>())
-  .output(type<SystemFeatures>())
+  .output(type<SystemFeaturesExtend>())
