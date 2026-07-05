@@ -2,10 +2,7 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, Field
 
-<<<<<<< HEAD
-=======
 from core.rag.data_post_processor.data_post_processor import RerankingModelDict, WeightsDict
->>>>>>> 1.13.3
 from dify_graph.model_runtime.entities import LLMUsage
 from dify_graph.nodes.llm.entities import ModelConfig
 
@@ -79,13 +76,8 @@ class KnowledgeRetrievalRequest(BaseModel):
     top_k: int = Field(default=0, description="Number of top results to return")
     score_threshold: float = Field(default=0.0, description="Minimum relevance score threshold")
     reranking_mode: str = Field(default="reranking_model", description="Reranking strategy")
-<<<<<<< HEAD
-    reranking_model: dict | None = Field(default=None, description="Reranking model configuration")
-    weights: dict[str, Any] | None = Field(default=None, description="Weights for weighted score reranking")
-=======
     reranking_model: RerankingModelDict | None = Field(default=None, description="Reranking model configuration")
     weights: WeightsDict | None = Field(default=None, description="Weights for weighted score reranking")
->>>>>>> 1.13.3
     reranking_enable: bool = Field(default=True, description="Whether reranking is enabled")
     attachment_ids: list[str] | None = Field(default=None, description="List of attachment file IDs for retrieval")
 

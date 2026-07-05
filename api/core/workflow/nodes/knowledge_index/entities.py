@@ -4,16 +4,10 @@ from pydantic import BaseModel
 
 from core.rag.index_processor.index_processor_base import SummaryIndexSettingDict
 from core.rag.retrieval.retrieval_methods import RetrievalMethod
-<<<<<<< HEAD
 from dify_graph.entities.base_node_data import BaseNodeData
 from dify_graph.enums import NodeType
 
 KNOWLEDGE_INDEX_NODE_TYPE = "knowledge-index"
-=======
-from core.workflow.nodes.knowledge_index import KNOWLEDGE_INDEX_NODE_TYPE
-from dify_graph.entities.base_node_data import BaseNodeData
-from dify_graph.enums import NodeType
->>>>>>> 1.13.3
 
 
 class RerankingModelConfig(BaseModel):
