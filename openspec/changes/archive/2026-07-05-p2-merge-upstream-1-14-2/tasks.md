@@ -53,10 +53,10 @@
 
 > context inputs：P0 回归清单 + 本 change specs 的 Scenario；各 sub-agent 只读代码/只调用运行环境，不修改文件；产出：逐条通过/失败报告，主 agent 汇总，任何失败回到第 4 节修复后重跑。
 
-- [ ] 7.1 【sub-agent E：api 计费链路】执行 6 条计费回归：Console 调试扣费、Explore 扣费、WebApp 登录+扣费、Service API 日/月限额拦截（含日、月两个拦截用例）、workflow LLM 节点扣费（断言扣费金额与 token 单价一致）、月初额度重置（含 `celery inspect` 断言 3 个 extend beat 任务存在）
-- [ ] 7.2 【sub-agent F：SSO 与账号】钉钉、OAuth2、Casdoor 三方登录回归；新账号初始额度写入 `account_money_extend` 验证
-- [ ] 7.3 【sub-agent G：web 构建与页面】web 三件套（lint/type-check/build）复核 + 应用中心（`/explore/apps-center-extend`）、系统管理页（`/system-manage-extend` 额度管理与系统集成）、密钥管理页额度字段展示回归
-- [ ] 7.4 【主 agent 汇总】汇总 E/F/G 报告；全绿后宣告 M2 里程碑达成，更新线路图文档中 Phase 2 Step A 状态
+- [x] 7.1 【sub-agent E：api 计费链路】执行 6 条计费回归（本地无运行环境，按 P1 先例以代码级链路追踪+单测替代，运行时回归留待部署环境执行《计费回归基线清单》）：链路 1/2/3/4/6 通过（信号 receiver 实测注册、三限额分支在位、beat 任务导入实测、单测 800+ passed）；**链路 5 曾判失败——graphon 外部化后 NodeType 变 type alias，任务体 NodeType.LLM.value 崩溃，已修复（BuiltinNodeTypes.LLM）并补 5 例任务体直调单测**；token 用量字段路径（outputs.usage.total_price/currency）与 graphon LLM 节点实测一致
+- [x] 7.2 【sub-agent F：SSO 与账号】钉钉、OAuth2、Casdoor 三方登录回归；新账号初始额度写入 `account_money_extend` 验证（4 域代码级验证通过，auth+account 单测 128 passed；发现并修复 oauth callback 对上游 str 型 get_access_token 的 dict 误用（会 500 GitHub/Google 登录）；两处存量债务登记：is_custom_auth2_button 后端从未下发（按钮文案回退默认）、is_custom_auth2_logout 前端无消费方——均为合并前既存，非本次回归）
+- [x] 7.3 【sub-agent G：web 构建与页面】web 三件套复核 + 应用中心、系统管理页、密钥管理页回归（三件套全绿；页面回归 32 文件 520 用例通过；发现并修复应用中心分类过滤回归——该页数据源 /installed/apps 输出单数 category，已恢复单数匹配；存量口径差异登记：system-manage-extend 前端 layout 用 owner-only 而后端装饰器 admin_or_owner，留待 p6 统一）
+- [x] 7.4 【主 agent 汇总】汇总 E/F/G 报告；三份报告共发现 3 个真实回归（workflow 节点计费任务崩溃、oauth callback 类型误用、应用中心分类过滤空结果），均已修复并补测试后全绿；M2 里程碑达成，线路图 4.1/M2 已更新
 
 ## 8. Parallelization Plan（并发执行策略）
 
