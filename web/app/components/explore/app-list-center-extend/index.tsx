@@ -1,6 +1,8 @@
 'use client'
 
 import type { App } from '@/models/explore'
+// extend: /installed/apps（recommended_app_service_extend）按 tag 每行输出单数 category
+type AppWithCategoryExtend = App & { category?: string }
 import { cn } from '@langgenius/dify-ui/cn'
 import { useDebounceFn } from 'ahooks'
 import { useRouter } from 'next/navigation'
@@ -64,16 +66,16 @@ const Apps = ({
     if (!data)
       return []
 
-    let result = data.allList
+    let result = data.allList as AppWithCategoryExtend[]
 
-    // Apply category filter
+    // Apply category filter（后端 /installed/apps 每个 tag 输出一行，字段为单数 category）
     if (currCategory !== allCategoriesEn) {
-      result = result.filter(item => item.categories?.includes(currCategory))
+      result = result.filter(item => item.category === currCategory)
     }
 
     // Apply tag filter
     if (tagFilterValue.length > 0) {
-      result = result.filter(item => item.categories?.some(category => tagFilterValue.includes(category)))
+      result = result.filter(item => item.category !== undefined && tagFilterValue.includes(item.category))
     }
 
     // Apply keyword search

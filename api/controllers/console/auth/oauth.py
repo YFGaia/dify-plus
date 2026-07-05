@@ -169,11 +169,15 @@ class OAuthCallback(Resource):
                 token = token_from_query
             else:
                 # Extend: Start 兼容casdoor
-                response_json = oauth_provider.get_access_token(code)
-                token = response_json.get("access_token")
-                if not token:
-                    return {"error": f"Error in OAuth: {response_json}"}, 502
-                id_token = response_json.get("id_token")
+                # OaOAuth 返回 dict（含 id_token）；上游 GitHub/Google OAuth 自 1.14.2 起直接返回 str
+                token_result = oauth_provider.get_access_token(code)
+                if isinstance(token_result, dict):
+                    token = token_result.get("access_token")
+                    if not token:
+                        return {"error": f"Error in OAuth: {token_result}"}, 502
+                    id_token = token_result.get("id_token")
+                else:
+                    token = token_result
                 # Extend: Stop 兼容casdoor
             # 检查token是否有效
             if not token or token.strip() == "":
