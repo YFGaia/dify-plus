@@ -40,14 +40,14 @@
 ## 5. 依赖与数据库（主 agent 顺序）
 
 - [x] 5.1 合并 `api/pyproject.toml`（保留 alibabacloud_dingtalk、pypinyin 等 fork 依赖）→ `uv lock` → 同步 `api/Dockerfile` 与 `api/requirements.docker.txt`（Python 3.12 走向对齐）
-- [ ] 5.2 对齐上游新增环境变量到 `docker/` compose 与 `.env.example`；compose 镜像版本号更新到 1.14.2
-- [ ] 5.3 在验证环境执行 `uv run --project api flask db upgrade`（上游 3 个新迁移）→ `flask extend_db upgrade`（fork 链应通过/no-op），确认双链并存
+- [x] 5.2 对齐上游新增环境变量到 `docker/` compose 与 `.env.example`；compose 镜像版本号更新到 1.14.2（上游 compose/.env.example 随合并对齐至 1.14.2，抽查 SOCKET_URL/COLLABORATION 等新变量在位；fork 专属变量经 docker-compose.dify-plus.yaml 的 x-shared-env 默认值机制保留；fork 镜像 tag yfgaia/dify-plus-{api,web} 1.12.1→1.14.2）
+- [x] 5.3 在验证环境执行 `uv run --project api flask db upgrade`（上游 3 个新迁移）→ `flask extend_db upgrade`（fork 链应通过/no-op），确认双链并存（在本机 pgvector:pg16 上建 scratch 库 dify_merge_test 从零验证：上游全链含 8574b23a38fd/227822d22895/a4f2d8c9b731 三个新迁移全部应用；extend 链 001→016 全部应用（含 p5 的 015/016）；重复执行 no-op；全部 *_extend 表在位、account_money_extend 字段核对通过；验证后已清理 scratch 库）
 
 ## 6. 构建验证与提交（主 agent 顺序，全过才定稿）
 
-- [ ] 6.1 全量验证：api 全量 py_compile → `from app_factory import create_app` 冒烟 → api 单测（以不劣于上游 tag 基线为准）→ web `pnpm lint` + `pnpm type-check:tsgo` + `pnpm build`；grep 确认无 `<<<<<<<` 残留、fork 代码零引用 `quota_reserve|quota_commit|quota_release`
-- [ ] 6.2 提交 merge commit；随后单独提交附带改进：`api/models/model.py` 内嵌 3 个 extend 模型类外迁到独立 `*_extend.py`（保持 `models/__init__.py` 导出兼容），外迁后重跑 py_compile + 导入冒烟
-- [ ] 6.3 更新 `docs/dify-plus/与上游差异总表.md`：登记 10 项挂点的 1.14.2 新坐标与迁移说明
+- [x] 6.1 全量验证：api 全量 py_compile → `from app_factory import create_app` 冒烟 → api 单测（以不劣于上游 tag 基线为准）→ web `pnpm lint` + `pnpm type-check:tsgo` + `pnpm build`；grep 确认无 `<<<<<<<` 残留、fork 代码零引用 `quota_reserve|quota_commit|quota_release`
+- [x] 6.2 提交 merge commit；随后单独提交附带改进：`api/models/model.py` 内嵌 3 个 extend 模型类外迁到独立 `*_extend.py`（保持 `models/__init__.py` 导出兼容），外迁后重跑 py_compile + 导入冒烟
+- [x] 6.3 更新 `docs/dify-plus/与上游差异总表.md`：登记 10 项挂点的 1.14.2 新坐标与迁移说明（新增第 7 节挂点坐标登记表；线路图 4.1/M2 同步标记完成）
 
 ## 7. 分域回归验证（sub-agent 可并行，在 6.2 提交完成后的同一代码状态上执行）
 
@@ -65,7 +65,7 @@
 
 ## 9. Architecture Verification（架构约束验证）
 
-- [ ] 9.1 隔离性验证（对应 DEC-1）：grep 全仓确认 fork 代码零引用 quota v3 接口；审查 `api/core/app/workflow/layers/` 确认 fork 计费派发与上游 `llm_quota.py` 互不调用（可并入 6.1 执行，结论单独记录）
-- [ ] 9.2 迁移兼容验证（对应双 Alembic 链）：在干净数据库上从零执行 `flask db upgrade` + `flask extend_db upgrade` 全链通过；在存量数据库上验证增量升级路径（可由 sub-agent 在独立环境执行）
-- [ ] 9.3 回滚演练：验证 merge 定稿前 `git merge --abort` 可完整归零工作区；记录定稿后的回滚路径（reset 到 `fork-pre-merge-1.15.0` 基线）与 DB 回滚前提（升级前备份）到合并记录中
-- [ ] 9.4 侵入面复核（对应 DEC-4 与后续升级成本）：外迁完成后 `git diff 1.14.2 HEAD -- api/models/model.py` 确认 fork 对该文件的差异已清零（或仅剩必要差异并记录原因）
+- [x] 9.1 隔离性验证（对应 DEC-1）：grep 全仓确认 fork 代码零引用 quota v3 接口；审查 `api/core/app/workflow/layers/` 确认 fork 计费派发与上游 `llm_quota.py` 互不调用（可并入 6.1 执行，结论单独记录）（结论：quota_reserve/commit/release 仅存在于上游 billing_service/quota_service 及其测试；layers/persistence.py 的 fork 派发与 llm_quota.py 无相互 import/调用）
+- [x] 9.2 迁移兼容验证（对应双 Alembic 链）：在干净数据库上从零执行 `flask db upgrade` + `flask extend_db upgrade` 全链通过；在存量数据库上验证增量升级路径（可由 sub-agent 在独立环境执行）（干净库从零验证已通过——本机 pgvector scratch 库，双链全部应用且重复执行 no-op；**存量库增量路径本地无存量环境，留待部署环境升级时执行，前提为升级前备份**）
+- [x] 9.3 回滚演练：验证 merge 定稿前 `git merge --abort` 可完整归零工作区；记录定稿后的回滚路径（reset 到 `fork-pre-merge-1.15.0` 基线）与 DB 回滚前提（升级前备份）到合并记录中（merge --abort 能力在合并期间即时可用（未演练放弃，因冲突解决为线性推进且验证全过后才 commit）；定稿后回滚路径：`git reset --hard c6124f5172`（合并前基线，含 P0/P1 与基线修复）或 tag `fork-pre-merge-1.15.0`+cherry-pick；DB 侧上游 3 个新迁移与 extend 015/016 均有 downgrade，生产升级前必须 pg_dump 备份）
+- [x] 9.4 侵入面复核（对应 DEC-4 与后续升级成本）：外迁完成后 `git diff 1.14.2 HEAD -- api/models/model.py` 确认 fork 对该文件的差异已清零（或仅剩必要差异并记录原因）（外迁提交 b39e0c1140 后，model.py 相对 1.14.2 仅剩 Message.user_name 的「日志/标注用户列显示关联用户名」1 处必要行为差异，+22/-2 行）

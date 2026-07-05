@@ -132,7 +132,9 @@ Phase 5  前台入口统一与规范化                   —— 收尾
 
 > 策略：**两步合并**，每步独立验证回归，避免一次性消化 1677 个提交。
 
-### 4.1 Step A：1.13.3 → 1.14.2
+### 4.1 Step A：1.13.3 → 1.14.2 **✅ 已完成（2026-07-05，p2-merge-upstream-1-14-2，合并提交 c4843eb9）**
+
+> 实际执行修正：① web monorepo 化（pnpm workspace + packages/* + catalog）实际发生在上游 1.14.0，已随本步合并进入仓库，headlessui 亦已在 1.14.1 清零——Step B 的范围需据此重估；② `dify_graph` 在 1.14.2 已外部化为 PyPI 包 `graphon`，仓库内目录删除；③ service 层「显式传 session」未构成对外签名破坏，extend 适配量低于预期；④ 10 项挂点新坐标已登记入《与上游差异总表》第 7 节；⑤ 附带恢复了 1.13.3 合并时丢失的记忆上下文挂点（add_messages_context/control_registers 链路）。
 
 重点消化：service 层「显式传 session」重构、SQLAlchemy 2.0 select() 迁移、console 控制器 user/tenant 注入、quota v3 引入（fork 不接入但要解冲突）、`dify_graph` 演进。
 
@@ -234,7 +236,7 @@ Phase 5  前台入口统一与规范化                   —— 收尾
 |---|---|
 | M0 基线止血完成 | 冲突标记清零；6 条计费链路回归全绿；tag 留档 |
 | M1 决策定案 | D1-D5 均有书面结论（更新到本文档） |
-| M2 合并 1.14.2 | api/web 构建通过；计费+SSO+应用中心回归通过 |
+| M2 合并 1.14.2 | **✅ 达成（2026-07-05，p2）**：api/web 构建通过（ruff/py_compile/导入冒烟/单测 12080 passed；web lint/type-check/build 全绿）；干净库双 Alembic 链从零验证通过；计费+SSO+应用中心按代码级链路追踪+单测回归通过（本地无运行环境，运行时回归待部署环境执行《计费回归基线清单》） |
 | M3 合并 1.15.0 | monorepo 构建通过；main-nav 挂载点全部恢复；`flask db upgrade` + `extend_db upgrade` + `backfill-plugin-auto-upgrade` 执行成功；SSRF 白名单验证；全量回归通过 |
 | M4 计费加固完成 | service_api 签名侵入清零；幂等/原子化落地；挂点注册表入档 |
 | M5 admin 下线 | **✅ 代码侧达成（2026-07-05，P5）**：compose 无 admin 服务；`web/service/web-extend.ts` 已删除（P1）；GVA 表清理迁移已入库（部署环境执行时 pg_dump 先行）；SECRET_KEY 轮换 runbook 已交付，实际轮换待部署环境维护窗口 |
