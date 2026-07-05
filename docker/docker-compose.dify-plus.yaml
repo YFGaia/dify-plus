@@ -705,7 +705,6 @@ x-shared-env: &shared-api-worker-env
   SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL: ${SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL:-200}
   # 二开配置
   EMAIL_DOMAIN: ${EMAIL_DOMAIN:-}
-  ADMIN_GROUP_ID: ${ADMIN_GROUP_ID:-888}
   RMB_TO_USD_RATE: ${RMB_TO_USD_RATE:-6.95}
   NEXT_PUBLIC_DEFAULT_DOMAIN: ${EMAIL_DOMAIN:-}
   NEXT_PUBLIC_AUTH0_LOGOUT_URL: ${NEXT_PUBLIC_AUTH0_LOGOUT_URL:-}
@@ -1681,65 +1680,6 @@ services:
     restart: always
     volumes:
       - ./volumes/unstructured:/app/data
-
-  # Extend - admin-web
-  admin-web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-web:1.12.1
-    restart: always
-    ports:
-      - '8081:8081'
-    depends_on:
-      - admin-server
-    command: [ 'nginx-debug', '-g', 'daemon off;' ]
-    networks:
-      - default
-
-  # Extend - admin-server
-  admin-server:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-admin-server:1.12.1.fix.3.1
-    restart: always
-    environment:
-      # Use the shared environment variables.
-      <<: *shared-api-worker-env
-      # JWT signing key must match API's SECRET_KEY for token compatibility
-      JWT_SIGNING_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
-      SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
-      EMAIL_DOMAIN: ${EMAIL_DOMAIN:-}
-      # 与 Dify 使用同一套数据库配置，避免密码不一致导致认证失败
-      DB_TYPE: ${DB_TYPE:-postgresql}
-      DB_HOST: ${DB_HOST:-db_postgres}
-      DB_PORT: ${DB_PORT:-5432}
-      DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-difyai123456}
-      DB_DATABASE: ${DB_DATABASE:-dify}
-    ports:
-      - '8888:8888'
-    depends_on:
-      init_permissions:
-        condition: service_completed_successfully
-      db_postgres:
-        condition: service_healthy
-        required: false
-      db_mysql:
-        condition: service_healthy
-        required: false
-      oceanbase:
-        condition: service_healthy
-        required: false
-      seekdb:
-        condition: service_healthy
-        required: false
-      redis:
-        condition: service_started
-    networks:
-      - default
-    links:
-      - db_postgres
-      - redis
-    volumes:
-      - ./admin-server/config.docker.yaml:/app/config.docker.yaml
-      # 挂载 Dify storage 目录以访问 tenant 私钥（用于解密 provider credentials）
-      - ./volumes/app/storage:/app/storage:ro
 
   # Extend - sandbox-full
   sandbox-full:

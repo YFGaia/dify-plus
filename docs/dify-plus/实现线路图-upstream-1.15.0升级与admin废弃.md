@@ -122,9 +122,9 @@ Phase 5  前台入口统一与规范化                   —— 收尾
 |---|---|---|
 | D1 | **fork 额度体系 vs 上游 quota v3** | 上游 1.14+ 引入 `quota_reserve/commit/release` 两阶段配额（面向 SaaS 计费）。建议：**本次升级保持 fork 自建表体系不变**（迁移成本与语义差异大），仅把挂点跟随上游代码搬迁；将「评估挂接上游 quota 接口」列为 2.0 时代的长期项。理由：fork 是按美元金额计费+归因到个人账号，与上游按订阅套餐 credits 语义不同 |
 | D2 | **批量工作流处置** | **已定案（2026-07-05，业务方确认）：方案 A（删除功能）**。证据：生产 nginx 模板无 `/admin` location（标准部署不可达），业务方确认近 90 天无人使用；实施环境无生产库可跑 SQL，按决策门「无法访问生产库」场景升级业务方直接确认。执行：删前端批量 tab 与数据层（见 `openspec/changes/p1-batch-workflow-disposition`），Go 侧 ~2,634 行随 P5 删除，数据表冷备保留（归档说明见 `docs/dify-plus/批量工作流数据表冷备归档说明.md`） |
-| D3 | **模型供应商网关/转发代理 + 应用版本管理** | 均为外部客户端服务。先确认业务使用情况：不在用直接随 admin 下线；在用则需独立小服务或迁移 Flask 的专项方案（不阻塞主线路图，可后置） |
+| D3 | **模型供应商网关/转发代理 + 应用版本管理** | **已定案（2026-07-05，业务方确认）：无外部依赖，随 admin 整体下线**。取证方式：实施环境为开发仓库、admin 服务未部署运行（无访问日志可采），按 spec「业务访谈」路径由仓库维护者直接确认三类端点（`/gaia/proxy/*`、`/gaia/forward/proxy/*`、`GET /latest`/`GET /releases`）无 OpenAI 兼容客户端、钉钉转发、桌面客户端在用。停路由观察期与业务确认合并豁免（开发环境无外部流量），处置记录见 `openspec/changes/archive/2026-07-05-p5-admin-decommission/cutover-record.md` |
 | D4 | **探索页分类数据源** | 上游 `recommended_apps.categories`（JSON 列）vs fork 的 `recommended_category_extend` 两张表。建议：**迁移到上游原生 categories**，写一次性数据迁移脚本，删除 fork 分类表与 `database_retrieval.py` 侵入——减少一个长期侵入面 |
-| D5 | **code 节点执行控制的新写入方** | `control_mail` redis 键改由 Console 管理 API 维护（挂到 system-manage-extend），或改为 api 侧直接查库。建议前者（保持 redis 读性能，管理入口统一） |
+| D5 | **code 节点执行控制的新写入方** | **已定案并落地（2026-07-05，P5）**：采纳「Console 管理 API 维护 redis」——新表 `code_execution_control_extend`（DB 为 source of truth）+ Console 端点写后全量重建 redis `control_mail` 投影；同时恢复 1.13.3 合并中丢失的读侧接线（`DefaultWorkflowCodeExecutor` → `check_code` → `purview`）。实现见 `openspec/changes/archive/2026-07-05-p5-admin-decommission/` |
 
 ---
 
@@ -187,6 +187,8 @@ Phase 5  前台入口统一与规范化                   —— 收尾
 
 ## 6. Phase 4：admin 废弃（迁移 → 切流 → 清理，可与 Phase 3 并行）
 
+> **状态（2026-07-05）：✅ 已完成**（change `p5-admin-decommission`）。4.1 批量工作流已随 P1 删除（D2 方案 A）；4.2 code 执行控制迁 Console 完成（含读侧接线恢复）；4.3 统计脚本已删除；4.4 按 D3 定案随 admin 下线。切流验证按开发环境等价判据放行（见 change 内 `cutover-record.md`）。清理：compose 无 admin 服务、`admin/` 目录已删（tag `pre-admin-removal`）、GVA 表清理迁移 `016_drop_gva_admin_tables` 已入库待部署环境执行、`SECRET_KEY` 轮换 runbook 已交付（`docs/dify-plus/SECRET_KEY轮换runbook.md`），实际轮换在部署环境维护窗口执行。
+
 ### 6.1 迁移（阻塞项处理）
 
 | # | 任务 | 依据 |
@@ -235,7 +237,7 @@ Phase 5  前台入口统一与规范化                   —— 收尾
 | M2 合并 1.14.2 | api/web 构建通过；计费+SSO+应用中心回归通过 |
 | M3 合并 1.15.0 | monorepo 构建通过；main-nav 挂载点全部恢复；`flask db upgrade` + `extend_db upgrade` + `backfill-plugin-auto-upgrade` 执行成功；SSRF 白名单验证；全量回归通过 |
 | M4 计费加固完成 | service_api 签名侵入清零；幂等/原子化落地；挂点注册表入档 |
-| M5 admin 下线 | compose 无 admin 服务；`web/service/web-extend.ts` 无 GVA 调用；GVA 表已清理；SECRET_KEY 已轮换 |
+| M5 admin 下线 | **✅ 代码侧达成（2026-07-05，P5）**：compose 无 admin 服务；`web/service/web-extend.ts` 已删除（P1）；GVA 表清理迁移已入库（部署环境执行时 pg_dump 先行）；SECRET_KEY 轮换 runbook 已交付，实际轮换待部署环境维护窗口 |
 | M6 前台规范化 | system-manage-extend 全部 contract 化；lint/type-check/测试通过 |
 
 ## 9. 风险登记
@@ -253,7 +255,7 @@ Phase 5  前台入口统一与规范化                   —— 收尾
 ## 10. 需人工确认的开放问题（执行前请回答）
 
 1. ~~D2：批量工作流近 90 天是否有真实使用？~~ **已确认（2026-07-05）：无人使用，按方案 A 删除**（见 3 节 D2 决策记录）
-2. D3：`/gaia/proxy/*`、`/gaia/forward/proxy/*`、app-version 公开端点是否有外部客户端依赖？
+2. ~~D3：`/gaia/proxy/*`、`/gaia/forward/proxy/*`、app-version 公开端点是否有外部客户端依赖？~~ **已确认（2026-07-05）：无外部依赖，随 admin 整体下线**（见 3 节 D3 决策记录）
 3. D1：是否认可"本次保持自建额度体系、不接上游 quota v3"？
 4. 合并窗口与停机预算：`flask db upgrade` + backfill 需要停机窗口，能接受多久？
-5. SECRET_KEY 轮换（导致全员重新登录）安排在哪个窗口？
+5. SECRET_KEY 轮换（导致全员重新登录）安排在哪个窗口？——runbook 已交付（`docs/dify-plus/SECRET_KEY轮换runbook.md`，P5 任务 11.1），具体窗口由部署环境运维按 runbook 排期执行

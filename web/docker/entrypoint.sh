@@ -44,9 +44,6 @@ export NEXT_PUBLIC_LOOP_NODE_MAX_COUNT=${LOOP_NODE_MAX_COUNT}
 export NEXT_PUBLIC_MAX_PARALLEL_LIMIT=${MAX_PARALLEL_LIMIT}
 export NEXT_PUBLIC_MAX_ITERATIONS_NUM=${MAX_ITERATIONS_NUM}
 export NEXT_PUBLIC_MAX_TREE_DEPTH=${MAX_TREE_DEPTH}
-# extend start: admin
-export NEXT_PUBLIC_ADMIN_API_URL=${CONSOLE_API_URL}/admin/api
-# extend stop: admin
 
 if [ "${EXPERIMENTAL_ENABLE_VINEXT:-}" = "true" ]; then
   exec node /app/targets/vinext/server.js

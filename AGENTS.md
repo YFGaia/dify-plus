@@ -2,14 +2,13 @@
 
 ## Project Overview
 
-`dify-plus` is a fork of [langgenius/dify](https://github.com/langgenius/dify) with an additional enterprise admin center and a set of business-oriented extensions.
+`dify-plus` is a fork of [langgenius/dify](https://github.com/langgenius/dify) with a set of business-oriented extensions. The former standalone admin center (`/admin`, gin-vue-admin) was decommissioned on 2026-07-05 (change `p5-admin-decommission`, tag `pre-admin-removal`); its management capabilities now live in the Console under `/system-manage-extend/*`.
 
 - Upstream comparison baseline for this branch: `upstream-1.12.1`
 - Current working branch baseline: local release tag `1.12.1`
 - Main code areas:
   - `/api`: Dify backend plus forked backend extensions
-  - `/web`: Dify console/web frontend plus forked UI features
-  - `/admin`: standalone admin center based on `gin-vue-admin`
+  - `/web`: Dify console/web frontend plus forked UI features (including system management pages)
   - `/docker`: integrated deployment for Dify-Plus services
   - `/docs`: architecture and fork feature documentation
 
@@ -19,8 +18,7 @@
 - Keep fork-specific logic discoverable. Existing code usually uses `extend` in file names, model names, migration names, comments, or helper functions.
 - Preserve the separation between:
   - Upstream Dify runtime capability
-  - Forked enterprise features
-  - Admin center management capability
+  - Forked enterprise features (including Console system management under `system-manage-extend`)
 
 ## Backend Workflow
 
@@ -37,14 +35,12 @@
   - `web/app/components/**/*extend*`
   - `web/app/(commonLayout)/**`
   - `web/app/signin/**`
-- Admin center is independent from the Next.js app and lives under `/Users/liuxingwang/go/src/dify-plus/admin`.
 
 ## Deployment Workflow
 
 - `origin` is the fork repository.
 - `upstream` should point to `https://github.com/langgenius/dify`.
 - The integrated compose file for the fork is `/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml`.
-- Admin deployment assets live under `/Users/liuxingwang/go/src/dify-plus/admin/deploy`.
 
 ## Documentation
 
