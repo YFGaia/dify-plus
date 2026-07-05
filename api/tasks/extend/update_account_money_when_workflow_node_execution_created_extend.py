@@ -10,7 +10,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from configs import dify_config
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
-from graphon.enums import NodeType
+from graphon.enums import BuiltinNodeTypes  # graphon 外部化后 NodeType 为 type alias，枚举值在 BuiltinNodeTypes
 from models.account import Account
 from models.account_money_extend import AccountMoneyExtend
 from models.api_token_money_extend import ApiTokenMessageJoinsExtend, ApiTokenMoneyExtend
@@ -96,7 +96,7 @@ def update_account_money_when_workflow_node_execution_created_extend(self, workf
         return
 
     # 非大模型则跳过
-    if workflow_node_execution_dict.get("node_type") != NodeType.LLM.value:
+    if workflow_node_execution_dict.get("node_type") != BuiltinNodeTypes.LLM:
         return
 
     node_id = workflow_node_execution_dict.get("id")
