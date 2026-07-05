@@ -12,6 +12,8 @@ import DSLConfirmModal from '@/app/components/app/create-from-dsl-modal/dsl-conf
 import Button from '@/app/components/base/button'
 import Input from '@/app/components/base/input'
 import Loading from '@/app/components/base/loading'
+// Extend: start Explore Add Search
+import TagFilter from '@/app/components/base/tag-management/filter'
 import AppCard from '@/app/components/explore/app-card'
 import Banner from '@/app/components/explore/banner/banner'
 import Category from '@/app/components/explore/category'
@@ -28,9 +30,6 @@ import { useExploreAppList } from '@/service/use-explore'
 import { cn } from '@/utils/classnames'
 import TryApp from '../try-app'
 import s from './style.module.css'
-// Extend: start Explore Add Search
-import SearchInput from '@/app/components/base/search-input'
-import TagFilter from '@/app/components/base/tag-management/filter'
 // Extend: stop Explore Add Search
 
 type AppsProps = {
@@ -50,7 +49,6 @@ const Apps = ({
 
   // Extend: start Explore Add Search
   const [tagFilterValue, setTagFilterValue] = useState<string[]>([])
-  const [keywordsValue, setKeywordsValue] = useState<string>('')
   // Extend: stop Explore Add Search
   const [keywords, setKeywords] = useState('')
   const [searchKeywords, setSearchKeywords] = useState('')
@@ -111,16 +109,16 @@ const Apps = ({
     }
 
     // Apply keyword search
-    if (keywordsValue.length > 0) {
-      const lowerCaseKeywords = keywordsValue.toLowerCase()
+    if (searchKeywords.length > 0) {
+      const lowerCaseKeywords = searchKeywords.toLowerCase()
       result = result.filter(item =>
-        item.description?.toLowerCase().includes(lowerCaseKeywords) ||
-        item.app?.name?.toLowerCase().includes(lowerCaseKeywords)
+        item.description?.toLowerCase().includes(lowerCaseKeywords)
+        || item.app?.name?.toLowerCase().includes(lowerCaseKeywords),
       )
     }
 
     return result
-  }, [data, currCategory, allCategoriesEn, tagFilterValue, keywordsValue])
+  }, [data, currCategory, allCategoriesEn, tagFilterValue, searchKeywords])
 
   const handleTagsChange = (value: string[]) => {
     setTagFilterValue(value)
@@ -223,8 +221,18 @@ const Apps = ({
         />
         {/* Extend: start Explore Add Search */}
         <div className="flex items-center gap-2">
+          {hasFilterCondition && (
+            <Button size="medium" onClick={handleResetFilter}>{t('apps.resetFilter', { ns: 'explore' })}</Button>
+          )}
           <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
-          <SearchInput className="w-[200px]" value={keywordsValue} onChange={handleKeywordsChange}/>
+          <Input
+            showLeftIcon
+            showClearIcon
+            wrapperClassName="w-[200px]"
+            value={keywords}
+            onChange={e => handleKeywordsChange(e.target.value)}
+            onClear={() => handleKeywordsChange('')}
+          />
         </div>
         {/* Extend: stop Explore Add Search */}
       </div>

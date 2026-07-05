@@ -367,7 +367,7 @@ describe('ToolPicker', () => {
       hasNextPage: false,
       fetchNextPage: vi.fn(),
       page: 0,
-    } as ReturnType<typeof useMarketplacePlugins>)
+    } as unknown as ReturnType<typeof useMarketplacePlugins>)
     mockUseAllBuiltInTools.mockReturnValue({ data: builtInTools } as ReturnType<typeof useAllBuiltInTools>)
     mockUseAllCustomTools.mockReturnValue({ data: customTools } as ReturnType<typeof useAllCustomTools>)
     mockUseAllWorkflowTools.mockReturnValue({ data: workflowTools } as ReturnType<typeof useAllWorkflowTools>)
@@ -430,7 +430,7 @@ describe('ToolPicker', () => {
       hasNextPage: false,
       fetchNextPage: vi.fn(),
       page: 0,
-    } as ReturnType<typeof useMarketplacePlugins>)
+    } as unknown as ReturnType<typeof useMarketplacePlugins>)
 
     renderToolPicker({
       isShow: true,

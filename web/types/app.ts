@@ -260,6 +260,8 @@ export type ModelConfig = {
   }
   created_at?: number
   updated_at?: number
+  /** Extend: 记忆上下文功能（保留对话轮数，999 表示关闭） */
+  retention_number?: number
 }
 
 export type Language = typeof LanguagesSupported[number]
@@ -360,6 +362,8 @@ export type App = {
   /** Model configuration */
   model_config: ModelConfig
   app_model_config: ModelConfig
+  /** Extend: 记忆上下文功能（保留对话轮数） */
+  retention_number?: number
   /** Timestamp of creation */
   created_at: number
   /** Timestamp of update */

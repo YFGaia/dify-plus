@@ -80,7 +80,7 @@ const createMarketplacePluginsMock = (
   total: 0,
   resetPlugins: vi.fn(),
   queryPlugins: vi.fn(),
-  queryPluginsWithDebounced: vi.fn(),
+  queryPluginsWithDebounced: vi.fn() as unknown as UseMarketplacePluginsReturn['queryPluginsWithDebounced'],
   cancelQueryPluginsWithDebounced: vi.fn(),
   isLoading: false,
   isFetchingNextPage: false,
@@ -164,7 +164,7 @@ describe('DataSources', () => {
       const queryPluginsWithDebounced = vi.fn()
       mockUseGlobalPublicStore.mockImplementation(selector => selector(createGlobalPublicStoreState(true)))
       mockUseMarketplacePlugins.mockReturnValue(createMarketplacePluginsMock({
-        queryPluginsWithDebounced,
+        queryPluginsWithDebounced: queryPluginsWithDebounced as unknown as UseMarketplacePluginsReturn['queryPluginsWithDebounced'],
       }))
 
       render(

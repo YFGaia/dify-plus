@@ -185,7 +185,7 @@ type useClipboardUploaderProps = {
   files: ImageFile[]
   visionConfig?: VisionSettings
   onUpload: (imageFile: ImageFile) => void
-  onUpdateText: (text: string) => void // Extend: Office pictures and folders are removed
+  onUpdateText?: (text: string) => void // Extend: Office pictures and folders are removed
 }
 
 export const useClipboardUploader = ({ visionConfig, onUpload, files, onUpdateText }: useClipboardUploaderProps) => {
@@ -207,8 +207,8 @@ export const useClipboardUploader = ({ visionConfig, onUpload, files, onUpdateTe
       e.preventDefault()
       // ----------- Extend: Office pictures and folders are removed -----------
       // Check if there is text data in the clipboard
-      const text = clipboardData.getData('text')
-      if (text !== '') {
+      const text = clipboardData?.getData?.('text') ?? ''
+      if (text !== '' && onUpdateText) {
         e.preventDefault()
         onUpdateText(text)
         return

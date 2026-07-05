@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import QuotaManagementPage from '../page'
 import { getQuotaList, setUserQuota } from '@/service/system-manage-extend'
+import QuotaManagementPage from '../page'
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -18,9 +18,10 @@ vi.mock('@/service/system-manage-extend', () => ({
   setUserQuota: vi.fn(),
 }))
 
-vi.mock('@/app/components/base/toast', () => ({
-  default: {
-    notify: vi.fn(),
+vi.mock('@/app/components/base/ui/toast', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }))
 

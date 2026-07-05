@@ -179,6 +179,8 @@ flowchart TD
 
 ## 4. 管理后台二开功能
 
+> **迁移进度概览**：系统集成（钉钉 SSO、OAuth2、邮箱 API、转发 Token）和用户额度管理已迁移到 Dify 原生技术栈，可通过 Console 顶部菜单"系统管理"直接访问（仅 workspace owner 可见）。批量工作流已按决策点 D2（2026-07-05，方案 A）删除前端能力，Dify 前端不再有任何 GVA 运行时依赖；Go 侧实现与数据表处置见[批量工作流数据表冷备归档说明](./批量工作流数据表冷备归档说明.md)。完整迁移状态见 [admin迁移状态总表](./admin迁移状态总表.md)。
+
 ### 4.1 运营总览和额度看板
 
 相关文件：
@@ -209,7 +211,9 @@ flowchart TD
 
 ### 4.2 用户额度管理
 
-相关文件：
+> **迁移状态**：✅ 已迁移到 Dify 原生技术栈，详见 [admin迁移状态总表](./admin迁移状态总表.md)。
+
+原 GVA 文件：
 
 - `admin/web/src/view/quota/index.vue`
 - `admin/web/src/api/user.js`
@@ -217,16 +221,17 @@ flowchart TD
 - `admin/server/service/gaia/quota.go`
 - `admin/server/model/gaia/response/quota.go`
 
-功能点：
+**Dify 原生实现**：
 
-- 搜索成员。
-- 查看成员已使用额度、总额度和余额。
-- 在线修改指定成员的总额度。
+- 后端：`api/controllers/console/system_manage_extend.py` (`QuotaManageResource` / `QuotaSetResource`)
+- 服务层：`api/services/system_manage_extend.py` (`QuotaManageService`)
+- 前端页面：`web/app/(commonLayout)/system-manage-extend/quota-management/page.tsx`
+- 入口菜单：`web/app/components/header/system-manage-nav-extend/index.tsx`
 
-接口维度：
+Dify 原生接口：
 
-- `GET /gaia/quota/getManagementList`
-- `POST /gaia/quota/setUserQuota`
+- `GET /console/api/system-manage-extend/quota-management`
+- `POST /console/api/system-manage-extend/quota-management/set`
 
 ### 4.3 钉钉集成
 
@@ -245,11 +250,13 @@ flowchart TD
 - 配置第三方邮箱 API，用于登录后补充用户邮箱信息。
 - 支持测试连接与启用状态切换。
 
-这部分实际上是“身份系统 + 企业通讯录 + 邮箱补全”三件事绑在一起。
+> **迁移说明**：钉钉集成（含邮箱 API 配置、转发 Token 管理）已迁移到 Dify 原生 Flask API。后端见 `api/controllers/console/system_manage_extend.py`，前端入口在 `/system-manage-extend/system-integration`。详见 [admin迁移状态总表](./admin迁移状态总表.md)。
 
 ### 4.4 OAuth2 集成
 
-相关文件：
+> **迁移说明**：OAuth2 集成已迁移到 Dify 原生 Flask API（`OAuth2IntegrationResource`），前端与钉钉集成共用同一页面。详见 [admin迁移状态总表](./admin迁移状态总表.md)。
+
+原 GVA 文件：
 
 - `admin/web/src/view/systemIntegrated/oauth2/index.vue`
 - `admin/web/src/api/gaia/system.js`
@@ -360,12 +367,12 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   participant U as 运营/管理员
-  participant V as /quota
-  participant B as backend /gaia/quota
+  participant V as /system-manage-extend/quota-management
+  participant B as Dify API /system-manage-extend/quota-management
   participant DB as 数据库
 
   U->>V: 搜索成员并点击修改额度
-  V->>B: POST /gaia/quota/setUserQuota
+  V->>B: POST /system-manage-extend/quota-management/set
   B->>DB: 更新 account_money_extend.total_quota
   DB-->>B: 写入成功
   B-->>V: 返回成功
@@ -383,7 +390,7 @@ sequenceDiagram
 - 新增 API Key 的日/月限额编辑能力。
 - 新增顶部账户额度展示。
 - 新增管理后台的额度总览、用户额度编辑、模型管理、系统集成和版本发布管理。
-- 新增批量工作流处理入口，支持上传文件、进度轮询、暂停、恢复、重试。
+- ~~新增批量工作流处理入口，支持上传文件、进度轮询、暂停、恢复、重试~~（已按决策点 D2 于 2026-07-05 删除，前端恢复上游原生 run-batch；见[批量工作流数据表冷备归档说明](./批量工作流数据表冷备归档说明.md)）。
 
 ## 7. 维护要点
 

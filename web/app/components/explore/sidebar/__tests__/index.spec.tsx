@@ -33,9 +33,17 @@ vi.mock('@/hooks/use-breakpoints', () => ({
   },
 }))
 
+vi.mock('@/context/app-context', () => ({
+  useAppContext: () => ({
+    currentWorkspace: {
+      role: 'owner',
+    },
+  }),
+}))
+
 vi.mock('@/service/use-explore', () => ({
   useGetInstalledApps: () => ({
-    isPending: mockIsPending,
+    isFetching: mockIsPending,
     data: { installed_apps: mockInstalledApps },
   }),
   useUninstallApp: () => ({
@@ -92,14 +100,14 @@ describe('SideBar', () => {
     it('should render discovery link', () => {
       renderSideBar()
 
-      expect(screen.getByText('explore.sidebar.title')).toBeInTheDocument()
+      expect(screen.getByText('extend.sidebar.discovery')).toBeInTheDocument()
     })
 
     it('should expose an accessible name for the discovery link when the text is hidden', () => {
       mockMediaType = MediaType.mobile
       renderSideBar()
 
-      expect(screen.getByRole('link', { name: 'explore.sidebar.title' })).toBeInTheDocument()
+      expect(screen.getByRole('link', { name: 'extend.sidebar.discovery' })).toBeInTheDocument()
     })
 
     it('should render workspace items when installed apps exist', () => {

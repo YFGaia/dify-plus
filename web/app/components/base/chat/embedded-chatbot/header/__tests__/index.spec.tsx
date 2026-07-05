@@ -85,6 +85,13 @@ describe('EmbeddedChatbot Header', () => {
     },
     enable_trial_app: false,
     enable_explore_banner: false,
+    // Extend: fork 新增系统特性字段
+    is_custom_auth2: '',
+    is_custom_auth2_button: '',
+    is_custom_auth2_logout: '',
+    ding_talk_client_id: '',
+    ding_talk_corp_id: '',
+    ding_talk: false,
   }
 
   const setupIframe = () => {

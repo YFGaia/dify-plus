@@ -2,10 +2,10 @@
 
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import Link from 'next/link'
-import { useSelectedLayoutSegment } from 'next/navigation'
-import { cn } from '@/utils/classnames'
 import { useAppContext } from '@/context/app-context'
+import Link from '@/next/link'
+import { useSelectedLayoutSegment } from '@/next/navigation'
+import { cn } from '@/utils/classnames'
 
 type MenuItemType = {
   key: string
@@ -32,12 +32,12 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
   const menuItems: MenuItemType[] = [
     {
       key: 'system-integration',
-      label: t('systemManage.integration', { ns: 'extend' }),
+      label: t('systemManage.menu.integration', { ns: 'extend' }),
       href: '/system-manage-extend/system-integration',
     },
     {
       key: 'quota-management',
-      label: t('systemManage.quota', { ns: 'extend' }),
+      label: t('systemManage.menu.quota', { ns: 'extend' }),
       href: '/system-manage-extend/quota-management',
     },
   ]

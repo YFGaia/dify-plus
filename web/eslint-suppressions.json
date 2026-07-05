@@ -4868,6 +4868,11 @@
       "count": 1
     }
   },
+  "app/components/header/account-setting/model-provider-page/model-parameter-modal/parameter-item-extend.tsx": {
+    "no-restricted-imports": {
+      "count": 2
+    }
+  },
   "app/components/header/account-setting/model-provider-page/model-parameter-modal/status-indicators.tsx": {
     "no-restricted-imports": {
       "count": 1

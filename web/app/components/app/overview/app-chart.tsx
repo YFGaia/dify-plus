@@ -89,6 +89,8 @@ export type PeriodParams = {
   query?: {
     start: string
     end: string
+    /** Extend: 个人用量总览（user_overview_extend）按当前账号过滤 */
+    account?: boolean
   }
 }
 

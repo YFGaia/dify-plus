@@ -4,7 +4,9 @@ import { useGlobalPublicStore } from '@/context/global-public-context'
 import { useLocale } from '@/context/i18n'
 import { AccessMode } from '@/models/access-control'
 import { consoleQuery } from './client'
-import { fetchAppList, fetchBanners, fetchInstalledAppList, fetchInstalledAppMeta, fetchInstalledAppParams, getAppAccessModeByAppId, uninstallApp, updatePinStatus } from './explore'
+import { fetchAppList, fetchBanners, fetchInstalledAppList, fetchInstalledAppMeta, fetchInstalledAppParams, fetchOpenInstalledAppList, getAppAccessModeByAppId, uninstallApp, updatePinStatus } from './explore'
+
+const NAME_SPACE = 'explore'
 
 type ExploreAppListData = {
   categories: AppCategory[]

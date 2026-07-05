@@ -32,7 +32,7 @@ export type AppListResponse = {
   limit: number
   page: number
   total: number
-  recommended_apps: string[] // app recommended apps[]string
+  recommended_apps?: string[] // 二开部分：应用同步模板中心的已推荐 app id 列表
 }
 
 export type AppDetailResponse = App

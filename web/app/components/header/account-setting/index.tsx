@@ -134,6 +134,18 @@ export default function AccountSetting({
 
   const [searchValue, setSearchValue] = useState<string>('')
 
+  const handleTabChange = useCallback((tab: AccountSettingTab) => {
+    if (tab === ACCOUNT_SETTING_TAB.PROVIDER)
+      resetModelProviderListExpanded()
+
+    onTabChangeAction(tab)
+  }, [onTabChangeAction, resetModelProviderListExpanded])
+
+  const handleClose = useCallback(() => {
+    resetModelProviderListExpanded()
+    onCancelAction()
+  }, [onCancelAction, resetModelProviderListExpanded])
+
   const { isCurrentWorkspaceManager } = useAppContext() // 二开部分 - 空间普通成员不渲染“模型供应商”标签
 
   return (
@@ -158,11 +170,10 @@ export default function AccountSetting({
                        * 改动
                        * 原：menuItem.items.map(item => (
                        * 改：menuItem.items.filter(item => !(item.key === 'provider' && !isCurrentWorkspaceManager)).map(item =>
-                       * 转发计费
-                       * 改：menuItem.items.filter(item => (!(item.key === 'provider' && !isCurrentWorkspaceManager) && item.key !== 'billing-list')).map(item => (
-                        */
-                      menuItem.items.filter(item => (!(
-                        item.key === 'provider' && !isCurrentWorkspaceManager) && item.key !== 'billing-list')).map(item => (
+                       * （历史上还过滤过 'billing-list'，该 tab 已随上游重构移除）
+                       */
+                      menuItem.items.filter(item => !(
+                        item.key === 'provider' && !isCurrentWorkspaceManager)).map(item => (
                         <div
                           key={item.key}
                           className={cn(

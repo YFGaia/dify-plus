@@ -3,7 +3,7 @@ import { RiContractLine, RiDoorLockLine, RiErrorWarningFill } from '@remixicon/r
 import * as React from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import DingTalkAuth from '@/app/signin/components/dingtalk-auth'
 import OAuth2 from '@/app/signin/components/oauth2' // extend: add oauth2
 import { CSRF_COOKIE_NAME, IS_CE_EDITION } from '@/config'

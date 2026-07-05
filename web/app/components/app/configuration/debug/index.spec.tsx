@@ -234,6 +234,9 @@ const createContextValue = (overrides: Partial<DebugContextValue> = {}): DebugCo
   appId: 'app-id',
   isAPIKeySet: true,
   isTrailFinished: false,
+  // Extend: 记忆上下文功能
+  retentionNumber: 999,
+  setRetentionNumber: vi.fn(),
   mode: AppModeEnum.CHAT,
   modelModeType: ModelModeType.chat,
   promptMode: 'simple' as DebugContextValue['promptMode'],
