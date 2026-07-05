@@ -172,6 +172,20 @@
       "count": 2
     }
   },
+  "app/(commonLayout)/system-manage-extend/system-integration/forward-token-list.tsx": {
+    "no-alert": {
+      "count": 1
+    },
+    "no-restricted-imports": {
+      "count": 1
+    },
+    "style/max-statements-per-line": {
+      "count": 1
+    },
+    "ts/no-explicit-any": {
+      "count": 3
+    }
+  },
   "app/(humanInputLayout)/form/[token]/form.tsx": {
     "react/set-state-in-effect": {
       "count": 1
@@ -1410,7 +1424,7 @@
   },
   "app/components/apps/app-card.tsx": {
     "no-restricted-imports": {
-      "count": 5
+      "count": 6
     },
     "react/component-hook-factories": {
       "count": 1
@@ -1422,7 +1436,7 @@
       "count": 1
     },
     "ts/no-explicit-any": {
-      "count": 2
+      "count": 1
     }
   },
   "app/components/apps/empty.tsx": {
@@ -4463,6 +4477,11 @@
       "count": 2
     }
   },
+  "app/components/explore/app-card/index.tsx": {
+    "no-restricted-imports": {
+      "count": 2
+    }
+  },
   "app/components/explore/banner/banner-item.tsx": {
     "react-hooks-extra/no-direct-set-state-in-use-effect": {
       "count": 1
@@ -4724,6 +4743,9 @@
     }
   },
   "app/components/header/account-setting/members-page/invite-modal/index.tsx": {
+    "no-restricted-imports": {
+      "count": 2
+    },
     "react/set-state-in-effect": {
       "count": 3
     }

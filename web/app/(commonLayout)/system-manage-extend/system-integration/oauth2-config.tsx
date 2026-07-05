@@ -1,10 +1,20 @@
 'use client'
 
+import type { OAuth2Config as OAuth2ConfigType } from '@/models/system-manage-extend'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Toast from '@/app/components/base/toast'
+import Switch from '@/app/components/base/switch'
+import { toast } from '@/app/components/base/ui/toast'
 import { getOAuth2Config, setOAuth2Config, testOAuth2Connection } from '@/service/system-manage-extend'
-import type { OAuth2Config as OAuth2ConfigType } from '@/models/system-manage-extend'
+
+type OAuth2ConfigFieldKey = keyof OAuth2ConfigType['config']
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error && error.message)
+    return error.message
+
+  return fallback
+}
 
 const OAuth2Config = () => {
   const { t } = useTranslation()
@@ -33,8 +43,8 @@ const OAuth2Config = () => {
       const data = await getOAuth2Config()
       setConfig(data)
     }
-    catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || 'Failed to load config' })
+    catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to load config'))
     }
     finally {
       setLoading(false)
@@ -49,11 +59,11 @@ const OAuth2Config = () => {
     try {
       setSaving(true)
       await setOAuth2Config(config)
-      Toast.notify({ type: 'success', message: t('systemManage.common.saveSuccess', { ns: 'extend' }) })
+      toast.success(t('systemManage.common.saveSuccess', { ns: 'extend' }))
       fetchConfig()
     }
-    catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || t('systemManage.common.saveFailed', { ns: 'extend' }) })
+    catch (error) {
+      toast.error(getErrorMessage(error, t('systemManage.common.saveFailed', { ns: 'extend' })))
     }
     finally {
       setSaving(false)
@@ -64,19 +74,30 @@ const OAuth2Config = () => {
     try {
       setTesting(true)
       await testOAuth2Connection(config)
-      Toast.notify({ type: 'success', message: t('systemManage.common.testSuccess', { ns: 'extend' }) })
+      toast.success(t('systemManage.common.testSuccess', { ns: 'extend' }))
     }
-    catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || t('systemManage.common.testFailed', { ns: 'extend' }) })
+    catch (error) {
+      toast.error(getErrorMessage(error, t('systemManage.common.testFailed', { ns: 'extend' })))
     }
     finally {
       setTesting(false)
     }
   }
 
-  const updateConfig = (key: string, value: string) => {
+  const updateConfig = (key: OAuth2ConfigFieldKey, value: string) => {
     setConfig({ ...config, config: { ...config.config, [key]: value } })
   }
+
+  const fields: Array<{ key: OAuth2ConfigFieldKey, label: string }> = [
+    { key: 'server_url', label: t('systemManage.oauth2.serverUrl', { ns: 'extend' }) },
+    { key: 'authorize_url', label: t('systemManage.oauth2.authorizeUrl', { ns: 'extend' }) },
+    { key: 'token_url', label: t('systemManage.oauth2.tokenUrl', { ns: 'extend' }) },
+    { key: 'userinfo_url', label: t('systemManage.oauth2.userinfoUrl', { ns: 'extend' }) },
+    { key: 'scope', label: t('systemManage.oauth2.scope', { ns: 'extend' }) },
+    { key: 'button_text', label: t('systemManage.oauth2.buttonText', { ns: 'extend' }) },
+    { key: 'logout_url', label: t('systemManage.oauth2.logoutUrl', { ns: 'extend' }) },
+    { key: 'redirect_uri', label: t('systemManage.oauth2.redirectUri', { ns: 'extend' }) },
+  ]
 
   if (loading)
     return <div className="text-text-tertiary">{t('systemManage.common.loading', { ns: 'extend' })}</div>
@@ -88,18 +109,16 @@ const OAuth2Config = () => {
         <span className="text-sm font-medium text-text-secondary">
           {t('systemManage.common.enable', { ns: 'extend' })}
         </span>
-        <button
-          onClick={() => setConfig({ ...config, status: !config.status })}
-          className={`relative h-6 w-11 rounded-full transition-colors ${
-            config.status ? 'bg-util-colors-blue-blue-500' : 'bg-components-toggle-bg'
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-              config.status ? 'translate-x-[22px]' : 'translate-x-0.5'
-            }`}
+        <div className="flex items-center gap-3">
+          <span className={`text-xs font-medium ${config.status ? 'text-text-accent' : 'text-text-tertiary'}`}>
+            {t(config.status ? 'systemManage.common.enabled' : 'systemManage.common.disabled', { ns: 'extend' })}
+          </span>
+          <Switch
+            value={config.status}
+            onChange={status => setConfig(prev => ({ ...prev, status }))}
+            aria-label={t('systemManage.common.enable', { ns: 'extend' })}
           />
-        </button>
+        </div>
       </div>
 
       {/* 顶层字段 */}
@@ -127,16 +146,7 @@ const OAuth2Config = () => {
       </div>
 
       {/* Config 字段 */}
-      {([
-        { key: 'server_url', label: t('systemManage.oauth2.serverUrl', { ns: 'extend' }) },
-        { key: 'authorize_url', label: t('systemManage.oauth2.authorizeUrl', { ns: 'extend' }) },
-        { key: 'token_url', label: t('systemManage.oauth2.tokenUrl', { ns: 'extend' }) },
-        { key: 'userinfo_url', label: t('systemManage.oauth2.userinfoUrl', { ns: 'extend' }) },
-        { key: 'scope', label: t('systemManage.oauth2.scope', { ns: 'extend' }) },
-        { key: 'button_text', label: t('systemManage.oauth2.buttonText', { ns: 'extend' }) },
-        { key: 'logout_url', label: t('systemManage.oauth2.logoutUrl', { ns: 'extend' }) },
-        { key: 'redirect_uri', label: t('systemManage.oauth2.redirectUri', { ns: 'extend' }) },
-      ] as const).map(field => (
+      {fields.map(field => (
         <div key={field.key} className="space-y-1">
           <label className="text-sm font-medium text-text-secondary">{field.label}</label>
           <input

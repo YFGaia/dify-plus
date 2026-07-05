@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import { AppTypeIcon } from '@/app/components/app/type-selector'
 import AppIcon from '@/app/components/base/app-icon'
+import Confirm from '@/app/components/base/confirm'
 import Divider from '@/app/components/base/divider'
 import CustomPopover from '@/app/components/base/popover'
 import TagSelector from '@/app/components/base/tag-management/selector'
@@ -101,6 +102,8 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [confirmDeleteInput, setConfirmDeleteInput] = useState('')
   const [showAccessControl, setShowAccessControl] = useState(false)
+  const [showSyncApps, setShowSyncApps] = useState(false)
+  const [showCancelSyncApps, setShowCancelSyncApps] = useState(false)
   const [secretEnvList, setSecretEnvList] = useState<EnvironmentVariable[]>([])
   const { mutateAsync: mutateDeleteApp, isPending: isDeleting } = useDeleteAppMutation()
 
@@ -407,7 +410,7 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
               className="mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 hover:bg-state-base-hover"
               onClick={onClickSyncToAppTemplate}
             >
-              <span className="system-sm-regular text-text-secondary" style={{ color: '#00931e' }}>{t('app.syncToAppTemplate', { ns: 'extend' })}</span>
+              <span className="text-text-secondary system-sm-regular" style={{ color: '#00931e' }}>{t('app.syncToAppTemplate', { ns: 'extend' })}</span>
             </button>
           </>
         )}
@@ -419,7 +422,7 @@ const AppCard = ({ app, onRefresh, onApp = false }: AppCardProps) => {
               className="mx-1 flex h-8 cursor-pointer items-center gap-2 rounded-lg px-3 hover:bg-state-base-hover"
               onClick={onClickCancelSyncToAppTemplate}
             >
-              <span className="system-sm-regular text-text-secondary" style={{ color: '#b70000' }}>{t('app.cancelSyncToAppTemplate', { ns: 'extend' })}</span>
+              <span className="text-text-secondary system-sm-regular" style={{ color: '#b70000' }}>{t('app.cancelSyncToAppTemplate', { ns: 'extend' })}</span>
             </button>
           </>
         )}

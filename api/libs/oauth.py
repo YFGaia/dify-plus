@@ -1,3 +1,4 @@
+import json
 import logging
 import sys
 import urllib.parse
@@ -5,9 +6,8 @@ from dataclasses import dataclass
 from typing import NotRequired
 
 import httpx
-from pydantic import TypeAdapter, ValidationError
-import json
 import requests
+from pydantic import TypeAdapter, ValidationError
 
 from configs import dify_config  # Extend OAuto third-party login
 from extensions.ext_database import db  # Extend OAuto third-party login
@@ -204,7 +204,6 @@ class GoogleOAuth(OAuth):
         return OAuthUserInfo(id=str(payload["sub"]), name="", email=payload["email"])
 
 
-
 # Extend Start: OAuth2
 class OaOAuth(OAuth):
 
@@ -241,7 +240,8 @@ class OaOAuth(OAuth):
                     token_url = token_url or data.get('token_endpoint', '')
                     userinfo_url = userinfo_url or data.get('userinfo_endpoint', '')
             except Exception:
-                pass
+                # 发现端点失败时静默回退到已配置的端点，不中断 OAuth 流程
+                logger.debug("Failed to fetch OIDC discovery document from %s", discovery_url, exc_info=True)
 
         return {
             'authorize_url': self._join_url(server_url, authorize_url),
@@ -326,7 +326,7 @@ class OaOAuth(OAuth):
 
         endpoints = self._resolve_endpoints(config)
         auth_url = endpoints.get('authorize_url')
-        return f"{auth_url}{'&' if "?" in auth_url else '?'}{query_string}"
+        return f"{auth_url}{'&' if '?' in auth_url else '?'}{query_string}"
 
     def get_access_token(self, code: str):
         auto2_conf = self.get_auto2_conf()
@@ -443,7 +443,10 @@ class OaOAuth(OAuth):
 
         # OIDC 常见字段兜底
         if username is None:
-            username = raw_info.get('sub') or raw_info.get('preferred_username') or raw_info.get('id') or raw_info.get('user_id')
+            username = (
+                raw_info.get('sub') or raw_info.get('preferred_username')
+                or raw_info.get('id') or raw_info.get('user_id')
+            )
         if name is None:
             name = raw_info.get('name') or raw_info.get('preferred_username')
         if email is None:

@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import DingTalkConfig from './dingtalk-config'
-import OAuth2Config from './oauth2-config'
 import EmailApiConfig from './email-api-config'
 import ForwardTokenList from './forward-token-list'
+import OAuth2Config from './oauth2-config'
 
 type Tab = 'dingtalk' | 'oauth2' | 'email-api' | 'forward-token'
 
@@ -13,7 +13,7 @@ const SystemIntegrationPage = () => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<Tab>('dingtalk')
 
-  const tabs: { key: Tab; label: string }[] = [
+  const tabs: { key: Tab, label: string }[] = [
     { key: 'dingtalk', label: t('systemManage.dingtalk.title', { ns: 'extend' }) },
     { key: 'oauth2', label: t('systemManage.oauth2.title', { ns: 'extend' }) },
     { key: 'email-api', label: t('systemManage.emailApi.title', { ns: 'extend' }) },

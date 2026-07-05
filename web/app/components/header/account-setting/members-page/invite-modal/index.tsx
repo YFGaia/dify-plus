@@ -6,10 +6,11 @@ import { useBoolean } from 'ahooks'
 import { noop } from 'es-toolkit/function'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useContext } from 'use-context-selector'
 import Button from '@/app/components/base/button'
 import Modal from '@/app/components/base/modal'
-import { ToastContext } from '@/app/components/base/toast'
+// extend: 二开部分 - 邮箱输入框
+import CustomEmailInput from '@/app/components/base/react-multi-email-extend'
+import { useToastContext } from '@/app/components/base/toast/context'
 import { emailRegex } from '@/config'
 import { useLocale } from '@/context/i18n'
 import { useProviderContextSelector } from '@/context/provider-context'
@@ -17,8 +18,6 @@ import { inviteMember } from '@/service/common'
 import { cn } from '@/utils/classnames'
 import s from './index.module.css'
 import RoleSelector from './role-selector'
-// extend: 二开部分 - 邮箱输入框
-import CustomEmailInput from '@/app/components/base/react-multi-email-extend'
 
 type IInviteModalProps = {
   isEmailSetup: boolean
@@ -35,7 +34,7 @@ const InviteModal = ({
   const licenseLimit = useProviderContextSelector(s => s.licenseLimit)
   const refreshLicenseLimit = useProviderContextSelector(s => s.refreshLicenseLimit)
   const [emails, setEmails] = useState<string[]>([])
-  const { notify } = useContext(ToastContext)
+  const { notify } = useToastContext()
   const [isLimited, setIsLimited] = useState(false)
   const [isLimitExceeded, setIsLimitExceeded] = useState(false)
   const [usedSize, setUsedSize] = useState(licenseLimit.workspace_members.size ?? 0)
@@ -96,7 +95,7 @@ const InviteModal = ({
                 <div className="mr-0.5 shrink-0 p-0.5">
                   <RiErrorWarningFill className="h-5 w-5 text-text-warning" />
                 </div>
-                <div className="system-xs-medium text-text-primary">
+                <div className="text-text-primary system-xs-medium">
                   <span>{t('members.emailNotSetup', { ns: 'common' })}</span>
                 </div>
               </div>
@@ -116,7 +115,7 @@ const InviteModal = ({
             />
             {/* extend: 二开部分 - 邮箱输入框 */}
             <div className={
-              cn('system-xs-regular flex items-center justify-end text-text-tertiary', (isLimited && usedSize > licenseLimit.workspace_members.limit) ? 'text-text-destructive' : '')
+              cn('flex items-center justify-end text-text-tertiary system-xs-regular', (isLimited && usedSize > licenseLimit.workspace_members.limit) ? 'text-text-destructive' : '')
             }
             >
               <span>{usedSize}</span>

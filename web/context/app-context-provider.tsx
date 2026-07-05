@@ -1,6 +1,7 @@
 'use client'
 
 import type { FC, ReactNode } from 'react'
+import type { AppContextValue } from '@/context/app-context'
 import type { ICurrentWorkspace, LangGeniusVersionResponse, UserProfileResponse } from '@/models/common'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -22,76 +23,6 @@ import {
   useUserProfile,
 } from '@/service/use-common'
 import { useGlobalPublicStore } from './global-public-context'
-
-export type AppContextValue = {
-  userProfile: UserProfileResponse
-  mutateUserProfile: VoidFunction
-  currentWorkspace: ICurrentWorkspace
-  isCurrentWorkspaceManager: boolean
-  isCurrentWorkspaceOwner: boolean
-  isCurrentWorkspaceEditor: boolean
-  isCurrentWorkspaceDatasetOperator: boolean
-  mutateCurrentWorkspace: VoidFunction
-  langGeniusVersionInfo: LangGeniusVersionResponse
-  useSelector: typeof useSelector
-  isLoadingCurrentWorkspace: boolean
-  isValidatingCurrentWorkspace: boolean
-}
-
-const userProfilePlaceholder = {
-  id: '',
-  name: '',
-  email: '',
-  avatar: '',
-  avatar_url: '',
-  is_password_set: false,
-  // ----------------------- 二开部分Start 添加用户权限 - --------------------------------
-  admin_extend: false,
-  tenant_extend: false,
-  // ----------------------- 二开部分Stop 添加用户权限 - --------------------------------
-}
-
-const initialLangGeniusVersionInfo = {
-  current_env: '',
-  current_version: '',
-  latest_version: '',
-  release_date: '',
-  release_notes: '',
-  version: '',
-  can_auto_update: false,
-}
-
-const initialWorkspaceInfo: ICurrentWorkspace = {
-  id: '',
-  name: '',
-  plan: '',
-  status: '',
-  created_at: 0,
-  role: 'normal',
-  providers: [],
-  trial_credits: 200,
-  trial_credits_used: 0,
-  next_credit_reset_date: 0,
-}
-
-const AppContext = createContext<AppContextValue>({
-  userProfile: userProfilePlaceholder,
-  currentWorkspace: initialWorkspaceInfo,
-  isCurrentWorkspaceManager: false,
-  isCurrentWorkspaceOwner: false,
-  isCurrentWorkspaceEditor: false,
-  isCurrentWorkspaceDatasetOperator: false,
-  mutateUserProfile: noop,
-  mutateCurrentWorkspace: noop,
-  langGeniusVersionInfo: initialLangGeniusVersionInfo,
-  useSelector,
-  isLoadingCurrentWorkspace: false,
-  isValidatingCurrentWorkspace: false,
-})
-
-export function useSelector<T>(selector: (value: AppContextValue) => T): T {
-  return useContextSelector(AppContext, selector)
-}
 
 export type AppContextProviderProps = {
   children: ReactNode

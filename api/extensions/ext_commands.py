@@ -35,6 +35,7 @@ def init_app(app: DifyApp):
         upgrade_db,
         vdb_migrate,
     )
+    from commands.extend import extend_db
 
     cmds_to_register = [
         reset_password,
@@ -45,6 +46,7 @@ def init_app(app: DifyApp):
         add_qdrant_index,
         create_tenant,
         upgrade_db,
+        extend_db,
         fix_app_site_missing,
         migrate_data_for_plugin,
         extract_plugins,

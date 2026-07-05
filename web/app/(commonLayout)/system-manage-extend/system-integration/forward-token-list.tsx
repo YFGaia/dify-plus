@@ -1,10 +1,10 @@
 'use client'
 
+import type { ForwardToken } from '@/models/system-manage-extend'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Toast from '@/app/components/base/toast'
 import { createForwardToken, deleteForwardToken, getForwardTokens } from '@/service/system-manage-extend'
-import type { ForwardToken } from '@/models/system-manage-extend'
 
 const ForwardTokenList = () => {
   const { t } = useTranslation()
@@ -33,7 +33,8 @@ const ForwardTokenList = () => {
   }, [fetchTokens])
 
   const handleCreate = async () => {
-    if (!newName.trim()) return
+    if (!newName.trim())
+      return
     try {
       setCreating(true)
       await createForwardToken(newName.trim())
@@ -111,53 +112,54 @@ const ForwardTokenList = () => {
       {/* Token 列表 */}
       {tokens.length === 0
         ? (
-          <div className="py-12 text-center text-sm text-text-tertiary">
-            {t('systemManage.forwardToken.empty', { ns: 'extend' })}
-          </div>
-        )
+            <div className="py-12 text-center text-sm text-text-tertiary">
+              {t('systemManage.forwardToken.empty', { ns: 'extend' })}
+            </div>
+          )
         : (
-          <div className="overflow-hidden rounded-lg border border-divider-subtle">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-divider-subtle bg-background-default-subtle">
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
-                    {t('systemManage.forwardToken.name', { ns: 'extend' })}
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
-                    {t('systemManage.forwardToken.token', { ns: 'extend' })}
-                  </th>
-                  <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
-                    {t('systemManage.forwardToken.createdAt', { ns: 'extend' })}
-                  </th>
-                  <th className="px-4 py-2.5 text-right text-xs font-medium text-text-tertiary">
-                    {t('systemManage.forwardToken.actions', { ns: 'extend' })}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {tokens.map(token => (
-                  <tr key={token.seq} className="border-b border-divider-subtle last:border-b-0 hover:bg-state-base-hover">
-                    <td className="px-4 py-3 text-sm text-text-primary">{token.name}</td>
-                    <td className="px-4 py-3 font-mono text-xs text-text-secondary">
-                      {token.token.substring(0, 16)}...
-                    </td>
-                    <td className="px-4 py-3 text-sm text-text-tertiary">
-                      {new Date(token.created_at).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        onClick={() => handleDelete(token.seq)}
-                        className="text-sm text-text-destructive hover:text-text-destructive-secondary"
-                      >
-                        {t('systemManage.common.delete', { ns: 'extend' })}
-                      </button>
-                    </td>
+            <div className="overflow-hidden rounded-lg border border-divider-subtle">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-divider-subtle bg-background-default-subtle">
+                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
+                      {t('systemManage.forwardToken.name', { ns: 'extend' })}
+                    </th>
+                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
+                      {t('systemManage.forwardToken.token', { ns: 'extend' })}
+                    </th>
+                    <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
+                      {t('systemManage.forwardToken.createdAt', { ns: 'extend' })}
+                    </th>
+                    <th className="px-4 py-2.5 text-right text-xs font-medium text-text-tertiary">
+                      {t('systemManage.forwardToken.actions', { ns: 'extend' })}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {tokens.map(token => (
+                    <tr key={token.seq} className="border-b border-divider-subtle last:border-b-0 hover:bg-state-base-hover">
+                      <td className="px-4 py-3 text-sm text-text-primary">{token.name}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-text-secondary">
+                        {token.token.substring(0, 16)}
+                        ...
+                      </td>
+                      <td className="px-4 py-3 text-sm text-text-tertiary">
+                        {new Date(token.created_at).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          onClick={() => handleDelete(token.seq)}
+                          className="text-sm text-text-destructive hover:text-text-destructive-secondary"
+                        >
+                          {t('systemManage.common.delete', { ns: 'extend' })}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
     </div>
   )
 }

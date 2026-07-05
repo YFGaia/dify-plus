@@ -21,7 +21,7 @@ class SystemIntegrationExtend(db.Model):
         db.PrimaryKeyConstraint("id", name="system_integration_joins_pkey"),
         db.Index("system_integration_joins_classify_idx", "classify"),
     )
-    id = db.Column(db.BigInteger, db.Sequence("system_integration_id_sequence"), primary_key=True, autoincrement=True)
+    id = db.Column(db.BigInteger, db.Sequence("system_integration_extend_id_seq"), primary_key=True, autoincrement=True)
     classify = db.Column(db.Integer, nullable=False, server_default=db.text("1"))
     status = db.Column(db.Boolean, nullable=False, server_default=db.text("false"))
     corp_id = db.Column(db.String(120), nullable=True)
@@ -31,7 +31,7 @@ class SystemIntegrationExtend(db.Model):
     app_secret = db.Column(db.Text, nullable=True)
     config = db.Column(db.Text, nullable=True)
 
-    def decodeSecret(self):
+    def decodeSecret(self):  # noqa: N802 - 二开公共 API，多处外部调用依赖该方法名，不改名
         if len(self.app_secret) == 0:
             return ""
         # Decode the base64 encoded text

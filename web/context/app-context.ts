@@ -26,6 +26,8 @@ export const userProfilePlaceholder = {
   avatar: '',
   avatar_url: '',
   is_password_set: false,
+  admin_extend: false,
+  tenant_extend: false,
 }
 
 export const initialLangGeniusVersionInfo = {

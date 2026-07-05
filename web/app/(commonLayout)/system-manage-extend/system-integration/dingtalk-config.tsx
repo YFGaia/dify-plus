@@ -1,10 +1,20 @@
 'use client'
 
+import type { DingTalkConfig as DingTalkConfigType } from '@/models/system-manage-extend'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Toast from '@/app/components/base/toast'
+import Switch from '@/app/components/base/switch'
+import { toast } from '@/app/components/base/ui/toast'
 import { getDingTalkConfig, setDingTalkConfig, testDingTalkConnection } from '@/service/system-manage-extend'
-import type { DingTalkConfig as DingTalkConfigType } from '@/models/system-manage-extend'
+
+type DingTalkFieldKey = 'corp_id' | 'agent_id' | 'app_key' | 'app_secret'
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error && error.message)
+    return error.message
+
+  return fallback
+}
 
 const DingTalkConfig = () => {
   const { t } = useTranslation()
@@ -26,8 +36,8 @@ const DingTalkConfig = () => {
       const data = await getDingTalkConfig()
       setConfig(data)
     }
-    catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || 'Failed to load config' })
+    catch (error) {
+      toast.error(getErrorMessage(error, 'Failed to load config'))
     }
     finally {
       setLoading(false)
@@ -42,11 +52,11 @@ const DingTalkConfig = () => {
     try {
       setSaving(true)
       await setDingTalkConfig(config)
-      Toast.notify({ type: 'success', message: t('systemManage.common.saveSuccess', { ns: 'extend' }) })
+      toast.success(t('systemManage.common.saveSuccess', { ns: 'extend' }))
       fetchConfig()
     }
-    catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || t('systemManage.common.saveFailed', { ns: 'extend' }) })
+    catch (error) {
+      toast.error(getErrorMessage(error, t('systemManage.common.saveFailed', { ns: 'extend' })))
     }
     finally {
       setSaving(false)
@@ -57,15 +67,22 @@ const DingTalkConfig = () => {
     try {
       setTesting(true)
       await testDingTalkConnection()
-      Toast.notify({ type: 'success', message: t('systemManage.common.testSuccess', { ns: 'extend' }) })
+      toast.success(t('systemManage.common.testSuccess', { ns: 'extend' }))
     }
-    catch (e: any) {
-      Toast.notify({ type: 'error', message: e.message || t('systemManage.common.testFailed', { ns: 'extend' }) })
+    catch (error) {
+      toast.error(getErrorMessage(error, t('systemManage.common.testFailed', { ns: 'extend' })))
     }
     finally {
       setTesting(false)
     }
   }
+
+  const fields: Array<{ key: DingTalkFieldKey, label: string, type?: 'password' }> = [
+    { key: 'corp_id', label: t('systemManage.dingtalk.corpId', { ns: 'extend' }) },
+    { key: 'agent_id', label: t('systemManage.dingtalk.agentId', { ns: 'extend' }) },
+    { key: 'app_key', label: t('systemManage.dingtalk.appKey', { ns: 'extend' }) },
+    { key: 'app_secret', label: t('systemManage.dingtalk.appSecret', { ns: 'extend' }), type: 'password' },
+  ]
 
   if (loading)
     return <div className="text-text-tertiary">{t('systemManage.common.loading', { ns: 'extend' })}</div>
@@ -77,32 +94,25 @@ const DingTalkConfig = () => {
         <span className="text-sm font-medium text-text-secondary">
           {t('systemManage.common.enable', { ns: 'extend' })}
         </span>
-        <button
-          onClick={() => setConfig({ ...config, status: !config.status })}
-          className={`relative h-6 w-11 rounded-full transition-colors ${
-            config.status ? 'bg-util-colors-blue-blue-500' : 'bg-components-toggle-bg'
-          }`}
-        >
-          <span
-            className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-              config.status ? 'translate-x-[22px]' : 'translate-x-0.5'
-            }`}
+        <div className="flex items-center gap-3">
+          <span className={`text-xs font-medium ${config.status ? 'text-text-accent' : 'text-text-tertiary'}`}>
+            {t(config.status ? 'systemManage.common.enabled' : 'systemManage.common.disabled', { ns: 'extend' })}
+          </span>
+          <Switch
+            value={config.status}
+            onChange={status => setConfig(prev => ({ ...prev, status }))}
+            aria-label={t('systemManage.common.enable', { ns: 'extend' })}
           />
-        </button>
+        </div>
       </div>
 
       {/* 表单字段 */}
-      {([
-        { key: 'corp_id', label: t('systemManage.dingtalk.corpId', { ns: 'extend' }) },
-        { key: 'agent_id', label: t('systemManage.dingtalk.agentId', { ns: 'extend' }) },
-        { key: 'app_key', label: t('systemManage.dingtalk.appKey', { ns: 'extend' }) },
-        { key: 'app_secret', label: t('systemManage.dingtalk.appSecret', { ns: 'extend' }), type: 'password' },
-      ] as const).map(field => (
+      {fields.map(field => (
         <div key={field.key} className="space-y-1">
           <label className="text-sm font-medium text-text-secondary">{field.label}</label>
           <input
-            type={('type' in field && field.type) || 'text'}
-            value={(config as any)[field.key] || ''}
+            type={field.type ?? 'text'}
+            value={config[field.key] || ''}
             onChange={e => setConfig({ ...config, [field.key]: e.target.value })}
             className="w-full rounded-lg border border-components-input-border-active bg-components-input-bg-normal px-3 py-2 text-sm text-text-primary outline-none focus:border-components-input-border-active focus:ring-1 focus:ring-components-input-border-active"
             placeholder={field.label}

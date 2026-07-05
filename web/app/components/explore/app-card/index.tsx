@@ -5,10 +5,9 @@ import { PlusIcon } from '@heroicons/react/20/solid'
 import { RiInformation2Line } from '@remixicon/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useContext } from 'use-context-selector'
 import AppIcon from '@/app/components/base/app-icon'
 import Confirm from '@/app/components/base/confirm'
-import { ToastContext } from '@/app/components/base/toast'
+import { useToastContext } from '@/app/components/base/toast/context'
 import { useAppContext } from '@/context/app-context'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 // extend: start sync app
@@ -41,7 +40,7 @@ const AppCard = ({
   onRefresh,
 }: AppCardProps) => {
   const { t } = useTranslation()
-  const { notify } = useContext(ToastContext)
+  const { notify } = useToastContext()
   const { userProfile } = useAppContext()
   const { app: appBasicInfo } = app
   const { systemFeatures } = useGlobalPublicStore()

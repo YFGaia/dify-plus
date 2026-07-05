@@ -3,16 +3,14 @@ FROM python:3.12-slim-bookworm AS base
 
 WORKDIR /app/api
 
-# Install uv
-ENV UV_VERSION=0.8.9
-
-RUN pip install --no-cache-dir uv==${UV_VERSION}
+# Configure aliyun mirrors now so pip/apt works in this stage too
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
 
 
 FROM base AS packages
 
-# if you located in China, you can use aliyun mirror to speed up
-# RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+# Use aliyun mirror to speed up apt downloads in China
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -21,9 +19,12 @@ RUN apt-get update \
           # for building gmpy2
           libmpfr-dev libmpc-dev
 
-# Install Python dependencies
-COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-dev
+# Install Python dependencies via pip (pre-generated from uv.lock via `uv export`)
+COPY requirements.docker.txt ./
+RUN pip install --no-cache-dir \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -r requirements.docker.txt
 
 # production stage
 FROM base AS production
@@ -47,6 +48,9 @@ ENV LC_ALL=en_US.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 WORKDIR /app/api
+
+# Use aliyun mirror to speed up apt downloads in China
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
 
 # Create non-root user
 ARG dify_uid=1001

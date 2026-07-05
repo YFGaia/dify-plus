@@ -1,0 +1,15 @@
+.wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(0 0 0 / 0.6);
+}
+
+.modal {
+  width: 480px;
+  padding: 24px;
+  border-radius: 12px;
+}

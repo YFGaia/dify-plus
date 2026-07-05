@@ -1,9 +1,10 @@
 import logging
 
 from core.model_runtime.entities.model_entities import ModelType
+
 from core.provider_manager import ProviderManager
 from extensions.ext_database import db
-from models.tenant_model_sync_extend import *
+from models.tenant_model_sync_extend import TenantModelSyncExtend
 
 logger = logging.getLogger(__name__)
 
@@ -127,12 +128,23 @@ class ModelProviderExtendService:
 
     @staticmethod
     def get_current_syned_tenants(origin_model_id: str) -> list[TenantModelSyncExtend]:
-        return db.session.query(TenantModelSyncExtend).filter(TenantModelSyncExtend.origin_model_id == origin_model_id).all()
+        return (
+            db.session.query(TenantModelSyncExtend)
+            .filter(TenantModelSyncExtend.origin_model_id == origin_model_id)
+            .all()
+        )
 
     @staticmethod
     def delete_syned_tenants(origin_model_id, tenant_id: str
     ) -> bool:
-        syned_tenant = db.session.query(TenantModelSyncExtend).filter(TenantModelSyncExtend.origin_model_id == origin_model_id, TenantModelSyncExtend.tenant_id == tenant_id).first()
+        syned_tenant = (
+            db.session.query(TenantModelSyncExtend)
+            .filter(
+                TenantModelSyncExtend.origin_model_id == origin_model_id,
+                TenantModelSyncExtend.tenant_id == tenant_id,
+            )
+            .first()
+        )
 
         db.session.delete(syned_tenant)
         db.session.commit()
