@@ -199,6 +199,7 @@ class SystemFeatureModel(FeatureResponseModel):
     ding_talk_client_id: str = ""  # extend: DingTalk third-party login
     ding_talk_corp_id: str = ""  # extend: DingTalk sidebar login
     ding_talk: bool = False  # extend: DingTalk sidebar login
+    rmb_to_usd_rate: float = 7.26  # extend: 人民币兑美元汇率，供前端额度徽章换算（配置 RMB_TO_USD_RATE）
     # extend end
 
 
@@ -313,6 +314,10 @@ class FeatureService:
         system_features.enable_trial_app = dify_config.ENABLE_TRIAL_APP
         system_features.enable_explore_banner = dify_config.ENABLE_EXPLORE_BANNER
         system_features.enable_learn_app = dify_config.ENABLE_LEARN_APP
+        # extend start: 汇率下发（前端额度徽章按 RMB_TO_USD_RATE 换算，替代前端硬编码 6.97）
+        if dify_config.RMB_TO_USD_RATE is not None:
+            system_features.rmb_to_usd_rate = float(dify_config.RMB_TO_USD_RATE)
+        # extend stop: 汇率下发
         # extend start: DingTalk third-party login
         # 检查是否有应用上下文（访问 db.session 需要应用上下文）；
         # db 不可用时（如单测/初始化早期）静默跳过，登录页特性降级为默认值而不是 500

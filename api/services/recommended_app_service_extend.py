@@ -1,3 +1,5 @@
+import logging
+
 from flask_login import current_user
 
 from extensions.ext_database import db
@@ -8,12 +10,10 @@ from models.model import (
     Tag,
     TagBinding,
 )
-from models.model_extend import (  # Extend: App Center
-    AppStatisticsExtend,
-    RecommendedAppsCategoryJoinExtend,
-    RecommendedCategoryExtend,
-)
+from models.model_extend import AppStatisticsExtend  # Extend: App Center
 from services.account_service_extend import TenantExtendService
+
+logger = logging.getLogger(__name__)
 
 
 class RecommendedAppService:
@@ -82,15 +82,24 @@ class RecommendedAppService:
 
     @classmethod
     def delete_sync_recommended_app(cls, app: str):
-        recommended: RecommendedApp = db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).first()
-        db.session.query(RecommendedAppsCategoryJoinExtend).filter(
-            RecommendedAppsCategoryJoinExtend.recommended_id == recommended.id
-        ).delete()
+        # 分类数据随 recommended_apps.categories 一并删除（DD3：fork 分类表已退役）
         db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).delete()
         db.session.commit()
 
     @classmethod
     def sync_recommended_app(cls, app: str) -> str:
+        """
+        Sync an app into the explore recommended list (fork "sync to app center" feature).
+
+        Categories are written to the upstream-native ``recommended_apps.categories``
+        JSON column (DD3, openspec change p3-merge-upstream-1-15-0); the former fork
+        tables ``recommended_category_extend`` / ``recommended_apps_category_join_extend``
+        are retired and must not be written anymore. Categories are derived from the
+        app's workspace tags at sync time.
+
+        :param app: App ID (non-app tag targets fall through the except and return "")
+        :return: RecommendedApp ID, or "" when unauthorized or on failure
+        """
         # The role of the current user in the ta table must be admin or owner
         tenant_extend_service = TenantExtendService
         super_admin_id = tenant_extend_service.get_super_admin_id().id
@@ -98,16 +107,10 @@ class RecommendedAppService:
             return ""
         try:
             # query application information
-            recommendedApp = None
             appInfo: App = db.session.query(App).filter(App.id == app).first()
             appInfo.is_public = True
             db.session.commit()
-            try:
-                recommendedApp = db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).first()
-            except:  # noqa: S110
-                # 有意忽略：查询失败按不存在处理，走下方创建逻辑
-                # create
-                pass
+            recommendedApp = db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).first()
             if recommendedApp is None:
                 language_prefix = "zh-Hans"
                 if current_user and current_user.interface_language:
@@ -128,70 +131,20 @@ class RecommendedAppService:
                 # insert statement
                 db.session.add(recommendedApp)
                 db.session.commit()
-            # query related tags
-            tagList = []
-            newList = []
-            tagIdDick = {}
-            tagNameDick = {}
+            # derive categories from the app's current tags and overwrite the JSON column
             bindings = db.session.query(TagBinding).filter(TagBinding.target_id == appInfo.id).all()
             tag_ids = [binding.tag_id for binding in bindings]
-            # get application type
-            for recommended in db.session.query(RecommendedCategoryExtend).all():
-                tagNameDick[recommended.tag_id] = recommended.table
-                tagIdDick[recommended.tag_id] = recommended.id
-            # query old associated data
-            likes = (
-                db.session.query(RecommendedAppsCategoryJoinExtend)
-                .filter(RecommendedAppsCategoryJoinExtend.recommended_id == recommendedApp.id)
-                .all()
-            )
-            categoryList = [like.category_id for like in likes]
-            # query all
+            categories: list[str] = []
             if tag_ids:
                 tags = db.session.query(Tag).filter(Tag.id.in_(tag_ids)).all()
-                for tag in tags:
-                    tagName = str.strip(tag.name)
-                    if tag.id not in tagNameDick:
-                        # create tag
-                        classInfo = RecommendedCategoryExtend(
-                            tag_id=tag.id,
-                            table=tagName,
-                        )
-                        db.session.add(classInfo)
-                    else:
-                        classInfo = (
-                            db.session.query(RecommendedCategoryExtend)
-                            .filter(RecommendedCategoryExtend.tag_id == tag.id)
-                            .first()
-                        )
-                        if tagNameDick[tag.id] != tagName:
-                            classInfo.name = tagName
-                    db.session.commit()
-                    categoryId = classInfo.id
-                    # Store new category id
-                    newList.append(categoryId)
-                    if tagName not in tagList:
-                        tagList.append(tagName)
-                    # do you have any old bindings
-                    if categoryId not in categoryList:
-                        # do you have tag permission?
-                        db.session.add(
-                            RecommendedAppsCategoryJoinExtend(
-                                recommended_id=recommendedApp.id,
-                                category_id=categoryId,
-                            )
-                        )
-                        db.session.commit()
-            # loop through an old type list
-            for item in categoryList:
-                if item not in newList:
-                    db.session.query(RecommendedAppsCategoryJoinExtend).filter(
-                        RecommendedAppsCategoryJoinExtend.recommended_id == recommendedApp.id,
-                        RecommendedAppsCategoryJoinExtend.category_id == item,
-                    ).delete()
+                categories = sorted({tag.name.strip() for tag in tags if tag.name and tag.name.strip()})
+            recommendedApp.categories = categories
             db.session.commit()
             return recommendedApp.id
-        except:
+        except Exception:
+            # 保持历史行为：同步失败（含非 App 的 tag target）静默返回空串，不打断 tag 解绑等主流程
+            logger.exception("sync_recommended_app failed, app_id=%s", app)
+            db.session.rollback()
             return ""
 
     # Extend: start messages context handling

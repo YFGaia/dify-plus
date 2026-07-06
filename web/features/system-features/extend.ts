@@ -10,6 +10,7 @@ export type SystemFeaturesExtend = GetSystemFeaturesResponse & {
   ding_talk_client_id: string // Extend: DingTalk third-party login
   ding_talk_corp_id: string // Extend: DingTalk sidebar login
   ding_talk: boolean // Extend: switch DingTalk sidebar login
+  rmb_to_usd_rate: number // extend: 后端配置 RMB_TO_USD_RATE 下发的汇率（额度徽章换算用）
 }
 // Extend: end
 
@@ -20,6 +21,7 @@ export const defaultSystemFeaturesExtendFields = {
   ding_talk_client_id: '',
   ding_talk_corp_id: '',
   ding_talk: false,
+  rmb_to_usd_rate: 7.26, // extend: 旧版后端未下发该字段时的回退默认值
 }
 
 export function asSystemFeaturesExtend(features: GetSystemFeaturesResponse): SystemFeaturesExtend {

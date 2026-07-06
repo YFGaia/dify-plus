@@ -67,28 +67,6 @@ class AppStatisticsExtend(db.Model):
     number = db.Column(db.Integer, nullable=False, default=0)
 
 
-# Extend: 应用中心 - 自建分类表（自 models/model.py 外迁，DEC-4；原生化迁移属 p3）
-class RecommendedCategoryExtend(db.Model):
-    __tablename__ = "recommended_category_extend"
-    __table_args__ = (
-        db.PrimaryKeyConstraint("id", name="category_extend_id_pkey"),
-        db.Index("idx_extend_tag_bind_tag_id", "tag_id"),
-        db.Index("idx_extend_table", "table"),
-    )
-
-    id = db.Column(StringUUID, primary_key=True, server_default=db.text("uuid_generate_v4()"))
-    table = db.Column(db.String(255), nullable=False)
-    tag_id = db.Column(StringUUID, nullable=True)
-
-
-class RecommendedAppsCategoryJoinExtend(db.Model):
-    __tablename__ = "recommended_apps_category_join_extend"
-    __table_args__ = (
-        db.PrimaryKeyConstraint("id", name="recommended_apps_category_id_pkey"),
-        db.Index("idx_recommended_id", "recommended_id"),
-        db.Index("idx_recommended_category_id", "category_id"),
-    )
-
-    id = db.Column(StringUUID, primary_key=True, server_default=db.text("uuid_generate_v4()"))
-    recommended_id = db.Column(StringUUID, nullable=False)
-    category_id = db.Column(StringUUID, nullable=False)
+# 注：fork 自建分类表 RecommendedCategoryExtend / RecommendedAppsCategoryJoinExtend 已退役（DD3，
+# openspec change p3-merge-upstream-1-15-0）：分类数据经 migrations_extend 017 迁入
+# recommended_apps.categories，两表由 018 drop 迁移删除，模型类随之移除。

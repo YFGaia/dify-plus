@@ -1,30 +1,25 @@
 'use client'
-import type { UserMoney } from '@/models/common-extend'
+
+// 二开部分：额度徽章。原实现位于旧 web/app/components/header/account-money-extend/
+// （上游 1.15.0 删除旧 header 后重做到 main-nav 体系）。
+// 汇率不再硬编码（原 6.97），改读后端 login_config 下发的 rmb_to_usd_rate（配置 RMB_TO_USD_RATE）。
 import { cn } from '@langgenius/dify-ui/cn'
-import { useEffect, useState } from 'react'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { systemFeaturesQueryOptions } from '@/features/system-features/client'
+import { asSystemFeaturesExtend } from '@/features/system-features/extend'
 import { fetchUserMoney } from '@/service/common-extend'
 
 const AccountMoneyExtend = () => {
-  const [userMoney, setUserMoney] = useState<UserMoney>({ used_quota: 0, total_quota: 0 })
-  const [isFetched, setIsFetched] = useState(false)
-  const exchangeRate = 6.97 // 美元转人民币固定汇率
   const { t } = useTranslation()
+  const { data: systemFeatures } = useSuspenseQuery(systemFeaturesQueryOptions())
+  const exchangeRate = asSystemFeaturesExtend(systemFeatures).rmb_to_usd_rate
+  const { data: userMoney } = useQuery({
+    queryKey: ['common-extend', 'account-money'],
+    queryFn: fetchUserMoney,
+  })
 
-  const getUserMoney = async () => {
-    // eslint-disable-next-line ts/ban-ts-comment
-    // @ts-expect-error
-    const data: never = await fetchUserMoney()
-    setUserMoney(data)
-  }
-
-  useEffect(() => {
-    getUserMoney()
-    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
-    setIsFetched(true)
-  }, [])
-
-  if (!isFetched)
+  if (!userMoney)
     return null
 
   // 计算额度（确保使用数字类型）
@@ -53,27 +48,23 @@ const AccountMoneyExtend = () => {
       : 'text-text-secondary'
 
   return (
-    <div
-      rel="noopener noreferrer"
-      className="flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]"
-    >
+    <div className="mt-2 flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]">
       <div className="flex items-center bg-background-default-dimmed px-2 py-1 font-medium text-text-secondary">
         {t('user.credit', { ns: 'extend' })}
       </div>
-      <div className="flex items-center border-l border-divider-regular bg-background-default px-2 py-1.5">
+      <div className="flex min-w-0 flex-1 items-center border-l border-divider-regular bg-background-default px-2 py-1.5">
         <span className="mr-1 text-text-tertiary">{t('user.used', { ns: 'extend' })}</span>
         <span
           className={cn(
             'font-bold transition-all duration-300',
             alertColorClass,
-            'text-sm md:text-base', // 默认字体稍大，响应式设计
           )}
         >
           ¥
           {usedRMB}
         </span>
         <span className="mx-1 text-text-quaternary">/</span>
-        <span className="text-text-tertiary">
+        <span className="truncate text-text-tertiary">
           ¥
           {totalRMB.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
         </span>

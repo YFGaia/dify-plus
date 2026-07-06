@@ -21,11 +21,17 @@ import { DeploymentDetailSection, DeploymentDetailTop } from '@/features/deploym
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import Link from '@/next/link'
 import { usePathname } from '@/next/navigation'
+import AccountMoneyExtend from './components/account-money-extend' // 二开部分: 额度徽章
 import AccountSection from './components/account-section'
 import HelpMenu from './components/help-menu'
 import MainNavLink from './components/nav-link'
 import { MainNavSearchButton } from './components/search-button'
+import SystemManageNavExtend from './components/system-manage-nav-extend' // 二开部分: 系统管理入口
 import WebAppsSection from './components/web-apps-section'
+// 二开部分 Begin: 预留导航挂载位（默认关闭），启用时取消注释
+// import AmazonMarketingNavExtend from './components/amazon-marketing-nav-extend'
+// import DrawNavExtend from './components/draw-nav-extend'
+// 二开部分 End
 import { WorkspaceCard } from './components/workspace-card'
 import { isMainNavRouteVisible, MAIN_NAV_ROUTES } from './routes'
 import { useDetailSidebarMode } from './storage'
@@ -196,7 +202,7 @@ const MainNav = ({
 
     return (
       <Link
-        href="/"
+        href="/explore/apps-center-extend" // 二开部分: logo 跳转应用中心（与旧 header 行为一致）
         className="flex h-8 shrink-0 items-center overflow-hidden focus-visible:ring-2 focus-visible:ring-state-accent-solid focus-visible:outline-hidden"
         aria-label={appTitle}
       >
@@ -282,6 +288,9 @@ const MainNav = ({
                     </div>
                     <div className="p-2">
                       <WorkspaceCard />
+                      {/* 二开部分 Begin: 额度徽章 */}
+                      <AccountMoneyExtend />
+                      {/* 二开部分 End */}
                     </div>
                   </>
                 )}
@@ -301,6 +310,13 @@ const MainNav = ({
                       {navItems.map(item => (
                         <MainNavLink key={item.href} item={item} pathname={pathname} />
                       ))}
+                      {/* 二开部分 Begin: 系统管理入口（仅 owner 可见） */}
+                      <SystemManageNavExtend pathname={pathname} />
+                      {/* 二开部分 End */}
+                      {/* 二开部分 Begin: 预留导航挂载位（默认关闭） */}
+                      {/* <DrawNavExtend pathname={pathname} /> */}
+                      {/* <AmazonMarketingNavExtend pathname={pathname} /> */}
+                      {/* 二开部分 End */}
                     </nav>
                     {!isCurrentWorkspaceDatasetOperator && <WebAppsSection />}
                   </>

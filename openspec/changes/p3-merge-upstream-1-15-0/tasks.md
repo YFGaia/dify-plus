@@ -21,45 +21,45 @@
 
 ## 3. main-nav 挂载点重做（可 sub-agent 并行，见第 8 节）
 
-- [ ] 3.1 在 `web/app/components/main-nav/` 体系重新实现 `account-money-extend` 额度徽章（独立 extend 组件 + 宿主最小挂载行 + Begin/End 标记）；顺势删除硬编码汇率 `6.97`，改读后端配置下发的 `RMB_TO_USD_RATE`（7.26）
-- [ ] 3.2 重新实现 `system-manage-nav-extend` 系统管理入口：管理角色可见、普通成员不可见，点击进入 `/system-manage-extend/` 正常
-- [ ] 3.3 重新实现 `nav-extend` 与 `draw-nav-extend` 挂载点，行为与迁移前一致
-- [ ] 3.4 account-dropdown 二开项在上游重写后的新实现中重挂
-- [ ] 3.5 清除 fork 在旧 `header/` 目录下的挂载实现与全部残留 import
+- [x] 3.1 额度徽章重做完成【sub-agent a】：新组件 `main-nav/components/account-money-extend.tsx`，挂载于 `main-nav/index.tsx` WorkspaceCard 之下（Begin/End 标记）；硬编码汇率 6.97 已删——后端 `feature_service.py` 的 SystemFeatureModel 新增 `rmb_to_usd_rate`（读 `RMB_TO_USD_RATE` 配置，默认 7.26）经 login_config 下发，前端经 `SystemFeaturesExtend` 读取（旧后端未下发时前端回退 7.26）；行为保持（total=0 不渲染、<10 元红、>50 元黄）
+- [x] 3.2 系统管理入口重做完成：`main-nav/components/system-manage-nav-extend.tsx`，仅 `isCurrentWorkspaceOwner` 可见，链接 `/system-manage-extend/system-integration`，segment 高亮，复用 main-nav nav-link 样式约定
+- [x] 3.3 `nav-extend`/`draw-nav-extend` 迁移完成：组件迁至 `main-nav/components/{draw-nav-extend,amazon-marketing-nav-extend}.tsx`，宿主保持「注释态预留挂载位、默认关闭」与迁移前等价；另外 logo 链接与 home 路由（`routes.ts`）指向 `/explore/apps-center-extend`，与旧 header 行为一致
+- [x] 3.4 account-dropdown：基线与代码复核确认 fork 对其无差异（1.12.1 起即无二开项），新 account-section 无需重挂，零改动
+- [x] 3.5 旧 `header/` 下 4 个 extend 目录已删除，全仓无旧路径 import 残留（rg 验证）；main-nav 单测 5 文件 92 用例全过（含 home href 断言更新）
 
 ## 4. headlessui 清退（可 sub-agent 并行）
 
-- [ ] 4.1 全仓扫描 `rg '@headlessui/react' web/` 产出 fork 文件清单（已知候选：`invite-modal`、`system-manage-extend` 各页、`auto-select-extend`、`react-multi-email-extend`）
-- [ ] 4.2 逐文件替换为 dify-ui overlay 原语或上游同用途 base 组件，保持交互行为等价（打开/关闭、焦点、Esc/遮罩、选项选择），不做视觉重构
-- [ ] 4.3 验收：`rg '@headlessui/react' web/` 归零；`web/package.json` 与根锁文件无该依赖；`pnpm type-check:tsgo` 通过
+- [x] 4.1 全仓扫描 `rg '@headlessui/react' web/`：零残留——fork 组件（invite-modal、system-manage-extend、auto-select-extend、react-multi-email-extend 等）在 P2 的 dify-ui 批量迁移中已完成清退
+- [x] 4.2 无需替换（4.1 扫描为零；本次 merge 中 secret-key-modal/app-card 的 @heroicons 残留 import 也已顺势清除，@heroicons/react 为上游 catalog 自留依赖，不在清退范围）
+- [x] 4.3 验收通过：`rg '@headlessui/react' web/ packages/` 归零；`web/package.json` 与根锁文件无该依赖；`pnpm type-check` 通过
 
 ## 5. web 侧 fork 侵入重对位（主 agent 顺序，依赖 D2 结论）
 
-- [ ] 5.1 `text-generation/index.tsx` 按 DD6 分叉处理：D2=删除 → 以上游版本为准、批量逻辑不搬迁；D2=保留 → +719 行批量逻辑对位到上游重写后结构并验证批量运行可用
-- [ ] 5.2 `contract/router.ts`、`contract/console/system.ts` 的 fork 注册在上游 contract 迁入 `packages/contracts` 后重对位；依赖 fork contract 的页面请求正常
-- [ ] 5.3 `context/app-context*` 扩展字段重对位，类型检查通过
-- [ ] 5.4 i18n：extend namespace 注册在新 i18n 结构上恢复（`i18n-config/i18next-config.ts`、`resources.ts`）；`i18n/uk-UA` 按 fork 既定策略统一处理
+- [x] 5.1 `text-generation/index.tsx` 按 DD6 的 D2=删除分支处理：与上游 1.15.0 逐字节一致（diff 为空），批量逻辑不搬迁
+- [x] 5.2 contract 重对位完成：`router.ts` 保留 loginConfigBootstrap/loginConfig + systemManage 代码执行控制注册并合入上游 snippets/contracts 结构；`console/system.ts` 重写为纯 fork contract（上游 systemFeaturesContract 由 packages/contracts 生成物接管）；页面请求实测归 9.4 回归
+- [x] 5.3 `app-context*` 扩展字段重对位：`UserProfileWithExtend` 类型 + normalizeCurrentWorkspace 透传 admin_extend/tenant_extend，type-check 通过
+- [x] 5.4 i18n：extend namespace 在新结构注册完好（i18next-config.ts:46、resources.ts:76/115，合并时干净保留）；`i18n/uk-UA` 策略统一为「跟随上游恢复全量文件」（消除每次升级的 DU 冲突税；languages.ts 中 uk-UA 本就启用，与删除策略矛盾——决策记录于 1.2）
 
 ## 6. api providers 拆包与探索页分类迁移（可 sub-agent 并行）
 
-- [ ] 6.1 扫描 fork 代码对 `api/core/rag/datasource/vdb/` 已迁走 provider 的 import 并修正为 `api/providers/vdb/*` 新路径；`create_app()` 冒烟通过、无孤儿 import
-- [ ] 6.2 编写 `migrations_extend` 分类数据迁移版本：`recommended_category_extend` / `recommended_apps_category_join_extend` → `recommended_apps.categories` JSON 列；脚本幂等（重复执行不产生重复分类项）
-- [ ] 6.3 api 侧切换：删除 `database_retrieval.py` 的 fork 分类侵入，改走上游原生 categories 查询路径
-- [ ] 6.4 web 侧切换：explore 相关组件（sidebar、app-card 等 fork 改动处）改读上游 categories 数据源；更新相关测试（`explore/sidebar/__tests__` 等）
-- [ ] 6.5 编写 `migrations_extend` 独立 drop 迁移版本（删两张 fork 分类表）——与 6.2 分离，标注"仅在任务 9.4 探索页回归通过后执行"
+- [x] 6.1 vdb import 扫描完成【sub-agent c】：fork 代码（extend 文件、migrations_extend、configs/extend）对已迁走 provider 的 import 为零；残余 `core.rag.datasource.vdb.*` 引用全部指向仍留在原地的基类/工厂（vector_factory/vector_type），与上游一致；`create_app()` 冒烟通过
+- [x] 6.2 分类数据迁移版本 `017_migrate_recommended_cats`（migrations_extend，down_revision=016）：join 表数据合并写入 `recommended_apps.categories`；幂等（合并去重）、fork 表缺失时安全跳过、downgrade no-op（docstring 说明依赖快照回滚）；**scratch 库实测**：迁移正确（原生已有值保序、fork 分类去重追加）、重复执行结果不变、join 对数=迁移后展开对数（4=4）。修复演练发现的问题：revision ID 超 varchar(32) 已缩短
+- [x] 6.3 api 侧切换完成：`database_retrieval.py` 与上游 1.15.0 逐字节一致（fork 分类侵入全删）；`recommended_app_service_extend.py` 的同步/取消同步改写 `recommended_apps.categories`（分类来源为应用工作区标签），fork 分类表模型类自 `model_extend.py` 移除
+- [x] 6.4 web 侧零改动结论成立：应用中心页走 `/installed/apps`（fetchOpenInstalledAppList），后端切换后响应结构不变（categories + recommended_apps）；explore 上游组件本就读 categories 列；type-check 与 explore 相关测试通过
+- [x] 6.5 drop 迁移版本 `018_drop_recommended_cats`（独立版本、链尾）：docstring 显著标注「仅在 9.4 探索页回归通过后执行，此前可停在 017」；downgrade 重建空表结构；scratch 库实测 drop 成功
 
 ## 7. 升级动作与环境对齐（可 sub-agent 并行准备，执行主 agent）
 
-- [ ] 7.1 `.env` 模板与 `docker/docker-compose.dify-plus.yaml` 按 19 增 2 删 1 改对齐（含 `SSRF_PROXY_ALLOW_PRIVATE_DOMAINS/IPS` 新增、`UV_CACHE_DIR` 改名）；被删/改名旧变量不再出现
-- [ ] 7.2 收集企业内网 SSRF 白名单清单（design 开放问题 3，需业务方提供 http 节点/工具访问的内网目标全集）并配置
-- [ ] 7.3 在测试库演练三段命令链：`flask db upgrade`（24 个新迁移）→ `flask extend_db upgrade`（含 6.2 分类数据迁移）→ `flask backfill-plugin-auto-upgrade`；验证双链各自到 head、分类数据 SQL 抽验计数一致、租户插件自动升级设置非空
+- [x] 7.1 env/compose 对齐完成【sub-agent d】：`docker-compose.dify-plus.yaml` x-shared-env 补齐上游新增变量（SERVER_CONSOLE_API_URL、ENABLE_LEARN_APP、NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW、ENABLE_AGENT_V2、MILVUS_SECURE 等、SSRF_PROXY_ALLOW_PRIVATE_IPS/DOMAINS、PLUGIN_MODEL_PROVIDERS_CACHE_TTL、OPENAPI_* 4 项、DEVICE_FLOW/OAUTH_BEARER、NACOS 超时 2 项），清除被删变量（SSRF_REVERSE_PROXY_PORT、SSRF_SANDBOX_HOST 及 squid 容器旧环境）；ssrf_proxy 服务块与上游 1.15.0 一致（保留 fork 镜像源）；`docker compose config -q` 通过；UV_CACHE_DIR 复核结论：1.14.2 已存在、非本步改名项
+- [x] 7.2 SSRF 白名单配置准备完成：`SSRF_PROXY_ALLOW_PRIVATE_IPS/DOMAINS` 进入 compose 共享环境块与 squid 容器环境（生效层为 squid 的 squid.conf.template ACL），`.env.example` 补带中文注释条目（CIDR/通配写法说明）；**具体内网目标清单待业务方提供后填入生产 .env（设计开放问题 3，唯一遗留人工项）**
+- [x] 7.3 测试库三段命令链演练通过（本机 pgvector scratch 库 dify_p3_cat_test，演练后已清理）：`flask db upgrade` 到 head d9e8f7a6b5c4 → `flask extend_db upgrade` 到 018（含 017 分类数据迁移，抽验计数一致、幂等复跑结果不变）→ `flask backfill-plugin-auto-upgrade` 正常完成（空库 0 租户为预期；生产执行后需验证租户策略行数非零）
 - [ ] 7.4 升级序列与强制项（backfill、SSRF 加白）写入 `docs/dify-plus/上游升级与回归检查清单.md`
 
 ## 8. Parallelization Plan（并发执行策略）
 
-- [ ] 8.1 **顺序阶段（主 agent）**：第 1 节合并冲突解决与第 2 节构建体系适配必须由主 agent 顺序完成——两者触碰全局共享文件（锁文件、Dockerfile、compose、CI、`package.json`/`pyproject.toml`），是后续一切修复的地基，不可并行
-- [ ] 8.2 **并行修复阶段（merge commit + 构建体系成立后）**：以下四块相互独立、无共享文件，可各派一个 sub-agent 并行执行——(a) 第 3 节 main-nav 四挂载点重做（范围：`web/app/components/main-nav/**` extend 文件 + 旧 header 清理）；(b) 第 4 节 headlessui 清退（范围：扫描清单内 fork 组件文件）；(c) 第 6 节探索页分类迁移 + vdb import 修正（范围：`migrations_extend`、`database_retrieval.py`、web explore 组件、fork 的 vdb import）；(d) 第 7.1/7.2 env 与 SSRF 对齐准备（范围：env 模板、compose 环境块、白名单清单整理）。每个 sub-agent 的 context inputs：本 tasks.md 对应小节 + design.md 对应 Decision + 相应 spec 文件；产出：编辑完成 + 各自门禁自验（type-check/冒烟）+ 变更摘要；主 agent 汇总后统一跑第 2.7 全量门禁解决交叉影响
-- [ ] 8.3 **冲突边界**：第 5 节（text-generation、contract、app-context、i18n）与主 agent 的高危文件核对（1.3）存在同文件交叠，由主 agent 顺序完成，不委派；任何 sub-agent 不得修改锁文件、Dockerfile、CI、`pnpm-workspace.yaml`——发现需要时上报主 agent 决策
+- [x] 8.1 **顺序阶段（主 agent）**：第 1 节合并冲突解决与第 2 节构建体系适配已由主 agent 顺序完成（merge commit 72f5def043、构建适配 c70da08082），期间无 sub-agent 写入
+- [x] 8.2 **并行修复阶段**：按计划派出 3 个 sub-agent（模型 Fable 5）并行执行 (a) main-nav 重做、(c) 分类迁移+vdb import、(d) env/SSRF 对齐；(b) headlessui 清退经扫描确认 P2 已完成、零残留，无需派发。每个 sub-agent 输入为对应小节+design 决策+spec，产出编辑+自验+摘要，主 agent 汇总后统跑全量门禁
+- [x] 8.3 **冲突边界**：第 5 节由主 agent 在 1.3 高危核对中顺序完成（text-generation 走 D2=删除分支与上游一致、contract/app-context/i18n 重对位见 5.x 记录）；sub-agent 均被明确禁止修改锁文件、Dockerfile、CI、`pnpm-workspace.yaml`
 - [ ] 8.4 **并行回归阶段**：第 9 节分域回归可并行——计费 6 链路（a）、SSO + 应用中心 + 系统管理页（b）、main-nav 双角色 + UI 对比（c）、SSRF/http 节点（d）四个域各派一个 sub-agent 或测试人员并行执行，产出各域通过/失败清单，主 agent 汇总放行
 
 ## 9. Architecture Verification（全量回归与收尾）

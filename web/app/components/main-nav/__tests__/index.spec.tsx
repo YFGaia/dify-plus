@@ -381,7 +381,7 @@ describe('MainNav', () => {
 
     expect(screen.getAllByText(Plan.team)).toHaveLength(1)
     expect(screen.getByRole('button', { name: 'common.account.account' })).not.toHaveTextContent(Plan.team)
-    expect(screen.getByRole('link', { name: /common.mainNav.home/ })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: /common.mainNav.home/ })).toHaveAttribute('href', '/explore/apps-center-extend') // 二开部分: 主页入口指向应用中心
     expect(screen.getByRole('link', { name: /common.menus.apps/ })).toHaveAttribute('href', '/apps')
     expect(screen.getByRole('link', { name: /common.menus.roster/ })).toHaveAttribute('href', '/roster')
     expect(screen.getByRole('link', { name: /common.menus.datasets/ })).toHaveAttribute('href', '/datasets')
@@ -526,7 +526,7 @@ describe('MainNav', () => {
 
     renderMainNav()
 
-    expect(screen.getByRole('link', { name: /common.mainNav.home/ })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: /common.mainNav.home/ })).toHaveAttribute('href', '/explore/apps-center-extend') // 二开部分: 主页入口指向应用中心
     expect(screen.getByRole('link', { name: /common.menus.apps/ })).toHaveAttribute('href', '/apps')
     expect(screen.queryByRole('link', { name: /common.menus.roster/ })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /common.menus.datasets/ })).toHaveAttribute('href', '/datasets')
