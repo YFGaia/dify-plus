@@ -4,8 +4,8 @@
 
 `dify-plus` is a fork of [langgenius/dify](https://github.com/langgenius/dify) with a set of business-oriented extensions. The former standalone admin center (`/admin`, gin-vue-admin) was decommissioned on 2026-07-05 (change `p5-admin-decommission`, tag `pre-admin-removal`); its management capabilities now live in the Console under `/system-manage-extend/*`.
 
-- Upstream comparison baseline for this branch: `upstream-1.12.1`
-- Current working branch baseline: local release tag `1.12.1`
+- Upstream comparison baseline for this branch: upstream tag `1.15.0`
+- Current working branch baseline: local tag `fork-merged-1.15.0`
 - Main code areas:
   - `/api`: Dify backend plus forked backend extensions
   - `/web`: Dify console/web frontend plus forked UI features (including system management pages)
@@ -14,7 +14,7 @@
 
 ## Working Baseline
 
-- When analyzing fork changes, compare against upstream tag `1.14.2`.
+- When analyzing fork changes, compare against upstream tag `1.15.0`.
 - Keep fork-specific logic discoverable. Existing code usually uses `extend` in file names, model names, migration names, comments, or helper functions.
 - Preserve the separation between:
   - Upstream Dify runtime capability

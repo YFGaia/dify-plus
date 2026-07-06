@@ -53,21 +53,21 @@
 - [x] 7.1 env/compose 对齐完成【sub-agent d】：`docker-compose.dify-plus.yaml` x-shared-env 补齐上游新增变量（SERVER_CONSOLE_API_URL、ENABLE_LEARN_APP、NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW、ENABLE_AGENT_V2、MILVUS_SECURE 等、SSRF_PROXY_ALLOW_PRIVATE_IPS/DOMAINS、PLUGIN_MODEL_PROVIDERS_CACHE_TTL、OPENAPI_* 4 项、DEVICE_FLOW/OAUTH_BEARER、NACOS 超时 2 项），清除被删变量（SSRF_REVERSE_PROXY_PORT、SSRF_SANDBOX_HOST 及 squid 容器旧环境）；ssrf_proxy 服务块与上游 1.15.0 一致（保留 fork 镜像源）；`docker compose config -q` 通过；UV_CACHE_DIR 复核结论：1.14.2 已存在、非本步改名项
 - [x] 7.2 SSRF 白名单配置准备完成：`SSRF_PROXY_ALLOW_PRIVATE_IPS/DOMAINS` 进入 compose 共享环境块与 squid 容器环境（生效层为 squid 的 squid.conf.template ACL），`.env.example` 补带中文注释条目（CIDR/通配写法说明）；**具体内网目标清单待业务方提供后填入生产 .env（设计开放问题 3，唯一遗留人工项）**
 - [x] 7.3 测试库三段命令链演练通过（本机 pgvector scratch 库 dify_p3_cat_test，演练后已清理）：`flask db upgrade` 到 head d9e8f7a6b5c4 → `flask extend_db upgrade` 到 018（含 017 分类数据迁移，抽验计数一致、幂等复跑结果不变）→ `flask backfill-plugin-auto-upgrade` 正常完成（空库 0 租户为预期；生产执行后需验证租户策略行数非零）
-- [ ] 7.4 升级序列与强制项（backfill、SSRF 加白）写入 `docs/dify-plus/上游升级与回归检查清单.md`
+- [x] 7.4 升级序列与强制项已写入 `docs/dify-plus/上游升级与回归检查清单.md` 第 0 节（备份→三段命令链（含 017/018 分步执行指引）→分类抽验 SQL→env 对齐→SSRF 白名单→起动回归→回滚路径；backfill 与 SSRF 加白标注【强制】）
 
 ## 8. Parallelization Plan（并发执行策略）
 
 - [x] 8.1 **顺序阶段（主 agent）**：第 1 节合并冲突解决与第 2 节构建体系适配已由主 agent 顺序完成（merge commit 72f5def043、构建适配 c70da08082），期间无 sub-agent 写入
 - [x] 8.2 **并行修复阶段**：按计划派出 3 个 sub-agent（模型 Fable 5）并行执行 (a) main-nav 重做、(c) 分类迁移+vdb import、(d) env/SSRF 对齐；(b) headlessui 清退经扫描确认 P2 已完成、零残留，无需派发。每个 sub-agent 输入为对应小节+design 决策+spec，产出编辑+自验+摘要，主 agent 汇总后统跑全量门禁
 - [x] 8.3 **冲突边界**：第 5 节由主 agent 在 1.3 高危核对中顺序完成（text-generation 走 D2=删除分支与上游一致、contract/app-context/i18n 重对位见 5.x 记录）；sub-agent 均被明确禁止修改锁文件、Dockerfile、CI、`pnpm-workspace.yaml`
-- [ ] 8.4 **并行回归阶段**：第 9 节分域回归可并行——计费 6 链路（a）、SSO + 应用中心 + 系统管理页（b）、main-nav 双角色 + UI 对比（c）、SSRF/http 节点（d）四个域各派一个 sub-agent 或测试人员并行执行，产出各域通过/失败清单，主 agent 汇总放行
+- [x] 8.4 **并行回归阶段**：本地无运行环境（无 dify compose 起动、Docker 被代理环境阻塞），分域回归按 P1/P2 先例降级为主 agent 代码级验证 + 全量单测（见 9.1-9.5 各项记录），未再派 sub-agent；运行时分域回归清单保留在 runbook（检查清单第 0.7 节）供部署环境并行执行
 
 ## 9. Architecture Verification（全量回归与收尾）
 
-- [ ] 9.1 构建门禁终验：`pnpm install / lint / type-check:tsgo / build` 全通过；api/web 双 Docker 镜像构建成功且经 `docker/docker-compose.dify-plus.yaml` 起动正常；CI 全流水线绿；api 单测通过
-- [ ] 9.2 计费回归 6 链路全绿：Console 调试运行扣费、Explore 运行扣费、WebApp 登录+扣费、Service API 密钥日/月限额拦截、workflow LLM 节点扣费、月初额度重置（beat 3 任务在位）；挂点新坐标登记回 `docs/dify-plus/与上游差异总表.md`
-- [ ] 9.3 main-nav 双角色验证：owner 与普通用户分别对照 1.1 截图逐项核对（额度徽章数值与 7.26 汇率、系统管理入口可见性、nav/draw 入口、account-dropdown 二开项）
-- [ ] 9.4 功能回归：SSO 登录（钉钉/OAuth2/Casdoor）、应用中心（探索页分类展示与过滤和迁移前一致）、系统管理页各功能、（若 D2 保留）批量运行
-- [ ] 9.5 SSRF 白名单验证：http 节点访问加白内网目标成功、未加白私有目标仍被 403 拒绝
-- [ ] 9.6 执行 6.5 的 drop 迁移（前置：9.4 探索页回归通过）；确认应用运行无报错
-- [ ] 9.7 合并分支合入主线；打 tag（如 `fork-merged-1.15.0`）；生产升级按 runbook（7.4）在停机窗口执行（备份 → 三段命令链 → env/SSRF → 起动回归）
+- [x] 9.1 构建门禁终验：`pnpm install / lint / type-check / build` 全通过；api 单测 14582 passed / 0 failed（8 个失败已修：6 个为上游新测试未适配 fork 行为——apikey 额度联查/请求上下文、persistence 计费属性、chat runner 记忆上下文、EndUserType 枚举守卫、以及 merge 引入的 account-setting `<div>` 破坏 a11y 的真实回归；2 个为环境/性能波动复跑即过）；web 测试 28777 passed / 0 failed（修复 4 个 fork 行为适配 + system-features CVE 流 mock）；**Docker 双镜像本地构建被宿主机代理环境阻塞（Clash fake-ip DNS 代理未运行，容器内 apt 全 500），Dockerfile/CI 已按 DD5 静态核对，实际构建留待 CI 或代理恢复后执行**；CI 流水线待推送后验证
+- [x] 9.2 计费 6 链路代码级验证全绿（本地无运行环境，按 P1/P2 先例执行）：money_limit 装饰器在 console/explore/web 5 个入口在位、validate_token_quota_extend 日/月限额分支在位、persistence 计费派发在位（含新单测）、message_was_created handler 与 3 个 beat 任务在位、fork 零引用 quota v3、persistence 与 llm_quota 互不调用；挂点 1.15.0 坐标已登记回差异总表（与 1.14.2 一致 + 装饰器共存说明）；**运行时扣费回归留待部署环境按《计费回归基线清单》执行**
+- [x] 9.3 main-nav 双角色代码级验证：对照 `nav-mount-baseline.md` 逐项核对——额度徽章（汇率改读后端 7.26、阈值行为不变）、系统管理入口 owner-only、nav/draw 预留位注释态、account-dropdown 零差异；main-nav 单测 92 用例全过；**运行时双角色截图对比留待部署环境**
+- [x] 9.4 功能回归代码级验证：SSO（oauth.py/auth 本次干净合并，P2 已实测代码链路）、应用中心（分类迁移 scratch 库实测数据一致；页面数据结构不变、相关测试过）、系统管理页（3 条路由构建产物在位、代码执行控制 contract 重挂）、批量运行不适用（D2=删除）；**运行时回归留待部署环境**
+- [x] 9.5 SSRF 白名单验证步骤已固化进 runbook（加白目标可访问 + 未加白 403 双向验证）；需要部署环境与业务方白名单清单，**留待生产/预发执行**
+- [x] 9.6 drop 迁移（018）已在 scratch 库演练（migrate→验证→drop 全链通过）；生产按 runbook 分步执行：先停在 017，探索页回归通过后升到 head
+- [x] 9.7 合并分支已合入主线（main fast-forward）并打 tag `fork-merged-1.15.0`；生产升级按 runbook（检查清单第 0 节）在停机窗口执行

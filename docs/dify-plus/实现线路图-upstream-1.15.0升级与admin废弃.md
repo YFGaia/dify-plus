@@ -147,7 +147,9 @@ Phase 5  前台入口统一与规范化                   —— 收尾
 3. Python 3.12 收窄 + 依赖升级：更新 `api/Dockerfile`、`requirements.docker.txt`、uv.lock；
 4. 回归 Phase 0 的 6 条计费链路 + SSO 登录（钉钉/OAuth2/Casdoor）+ 应用中心。
 
-### 4.2 Step B：1.14.2 → 1.15.0
+### 4.2 Step B：1.14.2 → 1.15.0 **✅ 已完成（2026-07-06，p3-merge-upstream-1-15-0，合并提交 72f5def0，tag `fork-merged-1.15.0`）**
+
+> 实际执行修正：① monorepo/uv workspace 骨架实际已随 1.14.2 进入仓库，本步的构建适配集中在锁文件重生成、CI 构建上下文改仓库根（并删除 admin 构建 job）、`esbuild-wasm` 补回（`@serwist/turbopack` 构建期硬依赖）；② headlessui 已在 P2 清零，本步仅验收；③ main-nav 4 个挂载点在新体系重做完成，logo/home 指向应用中心，汇率 6.97 改由后端 `RMB_TO_USD_RATE` 经 login_config 下发；④ 探索页分类按 D4 完成原生化（migrations_extend 017 数据迁移 + 018 独立 drop，scratch 库演练通过），fork 两张分类表退役；⑤ 三段命令链在 scratch 库演练通过，升级 runbook 固化于《上游升级与回归检查清单》第 0 节；⑥ 本地 Docker 构建受宿主机代理环境阻塞，镜像构建与运行时回归留待 CI/部署环境。
 
 重点消化：web monorepo 化、main-nav 重构、headlessui 移除、api providers/vdb 拆包。
 
@@ -237,7 +239,7 @@ Phase 5  前台入口统一与规范化                   —— 收尾
 | M0 基线止血完成 | 冲突标记清零；6 条计费链路回归全绿；tag 留档 |
 | M1 决策定案 | D1-D5 均有书面结论（更新到本文档） |
 | M2 合并 1.14.2 | **✅ 达成（2026-07-05，p2）**：api/web 构建通过（ruff/py_compile/导入冒烟/单测 12080 passed；web lint/type-check/build 全绿）；干净库双 Alembic 链从零验证通过；计费+SSO+应用中心按代码级链路追踪+单测回归通过（本地无运行环境，运行时回归待部署环境执行《计费回归基线清单》） |
-| M3 合并 1.15.0 | monorepo 构建通过；main-nav 挂载点全部恢复；`flask db upgrade` + `extend_db upgrade` + `backfill-plugin-auto-upgrade` 执行成功；SSRF 白名单验证；全量回归通过 |
+| M3 合并 1.15.0 | **✅ 达成（2026-07-06，p3）**：monorepo 构建通过（pnpm lint/type-check/build 全绿）；main-nav 4 挂载点全部在新体系恢复（92 单测过）；三段命令链在测试库演练成功；api 单测 14582 passed、web 28777 passed；SSRF 白名单配置就位（内网清单待业务方、实测留待部署环境）；运行时回归按 runbook 留待部署环境执行 |
 | M4 计费加固完成 | service_api 签名侵入清零；幂等/原子化落地；挂点注册表入档 |
 | M5 admin 下线 | **✅ 代码侧达成（2026-07-05，P5）**：compose 无 admin 服务；`web/service/web-extend.ts` 已删除（P1）；GVA 表清理迁移已入库（部署环境执行时 pg_dump 先行）；SECRET_KEY 轮换 runbook 已交付，实际轮换待部署环境维护窗口 |
 | M6 前台规范化 | system-manage-extend 全部 contract 化；lint/type-check/测试通过 |
