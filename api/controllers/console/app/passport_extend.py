@@ -13,6 +13,7 @@ from controllers.web.passport import generate_session_id
 from extensions.ext_database import db
 from libs.login import login_required
 from libs.passport import PassportService
+from models.enums import EndUserType
 from models.model import App, EndUser, Site
 from services.feature_service import FeatureService
 
@@ -69,7 +70,7 @@ class PassportResourceExtend(Resource):
                 id=user_id,
                 tenant_id=app_model.tenant_id,
                 app_id=app_model.id,
-                type="browser",
+                type=EndUserType.BROWSER,
                 is_anonymous=True,
                 session_id=generate_session_id(),
             )

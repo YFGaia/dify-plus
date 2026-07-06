@@ -57,6 +57,7 @@ def layer() -> WorkflowPersistenceLayer:
     instance._node_sequence = 0
     # `graph_runtime_state` is a layer-base property; stub it.
     instance._graph_runtime_state = MagicMock(total_tokens=0, node_run_steps=0, outputs={}, exceptions_count=0)
+    instance._user_from = None  # 二开部分 - 计费：__init__ 被绕过时补齐 fork 属性
     return instance
 
 
@@ -162,6 +163,14 @@ def test_node_succeeded_publishes_succeeded(layer, capture_publishes, monkeypatc
     # Stub the inner _update_node_execution so we don't have to construct a
     # full NodeRunResult — we only want to confirm the publish happens after.
     monkeypatch.setattr(layer, "_update_node_execution", lambda *a, **kw: None)
+    # 二开部分 - 计费：屏蔽节点成功后的 Celery 计费派发（单测无 broker），
+    # 并替换 jsonable_encoder（seed 的 MagicMock 不可序列化）
+    monkeypatch.setattr(
+        "core.app.workflow.layers.persistence."
+        "update_account_money_when_workflow_node_execution_created_extend.delay",
+        lambda *args, **kwargs: None,
+    )
+    monkeypatch.setattr("core.app.workflow.layers.persistence.jsonable_encoder", lambda obj: {})
     event = MagicMock(id="exec-1", node_run_result=MagicMock(), finished_at=datetime.now())
     layer._handle_node_succeeded(event)
     assert capture_publishes["node"] == [{"workflow_run_id": "run-1", "node_id": "agent-1", "status": "succeeded"}]

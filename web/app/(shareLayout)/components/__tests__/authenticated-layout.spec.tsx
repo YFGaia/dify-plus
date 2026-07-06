@@ -90,6 +90,8 @@ vi.mock('@/service/access-control/use-app-access-control', () => ({
 
 vi.mock('@/service/webapp-auth', () => ({
   webAppLogout: vi.fn(),
+  // extend: WebApp 复用 Console 登录态 —— 默认视为已登录
+  checkConsoleLoginStatus: vi.fn().mockResolvedValue(true),
 }))
 
 const resetQueryStates = () => {
@@ -139,14 +141,15 @@ describe('AuthenticatedLayout', () => {
   })
 
   describe('Loading State', () => {
-    it('should keep children mounted when existing app config is background refetching', () => {
+    it('should keep children mounted when existing app config is background refetching', async () => {
       appInfoQueryState.isFetching = true
       appParamsQueryState.isFetching = true
       appMetaQueryState.isFetching = true
 
       renderLayout()
 
-      expect(screen.getByText('Workflow form content')).toBeInTheDocument()
+      // extend: 登录态检查（isCheckingAuth）异步完成后子内容才渲染
+      expect(await screen.findByText('Workflow form content')).toBeInTheDocument()
     })
 
     it('should hide children while initial app config is loading', () => {

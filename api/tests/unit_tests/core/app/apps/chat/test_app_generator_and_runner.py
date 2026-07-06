@@ -339,7 +339,8 @@ class TestChatAppRunner:
             patch("core.app.apps.chat.app_runner.db.session.close", side_effect=lambda: events.append("close")),
         ):
             model_instance.invoke_llm.side_effect = invoke_llm
-            runner.run(app_generate_entity, queue_manager, SimpleNamespace(), SimpleNamespace(id="m1"))
+            # 二开部分 - 记忆上下文：add_messages_context 需要 conversation.id
+            runner.run(app_generate_entity, queue_manager, SimpleNamespace(id="c1"), SimpleNamespace(id="m1"))
 
         assert events == ["close", "invoke", "first-chunk"]
         mock_handle.assert_called_once_with(

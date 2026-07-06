@@ -7,6 +7,7 @@ from typing import cast
 from unittest.mock import patch
 
 import pytest
+from flask import Flask  # 二开部分 - 密钥额度限制：create 测试需要请求上下文
 from werkzeug.exceptions import Forbidden
 
 from controllers.console.apikey import BaseApiKeyListResource, BaseApiKeyResource
@@ -58,7 +59,9 @@ def test_list_api_keys_uses_injected_tenant_id() -> None:
         patch("controllers.console.apikey._get_resource") as get_resource,
         patch("controllers.console.apikey.db") as db_mock,
     ):
-        db_mock.session.scalars.return_value.all.return_value = [api_key]
+        # 二开部分 - 密钥额度限制：fork 改为 execute(select(ApiToken, ApiTokenMoneyExtend)).all()
+        # 返回 (token, quota) 行；quota 为 None 时走 DEFAULT_QUOTA_EXTEND 兜底
+        db_mock.session.execute.return_value.all.return_value = [(api_key, None)]
 
         result = resource.get("app-1", "tenant-1")
 
@@ -71,6 +74,13 @@ def test_list_api_keys_uses_injected_tenant_id() -> None:
                 "token": "app-token",
                 "last_used_at": None,
                 "created_at": None,
+                # 二开部分 - 密钥额度限制：无额度记录（老密钥）时的兜底展示值
+                "description": "",
+                "accumulated_quota": 0.0,
+                "day_limit_quota": -1.0,
+                "month_limit_quota": -1.0,
+                "day_used_quota": 0.0,
+                "month_used_quota": 0.0,
             }
         ]
     }
@@ -94,16 +104,22 @@ def test_create_api_key_uses_injected_tenant_id() -> None:
         db_mock.session.scalar.return_value = 0
         db_mock.session.add.side_effect = add_api_token
 
-        result, status = raw_post(resource, "app-1", "tenant-1")
+        # 二开部分 - 密钥额度限制：_create_api_key 读取 request 携带的额度参数，
+        # werkzeug LocalProxy 无法直接 patch，用最小请求上下文提供 request
+        flask_app = Flask(__name__)
+        with flask_app.test_request_context("/apps/app-1/api-keys", method="POST", json={}):
+            result, status = raw_post(resource, "app-1", "tenant-1")
 
     get_resource.assert_called_once_with("app-1", "tenant-1", App)
     assert status == 201
     assert result["token"] == "app-generated-token"
-    api_token = db_mock.session.add.call_args.args[0]
+    # 二开部分 - 密钥额度限制：add 依次为 ApiToken 与 ApiTokenMoneyExtend，各 commit 一次
+    api_token = db_mock.session.add.call_args_list[0].args[0]
     assert api_token.app_id == "app-1"
     assert api_token.tenant_id == "tenant-1"
     assert api_token.type == ApiTokenType.APP
-    db_mock.session.commit.assert_called_once()
+    assert db_mock.session.add.call_count == 2
+    assert db_mock.session.commit.call_count == 2
 
 
 def test_delete_api_key_rejects_non_admin_account() -> None:
@@ -135,7 +151,8 @@ def test_delete_api_key_uses_injected_user_and_tenant() -> None:
 
     get_resource.assert_called_once_with("app-1", "tenant-1", App)
     delete_cache.assert_called_once_with("app-token", ApiTokenType.APP)
-    db_mock.session.execute.assert_called_once()
-    db_mock.session.commit.assert_called_once()
+    # 二开部分 - 密钥额度限制：删除 token 后额度记录软删（execute/commit 各两次）
+    assert db_mock.session.execute.call_count == 2
+    assert db_mock.session.commit.call_count == 2
     assert result == ""
     assert status == 204

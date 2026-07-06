@@ -59,7 +59,11 @@ const loadSystemFeaturesModule = async ({
       systemFeatures: {
         get: systemFeatures,
       },
+      // extend: CVE-2025-63387 —— fork 的 queryFn 走 loginConfigBootstrap + loginConfig
+      loginConfigBootstrap: vi.fn().mockResolvedValue({ ok: true, token: 'test-token' }),
+      loginConfig: systemFeatures,
     },
+    setLoginConfigToken: vi.fn(),
     consoleQuery: {
       systemFeatures: {
         get: {

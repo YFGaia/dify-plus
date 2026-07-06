@@ -85,7 +85,8 @@ describe('Explore', () => {
         </Explore>
       ))
 
-      expect(screen.getByRole('link', { name: 'explore.sidebar.title' })).toBeInTheDocument()
+      // extend: fork 侧边栏对非 owner 隐藏发现页入口，可见入口为应用中心
+      expect(screen.getByRole('link', { name: 'extend.sidebar.appCenter' })).toBeInTheDocument()
     })
   })
 

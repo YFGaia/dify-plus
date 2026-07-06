@@ -211,7 +211,8 @@ export default function AccountSetting({
                        */
                       menuItem.items.filter(item => !(
                         item.key === 'provider' && !isCurrentWorkspaceManager)).map(item => (
-                        <div
+                        <button
+                          type="button"
                           key={item.key}
                           className={cn(
                             'mb-0.5 flex h-8 w-full items-center rounded-lg px-3 text-left text-sm',
@@ -225,7 +226,7 @@ export default function AccountSetting({
                         >
                           {activeMenu === item.key ? item.activeIcon : item.icon}
                           {!isMobile && <div className="truncate">{item.name}</div>}
-                        </div>
+                        </button>
                       ))
                     }
                   </div>
