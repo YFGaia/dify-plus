@@ -76,7 +76,15 @@ register_response_schema_models(console_ns, ApiKeyItem, ApiKeyList)
 
 
 def _merge_token_with_quota_extend(token: ApiToken, quota: ApiTokenMoneyExtend | None) -> dict:
-    """二开部分 - 密钥额度限制：合并 ApiToken 与额度记录为响应 dict（额度字段覆盖同名键，id 保持密钥 ID）。"""
+    """二开部分 - 密钥额度限制：合并 ApiToken 与额度记录为响应 dict（额度字段覆盖同名键，id 保持密钥 ID）。
+
+    注意：调用方可能在 ``db.session.commit()`` 之后调用本函数，此时两个 ORM 对象处于
+    expired 状态，直接读 ``__dict__`` 会得到空 dict（进而 ``token_dict["id"]`` KeyError
+    → 接口 500）。先做一次属性访问触发 SQLAlchemy 重载，再读 ``__dict__``。
+    """
+    _ = token.id
+    if quota is not None:
+        _ = quota.app_token_id
     token_dict = {k: v for k, v in token.__dict__.items() if not k.startswith("_sa")}
     if quota is not None:
         quota_dict = {k: v for k, v in quota.__dict__.items() if not k.startswith("_sa")}
@@ -131,7 +139,7 @@ class BaseApiKeyListResource(Resource):
     def post(self, resource_id: str, current_tenant_id: str) -> tuple[dict[str, object], int]:
         return dump_response(ApiKeyItem, self._create_api_key(resource_id, current_tenant_id)), 201
 
-    def _create_api_key(self, resource_id: str, current_tenant_id: str) -> ApiToken:
+    def _create_api_key(self, resource_id: str, current_tenant_id: str) -> "ApiKeyItem":
         assert self.resource_id_field is not None, "resource_id_field must be set"
         _get_resource(resource_id, current_tenant_id, self.resource_model)
         current_key_count: int = (
@@ -162,21 +170,20 @@ class BaseApiKeyListResource(Resource):
 
         # --------------------- 二开部分Begin - 密钥额度限制 ---------------------
         data = request.get_json(silent=True) or {}
-        db.session.add(
-            ApiTokenMoneyExtend(
-                app_token_id=api_token.id,
-                description=data.get("description", "默认"),
-                accumulated_quota=0,
-                day_used_quota=0,
-                month_used_quota=0,
-                day_limit_quota=data.get("day_limit_quota", -1),
-                month_limit_quota=data.get("month_limit_quota", -1),
-            )
+        quota_extend = ApiTokenMoneyExtend(
+            app_token_id=api_token.id,
+            description=data.get("description", "默认"),
+            accumulated_quota=0,
+            day_used_quota=0,
+            month_used_quota=0,
+            day_limit_quota=data.get("day_limit_quota", -1),
+            month_limit_quota=data.get("month_limit_quota", -1),
         )
+        db.session.add(quota_extend)
         db.session.commit()
+        # 返回合并额度字段后的响应模型，避免创建响应中额度字段全为 null
+        return ApiKeyItem.model_validate(_merge_token_with_quota_extend(api_token, quota_extend), from_attributes=True)
         # --------------------- 二开部分End - 密钥额度限制 ---------------------
-
-        return api_token
 
     # --------------------- 二开部分Begin - 密钥额度限制 ---------------------
     def put(self, resource_id):

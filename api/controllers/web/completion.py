@@ -66,8 +66,8 @@ def is_end_login(end_user):
         decoded = PassportService().verify(auth_token)
         user_id = decoded.get("user_id")
 
-        # 加载 Console 用户信息
-        user_info = AccountService.load_logged_in_account(account_id=user_id)
+        # 加载 Console 用户信息（upstream 1.15.0 起 session 为必填关键字参数）
+        user_info = AccountService.load_logged_in_account(account_id=user_id, session=db.session)
 
         # 绑定 end_user 与 Console 用户
         if user_info is not None:

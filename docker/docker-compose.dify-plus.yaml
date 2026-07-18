@@ -790,6 +790,35 @@ services:
       - ssrf_proxy_network
       - default
 
+  # WebSocket service for workflow collaboration (upstream 1.15.0).
+  # Enabled via the `collaboration` compose profile; nginx routes /socket.io/
+  # here through NGINX_SOCKET_IO_UPSTREAM (default api_websocket:5001).
+  api_websocket:
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.15.0
+    restart: always
+    profiles:
+      - collaboration
+    environment:
+      # Use the shared environment variables.
+      <<: *shared-api-worker-env
+      MODE: api
+      SERVER_WORKER_AMOUNT: 1
+      SERVER_WORKER_CLASS: ${API_WEBSOCKET_WORKER_CLASS:-geventwebsocket.gunicorn.workers.GeventWebSocketWorker}
+      SERVER_WORKER_CONNECTIONS: ${API_WEBSOCKET_WORKER_CONNECTIONS:-1000}
+      GUNICORN_TIMEOUT: ${API_WEBSOCKET_GUNICORN_TIMEOUT:-360}
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+        required: false
+      db_mysql:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_started
+    networks:
+      - ssrf_proxy_network
+      - default
+
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
   worker:
@@ -943,6 +972,10 @@ services:
       ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
       NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW: ${NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW:-false}
       ENABLE_AGENT_V2: ${ENABLE_AGENT_V2:-false}
+      # Workflow collaboration websocket endpoint exposed to the browser; without
+      # it the frontend falls back to ws://localhost:5001 which is unreachable
+      # behind nginx. Routed by nginx /socket.io/ -> NGINX_SOCKET_IO_UPSTREAM.
+      NEXT_PUBLIC_SOCKET_URL: ${NEXT_PUBLIC_SOCKET_URL:-ws://localhost}
 
   # The PostgreSQL database.
   db_postgres:
@@ -1209,6 +1242,10 @@ services:
       NGINX_PROXY_SEND_TIMEOUT: ${NGINX_PROXY_SEND_TIMEOUT:-3600s}
       NGINX_ENABLE_CERTBOT_CHALLENGE: ${NGINX_ENABLE_CERTBOT_CHALLENGE:-false}
       CERTBOT_DOMAIN: ${CERTBOT_DOMAIN:-}
+      # Upstream target for /socket.io/ (workflow collaboration). Point to the
+      # dedicated api_websocket service when the `collaboration` profile is on;
+      # fall back to the main api service otherwise.
+      NGINX_SOCKET_IO_UPSTREAM: ${NGINX_SOCKET_IO_UPSTREAM:-api:5001}
     depends_on:
       - api
       - web

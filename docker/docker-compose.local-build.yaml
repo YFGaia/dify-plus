@@ -2,45 +2,38 @@
 # Usage: docker compose -f docker-compose.dify-plus.yaml -f docker-compose.local-build.yaml --env-file .env.local-test <cmd>
 #
 # Overrides the pre-built registry images with locally built images from the current source.
-# Host ports for db/redis are configured via POSTGRES_HOST_PORT/REDIS_HOST_PORT in .env.local-test
+# Since 1.15.0 both Dockerfiles use the repository root as build context
+# (api/Dockerfile copies api/ + dify-agent/, web/Dockerfile copies the pnpm workspace),
+# so `context` points at the repo root and `dockerfile` is the in-repo path.
 #
-# Source code is bind-mounted from host to containers, so changes take effect after restart.
-# The .venv directory is kept as a container-managed anonymous volume to preserve installed packages.
+# The images contain the full source; for live source iteration additionally apply
+# docker-compose.source-mount.yaml on top of this file.
+# Host ports for db/redis are configured via POSTGRES_HOST_PORT/REDIS_HOST_PORT in .env.local-test
 
 services:
   api:
-    image: dify-plus-api:1.13.2-local
+    image: dify-plus-api:1.15.0-local
     build:
-      context: ../api
-      dockerfile: Dockerfile
-    volumes:
-      - ../api:/app/api
-      - api_venv:/app/api/.venv
-      - ./volumes/app/storage:/app/api/storage
+      context: ..
+      dockerfile: api/Dockerfile
+
+  api_websocket:
+    image: dify-plus-api:1.15.0-local
 
   worker:
-    image: dify-plus-api:1.13.2-local
-    volumes:
-      - ../api:/app/api
-      - worker_venv:/app/api/.venv
-      - ./volumes/app/storage:/app/api/storage
-      - ../api/docker/entrypoint.sh:/entrypoint.sh:ro
+    image: dify-plus-api:1.15.0-local
 
   worker-gaia:
-    image: dify-plus-api:1.13.2-local
+    image: dify-plus-api:1.15.0-local
 
   worker-dataset:
-    image: dify-plus-api:1.13.2-local
+    image: dify-plus-api:1.15.0-local
 
   worker_beat:
-    image: dify-plus-api:1.13.2-local
+    image: dify-plus-api:1.15.0-local
 
   web:
-    image: dify-plus-web:1.13.2-local
+    image: dify-plus-web:1.15.0-local
     build:
-      context: ../web
-      dockerfile: Dockerfile
-
-volumes:
-  api_venv:
-  worker_venv:
+      context: ..
+      dockerfile: web/Dockerfile
