@@ -1,4 +1,10 @@
-import type { DingTalkConfig, ForwardToken, OAuth2Config, QuotaListResponse, TestResult } from '@/models/system-manage-extend'
+import type {
+  DingTalkConfig,
+  ForwardToken,
+  OAuth2Config,
+  QuotaListResponse,
+  TestResult,
+} from '@/models/system-manage-extend'
 // Extend: 系统管理 API 服务封装
 import { del, get, post } from '@/service/base'
 
@@ -16,8 +22,7 @@ export const dingtalkTestCallback = (code: string) =>
   post<TestResult>('/system-manage-extend/integration/dingtalk/test-callback', { body: { code } })
 
 // ==================== OAuth2 ====================
-export const getOAuth2Config = () =>
-  get<OAuth2Config>('/system-manage-extend/integration/oauth2')
+export const getOAuth2Config = () => get<OAuth2Config>('/system-manage-extend/integration/oauth2')
 
 export const setOAuth2Config = (data: Partial<OAuth2Config>) =>
   post<{ result: string }>('/system-manage-extend/integration/oauth2', { body: data })
@@ -41,12 +46,8 @@ export const deleteForwardToken = (seq: number) =>
 
 // ==================== 用户额度管理 ====================
 
-export const getQuotaList = (params: {
-  page: number
-  page_size: number
-  keyword?: string
-}) =>
+export const getQuotaList = (params: { page: number; page_size: number; keyword?: string }) =>
   get<QuotaListResponse>('/system-manage-extend/quota-management', { params })
 
-export const setUserQuota = (data: { account_id: string, quota: number }) =>
+export const setUserQuota = (data: { account_id: string; quota: number }) =>
   post<{ result: string }>('/system-manage-extend/quota-management/set', { body: data })

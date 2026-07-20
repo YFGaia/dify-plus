@@ -4,7 +4,15 @@ import { cn } from '@langgenius/dify-ui/cn'
 import { Field, FieldItem, FieldLabel } from '@langgenius/dify-ui/field'
 import { Fieldset, FieldsetLegend } from '@langgenius/dify-ui/fieldset'
 import { Radio, RadioGroup } from '@langgenius/dify-ui/radio' // 上游 base/radio 已删除，改用 dify-ui radio 原语
-import { Select, SelectContent, SelectItem, SelectItemIndicator, SelectItemText, SelectTrigger, SelectValue } from '@langgenius/dify-ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectItemIndicator,
+  SelectItemText,
+  SelectTrigger,
+  SelectValue,
+} from '@langgenius/dify-ui/select'
 import { Slider } from '@langgenius/dify-ui/slider'
 import { Switch } from '@langgenius/dify-ui/switch'
 import { useState } from 'react'
@@ -38,9 +46,13 @@ const ParameterItem: FC<ParameterItemProps> = ({
     let defaultValue: ParameterValue
 
     if (parameterRule.type === 'int' || parameterRule.type === 'float')
-      defaultValue = isNullOrUndefined(parameterRule.default) ? (parameterRule.min || 0) : parameterRule.default
+      defaultValue = isNullOrUndefined(parameterRule.default)
+        ? parameterRule.min || 0
+        : parameterRule.default
     else if (parameterRule.type === 'string')
-      defaultValue = parameterRule.options?.length ? (parameterRule.default || '') : (parameterRule.default || '')
+      defaultValue = parameterRule.options?.length
+        ? parameterRule.default || ''
+        : parameterRule.default || ''
     else if (parameterRule.type === 'boolean')
       defaultValue = !isNullOrUndefined(parameterRule.default) ? parameterRule.default : false
     else if (parameterRule.type === 'tag')
@@ -54,7 +66,10 @@ const ParameterItem: FC<ParameterItemProps> = ({
   const handleInputChange = (newValue: ParameterValue) => {
     setLocalValue(newValue)
 
-    if (onChange && (parameterRule.name === 'stop' || !isNullOrUndefined(value) || parameterRule.required))
+    if (
+      onChange &&
+      (parameterRule.name === 'stop' || !isNullOrUndefined(value) || parameterRule.required)
+    )
       onChange(newValue)
   }
 
@@ -76,7 +91,9 @@ const ParameterItem: FC<ParameterItemProps> = ({
     handleInputChange(v)
   }
 
-  const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleStringInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     handleInputChange(e.target.value)
   }
 
@@ -93,21 +110,18 @@ const ParameterItem: FC<ParameterItemProps> = ({
   }
 
   const renderInput = () => {
-    const numberInputWithSlide = (parameterRule.type === 'int' || parameterRule.type === 'float')
-      && !isNullOrUndefined(parameterRule.min)
-      && !isNullOrUndefined(parameterRule.max)
+    const numberInputWithSlide =
+      (parameterRule.type === 'int' || parameterRule.type === 'float') &&
+      !isNullOrUndefined(parameterRule.min) &&
+      !isNullOrUndefined(parameterRule.max)
 
     if (parameterRule.type === 'int' || parameterRule.type === 'float') {
       let step = 100
       if (parameterRule.max) {
-        if (parameterRule.max < 10)
-          step = 0.1
-        else if (parameterRule.max < 100)
-          step = 1
-        else if (parameterRule.max < 1000)
-          step = 10
-        else if (parameterRule.max < 10000)
-          step = 100
+        if (parameterRule.max < 10) step = 0.1
+        else if (parameterRule.max < 100) step = 1
+        else if (parameterRule.max < 1000) step = 10
+        else if (parameterRule.max < 10000) step = 100
       }
 
       return (
@@ -131,13 +145,13 @@ const ParameterItem: FC<ParameterItemProps> = ({
       return (
         <Field name={parameterRule.name} className="contents">
           <Fieldset
-            render={(
+            render={
               <RadioGroup<boolean>
                 className="flex w-[200px] items-center gap-3"
                 value={booleanValue}
                 onValueChange={handleRadioChange}
               />
-            )}
+            }
           >
             <FieldsetLegend className="sr-only">{translatedLabel}</FieldsetLegend>
             <FieldItem>
@@ -160,7 +174,10 @@ const ParameterItem: FC<ParameterItemProps> = ({
     if (parameterRule.type === 'string' && !parameterRule.options?.length) {
       return (
         <input
-          className={cn(isInWorkflow ? 'w-[200px]' : 'w-full', 'text-gra-900 ml-4 flex h-8 appearance-none items-center rounded-lg bg-gray-100 px-3 text-[13px] outline-none')}
+          className={cn(
+            isInWorkflow ? 'w-[200px]' : 'w-full',
+            'text-gra-900 ml-4 flex h-8 appearance-none items-center rounded-lg bg-gray-100 px-3 text-[13px] outline-none',
+          )}
           value={renderValue as string}
           onChange={handleStringInputChange}
         />
@@ -181,13 +198,13 @@ const ParameterItem: FC<ParameterItemProps> = ({
       return (
         <Select
           value={renderValue as string}
-          onValueChange={v => handleInputChange(v ?? undefined)}
+          onValueChange={(v) => handleInputChange(v ?? undefined)}
         >
           <SelectTrigger className={cn(isInWorkflow ? 'w-[200px]' : 'w-full', 'ml-4 h-8')}>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {parameterRule.options!.map(option => (
+            {parameterRule.options!.map((option) => (
               <SelectItem key={option} value={option}>
                 <SelectItemText>{option}</SelectItemText>
                 <SelectItemIndicator />
@@ -217,44 +234,38 @@ const ParameterItem: FC<ParameterItemProps> = ({
   return (
     <div className={`relative flex items-center justify-between ${className}`}>
       <div>
-        <div className={cn(isInWorkflow ? 'w-[140px]' : 'w-full', 'ml-4 flex shrink-0 items-center')}>
+        <div
+          className={cn(isInWorkflow ? 'w-[140px]' : 'w-full', 'ml-4 flex shrink-0 items-center')}
+        >
           <div
             className="mr-0.5 truncate text-[13px] font-medium text-gray-700"
             title={parameterRule.label[language] || parameterRule.label.en_US}
           >
             {parameterRule.label[language] || parameterRule.label.en_US}
           </div>
-          {
-            parameterRule.help && (
-              <>
-                <Infotip
-                  aria-label={parameterRule.help[language] || parameterRule.help.en_US}
-                  className="mr-1 shrink-0"
-                  popupClassName="w-[200px] whitespace-pre-wrap"
-                >
-                  {parameterRule.help[language] || parameterRule.help.en_US}
-                </Infotip>
-                <span className="absolute right-16 bottom-[-3px] text-xs text-orange-600">{renderValue}</span>
-              </>
-            )
-          }
-          {
-            !parameterRule.required && parameterRule.name !== 'stop' && (
-              <Switch
-                checked={!isNullOrUndefined(value)}
-                onCheckedChange={handleSwitch}
-                size="md"
-              />
-            )
-          }
+          {parameterRule.help && (
+            <>
+              <Infotip
+                aria-label={parameterRule.help[language] || parameterRule.help.en_US}
+                className="mr-1 shrink-0"
+                popupClassName="w-[200px] whitespace-pre-wrap"
+              >
+                {parameterRule.help[language] || parameterRule.help.en_US}
+              </Infotip>
+              <span className="absolute right-16 bottom-[-3px] text-xs text-orange-600">
+                {renderValue}
+              </span>
+            </>
+          )}
+          {!parameterRule.required && parameterRule.name !== 'stop' && (
+            <Switch checked={!isNullOrUndefined(value)} onCheckedChange={handleSwitch} size="md" />
+          )}
         </div>
-        {
-          parameterRule.type === 'tag' && (
-            <div className={cn(!isInWorkflow && 'w-[200px]', 'text-xs font-normal text-gray-400')}>
-              {parameterRule?.tagPlaceholder?.[language]}
-            </div>
-          )
-        }
+        {parameterRule.type === 'tag' && (
+          <div className={cn(!isInWorkflow && 'w-[200px]', 'text-xs font-normal text-gray-400')}>
+            {parameterRule?.tagPlaceholder?.[language]}
+          </div>
+        )}
       </div>
       {renderInput()}
     </div>

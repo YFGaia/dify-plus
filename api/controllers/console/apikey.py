@@ -220,6 +220,8 @@ class BaseApiKeyListResource(Resource):
         if key is None:
             flask_restx.abort(HTTPStatus.NOT_FOUND, message="API key not found")
 
+        # Type assertion: key is guaranteed to be non-None here because abort() raises
+        assert key is not None  # nosec - for type checker only
         api_token_money_extend = session.scalar(
             select(ApiTokenMoneyExtend).where(ApiTokenMoneyExtend.app_token_id == api_key_id).limit(1)
         )

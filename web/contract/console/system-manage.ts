@@ -36,11 +36,13 @@ export const codeExecutionControlAddContract = base
     path: '/system-manage-extend/code-execution-control',
     method: 'POST',
   })
-  .input(type<{
-    body: {
-      email: string
-    }
-  }>())
+  .input(
+    type<{
+      body: {
+        email: string
+      }
+    }>(),
+  )
   .output(type<CodeExecutionControlAddResponse>())
 
 export const codeExecutionControlRemoveContract = base
@@ -48,9 +50,11 @@ export const codeExecutionControlRemoveContract = base
     path: '/system-manage-extend/code-execution-control/{id}',
     method: 'DELETE',
   })
-  .input(type<{
-    params: {
-      id: string
-    }
-  }>())
+  .input(
+    type<{
+      params: {
+        id: string
+      }
+    }>(),
+  )
   .output(type<CodeExecutionControlRemoveResponse>())

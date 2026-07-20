@@ -19,8 +19,7 @@ const AccountMoneyExtend = () => {
     queryFn: fetchUserMoney,
   })
 
-  if (!userMoney)
-    return null
+  if (!userMoney) return null
 
   // 计算额度（确保使用数字类型）
   const usedQuota = Number(userMoney.used_quota) || 0
@@ -28,8 +27,7 @@ const AccountMoneyExtend = () => {
   const remainingQuota = totalQuota - usedQuota
 
   // 当总额度为0时不显示
-  if (totalQuota === 0)
-    return null
+  if (totalQuota === 0) return null
 
   // 转换为人民币并保留2位小数
   const usedRMB = (usedQuota * exchangeRate).toFixed(2)
@@ -53,20 +51,15 @@ const AccountMoneyExtend = () => {
         {t(($) => $['user.credit'], { ns: 'extend' })}
       </div>
       <div className="flex min-w-0 flex-1 items-center border-l border-divider-regular bg-background-default px-2 py-1.5">
-        <span className="mr-1 text-text-tertiary">{t(($) => $['user.used'], { ns: 'extend' })}</span>
-        <span
-          className={cn(
-            'font-bold transition-all duration-300',
-            alertColorClass,
-          )}
-        >
-          ¥
-          {usedRMB}
+        <span className="mr-1 text-text-tertiary">
+          {t(($) => $['user.used'], { ns: 'extend' })}
+        </span>
+        <span className={cn('font-bold transition-all duration-300', alertColorClass)}>
+          ¥{usedRMB}
         </span>
         <span className="mx-1 text-text-quaternary">/</span>
         <span className="truncate text-text-tertiary">
-          ¥
-          {totalRMB.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+          ¥{totalRMB.replace(/\B(?=(?:\d{3})+(?!\d))/g, ',')}
         </span>
       </div>
     </div>

@@ -155,7 +155,9 @@ export const useConfiguration = (): ConfigurationViewModel => {
   const [formattingChanged, setFormattingChanged] = useState(false)
   const [hasFetchedDetail, setHasFetchedDetail] = useState(false)
   // Extend: 记忆上下文功能
-  const [retentionNumber, setRetentionNumber] = useState(Number(process.env.NEXT_CONTEXT_RETENTION_DEFAULT_COUNT || 5))
+  const [retentionNumber, setRetentionNumber] = useState(
+    Number(process.env.NEXT_CONTEXT_RETENTION_DEFAULT_COUNT || 5),
+  )
   const pathname = usePathname()
   const matched = /\/app\/([^/]+)/.exec(pathname)
   const appId = matched?.[1] || ''

@@ -3,8 +3,6 @@ import { ToastHost } from '@langgenius/dify-ui/toast'
 import { TooltipProvider } from '@langgenius/dify-ui/tooltip'
 import { Provider as JotaiProvider } from 'jotai/react'
 import { ThemeProvider } from 'next-themes'
-// extend: dockefile 构建访问不到google，改成本地
-import localFont from 'next/font/local'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { IS_PROD } from '@/config'
 import { TanstackQueryInitializer } from '@/context/query-client'
@@ -25,23 +23,6 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: 'cover',
 }
-// extend: start dockefile 构建访问不到google，改成本地
-const instrumentSerif = localFont({
-  src: [
-    {
-      path: './fonts/InstrumentSerif-Regular.ttf',
-      weight: '400',
-      style: 'normal',
-    },
-    {
-      path: './fonts/InstrumentSerif-Italic.ttf',
-      weight: '400',
-      style: 'italic',
-    },
-  ],
-  variable: '--font-instrument-serif',
-})
-// extend: stop dockefile 构建访问不到google，改成本地
 
 const LocaleLayout = async ({ children }: { children: React.ReactNode }) => {
   const locale = await getLocaleOnServer()

@@ -81,10 +81,8 @@ const AppCard = ({
     try {
       await syncApp({ appID: app.app_id })
       toast.success(t(($) => $['app.syncAppOk'], { ns: 'extend' }))
-      if (onRefresh)
-        onRefresh()
-    }
-    catch (e: unknown) {
+      if (onRefresh) onRefresh()
+    } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : '操作失败')
     }
     setShowSyncApps(false)
@@ -166,22 +164,29 @@ const AppCard = ({
         </div>
       </div>
       {/* ----------------------start SyncToAppTemplate---------------------- */}
-      {isExplore && adminExtend && tenantExtend && !onApp && (
-        // z-20 保证按钮位于上游整卡点击遮罩（z-10）之上
-        <div className={cn('absolute top-2 right-2 z-20 hidden items-center gap-1 group-hover:flex')}>
-          <Button
-            variant="ghost"
-            size="small"
-            className="h-7 px-2 text-xs"
-            onClick={(e) => {
-              e.stopPropagation()
-              setShowSyncApps(true)
-            }}
+      {isExplore &&
+        adminExtend &&
+        tenantExtend &&
+        !onApp && (
+          // z-20 保证按钮位于上游整卡点击遮罩（z-10）之上
+          <div
+            className={cn('absolute top-2 right-2 z-20 hidden items-center gap-1 group-hover:flex')}
           >
-            <span style={{ color: '#00931e' }}>{t(($) => $['app.syncToAppTemplate'], { ns: 'extend' })}</span>
-          </Button>
-        </div>
-      )}
+            <Button
+              variant="ghost"
+              size="small"
+              className="h-7 px-2 text-xs"
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowSyncApps(true)
+              }}
+            >
+              <span style={{ color: '#00931e' }}>
+                {t(($) => $['app.syncToAppTemplate'], { ns: 'extend' })}
+              </span>
+            </Button>
+          </div>
+        )}
       <AlertDialog open={showSyncApps} onOpenChange={setShowSyncApps}>
         <AlertDialogContent>
           <div className="flex flex-col gap-2 px-6 pt-6 pb-4">

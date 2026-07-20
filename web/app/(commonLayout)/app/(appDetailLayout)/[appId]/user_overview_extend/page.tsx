@@ -1,11 +1,18 @@
 'use client'
 import type { PeriodParams } from '@/app/components/app/overview/app-chart'
-import { Select, SelectContent, SelectItem, SelectItemIndicator, SelectItemText, SelectTrigger, SelectValue } from '@langgenius/dify-ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectItemIndicator,
+  SelectItemText,
+  SelectTrigger,
+  SelectValue,
+} from '@langgenius/dify-ui/select'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-
 import { TIME_PERIOD_MAPPING } from '@/app/components/app/log/filter'
 import {
   AvgSessionInteractions,
@@ -29,7 +36,7 @@ export type UserOverViewProps = {
 
 const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
   const { t } = useTranslation()
-  const appDetail = useAppStore(state => state.appDetail)
+  const appDetail = useAppStore((state) => state.appDetail)
   const model = appDetail?.mode
   const isChatApp = model !== 'completion' && model !== 'workflow'
   const [period, setPeriod] = useState<PeriodParams>({
@@ -41,17 +48,15 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
     },
   })
 
-  const onSelect = (item: { value: number, name: string }) => {
+  const onSelect = (item: { value: number; name: string }) => {
     if (item.value === -1) {
       // allTime
       setPeriod({ name: item.name, query: undefined })
-    }
-    else if (item.value === 0) {
+    } else if (item.value === 0) {
       const startOfToday = today.startOf('day').format(queryDateFormat)
       const endOfToday = today.endOf('day').format(queryDateFormat)
       setPeriod({ name: item.name, query: { start: startOfToday, end: endOfToday, account: true } })
-    }
-    else {
+    } else {
       setPeriod({
         name: item.name,
         query: {
@@ -63,8 +68,7 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
     }
   }
 
-  if (!appDetail)
-    return null
+  if (!appDetail) return null
 
   return (
     <div>
@@ -75,7 +79,10 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
           onValueChange={(k) => {
             const entry = TIME_PERIOD_MAPPING[k as keyof typeof TIME_PERIOD_MAPPING]
             if (entry)
-              onSelect({ value: entry.value, name: t(($) => $[`filter.period.${entry.name}`], { ns: 'appLog' }) })
+              onSelect({
+                value: entry.value,
+                name: t(($) => $[`filter.period.${entry.name}`], { ns: 'appLog' }),
+              })
           }}
         >
           <SelectTrigger className="mt-0 w-40">
@@ -84,7 +91,9 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
           <SelectContent>
             {Object.entries(TIME_PERIOD_MAPPING).map(([k, v]) => (
               <SelectItem key={k} value={k}>
-                <SelectItemText>{t(($) => $[`filter.period.${v.name}`], { ns: 'appLog' })}</SelectItemText>
+                <SelectItemText>
+                  {t(($) => $[`filter.period.${v.name}`], { ns: 'appLog' })}
+                </SelectItemText>
                 <SelectItemIndicator />
               </SelectItem>
             ))}
@@ -107,13 +116,12 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
         <>
           <div className="mb-6 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
             <ConversationsChart period={period} id={appId} />
-            {model !== 'completion' && (isChatApp
-              ? (
-                  <AvgSessionInteractions period={period} id={appId} />
-                )
-              : (
-                  <AvgUserInteractions period={period} id={appId} />
-                ))}
+            {model !== 'completion' &&
+              (isChatApp ? (
+                <AvgSessionInteractions period={period} id={appId} />
+              ) : (
+                <AvgUserInteractions period={period} id={appId} />
+              ))}
           </div>
           <div className="mb-6 grid w-full grid-cols-1 gap-6 xl:grid-cols-2">
             <CostChart period={period} id={appId} />

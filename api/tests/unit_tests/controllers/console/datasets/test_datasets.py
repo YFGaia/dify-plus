@@ -1310,7 +1310,6 @@ class TestDatasetApiKeyApi:
         mock_token.month_used_quota = None
         mock_token.day_used_quota = None
 
-
         mock_api_token_cls = MagicMock()
         mock_api_token_cls.return_value = mock_token
         mock_api_token_cls.generate_api_key.return_value = "dataset-abc123"

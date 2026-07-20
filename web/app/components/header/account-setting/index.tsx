@@ -232,33 +232,33 @@ export default function AccountSetting({
                   )}
                 >
                   {/**
-                    * 二开部分 - 空间普通成员不渲染“模型供应商”标签
-                    * 原：menuItem.items.map(item => (
-                    * 改：menuItem.items.filter(...).map(item =>
-                    * （历史上还过滤过 'billing-list'，该 tab 已随上游重构移除）
-                    */}
+                   * 二开部分 - 空间普通成员不渲染“模型供应商”标签
+                   * 原：menuItem.items.map(item => (
+                   * 改：menuItem.items.filter(...).map(item =>
+                   * （历史上还过滤过 'billing-list'，该 tab 已随上游重构移除）
+                   */}
                   {menuItem.items
                     .filter((item) => !(item.key === 'provider' && !isCurrentWorkspaceManager))
                     .map((item) => (
-                    <button
-                      type="button"
-                      key={item.key}
-                      className={cn(
-                        'mb-0.5 flex h-8 w-full items-center rounded-lg px-3 text-left text-sm',
-                        activeMenu === item.key
-                          ? 'bg-state-base-active system-sm-semibold text-components-menu-item-text-active'
-                          : 'system-sm-medium text-components-menu-item-text',
-                      )}
-                      aria-label={item.name}
-                      title={item.name}
-                      onClick={() => {
-                        handleTabChange(item.key)
-                      }}
-                    >
-                      {activeMenu === item.key ? item.activeIcon : item.icon}
-                      {!isMobile && <div className="truncate">{item.name}</div>}
-                    </button>
-                  ))}
+                      <button
+                        type="button"
+                        key={item.key}
+                        className={cn(
+                          'mb-0.5 flex h-8 w-full items-center rounded-lg px-3 text-left text-sm',
+                          activeMenu === item.key
+                            ? 'bg-state-base-active system-sm-semibold text-components-menu-item-text-active'
+                            : 'system-sm-medium text-components-menu-item-text',
+                        )}
+                        aria-label={item.name}
+                        title={item.name}
+                        onClick={() => {
+                          handleTabChange(item.key)
+                        }}
+                      >
+                        {activeMenu === item.key ? item.activeIcon : item.icon}
+                        {!isMobile && <div className="truncate">{item.name}</div>}
+                      </button>
+                    ))}
                 </div>
               </div>
             ))}

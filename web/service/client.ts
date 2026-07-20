@@ -12,13 +12,13 @@ import type { AnyContractRouter, ContractRouterClient } from '@orpc/contract'
 import type { JsonifiedClient } from '@orpc/openapi-client'
 import type { RouterUtils, TanstackQueryOperationContext } from '@orpc/tanstack-query'
 import type { InfiniteData, QueryClient, QueryKey } from '@tanstack/react-query'
+// extend: fork 契约段类型（login_config 双阶段 / 系统管理代码执行控制）
+import type { ConsoleRouterContractWithExtend } from '@/contract/router-extend'
 import { marketplaceRouterContract } from '@dify/contracts/marketplace'
 import { createORPCClient, onError } from '@orpc/client'
 import { OpenAPILink } from '@orpc/openapi-client/fetch'
 import { createTanstackQueryUtils } from '@orpc/tanstack-query'
 import { API_PREFIX, APP_VERSION, IS_MARKETPLACE, MARKETPLACE_API_PREFIX } from '@/config'
-// extend: fork 契约段类型（login_config 双阶段 / 系统管理代码执行控制）
-import type { ConsoleRouterContractWithExtend } from '@/contract/router-extend'
 import { isClient } from '@/utils/client'
 // oxlint-disable-next-line no-restricted-imports
 import { request, sseGeneratorPost } from './base'
@@ -73,8 +73,7 @@ export function getBaseURL(path: string) {
 // extend: CVE-2025-63387 跨域时 Cookie 可能为 None，用 Header 携带 JWT
 const getConsoleHeaders = () => {
   const h = new Headers()
-  if (loginConfigToken)
-    h.set('X-Login-Config-Token', loginConfigToken)
+  if (loginConfigToken) h.set('X-Login-Config-Token', loginConfigToken)
   return h
 }
 

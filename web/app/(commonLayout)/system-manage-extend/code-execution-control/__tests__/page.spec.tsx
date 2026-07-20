@@ -5,11 +5,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import CodeExecutionControlPage from '../page'
 
-const {
-  addEmail,
-  listEmails,
-  removeEmail,
-} = vi.hoisted(() => ({
+const { addEmail, listEmails, removeEmail } = vi.hoisted(() => ({
   addEmail: vi.fn(),
   listEmails: vi.fn(),
   removeEmail: vi.fn(),
@@ -64,9 +60,7 @@ const renderPage = () => {
     },
   })
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   )
   return render(<CodeExecutionControlPage />, { wrapper })
 }
@@ -178,10 +172,7 @@ describe('CodeExecutionControlPage', () => {
       fireEvent.click(screen.getByRole('button', { name: /common\.confirm/ }))
 
       await waitFor(() => {
-        expect(removeEmail).toHaveBeenCalledWith(
-          { params: { id: 'item-1' } },
-          expect.anything(),
-        )
+        expect(removeEmail).toHaveBeenCalledWith({ params: { id: 'item-1' } }, expect.anything())
       })
       await waitFor(() => {
         expect(listEmails).toHaveBeenCalledTimes(2)

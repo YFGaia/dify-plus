@@ -395,9 +395,11 @@ class DingTalkService:
                     super_admin_tenant_id, account.id
                 )
                 if isCreate:
-                    TenantService.switch_tenant(account, super_admin_tenant_id)
+                    # switch_tenant/login 自上游 1.16.0 起要求显式 session（keyword-only 无默认值），
+                    # 此处沿用模块的全局 db.session（经 db.session() 取实体 Session）
+                    TenantService.switch_tenant(account, super_admin_tenant_id, session=db.session())
         # token jwt
-        token = AccountService.login(account, ip_address=extract_remote_ip(request))
+        token = AccountService.login(account, session=db.session(), ip_address=extract_remote_ip(request))
         return token, ""
 
     @classmethod

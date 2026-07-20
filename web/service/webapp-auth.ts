@@ -49,8 +49,7 @@ export async function checkConsoleLoginStatus() {
   try {
     const { console_logged_in } = await getPublic<isWebAppLogin>('/login/status')
     return console_logged_in || false
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to check console login status:', error)
     return false
   }

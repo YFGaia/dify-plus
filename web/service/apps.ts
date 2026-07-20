@@ -263,7 +263,13 @@ export const createApikey = ({
   return post<CreateApiKeyResponse>(url, { body })
 }
 
-export const editApikey = ({ url, body }: { url: string, body: Record<string, any> }): Promise<CreateApiKeyResponse> => {
+export const editApikey = ({
+  url,
+  body,
+}: {
+  url: string
+  body: Record<string, unknown>
+}): Promise<CreateApiKeyResponse> => {
   return put<CreateApiKeyResponse>(url, { body })
 }
 // 二开部分 End - 密钥额度限制编辑
@@ -357,11 +363,23 @@ export const publishToCreatorsPlatform = ({
 }
 
 // Extend: start messages context handling
-export const messageContextList = ({ conversation_id }: { conversation_id: string }): Promise<string[]> => {
+export const messageContextList = ({
+  conversation_id,
+}: {
+  conversation_id: string
+}): Promise<string[]> => {
   return get<string[]>(`/message/context?conversation_id=${conversation_id}`)
 }
 
-export const deleteMessageContext = ({ conversation_id, message_id }: { conversation_id: string, message_id: string }): Promise<string[]> => {
-  return del<string[]>(`/message/context?conversation_id=${conversation_id}&message_id=${message_id}`)
+export const deleteMessageContext = ({
+  conversation_id,
+  message_id,
+}: {
+  conversation_id: string
+  message_id: string
+}): Promise<string[]> => {
+  return del<string[]>(
+    `/message/context?conversation_id=${conversation_id}&message_id=${message_id}`,
+  )
 }
 // Extend: stop messages context handling

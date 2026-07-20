@@ -19,12 +19,7 @@ const VALUE_LIMIT = {
 }
 
 const key = 'month_limit_quota'
-const MonthLimitItemExtend: FC<Props> = ({
-  className,
-  value,
-  enable,
-  onChange,
-}) => {
+const MonthLimitItemExtend: FC<Props> = ({ className, value, enable, onChange }) => {
   const { t } = useTranslation()
   const handleParamChange = (key: string, value: number) => {
     let notOutRangeValue = Number.parseFloat(value.toFixed(2))

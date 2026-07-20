@@ -24,6 +24,8 @@ vi.mock('@/next/navigation', () => ({
 
 vi.mock('@/service/webapp-auth', () => ({
   webAppLogout: vi.fn(),
+  // extend: fork 页面会先检查 Console 登录态（WebApp 复用 Console 登录）
+  checkConsoleLoginStatus: vi.fn().mockResolvedValue(true),
 }))
 
 describe('WebSSOForm redirect security', () => {
@@ -40,7 +42,7 @@ describe('WebSSOForm redirect security', () => {
     })
 
     await waitFor(() => {
-      expect(navigationMocks.replace).toHaveBeenCalledWith('/')
+      expect(navigationMocks.replace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
   })
 })

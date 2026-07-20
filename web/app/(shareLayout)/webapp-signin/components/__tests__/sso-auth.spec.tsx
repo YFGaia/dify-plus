@@ -38,7 +38,7 @@ describe('SSOAuth redirect security', () => {
     fireEvent.click(screen.getByRole('button', { name: 'login.withSSO' }))
 
     await waitFor(() => {
-      expect(navigationMocks.replace).toHaveBeenCalledWith('/')
+      expect(navigationMocks.replace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(serviceMocks.fetchMembersSAMLSSOUrl).not.toHaveBeenCalled()
     expect(serviceMocks.fetchMembersOIDCSSOUrl).not.toHaveBeenCalled()

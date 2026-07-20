@@ -90,6 +90,8 @@ catalog:
   '@remixicon/react': 4.9.0
   '@rgrove/parse-xml': 4.2.2
   '@sentry/react': 10.65.0
+  '@serwist/next': 9.5.7
+  '@serwist/turbopack': 9.5.7
   '@storybook/addon-a11y': 10.5.0
   '@storybook/addon-docs': 10.5.0
   '@storybook/addon-links': 10.5.0
@@ -149,6 +151,7 @@ catalog:
   cron-parser: 5.6.1
   dayjs: 1.11.21
   decimal.js: 10.6.0
+  dingtalk-jsapi: 3.2.8
   dompurify: 3.4.12
   echarts: 6.1.0
   echarts-for-react: 3.0.6
@@ -158,6 +161,7 @@ catalog:
   embla-carousel-react: 8.6.0
   emoji-mart: 5.6.0
   es-toolkit: 1.49.0
+  esbuild-wasm: 0.27.2
   eslint: 10.7.0
   eslint-markdown: 0.12.1
   eslint-plugin-antfu: 3.2.3
@@ -233,6 +237,7 @@ catalog:
   remark-directive: 4.0.0
   scheduler: 0.27.0
   server-only: 0.0.1
+  serwist: 9.5.7
   sharp: 0.35.3
   shiki: 4.3.1
   socket.io-client: 4.8.3

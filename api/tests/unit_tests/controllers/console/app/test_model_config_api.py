@@ -16,6 +16,7 @@ from sqlalchemy.orm import object_session, sessionmaker
 from controllers.common import session as controller_session
 from controllers.console.app import model_config as model_config_module
 from models.model import App, AppMode, AppModelConfig
+from models.model_extend import AppExtend  # extend: 记忆上下文功能随模型配置同事务写入
 
 app_wraps_module = importlib.import_module("controllers.console.app.wraps")
 
@@ -82,7 +83,8 @@ def test_post_uses_one_session_and_rolls_back_when_signal_fails(
     sqlite_engine: Engine,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    App.metadata.create_all(sqlite_engine, tables=[App.__table__, AppModelConfig.__table__])
+    # extend: fork 的记忆上下文块会在同一事务里读写 AppExtend，需要一并建表
+    App.metadata.create_all(sqlite_engine, tables=[App.__table__, AppModelConfig.__table__, AppExtend.__table__])
     make_session = sessionmaker(bind=sqlite_engine, expire_on_commit=False)
     app_id = str(uuid4())
     tenant_id = str(uuid4())
@@ -94,6 +96,9 @@ def test_post_uses_one_session_and_rolls_back_when_signal_fails(
         setup_session.add(original_config)
         setup_session.flush()
         original_config_id = original_config.id
+        # extend: 预置 AppExtend 行（显式 id，规避 sqlite 无法评估 uuid_generate_v4 server default），
+        # 让 fork 记忆上下文块走 UPDATE 分支，一并验证其随信号失败回滚
+        setup_session.add(AppExtend(id=str(uuid4()), app_id=app_id, retention_number=7))
         setup_session.add(
             App(
                 id=app_id,
@@ -158,6 +163,10 @@ def test_post_uses_one_session_and_rolls_back_when_signal_fails(
         assert persisted_app.app_model_config_id == original_config_id
         config_count = verification_session.scalar(select(func.count()).select_from(AppModelConfig))
         assert config_count == 1
+        # extend: fork 记忆上下文写入也必须随信号失败一起回滚
+        persisted_extend = verification_session.scalar(select(AppExtend).where(AppExtend.app_id == app_id))
+        assert persisted_extend is not None
+        assert persisted_extend.retention_number == 7
 
 
 def test_post_encrypts_agent_tool_parameters(app: Flask, monkeypatch: pytest.MonkeyPatch) -> None:

@@ -142,7 +142,7 @@ describe('Signup Set Password Page', () => {
       expect(mockSendGAEvent).toHaveBeenCalledWith('user_registration_success', {
         method: 'email',
       })
-      expect(mockReplace).toHaveBeenCalledWith('/')
+      expect(mockReplace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
 
     it('should return to the requested console page when registration succeeds', async () => {

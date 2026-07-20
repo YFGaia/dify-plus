@@ -375,7 +375,10 @@ describe('MainNav', () => {
       Plan.team,
     )
     // 二开部分: 主页入口指向应用中心
-    expect(screen.getByRole('link', { name: /common.mainNav.home/ })).toHaveAttribute('href', '/explore/apps-center-extend')
+    expect(screen.getByRole('link', { name: /common.mainNav.home/ })).toHaveAttribute(
+      'href',
+      '/explore/apps-center-extend',
+    )
     expect(screen.getByRole('link', { name: /common.menus.apps/ })).toHaveAttribute('href', '/apps')
     expect(screen.getByRole('link', { name: /Agents/ })).toHaveAttribute('href', '/agents')
     expect(screen.getByRole('link', { name: /Agents common.menus.status/ })).toBeInTheDocument()
@@ -523,7 +526,10 @@ describe('MainNav', () => {
 
     renderMainNav()
 
-    expect(screen.getByRole('link', { name: /common.mainNav.home/ })).toHaveAttribute('href', '/explore/apps-center-extend') // 二开部分: 主页入口指向应用中心
+    expect(screen.getByRole('link', { name: /common.mainNav.home/ })).toHaveAttribute(
+      'href',
+      '/explore/apps-center-extend',
+    ) // 二开部分: 主页入口指向应用中心
     expect(screen.getByRole('link', { name: /common.menus.apps/ })).toHaveAttribute('href', '/apps')
     expect(screen.queryByRole('link', { name: /Agents/ })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /common.menus.datasets/ })).toHaveAttribute(

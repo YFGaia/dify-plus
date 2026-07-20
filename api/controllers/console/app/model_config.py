@@ -119,11 +119,13 @@ class ModelConfigResource(Resource):
         )
         new_app_model_config = new_app_model_config.from_model_config_dict(model_configuration)
 
+        # is_agent_with_session 只调用一次（有 session.get + 可能的 mode 迁移副作用），
+        # 结果同时供下方 fork 记忆上下文块与上游 agent 工具加密块使用
+        is_agent = app_model.mode == AppMode.AGENT_CHAT or app_model.is_agent_with_session(session=session)
+
         # Extend: 记忆上下文功能 - Start（改用 with_session 注入的 session，与模型配置写入同事务提交）
         config = request.json
-        if app_model.mode in {AppMode.AGENT_CHAT.value, AppMode.CHAT.value} or app_model.is_agent_with_session(
-            session=session
-        ):
+        if app_model.mode == AppMode.CHAT.value or is_agent:
             retention_number = int(config.get("retention_number", dify_config.DEFAULT_NUMBER_CONTEXT))
             # 循环移除相关键
             redis_client.delete(f"retention_number_{app_model.id}")
@@ -135,7 +137,7 @@ class ModelConfigResource(Resource):
                 app_extend.retention_number = retention_number
         # Extend: 记忆上下文功能 - Stop
 
-        if app_model.mode == AppMode.AGENT_CHAT or app_model.is_agent_with_session(session=session):
+        if is_agent:
             original_app_model_config = app_model.app_model_config_with_session(session=session)
             if original_app_model_config is None:
                 raise ValueError("Original app model config not found")

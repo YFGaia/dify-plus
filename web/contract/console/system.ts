@@ -9,7 +9,7 @@ export const loginConfigBootstrapContract = base
     method: 'GET',
   })
   .input(type<unknown>())
-  .output(type<{ ok: boolean, token: string }>())
+  .output(type<{ ok: boolean; token: string }>())
 
 // extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
 export const loginConfigContract = base

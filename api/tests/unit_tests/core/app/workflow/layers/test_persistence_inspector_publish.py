@@ -167,8 +167,7 @@ def test_node_succeeded_publishes_succeeded(layer, capture_publishes, monkeypatc
     # 二开部分 - 计费：屏蔽节点成功后的 Celery 计费派发（单测无 broker），
     # 并替换 jsonable_encoder（seed 的 MagicMock 不可序列化）
     monkeypatch.setattr(
-        "core.app.workflow.layers.persistence."
-        "update_account_money_when_workflow_node_execution_created_extend.delay",
+        "core.app.workflow.layers.persistence.update_account_money_when_workflow_node_execution_created_extend.delay",
         lambda *args, **kwargs: None,
     )
     monkeypatch.setattr("core.app.workflow.layers.persistence.jsonable_encoder", lambda obj: {})

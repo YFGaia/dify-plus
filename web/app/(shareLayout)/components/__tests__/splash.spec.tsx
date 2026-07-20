@@ -64,7 +64,7 @@ describe('Splash redirect security', () => {
     )
 
     await waitFor(() => {
-      expect(navigationMocks.replace).toHaveBeenCalledWith('/')
+      expect(navigationMocks.replace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(webAppAuthMocks.webAppLoginStatus).not.toHaveBeenCalled()
     expect(fetchAccessTokenMock).not.toHaveBeenCalled()
@@ -80,7 +80,7 @@ describe('Splash redirect security', () => {
     )
 
     await waitFor(() => {
-      expect(navigationMocks.replace).toHaveBeenCalledWith('/')
+      expect(navigationMocks.replace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(webAppAuthMocks.webAppLoginStatus).not.toHaveBeenCalled()
     expect(fetchAccessTokenMock).not.toHaveBeenCalled()
@@ -98,7 +98,7 @@ describe('Splash redirect security', () => {
     )
 
     await waitFor(() => {
-      expect(navigationMocks.replace).toHaveBeenCalledWith('/')
+      expect(navigationMocks.replace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(webAppAuthMocks.webAppLoginStatus).not.toHaveBeenCalled()
     expect(fetchAccessTokenMock).not.toHaveBeenCalled()
@@ -116,7 +116,7 @@ describe('Splash redirect security', () => {
     )
 
     await waitFor(() => {
-      expect(navigationMocks.replace).toHaveBeenCalledWith('/')
+      expect(navigationMocks.replace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(webAppAuthMocks.webAppLoginStatus).not.toHaveBeenCalled()
     expect(fetchAccessTokenMock).not.toHaveBeenCalled()

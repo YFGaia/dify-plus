@@ -19,12 +19,7 @@ const VALUE_LIMIT = {
 }
 
 const key = 'day_limit_quota'
-const DayLimitItemExtend: FC<Props> = ({
-  className,
-  value,
-  enable,
-  onChange,
-}) => {
+const DayLimitItemExtend: FC<Props> = ({ className, value, enable, onChange }) => {
   const { t } = useTranslation()
   const handleParamChange = (key: string, value: number) => {
     let notOutRangeValue = Number.parseFloat(value.toFixed(2))

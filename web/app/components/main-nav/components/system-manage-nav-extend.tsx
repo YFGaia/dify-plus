@@ -21,8 +21,7 @@ const SystemManageNavExtend = ({ pathname }: SystemManageNavExtendProps) => {
   const { t } = useTranslation()
   const isCurrentWorkspaceOwner = useAtomValue(isCurrentWorkspaceOwnerAtom)
 
-  if (!isCurrentWorkspaceOwner)
-    return null
+  if (!isCurrentWorkspaceOwner) return null
 
   const item: MainNavItem = {
     href: '/system-manage-extend/system-integration',

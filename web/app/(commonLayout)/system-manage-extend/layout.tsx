@@ -57,7 +57,7 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
           {t(($) => $['systemManage.title'], { ns: 'extend' })}
         </h2>
         <nav className="flex flex-col gap-0.5">
-          {menuItems.map(item => (
+          {menuItems.map((item) => (
             <Link
               key={item.key}
               href={item.href}
@@ -75,9 +75,7 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
       </div>
 
       {/* 右侧内容区 */}
-      <div className="flex-1 overflow-y-auto bg-background-body p-6">
-        {children}
-      </div>
+      <div className="flex-1 overflow-y-auto bg-background-body p-6">{children}</div>
     </div>
   )
 }

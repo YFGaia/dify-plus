@@ -14,12 +14,7 @@ type SliderProps = {
 }
 
 const Slider: FC<SliderProps> = ({ onChange, ...rest }) => {
-  return (
-    <UISlider
-      {...rest}
-      onValueChange={onChange}
-    />
-  )
+  return <UISlider {...rest} onValueChange={onChange} />
 }
 
 export default Slider

@@ -163,7 +163,7 @@ def validate_app_token[**P, R](
                 # extend: 建立 end_user 与 tenant owner account 映射，供后续计费链路使用
                 if tenant_owner_join_extend is not None:
                     create_or_update_end_user_account_join_extend(
-                        kwargs["end_user"].id,
+                        end_user.id,
                         tenant_owner_join_extend.account_id,
                         app_model.id,
                     )

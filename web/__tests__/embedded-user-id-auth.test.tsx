@@ -115,7 +115,7 @@ describe('embedded user id propagation in authentication flows', () => {
     fireEvent.click(screen.getByRole('button', { name: 'login.signBtn' }))
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/')
+      expect(replaceMock).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(webAppLoginMock).not.toHaveBeenCalled()
     expect(fetchAccessTokenMock).not.toHaveBeenCalled()
@@ -134,7 +134,7 @@ describe('embedded user id propagation in authentication flows', () => {
     fireEvent.click(screen.getByRole('button', { name: 'login.signup.verifyMail' }))
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/')
+      expect(replaceMock).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(sendWebAppEMailLoginCodeMock).not.toHaveBeenCalled()
   })
@@ -185,7 +185,7 @@ describe('embedded user id propagation in authentication flows', () => {
     fireEvent.click(screen.getByRole('button', { name: 'login.checkCode.verify' }))
 
     await waitFor(() => {
-      expect(replaceMock).toHaveBeenCalledWith('/')
+      expect(replaceMock).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(webAppEmailLoginWithCodeMock).not.toHaveBeenCalled()
     expect(fetchAccessTokenMock).not.toHaveBeenCalled()

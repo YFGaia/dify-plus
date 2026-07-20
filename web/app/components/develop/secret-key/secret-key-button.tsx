@@ -25,8 +25,7 @@ const SecretKeyButton = ({
   const [isVisible, setIsVisible] = useState(false)
   const { t } = useTranslation()
   // extend: 非管理员直接隐藏 API key 入口（上游仅禁用）
-  if (!isCurrentWorkspaceManager)
-    return null
+  if (!isCurrentWorkspaceManager) return null
 
   return (
     <>

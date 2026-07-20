@@ -168,9 +168,8 @@ const Apps = ({ onSuccess }: { onSuccess?: () => void }) => {
 
   // extend: start sync app — 推荐列表中的 app_id 集合，用于判断是否已同步
   const recommendedAppIds = useMemo(() => {
-    if (!homeQueries.appListData)
-      return new Set<string>()
-    return new Set(homeQueries.appListData.allList.map(item => item.app_id))
+    if (!homeQueries.appListData) return new Set<string>()
+    return new Set(homeQueries.appListData.allList.map((item) => item.app_id))
   }, [homeQueries.appListData])
   const queryClient = useQueryClient()
   const refreshExploreAppList = useCallback(() => {
@@ -185,7 +184,9 @@ const Apps = ({ onSuccess }: { onSuccess?: () => void }) => {
     )
     // Extend: start Explore Add Search — 标签过滤（基于分类名）
     if (tagFilterValue.length > 0)
-      result = result.filter((item) => item.categories?.some((category) => tagFilterValue.includes(category)))
+      result = result.filter((item) =>
+        item.categories?.some((category) => tagFilterValue.includes(category)),
+      )
     // Extend: stop Explore Add Search
     return result
   }, [homeQueries.appListData, activeCategory, allCategoriesEn, tagFilterValue])
@@ -198,7 +199,9 @@ const Apps = ({ onSuccess }: { onSuccess?: () => void }) => {
     // Extend: 搜索同时匹配应用名与描述
     return filteredList.filter(
       (item) =>
-        (item.app && item.app.name && item.app.name.toLowerCase().includes(lowerCaseSearchKeywords)) ||
+        (item.app &&
+          item.app.name &&
+          item.app.name.toLowerCase().includes(lowerCaseSearchKeywords)) ||
         (typeof item.description === 'string' &&
           item.description.toLowerCase().includes(lowerCaseSearchKeywords)),
     )

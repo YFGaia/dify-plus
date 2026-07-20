@@ -1383,7 +1383,7 @@ class WorkflowAppLog(TypeBase):
             ):
                 return self.created_by
             elif end_user is not None:
-                user: Account = db.session.query(Account).filter(Account.id == end_user.account_id).first()
+                user = db.session.query(Account).filter(Account.id == end_user.account_id).first()
                 if user:
                     return {
                         "id": user.id,
@@ -1403,9 +1403,7 @@ class WorkflowAppLog(TypeBase):
                     # 验证 external_user_id 是否为有效的 UUID
                     try:
                         uuid.UUID(end_user.external_user_id)
-                        user: Account = (
-                            db.session.query(Account).filter(Account.id == end_user.external_user_id).first()
-                        )
+                        user = db.session.query(Account).filter(Account.id == end_user.external_user_id).first()
                         if user:
                             return {
                                 "id": user.id,
@@ -1418,7 +1416,7 @@ class WorkflowAppLog(TypeBase):
                         pass
             return end_user
         elif len(self.created_by) > 0:
-            user: Account = db.session.query(Account).filter(Account.id == self.created_by).first()
+            user = db.session.query(Account).filter(Account.id == self.created_by).first()
             if user:
                 return {
                     "id": user.id,

@@ -46,8 +46,7 @@ function WebSSOForm() {
       const isConsoleLoggedIn = await checkConsoleLoginStatus()
       if (!isConsoleLoggedIn) {
         // 未登录，保存 redirect_url 到 localStorage，然后跳转到 Console 登录页面
-        if (redirectUrl)
-          localStorage.setItem('redirect_url', redirectUrl)
+        if (redirectUrl) localStorage.setItem('redirect_url', redirectUrl)
         router.replace('/signin')
       }
       setIsCheckingAuth(false)

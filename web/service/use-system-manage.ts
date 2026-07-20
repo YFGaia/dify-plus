@@ -5,23 +5,27 @@ import { consoleQuery } from './client'
 export const useAddCodeExecutionControlEmail = () => {
   const queryClient = useQueryClient()
 
-  return useMutation(consoleQuery.systemManage.codeExecutionControlAdd.mutationOptions({
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: consoleQuery.systemManage.codeExecutionControlList.key(),
-      })
-    },
-  }))
+  return useMutation(
+    consoleQuery.systemManage.codeExecutionControlAdd.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: consoleQuery.systemManage.codeExecutionControlList.key(),
+        })
+      },
+    }),
+  )
 }
 
 export const useRemoveCodeExecutionControlEmail = () => {
   const queryClient = useQueryClient()
 
-  return useMutation(consoleQuery.systemManage.codeExecutionControlRemove.mutationOptions({
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: consoleQuery.systemManage.codeExecutionControlList.key(),
-      })
-    },
-  }))
+  return useMutation(
+    consoleQuery.systemManage.codeExecutionControlRemove.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: consoleQuery.systemManage.codeExecutionControlList.key(),
+        })
+      },
+    }),
+  )
 }

@@ -3,7 +3,7 @@ import logging
 from collections.abc import Callable, Sequence
 from typing import Any
 
-from sqlalchemy import asc, desc, func, or_, select
+from sqlalchemy import ColumnElement, asc, desc, func, or_, select
 from sqlalchemy.orm import Session
 
 from clients.agent_backend import AgentBackendSessionCleanupPayload
@@ -48,10 +48,11 @@ class ConversationService:
         if not user:
             return InfiniteScrollPagination(data=[], limit=limit, has_more=False)
 
+        base_conditions: tuple[ColumnElement[bool], ...]
         if isinstance(user, EndUser):
             from_source = "api"
             # Include conversations owned by this end_user or by this end_user's linked account (Web login).
-            user_filter: Any = Conversation.from_end_user_id == user.id
+            user_filter: ColumnElement[bool] = Conversation.from_end_user_id == user.id
             if getattr(user, "external_user_id", None):
                 user_filter = or_(user_filter, Conversation.from_account_id == user.external_user_id)
             base_conditions = (
@@ -201,15 +202,15 @@ class ConversationService:
         # (e.g. cookie vs header passport, or session refresh). Allow access when either
         # from_end_user_id matches or from_account_id matches end_user's linked account.
         if not conversation and isinstance(user, EndUser):
-            fallback = (
-                db.session.query(Conversation)
+            fallback = session.scalar(
+                select(Conversation)
                 .where(
                     Conversation.id == conversation_id,
                     Conversation.app_id == app_model.id,
                     Conversation.from_source == "api",
                     Conversation.is_deleted == False,
                 )
-                .first()
+                .limit(1)
             )
             if fallback and (
                 fallback.from_end_user_id == user.id

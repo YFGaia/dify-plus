@@ -1,6 +1,10 @@
 'use client'
 // 二开部分 - 密钥额度类型
-import type { ApiKeyItemResponse, ApikeyItemResponseWithQuotaLimitExtend, CreateApiKeyResponse } from '@/models/app'
+import type {
+  ApiKeyItemResponse,
+  ApikeyItemResponseWithQuotaLimitExtend,
+  CreateApiKeyResponse,
+} from '@/models/app'
 import {
   AlertDialog,
   AlertDialogActions,
@@ -121,10 +125,8 @@ const SecretKeyModal = ({ isShow = false, appId, canManage, onClose }: ISecretKe
     const res = await editApikey(params)
     setVisibleExtend(false)
     setNewKey(res)
-    if (appId)
-      invalidateAppApiKeys(appId)
-    else
-      invalidateDatasetApiKeys()
+    if (appId) invalidateAppApiKeys(appId)
+    else invalidateDatasetApiKeys()
   }
   // ---------------------- 二开部分End - 密钥额度 ----------------------
 
@@ -212,79 +214,113 @@ const SecretKeyModal = ({ isShow = false, appId, canManage, onClose }: ISecretKe
               />
             </button>
           </div>
-          <p className="mt-1 shrink-0 text-[13px] leading-5 font-normal text-text-tertiary">{t(($) => $['apiKeyModal.apiSecretKeyTips'], { ns: 'appApi' })}</p>
-          {isApiKeysLoading && <div className="mt-4"><Loading /></div>}
-          {
-            !!apiKeysList?.data?.length && (
-              <div className="mt-4 flex grow flex-col overflow-hidden">
-                {/* 表头和行放在同一个 overflow-auto 容器，保证横向滚动同步 */}
-                <div className="grow overflow-auto">
-                  {/* 表头：sticky top-0 使其垂直滚动时不离开视口，同时跟随横向滚动 */}
-                  <div className="sticky top-0 z-10 flex h-9 shrink-0 items-center border-b border-divider-regular bg-components-panel-bg text-xs font-semibold text-text-tertiary">
-                    <div className="w-52 shrink-0 px-3">{t(($) => $['apiKeyModal.secretKey'], { ns: 'appApi' })}</div>
-                    <div className="w-[155px] shrink-0 px-3">{t(($) => $['apiKeyModal.created'], { ns: 'appApi' })}</div>
-                    <div className="w-[155px] shrink-0 px-3">{t(($) => $['apiKeyModal.lastUsed'], { ns: 'appApi' })}</div>
-                    {/* ---------------------- 二开部分Begin - 密钥额度限制 ---------------------- */}
-                    <div className="w-20 shrink-0 px-3">{t(($) => $['apiKeyModal.descriptionPlaceholder'], { ns: 'extend' })}</div>
-                    <div className="w-[135px] shrink-0 px-3">{t(($) => $['apiKeyModal.dayLimit'], { ns: 'extend' })}</div>
-                    <div className="w-[135px] shrink-0 px-3">{t(($) => $['apiKeyModal.monthLimit'], { ns: 'extend' })}</div>
-                    <div className="w-[110px] shrink-0 px-3">{t(($) => $['apiKeyModal.accumulatedLimit'], { ns: 'extend' })}</div>
-                    {/* ---------------------- 二开部分End - 密钥额度限制 ---------------------- */}
-                    <div className="w-[88px] shrink-0 px-3"></div>
+          <p className="mt-1 shrink-0 text-[13px] leading-5 font-normal text-text-tertiary">
+            {t(($) => $['apiKeyModal.apiSecretKeyTips'], { ns: 'appApi' })}
+          </p>
+          {isApiKeysLoading && (
+            <div className="mt-4">
+              <Loading />
+            </div>
+          )}
+          {!!apiKeysList?.data?.length && (
+            <div className="mt-4 flex grow flex-col overflow-hidden">
+              {/* 表头和行放在同一个 overflow-auto 容器，保证横向滚动同步 */}
+              <div className="grow overflow-auto">
+                {/* 表头：sticky top-0 使其垂直滚动时不离开视口，同时跟随横向滚动 */}
+                <div className="sticky top-0 z-10 flex h-9 shrink-0 items-center border-b border-divider-regular bg-components-panel-bg text-xs font-semibold text-text-tertiary">
+                  <div className="w-52 shrink-0 px-3">
+                    {t(($) => $['apiKeyModal.secretKey'], { ns: 'appApi' })}
                   </div>
-                  {apiKeysList.data.map(api => (
-                    <div className="flex h-9 items-center border-b border-divider-regular text-sm font-normal text-text-secondary" key={api.id}>
-                      <div className="w-52 shrink-0 truncate px-3 font-mono">{generateToken(api.token)}</div>
-                      <div className="w-[155px] shrink-0 truncate px-3">{formatTime(Number(api.created_at), t(($) => $['dateTimeFormat'], { ns: 'appLog' }) as string)}</div>
-                      <div className="w-[155px] shrink-0 truncate px-3">{api.last_used_at ? formatTime(Number(api.last_used_at), t(($) => $['dateTimeFormat'], { ns: 'appLog' }) as string) : t(($) => $['never'], { ns: 'appApi' })}</div>
-                      {/* ---------------------- 二开部分Begin - 密钥额度限制 ---------------------- */}
-                      <div className="w-20 shrink-0 truncate px-3">{api.description}</div>
-                      <div className="w-[135px] shrink-0 truncate px-3">
-                        $
-                        {api.day_used_quota}
-&nbsp;/&nbsp;
-                        {api.day_limit_quota === -1 ? t(($) => $['apiKeyModal.noLimit'], { ns: 'extend' }) : `$${api.day_limit_quota}`}
-                      </div>
-                      <div className="w-[135px] shrink-0 truncate px-3">
-                        $
-                        {api.month_used_quota}
-&nbsp;/&nbsp;
-                        {api.month_limit_quota === -1 ? t(($) => $['apiKeyModal.noLimit'], { ns: 'extend' }) : `$${api.month_limit_quota}`}
-                      </div>
-                      <div className="w-[110px] shrink-0 truncate px-3">
-                        $
-                        {api.accumulated_quota}
-                      </div>
-                      {/* ---------------------- 二开部分End - 密钥额度限制 ---------------------- */}
-                      <div className="flex w-[88px] shrink-0 items-center space-x-1 px-3">
-                        <CopyFeedback content={api.token} />
-                        {canManage && (
-                          <ActionButton
-                            onClick={() => {
-                              setDelKeyId(api.id)
-                              setShowConfirmDelete(true)
-                            }}
-                          >
-                            <span className="i-ri-delete-bin-line size-4" />
-                          </ActionButton>
-                        )}
-                        {/* 二开部分 - 密钥额度限制编辑 */}
-                        {isCurrentWorkspaceManager && (
-                          <div
-                            className={`flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-lg ${s.editIcon}`}
-                            onClick={() => {
-                              openSecretKeyQuotaEditModalExtend(api).then()
-                            }}
-                          >
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                  <div className="w-[155px] shrink-0 px-3">
+                    {t(($) => $['apiKeyModal.created'], { ns: 'appApi' })}
+                  </div>
+                  <div className="w-[155px] shrink-0 px-3">
+                    {t(($) => $['apiKeyModal.lastUsed'], { ns: 'appApi' })}
+                  </div>
+                  {/* ---------------------- 二开部分Begin - 密钥额度限制 ---------------------- */}
+                  <div className="w-20 shrink-0 px-3">
+                    {t(($) => $['apiKeyModal.descriptionPlaceholder'], { ns: 'extend' })}
+                  </div>
+                  <div className="w-[135px] shrink-0 px-3">
+                    {t(($) => $['apiKeyModal.dayLimit'], { ns: 'extend' })}
+                  </div>
+                  <div className="w-[135px] shrink-0 px-3">
+                    {t(($) => $['apiKeyModal.monthLimit'], { ns: 'extend' })}
+                  </div>
+                  <div className="w-[110px] shrink-0 px-3">
+                    {t(($) => $['apiKeyModal.accumulatedLimit'], { ns: 'extend' })}
+                  </div>
+                  {/* ---------------------- 二开部分End - 密钥额度限制 ---------------------- */}
+                  <div className="w-[88px] shrink-0 px-3"></div>
                 </div>
+                {apiKeysList.data.map((api) => (
+                  <div
+                    className="flex h-9 items-center border-b border-divider-regular text-sm font-normal text-text-secondary"
+                    key={api.id}
+                  >
+                    <div className="w-52 shrink-0 truncate px-3 font-mono">
+                      {generateToken(api.token)}
+                    </div>
+                    <div className="w-[155px] shrink-0 truncate px-3">
+                      {formatTime(
+                        Number(api.created_at),
+                        t(($) => $.dateTimeFormat, { ns: 'appLog' }) as string,
+                      )}
+                    </div>
+                    <div className="w-[155px] shrink-0 truncate px-3">
+                      {api.last_used_at
+                        ? formatTime(
+                            Number(api.last_used_at),
+                            t(($) => $.dateTimeFormat, { ns: 'appLog' }) as string,
+                          )
+                        : t(($) => $.never, { ns: 'appApi' })}
+                    </div>
+                    {/* ---------------------- 二开部分Begin - 密钥额度限制 ---------------------- */}
+                    <div className="w-20 shrink-0 truncate px-3">{api.description}</div>
+                    <div className="w-[135px] shrink-0 truncate px-3">
+                      ${api.day_used_quota}
+                      &nbsp;/&nbsp;
+                      {api.day_limit_quota === -1
+                        ? t(($) => $['apiKeyModal.noLimit'], { ns: 'extend' })
+                        : `$${api.day_limit_quota}`}
+                    </div>
+                    <div className="w-[135px] shrink-0 truncate px-3">
+                      ${api.month_used_quota}
+                      &nbsp;/&nbsp;
+                      {api.month_limit_quota === -1
+                        ? t(($) => $['apiKeyModal.noLimit'], { ns: 'extend' })
+                        : `$${api.month_limit_quota}`}
+                    </div>
+                    <div className="w-[110px] shrink-0 truncate px-3">${api.accumulated_quota}</div>
+                    {/* ---------------------- 二开部分End - 密钥额度限制 ---------------------- */}
+                    <div className="flex w-[88px] shrink-0 items-center space-x-1 px-3">
+                      <CopyFeedback content={api.token} />
+                      {canManage && (
+                        <ActionButton
+                          onClick={() => {
+                            setDelKeyId(api.id)
+                            setShowConfirmDelete(true)
+                          }}
+                        >
+                          <span className="i-ri-delete-bin-line size-4" />
+                        </ActionButton>
+                      )}
+                      {/* 二开部分 - 密钥额度限制编辑 */}
+                      {isCurrentWorkspaceManager && (
+                        <ActionButton
+                          onClick={() => {
+                            openSecretKeyQuotaEditModalExtend(api).then()
+                          }}
+                        >
+                          <span className={`size-4 ${s.editIcon}`} />
+                        </ActionButton>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
-            )
-          }
+            </div>
+          )}
           <div className="flex">
             {/* 二开部分 - 密钥额度限制：点击先弹出额度设置弹窗 */}
             <Button
@@ -319,7 +355,14 @@ const SecretKeyModal = ({ isShow = false, appId, canManage, onClose }: ISecretKe
             </AlertDialogContent>
           </AlertDialog>
           {/* ----------------------二开部分Begin - 密钥额度限制---------------------- */}
-          <SecretKeyQuotaSetExtendModal className="shrink-0" isShow={isVisibleExtend} onClose={() => setVisibleExtend(false)} newKey={keyItem} onChange={handleSetKeyDataSetQuotas} onCreate={keyItem.id === '' ? onCreate : onEdit} />
+          <SecretKeyQuotaSetExtendModal
+            className="shrink-0"
+            isShow={isVisibleExtend}
+            onClose={() => setVisibleExtend(false)}
+            newKey={keyItem}
+            onChange={handleSetKeyDataSetQuotas}
+            onCreate={keyItem.id === '' ? onCreate : onEdit}
+          />
           {/* ----------------------二开部分End - 密钥额度限制---------------------- */}
         </DialogContent>
       </Dialog>

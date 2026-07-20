@@ -35,8 +35,7 @@ export const systemFeaturesQueryOptions = () => {
       try {
         // extend: CVE-2025-63387未授权访问 — 先请求 bootstrap 拿 JWT（cookie + body），跨域时用 Header 带 token 请求 login_config
         const bootstrapRes = await consoleClient.loginConfigBootstrap()
-        if (bootstrapRes?.token)
-          setLoginConfigToken(bootstrapRes.token)
+        if (bootstrapRes?.token) setLoginConfigToken(bootstrapRes.token)
         return await consoleClient.loginConfig()
       } catch (err) {
         console.error('[systemFeatures] fetch failed, using defaults', err)

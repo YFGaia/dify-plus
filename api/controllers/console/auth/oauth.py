@@ -160,6 +160,9 @@ class OAuthLogin(Resource):
             language=language,
             redirect_url=redirect_url,
         )
+        # extend: OaOAuth 在集成未配置时返回 None，此时无法发起授权跳转
+        if not auth_url:
+            return {"error": "OAuth provider is not configured"}, 400
         return redirect(auth_url)
 
 
@@ -205,13 +208,14 @@ class OAuthCallback(Resource):
         language = _validated_language(oauth_state.get("language"))
         redirect_url = oauth_state.get("redirect_url")
 
-        if not code and token_from_query is None:
-            return {"error": "Authorization code is required"}, 400
-
         try:
             # Extend: Start 兼容casdoor
+            token: str | None
             if token_from_query is not None:
                 token = token_from_query
+            elif code is None:
+                # 前面已保证 code 与 token_from_query 至少有一个存在，此分支仅供类型收窄
+                return {"error": "Authorization code is required"}, 400
             else:
                 # Extend: Start 兼容casdoor
                 # OaOAuth 返回 dict（含 id_token）；上游 GitHub/Google OAuth 自 1.14.2 起直接返回 str
@@ -291,10 +295,13 @@ class OAuthCallback(Resource):
             ip_address=extract_remote_ip(request),
         )
 
-        # extend: 兼容casdoor——在上游 redirect_url 回跳（同源校验）基础上追加 id_token
+        # extend: 兼容casdoor——在上游 redirect_url 回跳（同源校验）基础上追加 id_token；
+        # 仅 OaOAuth(casdoor) 返回 id_token，GitHub/Google 为 None 时不得污染回跳 URL
         target_url = _get_redirect_target(redirect_url)
         query_char = "&" if "?" in target_url else "?"
-        target_url = f"{target_url}{query_char}oauth_new_user={str(oauth_new_user).lower()}&id_token={id_token}"
+        target_url = f"{target_url}{query_char}oauth_new_user={str(oauth_new_user).lower()}"
+        if id_token:
+            target_url = f"{target_url}&id_token={id_token}"
         response = redirect(target_url)
 
         set_access_token_to_cookie(request, response, token_pair.access_token)

@@ -13,11 +13,14 @@ const SystemIntegrationPage = () => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<Tab>('dingtalk')
 
-  const tabs: { key: Tab, label: string }[] = [
+  const tabs: { key: Tab; label: string }[] = [
     { key: 'dingtalk', label: t(($) => $['systemManage.dingtalk.title'], { ns: 'extend' }) },
     { key: 'oauth2', label: t(($) => $['systemManage.oauth2.title'], { ns: 'extend' }) },
     { key: 'email-api', label: t(($) => $['systemManage.emailApi.title'], { ns: 'extend' }) },
-    { key: 'forward-token', label: t(($) => $['systemManage.forwardToken.title'], { ns: 'extend' }) },
+    {
+      key: 'forward-token',
+      label: t(($) => $['systemManage.forwardToken.title'], { ns: 'extend' }),
+    },
   ]
 
   return (
@@ -28,7 +31,7 @@ const SystemIntegrationPage = () => {
 
       {/* Tab 切换 */}
       <div className="mb-6 flex border-b border-divider-subtle">
-        {tabs.map(tab => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}

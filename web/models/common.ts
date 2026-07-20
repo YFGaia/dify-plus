@@ -171,7 +171,6 @@ export type ApiForwardedProps = {
 }
 // Extend Stop: Connecting Fees Frontend
 
-
 export type CodeBasedExtensionForm = {
   type: string
   label: I18nText

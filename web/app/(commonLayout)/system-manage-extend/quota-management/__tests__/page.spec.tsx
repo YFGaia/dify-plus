@@ -9,8 +9,7 @@ vi.mock('react-i18next', async () => {
   return {
     useTranslation: () => ({
       t: withSelectorKey((key: string, options?: Record<string, string>) => {
-        if (options?.name)
-          return `${key}:${options.name}`
+        if (options?.name) return `${key}:${options.name}`
         return key
       }),
     }),
@@ -79,7 +78,9 @@ describe('QuotaManagementPage', () => {
     fireEvent.click(screen.getByText('systemManage.common.confirm'))
 
     expect(setUserQuotaMock).not.toHaveBeenCalled()
-    expect(await screen.findByText('systemManage.quota.editDialog.invalidInput')).toBeInTheDocument()
+    expect(
+      await screen.findByText('systemManage.quota.editDialog.invalidInput'),
+    ).toBeInTheDocument()
   })
 
   it('should refresh list after successful quota update', async () => {

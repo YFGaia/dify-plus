@@ -19,7 +19,7 @@ const AvatarCell = ({ item }: { item: QuotaListItem }) => {
         alt={item.name}
         className="size-8 rounded-full object-cover"
         onError={(e) => {
-          (e.target as HTMLImageElement).style.display = 'none'
+          ;(e.target as HTMLImageElement).style.display = 'none'
         }}
       />
     )
@@ -58,11 +58,9 @@ const QuotaManagementPage = () => {
       setList(data.list || [])
       setTotal(data.total || 0)
       setPage(data.page || pg)
-    }
-    catch (e) {
+    } catch (e) {
       toast.error(getErrorMessage(e) || 'Failed to load quota list')
-    }
-    finally {
+    } finally {
       setLoading(false)
     }
   }, [])
@@ -78,8 +76,7 @@ const QuotaManagementPage = () => {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter')
-      handleSearch()
+    if (e.key === 'Enter') handleSearch()
   }
 
   // ── 分页 ──────────────────────────────────────────────────
@@ -102,8 +99,7 @@ const QuotaManagementPage = () => {
   }
 
   const handleEditConfirm = async () => {
-    if (!editTarget)
-      return
+    if (!editTarget) return
     const err = validateEdit(editValue)
     if (err) {
       setEditError(err)
@@ -111,15 +107,18 @@ const QuotaManagementPage = () => {
     }
     try {
       setSubmitting(true)
-      await setUserQuota({ account_id: editTarget.account_id, quota: Number.parseFloat(editValue.trim()) })
+      await setUserQuota({
+        account_id: editTarget.account_id,
+        quota: Number.parseFloat(editValue.trim()),
+      })
       toast.success(t(($) => $['systemManage.quota.editDialog.success'], { ns: 'extend' }))
       setEditTarget(null)
       fetchList(page, pageSize, keyword)
-    }
-    catch (e) {
-      toast.error(getErrorMessage(e) || t(($) => $['systemManage.quota.editDialog.failed'], { ns: 'extend' }))
-    }
-    finally {
+    } catch (e) {
+      toast.error(
+        getErrorMessage(e) || t(($) => $['systemManage.quota.editDialog.failed'], { ns: 'extend' }),
+      )
+    } finally {
       setSubmitting(false)
     }
   }
@@ -140,7 +139,7 @@ const QuotaManagementPage = () => {
         <input
           type="text"
           value={inputKeyword}
-          onChange={e => setInputKeyword(e.target.value)}
+          onChange={(e) => setInputKeyword(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={t(($) => $['systemManage.quota.search'], { ns: 'extend' })}
           className="w-64 rounded-lg border border-components-input-border-active bg-components-input-bg-normal px-3 py-2 text-sm text-text-primary placeholder:text-text-quaternary focus:border-components-input-border-active focus:outline-none"
@@ -185,58 +184,52 @@ const QuotaManagementPage = () => {
             </tr>
           </thead>
           <tbody>
-            {loading
-              ? (
-                  <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-text-tertiary">
-                      {t(($) => $['systemManage.common.loading'], { ns: 'extend' })}
-                    </td>
-                  </tr>
-                )
-              : list.length === 0
-                ? (
-                    <tr>
-                      <td colSpan={8} className="px-4 py-8 text-center text-text-tertiary">
-                        {t(($) => $['systemManage.quota.empty'], { ns: 'extend' })}
-                      </td>
-                    </tr>
-                  )
-                : list.map(item => (
-                    <tr key={item.account_id} className="border-b border-divider-subtle last:border-0 hover:bg-background-default-hover">
-                      <td className="px-4 py-3 text-text-tertiary">
-                        #
-                        {item.ranking}
-                      </td>
-                      <td className="px-4 py-3">
-                        <AvatarCell item={item} />
-                      </td>
-                      <td className="px-4 py-3 font-medium text-text-primary">{item.name}</td>
-                      <td className="px-4 py-3 text-text-secondary">{item.email}</td>
-                      <td className="px-4 py-3 text-right text-text-secondary">
-                        {item.used_quota.toFixed(4)}
-                        {' '}
-                        USD
-                      </td>
-                      <td className="px-4 py-3 text-right text-text-secondary">
-                        {item.total_quota.toFixed(4)}
-                        {' '}
-                        USD
-                      </td>
-                      <td className={`px-4 py-3 text-right font-medium ${item.balance < 0 ? 'text-text-warning' : 'text-text-success'}`}>
-                        {item.balance.toFixed(4)}
-                        {' '}
-                        USD
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => openEdit(item)}
-                          className="text-sm text-text-accent hover:underline"
-                        >
-                          {t(($) => $['systemManage.quota.action.edit'], { ns: 'extend' })}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+            {loading ? (
+              <tr>
+                <td colSpan={8} className="px-4 py-8 text-center text-text-tertiary">
+                  {t(($) => $['systemManage.common.loading'], { ns: 'extend' })}
+                </td>
+              </tr>
+            ) : list.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-4 py-8 text-center text-text-tertiary">
+                  {t(($) => $['systemManage.quota.empty'], { ns: 'extend' })}
+                </td>
+              </tr>
+            ) : (
+              list.map((item) => (
+                <tr
+                  key={item.account_id}
+                  className="border-b border-divider-subtle last:border-0 hover:bg-background-default-hover"
+                >
+                  <td className="px-4 py-3 text-text-tertiary">#{item.ranking}</td>
+                  <td className="px-4 py-3">
+                    <AvatarCell item={item} />
+                  </td>
+                  <td className="px-4 py-3 font-medium text-text-primary">{item.name}</td>
+                  <td className="px-4 py-3 text-text-secondary">{item.email}</td>
+                  <td className="px-4 py-3 text-right text-text-secondary">
+                    {item.used_quota.toFixed(4)} USD
+                  </td>
+                  <td className="px-4 py-3 text-right text-text-secondary">
+                    {item.total_quota.toFixed(4)} USD
+                  </td>
+                  <td
+                    className={`px-4 py-3 text-right font-medium ${item.balance < 0 ? 'text-text-warning' : 'text-text-success'}`}
+                  >
+                    {item.balance.toFixed(4)} USD
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => openEdit(item)}
+                      className="text-sm text-text-accent hover:underline"
+                    >
+                      {t(($) => $['systemManage.quota.action.edit'], { ns: 'extend' })}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -254,35 +247,31 @@ const QuotaManagementPage = () => {
               }}
               className="rounded border border-divider-subtle bg-background-default px-2 py-1 text-text-secondary"
             >
-              {PAGE_SIZE_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+              {PAGE_SIZE_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
             <span>
               条，共
-              {total}
-              {' '}
-              条
+              {total} 条
             </span>
           </div>
           <div className="flex items-center gap-1">
             <button
               disabled={page <= 1}
-              onClick={() => setPage(p => p - 1)}
+              onClick={() => setPage((p) => p - 1)}
               className="rounded px-2 py-1 hover:bg-state-base-hover disabled:opacity-40"
             >
               ‹
             </button>
             <span className="px-2">
-              第
-              {page}
-              {' '}
-              /
-              {totalPages}
-              {' '}
-              页
+              第{page} /{totalPages} 页
             </span>
             <button
               disabled={page >= totalPages}
-              onClick={() => setPage(p => p + 1)}
+              onClick={() => setPage((p) => p + 1)}
               className="rounded px-2 py-1 hover:bg-state-base-hover disabled:opacity-40"
             >
               ›
@@ -296,7 +285,10 @@ const QuotaManagementPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-[400px] rounded-xl bg-components-panel-bg p-6 shadow-xl">
             <h3 className="mb-4 text-base font-semibold text-text-primary">
-              {t(($) => $['systemManage.quota.editDialog.title'], { ns: 'extend', name: editTarget.name })}
+              {t(($) => $['systemManage.quota.editDialog.title'], {
+                ns: 'extend',
+                name: editTarget.name,
+              })}
             </h3>
             <input
               ref={inputRef}
@@ -307,15 +299,14 @@ const QuotaManagementPage = () => {
                 setEditError('')
               }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter')
-                  handleEditConfirm()
+                if (e.key === 'Enter') handleEditConfirm()
               }}
-              placeholder={t(($) => $['systemManage.quota.editDialog.inputPlaceholder'], { ns: 'extend' })}
+              placeholder={t(($) => $['systemManage.quota.editDialog.inputPlaceholder'], {
+                ns: 'extend',
+              })}
               className="w-full rounded-lg border border-components-input-border-active bg-components-input-bg-normal px-3 py-2 text-sm text-text-primary focus:outline-none"
             />
-            {editError && (
-              <p className="mt-1 text-xs text-text-warning">{editError}</p>
-            )}
+            {editError && <p className="mt-1 text-xs text-text-warning">{editError}</p>}
             <div className="mt-4 flex justify-end gap-2">
               <button
                 onClick={handleEditCancel}
@@ -328,7 +319,9 @@ const QuotaManagementPage = () => {
                 disabled={submitting}
                 className="rounded-lg bg-components-button-primary-bg px-4 py-2 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover disabled:opacity-60"
               >
-                {submitting ? t(($) => $['systemManage.common.saving'], { ns: 'extend' }) : t(($) => $['systemManage.common.confirm'], { ns: 'extend' })}
+                {submitting
+                  ? t(($) => $['systemManage.common.saving'], { ns: 'extend' })
+                  : t(($) => $['systemManage.common.confirm'], { ns: 'extend' })}
               </button>
             </div>
           </div>

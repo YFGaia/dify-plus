@@ -109,10 +109,15 @@ function NormalForm() {
         ? 'code'
         : defaultAuthType
   // extend: ding_talk / oauth2
-  const showORLine = (hasSocialLogin || hasSsoLogin || hasDingTalkLogin || hasOAuth2Login) && hasEmailLogin
+  const showORLine =
+    (hasSocialLogin || hasSsoLogin || hasDingTalkLogin || hasOAuth2Login) && hasEmailLogin
   const noLoginMethodsConfigured =
-    !hasSocialLogin && !hasEmailCodeLogin && !hasEmailPasswordLogin && !hasSsoLogin &&
-    !hasDingTalkLogin && !hasOAuth2Login
+    !hasSocialLogin &&
+    !hasEmailCodeLogin &&
+    !hasEmailPasswordLogin &&
+    !hasSsoLogin &&
+    !hasDingTalkLogin &&
+    !hasOAuth2Login
   const allMethodsAreDisabled = noLoginMethodsConfigured || isInviteCheckError
   const isLoading = isCheckLoading || isLoggedIn || (isInviteLink && isInviteCheckLoading)
 
@@ -120,17 +125,17 @@ function NormalForm() {
   const dingTalkCorpId = systemFeaturesExtend.ding_talk_corp_id
   useEffect(() => {
     // 确保只在客户端环境执行
-    if (typeof window === 'undefined')
-      return
+    if (typeof window === 'undefined') return
 
     const dingTalkLogin = async () => {
       const tokenKey = CSRF_COOKIE_NAME()
-      let consoleToken: string | null | undefined = decodeURIComponent(searchParams.get('console_token') || '')
+      let consoleToken: string | null | undefined = decodeURIComponent(
+        searchParams.get('console_token') || '',
+      )
       const consoleTokenFromLocalStorage = localStorage?.getItem(tokenKey)
       const jumpsNumber = Number(localStorage?.getItem('jumps_number'))
       if (consoleToken || consoleTokenFromLocalStorage) {
-        if (!consoleToken)
-          consoleToken = consoleTokenFromLocalStorage
+        if (!consoleToken) consoleToken = consoleTokenFromLocalStorage
         if (consoleToken) {
           if (jumpsNumber) {
             // token无效
@@ -142,8 +147,7 @@ function NormalForm() {
           localStorage?.setItem('jumps_number', (jumpsNumber + 1).toString())
           window.location.href = `/explore/apps-center-extend?console_token=${consoleToken}`
           return
-        }
-        else {
+        } else {
           window.location.href = '/explore/apps-center-extend'
           return
         }
@@ -179,8 +183,7 @@ function NormalForm() {
               }
             },
           })
-        }
-        catch (error) {
+        } catch (error) {
           console.error('DingTalk auth error:', error)
         }
       }
@@ -318,8 +321,12 @@ function NormalForm() {
               </div>
             )}
             {/* Extend: start ding_talk login */}
-            {hasDingTalkLogin && (<DingTalkAuth clientId={systemFeaturesExtend.ding_talk_client_id}></DingTalkAuth>)}
-            {hasOAuth2Login && (<OAuth2 title={systemFeaturesExtend.is_custom_auth2_button}></OAuth2>)}
+            {hasDingTalkLogin && (
+              <DingTalkAuth clientId={systemFeaturesExtend.ding_talk_client_id}></DingTalkAuth>
+            )}
+            {hasOAuth2Login && (
+              <OAuth2 title={systemFeaturesExtend.is_custom_auth2_button}></OAuth2>
+            )}
             {/* Extend: end oauth2 login */}
           </div>
 

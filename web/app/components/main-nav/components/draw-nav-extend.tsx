@@ -7,8 +7,7 @@ import type { MainNavItem } from '../types'
 import { useTranslation } from 'react-i18next'
 import MainNavLink from './nav-link'
 
-const isDrawPath = (path: string) =>
-  path === '/draw-extend' || path.startsWith('/draw-extend/')
+const isDrawPath = (path: string) => path === '/draw-extend' || path.startsWith('/draw-extend/')
 
 type DrawNavExtendProps = {
   pathname: string

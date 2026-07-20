@@ -23,4 +23,5 @@ export const forkConsoleContractExtend = {
   },
 }
 
-export type ConsoleRouterContractWithExtend = typeof consoleRouterContract & typeof forkConsoleContractExtend
+export type ConsoleRouterContractWithExtend = typeof consoleRouterContract &
+  typeof forkConsoleContractExtend

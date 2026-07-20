@@ -32,8 +32,7 @@ export const serverSystemFeaturesQueryOptions = () => {
         // fires for it. Guard on shape: without `branding` the payload is unusable for
         // rendering (main-nav reads systemFeatures.branding.enabled) and would crash SSR.
         // Fall back to defaults; the client refetches the real values through login_config.
-        if (!res || typeof res !== 'object' || !('branding' in res))
-          return defaultSystemFeatures
+        if (!res || typeof res !== 'object' || !('branding' in res)) return defaultSystemFeatures
         return res
       } catch (err) {
         console.error('[systemFeatures] server fetch failed', err)

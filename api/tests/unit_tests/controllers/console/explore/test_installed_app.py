@@ -15,7 +15,6 @@ type PayloadPatch = Callable[[Payload], AbstractContextManager[object]]
 
 from inspect import unwrap
 
-
 # extend: fork 移除了 explore 的 enterprise webapp-auth 过滤，模块不再引用这两个服务；
 # 注入同名属性以兼容上游测试中的 patch.object 目标（fork 代码路径不会调用它们）
 from services.enterprise.enterprise_service import EnterpriseService as _EnterpriseService

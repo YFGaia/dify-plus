@@ -32,7 +32,6 @@ vi.mock('@/context/workspace-state', async () => {
   }
 })
 
-
 vi.mock('@/service/use-explore', () => ({
   useGetInstalledApps: () => ({
     isPending: mockIsPending,
@@ -100,7 +99,6 @@ describe('SideBar', () => {
 
       expect(screen.getByText('extend.sidebar.appCenter')).toBeInTheDocument()
     })
-
 
     it('should render workspace items when installed apps exist', () => {
       mockInstalledApps = [createInstalledApp()]

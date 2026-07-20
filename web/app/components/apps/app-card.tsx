@@ -38,9 +38,9 @@ import { UserAvatarList } from '@/app/components/base/user-avatar-list'
 import { buildInstalledAppPath } from '@/app/components/explore/installed-app/routes'
 import { userProfileIdAtom } from '@/context/account-state'
 import { useExtendPermissions } from '@/context/app-context-extend' // extend: 二开权限位
-import { isCurrentWorkspaceManagerAtom } from '@/context/workspace-state' // extend: sync app
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
 import { useProviderContext } from '@/context/provider-context'
+import { isCurrentWorkspaceManagerAtom } from '@/context/workspace-state' // extend: sync app
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { AppCardTags } from '@/features/tag-management/components/app-card-tags'
 import { useAsyncWindowOpen } from '@/hooks/use-async-window-open'
@@ -323,16 +323,26 @@ function AppCardOperationsMenu({
       {syncOption === 'sync' && onSyncToAppTemplate && (
         <>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="gap-2 px-3" onClick={e => handleMenuAction(e, onSyncToAppTemplate)}>
-            <span className="system-sm-regular" style={{ color: '#00931e' }}>{t(($) => $['app.syncToAppTemplate'], { ns: 'extend' })}</span>
+          <DropdownMenuItem
+            className="gap-2 px-3"
+            onClick={(e) => handleMenuAction(e, onSyncToAppTemplate)}
+          >
+            <span className="system-sm-regular" style={{ color: '#00931e' }}>
+              {t(($) => $['app.syncToAppTemplate'], { ns: 'extend' })}
+            </span>
           </DropdownMenuItem>
         </>
       )}
       {syncOption === 'cancel-sync' && onCancelSyncToAppTemplate && (
         <>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="gap-2 px-3" onClick={e => handleMenuAction(e, onCancelSyncToAppTemplate)}>
-            <span className="system-sm-regular" style={{ color: '#b70000' }}>{t(($) => $['app.cancelSyncToAppTemplate'], { ns: 'extend' })}</span>
+          <DropdownMenuItem
+            className="gap-2 px-3"
+            onClick={(e) => handleMenuAction(e, onCancelSyncToAppTemplate)}
+          >
+            <span className="system-sm-regular" style={{ color: '#b70000' }}>
+              {t(($) => $['app.cancelSyncToAppTemplate'], { ns: 'extend' })}
+            </span>
           </DropdownMenuItem>
         </>
       )}
@@ -906,10 +916,9 @@ export function AppCard({
       toast.success(t(($) => $['app.syncAppOk'], { ns: 'extend' }))
       onRefresh?.()
       onPlanInfoChanged()
-    }
-    catch (e) {
+    } catch (e) {
       const message = e instanceof Error ? e.message : ''
-      toast.error(`${t(($) => $['appDeleteFailed'], { ns: 'app' })}${message ? `: ${message}` : ''}`)
+      toast.error(`${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`)
     }
     setShowSyncApps(false)
   }, [app.id, onPlanInfoChanged, onRefresh, t])
@@ -921,10 +930,9 @@ export function AppCard({
       toast.success(t(($) => $['app.syncAppOk'], { ns: 'extend' }))
       onRefresh?.()
       onPlanInfoChanged()
-    }
-    catch (e) {
+    } catch (e) {
       const message = e instanceof Error ? e.message : ''
-      toast.error(`${t(($) => $['appDeleteFailed'], { ns: 'app' })}${message ? `: ${message}` : ''}`)
+      toast.error(`${t(($) => $.appDeleteFailed, { ns: 'app' })}${message ? `: ${message}` : ''}`)
     }
     setShowCancelSyncApps(false)
   }, [app.id, onPlanInfoChanged, onRefresh, t])

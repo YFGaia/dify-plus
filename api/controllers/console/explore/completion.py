@@ -214,7 +214,6 @@ class ChatApi(InstalledAppResource):
                     session=session,
                 )
 
-
             response = AppGenerateService.generate(
                 session=session,
                 app_model=app_model,

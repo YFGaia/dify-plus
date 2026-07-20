@@ -15,16 +15,15 @@ export type AppCardProps = {
   isExplore: boolean
 }
 
-const AppCard = ({
-  app,
-  canCreate,
-  onCreate,
-  isExplore,
-}: AppCardProps) => {
+const AppCard = ({ app, canCreate, onCreate, isExplore }: AppCardProps) => {
   const { t } = useTranslation()
   const { app: appBasicInfo } = app
   return (
-    <div className={cn('group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:shadow-lg')}>
+    <div
+      className={cn(
+        'group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:shadow-lg',
+      )}
+    >
       <div className="flex h-[66px] shrink-0 grow-0 items-center gap-3 px-[14px] pt-[14px] pb-3">
         <div className="relative shrink-0">
           <AppIcon
@@ -42,29 +41,55 @@ const AppCard = ({
         </div>
         <div className="w-0 grow py-[1px]">
           <div className="flex items-center text-sm leading-5 font-semibold text-text-secondary">
-            <div className="truncate" title={appBasicInfo.name}>{appBasicInfo.name}</div>
+            <div className="truncate" title={appBasicInfo.name}>
+              {appBasicInfo.name}
+            </div>
           </div>
           <div className="flex items-center text-[10px] leading-[18px] font-medium text-text-tertiary">
-            {appBasicInfo.mode === AppModeEnum.ADVANCED_CHAT && <div className="truncate">{t(($) => $['types.advanced'], { ns: 'app' }).toUpperCase()}</div>}
-            {appBasicInfo.mode === AppModeEnum.CHAT && <div className="truncate">{t(($) => $['types.chatbot'], { ns: 'app' }).toUpperCase()}</div>}
-            {appBasicInfo.mode === AppModeEnum.AGENT_CHAT && <div className="truncate">{t(($) => $['types.agent'], { ns: 'app' }).toUpperCase()}</div>}
-            {appBasicInfo.mode === AppModeEnum.WORKFLOW && <div className="truncate">{t(($) => $['types.workflow'], { ns: 'app' }).toUpperCase()}</div>}
-            {appBasicInfo.mode === AppModeEnum.COMPLETION && <div className="truncate">{t(($) => $['types.completion'], { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.ADVANCED_CHAT && (
+              <div className="truncate">
+                {t(($) => $['types.advanced'], { ns: 'app' }).toUpperCase()}
+              </div>
+            )}
+            {appBasicInfo.mode === AppModeEnum.CHAT && (
+              <div className="truncate">
+                {t(($) => $['types.chatbot'], { ns: 'app' }).toUpperCase()}
+              </div>
+            )}
+            {appBasicInfo.mode === AppModeEnum.AGENT_CHAT && (
+              <div className="truncate">
+                {t(($) => $['types.agent'], { ns: 'app' }).toUpperCase()}
+              </div>
+            )}
+            {appBasicInfo.mode === AppModeEnum.WORKFLOW && (
+              <div className="truncate">
+                {t(($) => $['types.workflow'], { ns: 'app' }).toUpperCase()}
+              </div>
+            )}
+            {appBasicInfo.mode === AppModeEnum.COMPLETION && (
+              <div className="truncate">
+                {t(($) => $['types.completion'], { ns: 'app' }).toUpperCase()}
+              </div>
+            )}
           </div>
         </div>
       </div>
       <div className="description-wrapper h-[90px] px-[14px] system-xs-regular text-text-tertiary">
-        <div className="line-clamp-4 group-hover:line-clamp-2">
-          {app.description}
-        </div>
+        <div className="line-clamp-4 group-hover:line-clamp-2">{app.description}</div>
       </div>
       {isExplore && canCreate && (
-        <div className={cn('absolute right-0 bottom-0 left-0 hidden bg-gradient-to-t from-components-panel-gradient-2 from-[60.27%] to-transparent p-4 pt-8 group-hover:flex')}>
+        <div
+          className={cn(
+            'absolute right-0 bottom-0 left-0 hidden bg-gradient-to-t from-components-panel-gradient-2 from-[60.27%] to-transparent p-4 pt-8 group-hover:flex',
+          )}
+        >
           <div className={cn('flex h-8 w-full items-center space-x-2')}>
             <Button variant="primary" className="h-7 grow" onClick={() => onCreate()}>
               <PlusIcon className="mr-1 h-4 w-4" />
               {/* Create new conversation button for installed app */}
-              <span className="text-xs">{t(($) => $['appCard.newConversation'], { ns: 'extend' })}</span>
+              <span className="text-xs">
+                {t(($) => $['appCard.newConversation'], { ns: 'extend' })}
+              </span>
             </Button>
           </div>
         </div>

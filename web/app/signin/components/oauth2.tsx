@@ -1,9 +1,9 @@
 import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
-import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { API_PREFIX } from '@/config'
+import { useRouter } from '@/next/navigation'
 import style from '../page.module.css'
 
 type OAuth2Props = {
@@ -22,20 +22,12 @@ export default function OAuth2(props: OAuth2Props) {
   return (
     <>
       <div className="mb-2">
-        <a onClick={OAuth2Login}>
-          <Button
-            className="w-full"
-          >
-            <span className={
-              cn(
-                style.oauth2Icon,
-                'mr-2 h-5 w-5',
-              )
-            }
-            />
-            <span className="truncate">{props.title === '' ? t(($) => $['withSSO'], { ns: 'login' }) : props.title}</span>
-          </Button>
-        </a>
+        <Button className="w-full" onClick={OAuth2Login}>
+          <span className={cn(style.oauth2Icon, 'mr-2 h-5 w-5')} />
+          <span className="truncate">
+            {props.title === '' ? t(($) => $.withSSO, { ns: 'login' }) : props.title}
+          </span>
+        </Button>
       </div>
     </>
   )

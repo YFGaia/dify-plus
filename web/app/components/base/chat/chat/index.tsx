@@ -154,8 +154,7 @@ const Chat: FC<ChatProps> = ({
   try {
     const context = useChatWithHistoryContext()
     currentConversationId = context?.currentConversationId || ''
-  }
-  catch {
+  } catch {
     // Context not available, skip
   }
   const [contextList, setContextList] = useState<string[]>([])
@@ -165,8 +164,7 @@ const Chat: FC<ChatProps> = ({
       try {
         const historyList = await messageContextList({ conversation_id: currentConversationId })
         setContextList(Array.isArray(historyList) ? historyList : [])
-      }
-      catch (error) {
+      } catch (error) {
         // Handle error silently
         console.error('Failed to fetch message context list:', error)
       }
@@ -174,8 +172,7 @@ const Chat: FC<ChatProps> = ({
   }
 
   useEffect(() => {
-    if (isResponding)
-      return
+    if (isResponding) return
     handleResponding().then()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isResponding, currentConversationId])
@@ -250,7 +247,10 @@ const Chat: FC<ChatProps> = ({
                 // Extend: start messages context handling
                 const clearContext = async (message_id: string) => {
                   if (currentConversationId) {
-                    await deleteMessageContext({ conversation_id: currentConversationId, message_id })
+                    await deleteMessageContext({
+                      conversation_id: currentConversationId,
+                      message_id,
+                    })
                     handleResponding().then()
                   }
                 }
@@ -276,15 +276,20 @@ const Chat: FC<ChatProps> = ({
                     />
                     {/* Extend: start messages context handling */}
                     {contextList.includes(item.id) && (
-                      <span
+                      <button
+                        type="button"
                         onClick={() => {
                           clearContext(item.id).then()
                         }}
                         className={cn(s.contextTag)}
                       >
-                        <span className={cn(s.isCenter)}>{t(($) => $['configuration.clearContext'], { ns: 'extend' })}</span>
-                        <span className={cn(s.recover)}>{t(($) => $['configuration.restoreContext'], { ns: 'extend' })}</span>
-                      </span>
+                        <span className={cn(s.isCenter)}>
+                          {t(($) => $['configuration.clearContext'], { ns: 'extend' })}
+                        </span>
+                        <span className={cn(s.recover)}>
+                          {t(($) => $['configuration.restoreContext'], { ns: 'extend' })}
+                        </span>
+                      </button>
                     )}
                     {/* Extend: stop messages context handling */}
                   </Fragment>

@@ -45,8 +45,9 @@ class TokenBufferMemory:
     def messages_context_handling(
         self,
         conversation_id: str,
-        prompt_messages: tuple[list[AssistantPromptMessage]],
-    ) -> tuple[list[AssistantPromptMessage]]:
+        prompt_messages: list[PromptMessage],
+    ) -> list[PromptMessage]:
+        """按会话的上下文分割记录裁剪历史消息；无论是否分割都会清掉 name 标记（name 携带 message.id 供匹配）。"""
         # check if there is a segmentation context
         message_context = (
             db.session.query(MessageContextExtend)
@@ -61,7 +62,7 @@ class TokenBufferMemory:
                 v.name = None
             return prompt_messages
         # for
-        messages = []
+        messages: list[PromptMessage] = []
         for v in prompt_messages:
             messages.append(v)
             if v.name is not None and len(v.name) > 0:

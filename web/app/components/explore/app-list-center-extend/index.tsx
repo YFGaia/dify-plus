@@ -3,7 +3,6 @@
 import type { App } from '@/models/explore'
 import { cn } from '@langgenius/dify-ui/cn'
 import { useDebounceFn } from 'ahooks'
-import { useRouter } from 'next/navigation'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useCallback, useMemo, useState } from 'react'
@@ -14,28 +13,19 @@ import { SearchInput } from '@/app/components/base/search-input'
 import AppCard from '@/app/components/explore/app-card-extend'
 import Category from '@/app/components/explore/category'
 import { TagFilter } from '@/features/tag-management/components/tag-filter'
+import { useRouter } from '@/next/navigation'
 import { useInstalledAppList } from '@/service/use-explore'
 import s from './style.module.css'
 // extend: /installed/apps（recommended_app_service_extend）按 tag 每行输出单数 category
 type AppWithCategoryExtend = App & { category?: string }
 // Extend: stop Explore Add Search
 
-type AppsProps = {
-  onSuccess?: () => void
-}
-
-const Apps = ({
-  onSuccess,
-}: AppsProps) => {
+const Apps = () => {
   const { t } = useTranslation()
   const allCategoriesEn = t(($) => $['apps.allCategories'], { ns: 'explore', lng: 'en' })
 
   // Extend: start Installed app list sorted by usage
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useInstalledAppList()
+  const { data, isLoading, isError } = useInstalledAppList()
   // Extend: stop Installed app list sorted by usage
 
   // Extend: start Explore Add Search
@@ -43,9 +33,12 @@ const Apps = ({
   const [keywordsValue, setKeywordsValue] = useState<string>('')
   // Extend: stop Explore Add Search
 
-  const { run: handleSearch } = useDebounceFn(() => {
-    // Trigger search update
-  }, { wait: 500 })
+  const { run: handleSearch } = useDebounceFn(
+    () => {
+      // Trigger search update
+    },
+    { wait: 500 },
+  )
 
   const handleTagsChange = (value: string[]) => {
     setTagFilterValue(value)
@@ -63,27 +56,29 @@ const Apps = ({
 
   // Extend: start Filtered list with search and tag filter
   const filteredListExtend = useMemo(() => {
-    if (!data)
-      return []
+    if (!data) return []
 
     let result = data.allList as AppWithCategoryExtend[]
 
     // Apply category filter（后端 /installed/apps 每个 tag 输出一行，字段为单数 category）
     if (currCategory !== allCategoriesEn) {
-      result = result.filter(item => item.category === currCategory)
+      result = result.filter((item) => item.category === currCategory)
     }
 
     // Apply tag filter
     if (tagFilterValue.length > 0) {
-      result = result.filter(item => item.category !== undefined && tagFilterValue.includes(item.category))
+      result = result.filter(
+        (item) => item.category !== undefined && tagFilterValue.includes(item.category),
+      )
     }
 
     // Apply keyword search
     if (keywordsValue.length > 0) {
       const lowerCaseKeywords = keywordsValue.toLowerCase()
-      result = result.filter(item =>
-        item.description?.toLowerCase().includes(lowerCaseKeywords)
-        || item.app?.name?.toLowerCase().includes(lowerCaseKeywords),
+      result = result.filter(
+        (item) =>
+          item.description?.toLowerCase().includes(lowerCaseKeywords) ||
+          item.app?.name?.toLowerCase().includes(lowerCaseKeywords),
       )
     }
 
@@ -103,13 +98,16 @@ const Apps = ({
 
   // Extend: start Create new conversation for installed app
   const { push } = useRouter()
-  const handleCreateConversation = useCallback((app: App) => {
-    // Directly navigate to installed app conversation page
-    // Use installed_id which should be provided by backend
-    if (app.installed_id) {
-      push(`/explore/installed/${app.installed_id}`)
-    }
-  }, [push])
+  const handleCreateConversation = useCallback(
+    (app: App) => {
+      // Directly navigate to installed app conversation page
+      // Use installed_id which should be provided by backend
+      if (app.installed_id) {
+        push(`/explore/installed/${app.installed_id}`)
+      }
+    },
+    [push],
+  )
   // Extend: stop Create new conversation for installed app
 
   if (isLoading) {
@@ -120,20 +118,13 @@ const Apps = ({
     )
   }
 
-  if (isError || !data)
-    return null
+  if (isError || !data) return null
 
   const { categories } = data
 
   return (
-    <div className={cn(
-      'flex h-full flex-col border-l-[0.5px] border-divider-regular',
-    )}
-    >
-      <div className={cn(
-        'mt-6 flex items-center justify-between px-12',
-      )}
-      >
+    <div className={cn('flex h-full flex-col border-l-[0.5px] border-divider-regular')}>
+      <div className={cn('mt-6 flex items-center justify-between px-12')}>
         <Category
           list={categories}
           value={currCategory}
@@ -143,21 +134,17 @@ const Apps = ({
         {/* Extend: start Explore Add Search */}
         <div className="flex items-center gap-2">
           <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
-          <SearchInput className="w-[200px]" value={keywordsValue} onValueChange={handleKeywordsChange} />
+          <SearchInput
+            className="w-[200px]"
+            value={keywordsValue}
+            onValueChange={handleKeywordsChange}
+          />
         </div>
         {/* Extend: stop Explore Add Search */}
       </div>
-      <div className={cn(
-        'relative mt-4 flex flex-1 shrink-0 grow flex-col overflow-auto pb-6',
-      )}
-      >
-        <nav
-          className={cn(
-            s.appList,
-            'grid shrink-0 content-start gap-4 px-6 sm:px-12',
-          )}
-        >
-          {filteredListExtend.map(app => (
+      <div className={cn('relative mt-4 flex flex-1 shrink-0 grow flex-col overflow-auto pb-6')}>
+        <nav className={cn(s.appList, 'grid shrink-0 content-start gap-4 px-6 sm:px-12')}>
+          {filteredListExtend.map((app) => (
             <AppCard
               key={app.installed_id}
               isExplore

@@ -1,9 +1,9 @@
 import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
-import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { API_PREFIX } from '@/config'
+import { useRouter } from '@/next/navigation'
 import style from '../page.module.css'
 
 type SocialAuthProps = {
@@ -28,20 +28,10 @@ export default function DingTalkAuth(props: SocialAuthProps) {
   return (
     <>
       <div className="mb-2">
-        <a onClick={DingTalkCasLogin}>
-          <Button
-            className="w-full"
-          >
-            <span className={
-              cn(
-                style.dingIcon,
-                'mr-2 h-5 w-5',
-              )
-            }
-            />
-            <span className="truncate">{t(($) => $['sidebar.withDingTalk'], { ns: 'extend' })}</span>
-          </Button>
-        </a>
+        <Button className="w-full" onClick={DingTalkCasLogin}>
+          <span className={cn(style.dingIcon, 'mr-2 h-5 w-5')} />
+          <span className="truncate">{t(($) => $['sidebar.withDingTalk'], { ns: 'extend' })}</span>
+        </Button>
       </div>
     </>
   )

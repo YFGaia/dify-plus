@@ -71,9 +71,7 @@ const Config: FC = () => {
         />
 
         {/* Extend: 记忆上下文功能 */}
-        {
-          isChatApp && <RetentionNumberExtend />
-        }
+        {isChatApp && <RetentionNumberExtend />}
 
         {/* Variables */}
         {!(readonly && promptVariables.length === 0) && (

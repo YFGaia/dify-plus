@@ -10,12 +10,10 @@ export type DingTalkConfig = {
     email_api?: {
       url: string
       key: string
-      [key: string]: any
     }
     forward_config?: {
       tokens: ForwardToken[]
     }
-    [key: string]: any
   }
 }
 
@@ -32,7 +30,6 @@ export type OAuth2Config = {
     button_text: string
     logout_url: string
     redirect_uri: string
-    [key: string]: any
   }
 }
 
@@ -47,7 +44,7 @@ export type TestResult = {
   result: string
   message?: string
   status_code?: number
-  user_info?: Record<string, any>
+  user_info?: Record<string, unknown>
 }
 
 // ==================== 用户额度管理 ====================

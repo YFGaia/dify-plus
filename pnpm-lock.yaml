@@ -120,6 +120,12 @@ catalogs:
     '@sentry/react':
       specifier: 10.65.0
       version: 10.65.0
+    '@serwist/next':
+      specifier: 9.5.7
+      version: 9.5.7
+    '@serwist/turbopack':
+      specifier: 9.5.7
+      version: 9.5.7
     '@storybook/addon-a11y':
       specifier: 10.5.0
       version: 10.5.0
@@ -297,6 +303,9 @@ catalogs:
     decimal.js:
       specifier: 10.6.0
       version: 10.6.0
+    dingtalk-jsapi:
+      specifier: 3.2.8
+      version: 3.2.8
     dompurify:
       specifier: 3.4.12
       version: 3.4.12
@@ -324,6 +333,9 @@ catalogs:
     es-toolkit:
       specifier: 1.49.0
       version: 1.49.0
+    esbuild-wasm:
+      specifier: 0.27.2
+      version: 0.27.2
     eslint:
       specifier: 10.7.0
       version: 10.7.0
@@ -549,6 +561,9 @@ catalogs:
     server-only:
       specifier: 0.0.1
       version: 0.0.1
+    serwist:
+      specifier: 9.5.7
+      version: 9.5.7
     sharp:
       specifier: 0.35.3
       version: 0.35.3
@@ -1210,10 +1225,10 @@ importers:
         specifier: 'catalog:'
         version: 10.65.0(react@19.2.7)
       '@serwist/next':
-        specifier: 9.5.7
+        specifier: 'catalog:'
         version: 9.5.7(@typescript/typescript6@6.0.2)(next@16.2.10(@babel/core@7.29.7)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
       '@serwist/turbopack':
-        specifier: 9.5.7
+        specifier: 'catalog:'
         version: 9.5.7(@typescript/typescript6@6.0.2)(esbuild-wasm@0.27.2)(esbuild@0.28.1)(next@16.2.10(@babel/core@7.29.7)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
       '@streamdown/math':
         specifier: 'catalog:'
@@ -1267,7 +1282,7 @@ importers:
         specifier: 'catalog:'
         version: 10.6.0
       dingtalk-jsapi:
-        specifier: 3.2.8
+        specifier: 'catalog:'
         version: 3.2.8
       dompurify:
         specifier: 'catalog:'
@@ -1297,7 +1312,7 @@ importers:
         specifier: 'catalog:'
         version: 1.49.0
       esbuild-wasm:
-        specifier: 0.27.2
+        specifier: 'catalog:'
         version: 0.27.2
       fast-deep-equal:
         specifier: 'catalog:'
@@ -1438,7 +1453,7 @@ importers:
         specifier: 'catalog:'
         version: 0.0.1
       serwist:
-        specifier: 9.5.7
+        specifier: 'catalog:'
         version: 9.5.7(@typescript/typescript6@6.0.2)(browserslist@4.28.4)
       sharp:
         specifier: 'catalog:'

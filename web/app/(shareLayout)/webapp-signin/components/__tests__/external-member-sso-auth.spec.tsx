@@ -41,7 +41,7 @@ describe('ExternalMemberSSOAuth redirect security', () => {
     })
 
     await waitFor(() => {
-      expect(navigationMocks.replace).toHaveBeenCalledWith('/')
+      expect(navigationMocks.replace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
     })
     expect(serviceMocks.fetchWebSAMLSSOUrl).not.toHaveBeenCalled()
     expect(serviceMocks.fetchWebOIDCSSOUrl).not.toHaveBeenCalled()

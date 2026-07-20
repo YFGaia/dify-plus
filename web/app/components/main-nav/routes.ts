@@ -38,7 +38,10 @@ export const MAIN_NAV_ROUTES = [
     // 二开部分 Begin: 主页入口指向 fork 应用中心（与旧 header logo/ExploreNav 指向一致）
     href: '/explore/apps-center-extend',
     labelKey: 'mainNav.home',
-    active: (path: string) => path === '/' || path === '/explore/apps' || isPathUnderRoute(path, '/explore/apps-center-extend'),
+    active: (path: string) =>
+      path === '/' ||
+      path === '/explore/apps' ||
+      isPathUnderRoute(path, '/explore/apps-center-extend'),
     // 二开部分 End
     icon: 'i-custom-vender-main-nav-home',
     activeIcon: 'i-custom-vender-main-nav-home-active',

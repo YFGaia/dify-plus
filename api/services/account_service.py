@@ -1982,7 +1982,9 @@ class RegisterService:
                     super_admin_tenant_id, account.id
                 )
                 if is_create:
-                    TenantService.switch_tenant(account, super_admin_tenant_id)
+                    # switch_tenant 需要显式 session（上游 1.16.0 起 keyword-only 且无默认值），
+                    # 复用 setup 的注入 session，随其一起提交
+                    TenantService.switch_tenant(account, super_admin_tenant_id, session=session)
             # extend end: admin 初始化不同步问题
 
             dify_setup = DifySetup(version=dify_config.project.version)

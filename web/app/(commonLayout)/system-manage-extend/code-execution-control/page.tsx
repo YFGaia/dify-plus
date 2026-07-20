@@ -44,36 +44,55 @@ const CodeExecutionControlPage = () => {
       setInputError(t(($) => $['systemManage.codeExecutionControl.invalidEmail'], { ns: 'extend' }))
       return
     }
-    addMutation.mutate({ body: { email: trimmed } }, {
-      onSuccess: (data) => {
-        setEmail('')
-        if (data.cache_synced === false)
-          toast.warning(t(($) => $['systemManage.codeExecutionControl.cacheSyncWarning'], { ns: 'extend' }))
-        else
-          toast.success(t(($) => $['systemManage.codeExecutionControl.addSuccess'], { ns: 'extend' }))
+    addMutation.mutate(
+      { body: { email: trimmed } },
+      {
+        onSuccess: (data) => {
+          setEmail('')
+          if (data.cache_synced === false)
+            toast.warning(
+              t(($) => $['systemManage.codeExecutionControl.cacheSyncWarning'], { ns: 'extend' }),
+            )
+          else
+            toast.success(
+              t(($) => $['systemManage.codeExecutionControl.addSuccess'], { ns: 'extend' }),
+            )
+        },
+        onError: (e) => {
+          toast.error(
+            getErrorMessage(e) ||
+              t(($) => $['systemManage.codeExecutionControl.addFailed'], { ns: 'extend' }),
+          )
+        },
       },
-      onError: (e) => {
-        toast.error(getErrorMessage(e) || t(($) => $['systemManage.codeExecutionControl.addFailed'], { ns: 'extend' }))
-      },
-    })
+    )
   }
 
   const handleDeleteConfirm = () => {
-    if (!deleteTarget)
-      return
-    removeMutation.mutate({ params: { id: deleteTarget.id } }, {
-      onSuccess: (data) => {
-        setDeleteTarget(null)
-        if (data.cache_synced === false)
-          toast.warning(t(($) => $['systemManage.codeExecutionControl.cacheSyncWarning'], { ns: 'extend' }))
-        else
-          toast.success(t(($) => $['systemManage.codeExecutionControl.deleteSuccess'], { ns: 'extend' }))
+    if (!deleteTarget) return
+    removeMutation.mutate(
+      { params: { id: deleteTarget.id } },
+      {
+        onSuccess: (data) => {
+          setDeleteTarget(null)
+          if (data.cache_synced === false)
+            toast.warning(
+              t(($) => $['systemManage.codeExecutionControl.cacheSyncWarning'], { ns: 'extend' }),
+            )
+          else
+            toast.success(
+              t(($) => $['systemManage.codeExecutionControl.deleteSuccess'], { ns: 'extend' }),
+            )
+        },
+        onError: (e) => {
+          setDeleteTarget(null)
+          toast.error(
+            getErrorMessage(e) ||
+              t(($) => $['systemManage.codeExecutionControl.deleteFailed'], { ns: 'extend' }),
+          )
+        },
       },
-      onError: (e) => {
-        setDeleteTarget(null)
-        toast.error(getErrorMessage(e) || t(($) => $['systemManage.codeExecutionControl.deleteFailed'], { ns: 'extend' }))
-      },
-    })
+    )
   }
 
   return (
@@ -96,15 +115,14 @@ const CodeExecutionControlPage = () => {
               setInputError('')
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter')
-                handleAdd()
+              if (e.key === 'Enter') handleAdd()
             }}
-            placeholder={t(($) => $['systemManage.codeExecutionControl.emailPlaceholder'], { ns: 'extend' })}
+            placeholder={t(($) => $['systemManage.codeExecutionControl.emailPlaceholder'], {
+              ns: 'extend',
+            })}
             className="w-full rounded-lg border border-components-input-border-active bg-components-input-bg-normal px-3 py-2 text-sm text-text-primary placeholder:text-text-quaternary focus:outline-none"
           />
-          {inputError && (
-            <p className="mt-1 text-xs text-text-warning">{inputError}</p>
-          )}
+          {inputError && <p className="mt-1 text-xs text-text-warning">{inputError}</p>}
         </div>
         <button
           onClick={handleAdd}
@@ -134,38 +152,39 @@ const CodeExecutionControlPage = () => {
             </tr>
           </thead>
           <tbody>
-            {listQuery.isLoading
-              ? (
-                  <tr>
-                    <td colSpan={3} className="px-4 py-8 text-center text-text-tertiary">
-                      {t(($) => $['systemManage.common.loading'], { ns: 'extend' })}
-                    </td>
-                  </tr>
-                )
-              : items.length === 0
-                ? (
-                    <tr>
-                      <td colSpan={3} className="px-4 py-8 text-center text-text-tertiary">
-                        {t(($) => $['systemManage.codeExecutionControl.empty'], { ns: 'extend' })}
-                      </td>
-                    </tr>
-                  )
-                : items.map(item => (
-                    <tr key={item.id} className="border-b border-divider-subtle last:border-0 hover:bg-background-default-hover">
-                      <td className="px-4 py-3 font-medium text-text-primary">{item.email}</td>
-                      <td className="px-4 py-3 text-text-tertiary">
-                        {new Date(item.created_at).toLocaleString()}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => setDeleteTarget(item)}
-                          className="text-sm text-text-destructive hover:underline"
-                        >
-                          {t(($) => $['systemManage.common.delete'], { ns: 'extend' })}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+            {listQuery.isLoading ? (
+              <tr>
+                <td colSpan={3} className="px-4 py-8 text-center text-text-tertiary">
+                  {t(($) => $['systemManage.common.loading'], { ns: 'extend' })}
+                </td>
+              </tr>
+            ) : items.length === 0 ? (
+              <tr>
+                <td colSpan={3} className="px-4 py-8 text-center text-text-tertiary">
+                  {t(($) => $['systemManage.codeExecutionControl.empty'], { ns: 'extend' })}
+                </td>
+              </tr>
+            ) : (
+              items.map((item) => (
+                <tr
+                  key={item.id}
+                  className="border-b border-divider-subtle last:border-0 hover:bg-background-default-hover"
+                >
+                  <td className="px-4 py-3 font-medium text-text-primary">{item.email}</td>
+                  <td className="px-4 py-3 text-text-tertiary">
+                    {new Date(item.created_at).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <button
+                      onClick={() => setDeleteTarget(item)}
+                      className="text-sm text-text-destructive hover:underline"
+                    >
+                      {t(($) => $['systemManage.common.delete'], { ns: 'extend' })}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -174,17 +193,21 @@ const CodeExecutionControlPage = () => {
       <AlertDialog
         open={!!deleteTarget}
         onOpenChange={(open) => {
-          if (!open)
-            setDeleteTarget(null)
+          if (!open) setDeleteTarget(null)
         }}
       >
         <AlertDialogContent>
           <div className="flex flex-col items-start gap-2 self-stretch pt-6 pr-6 pb-4 pl-6">
             <AlertDialogTitle className="w-full title-2xl-semi-bold text-text-primary">
-              {t(($) => $['systemManage.codeExecutionControl.deleteConfirmTitle'], { ns: 'extend' })}
+              {t(($) => $['systemManage.codeExecutionControl.deleteConfirmTitle'], {
+                ns: 'extend',
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription className="w-full system-md-regular wrap-break-word whitespace-pre-wrap text-text-tertiary">
-              {t(($) => $['systemManage.codeExecutionControl.deleteConfirmContent'], { ns: 'extend', email: deleteTarget?.email ?? '' })}
+              {t(($) => $['systemManage.codeExecutionControl.deleteConfirmContent'], {
+                ns: 'extend',
+                email: deleteTarget?.email ?? '',
+              })}
             </AlertDialogDescription>
           </div>
           <AlertDialogActions>

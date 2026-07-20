@@ -646,7 +646,8 @@ export const createPublishHandler =
 
     // Extend: 记忆上下文功能 — 发布时携带保留条数
     if (retentionNumber !== undefined)
-      (body as BackendModelConfig & { retention_number?: number }).retention_number = retentionNumber
+      (body as BackendModelConfig & { retention_number?: number }).retention_number =
+        retentionNumber
 
     await updateAppModelConfig({ url: `/apps/${appId}/model-config`, body })
 
