@@ -98,7 +98,7 @@ const SideBar = () => {
         <div className={cn(isDiscoverySelected ? 'text-text-accent' : 'text-text-tertiary')}>
           <Link
             href="/"
-            aria-label={isFold ? t('sidebar.discovery', { ns: 'extend' }) : undefined}
+            aria-label={isFold ? t(($) => $['sidebar.discovery'], { ns: 'extend' }) : undefined}
             className={cn(
               isDiscoverySelected ? 'bg-state-base-active' : 'hover:bg-state-base-hover',
               'flex h-8 w-full items-center justify-start gap-2 rounded-lg px-1',
@@ -119,7 +119,7 @@ const SideBar = () => {
                     : 'system-sm-regular text-components-menu-item-text',
                 )}
               >
-                {t('sidebar.discovery', { ns: 'extend' })}
+                {t(($) => $['sidebar.discovery'], { ns: 'extend' })}
               </div>
             )}
           </Link>
@@ -128,7 +128,7 @@ const SideBar = () => {
       <div className={cn(isAppCenterSelected ? 'text-text-accent' : 'text-text-tertiary')}>
         <Link
           href="/explore/apps-center-extend"
-          aria-label={isFold ? t('sidebar.appCenter', { ns: 'extend' }) : undefined}
+          aria-label={isFold ? t(($) => $['sidebar.appCenter'], { ns: 'extend' }) : undefined}
           className={cn(
             isAppCenterSelected ? 'bg-state-base-active' : 'hover:bg-state-base-hover',
             'flex h-8 w-full items-center justify-start gap-2 rounded-lg px-1',
@@ -149,7 +149,7 @@ const SideBar = () => {
                   : 'system-sm-regular text-components-menu-item-text',
               )}
             >
-              {t('sidebar.appCenter', { ns: 'extend' })}
+              {t(($) => $['sidebar.appCenter'], { ns: 'extend' })}
             </div>
           )}
         </Link>

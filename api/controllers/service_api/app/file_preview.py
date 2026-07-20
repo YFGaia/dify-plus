@@ -19,7 +19,7 @@ from controllers.service_api.schema import binary_response
 from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate_app_token
 from extensions.ext_database import db
 from extensions.ext_storage import storage
-from models.model import App, EndUser, Message, MessageFile, UploadFile
+from models.model import ApiToken, App, EndUser, Message, MessageFile, UploadFile
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,8 @@ class FilePreviewApi(Resource):
     )
     @service_api_ns.response(200, "File retrieved successfully")
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))
-    def get(self, app_model: App, end_user: EndUser, file_id: UUID):
+    # extend - 密钥额度限制，新增api_token（validate_app_token 始终注入）
+    def get(self, app_model: App, end_user: EndUser, file_id: UUID, api_token: ApiToken | None = None):
         """
         Preview/Download a file that was uploaded via Service API.
 

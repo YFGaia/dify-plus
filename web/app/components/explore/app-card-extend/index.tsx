@@ -45,11 +45,11 @@ const AppCard = ({
             <div className="truncate" title={appBasicInfo.name}>{appBasicInfo.name}</div>
           </div>
           <div className="flex items-center text-[10px] leading-[18px] font-medium text-text-tertiary">
-            {appBasicInfo.mode === AppModeEnum.ADVANCED_CHAT && <div className="truncate">{t('types.advanced', { ns: 'app' }).toUpperCase()}</div>}
-            {appBasicInfo.mode === AppModeEnum.CHAT && <div className="truncate">{t('types.chatbot', { ns: 'app' }).toUpperCase()}</div>}
-            {appBasicInfo.mode === AppModeEnum.AGENT_CHAT && <div className="truncate">{t('types.agent', { ns: 'app' }).toUpperCase()}</div>}
-            {appBasicInfo.mode === AppModeEnum.WORKFLOW && <div className="truncate">{t('types.workflow', { ns: 'app' }).toUpperCase()}</div>}
-            {appBasicInfo.mode === AppModeEnum.COMPLETION && <div className="truncate">{t('types.completion', { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.ADVANCED_CHAT && <div className="truncate">{t(($) => $['types.advanced'], { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.CHAT && <div className="truncate">{t(($) => $['types.chatbot'], { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.AGENT_CHAT && <div className="truncate">{t(($) => $['types.agent'], { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.WORKFLOW && <div className="truncate">{t(($) => $['types.workflow'], { ns: 'app' }).toUpperCase()}</div>}
+            {appBasicInfo.mode === AppModeEnum.COMPLETION && <div className="truncate">{t(($) => $['types.completion'], { ns: 'app' }).toUpperCase()}</div>}
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@ const AppCard = ({
             <Button variant="primary" className="h-7 grow" onClick={() => onCreate()}>
               <PlusIcon className="mr-1 h-4 w-4" />
               {/* Create new conversation button for installed app */}
-              <span className="text-xs">{t('appCard.newConversation', { ns: 'extend' })}</span>
+              <span className="text-xs">{t(($) => $['appCard.newConversation'], { ns: 'extend' })}</span>
             </Button>
           </div>
         </div>

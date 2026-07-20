@@ -36,8 +36,8 @@ const MonthLimitItemExtend: FC<Props> = ({
     <ParamItem
       className={className}
       id={key}
-      name={t('apiKeyModal.monthLimitItemName', { ns: 'extend' })}
-      tip={t('apiKeyModal.noLimitTips', { ns: 'extend' }) as string}
+      name={t(($) => $['apiKeyModal.monthLimitItemName'], { ns: 'extend' })}
+      tip={t(($) => $['apiKeyModal.noLimitTips'], { ns: 'extend' }) as string}
       {...VALUE_LIMIT}
       value={value}
       enable={enable}

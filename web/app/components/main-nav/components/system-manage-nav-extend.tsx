@@ -26,7 +26,7 @@ const SystemManageNavExtend = ({ pathname }: SystemManageNavExtendProps) => {
 
   const item: MainNavItem = {
     href: '/system-manage-extend/system-integration',
-    label: t('systemManage.title', { ns: 'extend' }),
+    label: t(($) => $['systemManage.title'], { ns: 'extend' }),
     active: isSystemManagePath,
     icon: 'i-ri-settings-3-line',
     activeIcon: 'i-ri-settings-3-fill',

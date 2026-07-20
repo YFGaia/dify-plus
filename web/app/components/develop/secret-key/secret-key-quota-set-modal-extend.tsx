@@ -62,17 +62,17 @@ const SecretKeyQuotaSetExtendModal = ({
     >
       <DialogContent className={`px-8 ${className}`}>
         <DialogTitle className="title-2xl-semi-bold text-text-primary">
-          {`${newKey?.id ? '编辑' : '创建'}${t('apiKeyModal.apiSecretKey', { ns: 'appApi' })}`}
+          {`${newKey?.id ? '编辑' : '创建'}${t(($) => $['apiKeyModal.apiSecretKey'], { ns: 'appApi' })}`}
         </DialogTitle>
         <XMarkIcon className={`absolute h-6 w-6 cursor-pointer text-gray-500 ${s.close}`} onClick={onClose} />
         <p className="mt-1 text-[13px] leading-5 font-normal text-gray-500">
-          {t('apiKeyModal.apiSecretKeyTips', { ns: 'extend' })}
+          {t(($) => $['apiKeyModal.apiSecretKeyTips'], { ns: 'extend' })}
         </p>
         <div className="my-4">
           <input
             value={newKey?.description ?? ''}
             onChange={e => handleParamChangeDesc(e.target.value)}
-            placeholder={t('apiKeyModal.descriptionPlaceholder', { ns: 'extend' }) || '密钥用途'}
+            placeholder={t(($) => $['apiKeyModal.descriptionPlaceholder'], { ns: 'extend' }) || '密钥用途'}
             className="h-10 grow appearance-none rounded-lg border border-transparent bg-gray-100 px-3 text-sm font-normal caret-primary-600 outline-none placeholder:text-gray-400 hover:border hover:border-gray-300 hover:bg-gray-50 focus:border focus:border-gray-300 focus:bg-gray-50 focus:shadow-xs"
           />
         </div>
@@ -92,7 +92,7 @@ const SecretKeyQuotaSetExtendModal = ({
         </div>
         <div className="my-4 flex justify-end">
           <Button variant="primary" className={`shrink-0 ${s.w64}`} onClick={onCreate}>
-            {newKey?.id ? t('operation.save', { ns: 'common' }) : t('operation.create', { ns: 'common' })}
+            {newKey?.id ? t(($) => $['operation.save'], { ns: 'common' }) : t(($) => $['operation.create'], { ns: 'common' })}
           </Button>
         </div>
 

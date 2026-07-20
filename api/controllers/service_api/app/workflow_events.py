@@ -26,7 +26,7 @@ from core.app.entities.task_entities import StreamEvent
 from core.workflow.human_input_policy import HumanInputSurface
 from extensions.ext_database import db
 from models.enums import CreatorUserRole
-from models.model import App, AppMode, EndUser
+from models.model import ApiToken, App, AppMode, EndUser
 from repositories.factory import DifyAPIRepositoryFactory
 from services.workflow_event_snapshot_service import build_workflow_event_stream
 
@@ -92,7 +92,8 @@ class WorkflowEventsApi(Resource):
     )
     @service_api_ns.response(200, "SSE event stream", service_api_ns.models[EventStreamResponse.__name__])
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY, required=True))
-    def get(self, app_model: App, end_user: EndUser, task_id: str):
+    # extend - 密钥额度限制，新增api_token（validate_app_token 始终注入）
+    def get(self, app_model: App, end_user: EndUser, task_id: str, api_token: ApiToken | None = None):
         app_mode = AppMode.value_of(app_model.mode)
         if app_mode not in {AppMode.WORKFLOW, AppMode.ADVANCED_CHAT}:
             raise NotWorkflowAppError()

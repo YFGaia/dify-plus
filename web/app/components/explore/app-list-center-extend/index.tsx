@@ -28,7 +28,7 @@ const Apps = ({
   onSuccess,
 }: AppsProps) => {
   const { t } = useTranslation()
-  const allCategoriesEn = t('apps.allCategories', { ns: 'explore', lng: 'en' })
+  const allCategoriesEn = t(($) => $['apps.allCategories'], { ns: 'explore', lng: 'en' })
 
   // Extend: start Installed app list sorted by usage
   const {

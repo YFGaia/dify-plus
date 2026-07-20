@@ -33,7 +33,7 @@ export default function OAuth2(props: OAuth2Props) {
               )
             }
             />
-            <span className="truncate">{props.title === '' ? t('withSSO', { ns: 'login' }) : props.title}</span>
+            <span className="truncate">{props.title === '' ? t(($) => $['withSSO'], { ns: 'login' }) : props.title}</span>
           </Button>
         </a>
       </div>

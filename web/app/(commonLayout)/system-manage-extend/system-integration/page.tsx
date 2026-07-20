@@ -14,16 +14,16 @@ const SystemIntegrationPage = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dingtalk')
 
   const tabs: { key: Tab, label: string }[] = [
-    { key: 'dingtalk', label: t('systemManage.dingtalk.title', { ns: 'extend' }) },
-    { key: 'oauth2', label: t('systemManage.oauth2.title', { ns: 'extend' }) },
-    { key: 'email-api', label: t('systemManage.emailApi.title', { ns: 'extend' }) },
-    { key: 'forward-token', label: t('systemManage.forwardToken.title', { ns: 'extend' }) },
+    { key: 'dingtalk', label: t(($) => $['systemManage.dingtalk.title'], { ns: 'extend' }) },
+    { key: 'oauth2', label: t(($) => $['systemManage.oauth2.title'], { ns: 'extend' }) },
+    { key: 'email-api', label: t(($) => $['systemManage.emailApi.title'], { ns: 'extend' }) },
+    { key: 'forward-token', label: t(($) => $['systemManage.forwardToken.title'], { ns: 'extend' }) },
   ]
 
   return (
     <div>
       <h1 className="mb-6 text-xl font-semibold text-text-primary">
-        {t('systemManage.integration.title', { ns: 'extend' })}
+        {t(($) => $['systemManage.integration.title'], { ns: 'extend' })}
       </h1>
 
       {/* Tab 切换 */}

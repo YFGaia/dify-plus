@@ -24,12 +24,6 @@ const useCheckMetadataName = () => {
         }
       }
 
-      if (name.length > 255) {
-        return {
-          errorMsg: t(`${i18nPrefix}.tooLong`, { max: 255 }),
-        }
-      }
-
       return {
         errorMsg: '',
       }

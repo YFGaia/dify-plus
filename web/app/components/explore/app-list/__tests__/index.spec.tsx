@@ -188,6 +188,11 @@ vi.mock('jotai', async (importOriginal) => {
   return createAppContextStateJotaiMock(importOriginal)
 })
 
+// extend: fork 权限位派生原子依赖真实 currentWorkspaceAtom，测试中直接桩掉
+vi.mock('@/context/app-context-extend', () => ({
+  useExtendPermissions: () => ({ adminExtend: false, tenantExtend: false }),
+}))
+
 vi.mock('@/hooks/use-import-dsl', () => ({
   useImportDSL: () => ({
     handleImportDSL: mockHandleImportDSL,

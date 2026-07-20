@@ -50,10 +50,10 @@ const AccountMoneyExtend = () => {
   return (
     <div className="mt-2 flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]">
       <div className="flex items-center bg-background-default-dimmed px-2 py-1 font-medium text-text-secondary">
-        {t('user.credit', { ns: 'extend' })}
+        {t(($) => $['user.credit'], { ns: 'extend' })}
       </div>
       <div className="flex min-w-0 flex-1 items-center border-l border-divider-regular bg-background-default px-2 py-1.5">
-        <span className="mr-1 text-text-tertiary">{t('user.used', { ns: 'extend' })}</span>
+        <span className="mr-1 text-text-tertiary">{t(($) => $['user.used'], { ns: 'extend' })}</span>
         <span
           className={cn(
             'font-bold transition-all duration-300',

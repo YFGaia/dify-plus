@@ -38,7 +38,7 @@ const ForwardTokenList = () => {
     try {
       setCreating(true)
       await createForwardToken(newName.trim())
-      toast.success(t('systemManage.common.saveSuccess', { ns: 'extend' }))
+      toast.success(t(($) => $['systemManage.common.saveSuccess'], { ns: 'extend' }))
       setNewName('')
       setShowAdd(false)
       fetchTokens()
@@ -52,7 +52,7 @@ const ForwardTokenList = () => {
   }
 
   const handleDelete = async (seq: number) => {
-    if (!globalThis.confirm(t('systemManage.forwardToken.deleteConfirm', { ns: 'extend' })))
+    if (!globalThis.confirm(t(($) => $['systemManage.forwardToken.deleteConfirm'], { ns: 'extend' })))
       return
     try {
       await deleteForwardToken(seq)
@@ -65,20 +65,20 @@ const ForwardTokenList = () => {
   }
 
   if (loading)
-    return <div className="text-text-tertiary">{t('systemManage.common.loading', { ns: 'extend' })}</div>
+    return <div className="text-text-tertiary">{t(($) => $['systemManage.common.loading'], { ns: 'extend' })}</div>
 
   return (
     <div className="max-w-[800px]">
       {/* 新增按钮 */}
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-medium text-text-primary">
-          {t('systemManage.forwardToken.title', { ns: 'extend' })}
+          {t(($) => $['systemManage.forwardToken.title'], { ns: 'extend' })}
         </h3>
         <button
           onClick={() => setShowAdd(!showAdd)}
           className="rounded-lg bg-components-button-primary-bg px-3 py-1.5 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover"
         >
-          {t('systemManage.forwardToken.addToken', { ns: 'extend' })}
+          {t(($) => $['systemManage.forwardToken.addToken'], { ns: 'extend' })}
         </button>
       </div>
 
@@ -89,7 +89,7 @@ const ForwardTokenList = () => {
             type="text"
             value={newName}
             onChange={e => setNewName(e.target.value)}
-            placeholder={t('systemManage.forwardToken.enterName', { ns: 'extend' })}
+            placeholder={t(($) => $['systemManage.forwardToken.enterName'], { ns: 'extend' })}
             className="flex-1 rounded-lg border border-components-input-border-active bg-components-input-bg-normal px-3 py-1.5 text-sm text-text-primary outline-none focus:ring-1 focus:ring-components-input-border-active"
             onKeyDown={e => e.key === 'Enter' && handleCreate()}
           />
@@ -98,13 +98,13 @@ const ForwardTokenList = () => {
             disabled={creating || !newName.trim()}
             className="rounded-lg bg-components-button-primary-bg px-3 py-1.5 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover disabled:opacity-50"
           >
-            {t('systemManage.common.create', { ns: 'extend' })}
+            {t(($) => $['systemManage.common.create'], { ns: 'extend' })}
           </button>
           <button
             onClick={() => { setShowAdd(false); setNewName('') }}
             className="rounded-lg border border-components-button-secondary-border px-3 py-1.5 text-sm text-text-secondary hover:bg-state-base-hover"
           >
-            {t('systemManage.common.cancel', { ns: 'extend' })}
+            {t(($) => $['systemManage.common.cancel'], { ns: 'extend' })}
           </button>
         </div>
       )}
@@ -113,7 +113,7 @@ const ForwardTokenList = () => {
       {tokens.length === 0
         ? (
             <div className="py-12 text-center text-sm text-text-tertiary">
-              {t('systemManage.forwardToken.empty', { ns: 'extend' })}
+              {t(($) => $['systemManage.forwardToken.empty'], { ns: 'extend' })}
             </div>
           )
         : (
@@ -122,16 +122,16 @@ const ForwardTokenList = () => {
                 <thead>
                   <tr className="border-b border-divider-subtle bg-background-default-subtle">
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
-                      {t('systemManage.forwardToken.name', { ns: 'extend' })}
+                      {t(($) => $['systemManage.forwardToken.name'], { ns: 'extend' })}
                     </th>
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
-                      {t('systemManage.forwardToken.token', { ns: 'extend' })}
+                      {t(($) => $['systemManage.forwardToken.token'], { ns: 'extend' })}
                     </th>
                     <th className="px-4 py-2.5 text-left text-xs font-medium text-text-tertiary">
-                      {t('systemManage.forwardToken.createdAt', { ns: 'extend' })}
+                      {t(($) => $['systemManage.forwardToken.createdAt'], { ns: 'extend' })}
                     </th>
                     <th className="px-4 py-2.5 text-right text-xs font-medium text-text-tertiary">
-                      {t('systemManage.forwardToken.actions', { ns: 'extend' })}
+                      {t(($) => $['systemManage.forwardToken.actions'], { ns: 'extend' })}
                     </th>
                   </tr>
                 </thead>
@@ -151,7 +151,7 @@ const ForwardTokenList = () => {
                           onClick={() => handleDelete(token.seq)}
                           className="text-sm text-text-destructive hover:text-text-destructive-secondary"
                         >
-                          {t('systemManage.common.delete', { ns: 'extend' })}
+                          {t(($) => $['systemManage.common.delete'], { ns: 'extend' })}
                         </button>
                       </td>
                     </tr>

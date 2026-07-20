@@ -206,8 +206,7 @@ export default function AccountSetting({
     onCancelAction()
   }, [onCancelAction, resetModelProviderListExpanded])
 
-  // 二开部分 - 空间普通成员不渲染“模型供应商”标签（上游 1.16.0 删除 app-context，改用 workspace-state 原子）
-  const isCurrentWorkspaceManager = useAtomValue(isCurrentWorkspaceManagerAtom)
+  // 二开部分 - 空间普通成员不渲染“模型供应商”标签：复用上方 isCurrentWorkspaceManager（上游 1.16.0 已自带该原子声明）
 
   return (
     <MenuDialog show onClose={handleClose}>

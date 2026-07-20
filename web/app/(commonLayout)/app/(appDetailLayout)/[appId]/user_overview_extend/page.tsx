@@ -33,7 +33,7 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
   const model = appDetail?.mode
   const isChatApp = model !== 'completion' && model !== 'workflow'
   const [period, setPeriod] = useState<PeriodParams>({
-    name: t('appLog.filter.period.last7days'),
+    name: t(($) => $['filter.period.last7days'], { ns: 'appLog' }),
     query: {
       start: today.subtract(7, 'day').startOf('day').format(queryDateFormat),
       end: today.format(queryDateFormat),
@@ -69,13 +69,13 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
   return (
     <div>
       <div className="mt-8 mb-4 flex flex-row items-center text-base text-gray-900">
-        <span className="mr-3">{t('appOverview.analysis.title')}</span>
+        <span className="mr-3">{t(($) => $['analysis.title'], { ns: 'appOverview' })}</span>
         <Select
           defaultValue="2"
           onValueChange={(k) => {
             const entry = TIME_PERIOD_MAPPING[k as keyof typeof TIME_PERIOD_MAPPING]
             if (entry)
-              onSelect({ value: entry.value, name: t(`appLog.filter.period.${entry.name}`) })
+              onSelect({ value: entry.value, name: t(($) => $[`filter.period.${entry.name}`], { ns: 'appLog' }) })
           }}
         >
           <SelectTrigger className="mt-0 w-40">
@@ -84,7 +84,7 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
           <SelectContent>
             {Object.entries(TIME_PERIOD_MAPPING).map(([k, v]) => (
               <SelectItem key={k} value={k}>
-                <SelectItemText>{t(`appLog.filter.period.${v.name}`)}</SelectItemText>
+                <SelectItemText>{t(($) => $[`filter.period.${v.name}`], { ns: 'appLog' })}</SelectItemText>
                 <SelectItemIndicator />
               </SelectItem>
             ))}

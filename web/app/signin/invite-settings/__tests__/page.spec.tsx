@@ -256,7 +256,7 @@ describe('InviteSettingsPage', () => {
       fireEvent.click(screen.getByRole('button', { name: 'login.join Acme' }))
 
       await waitFor(() => {
-        expect(mockReplace).toHaveBeenCalledWith('/')
+        expect(mockReplace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
       })
     })
   })

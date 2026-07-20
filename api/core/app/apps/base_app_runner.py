@@ -90,7 +90,9 @@ class AppRunner:
     # Extend: start messages_context_handling（1.13.3 合并时丢失，1.14.2 合并恢复）
     def add_messages_context(self, prompt_messages, app_id, conversation_id, message_id):
         """记忆上下文：当对话轮数超过应用配置的保留条数时，登记一条上下文分割记录。"""
-        # 延迟导入，避免 core.app ↔ models 顶层循环依赖
+        # 延迟导入，避免 core.app ↔ models 顶层循环依赖；
+        # db 也必须在此导入——上游 1.16.0 已移除本模块顶层的 ext_database import。
+        from extensions.ext_database import db
         from extensions.ext_redis import redis_client
         from models.model_extend import AppExtend, MessageContextExtend
 

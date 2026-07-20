@@ -3,15 +3,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getQuotaList, setUserQuota } from '@/service/system-manage-extend'
 import QuotaManagementPage from '../page'
 
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, options?: Record<string, string>) => {
-      if (options?.name)
-        return `${key}:${options.name}`
-      return key
-    },
-  }),
-}))
+vi.mock('react-i18next', async () => {
+  // extend: 上游 1.16.0 i18n 切换 typed-selector，t 首参为选择器函数，用官方测试桩还原为 key 字符串
+  const { withSelectorKey } = await import('@/test/i18n-mock')
+  return {
+    useTranslation: () => ({
+      t: withSelectorKey((key: string, options?: Record<string, string>) => {
+        if (options?.name)
+          return `${key}:${options.name}`
+        return key
+      }),
+    }),
+  }
+})
 
 vi.mock('@/service/system-manage-extend', () => ({
   getQuotaList: vi.fn(),

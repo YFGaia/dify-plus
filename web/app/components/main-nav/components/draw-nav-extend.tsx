@@ -19,7 +19,7 @@ const DrawNavExtend = ({ pathname }: DrawNavExtendProps) => {
 
   const item: MainNavItem = {
     href: 'https://gaia-x.yafex.cn/draw',
-    label: t('aiDraw.title', { ns: 'extend' }),
+    label: t(($) => $['aiDraw.title'], { ns: 'extend' }),
     active: isDrawPath,
     icon: 'i-ri-image-2-line',
     activeIcon: 'i-ri-image-2-fill',

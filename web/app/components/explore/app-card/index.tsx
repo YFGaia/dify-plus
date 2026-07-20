@@ -80,7 +80,7 @@ const AppCard = ({
   const onSyncApps = useCallback(async () => {
     try {
       await syncApp({ appID: app.app_id })
-      toast.success(t('app.syncAppOk', { ns: 'extend' }))
+      toast.success(t(($) => $['app.syncAppOk'], { ns: 'extend' }))
       if (onRefresh)
         onRefresh()
     }
@@ -178,7 +178,7 @@ const AppCard = ({
               setShowSyncApps(true)
             }}
           >
-            <span style={{ color: '#00931e' }}>{t('app.syncToAppTemplate', { ns: 'extend' })}</span>
+            <span style={{ color: '#00931e' }}>{t(($) => $['app.syncToAppTemplate'], { ns: 'extend' })}</span>
           </Button>
         </div>
       )}
@@ -186,18 +186,18 @@ const AppCard = ({
         <AlertDialogContent>
           <div className="flex flex-col gap-2 px-6 pt-6 pb-4">
             <AlertDialogTitle className="title-2xl-semi-bold text-text-primary">
-              {t('app.confirmSyncApp', { ns: 'extend' })}
+              {t(($) => $['app.confirmSyncApp'], { ns: 'extend' })}
             </AlertDialogTitle>
             <AlertDialogDescription className="w-full system-md-regular wrap-break-word whitespace-pre-wrap text-text-tertiary">
-              {t('app.confirmSyncAppContent', { ns: 'extend' })}
+              {t(($) => $['app.confirmSyncAppContent'], { ns: 'extend' })}
             </AlertDialogDescription>
           </div>
           <AlertDialogActions>
             <AlertDialogCancelButton>
-              {t('operation.cancel', { ns: 'common' })}
+              {t(($) => $['operation.cancel'], { ns: 'common' })}
             </AlertDialogCancelButton>
             <AlertDialogConfirmButton onClick={onSyncApps}>
-              {t('operation.confirm', { ns: 'common' })}
+              {t(($) => $['operation.confirm'], { ns: 'common' })}
             </AlertDialogConfirmButton>
           </AlertDialogActions>
         </AlertDialogContent>

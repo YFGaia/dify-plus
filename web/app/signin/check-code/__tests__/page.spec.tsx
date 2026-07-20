@@ -173,7 +173,7 @@ describe('CheckCode', () => {
       await user.click(screen.getByRole('button', { name: 'login.checkCode.verify' }))
 
       await waitFor(() => {
-        expect(navigationMocks.replace).toHaveBeenCalledWith('/')
+        expect(navigationMocks.replace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
       })
       expect(locationReplace).not.toHaveBeenCalled()
     })

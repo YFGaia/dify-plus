@@ -31,7 +31,7 @@ const RetentionNumber: FC = () => {
               {/* Webhooks 图标随上游删除，改用 iconify 同形图标 */}
               <span aria-hidden className="i-ri-webhook-line size-4 text-orange-500" />
             </div>
-            <div className="system-sm-semibold text-text-secondary">{t('nodes.common.memory.memory', { ns: 'workflow' })}</div>
+            <div className="system-sm-semibold text-text-secondary">{t(($) => $['nodes.common.memory.memory'], { ns: 'workflow' })}</div>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex h-8 items-center space-x-2">

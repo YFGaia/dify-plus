@@ -324,7 +324,7 @@ function AppCardOperationsMenu({
         <>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="gap-2 px-3" onClick={e => handleMenuAction(e, onSyncToAppTemplate)}>
-            <span className="system-sm-regular" style={{ color: '#00931e' }}>{t('app.syncToAppTemplate', { ns: 'extend' })}</span>
+            <span className="system-sm-regular" style={{ color: '#00931e' }}>{t(($) => $['app.syncToAppTemplate'], { ns: 'extend' })}</span>
           </DropdownMenuItem>
         </>
       )}
@@ -332,7 +332,7 @@ function AppCardOperationsMenu({
         <>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="gap-2 px-3" onClick={e => handleMenuAction(e, onCancelSyncToAppTemplate)}>
-            <span className="system-sm-regular" style={{ color: '#b70000' }}>{t('app.cancelSyncToAppTemplate', { ns: 'extend' })}</span>
+            <span className="system-sm-regular" style={{ color: '#b70000' }}>{t(($) => $['app.cancelSyncToAppTemplate'], { ns: 'extend' })}</span>
           </DropdownMenuItem>
         </>
       )}
@@ -903,13 +903,13 @@ export function AppCard({
   const onSyncApps = useCallback(async () => {
     try {
       await syncApp({ appID: app.id })
-      toast.success(t('app.syncAppOk', { ns: 'extend' }))
+      toast.success(t(($) => $['app.syncAppOk'], { ns: 'extend' }))
       onRefresh?.()
       onPlanInfoChanged()
     }
     catch (e) {
       const message = e instanceof Error ? e.message : ''
-      toast.error(`${t('appDeleteFailed', { ns: 'app' })}${message ? `: ${message}` : ''}`)
+      toast.error(`${t(($) => $['appDeleteFailed'], { ns: 'app' })}${message ? `: ${message}` : ''}`)
     }
     setShowSyncApps(false)
   }, [app.id, onPlanInfoChanged, onRefresh, t])
@@ -918,13 +918,13 @@ export function AppCard({
   const onDeleteSyncApps = useCallback(async () => {
     try {
       await syncCancelApp({ appID: app.id })
-      toast.success(t('app.syncAppOk', { ns: 'extend' }))
+      toast.success(t(($) => $['app.syncAppOk'], { ns: 'extend' }))
       onRefresh?.()
       onPlanInfoChanged()
     }
     catch (e) {
       const message = e instanceof Error ? e.message : ''
-      toast.error(`${t('appDeleteFailed', { ns: 'app' })}${message ? `: ${message}` : ''}`)
+      toast.error(`${t(($) => $['appDeleteFailed'], { ns: 'app' })}${message ? `: ${message}` : ''}`)
     }
     setShowCancelSyncApps(false)
   }, [app.id, onPlanInfoChanged, onRefresh, t])
@@ -1556,18 +1556,18 @@ export function AppCard({
         <AlertDialogContent>
           <div className="flex flex-col gap-2 px-6 pt-6 pb-4">
             <AlertDialogTitle className="title-2xl-semi-bold text-text-primary">
-              {t('app.confirmSyncApp', { ns: 'extend' })}
+              {t(($) => $['app.confirmSyncApp'], { ns: 'extend' })}
             </AlertDialogTitle>
             <AlertDialogDescription className="w-full system-md-regular wrap-break-word whitespace-pre-wrap text-text-tertiary">
-              {t('app.confirmSyncAppContent', { ns: 'extend' })}
+              {t(($) => $['app.confirmSyncAppContent'], { ns: 'extend' })}
             </AlertDialogDescription>
           </div>
           <AlertDialogActions>
             <AlertDialogCancelButton>
-              {t('operation.cancel', { ns: 'common' })}
+              {t(($) => $['operation.cancel'], { ns: 'common' })}
             </AlertDialogCancelButton>
             <AlertDialogConfirmButton onClick={onSyncApps}>
-              {t('operation.confirm', { ns: 'common' })}
+              {t(($) => $['operation.confirm'], { ns: 'common' })}
             </AlertDialogConfirmButton>
           </AlertDialogActions>
         </AlertDialogContent>
@@ -1576,18 +1576,18 @@ export function AppCard({
         <AlertDialogContent>
           <div className="flex flex-col gap-2 px-6 pt-6 pb-4">
             <AlertDialogTitle className="title-2xl-semi-bold text-text-primary">
-              {t('app.cancelSyncToAppTemplate', { ns: 'extend' })}
+              {t(($) => $['app.cancelSyncToAppTemplate'], { ns: 'extend' })}
             </AlertDialogTitle>
             <AlertDialogDescription className="w-full system-md-regular wrap-break-word whitespace-pre-wrap text-text-tertiary">
-              {t('app.cloneCancelSyncToAppTemplate', { ns: 'extend' })}
+              {t(($) => $['app.cloneCancelSyncToAppTemplate'], { ns: 'extend' })}
             </AlertDialogDescription>
           </div>
           <AlertDialogActions>
             <AlertDialogCancelButton>
-              {t('operation.cancel', { ns: 'common' })}
+              {t(($) => $['operation.cancel'], { ns: 'common' })}
             </AlertDialogCancelButton>
             <AlertDialogConfirmButton onClick={onDeleteSyncApps}>
-              {t('operation.confirm', { ns: 'common' })}
+              {t(($) => $['operation.confirm'], { ns: 'common' })}
             </AlertDialogConfirmButton>
           </AlertDialogActions>
         </AlertDialogContent>

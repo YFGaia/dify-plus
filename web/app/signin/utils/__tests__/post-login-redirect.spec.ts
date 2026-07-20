@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolvePostLoginRedirect, setPostLoginRedirect } from '../post-login-redirect'
 
+// extend: fork 登录后默认落点为应用中心 /explore/apps-center-extend（上游为 '/'），
+// 本文件的 fallback 断言按 fork 语义调整，见 utils/login-redirect.ts::getClientLoginFallback
+
 describe('post-login redirect utilities', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -56,7 +59,7 @@ describe('post-login redirect utilities', () => {
       resolvePostLoginRedirect(
         searchParams as unknown as Parameters<typeof resolvePostLoginRedirect>[0],
       ),
-    ).toEqual({ kind: 'internal', href: '/' })
+    ).toEqual({ kind: 'internal', href: '/explore/apps-center-extend' })
     expect(resolvePostLoginRedirect()).toEqual({
       kind: 'internal',
       href: '/device?user_code=ABCD',
@@ -71,7 +74,7 @@ describe('post-login redirect utilities', () => {
       resolvePostLoginRedirect(
         searchParams as unknown as Parameters<typeof resolvePostLoginRedirect>[0],
       ),
-    ).toEqual({ kind: 'internal', href: '/' })
+    ).toEqual({ kind: 'internal', href: '/explore/apps-center-extend' })
     expect(resolvePostLoginRedirect()).toEqual({
       kind: 'internal',
       href: '/device?user_code=ABCD',
@@ -85,7 +88,7 @@ describe('post-login redirect utilities', () => {
       kind: 'internal',
       href: '/device?user_code=ABCD&sso_verified=true',
     })
-    expect(resolvePostLoginRedirect()).toEqual({ kind: 'internal', href: '/' })
+    expect(resolvePostLoginRedirect()).toEqual({ kind: 'internal', href: '/explore/apps-center-extend' })
   })
 
   it('should discard an expired device redirect', () => {
@@ -94,19 +97,19 @@ describe('post-login redirect utilities', () => {
     setPostLoginRedirect('/device?user_code=ABCD')
     vi.advanceTimersByTime(15 * 60 * 1000 + 1)
 
-    expect(resolvePostLoginRedirect()).toEqual({ kind: 'internal', href: '/' })
+    expect(resolvePostLoginRedirect()).toEqual({ kind: 'internal', href: '/explore/apps-center-extend' })
   })
 
   it('should ignore invalid stored redirects', () => {
     setPostLoginRedirect('https://example.com/device?user_code=ABCD')
 
-    expect(resolvePostLoginRedirect()).toEqual({ kind: 'internal', href: '/' })
+    expect(resolvePostLoginRedirect()).toEqual({ kind: 'internal', href: '/explore/apps-center-extend' })
   })
 
   it('should preserve the device path and query-key allowlist', () => {
     setPostLoginRedirect('/device?user_code=ABCD&next=/apps')
     setPostLoginRedirect('/apps')
 
-    expect(resolvePostLoginRedirect()).toEqual({ kind: 'internal', href: '/' })
+    expect(resolvePostLoginRedirect()).toEqual({ kind: 'internal', href: '/explore/apps-center-extend' })
   })
 })

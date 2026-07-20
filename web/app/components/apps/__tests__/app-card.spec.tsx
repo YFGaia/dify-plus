@@ -121,6 +121,11 @@ vi.mock('jotai', async (importOriginal) => {
   return createAppContextStateJotaiMock(importOriginal)
 })
 
+// extend: fork 权限位派生原子依赖真实 currentWorkspaceAtom，测试中直接桩掉
+vi.mock('@/context/app-context-extend', () => ({
+  useExtendPermissions: () => ({ adminExtend: false, tenantExtend: false }),
+}))
+
 // Mock provider context
 const mockOnPlanInfoChanged = vi.fn()
 vi.mock('@/context/provider-context', () => ({

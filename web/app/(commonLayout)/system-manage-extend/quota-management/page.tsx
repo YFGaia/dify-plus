@@ -95,9 +95,9 @@ const QuotaManagementPage = () => {
 
   const validateEdit = (val: string) => {
     if (!/^\d+(?:\.\d+)?$/.test(val.trim()))
-      return t('systemManage.quota.editDialog.invalidInput', { ns: 'extend' })
+      return t(($) => $['systemManage.quota.editDialog.invalidInput'], { ns: 'extend' })
     if (Number.parseFloat(val) < 0)
-      return t('systemManage.quota.editDialog.invalidInput', { ns: 'extend' })
+      return t(($) => $['systemManage.quota.editDialog.invalidInput'], { ns: 'extend' })
     return ''
   }
 
@@ -112,12 +112,12 @@ const QuotaManagementPage = () => {
     try {
       setSubmitting(true)
       await setUserQuota({ account_id: editTarget.account_id, quota: Number.parseFloat(editValue.trim()) })
-      toast.success(t('systemManage.quota.editDialog.success', { ns: 'extend' }))
+      toast.success(t(($) => $['systemManage.quota.editDialog.success'], { ns: 'extend' }))
       setEditTarget(null)
       fetchList(page, pageSize, keyword)
     }
     catch (e) {
-      toast.error(getErrorMessage(e) || t('systemManage.quota.editDialog.failed', { ns: 'extend' }))
+      toast.error(getErrorMessage(e) || t(($) => $['systemManage.quota.editDialog.failed'], { ns: 'extend' }))
     }
     finally {
       setSubmitting(false)
@@ -132,7 +132,7 @@ const QuotaManagementPage = () => {
   return (
     <div>
       <h1 className="mb-6 text-xl font-semibold text-text-primary">
-        {t('systemManage.quota.title', { ns: 'extend' })}
+        {t(($) => $['systemManage.quota.title'], { ns: 'extend' })}
       </h1>
 
       {/* 搜索栏 */}
@@ -142,14 +142,14 @@ const QuotaManagementPage = () => {
           value={inputKeyword}
           onChange={e => setInputKeyword(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={t('systemManage.quota.search', { ns: 'extend' })}
+          placeholder={t(($) => $['systemManage.quota.search'], { ns: 'extend' })}
           className="w-64 rounded-lg border border-components-input-border-active bg-components-input-bg-normal px-3 py-2 text-sm text-text-primary placeholder:text-text-quaternary focus:border-components-input-border-active focus:outline-none"
         />
         <button
           onClick={handleSearch}
           className="rounded-lg bg-components-button-primary-bg px-4 py-2 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover"
         >
-          {t('systemManage.quota.searchButton', { ns: 'extend' })}
+          {t(($) => $['systemManage.quota.searchButton'], { ns: 'extend' })}
         </button>
       </div>
 
@@ -159,28 +159,28 @@ const QuotaManagementPage = () => {
           <thead>
             <tr className="border-b border-divider-subtle bg-background-section-burn">
               <th className="px-4 py-3 text-left font-medium text-text-tertiary">
-                {t('systemManage.quota.table.ranking', { ns: 'extend' })}
+                {t(($) => $['systemManage.quota.table.ranking'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-left font-medium text-text-tertiary">
-                {t('systemManage.quota.table.avatar', { ns: 'extend' })}
+                {t(($) => $['systemManage.quota.table.avatar'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-left font-medium text-text-tertiary">
-                {t('systemManage.quota.table.member', { ns: 'extend' })}
+                {t(($) => $['systemManage.quota.table.member'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-left font-medium text-text-tertiary">
-                {t('systemManage.quota.table.email', { ns: 'extend' })}
+                {t(($) => $['systemManage.quota.table.email'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-right font-medium text-text-tertiary">
-                {t('systemManage.quota.table.usedQuota', { ns: 'extend' })}
+                {t(($) => $['systemManage.quota.table.usedQuota'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-right font-medium text-text-tertiary">
-                {t('systemManage.quota.table.totalQuota', { ns: 'extend' })}
+                {t(($) => $['systemManage.quota.table.totalQuota'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-right font-medium text-text-tertiary">
-                {t('systemManage.quota.table.balance', { ns: 'extend' })}
+                {t(($) => $['systemManage.quota.table.balance'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-right font-medium text-text-tertiary">
-                {t('systemManage.quota.table.actions', { ns: 'extend' })}
+                {t(($) => $['systemManage.quota.table.actions'], { ns: 'extend' })}
               </th>
             </tr>
           </thead>
@@ -189,7 +189,7 @@ const QuotaManagementPage = () => {
               ? (
                   <tr>
                     <td colSpan={8} className="px-4 py-8 text-center text-text-tertiary">
-                      {t('systemManage.common.loading', { ns: 'extend' })}
+                      {t(($) => $['systemManage.common.loading'], { ns: 'extend' })}
                     </td>
                   </tr>
                 )
@@ -197,7 +197,7 @@ const QuotaManagementPage = () => {
                 ? (
                     <tr>
                       <td colSpan={8} className="px-4 py-8 text-center text-text-tertiary">
-                        {t('systemManage.quota.empty', { ns: 'extend' })}
+                        {t(($) => $['systemManage.quota.empty'], { ns: 'extend' })}
                       </td>
                     </tr>
                   )
@@ -232,7 +232,7 @@ const QuotaManagementPage = () => {
                           onClick={() => openEdit(item)}
                           className="text-sm text-text-accent hover:underline"
                         >
-                          {t('systemManage.quota.action.edit', { ns: 'extend' })}
+                          {t(($) => $['systemManage.quota.action.edit'], { ns: 'extend' })}
                         </button>
                       </td>
                     </tr>
@@ -296,7 +296,7 @@ const QuotaManagementPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-[400px] rounded-xl bg-components-panel-bg p-6 shadow-xl">
             <h3 className="mb-4 text-base font-semibold text-text-primary">
-              {t('systemManage.quota.editDialog.title', { ns: 'extend', name: editTarget.name })}
+              {t(($) => $['systemManage.quota.editDialog.title'], { ns: 'extend', name: editTarget.name })}
             </h3>
             <input
               ref={inputRef}
@@ -310,7 +310,7 @@ const QuotaManagementPage = () => {
                 if (e.key === 'Enter')
                   handleEditConfirm()
               }}
-              placeholder={t('systemManage.quota.editDialog.inputPlaceholder', { ns: 'extend' })}
+              placeholder={t(($) => $['systemManage.quota.editDialog.inputPlaceholder'], { ns: 'extend' })}
               className="w-full rounded-lg border border-components-input-border-active bg-components-input-bg-normal px-3 py-2 text-sm text-text-primary focus:outline-none"
             />
             {editError && (
@@ -321,14 +321,14 @@ const QuotaManagementPage = () => {
                 onClick={handleEditCancel}
                 className="rounded-lg border border-divider-subtle px-4 py-2 text-sm text-text-secondary hover:bg-state-base-hover"
               >
-                {t('systemManage.common.cancel', { ns: 'extend' })}
+                {t(($) => $['systemManage.common.cancel'], { ns: 'extend' })}
               </button>
               <button
                 onClick={handleEditConfirm}
                 disabled={submitting}
                 className="rounded-lg bg-components-button-primary-bg px-4 py-2 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover disabled:opacity-60"
               >
-                {submitting ? t('systemManage.common.saving', { ns: 'extend' }) : t('systemManage.common.confirm', { ns: 'extend' })}
+                {submitting ? t(($) => $['systemManage.common.saving'], { ns: 'extend' }) : t(($) => $['systemManage.common.confirm'], { ns: 'extend' })}
               </button>
             </div>
           </div>

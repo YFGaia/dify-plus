@@ -39,7 +39,7 @@ export default function DingTalkAuth(props: SocialAuthProps) {
               )
             }
             />
-            <span className="truncate">{t('sidebar.withDingTalk', { ns: 'extend' })}</span>
+            <span className="truncate">{t(($) => $['sidebar.withDingTalk'], { ns: 'extend' })}</span>
           </Button>
         </a>
       </div>

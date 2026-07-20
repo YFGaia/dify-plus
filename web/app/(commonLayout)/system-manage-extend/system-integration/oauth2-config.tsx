@@ -59,11 +59,11 @@ const OAuth2Config = () => {
     try {
       setSaving(true)
       await setOAuth2Config(config)
-      toast.success(t('systemManage.common.saveSuccess', { ns: 'extend' }))
+      toast.success(t(($) => $['systemManage.common.saveSuccess'], { ns: 'extend' }))
       fetchConfig()
     }
     catch (error) {
-      toast.error(getErrorMessage(error, t('systemManage.common.saveFailed', { ns: 'extend' })))
+      toast.error(getErrorMessage(error, t(($) => $['systemManage.common.saveFailed'], { ns: 'extend' })))
     }
     finally {
       setSaving(false)
@@ -74,10 +74,10 @@ const OAuth2Config = () => {
     try {
       setTesting(true)
       await testOAuth2Connection(config)
-      toast.success(t('systemManage.common.testSuccess', { ns: 'extend' }))
+      toast.success(t(($) => $['systemManage.common.testSuccess'], { ns: 'extend' }))
     }
     catch (error) {
-      toast.error(getErrorMessage(error, t('systemManage.common.testFailed', { ns: 'extend' })))
+      toast.error(getErrorMessage(error, t(($) => $['systemManage.common.testFailed'], { ns: 'extend' })))
     }
     finally {
       setTesting(false)
@@ -89,34 +89,34 @@ const OAuth2Config = () => {
   }
 
   const fields: Array<{ key: OAuth2ConfigFieldKey, label: string }> = [
-    { key: 'server_url', label: t('systemManage.oauth2.serverUrl', { ns: 'extend' }) },
-    { key: 'authorize_url', label: t('systemManage.oauth2.authorizeUrl', { ns: 'extend' }) },
-    { key: 'token_url', label: t('systemManage.oauth2.tokenUrl', { ns: 'extend' }) },
-    { key: 'userinfo_url', label: t('systemManage.oauth2.userinfoUrl', { ns: 'extend' }) },
-    { key: 'scope', label: t('systemManage.oauth2.scope', { ns: 'extend' }) },
-    { key: 'button_text', label: t('systemManage.oauth2.buttonText', { ns: 'extend' }) },
-    { key: 'logout_url', label: t('systemManage.oauth2.logoutUrl', { ns: 'extend' }) },
-    { key: 'redirect_uri', label: t('systemManage.oauth2.redirectUri', { ns: 'extend' }) },
+    { key: 'server_url', label: t(($) => $['systemManage.oauth2.serverUrl'], { ns: 'extend' }) },
+    { key: 'authorize_url', label: t(($) => $['systemManage.oauth2.authorizeUrl'], { ns: 'extend' }) },
+    { key: 'token_url', label: t(($) => $['systemManage.oauth2.tokenUrl'], { ns: 'extend' }) },
+    { key: 'userinfo_url', label: t(($) => $['systemManage.oauth2.userinfoUrl'], { ns: 'extend' }) },
+    { key: 'scope', label: t(($) => $['systemManage.oauth2.scope'], { ns: 'extend' }) },
+    { key: 'button_text', label: t(($) => $['systemManage.oauth2.buttonText'], { ns: 'extend' }) },
+    { key: 'logout_url', label: t(($) => $['systemManage.oauth2.logoutUrl'], { ns: 'extend' }) },
+    { key: 'redirect_uri', label: t(($) => $['systemManage.oauth2.redirectUri'], { ns: 'extend' }) },
   ]
 
   if (loading)
-    return <div className="text-text-tertiary">{t('systemManage.common.loading', { ns: 'extend' })}</div>
+    return <div className="text-text-tertiary">{t(($) => $['systemManage.common.loading'], { ns: 'extend' })}</div>
 
   return (
     <div className="max-w-[640px] space-y-6">
       {/* 启用状态 */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-text-secondary">
-          {t('systemManage.common.enable', { ns: 'extend' })}
+          {t(($) => $['systemManage.common.enable'], { ns: 'extend' })}
         </span>
         <div className="flex items-center gap-3">
           <span className={`text-xs font-medium ${config.status ? 'text-text-accent' : 'text-text-tertiary'}`}>
-            {t(config.status ? 'systemManage.common.enabled' : 'systemManage.common.disabled', { ns: 'extend' })}
+            {t(($) => (config.status ? $['systemManage.common.enabled'] : $['systemManage.common.disabled']), { ns: 'extend' })}
           </span>
           <Switch
             checked={config.status}
             onCheckedChange={(status: boolean) => setConfig(prev => ({ ...prev, status }))}
-            aria-label={t('systemManage.common.enable', { ns: 'extend' })}
+            aria-label={t(($) => $['systemManage.common.enable'], { ns: 'extend' })}
           />
         </div>
       </div>
@@ -124,7 +124,7 @@ const OAuth2Config = () => {
       {/* 顶层字段 */}
       <div className="space-y-1">
         <label className="text-sm font-medium text-text-secondary">
-          {t('systemManage.oauth2.clientId', { ns: 'extend' })}
+          {t(($) => $['systemManage.oauth2.clientId'], { ns: 'extend' })}
         </label>
         <input
           type="text"
@@ -135,7 +135,7 @@ const OAuth2Config = () => {
       </div>
       <div className="space-y-1">
         <label className="text-sm font-medium text-text-secondary">
-          {t('systemManage.oauth2.clientSecret', { ns: 'extend' })}
+          {t(($) => $['systemManage.oauth2.clientSecret'], { ns: 'extend' })}
         </label>
         <input
           type="password"
@@ -166,14 +166,14 @@ const OAuth2Config = () => {
           disabled={saving}
           className="rounded-lg bg-components-button-primary-bg px-4 py-2 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover disabled:opacity-50"
         >
-          {saving ? t('systemManage.common.saving', { ns: 'extend' }) : t('systemManage.common.save', { ns: 'extend' })}
+          {saving ? t(($) => $['systemManage.common.saving'], { ns: 'extend' }) : t(($) => $['systemManage.common.save'], { ns: 'extend' })}
         </button>
         <button
           onClick={handleTest}
           disabled={testing}
           className="rounded-lg border border-components-button-secondary-border bg-components-button-secondary-bg px-4 py-2 text-sm font-medium text-components-button-secondary-text hover:bg-components-button-secondary-bg-hover disabled:opacity-50"
         >
-          {testing ? t('systemManage.common.testing', { ns: 'extend' }) : t('systemManage.common.test', { ns: 'extend' })}
+          {testing ? t(($) => $['systemManage.common.testing'], { ns: 'extend' }) : t(($) => $['systemManage.common.test'], { ns: 'extend' })}
         </button>
       </div>
     </div>

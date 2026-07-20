@@ -45,8 +45,7 @@ const createMarketplacePluginsMock = () => ({
   total: 0,
   resetPlugins: vi.fn(),
   queryPlugins: vi.fn(),
-  // extend: fork 显式引入 @types/lodash-es 后 DebouncedFunc 结构校验更严格，补齐 cancel/flush
-  queryPluginsWithDebounced: Object.assign(vi.fn(), { cancel: vi.fn(), flush: vi.fn() }),
+  queryPluginsWithDebounced: vi.fn(),
   cancelQueryPluginsWithDebounced: vi.fn(),
   isLoading: false,
   isFetchingNextPage: false,

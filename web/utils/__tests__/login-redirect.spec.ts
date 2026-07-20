@@ -144,9 +144,10 @@ describe('resolveLoginRedirectTarget', () => {
 
 describe('login redirect fallbacks', () => {
   it('should keep the client fallback on the current deployment', () => {
+    // extend: fork 登录后默认落点为应用中心（上游为 '/'），见 getClientLoginFallback
     expect(getClientLoginFallback()).toEqual({
       kind: 'internal',
-      href: '/',
+      href: '/explore/apps-center-extend',
     })
   })
 

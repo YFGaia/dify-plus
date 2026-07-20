@@ -52,11 +52,11 @@ const DingTalkConfig = () => {
     try {
       setSaving(true)
       await setDingTalkConfig(config)
-      toast.success(t('systemManage.common.saveSuccess', { ns: 'extend' }))
+      toast.success(t(($) => $['systemManage.common.saveSuccess'], { ns: 'extend' }))
       fetchConfig()
     }
     catch (error) {
-      toast.error(getErrorMessage(error, t('systemManage.common.saveFailed', { ns: 'extend' })))
+      toast.error(getErrorMessage(error, t(($) => $['systemManage.common.saveFailed'], { ns: 'extend' })))
     }
     finally {
       setSaving(false)
@@ -67,10 +67,10 @@ const DingTalkConfig = () => {
     try {
       setTesting(true)
       await testDingTalkConnection()
-      toast.success(t('systemManage.common.testSuccess', { ns: 'extend' }))
+      toast.success(t(($) => $['systemManage.common.testSuccess'], { ns: 'extend' }))
     }
     catch (error) {
-      toast.error(getErrorMessage(error, t('systemManage.common.testFailed', { ns: 'extend' })))
+      toast.error(getErrorMessage(error, t(($) => $['systemManage.common.testFailed'], { ns: 'extend' })))
     }
     finally {
       setTesting(false)
@@ -78,30 +78,30 @@ const DingTalkConfig = () => {
   }
 
   const fields: Array<{ key: DingTalkFieldKey, label: string, type?: 'password' }> = [
-    { key: 'corp_id', label: t('systemManage.dingtalk.corpId', { ns: 'extend' }) },
-    { key: 'agent_id', label: t('systemManage.dingtalk.agentId', { ns: 'extend' }) },
-    { key: 'app_key', label: t('systemManage.dingtalk.appKey', { ns: 'extend' }) },
-    { key: 'app_secret', label: t('systemManage.dingtalk.appSecret', { ns: 'extend' }), type: 'password' },
+    { key: 'corp_id', label: t(($) => $['systemManage.dingtalk.corpId'], { ns: 'extend' }) },
+    { key: 'agent_id', label: t(($) => $['systemManage.dingtalk.agentId'], { ns: 'extend' }) },
+    { key: 'app_key', label: t(($) => $['systemManage.dingtalk.appKey'], { ns: 'extend' }) },
+    { key: 'app_secret', label: t(($) => $['systemManage.dingtalk.appSecret'], { ns: 'extend' }), type: 'password' },
   ]
 
   if (loading)
-    return <div className="text-text-tertiary">{t('systemManage.common.loading', { ns: 'extend' })}</div>
+    return <div className="text-text-tertiary">{t(($) => $['systemManage.common.loading'], { ns: 'extend' })}</div>
 
   return (
     <div className="max-w-[640px] space-y-6">
       {/* 启用状态 */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium text-text-secondary">
-          {t('systemManage.common.enable', { ns: 'extend' })}
+          {t(($) => $['systemManage.common.enable'], { ns: 'extend' })}
         </span>
         <div className="flex items-center gap-3">
           <span className={`text-xs font-medium ${config.status ? 'text-text-accent' : 'text-text-tertiary'}`}>
-            {t(config.status ? 'systemManage.common.enabled' : 'systemManage.common.disabled', { ns: 'extend' })}
+            {t(($) => (config.status ? $['systemManage.common.enabled'] : $['systemManage.common.disabled']), { ns: 'extend' })}
           </span>
           <Switch
             checked={config.status}
             onCheckedChange={(status: boolean) => setConfig(prev => ({ ...prev, status }))}
-            aria-label={t('systemManage.common.enable', { ns: 'extend' })}
+            aria-label={t(($) => $['systemManage.common.enable'], { ns: 'extend' })}
           />
         </div>
       </div>
@@ -127,14 +127,14 @@ const DingTalkConfig = () => {
           disabled={saving}
           className="rounded-lg bg-components-button-primary-bg px-4 py-2 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover disabled:opacity-50"
         >
-          {saving ? t('systemManage.common.saving', { ns: 'extend' }) : t('systemManage.common.save', { ns: 'extend' })}
+          {saving ? t(($) => $['systemManage.common.saving'], { ns: 'extend' }) : t(($) => $['systemManage.common.save'], { ns: 'extend' })}
         </button>
         <button
           onClick={handleTest}
           disabled={testing}
           className="rounded-lg border border-components-button-secondary-border bg-components-button-secondary-bg px-4 py-2 text-sm font-medium text-components-button-secondary-text hover:bg-components-button-secondary-bg-hover disabled:opacity-50"
         >
-          {testing ? t('systemManage.common.testing', { ns: 'extend' }) : t('systemManage.common.test', { ns: 'extend' })}
+          {testing ? t(($) => $['systemManage.common.testing'], { ns: 'extend' }) : t(($) => $['systemManage.common.test'], { ns: 'extend' })}
         </button>
       </div>
     </div>

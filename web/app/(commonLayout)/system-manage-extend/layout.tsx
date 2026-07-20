@@ -25,7 +25,7 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center text-text-tertiary">
-          {t('systemManage.common.noPermission', { ns: 'extend' })}
+          {t(($) => $['systemManage.common.noPermission'], { ns: 'extend' })}
         </div>
       </div>
     )
@@ -34,17 +34,17 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
   const menuItems: MenuItemType[] = [
     {
       key: 'system-integration',
-      label: t('systemManage.menu.integration', { ns: 'extend' }),
+      label: t(($) => $['systemManage.menu.integration'], { ns: 'extend' }),
       href: '/system-manage-extend/system-integration',
     },
     {
       key: 'quota-management',
-      label: t('systemManage.menu.quota', { ns: 'extend' }),
+      label: t(($) => $['systemManage.menu.quota'], { ns: 'extend' }),
       href: '/system-manage-extend/quota-management',
     },
     {
       key: 'code-execution-control',
-      label: t('systemManage.menu.codeExecutionControl', { ns: 'extend' }),
+      label: t(($) => $['systemManage.menu.codeExecutionControl'], { ns: 'extend' }),
       href: '/system-manage-extend/code-execution-control',
     },
   ]
@@ -54,7 +54,7 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
       {/* 左侧菜单 */}
       <div className="flex w-[220px] shrink-0 flex-col border-r border-divider-subtle bg-background-default-subtle px-3 py-4">
         <h2 className="mb-4 px-3 text-base font-semibold text-text-primary">
-          {t('systemManage.title', { ns: 'extend' })}
+          {t(($) => $['systemManage.title'], { ns: 'extend' })}
         </h2>
         <nav className="flex flex-col gap-0.5">
           {menuItems.map(item => (

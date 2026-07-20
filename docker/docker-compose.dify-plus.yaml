@@ -104,6 +104,11 @@ x-shared-env: &shared-api-worker-env
   REDIS_CLUSTERS: ${REDIS_CLUSTERS:-}
   REDIS_CLUSTERS_PASSWORD: ${REDIS_CLUSTERS_PASSWORD:-}
   REDIS_MAX_CONNECTIONS: ${REDIS_MAX_CONNECTIONS:-}
+  # 上游 1.16.0 新增：Redis TCP keepalive（长连接稳定性）
+  REDIS_KEEPALIVE: ${REDIS_KEEPALIVE:-true}
+  REDIS_KEEPALIVE_IDLE: ${REDIS_KEEPALIVE_IDLE:-30}
+  REDIS_KEEPALIVE_INTERVAL: ${REDIS_KEEPALIVE_INTERVAL:-10}
+  REDIS_KEEPALIVE_COUNT: ${REDIS_KEEPALIVE_COUNT:-10}
   CELERY_BROKER_URL: ${CELERY_BROKER_URL:-redis://:difyai123456@redis:6379/1}
   CELERY_BACKEND: ${CELERY_BACKEND:-redis}
   BROKER_USE_SSL: ${BROKER_USE_SSL:-false}
@@ -719,6 +724,11 @@ x-shared-env: &shared-api-worker-env
   SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL: ${SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL:-200}
   DIFY_ENV_NACOS_REQUEST_TIMEOUT: ${DIFY_ENV_NACOS_REQUEST_TIMEOUT:-10.0}
   DIFY_ENV_NACOS_CONNECT_TIMEOUT: ${DIFY_ENV_NACOS_CONNECT_TIMEOUT:-3.0}
+  # 上游 1.16.0 新增：Dify Agent 后端（api/worker 调用 agent_backend 服务）
+  AGENT_BACKEND_BASE_URL: ${AGENT_BACKEND_BASE_URL:-http://agent_backend:5050}
+  AGENT_BACKEND_STREAM_READ_TIMEOUT_SECONDS: ${AGENT_BACKEND_STREAM_READ_TIMEOUT_SECONDS:-30}
+  AGENT_BACKEND_STREAM_MAX_RECONNECTS: ${AGENT_BACKEND_STREAM_MAX_RECONNECTS:-3}
+  AGENT_BACKEND_RUN_TIMEOUT_SECONDS: ${AGENT_BACKEND_RUN_TIMEOUT_SECONDS:-1200}
   # 二开配置
   EMAIL_DOMAIN: ${EMAIL_DOMAIN:-}
   RMB_TO_USD_RATE: ${RMB_TO_USD_RATE:-6.95}
@@ -749,7 +759,7 @@ services:
 
   # API service
   api:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.15.0
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.16.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -783,6 +793,9 @@ services:
         required: false
       redis:
         condition: service_started
+      # 上游 1.16.0 新增：Agent v2 后端依赖
+      agent_backend:
+        condition: service_started
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
@@ -794,7 +807,7 @@ services:
   # Enabled via the `collaboration` compose profile; nginx routes /socket.io/
   # here through NGINX_SOCKET_IO_UPSTREAM (default api_websocket:5001).
   api_websocket:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.15.0
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.16.0
     restart: always
     profiles:
       - collaboration
@@ -802,7 +815,8 @@ services:
       # Use the shared environment variables.
       <<: *shared-api-worker-env
       MODE: api
-      SERVER_WORKER_AMOUNT: 1
+      # 上游 1.16.0：worker 数改由 API_WEBSOCKET_WORKER_AMOUNT 驱动
+      SERVER_WORKER_AMOUNT: ${API_WEBSOCKET_WORKER_AMOUNT:-1}
       SERVER_WORKER_CLASS: ${API_WEBSOCKET_WORKER_CLASS:-geventwebsocket.gunicorn.workers.GeventWebSocketWorker}
       SERVER_WORKER_CONNECTIONS: ${API_WEBSOCKET_WORKER_CONNECTIONS:-1000}
       GUNICORN_TIMEOUT: ${API_WEBSOCKET_GUNICORN_TIMEOUT:-360}
@@ -822,7 +836,7 @@ services:
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
   worker:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.15.0
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.16.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -851,6 +865,9 @@ services:
         required: false
       redis:
         condition: service_started
+      # 上游 1.16.0 新增：Agent v2 后端依赖
+      agent_backend:
+        condition: service_started
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
@@ -861,7 +878,7 @@ services:
   # worker-gaia service
   # The Celery worker-gaia for processing the queue.
   worker-gaia:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.15.0
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.16.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -887,7 +904,7 @@ services:
   # worker-dataset service
   # The Celery worker-dataset for processing the queue.
   worker-dataset:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.15.0
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.16.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -913,7 +930,7 @@ services:
   # worker_beat service
   # Celery beat for scheduling periodic tasks.
   worker_beat:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.15.0
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.16.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -943,7 +960,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.15.0
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.16.0
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -972,6 +989,8 @@ services:
       ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
       NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW: ${NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW:-false}
       ENABLE_AGENT_V2: ${ENABLE_AGENT_V2:-false}
+      # 上游 1.16.0 新增：工作流生成（AI 生成节点）前端超时
+      WORKFLOW_GENERATION_TIMEOUT_MS: ${WORKFLOW_GENERATION_TIMEOUT_MS:-180000}
       # Workflow collaboration websocket endpoint exposed to the browser; without
       # it the frontend falls back to ws://localhost:5001 which is unreachable
       # behind nginx. Routed by nginx /socket.io/ -> NGINX_SOCKET_IO_UPSTREAM.
@@ -1066,7 +1085,7 @@ services:
 
   # The DifySandbox
   sandbox:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-sandbox:0.2.12
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-sandbox:0.2.15
     restart: always
     environment:
       # The DifySandbox configurations
@@ -1088,9 +1107,57 @@ services:
     networks:
       - ssrf_proxy_network
 
+  # 上游 1.16.0 新增：Agent v2 本地沙箱（shellctl）。
+  # 镜像暂用上游官方源，如需内网加速可自行镜像到私有仓库。
+  local_sandbox:
+    image: langgenius/dify-agent-local-sandbox:1.16.0
+    restart: always
+    environment:
+      SHELLCTL_AUTH_TOKEN: ${DIFY_AGENT_SHELLCTL_AUTH_TOKEN:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5004/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - default
+
+  # 上游 1.16.0 新增：Dify Agent 后端服务（api/worker 经 AGENT_BACKEND_BASE_URL 调用）。
+  # 镜像暂用上游官方源，如需内网加速可自行镜像到私有仓库。
+  agent_backend:
+    image: langgenius/dify-agent-backend:1.16.0
+    restart: always
+    environment:
+      DIFY_AGENT_REDIS_URL: ${DIFY_AGENT_REDIS_URL:-redis://:${REDIS_PASSWORD:-difyai123456}@redis:6379/2}
+      DIFY_AGENT_REDIS_PREFIX: ${DIFY_AGENT_REDIS_PREFIX:-dify-agent}
+      DIFY_AGENT_PLUGIN_DAEMON_URL: ${DIFY_AGENT_PLUGIN_DAEMON_URL:-${PLUGIN_DAEMON_URL:-http://plugin_daemon:5002}}
+      DIFY_AGENT_PLUGIN_DAEMON_API_KEY: ${DIFY_AGENT_PLUGIN_DAEMON_API_KEY:-${PLUGIN_DAEMON_KEY:-lYkiYYT6owG+71oLerGzA7GXCgOT++6ovaezWAjpCjf+Sjc3ZtU+qUEi}}
+      DIFY_AGENT_INNER_API_URL: ${DIFY_AGENT_INNER_API_URL:-${PLUGIN_DIFY_INNER_API_URL:-http://api:5001}}
+      DIFY_AGENT_INNER_API_KEY: ${DIFY_AGENT_INNER_API_KEY:-${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}}
+      DIFY_AGENT_SHELLCTL_ENTRYPOINT: ${DIFY_AGENT_SHELLCTL_ENTRYPOINT:-http://local_sandbox:5004}
+      DIFY_AGENT_SHELLCTL_AUTH_TOKEN: ${DIFY_AGENT_SHELLCTL_AUTH_TOKEN:-}
+      DIFY_AGENT_STUB_API_BASE_URL: ${DIFY_AGENT_STUB_API_BASE_URL:-http://agent_backend:5050/agent-stub}
+      # 安全敏感：Agent Stub bearer token 的 JWE 加密密钥派生源。
+      # 二开注意：这里不内置上游公开的开发默认值（避免生产误用弱密钥），
+      # 使用 Agent v2 前必须在 .env 中显式配置（见 docker/.env.example），
+      # 生成方式：python -c 'import secrets; print(secrets.token_urlsafe(32))'
+      DIFY_AGENT_SERVER_SECRET_KEY: ${DIFY_AGENT_SERVER_SECRET_KEY:-}
+      DIFY_AGENT_SHUTDOWN_GRACE_SECONDS: ${DIFY_AGENT_SHUTDOWN_GRACE_SECONDS:-30}
+      DIFY_AGENT_RUN_RETENTION_SECONDS: ${DIFY_AGENT_RUN_RETENTION_SECONDS:-259200}
+    depends_on:
+      redis:
+        condition: service_started
+      plugin_daemon:
+        condition: service_started
+      local_sandbox:
+        condition: service_started
+    networks:
+      - default
+
   # plugin daemon
   plugin_daemon:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plugin-daemon:0.5.2-local
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plugin-daemon:0.6.3-local
     restart: always
     environment:
       # Use the shared environment variables.

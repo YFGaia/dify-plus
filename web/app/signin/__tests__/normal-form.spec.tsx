@@ -111,7 +111,7 @@ describe('NormalForm', () => {
       render(<NormalForm />)
 
       await waitFor(() => {
-        expect(mockReplace).toHaveBeenCalledWith('/')
+        expect(mockReplace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
       })
     })
 
@@ -126,7 +126,7 @@ describe('NormalForm', () => {
       render(<NormalForm />)
 
       await waitFor(() => {
-        expect(mockReplace).toHaveBeenCalledWith('/')
+        expect(mockReplace).toHaveBeenCalledWith('/explore/apps-center-extend') // extend: fork 默认落点为应用中心
       })
     })
   })

@@ -7,7 +7,7 @@ from controllers.service_api import service_api_ns
 from controllers.service_api.end_user.error import EndUserNotFoundError
 from controllers.service_api.wraps import validate_app_token
 from fields.end_user_fields import EndUserDetail
-from models.model import App
+from models.model import ApiToken, App
 from services.end_user_service import EndUserService
 
 register_response_schema_models(service_api_ns, EndUserDetail)
@@ -41,7 +41,8 @@ class EndUserApi(Resource):
     )
     @service_api_ns.response(200, "End user retrieved successfully", service_api_ns.models[EndUserDetail.__name__])
     @validate_app_token
-    def get(self, app_model: App, end_user_id: UUID):
+    # extend - 密钥额度限制，新增api_token（validate_app_token 始终注入）
+    def get(self, app_model: App, end_user_id: UUID, api_token: ApiToken | None = None):
         """Get end user detail.
 
         This endpoint is scoped to the current app token's tenant/app to prevent

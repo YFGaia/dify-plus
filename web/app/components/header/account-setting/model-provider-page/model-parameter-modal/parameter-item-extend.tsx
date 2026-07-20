@@ -1,10 +1,9 @@
 import type { FC } from 'react'
 import type { ModelParameterRule } from '../declarations'
 import { cn } from '@langgenius/dify-ui/cn'
-import { FieldItem, FieldLabel, FieldRoot } from '@langgenius/dify-ui/field'
-import { FieldsetLegend, FieldsetRoot } from '@langgenius/dify-ui/fieldset'
-import { Radio } from '@langgenius/dify-ui/radio' // 上游 base/radio 已删除，改用 dify-ui radio 原语
-import { RadioGroup } from '@langgenius/dify-ui/radio-group'
+import { Field, FieldItem, FieldLabel } from '@langgenius/dify-ui/field'
+import { Fieldset, FieldsetLegend } from '@langgenius/dify-ui/fieldset'
+import { Radio, RadioGroup } from '@langgenius/dify-ui/radio' // 上游 base/radio 已删除，改用 dify-ui radio 原语
 import { Select, SelectContent, SelectItem, SelectItemIndicator, SelectItemText, SelectTrigger, SelectValue } from '@langgenius/dify-ui/select'
 import { Slider } from '@langgenius/dify-ui/slider'
 import { Switch } from '@langgenius/dify-ui/switch'
@@ -130,8 +129,8 @@ const ParameterItem: FC<ParameterItemProps> = ({
       const translatedLabel = parameterRule.label[language] || parameterRule.label.en_US
 
       return (
-        <FieldRoot name={parameterRule.name} className="contents">
-          <FieldsetRoot
+        <Field name={parameterRule.name} className="contents">
+          <Fieldset
             render={(
               <RadioGroup<boolean>
                 className="flex w-[200px] items-center gap-3"
@@ -153,8 +152,8 @@ const ParameterItem: FC<ParameterItemProps> = ({
                 False
               </FieldLabel>
             </FieldItem>
-          </FieldsetRoot>
-        </FieldRoot>
+          </Fieldset>
+        </Field>
       )
     }
 

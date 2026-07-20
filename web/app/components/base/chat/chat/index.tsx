@@ -282,8 +282,8 @@ const Chat: FC<ChatProps> = ({
                         }}
                         className={cn(s.contextTag)}
                       >
-                        <span className={cn(s.isCenter)}>{t('configuration.clearContext', { ns: 'extend' })}</span>
-                        <span className={cn(s.recover)}>{t('configuration.restoreContext', { ns: 'extend' })}</span>
+                        <span className={cn(s.isCenter)}>{t(($) => $['configuration.clearContext'], { ns: 'extend' })}</span>
+                        <span className={cn(s.recover)}>{t(($) => $['configuration.restoreContext'], { ns: 'extend' })}</span>
                       </span>
                     )}
                     {/* Extend: stop messages context handling */}

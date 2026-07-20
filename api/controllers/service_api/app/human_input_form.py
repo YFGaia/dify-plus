@@ -25,7 +25,7 @@ from core.workflow.nodes.human_input.entities import FormInputConfig
 from extensions.ext_database import db
 from fields.base import ResponseModel
 from libs.helper import to_timestamp
-from models.model import App, EndUser
+from models.model import ApiToken, App, EndUser
 from services.human_input_service import Form, FormNotFoundError, HumanInputService
 
 logger = logging.getLogger(__name__)
@@ -107,7 +107,8 @@ class WorkflowHumanInputFormApi(Resource):
         service_api_ns.models[HumanInputFormDefinitionResponse.__name__],
     )
     @validate_app_token
-    def get(self, app_model: App, form_token: str):
+    # extend - 密钥额度限制，新增api_token（validate_app_token 始终注入）
+    def get(self, app_model: App, form_token: str, api_token: ApiToken | None = None):
         service = HumanInputService(db.engine)
         form = service.get_form_by_token(form_token)
         if form is None:
@@ -160,7 +161,8 @@ class WorkflowHumanInputFormApi(Resource):
         service_api_ns.models[HumanInputFormSubmitResponse.__name__],
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))
-    def post(self, app_model: App, end_user: EndUser, form_token: str):
+    # extend - 密钥额度限制，新增api_token（validate_app_token 始终注入）
+    def post(self, app_model: App, end_user: EndUser, form_token: str, api_token: ApiToken | None = None):
         payload = HumanInputFormSubmitPayload.model_validate(service_api_ns.payload or {})
 
         service = HumanInputService(db.engine)

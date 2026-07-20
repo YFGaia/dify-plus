@@ -41,19 +41,19 @@ const CodeExecutionControlPage = () => {
   const handleAdd = () => {
     const trimmed = email.trim()
     if (!EMAIL_PATTERN.test(trimmed)) {
-      setInputError(t('systemManage.codeExecutionControl.invalidEmail', { ns: 'extend' }))
+      setInputError(t(($) => $['systemManage.codeExecutionControl.invalidEmail'], { ns: 'extend' }))
       return
     }
     addMutation.mutate({ body: { email: trimmed } }, {
       onSuccess: (data) => {
         setEmail('')
         if (data.cache_synced === false)
-          toast.warning(t('systemManage.codeExecutionControl.cacheSyncWarning', { ns: 'extend' }))
+          toast.warning(t(($) => $['systemManage.codeExecutionControl.cacheSyncWarning'], { ns: 'extend' }))
         else
-          toast.success(t('systemManage.codeExecutionControl.addSuccess', { ns: 'extend' }))
+          toast.success(t(($) => $['systemManage.codeExecutionControl.addSuccess'], { ns: 'extend' }))
       },
       onError: (e) => {
-        toast.error(getErrorMessage(e) || t('systemManage.codeExecutionControl.addFailed', { ns: 'extend' }))
+        toast.error(getErrorMessage(e) || t(($) => $['systemManage.codeExecutionControl.addFailed'], { ns: 'extend' }))
       },
     })
   }
@@ -65,13 +65,13 @@ const CodeExecutionControlPage = () => {
       onSuccess: (data) => {
         setDeleteTarget(null)
         if (data.cache_synced === false)
-          toast.warning(t('systemManage.codeExecutionControl.cacheSyncWarning', { ns: 'extend' }))
+          toast.warning(t(($) => $['systemManage.codeExecutionControl.cacheSyncWarning'], { ns: 'extend' }))
         else
-          toast.success(t('systemManage.codeExecutionControl.deleteSuccess', { ns: 'extend' }))
+          toast.success(t(($) => $['systemManage.codeExecutionControl.deleteSuccess'], { ns: 'extend' }))
       },
       onError: (e) => {
         setDeleteTarget(null)
-        toast.error(getErrorMessage(e) || t('systemManage.codeExecutionControl.deleteFailed', { ns: 'extend' }))
+        toast.error(getErrorMessage(e) || t(($) => $['systemManage.codeExecutionControl.deleteFailed'], { ns: 'extend' }))
       },
     })
   }
@@ -79,10 +79,10 @@ const CodeExecutionControlPage = () => {
   return (
     <div className="max-w-[800px]">
       <h1 className="mb-2 text-xl font-semibold text-text-primary">
-        {t('systemManage.codeExecutionControl.title', { ns: 'extend' })}
+        {t(($) => $['systemManage.codeExecutionControl.title'], { ns: 'extend' })}
       </h1>
       <p className="mb-6 text-sm text-text-tertiary">
-        {t('systemManage.codeExecutionControl.description', { ns: 'extend' })}
+        {t(($) => $['systemManage.codeExecutionControl.description'], { ns: 'extend' })}
       </p>
 
       {/* 添加名单 */}
@@ -99,7 +99,7 @@ const CodeExecutionControlPage = () => {
               if (e.key === 'Enter')
                 handleAdd()
             }}
-            placeholder={t('systemManage.codeExecutionControl.emailPlaceholder', { ns: 'extend' })}
+            placeholder={t(($) => $['systemManage.codeExecutionControl.emailPlaceholder'], { ns: 'extend' })}
             className="w-full rounded-lg border border-components-input-border-active bg-components-input-bg-normal px-3 py-2 text-sm text-text-primary placeholder:text-text-quaternary focus:outline-none"
           />
           {inputError && (
@@ -112,8 +112,8 @@ const CodeExecutionControlPage = () => {
           className="rounded-lg bg-components-button-primary-bg px-4 py-2 text-sm font-medium text-components-button-primary-text hover:bg-components-button-primary-bg-hover disabled:opacity-60"
         >
           {addMutation.isPending
-            ? t('systemManage.common.saving', { ns: 'extend' })
-            : t('systemManage.codeExecutionControl.add', { ns: 'extend' })}
+            ? t(($) => $['systemManage.common.saving'], { ns: 'extend' })
+            : t(($) => $['systemManage.codeExecutionControl.add'], { ns: 'extend' })}
         </button>
       </div>
 
@@ -123,13 +123,13 @@ const CodeExecutionControlPage = () => {
           <thead>
             <tr className="border-b border-divider-subtle bg-background-section-burn">
               <th className="px-4 py-3 text-left font-medium text-text-tertiary">
-                {t('systemManage.codeExecutionControl.table.email', { ns: 'extend' })}
+                {t(($) => $['systemManage.codeExecutionControl.table.email'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-left font-medium text-text-tertiary">
-                {t('systemManage.codeExecutionControl.table.createdAt', { ns: 'extend' })}
+                {t(($) => $['systemManage.codeExecutionControl.table.createdAt'], { ns: 'extend' })}
               </th>
               <th className="px-4 py-3 text-right font-medium text-text-tertiary">
-                {t('systemManage.codeExecutionControl.table.actions', { ns: 'extend' })}
+                {t(($) => $['systemManage.codeExecutionControl.table.actions'], { ns: 'extend' })}
               </th>
             </tr>
           </thead>
@@ -138,7 +138,7 @@ const CodeExecutionControlPage = () => {
               ? (
                   <tr>
                     <td colSpan={3} className="px-4 py-8 text-center text-text-tertiary">
-                      {t('systemManage.common.loading', { ns: 'extend' })}
+                      {t(($) => $['systemManage.common.loading'], { ns: 'extend' })}
                     </td>
                   </tr>
                 )
@@ -146,7 +146,7 @@ const CodeExecutionControlPage = () => {
                 ? (
                     <tr>
                       <td colSpan={3} className="px-4 py-8 text-center text-text-tertiary">
-                        {t('systemManage.codeExecutionControl.empty', { ns: 'extend' })}
+                        {t(($) => $['systemManage.codeExecutionControl.empty'], { ns: 'extend' })}
                       </td>
                     </tr>
                   )
@@ -161,7 +161,7 @@ const CodeExecutionControlPage = () => {
                           onClick={() => setDeleteTarget(item)}
                           className="text-sm text-text-destructive hover:underline"
                         >
-                          {t('systemManage.common.delete', { ns: 'extend' })}
+                          {t(($) => $['systemManage.common.delete'], { ns: 'extend' })}
                         </button>
                       </td>
                     </tr>
@@ -181,22 +181,22 @@ const CodeExecutionControlPage = () => {
         <AlertDialogContent>
           <div className="flex flex-col items-start gap-2 self-stretch pt-6 pr-6 pb-4 pl-6">
             <AlertDialogTitle className="w-full title-2xl-semi-bold text-text-primary">
-              {t('systemManage.codeExecutionControl.deleteConfirmTitle', { ns: 'extend' })}
+              {t(($) => $['systemManage.codeExecutionControl.deleteConfirmTitle'], { ns: 'extend' })}
             </AlertDialogTitle>
             <AlertDialogDescription className="w-full system-md-regular wrap-break-word whitespace-pre-wrap text-text-tertiary">
-              {t('systemManage.codeExecutionControl.deleteConfirmContent', { ns: 'extend', email: deleteTarget?.email ?? '' })}
+              {t(($) => $['systemManage.codeExecutionControl.deleteConfirmContent'], { ns: 'extend', email: deleteTarget?.email ?? '' })}
             </AlertDialogDescription>
           </div>
           <AlertDialogActions>
             <AlertDialogCancelButton disabled={removeMutation.isPending}>
-              {t('systemManage.common.cancel', { ns: 'extend' })}
+              {t(($) => $['systemManage.common.cancel'], { ns: 'extend' })}
             </AlertDialogCancelButton>
             <AlertDialogConfirmButton
               loading={removeMutation.isPending}
               disabled={removeMutation.isPending}
               onClick={handleDeleteConfirm}
             >
-              {t('systemManage.common.confirm', { ns: 'extend' })}
+              {t(($) => $['systemManage.common.confirm'], { ns: 'extend' })}
             </AlertDialogConfirmButton>
           </AlertDialogActions>
         </AlertDialogContent>

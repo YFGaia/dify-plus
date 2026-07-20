@@ -20,12 +20,12 @@ const EmailApiConfig = () => {
       setTesting(true)
       const result = await testEmailApi(url, key)
       if (result.result === 'success')
-        toast.success(t('systemManage.common.testSuccess', { ns: 'extend' }))
+        toast.success(t(($) => $['systemManage.common.testSuccess'], { ns: 'extend' }))
       else
-        toast.error(result.message || t('systemManage.common.testFailed', { ns: 'extend' }))
+        toast.error(result.message || t(($) => $['systemManage.common.testFailed'], { ns: 'extend' }))
     }
     catch (e: any) {
-      toast.error(e.message || t('systemManage.common.testFailed', { ns: 'extend' }))
+      toast.error(e.message || t(($) => $['systemManage.common.testFailed'], { ns: 'extend' }))
     }
     finally {
       setTesting(false)
@@ -40,7 +40,7 @@ const EmailApiConfig = () => {
 
       <div className="space-y-1">
         <label className="text-sm font-medium text-text-secondary">
-          {t('systemManage.emailApi.url', { ns: 'extend' })}
+          {t(($) => $['systemManage.emailApi.url'], { ns: 'extend' })}
         </label>
         <input
           type="text"
@@ -53,7 +53,7 @@ const EmailApiConfig = () => {
 
       <div className="space-y-1">
         <label className="text-sm font-medium text-text-secondary">
-          {t('systemManage.emailApi.key', { ns: 'extend' })}
+          {t(($) => $['systemManage.emailApi.key'], { ns: 'extend' })}
         </label>
         <input
           type="password"
@@ -70,7 +70,7 @@ const EmailApiConfig = () => {
           disabled={testing}
           className="rounded-lg border border-components-button-secondary-border bg-components-button-secondary-bg px-4 py-2 text-sm font-medium text-components-button-secondary-text hover:bg-components-button-secondary-bg-hover disabled:opacity-50"
         >
-          {testing ? t('systemManage.common.testing', { ns: 'extend' }) : t('systemManage.common.test', { ns: 'extend' })}
+          {testing ? t(($) => $['systemManage.common.testing'], { ns: 'extend' }) : t(($) => $['systemManage.common.test'], { ns: 'extend' })}
         </button>
       </div>
     </div>
