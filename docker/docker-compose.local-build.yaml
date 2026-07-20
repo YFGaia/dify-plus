@@ -2,7 +2,7 @@
 # Usage: docker compose -f docker-compose.dify-plus.yaml -f docker-compose.local-build.yaml --env-file .env.local-test <cmd>
 #
 # Overrides the pre-built registry images with locally built images from the current source.
-# Since 1.15.0 both Dockerfiles use the repository root as build context
+# Since 1.16.0 both Dockerfiles use the repository root as build context
 # (api/Dockerfile copies api/ + dify-agent/, web/Dockerfile copies the pnpm workspace),
 # so `context` points at the repo root and `dockerfile` is the in-repo path.
 #
@@ -12,28 +12,28 @@
 
 services:
   api:
-    image: dify-plus-api:1.15.0-local
+    image: dify-plus-api:1.16.0-local
     build:
       context: ..
       dockerfile: api/Dockerfile
 
   api_websocket:
-    image: dify-plus-api:1.15.0-local
+    image: dify-plus-api:1.16.0-local
 
   worker:
-    image: dify-plus-api:1.15.0-local
+    image: dify-plus-api:1.16.0-local
 
   worker-gaia:
-    image: dify-plus-api:1.15.0-local
+    image: dify-plus-api:1.16.0-local
 
   worker-dataset:
-    image: dify-plus-api:1.15.0-local
+    image: dify-plus-api:1.16.0-local
 
   worker_beat:
-    image: dify-plus-api:1.15.0-local
+    image: dify-plus-api:1.16.0-local
 
   web:
-    image: dify-plus-web:1.15.0-local
+    image: dify-plus-web:1.16.0-local
     build:
       context: ..
       dockerfile: web/Dockerfile

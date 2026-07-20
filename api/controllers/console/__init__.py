@@ -72,7 +72,6 @@ from .app import (
     message,
     model_config,
     ops_trace,
-    passport_extend,  # 二开部分: 新增passport_extend(额度限制，应用web计费)
     site,
     statistic,
     workflow,
@@ -219,7 +218,6 @@ __all__ = [
     "oauth_server",
     "ops_trace",
     "parameter",
-    "passport_extend",
     "ping",
     "plugin",
     "rag_pipeline",

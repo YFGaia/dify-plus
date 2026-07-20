@@ -14,7 +14,7 @@ Dify-Plus 是基于 [Dify](https://github.com/langgenius/dify) 的企业级二�
 | --- | --- | --- |
 | `main` | Dify 1.12.1 | 稳定，含 GVA 管理后台（旧架构） |
 | `1.15.0` | Dify 1.15.0 | 预发布，已完成本地容器全栈验证；GVA 管理后台已移除 |
-| `fork-merged-1.16.0`（tag） | Dify 1.16.0 | **当前基线，预发布**：自动化验证全绿（后端 lint/类型/单测、前端 lint/type-check/build/Vitest、全新库迁移双链与 api 冒烟）；UI 人工回归见 [人工回归清单-1.16.0](docs/dify-plus/人工回归清单-1.16.0.md) |
+| `1.16.0`（branch）/ `1.16.0-beta.1`（release tag） | Dify 1.16.0 | **当前 Beta 预发布基线**：后端 lint 与关键单测、前端 lint/type-check/build、全新库迁移双链与 API 冒烟已通过；类型基线债务、全量 Vitest 5 个上游快照基建失败及待执行的 UI/真实集成回归见 [1.16.0 Beta 发布说明](docs/dify-plus/1.16.0-beta发布说明.md) |
 
 以上预发布基线均尚未合并回 `main`。生产环境如需使用，请先在自己的环境完成完整回归（参考 [上游升级与回归检查清单](docs/dify-plus/上游升级与回归检查清单.md)）。
 

@@ -102,7 +102,7 @@ async function mintToken(cookieStr: string, csrf: string, label: string): Promis
   for (let i = 1; i <= 5; i++) {
     approveRes = await fetch(`${base}/openapi/v1/oauth/device/approve`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Cookie: cookieStr, 'X-CSRFToken': csrf },
+      headers: { 'Content-Type': 'application/json', Cookie: cookieStr, 'X-CSRF-Token': csrf },
       body: JSON.stringify({ user_code }),
       signal: AbortSignal.timeout(10_000),
     })

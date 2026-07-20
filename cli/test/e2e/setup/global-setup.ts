@@ -692,7 +692,7 @@ async function approveDeviceCodeWithRetry(opts: {
       headers: {
         'Content-Type': 'application/json',
         Cookie: opts.cookieString,
-        'X-CSRFToken': opts.csrfToken,
+        'X-CSRF-Token': opts.csrfToken,
       },
       body: JSON.stringify({ user_code: opts.userCode }),
       signal: AbortSignal.timeout(10_000),

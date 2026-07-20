@@ -3,17 +3,21 @@
 ## 背景
 
 ### 功能说明
+
 在 dify-plus fork 的 1.12.x 版本中，Workflow API Key（以及其他应用类型的 API Key）支持**额度控制**功能，包括：
+
 - **每日额度（day_limit_quota）**：API Key 每天可消耗的最大额度（USD）
 - **月额度（month_limit_quota）**：API Key 每月可消耗的最大额度（USD）
 - **累计额度（accumulated_quota）**：API Key 历史累计消耗
 
 合并 upstream 1.13.2 后，部分代码在合并过程中出现了功能缺失或断裂，具体表现为：
+
 1. 前端 **创建 API Key 时无法设置额度**（直接创建，跳过额度设置弹窗）
 2. 额度弹窗的 **`onCreate` 回调未传递 keyItem 的额度参数**（创建时额度丢失）
 3. `openSecretKeyQuotaSetModalExtend()` 函数存在但从未被调用（死代码）
 
 ### 已完整实现的部分（无需修改）
+
 - ✅ 数据库表：`api_token_money_extend`、`api_token_message_joins_extend`、日统计表、月统计表
 - ✅ 数据库迁移：`2024_08_29_0715-1b804f8bbd28_add_api_token_money_extend.py`
 - ✅ 后端额度检查（`wraps.py`）：API 调用前校验日/月额度，超限返回 403
@@ -33,8 +37,9 @@
 **现象**：点击"Create New Secret Key"按钮 → 直接调用 `onCreate` 创建密钥，未显示额度设置弹窗
 
 **期望流程**（1.12 版本设计意图）：
+
 ```
-点击"Create New Secret Key" 
+点击"Create New Secret Key"
   → openSecretKeyQuotaSetModalExtend()   (打开额度设置弹窗，keyItem.id='')
   → 用户填写 description / day_limit_quota / month_limit_quota
   → 弹窗内点击"Create"
@@ -43,6 +48,7 @@
 ```
 
 **当前断裂代码**：
+
 ```tsx
 // secret-key-modal.tsx
 // 问题：onClick 应绑定 openSecretKeyQuotaSetModalExtend，而非 onCreate
@@ -66,16 +72,19 @@ const onCreate = async () => {
 ## 功能修复目标
 
 ### 目标1：前端 CREATE 流程修复
+
 - 点击"新建 API Key"按钮 → 先弹出额度设置弹窗
 - 弹窗内可设置：密钥描述、每日额度上限、月额度上限（-1 表示无限制）
 - 弹窗点击"创建"→ 调 POST API，带上额度参数
 - 弹窗点击"关闭"→ 取消创建
 
 ### 目标2：前端 EDIT 流程（已有，确认正常）
+
 - 点击每条密钥行尾的编辑图标 → 弹出额度设置弹窗（带当前值）
 - 弹窗内修改后点"保存"→ 调 PUT API 更新额度 ✅（已工作）
 
 ### 目标3：后端链路完整性验证
+
 - 确认 `wraps.py` 额度检查正确工作
 - 确认 `apikey.py` GET 的 INNER JOIN 是否导致旧 key 不可见（可选改为 LEFT JOIN）
 - 确认 Workflow 运行时扣费链路正常

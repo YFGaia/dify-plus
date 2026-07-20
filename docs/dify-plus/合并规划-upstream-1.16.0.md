@@ -108,8 +108,8 @@
 ### Phase 6：容器级迁移与冒烟验证
 
 - 用 `docker/docker-compose.middleware.yaml` 起中间件（或复用本地已有库，注意隔离，禁止碰生产数据）；
-- 顺序执行三段命令链：`flask db upgrade` → `flask extend_db upgrade` → 
-  `flask backfill-plugin-auto-upgrade`（若 1.16.0 仍需要）；
+- 以三段候选命令链开始核验：`flask db upgrade` → `flask extend_db upgrade` →
+  `flask backfill-plugin-auto-upgrade`；第三段是否进入正式 runbook 由 Phase 1/6 的实测结论决定；
 - 起 api 进程，冒烟：`/console/api/system-features`、login_config_bootstrap 链路、
   system-manage-extend 路由可达性、额度接口；
 - 参照 `docs/dify-plus/1.15.0升级本地容器验证记录.md` 的方法论，产出 1.16.0 版验证记录。
@@ -145,7 +145,7 @@
 | Phase 2 合并与冲突处理 | `3ba52e850a` | 75 个冲突（68 content + 7 modify/delete）全部解决，决策记录见[合并记录](./合并记录-upstream-1.16.0.md)；extend 文件全部存活 |
 | Phase 3 挂点复核与适配 | `529b0ffe40`、`302fe2a4fd` | 10 个挂点全部复核通过（含修复挂点 9 的延迟 import 静默炸弹）；i18n typed-selector 迁移 181 处；契约层 fork 段重建；见[复核记录-后端](./复核记录-1.16.0-后端.md)/[前端与部署](./复核记录-1.16.0-前端与部署.md) |
 | Phase 4 后端全量验证 | `0b90b3e3fa`（与 Phase 5 同提交） | lint/守卫全绿；主套件 **13558 passed**、controllers **3385 passed / 0 failed**；类型检查余量 pyrefly 207 / mypy 116 全部为基线存量债务（本次引入 0 条）；12 项修复见[验证记录-后端](./验证记录-1.16.0-后端.md) §6 |
-| Phase 5 前端全量验证 | `0b90b3e3fa` | `pnpm lint` / `type-check` / `build` 全绿；Vitest **22755/22762 passed**（唯一残留为上游 vitest 多实例快照基建问题）；见[验证记录-前端](./验证记录-1.16.0-前端.md) |
+| Phase 5 前端全量验证 | `0b90b3e3fa` | `pnpm lint` / `type-check` / `build` 通过；Vitest **22755 passed / 5 failed / 2 skipped**（失败均为上游 vitest 多实例快照基建问题，关联 spec 单跑通过）；见[验证记录-前端](./验证记录-1.16.0-前端.md) |
 | Phase 6 容器级验证 | `21c9b22e4f` | 全新库迁移双链全绿（主链 200 迁移 → `7a1c2d9e4b60`，扩展链 18 迁移 → `018`）；冒烟四项（system-features、login_config bootstrap、系统管理三页路由、额度接口）全过；一次性命令 runbook 定案为**两段命令即可**；见[1.16.0 容器验证记录](./1.16.0升级本地容器验证记录.md) |
 | Phase 7 文档同步与收尾 | （主控收尾提交） | 基线文档同步 1.16.0；产出[升级到 1.16.0 说明](./升级到1.16.0说明.md)与[人工回归清单-1.16.0](./人工回归清单-1.16.0.md)；tag `fork-merged-1.16.0` 由主控在收尾提交后创建 |
 
@@ -153,7 +153,7 @@
 
 1. 合并提交存在、无冲突残留 ✅（`3ba52e850a`）
 2. 10 个挂点逐项复核通过、坐标登记更新到 1.16.0 ✅（差异总表 §7）
-3. 后端迁移链完整、lint/类型/单测通过 ✅（Phase 3a/4）
+3. 后端迁移链完整、lint 通过；类型未新增债务，关键单测无确认的新增回归 ✅（Phase 3a/4）
 4. 前端 lint + type-check + build 通过 ✅（Phase 5）
 5. 容器级迁移与冒烟通过 ✅（Phase 6；三方 test 接口等不可自动化项已入人工清单）
 6. 文档同步到 1.16.0 基线 ✅（Phase 7）

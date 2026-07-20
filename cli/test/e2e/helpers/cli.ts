@@ -492,7 +492,11 @@ export async function mintFreshToken(
   // Step 3 — approve
   const approveRes = await fetch(`${base}/openapi/v1/oauth/device/approve`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Cookie: cookieString, 'X-CSRFToken': csrfToken },
+    headers: {
+      'Content-Type': 'application/json',
+      Cookie: cookieString,
+      'X-CSRF-Token': csrfToken,
+    },
     body: JSON.stringify({ user_code }),
     signal: AbortSignal.timeout(20_000),
   })

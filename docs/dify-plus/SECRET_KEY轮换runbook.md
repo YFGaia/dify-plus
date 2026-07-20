@@ -23,7 +23,7 @@ admin-server/admin-web 下线后，必须轮换 `SECRET_KEY`，作废其曾持�
 
 | # | 用途 | 代码位置 | 轮换后影响 | 需要的后续动作 |
 |---|------|----------|-----------|---------------|
-| 1 | Console / WebApp JWT 签发与校验（`PassportService`，HS256） | `api/libs/passport.py:9-24`；签发方：`api/services/account_service.py:213`（console access token）、`api/services/webapp_auth_service.py:130`、`api/controllers/web/passport.py:97,194,231`（webapp end-user token）、`api/controllers/console/app/passport_extend.py:51,90`（二开 passport-extend）；校验方：`api/extensions/ext_login.py`、`api/libs/token.py`、`api/controllers/web/wraps.py` 等 | 所有已签发 JWT 立即失效，Console/WebApp 请求返回 401 | 无需操作，全员重新登录即可（refresh_token 为随机串存 redis，刷新后即换发新密钥签名的 access token） |
+| 1 | Console / WebApp JWT 签发与校验（`PassportService`，HS256） | `api/libs/passport.py`；签发方：`api/services/account_service.py`（console access token）、`api/services/webapp_auth_service.py`、`api/controllers/web/passport.py`（webapp end-user token）；校验方：`api/extensions/ext_login.py`、`api/libs/token.py`、`api/controllers/web/wraps.py` 等。旧二开 `/console/api/passport-extend` 已于 1.16.0 Beta 退役 | 所有已签发 JWT 立即失效，Console/WebApp 请求返回 401 | 无需操作，全员重新登录即可（refresh_token 为随机串存 redis，刷新后即换发新密钥签名的 access token） |
 | 2 | 二开转发鉴权装饰器 `repost_login_required` 的 JWT 校验 | `api/libs/login_extend.py:30` | 同上，旧 token 401 | 同上，重新登录 |
 | 3 | login-config JWT（CVE-2025-63387 防护，1h 过期） | `api/controllers/console/feature.py:25,33` | 旧 token 校验失败 | 无需操作，自动重新签发 |
 | 4 | Flask app `secret_key`（session cookie 签名） | `api/extensions/ext_set_secretkey.py:8-13`、`api/configs/secret_key.py` | 旧 session cookie 失效 | 无需操作 |

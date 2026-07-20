@@ -37,13 +37,13 @@
 
 ### 1.2 痛点
 
-| 痛点 | 说明 |
-|------|------|
-| **双技术栈维护成本** | 需同时维护 Go/Vue 和 Python/Next.js 两套代码 |
-| **部署复杂度** | Admin 需独立容器(admin-server + admin-web)，增加运维负担 |
-| **上游合并摩擦** | Admin 的数据链路与 Dify API 共享 DB 但逻辑分散，升级时易遗漏 |
-| **用户体验割裂** | 管理员需在两个系统间切换，登录态不互通 |
-| **功能冗余** | 部分功能(如模型管理)在两端有重叠 |
+| 痛点                 | 说明                                                         |
+| -------------------- | ------------------------------------------------------------ |
+| **双技术栈维护成本** | 需同时维护 Go/Vue 和 Python/Next.js 两套代码                 |
+| **部署复杂度**       | Admin 需独立容器(admin-server + admin-web)，增加运维负担     |
+| **上游合并摩擦**     | Admin 的数据链路与 Dify API 共享 DB 但逻辑分散，升级时易遗漏 |
+| **用户体验割裂**     | 管理员需在两个系统间切换，登录态不互通                       |
+| **功能冗余**         | 部分功能(如模型管理)在两端有重叠                             |
 
 ### 1.3 目标
 
@@ -57,25 +57,25 @@
 
 ### 2.1 Admin 功能清单与迁移优先级
 
-| 功能模块 | Admin 菜单路径 | 迁移阶段 | 优先级 | 复杂度 |
-|----------|---------------|----------|--------|--------|
-| 钉钉 SSO 配置 | 系统集成 / 钉钉 | **第一阶段** | P0 | 中 |
-| OAuth2.0 配置 | 系统集成 / OAuth2 | **第一阶段** | P0 | 中 |
-| 转发 Token 管理 | 系统集成 / 钉钉(子功能) | **第一阶段** | P1 | 低 |
-| 邮箱 API 配置 | 系统集成 / 钉钉(子功能) | **第一阶段** | P1 | 低 |
-| 全局模型管理 | 系统集成 / 模型管理 | 第二阶段 | P1 | 高 |
-| 用户管理 | 用户管理 | 第三阶段 | P1 | 高 |
-| 运营管理 | 运营管理(公告/推荐等) | 第三阶段 | P2 | 中 |
-| 转发代理 | 转发管理 | 第四阶段 | P2 | 中 |
-| 系统仪表盘 | 首页 | 第四阶段 | P3 | 低 |
+| 功能模块        | Admin 菜单路径          | 迁移阶段     | 优先级 | 复杂度 |
+| --------------- | ----------------------- | ------------ | ------ | ------ |
+| 钉钉 SSO 配置   | 系统集成 / 钉钉         | **第一阶段** | P0     | 中     |
+| OAuth2.0 配置   | 系统集成 / OAuth2       | **第一阶段** | P0     | 中     |
+| 转发 Token 管理 | 系统集成 / 钉钉(子功能) | **第一阶段** | P1     | 低     |
+| 邮箱 API 配置   | 系统集成 / 钉钉(子功能) | **第一阶段** | P1     | 低     |
+| 全局模型管理    | 系统集成 / 模型管理     | 第二阶段     | P1     | 高     |
+| 用户管理        | 用户管理                | 第三阶段     | P1     | 高     |
+| 运营管理        | 运营管理(公告/推荐等)   | 第三阶段     | P2     | 中     |
+| 转发代理        | 转发管理                | 第四阶段     | P2     | 中     |
+| 系统仪表盘      | 首页                    | 第四阶段     | P3     | 低     |
 
 ### 2.2 不迁移项
 
-| 项目 | 原因 |
-|------|------|
-| Admin 自身的 RBAC/角色/菜单管理 | Dify 有自己的 workspace 角色体系 |
-| Admin 登录/注册 | 用 Dify 原生的 owner/admin 权限替代 |
-| gin-vue-admin 框架功能(代码生成器等) | 与业务无关 |
+| 项目                                 | 原因                                |
+| ------------------------------------ | ----------------------------------- |
+| Admin 自身的 RBAC/角色/菜单管理      | Dify 有自己的 workspace 角色体系    |
+| Admin 登录/注册                      | 用 Dify 原生的 owner/admin 权限替代 |
+| gin-vue-admin 框架功能(代码生成器等) | 与业务无关                          |
 
 ---
 
@@ -190,19 +190,19 @@ POST   /console/api/system-manage-extend/integration/email-api/test # 测试邮�
 
 **核心**: 完全复用现有 `system_integration_extend` 表，不新增表。
 
-| 表名 | 状态 | 说明 |
-|------|------|------|
+| 表名                        | 状态 | 说明                                     |
+| --------------------------- | ---- | ---------------------------------------- |
 | `system_integration_extend` | 已有 | 钉钉(classify=1)/OAuth2(classify=4) 配置 |
-| `account_ding_talk_extend` | 已有 | 钉钉账号映射(由登录流程写入，管理端只读) |
+| `account_ding_talk_extend`  | 已有 | 钉钉账号映射(由登录流程写入，管理端只读) |
 
 **classify 值映射**:
 
-| classify | 含义 | config JSON 结构 |
-|----------|------|-----------------|
-| 1 | 钉钉 SSO | `{email_api: {...}, forward_config: {tokens: [...]}}` |
-| 2 | 微信(预留) | - |
-| 3 | 飞书(预留) | - |
-| 4 | OAuth2.0 | `{authorize_url, token_url, userinfo_url, scope, ...}` |
+| classify | 含义       | config JSON 结构                                       |
+| -------- | ---------- | ------------------------------------------------------ |
+| 1        | 钉钉 SSO   | `{email_api: {...}, forward_config: {tokens: [...]}}`  |
+| 2        | 微信(预留) | -                                                      |
+| 3        | 飞书(预留) | -                                                      |
+| 4        | OAuth2.0   | `{authorize_url, token_url, userinfo_url, scope, ...}` |
 
 ---
 
@@ -329,20 +329,21 @@ from controllers.console import system_manage_extend  # noqa: F401
 
 从 Admin Go 代码迁移的核心逻辑：
 
-| Go Service 方法 | Python 对应 | 说明 |
-|-----------------|-------------|------|
-| `GetIntegratedConfig(classify)` | `get_integration_config(classify)` | 按分类读取配置 |
-| `SetIntegratedConfig(classify, data)` | `set_integration_config(classify, data)` | 保存配置 |
-| `GetDingTalkTestAuthURL()` | `get_dingtalk_test_auth_url()` | 生成钉钉测试授权URL |
-| `DingTalkTestCallback(code)` | `dingtalk_test_callback(code)` | 钉钉回调测试 |
-| `ValidateEmailApiConfig()` | `validate_email_api_config()` | 邮箱API连通性测试 |
-| N/A (CRUD) | `get_forward_tokens()` | 获取转发Token列表 |
-| N/A (CRUD) | `create_forward_token()` | 创建转发Token |
-| N/A (CRUD) | `delete_forward_token(seq)` | 删除转发Token |
+| Go Service 方法                       | Python 对应                              | 说明                |
+| ------------------------------------- | ---------------------------------------- | ------------------- |
+| `GetIntegratedConfig(classify)`       | `get_integration_config(classify)`       | 按分类读取配置      |
+| `SetIntegratedConfig(classify, data)` | `set_integration_config(classify, data)` | 保存配置            |
+| `GetDingTalkTestAuthURL()`            | `get_dingtalk_test_auth_url()`           | 生成钉钉测试授权URL |
+| `DingTalkTestCallback(code)`          | `dingtalk_test_callback(code)`           | 钉钉回调测试        |
+| `ValidateEmailApiConfig()`            | `validate_email_api_config()`            | 邮箱API连通性测试   |
+| N/A (CRUD)                            | `get_forward_tokens()`                   | 获取转发Token列表   |
+| N/A (CRUD)                            | `create_forward_token()`                 | 创建转发Token       |
+| N/A (CRUD)                            | `delete_forward_token(seq)`              | 删除转发Token       |
 
 ### 4.4 数据流（迁移前后对比）
 
 **迁移前**:
+
 ```
 Admin Vue 前端 ──HTTP──▶ Admin Gin API ──GORM──▶ system_integration_extend
                                                           ▲
@@ -350,23 +351,24 @@ Dify Next.js 前端 ──HTTP──▶ Dify Flask API ──SQLAlchemy──┘
 ```
 
 **迁移后**:
+
 ```
 Dify Next.js 前端 ──HTTP──▶ Dify Flask API ──SQLAlchemy──▶ system_integration_extend
  (系统管理页面)              (新增管理API)                    (读写)
- 
+
 Dify Next.js 前端 ──HTTP──▶ Dify Flask API ──SQLAlchemy──┘ (只读，原有登录流程不变)
  (登录页面)                  (原有登录API)
 ```
 
 ### 4.5 关键交互点（需保持兼容）
 
-| 交互点 | 说明 | 处理方式 |
-|--------|------|---------|
-| `feature_service.py` 读取配置 | 登录页特性开关依赖此表 | **不改动**，保持 Dify 读取逻辑不变 |
-| `ding_talk_extend.py` 登录逻辑 | 钉钉扫码登录流程 | **不改动**，登录逻辑不涉及管理 |
-| `oauth.py` 登录逻辑 | OAuth2 登录流程 | **不改动** |
-| `config` JSON 结构 | 钉钉配置中含 email_api / forward_config | **保持兼容**，写入相同 JSON 结构 |
-| Redis api_host 回显 | Admin 读取 Dify 写入的 host | 新管理页可直接从 Flask req 拿 host |
+| 交互点                         | 说明                                    | 处理方式                           |
+| ------------------------------ | --------------------------------------- | ---------------------------------- |
+| `feature_service.py` 读取配置  | 登录页特性开关依赖此表                  | **不改动**，保持 Dify 读取逻辑不变 |
+| `ding_talk_extend.py` 登录逻辑 | 钉钉扫码登录流程                        | **不改动**，登录逻辑不涉及管理     |
+| `oauth.py` 登录逻辑            | OAuth2 登录流程                         | **不改动**                         |
+| `config` JSON 结构             | 钉钉配置中含 email_api / forward_config | **保持兼容**，写入相同 JSON 结构   |
+| Redis api_host 回显            | Admin 读取 Dify 写入的 host             | 新管理页可直接从 Flask req 拿 host |
 
 ---
 
@@ -374,25 +376,25 @@ Dify Next.js 前端 ──HTTP──▶ Dify Flask API ──SQLAlchemy──┘
 
 ### 5.1 低冲突原则
 
-| 原则 | 实践 |
-|------|------|
-| **新增不修改** | 前端新增 `*-extend` 目录/文件，不改上游路由 |
+| 原则             | 实践                                                 |
+| ---------------- | ---------------------------------------------------- |
+| **新增不修改**   | 前端新增 `*-extend` 目录/文件，不改上游路由          |
 | **独立命名空间** | 路由前缀 `/system-manage-extend`，文件后缀 `_extend` |
-| **独立 i18n** | 使用 `system-manage-extend.json`，不混入上游 key |
-| **复用已有表** | 不新增数据表，直接操作已有 `_extend` 表 |
-| **独立迁移链** | 如需 DDL，走 `migrations_extend` |
-| **渐进式切换** | Admin 和新页面可并行运行，通过 feature flag 切换 |
+| **独立 i18n**    | 使用 `system-manage-extend.json`，不混入上游 key     |
+| **复用已有表**   | 不新增数据表，直接操作已有 `_extend` 表              |
+| **独立迁移链**   | 如需 DDL，走 `migrations_extend`                     |
+| **渐进式切换**   | Admin 和新页面可并行运行，通过 feature flag 切换     |
 
 ### 5.2 与上游合并冲突预估
 
-| 区域 | 冲突风险 | 说明 |
-|------|---------|------|
-| `web/app/(commonLayout)/system-manage-extend/` | **无** | 全新目录 |
-| `web/service/system-manage-extend.ts` | **无** | 全新文件 |
-| `web/app/components/header/` | **低** | 仅增加一个导航入口 |
-| `api/controllers/console/__init__.py` | **低** | 仅增加一行 import |
-| `api/controllers/console/system_manage_extend.py` | **无** | 全新文件 |
-| `api/services/system_manage_extend.py` | **无** | 全新文件 |
+| 区域                                              | 冲突风险 | 说明               |
+| ------------------------------------------------- | -------- | ------------------ |
+| `web/app/(commonLayout)/system-manage-extend/`    | **无**   | 全新目录           |
+| `web/service/system-manage-extend.ts`             | **无**   | 全新文件           |
+| `web/app/components/header/`                      | **低**   | 仅增加一个导航入口 |
+| `api/controllers/console/__init__.py`             | **低**   | 仅增加一行 import  |
+| `api/controllers/console/system_manage_extend.py` | **无**   | 全新文件           |
+| `api/services/system_manage_extend.py`            | **无**   | 全新文件           |
 
 ---
 
@@ -422,22 +424,22 @@ Dify Next.js 前端 ──HTTP──▶ Dify Flask API ──SQLAlchemy──┘
 
 ### 任务列表
 
-| ID | 任务 | 依赖 | 预计复杂度 |
-|----|------|------|-----------|
-| T1 | 创建后端权限装饰器 `system_admin_required_extend` | 无 | 低 |
-| T2 | 实现系统集成 Service 层 (`system_manage_extend.py`) | T1 | 中 |
-| T3 | 实现系统集成 Controller 路由 | T2 | 中 |
-| T4 | 注册路由到 console blueprint | T3 | 低 |
-| T5 | 创建前端路由结构 `system-manage-extend/` | 无 | 低 |
-| T6 | 实现管理中心布局组件 (layout.tsx) | T5 | 中 |
-| T7 | 实现钉钉配置页(表单+测试连接) | T3, T6 | 中 |
-| T8 | 实现 OAuth2 配置页(表单+测试连接) | T3, T6 | 中 |
-| T9 | 实现邮箱 API 配置组件 | T3, T6 | 低 |
-| T10 | 实现转发 Token 管理组件 | T3, T6 | 低 |
-| T11 | 新增 Header 导航入口 | T5 | 低 |
-| T12 | 新增 i18n 文件 | T7-T10 | 低 |
-| T13 | 联调测试 | ALL | 中 |
-| T14 | 创建 API 服务封装 `service/system-manage-extend.ts` | T3 | 低 |
+| ID  | 任务                                                | 依赖   | 预计复杂度 |
+| --- | --------------------------------------------------- | ------ | ---------- |
+| T1  | 创建后端权限装饰器 `system_admin_required_extend`   | 无     | 低         |
+| T2  | 实现系统集成 Service 层 (`system_manage_extend.py`) | T1     | 中         |
+| T3  | 实现系统集成 Controller 路由                        | T2     | 中         |
+| T4  | 注册路由到 console blueprint                        | T3     | 低         |
+| T5  | 创建前端路由结构 `system-manage-extend/`            | 无     | 低         |
+| T6  | 实现管理中心布局组件 (layout.tsx)                   | T5     | 中         |
+| T7  | 实现钉钉配置页(表单+测试连接)                       | T3, T6 | 中         |
+| T8  | 实现 OAuth2 配置页(表单+测试连接)                   | T3, T6 | 中         |
+| T9  | 实现邮箱 API 配置组件                               | T3, T6 | 低         |
+| T10 | 实现转发 Token 管理组件                             | T3, T6 | 低         |
+| T11 | 新增 Header 导航入口                                | T5     | 低         |
+| T12 | 新增 i18n 文件                                      | T7-T10 | 低         |
+| T13 | 联调测试                                            | ALL    | 中         |
+| T14 | 创建 API 服务封装 `service/system-manage-extend.ts` | T3     | 低         |
 
 ### 依赖关系
 
@@ -457,13 +459,13 @@ T5 ──▶ T11
 
 ## 八、风险与缓解
 
-| 风险 | 影响 | 缓解措施 |
-|------|------|---------|
-| Admin 和新管理页并行期间数据冲突 | 两端同时修改相同配置行 | 迁移期间文档标注"以新管理页为准"，Admin 设为只读提示 |
-| 权限模型差异 | Admin 用独立 RBAC，Dify 用 workspace 角色 | 第一阶段只允许 workspace owner 访问，后续扩展精细权限 |
-| 前端样式与 Dify 不统一 | 新页面看起来像"嵌入的外来物" | 完全使用 Dify 现有组件库（Button, Input, Switch, Toast 等） |
-| 钉钉 config JSON 结构兼容 | 新写入的 JSON 格式与 Admin 不一致导致登录失败 | 严格遵循已有 JSON schema，写入前校验 |
-| 上游升级影响 | Dify 上游调整 console 路由或权限体系 | 使用独立 `-extend` 命名，不触碰上游路径 |
+| 风险                             | 影响                                          | 缓解措施                                                    |
+| -------------------------------- | --------------------------------------------- | ----------------------------------------------------------- |
+| Admin 和新管理页并行期间数据冲突 | 两端同时修改相同配置行                        | 迁移期间文档标注"以新管理页为准"，Admin 设为只读提示        |
+| 权限模型差异                     | Admin 用独立 RBAC，Dify 用 workspace 角色     | 第一阶段只允许 workspace owner 访问，后续扩展精细权限       |
+| 前端样式与 Dify 不统一           | 新页面看起来像"嵌入的外来物"                  | 完全使用 Dify 现有组件库（Button, Input, Switch, Toast 等） |
+| 钉钉 config JSON 结构兼容        | 新写入的 JSON 格式与 Admin 不一致导致登录失败 | 严格遵循已有 JSON schema，写入前校验                        |
+| 上游升级影响                     | Dify 上游调整 console 路由或权限体系          | 使用独立 `-extend` 命名，不触碰上游路径                     |
 
 ---
 

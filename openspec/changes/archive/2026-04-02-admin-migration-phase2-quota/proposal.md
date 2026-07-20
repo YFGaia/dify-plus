@@ -25,10 +25,12 @@
 ### 后端（追加到 `system_manage_extend.py`）
 
 **新增 Service：** `QuotaManageService` （在 `api/services/system_manage_extend.py`）
+
 - `get_quota_list(page, page_size, keyword)` — 分页查询，JOIN accounts，按 `used_quota DESC` 排序
 - `set_user_quota(account_id, quota)` — UPSERT `account_money_extend.total_quota`（改善 Admin 的纯 UPDATE）
 
 **新增 Controller 资源：**（在 `api/controllers/console/system_manage_extend.py`）
+
 - `QuotaManagementListExtend`：GET `/system-manage-extend/quota-management`
 - `QuotaManagementSetExtend`：POST `/system-manage-extend/quota-management/set`
 
@@ -37,15 +39,18 @@
 ### 前端
 
 **新增路由目录：** `web/app/(commonLayout)/system-manage-extend/quota-management/`
+
 - `page.tsx`：额度管理表格页（搜索 + 分页 + 列表 + 修改弹窗）
 
 **更新 `layout.tsx`：** 在侧边栏菜单添加"用户额度"菜单项
 
 **追加 `web/service/system-manage-extend.ts`：**
+
 - `getQuotaList(params)` — 获取分页列表
 - `setUserQuota(accountId, quota)` — 修改指定用户额度
 
 **追加 `web/models/system-manage-extend.ts`：**
+
 - `QuotaListItem` — 列表行类型
 - `QuotaListResponse` — 分页响应类型
 
@@ -54,6 +59,7 @@
 ### 低冲突策略
 
 继承 Phase 1 约定：
+
 - 全部修改限于已有的 extend 文件或新的 `quota-management/` 目录
 - 后端仅追加到已有文件，不改上游路由
 - 前端仅修改 `layout.tsx`（追加菜单项）

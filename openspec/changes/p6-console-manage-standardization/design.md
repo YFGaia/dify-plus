@@ -9,15 +9,15 @@
 
 现状偏离仓库规范的具体坐标（调研确认，以工作区当前代码为准）：
 
-| 问题 | 位置 |
-|---|---|
-| legacy 数据层（`get/post/del` + 手写 loading/refetch） | `web/service/system-manage-extend.ts` 全部 13 个导出函数；5 个页面组件内 `useState/useEffect` |
-| 手写 UI（table/分页/弹窗/tab/按钮/输入原生元素 + Tailwind） | `quota-management/page.tsx`（含 `fixed inset-0` 手写遮罩弹窗）、`system-integration/*` 全部 |
-| `globalThis.confirm` 删除确认 | `forward-token-list.tsx` `handleDelete` |
-| 旧 `base/toast` 的 `Toast.notify` | `quota-management/page.tsx`、`email-api-config.tsx`、`forward-token-list.tsx`（dingtalk/oauth2 已迁新 `ui/toast`） |
-| `catch (e: any)` | `quota-management/page.tsx`、`email-api-config.tsx`、`forward-token-list.tsx` |
-| 硬编码中文 | quota 页分页控件（"每页 / 条，共 N 条 / 第 X 页"）、`email-api-config.tsx` 顶部说明段落 |
-| 权限口径不一致 | 前端 `system-manage-nav-extend/index.tsx` 与 `system-manage-extend/layout.tsx` 用 `isCurrentWorkspaceOwner`；后端 `system_admin_required_extend` 用 `current_user.is_admin_or_owner` |
+| 问题                                                        | 位置                                                                                                                                                                                 |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| legacy 数据层（`get/post/del` + 手写 loading/refetch）      | `web/service/system-manage-extend.ts` 全部 13 个导出函数；5 个页面组件内 `useState/useEffect`                                                                                        |
+| 手写 UI（table/分页/弹窗/tab/按钮/输入原生元素 + Tailwind） | `quota-management/page.tsx`（含 `fixed inset-0` 手写遮罩弹窗）、`system-integration/*` 全部                                                                                          |
+| `globalThis.confirm` 删除确认                               | `forward-token-list.tsx` `handleDelete`                                                                                                                                              |
+| 旧 `base/toast` 的 `Toast.notify`                           | `quota-management/page.tsx`、`email-api-config.tsx`、`forward-token-list.tsx`（dingtalk/oauth2 已迁新 `ui/toast`）                                                                   |
+| `catch (e: any)`                                            | `quota-management/page.tsx`、`email-api-config.tsx`、`forward-token-list.tsx`                                                                                                        |
+| 硬编码中文                                                  | quota 页分页控件（"每页 / 条，共 N 条 / 第 X 页"）、`email-api-config.tsx` 顶部说明段落                                                                                              |
+| 权限口径不一致                                              | 前端 `system-manage-nav-extend/index.tsx` 与 `system-manage-extend/layout.tsx` 用 `isCurrentWorkspaceOwner`；后端 `system_admin_required_extend` 用 `current_user.is_admin_or_owner` |
 
 约束：
 

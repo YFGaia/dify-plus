@@ -9,6 +9,7 @@
 ## 任务列表
 
 ### T1 - 前端：修复"新建 API Key"按钮，使其先弹出额度设置弹窗
+
 - **文件**: `web/app/components/develop/secret-key/secret-key-modal.tsx`
 - **优先级**: P0（核心修复）
 - **内容**:
@@ -17,6 +18,7 @@
 - **状态**: [ ] 未开始
 
 ### T2 - 前端：修复 `onCreate` 函数，传递 keyItem 额度参数
+
 - **文件**: `web/app/components/develop/secret-key/secret-key-modal.tsx`
 - **优先级**: P0（核心修复）
 - **内容**:
@@ -26,6 +28,7 @@
 - **状态**: [ ] 未开始
 
 ### T3 - 后端（可选增强）：apikey.py GET 改为 LEFT JOIN
+
 - **文件**: `api/controllers/console/apikey.py`
 - **优先级**: P1（改善）
 - **内容**:
@@ -35,6 +38,7 @@
 - **状态**: [ ] 未开始
 
 ### T4 - 后端：修复 apikey.py GET 中的变量命名错误
+
 - **文件**: `api/controllers/console/apikey.py`
 - **优先级**: P1（代码质量）
 - **内容**:
@@ -44,6 +48,7 @@
 - **状态**: [ ] 未开始
 
 ### T5 - 验证：后端额度检查链路端到端测试
+
 - **文件**: (测试 / 验证）
 - **优先级**: P1（验证）
 - **内容**:
@@ -53,6 +58,7 @@
 - **状态**: [ ] 未开始
 
 ### T6 - 文档：更新验证任务文档
+
 - **文件**: `docs/dify-plus/tasks-verify-1.13.2-merge.md`
 - **优先级**: P2（文档）
 - **内容**:

@@ -81,6 +81,7 @@ POST /console/api/system-manage-extend/quota-management/set
 ```
 
 **QuotaItem 结构：**
+
 ```json
 {
   "account_id": "uuid-string",
@@ -156,11 +157,8 @@ const [submitting, setSubmitting] = useState(false)
 ### API Service (追加到 `web/service/system-manage-extend.ts`)
 
 ```typescript
-export const getQuotaList = (params: {
-  page: number
-  page_size: number
-  keyword?: string
-}) => get<QuotaListResponse>('/system-manage-extend/quota-management', { params })
+export const getQuotaList = (params: { page: number; page_size: number; keyword?: string }) =>
+  get<QuotaListResponse>('/system-manage-extend/quota-management', { params })
 
 export const setUserQuota = (data: { account_id: string; quota: number }) =>
   post<{ result: string }>('/system-manage-extend/quota-management/set', { body: data })
@@ -237,7 +235,7 @@ export type QuotaListResponse = {
             → QuotaManageService.set_user_quota()
               → UPSERT account_money_extend
           ← { result: "success" }
-        ← 
+        ←
       → toast 成功提示
       → 刷新列表
 ```
@@ -246,12 +244,12 @@ export type QuotaListResponse = {
 
 ### 与 Admin Go 版的改进点
 
-| 改进项 | Admin Go 版 | 本次 Python 版 |
-|--------|------------|--------------|
-| 设置额度 | 纯 UPDATE（新用户无效） | UPSERT（自动创建记录） |
-| 搜索 keyword | 先查 accounts 再 filter | 同 Go 逻辑，改用 SQLAlchemy |
-| 余额字段 | 前端计算 total-used | 后端计算后直接返回 `balance` |
-| avatar | 显示（headerImg） | 显示（accounts.avatar URL） |
+| 改进项       | Admin Go 版             | 本次 Python 版               |
+| ------------ | ----------------------- | ---------------------------- |
+| 设置额度     | 纯 UPDATE（新用户无效） | UPSERT（自动创建记录）       |
+| 搜索 keyword | 先查 accounts 再 filter | 同 Go 逻辑，改用 SQLAlchemy  |
+| 余额字段     | 前端计算 total-used     | 后端计算后直接返回 `balance` |
+| avatar       | 显示（headerImg）       | 显示（accounts.avatar URL）  |
 
 ### 边界情况
 

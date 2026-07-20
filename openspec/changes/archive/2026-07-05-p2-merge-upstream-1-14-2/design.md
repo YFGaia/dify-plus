@@ -84,18 +84,18 @@
 - **替代方案**：解冲突时随手处理——否决，这正是 1.13.3 合并丢失 4 处挂点的根因（无清单核对，冲突解完即认为完成）。
 - **挂点清单**（10 项，合并时逐项确认新位置并验证行为）：
 
-| # | 挂点 | 1.13.3 坐标 | 1.14.2 预判风险 |
-|---|------|------------|----------------|
-| 1 | workflow 节点计费 Celery 派发（`update_account_money_when_workflow_node_execution_created_extend.delay`） | `api/core/app/workflow/layers/persistence.py` 的 `_handle_node_succeeded` | **高**：`ef2b5d6107` 在同目录新增 `llm_quota.py` 并重写 llm 节点用量流转，`_handle_node_succeeded` 可能被重构；需确认 token 用量数据源是否位移 |
-| 2 | `extras["app_token_id"] = api_token.id` 写入 | `api/core/app/apps/workflow/app_generator.py`、`advanced_chat/app_generator.py` | **高**：上游对 app_generator 做 200-300 行级重写 |
-| 3 | `ApiTokenMessageJoinsExtend` 关联记录写入 | `advanced_chat/generate_task_pipeline.py`、`workflow/generate_task_pipeline.py` | **高**：pipeline 同步重写 |
-| 4 | chat/agent_chat/completion 三个 `app_generator.py` 的关联记录写入 | `api/core/app/apps/{chat,agent_chat,completion}/app_generator.py` | 中：同类重写波及 |
-| 5 | `validate_app_token` 额度前置校验 + `EndUserAccountJoinsExtend` 映射 | `api/controllers/service_api/wraps.py`（波及 ~9 个 controller、30+ 方法签名） | **高**：上游每版都动此文件；1.14.2 的 user/tenant 注入重构直接命中 |
-| 6 | API 密钥额度字段联查（`description`、`accumulated_quota`、`day_limit_quota` 等） | `api/controllers/console/apikey.py` | **高**：历次合并最难文件，上游持续 `select()` 重构 |
-| 7 | `message_was_created` handler 注册（消息扣费） | `api/events/` + `api/events/__init__.py`（fork 自带 Events 框架） | 中：确认信号仍存在、触发语义未变 |
-| 8 | extend beat 任务注册（3 个额度重置定时任务，队列 `extend_low/extend_high`） | `api/extensions/ext_celery.py` | 中：celery 大版本升级 + 上游 beat 结构调整 |
-| 9 | `messages_context_handling` 消息上下文处理 | `api/core/memory/token_buffer_memory.py` | 中：上游可能移动/重构该模块 |
-| 10 | `OaOAuth`/钉钉 OAuth 类 | `api/libs/oauth.py` + `controllers/console/auth/oauth.py` | 中：上游 oauth_access_tokens 体系演进 |
+| #   | 挂点                                                                                                      | 1.13.3 坐标                                                                     | 1.14.2 预判风险                                                                                                                                |
+| --- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | workflow 节点计费 Celery 派发（`update_account_money_when_workflow_node_execution_created_extend.delay`） | `api/core/app/workflow/layers/persistence.py` 的 `_handle_node_succeeded`       | **高**：`ef2b5d6107` 在同目录新增 `llm_quota.py` 并重写 llm 节点用量流转，`_handle_node_succeeded` 可能被重构；需确认 token 用量数据源是否位移 |
+| 2   | `extras["app_token_id"] = api_token.id` 写入                                                              | `api/core/app/apps/workflow/app_generator.py`、`advanced_chat/app_generator.py` | **高**：上游对 app_generator 做 200-300 行级重写                                                                                               |
+| 3   | `ApiTokenMessageJoinsExtend` 关联记录写入                                                                 | `advanced_chat/generate_task_pipeline.py`、`workflow/generate_task_pipeline.py` | **高**：pipeline 同步重写                                                                                                                      |
+| 4   | chat/agent_chat/completion 三个 `app_generator.py` 的关联记录写入                                         | `api/core/app/apps/{chat,agent_chat,completion}/app_generator.py`               | 中：同类重写波及                                                                                                                               |
+| 5   | `validate_app_token` 额度前置校验 + `EndUserAccountJoinsExtend` 映射                                      | `api/controllers/service_api/wraps.py`（波及 ~9 个 controller、30+ 方法签名）   | **高**：上游每版都动此文件；1.14.2 的 user/tenant 注入重构直接命中                                                                             |
+| 6   | API 密钥额度字段联查（`description`、`accumulated_quota`、`day_limit_quota` 等）                          | `api/controllers/console/apikey.py`                                             | **高**：历次合并最难文件，上游持续 `select()` 重构                                                                                             |
+| 7   | `message_was_created` handler 注册（消息扣费）                                                            | `api/events/` + `api/events/__init__.py`（fork 自带 Events 框架）               | 中：确认信号仍存在、触发语义未变                                                                                                               |
+| 8   | extend beat 任务注册（3 个额度重置定时任务，队列 `extend_low/extend_high`）                               | `api/extensions/ext_celery.py`                                                  | 中：celery 大版本升级 + 上游 beat 结构调整                                                                                                     |
+| 9   | `messages_context_handling` 消息上下文处理                                                                | `api/core/memory/token_buffer_memory.py`                                        | 中：上游可能移动/重构该模块                                                                                                                    |
+| 10  | `OaOAuth`/钉钉 OAuth 类                                                                                   | `api/libs/oauth.py` + `controllers/console/auth/oauth.py`                       | 中：上游 oauth_access_tokens 体系演进                                                                                                          |
 
 ### DEC-3 extend 代码适配方向：跟随上游新模式，而非兼容层
 

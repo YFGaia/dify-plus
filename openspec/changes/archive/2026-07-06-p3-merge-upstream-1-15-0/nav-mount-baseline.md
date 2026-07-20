@@ -5,18 +5,18 @@
 
 ## fork 相对 1.14.2 在旧 `web/app/components/header/` 的全部差异（`git diff 1.14.2 ffb0c5303f --stat`）
 
-| 文件 | 性质 | 迁移去向（1.15.0 后） |
-| --- | --- | --- |
-| `account-money-extend/index.tsx`（85 行） | 新增：额度徽章组件 | 重做到 `main-nav/`（任务 3.1，顺势删 6.97 硬编码汇率） |
-| `system-manage-nav-extend/index.tsx`（44 行） | 新增：系统管理入口 | 重做到 `main-nav/`（任务 3.2） |
-| `draw-nav-extend/index.tsx`（43 行） | 新增：draw 导航（**当前被注释未挂载**） | 重做到 `main-nav/`（任务 3.3，保持默认关闭） |
-| `nav-extend/amazon-marketing.tsx` + `index.tsx`（42 行） | 新增：nav 挂载点（**当前被注释未挂载**） | 重做到 `main-nav/`（任务 3.3，保持默认关闭） |
-| `index.tsx`（+19/-x） | 宿主挂载行（下详） | 宿主文件被上游删除，挂载行迁 `main-nav/index.tsx` |
-| `explore-nav/index.tsx`（2 行）+ 其测试 | Explore 链接改 `/explore/apps-center-extend` | explore-nav 随上游删除；等价改动需落到 main-nav 路由/routes.ts |
-| `account-setting/index.tsx`（17±） | 账户设置二开项 | `account-setting/` 在 1.15.0 仍存在，走正常 merge 冲突解决（非本节范围） |
-| `account-setting/.../invite-modal/`（26± + css） | 邀请弹窗二开 | 同上；另涉任务 4（headlessui 已在 P2 清理，需复核） |
-| `account-setting/.../parameter-item-extend.tsx`（242 行） | 模型参数二开组件 | 同上，独立 extend 文件随 merge 保留 |
-| `account-dropdown/**` | **无 fork 差异** | 任务 3.4 无实际重挂项，验证即可 |
+| 文件                                                      | 性质                                         | 迁移去向（1.15.0 后）                                                    |
+| --------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------ |
+| `account-money-extend/index.tsx`（85 行）                 | 新增：额度徽章组件                           | 重做到 `main-nav/`（任务 3.1，顺势删 6.97 硬编码汇率）                   |
+| `system-manage-nav-extend/index.tsx`（44 行）             | 新增：系统管理入口                           | 重做到 `main-nav/`（任务 3.2）                                           |
+| `draw-nav-extend/index.tsx`（43 行）                      | 新增：draw 导航（**当前被注释未挂载**）      | 重做到 `main-nav/`（任务 3.3，保持默认关闭）                             |
+| `nav-extend/amazon-marketing.tsx` + `index.tsx`（42 行）  | 新增：nav 挂载点（**当前被注释未挂载**）     | 重做到 `main-nav/`（任务 3.3，保持默认关闭）                             |
+| `index.tsx`（+19/-x）                                     | 宿主挂载行（下详）                           | 宿主文件被上游删除，挂载行迁 `main-nav/index.tsx`                        |
+| `explore-nav/index.tsx`（2 行）+ 其测试                   | Explore 链接改 `/explore/apps-center-extend` | explore-nav 随上游删除；等价改动需落到 main-nav 路由/routes.ts           |
+| `account-setting/index.tsx`（17±）                        | 账户设置二开项                               | `account-setting/` 在 1.15.0 仍存在，走正常 merge 冲突解决（非本节范围） |
+| `account-setting/.../invite-modal/`（26± + css）          | 邀请弹窗二开                                 | 同上；另涉任务 4（headlessui 已在 P2 清理，需复核）                      |
+| `account-setting/.../parameter-item-extend.tsx`（242 行） | 模型参数二开组件                             | 同上，独立 extend 文件随 merge 保留                                      |
+| `account-dropdown/**`                                     | **无 fork 差异**                             | 任务 3.4 无实际重挂项，验证即可                                          |
 
 ## 旧 header 宿主挂载行为（迁移后需等价）
 

@@ -3,7 +3,9 @@
 ## Backend Tasks
 
 ### B-1: 添加 QuotaManageService
+
 **File:** `api/services/system_manage_extend.py`
+
 - 追加 `QuotaManageService` 类
 - 实现 `get_quota_list(page, page_size, keyword)` 方法
   - keyword 搜索：先从 `accounts` 按 name/email ILIKE 搜索，取 account_id 列表
@@ -15,7 +17,9 @@
   - 校验 quota >= 0
 
 ### B-2: 添加 Controller 路由
+
 **File:** `api/controllers/console/system_manage_extend.py`
+
 - 追加 `QuotaManagementListExtend(Resource)` class
   - GET 方法：解析 query params（page, page_size, keyword）→ 调用 service → 返回分页数据
   - 权限：`@system_admin_required_extend`
@@ -31,21 +35,29 @@
 ## Frontend Tasks
 
 ### F-1: 添加类型定义
+
 **File:** `web/models/system-manage-extend.ts`
+
 - 追加 `QuotaListItem` type
 - 追加 `QuotaListResponse` type
 
 ### F-2: 添加 API 服务方法
+
 **File:** `web/service/system-manage-extend.ts`
+
 - 追加 `getQuotaList(params)` 函数
 - 追加 `setUserQuota(data)` 函数
 
 ### F-3: 添加 i18n key
+
 **Files:** `web/i18n/zh-Hans/extend.json`、`web/i18n/en-US/extend.json`
+
 - 追加 `systemManage.quota.*` 相关 key（约 15 个）
 
 ### F-4: 创建额度管理页面
+
 **File:** `web/app/(commonLayout)/system-manage-extend/quota-management/page.tsx`
+
 - 搜索框 + 查询按钮
 - 表格：排名、头像（`<img>` 或 fallback 首字母）、姓名、已用配额、总配额、余额、操作
 - 分页（复用 Dify 内置分页组件，或简单的 prev/next）
@@ -53,7 +65,9 @@
 - Loading / Empty 状态
 
 ### F-5: 更新侧边栏菜单
+
 **File:** `web/app/(commonLayout)/system-manage-extend/layout.tsx`
+
 - 在 `menuItems` 数组中追加"用户额度"菜单项
   ```typescript
   {
