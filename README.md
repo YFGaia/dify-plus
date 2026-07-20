@@ -13,9 +13,10 @@ Dify-Plus 是基于 [Dify](https://github.com/langgenius/dify) 的企业级二�
 | 分支 / 标签 | 上游基线 | 状态 |
 | --- | --- | --- |
 | `main` | Dify 1.12.1 | 稳定，含 GVA 管理后台（旧架构） |
-| `1.15.0` | Dify 1.15.0 | **预发布，未经严格测试**，已完成本地容器全栈验证；GVA 管理后台已移除 |
+| `1.15.0` | Dify 1.15.0 | 预发布，已完成本地容器全栈验证；GVA 管理后台已移除 |
+| `fork-merged-1.16.0`（tag） | Dify 1.16.0 | **当前基线，预发布**：自动化验证全绿（后端 lint/类型/单测、前端 lint/type-check/build/Vitest、全新库迁移双链与 api 冒烟）；UI 人工回归见 [人工回归清单-1.16.0](docs/dify-plus/人工回归清单-1.16.0.md) |
 
-`1.15.0` 分支尚未合并回 `main`。生产环境如需使用，请先在自己的环境完成完整回归（参考 [上游升级与回归检查清单](docs/dify-plus/上游升级与回归检查清单.md)）。
+以上预发布基线均尚未合并回 `main`。生产环境如需使用，请先在自己的环境完成完整回归（参考 [上游升级与回归检查清单](docs/dify-plus/上游升级与回归检查清单.md)）。
 
 ## 名字说明
 
@@ -110,17 +111,18 @@ docker compose -f docker-compose.dify-plus.yaml up -d
 - 1.15.0 新增工作流协作 websocket 服务 `api_websocket`（`collaboration` compose profile），相关变量：`COMPOSE_PROFILES`、`NEXT_PUBLIC_SOCKET_URL`、`NGINX_SOCKET_IO_UPSTREAM`，默认值见 [`docker/.env.example`](docker/.env.example)。
 - 1.15.0 起 SSRF 代理**默认拒绝访问私有网段**：如工作流 HTTP 节点/工具需要访问内网，必须配置 `SSRF_PROXY_ALLOW_PRIVATE_IPS` / `SSRF_PROXY_ALLOW_PRIVATE_DOMAINS`。
 
-> Wiki 中的[部署详细步骤（docker‐compose）](https://github.com/YFGaia/dify-plus/wiki/%E9%83%A8%E7%BD%B2%E8%AF%A6%E7%BB%86%E6%AD%A5%E9%AA%A4%EF%BC%88docker%E2%80%90compose%EF%BC%89)与[部署详细步骤（源码）](https://github.com/YFGaia/dify-plus/wiki/%E9%83%A8%E7%BD%B2%E8%AF%A6%E7%BB%86%E6%AD%A5%E9%AA%A4%EF%BC%88%E6%BA%90%E7%A0%81%E9%83%A8%E7%BD%B2%EF%BC%89)基于旧版本（含 GVA 管理后台），1.15.0 请以仓库内 `docker/` 目录与升级说明为准。
+> Wiki 中的[部署详细步骤（docker‐compose）](https://github.com/YFGaia/dify-plus/wiki/%E9%83%A8%E7%BD%B2%E8%AF%A6%E7%BB%86%E6%AD%A5%E9%AA%A4%EF%BC%88docker%E2%80%90compose%EF%BC%89)与[部署详细步骤（源码）](https://github.com/YFGaia/dify-plus/wiki/%E9%83%A8%E7%BD%B2%E8%AF%A6%E7%BB%86%E6%AD%A5%E9%AA%A4%EF%BC%88%E6%BA%90%E7%A0%81%E9%83%A8%E7%BD%B2%EF%BC%89)基于旧版本（含 GVA 管理后台），1.15.0 及之后版本请以仓库内 `docker/` 目录与升级说明为准。
 
 ## 升级说明
 
-- 从 1.12.1（或更早）升级到 1.15.0：**必读** [升级到 1.15.0 说明](docs/dify-plus/升级到1.15.0说明.md)（含 GVA 后台下线步骤、数据库迁移序列、环境变量变更）。
+- 从 1.15.0 升级到 1.16.0：[升级到 1.16.0 说明](docs/dify-plus/升级到1.16.0说明.md)（两段迁移命令即可，另含登录 API 行为变化说明）。
+- 从 1.12.1（或更早）升级：先读 [升级到 1.15.0 说明](docs/dify-plus/升级到1.15.0说明.md)（含 GVA 后台下线步骤、数据库迁移序列、环境变量变更），再按 1.16.0 说明继续。
 - 上游升级通用流程与回归范围：[上游升级与回归检查清单](docs/dify-plus/上游升级与回归检查清单.md)。
 - 数据库迁移比官方多一条扩展迁移链：`flask db upgrade`（上游）之后需执行 `flask extend_db upgrade`（fork 扩展表）。
 
 ## 版本更新说明
 
-1. 会持续跟随 Dify 上游版本合并（当前基线：`1.15.0`）。
+1. 会持续跟随 Dify 上游版本合并（当前基线：`1.16.0`）。
 2. 为了标识二开的部分，我们特意在注释、文件名、方法名、表名都加上 `extend`，可通过搜索这个关键字查看我们二开的代码。
 3. 完整的 fork 与上游差异、架构与运维文档见 [docs/dify-plus](docs/dify-plus/README.md)。
 
@@ -135,7 +137,7 @@ docker compose -f docker-compose.dify-plus.yaml up -d
 
 ## Dify 原版说明
 
-Dify 官方 README（上游 1.15.0 版本）见 [README_DIFY.md](README_DIFY.md)。
+Dify 官方 README（上游 1.16.0 版本）见 [README_DIFY.md](README_DIFY.md)。
 
 ## License
 
