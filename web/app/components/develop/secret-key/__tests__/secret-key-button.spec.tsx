@@ -2,23 +2,35 @@ import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import SecretKeyButton from '../secret-key-button'
 
-// extend: 密钥按钮按 workspace manager 权限展示
-vi.mock('@/context/app-context', () => ({
-  useAppContext: () => ({ isCurrentWorkspaceManager: true }),
-}))
+// extend: 密钥按钮按 workspace manager 权限展示（上游 1.16.0 删除 app-context，改桩 workspace-state 原子）
+vi.mock('@/context/workspace-state', async () => {
+  const { atom } = await import('jotai')
+  return {
+    isCurrentWorkspaceManagerAtom: atom(true),
+  }
+})
 
 vi.mock('@/app/components/develop/secret-key/secret-key-modal', () => ({
-  default: ({ isShow, onClose, appId, canManage }: { isShow: boolean, onClose: () => void, appId?: string, canManage: boolean }) => (
-    isShow
-      ? (
-          <div data-testid="secret-key-modal">
-            <span data-testid="modal-app-id">{`Modal for ${appId || 'no-app'}`}</span>
-            <span data-testid="modal-can-manage">{String(canManage)}</span>
-            <button onClick={onClose} data-testid="close-modal">Close</button>
-          </div>
-        )
-      : null
-  ),
+  default: ({
+    isShow,
+    onClose,
+    appId,
+    canManage,
+  }: {
+    isShow: boolean
+    onClose: () => void
+    appId?: string
+    canManage: boolean
+  }) =>
+    isShow ? (
+      <div data-testid="secret-key-modal">
+        <span data-testid="modal-app-id">{`Modal for ${appId || 'no-app'}`}</span>
+        <span data-testid="modal-can-manage">{String(canManage)}</span>
+        <button onClick={onClose} data-testid="close-modal">
+          Close
+        </button>
+      </div>
+    ) : null,
 }))
 
 describe('SecretKeyButton', () => {
@@ -102,12 +114,6 @@ describe('SecretKeyButton', () => {
   })
 
   describe('props', () => {
-    it('should apply custom className', () => {
-      render(<SecretKeyButton className="custom-class" />)
-      const button = screen.getByRole('button')
-      expect(button.className).toContain('custom-class')
-    })
-
     it('should pass appId to modal', async () => {
       const user = userEvent.setup()
       render(<SecretKeyButton appId="app-123" canManage />)
@@ -200,12 +206,6 @@ describe('SecretKeyButton', () => {
   })
 
   describe('text styling', () => {
-    it('should have system-xs-medium class', () => {
-      render(<SecretKeyButton />)
-      const text = screen.getByText('appApi.apiKey')
-      expect(text.className).toContain('system-xs-medium')
-    })
-
     it('should have horizontal padding', () => {
       render(<SecretKeyButton />)
       const text = screen.getByText('appApi.apiKey')

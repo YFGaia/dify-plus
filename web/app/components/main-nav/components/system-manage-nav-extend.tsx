@@ -4,8 +4,10 @@
 // （上游 1.15.0 删除旧 header 后重做到 main-nav 体系，复用 MainNavLink 样式约定）。
 // 可见性口径与迁移前一致：仅 workspace owner 可见。
 import type { MainNavItem } from '../types'
+import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
-import { useAppContext } from '@/context/app-context'
+// extend: 上游 1.16.0 删除 app-context，owner 判定改用 workspace-state 原子
+import { isCurrentWorkspaceOwnerAtom } from '@/context/workspace-state'
 import MainNavLink from './nav-link'
 
 const isSystemManagePath = (path: string) =>
@@ -17,7 +19,7 @@ type SystemManageNavExtendProps = {
 
 const SystemManageNavExtend = ({ pathname }: SystemManageNavExtendProps) => {
   const { t } = useTranslation()
-  const { isCurrentWorkspaceOwner } = useAppContext()
+  const isCurrentWorkspaceOwner = useAtomValue(isCurrentWorkspaceOwnerAtom)
 
   if (!isCurrentWorkspaceOwner)
     return null

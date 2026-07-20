@@ -35,8 +35,7 @@ export const serverSystemFeaturesQueryOptions = () => {
         if (!res || typeof res !== 'object' || !('branding' in res))
           return defaultSystemFeatures
         return res
-      }
-      catch (err) {
+      } catch (err) {
         console.error('[systemFeatures] server fetch failed', err)
         return defaultSystemFeatures
       }

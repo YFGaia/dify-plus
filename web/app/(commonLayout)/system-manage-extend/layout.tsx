@@ -2,8 +2,10 @@
 
 import type { ReactNode } from 'react'
 import { cn } from '@langgenius/dify-ui/cn'
+import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
-import { useAppContext } from '@/context/app-context'
+// extend: 上游 1.16.0 删除 app-context，owner 判定改用 workspace-state 原子
+import { isCurrentWorkspaceOwnerAtom } from '@/context/workspace-state'
 import Link from '@/next/link'
 import { useSelectedLayoutSegment } from '@/next/navigation'
 
@@ -15,7 +17,7 @@ type MenuItemType = {
 
 const SystemManageLayout = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation()
-  const { isCurrentWorkspaceOwner } = useAppContext()
+  const isCurrentWorkspaceOwner = useAtomValue(isCurrentWorkspaceOwnerAtom)
   const selectedSegment = useSelectedLayoutSegment()
 
   // 非 owner 不可访问

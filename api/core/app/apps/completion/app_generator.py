@@ -8,6 +8,7 @@ from typing import Any, Literal, overload
 from flask import Flask, copy_current_request_context, current_app
 from pydantic import ValidationError
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from configs import dify_config
 from core.app.app_config.easy_ui_based_app.model_config.converter import ModelConfigConverter
@@ -20,13 +21,15 @@ from core.app.apps.exc import GenerateTaskStoppedError
 from core.app.apps.message_based_app_generator import MessageBasedAppGenerator
 from core.app.apps.message_based_app_queue_manager import MessageBasedAppQueueManager
 from core.app.entities.app_invoke_entities import CompletionAppGenerateEntity, InvokeFrom
+from core.db.session_factory import session_factory
 from core.helper.trace_id_helper import extract_trace_session_id_from_args
 from core.ops.ops_trace_manager import TraceQueueManager
 from extensions.ext_database import db
 from factories import file_factory
 from graphon.model_runtime.errors.invoke import InvokeAuthorizationError
-from models import Account, App, EndUser, Message
+from models import Account, App, AppModelConfig, Conversation, EndUser, Message
 from models.api_token_money_extend import ApiTokenMessageJoinsExtend  # 二开部分 - 密钥额度限制
+from models.model import load_annotation_reply_config
 from services.errors.app import MoreLikeThisDisabledError
 from services.errors.message import MessageNotExistsError
 
@@ -42,6 +45,8 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
         args: Mapping[str, Any],
         invoke_from: InvokeFrom,
         streaming: Literal[True],
+        *,
+        session: Session,
     ) -> Generator[str | Mapping[str, Any], None, None]: ...
 
     @overload
@@ -52,6 +57,8 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
         args: Mapping[str, Any],
         invoke_from: InvokeFrom,
         streaming: Literal[False],
+        *,
+        session: Session,
     ) -> Mapping[str, Any]: ...
 
     @overload
@@ -62,6 +69,8 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
         args: Mapping[str, Any],
         invoke_from: InvokeFrom,
         streaming: bool = False,
+        *,
+        session: Session,
     ) -> Mapping[str, Any] | Generator[str | Mapping[str, Any], None, None]: ...
 
     def generate(
@@ -71,6 +80,8 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
         args: Mapping[str, Any],
         invoke_from: InvokeFrom,
         streaming: bool = True,
+        *,
+        session: Session,
     ) -> Mapping[str, Any] | Generator[str | Mapping[str, Any], None, None]:
         """
         Generate App response.
@@ -92,7 +103,11 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
         conversation = None
 
         # get app model config
-        app_model_config = self._get_app_model_config(app_model=app_model, conversation=conversation)
+        app_model_config = self._get_app_model_config(
+            app_model=app_model,
+            conversation=conversation,
+            session=session,
+        )
 
         # validate override model config
         override_model_config_dict = None
@@ -102,8 +117,12 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
 
             # validate config
             override_model_config_dict = CompletionAppConfigManager.config_validate(
-                tenant_id=app_model.tenant_id, config=args.get("model_config", {})
+                tenant_id=app_model.tenant_id, config=args.get("model_config", {}), session=session
             )
+
+        annotation_reply = (
+            None if override_model_config_dict else load_annotation_reply_config(session, app_model_config.app_id)
+        )
 
         # parse files
         # TODO(QuantumGhost): Move file parsing logic to the API controller layer
@@ -114,7 +133,7 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
         with self._bind_file_access_scope(tenant_id=app_model.tenant_id, user=user, invoke_from=invoke_from):
             files = args["files"] if args.get("files") else []
             file_extra_config = FileUploadConfigManager.convert(
-                override_model_config_dict or app_model_config.to_dict()
+                override_model_config_dict or app_model_config.to_dict(annotation_reply=annotation_reply)
             )
             if file_extra_config:
                 file_objs = file_factory.build_from_mappings(
@@ -128,7 +147,10 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
 
             # convert to app config
             app_config = CompletionAppConfigManager.get_app_config(
-                app_model=app_model, app_model_config=app_model_config, override_config_dict=override_model_config_dict
+                app_model=app_model,
+                app_model_config=app_model_config,
+                override_config_dict=override_model_config_dict,
+                annotation_reply=annotation_reply,
             )
 
             # get tracing instance
@@ -163,14 +185,22 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
             )
 
             # init generate records
-            (conversation, message) = self._init_generate_records(application_generate_entity)
+            (conversation, message) = self._init_generate_records(
+                application_generate_entity,
+                session=session,
+            )
 
-            # 二开部分Begin - 密钥额度限制
+            # 二开部分Begin - 密钥额度限制：密钥-消息归因联表写入。
+            # 1.16.0 起 generate() 由调用方传入 session（_init_generate_records 也在该 session 上
+            # flush+commit），联表写入复用同一 session，禁止再走 db.session 全局会话。
             app_token_info = args.get("api_token")
             if app_token_info:
-                ApiTokenMessageJoinsExtend(
-                    app_token_id=app_token_info.id, record_id=message.id, app_mode=app_model.mode
-                ).add_app_token_record_id()
+                session.add(
+                    ApiTokenMessageJoinsExtend(
+                        app_token_id=app_token_info.id, record_id=message.id, app_mode=app_model.mode
+                    )
+                )
+                session.commit()
             # 二开部分End - 密钥额度限制
 
             # init queue manager
@@ -234,11 +264,13 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
 
                 # chatbot app
                 runner = CompletionAppRunner()
-                runner.run(
-                    application_generate_entity=application_generate_entity,
-                    queue_manager=queue_manager,
-                    message=message,
-                )
+                with session_factory.create_session() as session:
+                    runner.run(
+                        application_generate_entity=application_generate_entity,
+                        queue_manager=queue_manager,
+                        message=message,
+                        session=session,
+                    )
             except GenerateTaskStoppedError:
                 pass
             except InvokeAuthorizationError:
@@ -265,6 +297,8 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
         user: Account | EndUser,
         invoke_from: InvokeFrom,
         stream: bool = True,
+        *,
+        session: Session,
     ) -> Mapping | Generator[Mapping | str, None, None]:
         """
         Generate App response.
@@ -282,12 +316,14 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
             Message.from_end_user_id == (user.id if isinstance(user, EndUser) else None),
             Message.from_account_id == (user.id if isinstance(user, Account) else None),
         )
-        message = db.session.scalar(stmt)
+        message = session.scalar(stmt)
 
         if not message:
             raise MessageNotExistsError()
 
-        current_app_model_config = app_model.app_model_config
+        current_app_model_config = (
+            session.get(AppModelConfig, app_model.app_model_config_id) if app_model.app_model_config_id else None
+        )
         if not current_app_model_config:
             raise MoreLikeThisDisabledError()
 
@@ -296,10 +332,16 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
         if not current_app_model_config.more_like_this or more_like_this.get("enabled", False) is False:
             raise MoreLikeThisDisabledError()
 
-        app_model_config = message.app_model_config
+        conversation = session.get(Conversation, message.conversation_id) if message.conversation_id else None
+        app_model_config = (
+            session.get(AppModelConfig, conversation.app_model_config_id)
+            if conversation and conversation.app_model_config_id
+            else None
+        )
         if not app_model_config:
             raise ValueError("Message app_model_config is None")
-        override_model_config_dict = app_model_config.to_dict()
+        annotation_reply = load_annotation_reply_config(session, app_model_config.app_id)
+        override_model_config_dict = app_model_config.to_dict(annotation_reply=annotation_reply)
         model_dict = override_model_config_dict["model"]
         completion_params = model_dict.get("completion_params", {})
         completion_params["temperature"] = 0.9
@@ -311,7 +353,7 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
             file_extra_config = FileUploadConfigManager.convert(override_model_config_dict)
             if file_extra_config:
                 file_objs = file_factory.build_from_mappings(
-                    mappings=message.message_files,
+                    mappings=message.message_files_with_session(session=session),
                     tenant_id=app_model.tenant_id,
                     config=file_extra_config,
                     access_controller=self._file_access_controller,
@@ -321,7 +363,10 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
 
             # convert to app config
             app_config = CompletionAppConfigManager.get_app_config(
-                app_model=app_model, app_model_config=app_model_config, override_config_dict=override_model_config_dict
+                app_model=app_model,
+                app_model_config=app_model_config,
+                override_config_dict=override_model_config_dict,
+                annotation_reply=annotation_reply,
             )
 
             # init application generate entity
@@ -329,7 +374,7 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
                 task_id=str(uuid.uuid4()),
                 app_config=app_config,
                 model_conf=ModelConfigConverter.convert(app_config),
-                inputs=message.inputs,
+                inputs=message.inputs_with_session(session=session),
                 query=message.query,
                 files=list(file_objs),
                 user_id=user.id,
@@ -339,7 +384,10 @@ class CompletionAppGenerator(MessageBasedAppGenerator):
             )
 
             # init generate records
-            (conversation, message) = self._init_generate_records(application_generate_entity)
+            (conversation, message) = self._init_generate_records(
+                application_generate_entity,
+                session=session,
+            )
 
             # init queue manager
             queue_manager = MessageBasedAppQueueManager(

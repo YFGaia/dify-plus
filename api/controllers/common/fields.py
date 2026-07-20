@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel, computed_field
 
@@ -52,6 +52,11 @@ class AudioTranscriptResponse(ResponseModel):
     text: str
 
 
+class ValidationResultResponse(ResponseModel):
+    result: Literal["success", "error"]
+    error: str | None = None
+
+
 class SimpleResultMessageResponse(ResponseModel):
     result: str
     message: str
@@ -98,6 +103,8 @@ class VerificationTokenResponse(ResponseModel):
 class LoginStatusResponse(ResponseModel):
     logged_in: bool
     app_logged_in: bool
+    # extend: WebApp 登录态扩展——Console 用户 access_token cookie 是否有效（web/login.py 回填）
+    console_logged_in: bool = False
 
 
 class AccessModeResponse(ResponseModel):
@@ -183,6 +190,7 @@ class Site(BaseModel):
     description: str | None = None
     copyright: str | None = None
     privacy_policy: str | None = None
+    input_placeholder: str | None = None
     custom_disclaimer: str | None = None
     default_language: str
     show_workflow_steps: bool

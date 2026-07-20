@@ -13,14 +13,13 @@ import {
 import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
 import { Dialog, DialogContent, DialogTitle } from '@langgenius/dify-ui/dialog'
-import {
-  useState,
-} from 'react'
+import { useAtomValue } from 'jotai'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ActionButton from '@/app/components/base/action-button'
 import CopyFeedback from '@/app/components/base/copy-feedback'
 import Loading from '@/app/components/base/loading'
-import { useAppContext } from '@/context/app-context'
+import { currentWorkspaceAtom, isCurrentWorkspaceManagerAtom } from '@/context/workspace-state'
 import useTimestamp from '@/hooks/use-timestamp'
 import {
   createApikey as createAppApikey,
@@ -46,22 +45,23 @@ type ISecretKeyModalProps = {
   onClose: () => void
 }
 
-const SecretKeyModal = ({
-  isShow = false,
-  appId,
-  canManage,
-  onClose,
-}: ISecretKeyModalProps) => {
+const SecretKeyModal = ({ isShow = false, appId, canManage, onClose }: ISecretKeyModalProps) => {
   const { t } = useTranslation()
   const { formatTime } = useTimestamp()
-  const { currentWorkspace, isCurrentWorkspaceManager } = useAppContext() // 二开部分 - 密钥额度限制编辑入口需要管理员判断
+  const currentWorkspace = useAtomValue(currentWorkspaceAtom)
+  // 二开部分 - 密钥额度限制编辑入口需要管理员判断（上游 1.16.0 删除 app-context，改用 workspace-state 原子）
+  const isCurrentWorkspaceManager = useAtomValue(isCurrentWorkspaceManagerAtom)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
   const [isVisible, setIsVisible] = useState(false)
   const [newKey, setNewKey] = useState<CreateApiKeyResponse | undefined>(undefined)
   const invalidateAppApiKeys = useInvalidateAppApiKeys()
   const invalidateDatasetApiKeys = useInvalidateDatasetApiKeys()
-  const { data: appApiKeys, isLoading: isAppApiKeysLoading } = useAppApiKeys(appId, { enabled: !!appId && isShow })
-  const { data: datasetApiKeys, isLoading: isDatasetApiKeysLoading } = useDatasetApiKeys({ enabled: !appId && isShow })
+  const { data: appApiKeys, isLoading: isAppApiKeysLoading } = useAppApiKeys(appId, {
+    enabled: !!appId && isShow,
+  })
+  const { data: datasetApiKeys, isLoading: isDatasetApiKeysLoading } = useDatasetApiKeys({
+    enabled: !appId && isShow,
+  })
   const apiKeysList = appId ? appApiKeys : datasetApiKeys
   const isApiKeysLoading = appId ? isAppApiKeysLoading : isDatasetApiKeysLoading
 
@@ -132,26 +132,21 @@ const SecretKeyModal = ({
 
   const onDel = async () => {
     setShowConfirmDelete(false)
-    if (!canManage)
-      return
-    if (!delKeyID)
-      return
+    if (!canManage) return
+    if (!delKeyID) return
 
     const delApikey = appId ? delAppApikey : delDatasetApikey
     const params = appId
       ? { url: `/apps/${appId}/api-keys/${delKeyID}`, params: {} }
       : { url: `/datasets/api-keys/${delKeyID}`, params: {} }
     await delApikey(params)
-    if (appId)
-      invalidateAppApiKeys(appId)
-    else
-      invalidateDatasetApiKeys()
+    if (appId) invalidateAppApiKeys(appId)
+    else invalidateDatasetApiKeys()
   }
 
   // 二开部分 - 密钥额度限制：创建密钥时携带额度参数，并关闭额度设置弹窗
   const onCreate = async () => {
-    if (!currentWorkspace || !canManage)
-      return
+    if (!currentWorkspace.id || !canManage) return
 
     const body = {
       description: keyItem.description,
@@ -166,10 +161,8 @@ const SecretKeyModal = ({
     setVisibleExtend(false) // 关闭额度设置弹窗
     setIsVisible(true)
     setNewKey(res)
-    if (appId)
-      invalidateAppApiKeys(appId)
-    else
-      invalidateDatasetApiKeys()
+    if (appId) invalidateAppApiKeys(appId)
+    else invalidateDatasetApiKeys()
   }
 
   const generateToken = (token: string) => {
@@ -177,8 +170,7 @@ const SecretKeyModal = ({
   }
 
   const handleDeleteConfirmOpenChange = (open: boolean) => {
-    if (open)
-      return
+    if (open) return
 
     setDelKeyId('')
     setShowConfirmDelete(false)
@@ -194,17 +186,31 @@ const SecretKeyModal = ({
       <Dialog
         open={isShow}
         onOpenChange={(open) => {
-          if (!open)
-            handleClose()
+          if (!open) handleClose()
         }}
       >
-        <DialogContent className={cn('max-h-[calc(100vh-80px)]! w-full max-w-[800px]! overflow-hidden! border-none text-left align-middle', `${s.customModal} flex flex-col px-8`)}>
+        <DialogContent
+          className={cn(
+            'max-h-[calc(100vh-80px)]! w-full max-w-[800px]! overflow-hidden! border-none text-left align-middle',
+            `${s.customModal} flex flex-col px-8`,
+          )}
+        >
           <DialogTitle className="title-2xl-semi-bold text-text-primary">
-            {`${t('apiKeyModal.apiSecretKey', { ns: 'appApi' })}`}
+            {`${t(($) => $['apiKeyModal.apiSecretKey'], { ns: 'appApi' })}`}
           </DialogTitle>
 
           <div className="-mt-6 -mr-2 mb-4 flex justify-end">
-            <span className="i-heroicons-x-mark-20-solid size-6 cursor-pointer text-text-tertiary" onClick={handleClose} />
+            <button
+              type="button"
+              aria-label={t(($) => $['operation.close'], { ns: 'common' })}
+              className="flex size-6 cursor-pointer items-center justify-center text-text-tertiary"
+              onClick={handleClose}
+            >
+              <span
+                className="i-heroicons-x-mark-20-solid size-6 cursor-pointer"
+                aria-hidden="true"
+              />
+            </button>
           </div>
           <p className="mt-1 shrink-0 text-[13px] leading-5 font-normal text-text-tertiary">{t('apiKeyModal.apiSecretKeyTips', { ns: 'appApi' })}</p>
           {isApiKeysLoading && <div className="mt-4"><Loading /></div>}
@@ -281,30 +287,33 @@ const SecretKeyModal = ({
           }
           <div className="flex">
             {/* 二开部分 - 密钥额度限制：点击先弹出额度设置弹窗 */}
-            <Button className={`mt-4 flex shrink-0 ${s.autoWidth}`} onClick={openSecretKeyQuotaSetModalExtend} disabled={!currentWorkspace || !canManage}>
+            <Button
+              className={`mt-4 flex shrink-0 ${s.autoWidth}`}
+              onClick={openSecretKeyQuotaSetModalExtend}
+              disabled={!currentWorkspace.id || !canManage}
+            >
               <span className="mr-1 i-heroicons-plus-20-solid flex size-4 shrink-0" />
-              <div className="text-xs font-medium text-text-secondary">{t('apiKeyModal.createNewSecretKey', { ns: 'appApi' })}</div>
+              <div className="text-xs font-medium text-text-secondary">
+                {t(($) => $['apiKeyModal.createNewSecretKey'], { ns: 'appApi' })}
+              </div>
             </Button>
           </div>
-          <AlertDialog
-            open={showConfirmDelete}
-            onOpenChange={handleDeleteConfirmOpenChange}
-          >
+          <AlertDialog open={showConfirmDelete} onOpenChange={handleDeleteConfirmOpenChange}>
             <AlertDialogContent>
               <div className="flex flex-col gap-2 px-6 pt-6 pb-4">
                 <AlertDialogTitle className="w-full truncate title-2xl-semi-bold text-text-primary">
-                  {t('actionMsg.deleteConfirmTitle', { ns: 'appApi' })}
+                  {t(($) => $['actionMsg.deleteConfirmTitle'], { ns: 'appApi' })}
                 </AlertDialogTitle>
                 <AlertDialogDescription className="w-full system-md-regular wrap-break-word whitespace-pre-wrap text-text-tertiary">
-                  {t('actionMsg.deleteConfirmTips', { ns: 'appApi' })}
+                  {t(($) => $['actionMsg.deleteConfirmTips'], { ns: 'appApi' })}
                 </AlertDialogDescription>
               </div>
               <AlertDialogActions>
                 <AlertDialogCancelButton>
-                  {t('operation.cancel', { ns: 'common' })}
+                  {t(($) => $['operation.cancel'], { ns: 'common' })}
                 </AlertDialogCancelButton>
                 <AlertDialogConfirmButton onClick={onDel}>
-                  {t('operation.confirm', { ns: 'common' })}
+                  {t(($) => $['operation.confirm'], { ns: 'common' })}
                 </AlertDialogConfirmButton>
               </AlertDialogActions>
             </AlertDialogContent>
@@ -315,7 +324,12 @@ const SecretKeyModal = ({
         </DialogContent>
       </Dialog>
       {isShow && (
-        <SecretKeyGenerateModal className="shrink-0" isShow={isVisible} onClose={() => setIsVisible(false)} newKey={newKey} />
+        <SecretKeyGenerateModal
+          className="shrink-0"
+          isShow={isVisible}
+          onClose={() => setIsVisible(false)}
+          newKey={newKey}
+        />
       )}
     </>
   )

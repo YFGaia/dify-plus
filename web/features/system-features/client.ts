@@ -38,8 +38,7 @@ export const systemFeaturesQueryOptions = () => {
         if (bootstrapRes?.token)
           setLoginConfigToken(bootstrapRes.token)
         return await consoleClient.loginConfig()
-      }
-      catch (err) {
+      } catch (err) {
         console.error('[systemFeatures] fetch failed, using defaults', err)
         return defaultSystemFeatures
       }

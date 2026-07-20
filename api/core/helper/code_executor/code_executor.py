@@ -13,7 +13,7 @@ from core.helper.code_executor.jinja2.jinja2_transformer import Jinja2TemplateTr
 from core.helper.code_executor.python3.python3_transformer import Python3TemplateTransformer
 from core.helper.code_executor.template_transformer import TemplateTransformer
 from core.helper.http_client_pooling import get_pooled_http_client
-from graphon.nodes.code.entities import CodeLanguage
+from graphon.nodes.code.entities import CodeLanguage as CodeLanguage  # noqa: PLC0414
 
 logger = logging.getLogger(__name__)
 code_execution_endpoint_url = URL(str(dify_config.CODE_EXECUTION_ENDPOINT))
@@ -75,14 +75,18 @@ class CodeExecutor:
         :param purview: bool # Extend global code（True 时走 FULL_CODE_EXECUTION_ENDPOINT）
         :return:
         """
-        # extend: global code
-        endpoint = dify_config.FULL_CODE_EXECUTION_ENDPOINT if purview else code_execution_endpoint_url
-        url = URL(endpoint) / "v1" / "sandbox" / "run"
+        running_language = cls.code_language_to_running_language.get(language)
+        if running_language is None:
+            raise CodeExecutionError(f"Unsupported language {language}")
+
+        # extend: global code——purview 为 True 时走全量代码执行沙箱端点
+        endpoint = URL(str(dify_config.FULL_CODE_EXECUTION_ENDPOINT)) if purview else code_execution_endpoint_url
+        url = endpoint / "v1" / "sandbox" / "run"
 
         headers = {"X-Api-Key": dify_config.CODE_EXECUTION_API_KEY}
 
         data = {
-            "language": cls.code_language_to_running_language.get(language),
+            "language": running_language,
             "code": code,
             "preload": preload,
             "enable_network": True,
@@ -139,7 +143,7 @@ class CodeExecutor:
     # Extend global code: 新增 purview 参数
     def execute_workflow_code_template(
         cls, language: CodeLanguage, code: str, inputs: Mapping[str, Any], purview: bool = False
-    ):
+    ) -> dict[str, Any]:
         """
         Execute code
         :param language: code language

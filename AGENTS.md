@@ -47,7 +47,7 @@
 Start from these docs when you need the full fork context:
 
 - **Python**: Keep type hints on functions and attributes, and implement relevant special methods (e.g., `__repr__`, `__str__`). Prefer `TypedDict` over `dict` or `Mapping` for type safety and better code documentation.
-- **TypeScript**: Use the strict config, rely on ESLint (`pnpm lint:fix` preferred) plus `pnpm type-check`, and avoid `any` types.
+- **TypeScript**: Use the strict config, run `pnpm check` for formatting, Oxlint, ESLint non-code checks, and type checking, and avoid `any` types.
 
 - `/Users/liuxingwang/go/src/dify-plus/docs/README.md`
 - `/Users/liuxingwang/go/src/dify-plus/docs/整体架构图.md`

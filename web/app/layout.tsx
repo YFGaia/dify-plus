@@ -12,9 +12,9 @@ import { getDatasetMap } from '@/env'
 import { getLocaleOnServer } from '@/i18n-config/server'
 import { headers } from '@/next/headers'
 import PartnerStackCookieRecorder from './components/billing/partner-stack/cookie-recorder'
-import { CreateAppAttributionBootstrap } from './components/create-app-attribution-bootstrap'
 import { AgentationLoader } from './components/devtools/agentation-loader'
 import { ReactScanLoader } from './components/devtools/react-scan/loader'
+import ExternalAttributionRecorder from './components/external-attribution-recorder'
 import { I18nServerProvider } from './components/provider/i18n-server'
 import RoutePrefixHandle from './routePrefixHandle'
 import './styles/globals.css'
@@ -43,14 +43,10 @@ const instrumentSerif = localFont({
 })
 // extend: stop dockefile 构建访问不到google，改成本地
 
-const LocaleLayout = async ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
+const LocaleLayout = async ({ children }: { children: React.ReactNode }) => {
   const locale = await getLocaleOnServer()
   const datasetMap = getDatasetMap()
-  const nonce = IS_PROD ? (await headers()).get('x-nonce') ?? undefined : undefined
+  const nonce = IS_PROD ? ((await headers()).get('x-nonce') ?? undefined) : undefined
 
   return (
     <html lang={locale ?? 'en'} className="h-full" suppressHydrationWarning>
@@ -67,13 +63,9 @@ const LocaleLayout = async ({
         <meta name="msapplication-TileColor" content="#1C64F2" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
 
-        <CreateAppAttributionBootstrap />
         <ReactScanLoader />
       </head>
-      <body
-        className="h-full bg-background-body"
-        {...datasetMap}
-      >
+      <body className="h-full bg-background-body" {...datasetMap}>
         <div className="isolate h-full">
           <JotaiProvider>
             <ThemeProvider
@@ -88,6 +80,7 @@ const LocaleLayout = async ({
                   <I18nServerProvider>
                     <ToastHost timeout={5000} limit={3} />
                     <PartnerStackCookieRecorder />
+                    <ExternalAttributionRecorder />
                     <TooltipProvider delay={300} closeDelay={200}>
                       {children}
                     </TooltipProvider>

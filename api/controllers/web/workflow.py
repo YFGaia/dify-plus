@@ -1,10 +1,12 @@
 import logging
 
+from sqlalchemy.orm import Session
 from werkzeug.exceptions import InternalServerError
 
 from controllers.common.controller_schemas import WorkflowRunPayload
 from controllers.common.fields import GeneratedAppResponse, SimpleResultResponse
 from controllers.common.schema import register_response_schema_models, register_schema_models
+from controllers.console.app.wraps import with_session
 from controllers.web import web_ns
 from controllers.web.error import (
     CompletionRequestError,
@@ -62,7 +64,8 @@ class WorkflowRunApi(WebApiResource):
         }
     )
     @web_ns.response(200, "Success", web_ns.models[GeneratedAppResponse.__name__])
-    def post(self, app_model: App, end_user: EndUser):
+    @with_session
+    def post(self, session: Session, app_model: App, end_user: EndUser):
         """
         Run workflow
         """
@@ -96,9 +99,15 @@ class WorkflowRunApi(WebApiResource):
             )  # Extend: App
             # Center - Recommended list sorted by usage frequency
             response = AppGenerateService.generate(
-                app_model=app_model, user=end_user, args=args, invoke_from=InvokeFrom.WEB_APP, streaming=True
+                session=session,
+                app_model=app_model,
+                user=end_user,
+                args=args,
+                invoke_from=InvokeFrom.WEB_APP,
+                streaming=True,
             )
 
+            # response-contract:ignore compact_generate_response
             return helper.compact_generate_response(response)
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
@@ -152,4 +161,4 @@ class WorkflowTaskStopApi(WebApiResource):
         # New graph engine command channel mechanism
         GraphEngineManager(redis_client).send_stop_command(task_id)
 
-        return {"result": "success"}
+        return SimpleResultResponse(result="success").model_dump(mode="json")
