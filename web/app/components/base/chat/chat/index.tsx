@@ -17,6 +17,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useStore as useAppStore } from '@/app/components/app/store'
 // Extend: start messages context handling
 import { useChatWithHistoryContext } from '@/app/components/base/chat/chat-with-history/context'
+import { CSRF_COOKIE_NAME } from '@/config'
 import { deleteMessageContext, messageContextList } from '@/service/apps'
 import Answer from './answer'
 import ChatInputArea from './chat-input-area'
@@ -158,9 +159,14 @@ const Chat: FC<ChatProps> = ({
     // Context not available, skip
   }
   const [contextList, setContextList] = useState<string[]>([])
+  // 记忆上下文接口是 Console API（/console/api/message/context）。匿名访问 WebApp
+  // （per-app 认证开关关闭）时没有 Console 会话，调用会 401 并触发全局登录重定向，
+  // 因此以 csrf_token cookie 是否存在作为 Console 会话探测，无会话时跳过该扩展功能。
+  const hasConsoleSession = () =>
+    typeof document !== 'undefined' && document.cookie.includes(`${CSRF_COOKIE_NAME()}=`)
   const handleResponding = async () => {
     // 请求当前conversation_id分割
-    if (currentConversationId) {
+    if (currentConversationId && hasConsoleSession()) {
       try {
         const historyList = await messageContextList({ conversation_id: currentConversationId })
         setContextList(Array.isArray(historyList) ? historyList : [])
@@ -246,7 +252,7 @@ const Chat: FC<ChatProps> = ({
                 const isLast = item.id === chatList.at(-1)?.id
                 // Extend: start messages context handling
                 const clearContext = async (message_id: string) => {
-                  if (currentConversationId) {
+                  if (currentConversationId && hasConsoleSession()) {
                     await deleteMessageContext({
                       conversation_id: currentConversationId,
                       message_id,
