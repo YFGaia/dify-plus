@@ -22,6 +22,8 @@
   "appCard.newConversation": "Nueva conversación",
   "appCenter.description": "A continuación se encuentra el centro de aplicaciones, donde puedes ver aplicaciones categorizadas y utilizarlas",
   "appMenus.userOverview": "Monitoreo personal",
+  "appOverview.appInfo.webappAuth.title": "Autenticación de acceso",
+  "appOverview.appInfo.webappAuth.tooltip": "Activado: para acceder a la Web App publicada es necesario iniciar sesión con una cuenta de la plataforma. Desactivado: cualquiera puede acceder a la Web App publicada sin iniciar sesión.",
   "billingList.add": "Agregar lógica de reenvío",
   "billingList.comeBack": "< Volver",
   "billingList.delete": "Eliminar",

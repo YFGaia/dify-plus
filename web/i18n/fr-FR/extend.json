@@ -22,6 +22,8 @@
   "appCard.newConversation": "Nouvelle conversation",
   "appCenter.description": "Voici le centre d'applications, où vous pouvez voir des applications classées et les utiliser.",
   "appMenus.userOverview": "Surveillance personnelle",
+  "appOverview.appInfo.webappAuth.title": "Authentification d'accès",
+  "appOverview.appInfo.webappAuth.tooltip": "Activé : l'accès à la Web App publiée nécessite une connexion avec un compte de la plateforme. Désactivé : tout le monde peut accéder à la Web App publiée sans se connecter.",
   "billingList.add": "Ajouter une logique de transfert",
   "billingList.comeBack": "< Retour",
   "billingList.delete": "Supprimer",

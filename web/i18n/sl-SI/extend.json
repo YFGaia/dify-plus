@@ -22,6 +22,8 @@
   "appCard.newConversation": "Nov pogovor",
   "appCenter.description": "To je center aplikacij, kjer lahko vidite razvrščene aplikacije in jih uporabljate",
   "appMenus.userOverview": "Pregled uporabnika",
+  "appOverview.appInfo.webappAuth.title": "Preverjanje dostopa",
+  "appOverview.appInfo.webappAuth.tooltip": "Omogočeno: za dostop do objavljene spletne aplikacije je potrebna prijava z računom platforme. Onemogočeno: do objavljene spletne aplikacije lahko dostopa vsakdo brez prijave.",
   "billingList.add": "Dodaj posredovalno logiko",
   "billingList.comeBack": "< Nazaj",
   "billingList.delete": "Izbriši",

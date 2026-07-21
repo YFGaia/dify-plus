@@ -22,6 +22,7 @@ const mockPush = vi.fn()
 const mockSetAppDetail = vi.fn()
 const mockOnChangeStatus = vi.fn()
 const mockOnGenerateCode = vi.fn()
+const mockOnSaveSiteConfig = vi.fn()
 const mockFetchAppDetail = vi.fn()
 
 let mockWorkflow: {
@@ -193,6 +194,64 @@ describe('AppCard', () => {
         name: /(?:^|\.)overview\.appInfo\.title(?=$|:)/,
       }),
     ).toBeInTheDocument()
+  })
+
+  // extend: WebApp 访问认证开关
+  it('should default the webapp auth switch to on and save only that field when toggled', () => {
+    render(
+      <AppCard
+        appInfo={appInfo}
+        onChangeStatus={mockOnChangeStatus}
+        onSaveSiteConfig={mockOnSaveSiteConfig}
+      />,
+    )
+
+    const authSwitch = screen.getByRole('switch', {
+      name: /(?:^|\.)appOverview\.appInfo\.webappAuth\.title(?=$|:)/,
+    })
+    expect(authSwitch).toBeChecked()
+
+    fireEvent.click(authSwitch)
+
+    expect(mockOnSaveSiteConfig).toHaveBeenCalledTimes(1)
+    expect(mockOnSaveSiteConfig).toHaveBeenCalledWith({ webapp_auth_enabled_extend: false })
+  })
+
+  // extend: WebApp 访问认证开关
+  it('should reflect a disabled webapp auth value from app info', () => {
+    render(
+      <AppCard
+        appInfo={{ ...appInfo, webapp_auth_enabled_extend: false }}
+        onChangeStatus={mockOnChangeStatus}
+        onSaveSiteConfig={mockOnSaveSiteConfig}
+      />,
+    )
+
+    expect(
+      screen.getByRole('switch', {
+        name: /(?:^|\.)appOverview\.appInfo\.webappAuth\.title(?=$|:)/,
+      }),
+    ).not.toBeChecked()
+  })
+
+  // extend: WebApp 访问认证开关
+  it('should disable the webapp auth switch while the web app is not running', () => {
+    render(
+      <AppCard
+        appInfo={{ ...appInfo, enable_site: false }}
+        onChangeStatus={mockOnChangeStatus}
+        onSaveSiteConfig={mockOnSaveSiteConfig}
+      />,
+    )
+
+    const authSwitch = screen.getByRole('switch', {
+      name: /(?:^|\.)appOverview\.appInfo\.webappAuth\.title(?=$|:)/,
+    })
+    expect(authSwitch).toHaveAttribute('aria-disabled', 'true')
+
+    fireEvent.click(authSwitch)
+
+    expect(mockOnSaveSiteConfig).not.toHaveBeenCalled()
   })
 
   it('should open the workflow web app directly when launch is clicked even with hidden inputs', () => {

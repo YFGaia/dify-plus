@@ -71,10 +71,12 @@ vi.mock('@/context/web-app-context', () => ({
     selector(mockWebAppState),
 }))
 
+const routerReplace = vi.fn()
+
 vi.mock('@/next/navigation', () => ({
   usePathname: () => '/workflow/share-code',
   useRouter: () => ({
-    replace: vi.fn(),
+    replace: routerReplace,
   }),
   useSearchParams: () => new URLSearchParams(),
 }))
@@ -89,10 +91,12 @@ vi.mock('@/service/access-control/use-app-access-control', () => ({
   useGetUserCanAccessApp: () => userCanAccessAppQueryState,
 }))
 
+// extend: WebApp 复用 Console 登录态 + per-app 认证开关 —— 默认视为已登录且开关开启
+const checkWebAppConsoleAuthStatus = vi.fn()
+
 vi.mock('@/service/webapp-auth', () => ({
   webAppLogout: vi.fn(),
-  // extend: WebApp 复用 Console 登录态 —— 默认视为已登录
-  checkConsoleLoginStatus: vi.fn().mockResolvedValue(true),
+  checkWebAppConsoleAuthStatus: (shareCode: string) => checkWebAppConsoleAuthStatus(shareCode),
 }))
 
 const resetQueryStates = () => {
@@ -140,6 +144,46 @@ describe('AuthenticatedLayout', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     resetQueryStates()
+    checkWebAppConsoleAuthStatus.mockResolvedValue({
+      consoleLoggedIn: true,
+      webAppAuthEnabled: true,
+    })
+  })
+
+  // extend: per-app WebApp 认证开关
+  describe('WebApp Auth Switch', () => {
+    it('should redirect to console signin when auth is enabled and console is not logged in', async () => {
+      checkWebAppConsoleAuthStatus.mockResolvedValue({
+        consoleLoggedIn: false,
+        webAppAuthEnabled: true,
+      })
+
+      renderLayout()
+
+      await vi.waitFor(() => {
+        expect(routerReplace).toHaveBeenCalledWith('/signin')
+      })
+      expect(checkWebAppConsoleAuthStatus).toHaveBeenCalledWith('share-code')
+    })
+
+    it('should allow anonymous access without redirect when auth is disabled', async () => {
+      checkWebAppConsoleAuthStatus.mockResolvedValue({
+        consoleLoggedIn: false,
+        webAppAuthEnabled: false,
+      })
+
+      renderLayout()
+
+      expect(await screen.findByText('Workflow form content')).toBeInTheDocument()
+      expect(routerReplace).not.toHaveBeenCalled()
+    })
+
+    it('should render content without redirect when console is logged in', async () => {
+      renderLayout()
+
+      expect(await screen.findByText('Workflow form content')).toBeInTheDocument()
+      expect(routerReplace).not.toHaveBeenCalled()
+    })
   })
 
   describe('Loading State', () => {

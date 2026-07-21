@@ -121,6 +121,7 @@ flowchart TD
 - 如果本地存在 `redirect_url`，优先回跳到原目标页面。
 - WebApp 公开页 `/webapp-signin` 会先检查 Console 登录态，再根据访问模式决定走邮箱登录、外部成员 SSO，还是直接提示不可用。
 - 全局系统特性从 `/login_config_bootstrap` + `/login_config` 两段式获取，避免跨域时 cookie/JWT 丢失。
+- WebApp 强制登录支持 per-app 开关（默认开启）：`authenticated-layout.tsx` 经 `checkWebAppConsoleAuthStatus(shareCode)`（`GET /login/status?app_code=`）读取 `webapp_auth_enabled_extend`，为 `false` 时不再强制跳 `/signin`，任何人可匿名访问；开关位于 Console 应用概览页的 Web App 卡片（`web/app/components/app/overview/app-card.tsx`「访问认证」Switch，附悬停帮助 Tooltip），切换后只提交 `webapp_auth_enabled_extend` 单字段到 `POST /apps/{id}/site` 并刷新应用详情，Web App 未运行或无编辑权限时开关置灰。
 
 ```mermaid
 flowchart TD

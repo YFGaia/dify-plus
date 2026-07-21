@@ -472,6 +472,9 @@ class AppDetailWithSite(AppDetail):
     # Extend: 记忆上下文功能——1.16.0 上游删除 fields/app_fields.py 后，该字段迁移至此；
     # 值来源 AppExtend.retention_number，由 AppApi.get 回填（web 配置页 use-configuration 消费）
     retention_number: int | None = None
+    # Extend: WebApp 访问认证开关——值来源 AppExtend.webapp_auth_enabled（NULL 视为 True），
+    # 由 AppApi.get 回填（web 端 Web App 设置弹窗消费）
+    webapp_auth_enabled_extend: bool = True
     # For Agent App type: the roster Agent backing this app (None otherwise).
     bound_agent_id: str | None = None
     # For Agent App responses exposed through /agent.
@@ -833,6 +836,12 @@ class AppApi(Resource):
         # Extend: 记忆上下文功能——回填 AppExtend.retention_number（无记录时保持 None，web 端按默认值处理）
         app_extend = session.query(AppExtend).filter(AppExtend.app_id == app_model.id).first()
         retention_number_extend = app_extend.retention_number if app_extend else None
+        # Extend: WebApp 访问认证开关——无记录/列为 NULL 时默认 True（需登录）
+        webapp_auth_enabled_extend = (
+            app_extend.webapp_auth_enabled
+            if app_extend is not None and app_extend.webapp_auth_enabled is not None
+            else True
+        )
 
         response_model = AppDetailWithSite.model_validate(
             app_model,
@@ -842,6 +851,7 @@ class AppApi(Resource):
             update={
                 "permission_keys": permission_keys_map.get(str(app_model.id), []),
                 "retention_number": retention_number_extend,  # Extend: 记忆上下文功能
+                "webapp_auth_enabled_extend": webapp_auth_enabled_extend,  # Extend: WebApp 访问认证开关
             }
         )
         return response_model.model_dump(mode="json")

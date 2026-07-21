@@ -21,6 +21,7 @@ import {
 import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@langgenius/dify-ui/dialog'
+import { Switch } from '@langgenius/dify-ui/switch'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@langgenius/dify-ui/tooltip'
 import {
   RiArrowRightSLine,
@@ -328,6 +329,47 @@ export const AppCardAccessControlSection = ({
           <RiArrowRightSLine className="size-4 text-text-quaternary" />
         </div>
       </div>
+    </div>
+  )
+}
+
+// extend: WebApp 访问认证开关（关闭后任何人无需登录即可访问已发布 Web App）
+export const AppCardWebAppAuthSection = ({
+  t,
+  enabled,
+  disabled,
+  onToggle,
+}: {
+  t: TFunction
+  enabled: boolean
+  disabled: boolean
+  onToggle: (value: boolean) => void
+}) => {
+  const title = t(($) => $['appOverview.appInfo.webappAuth.title'], { ns: 'extend' })
+
+  return (
+    <div className="flex items-center justify-between gap-3 self-stretch">
+      <div className="flex items-center gap-0.5">
+        <div className="system-xs-medium text-text-tertiary">{title}</div>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <span
+                aria-label={t(($) => $['appOverview.appInfo.webappAuth.tooltip'], {
+                  ns: 'extend',
+                })}
+                className="flex size-4 shrink-0 cursor-pointer items-center justify-center"
+              >
+                <span aria-hidden className="i-ri-question-line size-3.5 text-text-quaternary" />
+              </span>
+            }
+          />
+          <TooltipContent className="max-w-[280px]">
+            {t(($) => $['appOverview.appInfo.webappAuth.tooltip'], { ns: 'extend' })}
+          </TooltipContent>
+        </Tooltip>
+      </div>
+      <Switch aria-label={title} checked={enabled} onCheckedChange={onToggle} disabled={disabled} />
     </div>
   )
 }

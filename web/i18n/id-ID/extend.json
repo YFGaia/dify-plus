@@ -22,6 +22,8 @@
   "appCard.newConversation": "Percakapan baru",
   "appCenter.description": "Berikut adalah Pusat Aplikasi, di mana Anda dapat melihat aplikasi yang dikategorikan dan menggunakannya",
   "appMenus.userOverview": "Pemantauan Pribadi",
+  "appOverview.appInfo.webappAuth.title": "Autentikasi akses",
+  "appOverview.appInfo.webappAuth.tooltip": "Aktif: mengakses Web App yang dipublikasikan memerlukan masuk dengan akun platform. Nonaktif: siapa pun dapat mengakses Web App yang dipublikasikan tanpa masuk.",
   "billingList.add": "Tambah logika forwarding",
   "billingList.comeBack": "< Kembali",
   "billingList.delete": "Hapus",

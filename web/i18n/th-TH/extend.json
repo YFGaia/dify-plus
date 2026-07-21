@@ -22,6 +22,8 @@
   "appCard.newConversation": "การสนทนาใหม่",
   "appCenter.description": "นี่คือศูนย์แอป คุณสามารถดูแอปที่จัดประเภทและใช้งานได้ที่นี่",
   "appMenus.userOverview": "การติดตามส่วนบุคคล",
+  "appOverview.appInfo.webappAuth.title": "การยืนยันตัวตนเพื่อเข้าถึง",
+  "appOverview.appInfo.webappAuth.tooltip": "เปิดใช้งาน: การเข้าถึงเว็บแอปที่เผยแพร่ต้องเข้าสู่ระบบด้วยบัญชีแพลตฟอร์ม ปิดใช้งาน: ทุกคนสามารถเข้าถึงเว็บแอปที่เผยแพร่ได้โดยไม่ต้องเข้าสู่ระบบ",
   "billingList.add": "เพิ่มตรรกะการส่งต่อใหม่",
   "billingList.comeBack": "< กลับ",
   "billingList.delete": "ลบ",

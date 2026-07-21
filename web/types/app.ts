@@ -425,6 +425,8 @@ export type App = {
   app_model_config: ModelConfig
   /** Extend: 记忆上下文功能（保留对话轮数） */
   retention_number?: number
+  /** Extend: WebApp 访问认证开关（false = 允许匿名访问；缺省视为 true） */
+  webapp_auth_enabled_extend?: boolean
   /** Timestamp of creation */
   created_at: number
   /** Creator account ID */

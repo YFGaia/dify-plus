@@ -22,6 +22,8 @@
   "appCard.newConversation": "Cuộc trò chuyện mới",
   "appCenter.description": "Dưới đây là Trung tâm ứng dụng, nơi bạn có thể xem các ứng dụng được phân loại và sử dụng",
   "appMenus.userOverview": "Tổng quan người dùng",
+  "appOverview.appInfo.webappAuth.title": "Xác thực truy cập",
+  "appOverview.appInfo.webappAuth.tooltip": "Đã bật: truy cập Web App đã xuất bản yêu cầu đăng nhập bằng tài khoản nền tảng. Đã tắt: bất kỳ ai cũng có thể truy cập Web App đã xuất bản mà không cần đăng nhập.",
   "billingList.add": "Thêm logic chuyển tiếp",
   "billingList.comeBack": "< Quay lại",
   "billingList.delete": "Xóa",

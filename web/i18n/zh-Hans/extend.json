@@ -22,6 +22,8 @@
   "appCard.newConversation": "新对话",
   "appCenter.description": "以下是应用中心，你可以在这里看到分类好的应用，进行使用",
   "appMenus.userOverview": "个人监测",
+  "appOverview.appInfo.webappAuth.title": "访问认证",
+  "appOverview.appInfo.webappAuth.tooltip": "已开启：访问已发布的 Web App 需登录平台账号。已关闭：任何人无需登录即可访问已发布的 Web App。",
   "billingList.add": "新增转发逻辑",
   "billingList.comeBack": "< 返回",
   "billingList.delete": "删除",

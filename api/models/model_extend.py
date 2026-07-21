@@ -20,7 +20,7 @@ class EndUserAccountJoinsExtend(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, server_default=db.text("CURRENT_TIMESTAMP(0)"))
 
 
-# Extend: 记忆上下文功能
+# Extend: per-app 扩展配置（记忆上下文 + WebApp 认证开关）
 class AppExtend(db.Model):
     __tablename__ = "app_extend"
     __table_args__ = (
@@ -31,9 +31,12 @@ class AppExtend(db.Model):
     id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
     app_id = db.Column(StringUUID, nullable=False)
     retention_number = db.Column(db.Integer, nullable=True)
+    # WebApp 访问认证开关：NULL/True = 访问需登录 Console（fork 默认行为），False = 允许匿名访问。
+    # 读写经 services.webapp_auth_service_extend（redis 投影缓存），不要绕过该服务直接改列。
+    webapp_auth_enabled = db.Column(db.Boolean, nullable=True)
 
 
-# Extend: 记忆上下文功能
+# Extend: per-app 扩展配置
 
 
 # Extend: 消息上下文分割功能

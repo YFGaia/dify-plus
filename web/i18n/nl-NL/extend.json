@@ -22,6 +22,8 @@
   "appCard.newConversation": "Nieuw gesprek",
   "appCenter.description": "Dit is het App Center waar u gecategoriseerde applicaties kunt bekijken en gebruiken",
   "appMenus.userOverview": "Persoonlijke monitoring",
+  "appOverview.appInfo.webappAuth.title": "Toegangsauthenticatie",
+  "appOverview.appInfo.webappAuth.tooltip": "Ingeschakeld: toegang tot de gepubliceerde webapp vereist inloggen met een platformaccount. Uitgeschakeld: iedereen heeft zonder inloggen toegang tot de gepubliceerde webapp.",
   "billingList.add": "Doorstuurlogica toevoegen",
   "billingList.comeBack": "< Terug",
   "billingList.delete": "Verwijderen",

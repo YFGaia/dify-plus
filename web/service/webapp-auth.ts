@@ -29,6 +29,8 @@ type isWebAppLogin = {
   logged_in: boolean
   app_logged_in: boolean
   console_logged_in?: boolean
+  // extend: 该 WebApp 的访问认证开关（false = 允许匿名访问）
+  webapp_auth_enabled_extend?: boolean
 }
 
 export async function webAppLoginStatus(shareCode: string, userId?: string) {
@@ -52,6 +54,33 @@ export async function checkConsoleLoginStatus() {
   } catch (error) {
     console.error('Failed to check console login status:', error)
     return false
+  }
+}
+
+// extend: 按 app_code 同时查询 Console 登录态与该 WebApp 的访问认证开关；
+// 请求失败按「需认证且未登录」处理（fail-closed，与 checkConsoleLoginStatus 一致）
+export type WebAppConsoleAuthStatus = {
+  consoleLoggedIn: boolean
+  webAppAuthEnabled: boolean
+}
+
+export async function checkWebAppConsoleAuthStatus(
+  shareCode: string,
+): Promise<WebAppConsoleAuthStatus> {
+  try {
+    const params = new URLSearchParams({ app_code: shareCode })
+    const { console_logged_in, webapp_auth_enabled_extend } = await getPublic<isWebAppLogin>(
+      `/login/status?${params.toString()}`,
+    )
+    return {
+      consoleLoggedIn: console_logged_in || false,
+      webAppAuthEnabled: webapp_auth_enabled_extend ?? true,
+    }
+  } catch (error) {
+    // app_code 无效（404）等场景回退到无参检查，保持既有「已登录用户看到 App 不可用页」的行为
+    console.error('Failed to check webapp console auth status:', error)
+    const consoleLoggedIn = await checkConsoleLoginStatus()
+    return { consoleLoggedIn, webAppAuthEnabled: true }
   }
 }
 

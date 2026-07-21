@@ -22,6 +22,8 @@
   "appCard.newConversation": "새 대화",
   "appCenter.description": "앱 센터입니다. 여기서 분류된 앱을 보고 사용할 수 있습니다.",
   "appMenus.userOverview": "개인 모니터링",
+  "appOverview.appInfo.webappAuth.title": "접근 인증",
+  "appOverview.appInfo.webappAuth.tooltip": "활성화됨: 게시된 웹 앱에 접근하려면 플랫폼 계정으로 로그인해야 합니다. 비활성화됨: 누구나 로그인 없이 게시된 웹 앱에 접근할 수 있습니다.",
   "billingList.add": "새 전달 로직 추가",
   "billingList.comeBack": "< 돌아가기",
   "billingList.delete": "삭제",

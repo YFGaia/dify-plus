@@ -22,6 +22,8 @@
   "appCard.newConversation": "Нова розмова",
   "appCenter.description": "Це Центр застосунків, де ви можете переглядати застосунки за категоріями та користуватися ними",
   "appMenus.userOverview": "Особистий моніторинг",
+  "appOverview.appInfo.webappAuth.title": "Автентифікація доступу",
+  "appOverview.appInfo.webappAuth.tooltip": "Увімкнено: для доступу до опублікованого вебзастосунку потрібен вхід з обліковим записом платформи. Вимкнено: будь-хто може отримати доступ до опублікованого вебзастосунку без входу.",
   "billingList.add": "Додати логіку переадресації",
   "billingList.comeBack": "< Назад",
   "billingList.delete": "Видалити",

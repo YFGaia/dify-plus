@@ -22,6 +22,8 @@
   "appCard.newConversation": "Nuova conversazione",
   "appCenter.description": "Qui di seguito è il centro app, dove puoi visualizzare le applicazioni categorizzate e utilizzarle",
   "appMenus.userOverview": "Panoramica utente",
+  "appOverview.appInfo.webappAuth.title": "Autenticazione di accesso",
+  "appOverview.appInfo.webappAuth.tooltip": "Attivato: l'accesso alla Web App pubblicata richiede l'accesso con un account della piattaforma. Disattivato: chiunque può accedere alla Web App pubblicata senza effettuare l'accesso.",
   "billingList.add": "Aggiungi logica di inoltro",
   "billingList.comeBack": "< Torna indietro",
   "billingList.delete": "Elimina",

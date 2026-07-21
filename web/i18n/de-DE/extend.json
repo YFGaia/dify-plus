@@ -22,6 +22,8 @@
   "appCard.newConversation": "Neue Unterhaltung",
   "appCenter.description": "Hier ist der App-Center, wo Sie kategorisierte Apps finden und nutzen können",
   "appMenus.userOverview": "Persönliche Überwachung",
+  "appOverview.appInfo.webappAuth.title": "Zugriffsauthentifizierung",
+  "appOverview.appInfo.webappAuth.tooltip": "Aktiviert: Für den Zugriff auf die veröffentlichte Web-App ist eine Anmeldung mit einem Plattformkonto erforderlich. Deaktiviert: Jeder kann ohne Anmeldung auf die veröffentlichte Web-App zugreifen.",
   "billingList.add": "Neue Weiterleitungslogik",
   "billingList.comeBack": "< Zurück",
   "billingList.delete": "Löschen",

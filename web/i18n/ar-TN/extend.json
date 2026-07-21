@@ -22,6 +22,8 @@
   "appCard.newConversation": "محادثة جديدة",
   "appCenter.description": "هذا هو مركز التطبيقات حيث يمكنك عرض التطبيقات المصنفة واستخدامها",
   "appMenus.userOverview": "المراقبة الشخصية",
+  "appOverview.appInfo.webappAuth.title": "مصادقة الوصول",
+  "appOverview.appInfo.webappAuth.tooltip": "مفعّل: يتطلب الوصول إلى تطبيق الويب المنشور تسجيل الدخول بحساب المنصة. معطّل: يمكن لأي شخص الوصول إلى تطبيق الويب المنشور دون تسجيل الدخول.",
   "billingList.add": "إضافة منطق إعادة التوجيه",
   "billingList.comeBack": "< رجوع",
   "billingList.delete": "حذف",

@@ -22,6 +22,8 @@
   "appCard.newConversation": "مکالمه جدید",
   "appCenter.description": "این مرکز برنامه‌هاست، جایی که می‌توانید برنامه‌های دسته‌بندی شده را مشاهده و استفاده کنید",
   "appMenus.userOverview": "نظارت شخصی",
+  "appOverview.appInfo.webappAuth.title": "احراز هویت دسترسی",
+  "appOverview.appInfo.webappAuth.tooltip": "فعال: دسترسی به وب‌اپ منتشرشده نیازمند ورود با حساب پلتفرم است. غیرفعال: همه می‌توانند بدون ورود به وب‌اپ منتشرشده دسترسی داشته باشند.",
   "billingList.add": "افزودن منطق ارسال",
   "billingList.comeBack": "< بازگشت",
   "billingList.delete": "حذف",

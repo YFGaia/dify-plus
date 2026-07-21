@@ -22,6 +22,8 @@
   "appCard.newConversation": "新對話",
   "appCenter.description": "以下是應用中心，你可以在這裡看到分類好的應用，進行使用",
   "appMenus.userOverview": "個人監測",
+  "appOverview.appInfo.webappAuth.title": "存取驗證",
+  "appOverview.appInfo.webappAuth.tooltip": "已開啟：存取已發布的 Web App 需登入平台帳號。已關閉：任何人無需登入即可存取已發布的 Web App。",
   "billingList.add": "新增轉發邏輯",
   "billingList.comeBack": "< 返回",
   "billingList.delete": "刪除",

@@ -100,7 +100,9 @@ class AppRunner:
         retention_number = redis_client.get(key)
         if retention_number is None:
             app_extend: AppExtend | None = db.session.query(AppExtend).filter(AppExtend.app_id == app_id).first()
-            if app_extend is None:
+            # app_extend 行可能由其它 per-app 配置（如 WebApp 认证开关）创建，
+            # retention_number 为 NULL 与行不存在同义：未配置记忆上下文，直接跳过
+            if app_extend is None or app_extend.retention_number is None:
                 return
             retention_number = int(app_extend.retention_number)
             redis_client.set(key, app_extend.retention_number)

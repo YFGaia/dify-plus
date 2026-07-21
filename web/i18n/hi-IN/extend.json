@@ -22,6 +22,8 @@
   "appCard.newConversation": "नई बातचीत",
   "appCenter.description": "यह ऐप केंद्र है, जहां आप श्रेणीबद्ध ऐप्स देख और उपयोग कर सकते हैं",
   "appMenus.userOverview": "व्यक्तिगत निगरानी",
+  "appOverview.appInfo.webappAuth.title": "एक्सेस प्रमाणीकरण",
+  "appOverview.appInfo.webappAuth.tooltip": "सक्षम: प्रकाशित वेब ऐप तक पहुँचने के लिए प्लेटफ़ॉर्म खाते से लॉगिन आवश्यक है। अक्षम: कोई भी बिना लॉगिन किए प्रकाशित वेब ऐप तक पहुँच सकता है।",
   "billingList.add": "नया फ़ॉरवर्डिंग लॉजिक",
   "billingList.comeBack": "< वापस",
   "billingList.delete": "हटाएं",

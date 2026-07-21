@@ -22,6 +22,8 @@
   "appCard.newConversation": "Yeni Konuşma",
   "appCenter.description": "İşte Uygulama Merkezi, kategorize edilmiş uygulamaları görüp kullanabileceğiniz yer",
   "appMenus.userOverview": "Kullanıcı Görünümü",
+  "appOverview.appInfo.webappAuth.title": "Erişim kimlik doğrulaması",
+  "appOverview.appInfo.webappAuth.tooltip": "Açık: Yayımlanan Web Uygulamasına erişmek için platform hesabıyla oturum açılması gerekir. Kapalı: Herkes oturum açmadan yayımlanan Web Uygulamasına erişebilir.",
   "billingList.add": "Yeni Yönlendirme Mantığı Ekle",
   "billingList.comeBack": "< Geri Dön",
   "billingList.delete": "Sil",

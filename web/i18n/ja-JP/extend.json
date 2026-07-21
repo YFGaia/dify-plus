@@ -22,6 +22,8 @@
   "appCard.newConversation": "新しい会話",
   "appCenter.description": "以下はアプリセンターです。ここでカテゴリ分けされたアプリを閲覧できます",
   "appMenus.userOverview": "個人モニタリング",
+  "appOverview.appInfo.webappAuth.title": "アクセス認証",
+  "appOverview.appInfo.webappAuth.tooltip": "有効：公開された Web アプリへのアクセスにはプラットフォームアカウントでのログインが必要です。無効：誰でもログインせずに公開された Web アプリにアクセスできます。",
   "billingList.add": "新しい転送ロジックを追加",
   "billingList.comeBack": "< 戻る",
   "billingList.delete": "削除",

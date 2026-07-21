@@ -22,6 +22,8 @@
   "appCard.newConversation": "New Conversation",
   "appCenter.description": "This is the App Center where you can view categorized applications and use them",
   "appMenus.userOverview": "Personal Monitoring",
+  "appOverview.appInfo.webappAuth.title": "Access authentication",
+  "appOverview.appInfo.webappAuth.tooltip": "Enabled: visiting the published Web App requires signing in with a platform account. Disabled: anyone can access the published Web App without signing in.",
   "billingList.add": "Add Forwarding Logic",
   "billingList.comeBack": "< Back",
   "billingList.delete": "Delete",

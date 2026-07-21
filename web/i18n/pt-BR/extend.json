@@ -22,6 +22,8 @@
   "appCard.newConversation": "Nova conversa",
   "appCenter.description": "Aqui está o Centro de Aplicativos, onde você pode ver aplicativos categorizados e utilizá-los",
   "appMenus.userOverview": "Visão geral do usuário",
+  "appOverview.appInfo.webappAuth.title": "Autenticação de acesso",
+  "appOverview.appInfo.webappAuth.tooltip": "Ativado: o acesso ao Web App publicado exige login com uma conta da plataforma. Desativado: qualquer pessoa pode acessar o Web App publicado sem fazer login.",
   "billingList.add": "Adicionar lógica de encaminhamento",
   "billingList.comeBack": "< Voltar",
   "billingList.delete": "Excluir",

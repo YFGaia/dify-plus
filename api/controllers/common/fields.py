@@ -105,6 +105,8 @@ class LoginStatusResponse(ResponseModel):
     app_logged_in: bool
     # extend: WebApp 登录态扩展——Console 用户 access_token cookie 是否有效（web/login.py 回填）
     console_logged_in: bool = False
+    # extend: WebApp 访问认证开关——请求带 app_code 时回填该 app 的开关值（False 表示允许匿名访问）
+    webapp_auth_enabled_extend: bool = True
 
 
 class AccessModeResponse(ResponseModel):

@@ -9,7 +9,7 @@ import { useWebAppStore } from '@/context/web-app-context'
 import { usePathname, useRouter, useSearchParams } from '@/next/navigation'
 import { useGetUserCanAccessApp } from '@/service/access-control/use-app-access-control'
 import { useGetWebAppInfo, useGetWebAppMeta, useGetWebAppParams } from '@/service/use-share'
-import { checkConsoleLoginStatus, webAppLogout } from '@/service/webapp-auth'
+import { checkWebAppConsoleAuthStatus, webAppLogout } from '@/service/webapp-auth'
 
 const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation()
@@ -52,13 +52,16 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  // 检查 Console 用户登录状态
+  // 检查 Console 用户登录状态（per-app 认证开关关闭时允许匿名访问，不再强制跳转）
   useEffect(() => {
+    // shareCode 由 (shareLayout) 的 WebAppStoreProvider 从路径解析注入，就绪前保持 Loading
+    if (!shareCode) return
+
     const checkConsoleAuth = async () => {
       setIsCheckingAuth(true)
-      const isConsoleLoggedIn = await checkConsoleLoginStatus()
-      if (!isConsoleLoggedIn) {
-        // 未登录，保存当前 URL 到 localStorage，然后跳转到 Console 登录页面
+      const { consoleLoggedIn, webAppAuthEnabled } = await checkWebAppConsoleAuthStatus(shareCode)
+      if (webAppAuthEnabled && !consoleLoggedIn) {
+        // 需认证且未登录，保存当前 URL 到 localStorage，然后跳转到 Console 登录页面
         localStorage.setItem('redirect_url', pathname)
         router.replace('/signin')
       }
@@ -66,7 +69,7 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
     }
 
     checkConsoleAuth()
-  }, [pathname, router])
+  }, [pathname, router, shareCode])
   const getSigninUrl = useCallback(() => {
     const params = new URLSearchParams(searchParams)
     params.delete('message')

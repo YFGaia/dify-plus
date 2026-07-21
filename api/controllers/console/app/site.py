@@ -28,6 +28,7 @@ from libs.login import login_required
 from models import Site
 from models.account import Account
 from models.model import App
+from services.webapp_auth_service_extend import WebAppAuthExtendService
 
 
 class AppSiteUpdatePayload(BaseModel):
@@ -48,6 +49,8 @@ class AppSiteUpdatePayload(BaseModel):
     prompt_public: bool | None = Field(default=None)
     show_workflow_steps: bool | None = Field(default=None)
     use_icon_as_answer_icon: bool | None = Field(default=None)
+    # extend: WebApp 访问认证开关（存 AppExtend，非 Site 列；None 表示本次不修改）
+    webapp_auth_enabled_extend: bool | None = Field(default=None)
 
     @field_validator("default_language")
     @classmethod
@@ -125,6 +128,12 @@ class AppSite(Resource):
             value = getattr(args, attr_name)
             if value is not None:
                 setattr(site, attr_name, value)
+
+        # extend: WebApp 访问认证开关——写 AppExtend（同事务提交）并失效 redis 投影缓存
+        if args.webapp_auth_enabled_extend is not None:
+            WebAppAuthExtendService.set_webapp_auth_enabled(
+                str(app_model.id), args.webapp_auth_enabled_extend, session=session
+            )
 
         site.updated_by = current_user.id
         site.updated_at = naive_utc_now()

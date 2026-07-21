@@ -22,6 +22,8 @@
   "appCard.newConversation": "Conversație nouă",
   "appCenter.description": "Aceasta este Centrul de Aplicații, unde puteți vedea aplicațiile organizate pe categorii și le puteți utiliza",
   "appMenus.userOverview": "Monitorizare personală",
+  "appOverview.appInfo.webappAuth.title": "Autentificare acces",
+  "appOverview.appInfo.webappAuth.tooltip": "Activat: accesarea aplicației web publicate necesită autentificare cu un cont de platformă. Dezactivat: oricine poate accesa aplicația web publicată fără autentificare.",
   "billingList.add": "Adăugare logică de redirecționare",
   "billingList.comeBack": "< Înapoi",
   "billingList.delete": "Șterge",

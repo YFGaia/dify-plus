@@ -32,6 +32,7 @@ import {
   AppCardDialogs,
   AppCardOperations,
   AppCardUrlSection,
+  AppCardWebAppAuthSection,
   createAppCardOperations,
   WorkflowLaunchDialog,
 } from './app-card-sections'
@@ -45,6 +46,11 @@ import {
   isWorkflowLaunchInputSupported,
 } from './app-card-utils'
 
+// extend: WebApp 访问认证开关走 site 保存接口，只提交单个字段（后端字段全部可选，None 不修改）
+export type WebAppAuthConfigParams = {
+  webapp_auth_enabled_extend: boolean
+}
+
 export type IAppCardProps = {
   className?: string
   appInfo: AppDetailResponse & Partial<AppSSO>
@@ -54,7 +60,7 @@ export type IAppCardProps = {
   triggerModeDisabled?: boolean
   triggerModeMessage?: React.ReactNode
   onChangeStatus: (val: boolean) => Promise<void>
-  onSaveSiteConfig?: (params: ConfigParams) => Promise<void>
+  onSaveSiteConfig?: (params: ConfigParams | WebAppAuthConfigParams) => Promise<void>
   onGenerateCode?: () => Promise<void>
 }
 
@@ -220,6 +226,14 @@ function AppCard({
       setShowWorkflowLaunchDialog(false)
     },
     [cardState.accessibleUrl, supportedWorkflowLaunchVariables, workflowLaunchValues],
+  )
+
+  // extend: WebApp 访问认证开关，切换后立即保存（只提交该字段），随后由父组件刷新 app detail
+  const handleToggleWebAppAuth = useCallback(
+    (value: boolean) => {
+      onSaveSiteConfig?.({ webapp_auth_enabled_extend: value })
+    },
+    [onSaveSiteConfig],
   )
 
   const handleOpenCustomize = useCallback(() => {
@@ -419,6 +433,15 @@ function AppCard({
                 onClick={handleClickAccessControl}
               />
             )}
+          {/* extend: WebApp 访问认证开关（未运行或无编辑权限时禁用） */}
+          {!cardState.isMinimalState && isApp && onSaveSiteConfig && (
+            <AppCardWebAppAuthSection
+              t={t}
+              enabled={appInfo.webapp_auth_enabled_extend ?? true}
+              disabled={!cardState.runningStatus || cardState.toggleDisabled}
+              onToggle={handleToggleWebAppAuth}
+            />
+          )}
         </div>
         {!cardState.isMinimalState && (
           <div className="flex items-center gap-1 self-stretch p-3">

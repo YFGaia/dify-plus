@@ -22,6 +22,8 @@
   "appCard.newConversation": "Новый разговор",
   "appCenter.description": "Ниже представлен Центр приложений, где вы можете просмотреть категоризированные приложения и использовать их",
   "appMenus.userOverview": "Личный обзор",
+  "appOverview.appInfo.webappAuth.title": "Аутентификация доступа",
+  "appOverview.appInfo.webappAuth.tooltip": "Включено: для доступа к опубликованному веб-приложению требуется вход с учётной записью платформы. Отключено: любой может получить доступ к опубликованному веб-приложению без входа.",
   "billingList.add": "Добавить логику переадресации",
   "billingList.comeBack": "< Назад",
   "billingList.delete": "Удалить",

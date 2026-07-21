@@ -43,6 +43,7 @@ from services.account_service import AccountService
 from services.app_service import AppService
 from services.entities.auth_entities import LoginFailureReason, LoginPayloadBase
 from services.webapp_auth_service import WebAppAuthService
+from services.webapp_auth_service_extend import WebAppAuthExtendService
 
 logger = logging.getLogger(__name__)
 
@@ -162,6 +163,8 @@ class LoginStatusApi(Resource):
                 console_logged_in=console_user_logged_in,  # extend
             ).model_dump(mode="json")
         app_id = AppService.get_app_id_by_code(app_code, session=db.session())
+        # extend: 回填该 app 的 WebApp 访问认证开关（False = 允许匿名访问，前端不再强制跳 Console 登录）
+        webapp_auth_enabled_extend = WebAppAuthExtendService.is_webapp_auth_enabled(app_id)
         is_public = not dify_config.ENTERPRISE_ENABLED or not WebAppAuthService.is_app_require_permission_check(
             app_id=app_id, session=db.session()
         )
@@ -186,6 +189,7 @@ class LoginStatusApi(Resource):
             logged_in=user_logged_in,
             app_logged_in=app_logged_in,
             console_logged_in=console_user_logged_in,  # extend
+            webapp_auth_enabled_extend=webapp_auth_enabled_extend,  # extend
         ).model_dump(mode="json")
 
 

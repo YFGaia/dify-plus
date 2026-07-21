@@ -22,6 +22,8 @@
   "appCard.newConversation": "Nowa rozmowa",
   "appCenter.description": "Oto Centrum Aplikacji, gdzie możesz zobaczyć sklasyfikowane aplikacje i z nich korzystać",
   "appMenus.userOverview": "Przegląd użytkownika",
+  "appOverview.appInfo.webappAuth.title": "Uwierzytelnianie dostępu",
+  "appOverview.appInfo.webappAuth.tooltip": "Włączone: dostęp do opublikowanej aplikacji Web wymaga zalogowania na konto platformy. Wyłączone: każdy może uzyskać dostęp do opublikowanej aplikacji Web bez logowania.",
   "billingList.add": "Dodaj logikę przekierowania",
   "billingList.comeBack": "< Powrót",
   "billingList.delete": "Usuń",

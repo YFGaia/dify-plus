@@ -55,6 +55,7 @@ from libs.token import extract_access_token
 from models.account_money_extend import AccountMoneyExtend
 from services.account_service import AccountService
 from services.app_generate_service_extend import AppGenerateServiceExtend
+from services.webapp_auth_service_extend import WebAppAuthExtendService
 
 
 def is_end_login(end_user):
@@ -184,8 +185,8 @@ class CompletionApi(WebApiResource):
             raise NotCompletionAppError()
 
         # ----------------- start You must log in to access your account extend ---------------
-        # no login
-        if is_end_login(end_user) is None:
+        # no login（per-app 认证开关关闭时允许匿名访问；已登录用户短路跳过开关查询）
+        if is_end_login(end_user) is None and WebAppAuthExtendService.is_webapp_auth_enabled(app_model.id):
             raise WebAuthRequiredErrorExtend()
         # ----------------- stop You must log in to access your account extend ---------------
 
@@ -295,8 +296,8 @@ class ChatApi(WebApiResource):
     @with_session
     def post(self, session: Session, app_model: App, end_user: EndUser):
         # ----------------- start You must log in to access your account extend ---------------
-        # no login
-        if is_end_login(end_user) is None:
+        # no login（per-app 认证开关关闭时允许匿名访问；已登录用户短路跳过开关查询）
+        if is_end_login(end_user) is None and WebAppAuthExtendService.is_webapp_auth_enabled(app_model.id):
             raise WebAuthRequiredErrorExtend()
         # ----------------- stop You must log in to access your account extend ---------------
 
