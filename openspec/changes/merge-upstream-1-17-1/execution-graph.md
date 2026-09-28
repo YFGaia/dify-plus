@@ -297,6 +297,8 @@ M03 子项进度：9.1–9.5 全部通过，代码、测试、证据随本节点
 
 ## M04 · 计费、Service API 与记忆挂点
 
+登记配套测试：`controllers/service_api/test_wraps.py`、`controllers/service_api/test_billing_extend.py`、`core/app/test_billing_hooks_extend.py`（均在 `api/tests/unit_tests/`）。既有 `controllers/console/test_apikey.py` 已在冲突清单。新增两条测试及既有 `test_wraps.py` 已同步到 `research/conflict-ownership.tsv` 与 M04 `owned_conflict_paths`，唯一 owner=M04，verifier=V01。另登记 `core/memory/test_token_buffer_memory.py` 适配 fork context 查询次数；既有 persistence 测试隔离 Celery broker。
+
 - 状态：ready；M03 已通过。Sol 独立只读实施前审查已完成（`evidence/M04/pre-analysis.md`）；OAuth 由 M03 交付，M04 实施/复核其余九项。
 
 - 前置：M03；负责人：计费负责人；建议模型：Astra/high。

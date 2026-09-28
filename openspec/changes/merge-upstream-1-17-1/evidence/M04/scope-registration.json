@@ -1,0 +1,12 @@
+{
+  "node": "M04",
+  "verifier": "V01",
+  "input_head": "e83bdfe536eb114aa5dee17ddec539d9a71ab99e",
+  "paths": [
+    "api/tests/unit_tests/controllers/service_api/test_billing_extend.py",
+    "api/tests/unit_tests/core/app/test_billing_hooks_extend.py",
+    "api/tests/unit_tests/controllers/service_api/test_wraps.py",
+    "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
+  ],
+  "note": "Initial registration used registered_additional_paths only. Before further test revisions, synchronized conflict-ownership.tsv and owned_conflict_paths per integration agent review. Other node ownership unchanged."
+}

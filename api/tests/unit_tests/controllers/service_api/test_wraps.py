@@ -839,3 +839,8 @@ class TestDatasetApiResource:
         """Test that get_dataset method exists on DatasetApiResource."""
         # Assert
         assert hasattr(DatasetApiResource, "get_dataset")
+
+
+@pytest.fixture(autouse=True)
+def _bypass_token_quota_extend():
+    """M04: authentication tests now exercise the restored quota entry point."""

@@ -612,11 +612,21 @@
         "api/tests/unit_tests/controllers/console/tag/test_tags.py",
         "api/tests/unit_tests/controllers/console/test_apikey.py",
         "api/tests/unit_tests/core/app/apps/chat/test_app_generator_and_runner.py",
-        "api/tests/unit_tests/core/app/workflow/test_persistence_layer.py"
+        "api/tests/unit_tests/core/app/workflow/test_persistence_layer.py",
+        "api/tests/unit_tests/controllers/service_api/test_billing_extend.py",
+        "api/tests/unit_tests/core/app/test_billing_hooks_extend.py",
+        "api/tests/unit_tests/controllers/service_api/test_wraps.py",
+        "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
       ],
       "outputs": [
         "evidence/M04/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "registered_additional_paths": [
+        "api/tests/unit_tests/controllers/service_api/test_billing_extend.py",
+        "api/tests/unit_tests/core/app/test_billing_hooks_extend.py",
+        "api/tests/unit_tests/controllers/service_api/test_wraps.py",
+        "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
       ]
     },
     {

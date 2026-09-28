@@ -16,6 +16,11 @@ from sqlalchemy.orm import Session, sessionmaker
 from werkzeug.exceptions import Forbidden, NotFound, ServiceUnavailable, Unauthorized
 
 from configs import dify_config
+from controllers.service_api.app.error_extend import (
+    AccountNoMoneyErrorExtend,
+    ApiTokenDayNoMoneyErrorExtend,
+    ApiTokenMonthNoMoneyErrorExtend,
+)
 from controllers.service_api.schema import (
     USER_FETCH_FROM_ATTR,
     USER_FORM_PARAM,
@@ -28,8 +33,11 @@ from extensions.ext_database import db
 from extensions.ext_redis import redis_client
 from libs.login import current_user
 from models import Account, Tenant, TenantAccountJoin, TenantStatus
+from models.account_money_extend import AccountMoneyExtend
+from models.api_token_money_extend import ApiTokenMoneyExtend
 from models.dataset import Dataset, RateLimitLog
 from models.model import ApiToken, App
+from models.model_extend import EndUserAccountJoinsExtend
 from services import dataset_api_key_service
 from services.api_token_service import ApiTokenCache, fetch_token_with_single_flight, record_token_usage
 from services.end_user_service import EndUserService
@@ -108,6 +116,11 @@ def validate_app_token[**P, R](
     view: Callable[P, R] | None = None, *, fetch_user_arg: FetchUserArg | None = None
 ) -> Callable[P, R] | Callable[[Callable[P, R]], Callable[P, R]]:
     def decorator(view_func: Callable[P, R]) -> Callable[P, R]:
+        # Upstream read-only endpoints need no token argument; generation endpoints
+        # explicitly declare it, including those with a default of None.
+        parameters = inspect.signature(view_func).parameters
+        accepts_kwargs = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values())
+
         @wraps(view_func)
         def decorated_view(*args: P.args, **kwargs: P.kwargs) -> R:
             api_token = validate_and_get_api_token("app")
@@ -128,7 +141,11 @@ def validate_app_token[**P, R](
             if tenant.status == TenantStatus.ARCHIVE:
                 raise Forbidden("The workspace's status is archived.")
 
-            kwargs["app_model"] = app_model
+            owner_join = validate_token_quota_extend(api_token)
+            if "api_token" in parameters or accepts_kwargs:
+                kwargs["api_token"] = api_token
+            if "app_model" in parameters or accepts_kwargs:
+                kwargs["app_model"] = app_model
 
             # If caller needs end-user context, attach EndUser to current_user
             if fetch_user_arg:
@@ -149,6 +166,8 @@ def validate_app_token[**P, R](
 
                 end_user = EndUserService.get_or_create_end_user(app_model, user_id)
                 kwargs["end_user"] = end_user
+                if owner_join is not None:
+                    create_or_update_end_user_account_join_extend(end_user.id, owner_join.account_id, app_model.id)
 
                 # Set EndUser as current logged-in user for flask_login.current_user
                 current_app.login_manager._update_request_context_with_user(end_user)  # type: ignore
@@ -412,6 +431,67 @@ def validate_and_get_api_token(scope: str | None = None):
     # Cache miss - use Redis lock for single-flight mode
     # This ensures only one request queries DB for the same token concurrently
     return fetch_token_with_single_flight(auth_token, scope)
+
+
+def validate_token_quota_extend(api_token: ApiToken, *, tenant_id: str | None = None) -> TenantAccountJoin:
+    """校验密钥所属租户 owner 的账号总额度与该密钥的日/月额度，超额抛出对应异常。
+
+    Returns:
+        TenantAccountJoin: 租户 owner 的关联记录（供 end_user↔account 归因映射使用）。
+
+    Raises:
+        Unauthorized: 租户不存在或非 NORMAL 状态。
+        AccountNoMoneyErrorExtend: 账号总额度耗尽。
+        ApiTokenDayNoMoneyErrorExtend / ApiTokenMonthNoMoneyErrorExtend: 密钥日/月额度耗尽。
+    """
+    if tenant_id is None:
+        tenant_id = api_token.tenant_id or db.session.scalar(select(App.tenant_id).where(App.id == api_token.app_id))
+    ta = (
+        db.session.query(TenantAccountJoin)
+        .join(Tenant, TenantAccountJoin.tenant_id == Tenant.id)
+        .filter(Tenant.id == (tenant_id or api_token.tenant_id))
+        .filter(TenantAccountJoin.role.in_(["owner"]))
+        .filter(Tenant.status == TenantStatus.NORMAL)
+        .one_or_none()
+    )
+    if ta is None:
+        raise Unauthorized("Tenant does not exist.")
+
+    account_money = db.session.query(AccountMoneyExtend).filter(AccountMoneyExtend.account_id == ta.account_id).first()
+    if account_money and account_money.used_quota >= account_money.total_quota:
+        raise AccountNoMoneyErrorExtend()
+
+    api_token_money = (
+        db.session.query(ApiTokenMoneyExtend).filter(ApiTokenMoneyExtend.app_token_id == api_token.id).first()
+    )
+    if api_token_money:
+        if api_token_money.day_limit_quota != -1 and api_token_money.day_used_quota >= api_token_money.day_limit_quota:
+            raise ApiTokenDayNoMoneyErrorExtend()
+        if (
+            api_token_money.month_limit_quota != -1
+            and api_token_money.month_used_quota >= api_token_money.month_limit_quota
+        ):
+            raise ApiTokenMonthNoMoneyErrorExtend()
+    else:
+        logger.warning("数据异常，该密钥没有额度数据: %s", api_token.id)
+
+    return ta
+
+
+def create_or_update_end_user_account_join_extend(end_user_id, account_id, app_id: str) -> EndUserAccountJoinsExtend:
+    """extend: 插入 end_user 和 owner account 的关联关系，供计费链路查询使用。"""
+    end_user_account_join = (
+        db.session.query(EndUserAccountJoinsExtend)
+        .filter(EndUserAccountJoinsExtend.end_user_id == end_user_id, EndUserAccountJoinsExtend.app_id == app_id)
+        .first()
+    )
+
+    if end_user_account_join is None:
+        end_user_account_join = EndUserAccountJoinsExtend(end_user_id=end_user_id, account_id=account_id, app_id=app_id)
+        db.session.add(end_user_account_join)
+    db.session.commit()
+
+    return end_user_account_join
 
 
 class DatasetApiResource(Resource):

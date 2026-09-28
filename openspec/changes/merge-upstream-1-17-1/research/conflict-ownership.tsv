@@ -90,3 +90,7 @@ web/service/console-router-loader.ts	M05	V02	modify/delete	pending	Console trans
 web/service/explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/use-explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/webapp-auth.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+api/tests/unit_tests/controllers/service_api/test_billing_extend.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
+api/tests/unit_tests/core/app/test_billing_hooks_extend.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
+api/tests/unit_tests/controllers/service_api/test_wraps.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
+api/tests/unit_tests/core/memory/test_token_buffer_memory.py	M04	V01	non-conflict-test	registered	Account for preserved fork context query in upstream batch-file query-count regression
