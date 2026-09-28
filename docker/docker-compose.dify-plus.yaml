@@ -32,7 +32,8 @@ x-shared-env: &shared-api-worker-env
   OPS_TRACE_RETRYABLE_DISPATCH_MAX_RETRIES: ${OPS_TRACE_RETRYABLE_DISPATCH_MAX_RETRIES:-780}
   OPS_TRACE_RETRYABLE_DISPATCH_DELAY_SECONDS: ${OPS_TRACE_RETRYABLE_DISPATCH_DELAY_SECONDS:-5}
   OPS_TRACE_PARENT_CONTEXT_TTL_SECONDS: ${OPS_TRACE_PARENT_CONTEXT_TTL_SECONDS:-3900}
-  SECRET_KEY: ${SECRET_KEY:-sk-9f73s3ljTXVcMT3Blb3ljTqtsKiGHXVcMT3BlbkFJLK7U}
+  # Empty uses the generated key persisted in the shared storage directory.
+  SECRET_KEY: ${SECRET_KEY:-}
   INIT_PASSWORD: ${INIT_PASSWORD:-}
   DEPLOY_ENV: ${DEPLOY_ENV:-PRODUCTION}
   DEPLOYMENT_EDITION: ${DEPLOYMENT_EDITION:-COMMUNITY}
@@ -67,7 +68,7 @@ x-shared-env: &shared-api-worker-env
   SERVER_WORKER_CONNECTIONS: ${SERVER_WORKER_CONNECTIONS:-10}
   CELERY_WORKER_CLASS: ${CELERY_WORKER_CLASS:-}
   GUNICORN_TIMEOUT: ${GUNICORN_TIMEOUT:-360}
-  CELERY_WORKER_AMOUNT: ${CELERY_WORKER_AMOUNT:-}
+  CELERY_WORKER_AMOUNT: ${CELERY_WORKER_AMOUNT:-4}
   CELERY_AUTO_SCALE: ${CELERY_AUTO_SCALE:-false}
   CELERY_MAX_WORKERS: ${CELERY_MAX_WORKERS:-}
   CELERY_MIN_WORKERS: ${CELERY_MIN_WORKERS:-}
@@ -92,7 +93,7 @@ x-shared-env: &shared-api-worker-env
   SQLALCHEMY_POOL_PRE_PING: ${SQLALCHEMY_POOL_PRE_PING:-false}
   SQLALCHEMY_POOL_USE_LIFO: ${SQLALCHEMY_POOL_USE_LIFO:-false}
   SQLALCHEMY_POOL_TIMEOUT: ${SQLALCHEMY_POOL_TIMEOUT:-30}
-  POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS:-100}
+  POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS:-200}
   POSTGRES_SHARED_BUFFERS: ${POSTGRES_SHARED_BUFFERS:-128MB}
   POSTGRES_WORK_MEM: ${POSTGRES_WORK_MEM:-4MB}
   POSTGRES_MAINTENANCE_WORK_MEM: ${POSTGRES_MAINTENANCE_WORK_MEM:-64MB}
@@ -557,9 +558,9 @@ x-shared-env: &shared-api-worker-env
   MAX_TREE_DEPTH: ${MAX_TREE_DEPTH:-50}
   PGDATA: ${PGDATA:-/var/lib/postgresql/data/pgdata}
   MYSQL_HOST_VOLUME: ${MYSQL_HOST_VOLUME:-./volumes/mysql/data}
-  POSTGRES_USER: ${POSTGRES_USER:-${DB_USERNAME}}
-  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-${DB_PASSWORD}}
-  POSTGRES_DB: ${POSTGRES_DB:-${DB_DATABASE}}
+  POSTGRES_USER: ${POSTGRES_USER:-${DB_USERNAME:-postgres}}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-${DB_PASSWORD:-difyai123456}}
+  POSTGRES_DB: ${POSTGRES_DB:-${DB_DATABASE:-dify}}
   SANDBOX_API_KEY: ${SANDBOX_API_KEY:-dify-sandbox}
   SANDBOX_GIN_MODE: ${SANDBOX_GIN_MODE:-release}
   SANDBOX_WORKER_TIMEOUT: ${SANDBOX_WORKER_TIMEOUT:-15}
@@ -1122,7 +1123,7 @@ services:
       POSTGRES_DB: ${DB_DATABASE:-dify}
       PGDATA: ${PGDATA:-/var/lib/postgresql/data/pgdata}
     command: >
-      postgres -c 'max_connections=${POSTGRES_MAX_CONNECTIONS:-100}'
+      postgres -c 'max_connections=${POSTGRES_MAX_CONNECTIONS:-200}'
                -c 'shared_buffers=${POSTGRES_SHARED_BUFFERS:-128MB}'
                -c 'work_mem=${POSTGRES_WORK_MEM:-4MB}'
                -c 'maintenance_work_mem=${POSTGRES_MAINTENANCE_WORK_MEM:-64MB}'
@@ -1265,7 +1266,7 @@ services:
       DIFY_AGENT_SANDBOX_FILES_BASE_URL: ${DIFY_AGENT_SANDBOX_FILES_BASE_URL:-http://api:5001}
       # 安全敏感：Agent Stub bearer token 的 JWE 加密密钥派生源。
       # 二开注意：这里不内置上游公开的开发默认值（避免生产误用弱密钥），
-      # 使用 Agent v2 前必须在 .env 中显式配置（见 docker/.env.example），
+      # 启动前必须在 .env 中显式配置，即使 Agent v2 关闭（见 docker/.env.example），
       # 生成方式：python -c 'import secrets; print(secrets.token_urlsafe(32))'
       DIFY_AGENT_SERVER_SECRET_KEY: ${DIFY_AGENT_SERVER_SECRET_KEY:-}
       DIFY_AGENT_API_TOKEN: ${DIFY_AGENT_API_TOKEN:-}
@@ -1466,8 +1467,8 @@ services:
       CERTBOT_DOMAIN: ${CERTBOT_DOMAIN:-}
       # Upstream target for /socket.io/ (workflow collaboration). Point to the
       # dedicated api_websocket service when the `collaboration` profile is on;
-      # fall back to the main api service otherwise.
-      NGINX_SOCKET_IO_UPSTREAM: ${NGINX_SOCKET_IO_UPSTREAM:-api:5001}
+      # set api:5001 explicitly when disabling that profile.
+      NGINX_SOCKET_IO_UPSTREAM: ${NGINX_SOCKET_IO_UPSTREAM:-api_websocket:5001}
     depends_on:
       - api
       - web
@@ -1489,7 +1490,7 @@ services:
       # You can refer to the [Weaviate](https://weaviate.io/developers/weaviate/config-refs/env-vars) documentation for more information.
       PERSISTENCE_DATA_PATH: ${WEAVIATE_PERSISTENCE_DATA_PATH:-/var/lib/weaviate}
       QUERY_DEFAULTS_LIMIT: ${WEAVIATE_QUERY_DEFAULTS_LIMIT:-25}
-      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: ${WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED:-false}
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: ${WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED:-true}
       DEFAULT_VECTORIZER_MODULE: ${WEAVIATE_DEFAULT_VECTORIZER_MODULE:-none}
       CLUSTER_HOSTNAME: ${WEAVIATE_CLUSTER_HOSTNAME:-node1}
       AUTHENTICATION_APIKEY_ENABLED: ${WEAVIATE_AUTHENTICATION_APIKEY_ENABLED:-true}
@@ -1898,7 +1899,7 @@ services:
       - dify_es01_data:/usr/share/elasticsearch/data
     environment:
       ELASTIC_PASSWORD: ${ELASTICSEARCH_PASSWORD:-elastic}
-      VECTOR_STORE: ${VECTOR_STORE:-}
+      VECTOR_STORE: ${VECTOR_STORE:-weaviate}
       cluster.name: dify-es-cluster
       node.name: dify-es0
       discovery.type: single-node
