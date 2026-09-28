@@ -135,6 +135,7 @@ packages/contracts/generated/api/console/workspaces/zod.gen.ts	M05	V02	generated
 packages/contracts/generated/api/web/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
 packages/contracts/generated/api/web/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
 packages/contracts/openapi-ts.api.config.ts	M05	V02	content	pending	localized Console contract filter for CORS OPTIONS and handwritten codeExecutionControl single-owner rules
+web/contract/console/system-manage.ts	M05	V02	content	pending	handwritten codeExecutionControl DTO/runtime owner and status-201 compatibility assertion
 api/tests/unit_tests/controllers/service_api/test_billing_extend.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
 api/tests/unit_tests/core/app/test_billing_hooks_extend.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
 api/tests/unit_tests/controllers/service_api/test_wraps.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification

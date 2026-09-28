@@ -1,6 +1,6 @@
 {
   "node": "M05",
-  "status": "ready",
+  "status": "blocked",
   "implementation": "partial_uncommitted",
   "deployable": false,
   "branch": "codex/merge-upstream-1.17.1",
@@ -22,18 +22,19 @@
   ],
   "subtasks": {
     "11.1": {
-      "status": "in_progress",
+      "status": "blocked",
       "evidence": [
         "codegen-investigation.json",
         "codegen-analysis.md"
       ],
-      "reason": "Root cause and unique endpoint owner are resolved. Thirty generator/output paths have been registered; implement the filters, standard full codegen, and 201 transport regression before marking complete.",
+      "reason": "Coding is paused pending user guidance because the required karpathy-guidelines SKILL.md is unavailable at the listed path or searched skill roots. Existing filters remain uncommitted and unverified; standard generation was terminated before outputs and tests were produced.",
       "working_changes": [
         "web/service/console/browser.ts",
         "web/service/console/contract-loader.ts",
         "web/service/console/index.ts",
         "web/contract/router-extend.ts",
-        "web/contract/console/system.ts (deleted)"
+        "web/contract/console/system.ts (deleted)",
+        "packages/contracts/openapi-ts.api.config.ts"
       ]
     },
     "11.2": {
@@ -52,7 +53,8 @@
   "known_limits": [
     "No browser cross-origin cookie validation in this analysis; defer real-browser validation to V02.",
     "The is_custom_auth2_button item in A04 C03 is not present in the actual M02 response schema.",
-    "The handwritten code-execution-control POST contract has not yet been verified against the backend HTTP 201 response; add a focused transport assertion before accepting 11.1."
+    "The handwritten code-execution-control POST contract has not yet been verified against the backend HTTP 201 response; add a focused transport assertion before accepting 11.1.",
+    "Coding is paused pending user guidance on the unavailable required karpathy-guidelines skill; no M05 generated artifacts or tests are accepted."
   ],
   "codegen_investigation": "evidence/M05/codegen-investigation.json",
   "codegen_analysis": "evidence/M05/codegen-analysis.md"

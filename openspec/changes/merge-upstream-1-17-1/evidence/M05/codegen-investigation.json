@@ -1,7 +1,7 @@
 {
   "node": "M05",
   "subtask": "11.1",
-  "status": "in_progress",
+  "status": "blocked",
   "integrated_head_at_block": "564478516952f3c741a952e7ba23b6f724255539",
   "isolated_attempt_base": "8370c69e8d",
   "standard_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache UV_NO_SYNC=1 pnpm --config.verify-deps-before-run=false --dir /private/tmp/dify-m05-11-1-codegen/packages/contracts run gen-api-contract",
@@ -83,7 +83,8 @@
     "web/contract/console/system.ts (deleted)"
   ],
   "unresolved": [
-    "Implement and validate the OPTIONS and duplicate-owner filters in the main checkout; verify handwritten systemManage POST behavior with the actual 201 response."
+    "Implement and validate the OPTIONS and duplicate-owner filters in the main checkout; verify handwritten systemManage POST behavior with the actual 201 response.",
+    "Resume source implementation only after resolving the required missing karpathy-guidelines skill instruction."
   ],
   "not_completed": [
     "11.1 remains unchecked; no generated contracts were copied to main checkout.",

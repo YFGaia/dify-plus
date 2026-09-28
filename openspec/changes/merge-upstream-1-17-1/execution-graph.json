@@ -677,7 +677,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -762,6 +762,7 @@
         "packages/contracts/generated/api/web/zod.gen.ts",
         "packages/contracts/openapi-ts.api.config.ts",
         "web/context/app-context-normalizers.ts",
+        "web/contract/console/system-manage.ts",
         "web/contract/console/system.ts",
         "web/contract/router-extend.ts",
         "web/features/system-features/__tests__/system-features.spec.ts",
@@ -799,8 +800,8 @@
         "subtask_11_1_scope_registered": true,
         "current_subtask": {
           "id": "11.1",
-          "status": "in_progress",
-          "reason": "Isolated reproducer identified OPTIONS /extend/{path} as the oRPC failure; the handwritten systemManage owner decision and all 30 generator/output path registrations are committed. Implement the filters and full generation in the main checkout.",
+          "status": "blocked",
+          "reason": "Implementation paused pending user guidance for missing required skill karpathy-guidelines. The path is registered. An uncommitted, not-yet-verified filter edit exists in packages/contracts/openapi-ts.api.config.ts; no generated outputs or tests were produced.",
           "evidence": "evidence/M05/codegen-analysis.md"
         },
         "codegen_diagnosis": {
@@ -857,13 +858,15 @@
         "packages/contracts/generated/api/web/types.gen.ts",
         "packages/contracts/generated/api/web/zod.gen.ts",
         "packages/contracts/openapi-ts.api.config.ts",
+        "web/contract/console/system-manage.ts",
         "web/contract/console/system.ts",
         "web/contract/router-extend.ts",
         "web/service/console/browser.ts",
         "web/service/console/client.spec.ts",
         "web/service/console/contract-loader.ts",
         "web/service/console/index.ts"
-      ]
+      ],
+      "blocked_reason": "M05 11.1 coding is paused because the required karpathy-guidelines SKILL.md listed for all coding is missing from the catalog path, project, user skill roots, plugin cache, and go/src. User clarification is pending. Current generated-config filter edit is uncommitted; no main-checkout generation or tests ran."
     },
     {
       "id": "M06",

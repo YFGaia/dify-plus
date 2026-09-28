@@ -325,7 +325,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M05 · Console transport 与前端契约
 
-- 状态：ready，11.1 实施进行中；M03 已通过。独立 Sol 最小复现已将生成失败定位到 `OPTIONS /extend/{path}`，过滤后隔离副本 64 个生成 job 全部通过。owner 复核决定保留手写 systemManage 的精确 DTO/runtime，并从 generated segment 精确排除重叠三项。已预登记生成配置和全量格式化输出差异共 30 条路径；主 checkout 尚未生成、测试或提交 11.1 代码。证据见 `evidence/M05/codegen-analysis.md` 与 `evidence/M05/codegen-investigation.json`。
+- 状态：blocked；根因 `OPTIONS /extend/{path}` 和手写 systemManage 的唯一 owner 均已确认，31 条生成/契约路径已登记。新 Astra 在改动共享生成配置后遇到必需的 `karpathy-guidelines` 技能文件缺失；按任务规则暂停源码、生成和测试，正在等用户提供文件路径或确认按技能摘要继续。当前过滤改动未提交且未验证，完整 generated outputs 未写入主 checkout。诊断见 `evidence/M05/codegen-analysis.md` 与 `evidence/M05/codegen-investigation.json`。
 - 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
