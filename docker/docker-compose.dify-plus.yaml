@@ -38,7 +38,9 @@ x-shared-env: &shared-api-worker-env
   DEPLOYMENT_EDITION: ${DEPLOYMENT_EDITION:-COMMUNITY}
   CHECK_UPDATE_URL: ${CHECK_UPDATE_URL:-https://updates.dify.ai}
   OPENAI_API_BASE: ${OPENAI_API_BASE:-https://api.openai.com/v1}
-  MIGRATION_ENABLED: ${MIGRATION_ENABLED:-true}
+  # Fork releases use the explicit migration service below. Do not let an old
+  # .env enable automatic migrations in API, WebSocket, worker or beat replicas.
+  MIGRATION_ENABLED: "false"
   FILES_ACCESS_TIMEOUT: ${FILES_ACCESS_TIMEOUT:-300}
   ENABLE_LEARN_APP: ${ENABLE_LEARN_APP:-true}
   ENABLE_EMAIL_CODE_LOGIN: ${ENABLE_EMAIL_CODE_LOGIN:-false}
@@ -792,6 +794,60 @@ services:
     volumes:
       - ./volumes/app/storage:/app/api/storage
     restart: "no"
+
+  # Fork release migration job. Keep all business writers stopped, then run:
+  #   docker compose -f docker-compose.dify-plus.yaml --profile migration up --no-deps --abort-on-container-exit --exit-code-from migration migration
+  # Start DB/Redis and initialize storage first when using --no-deps. Inspect both
+  # version tables and data before starting business services. On failure, retain
+  # this container/logs and inspect committed revisions before any manual retry.
+  # Use this single service via `up`, never scale it or launch concurrent `run`
+  # jobs (including from another Compose project) against the same database.
+  migration:
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    profiles:
+      - migration
+    restart: "no"
+    deploy:
+      replicas: 1
+    environment:
+      <<: *shared-api-worker-env
+      MODE: migration
+    # Bypass automatic upgrade-db: its lock-contention path exits successfully
+    # without migrating. The release's sole executor must finish both chains.
+    entrypoint: ["/bin/bash", "-e", "-c"]
+    command:
+      - |
+        trap 'echo "Migration failed; preserve logs and inspect both version tables before recovery or retry." >&2' ERR
+        echo "Upgrading upstream migration chain"
+        flask db upgrade
+        echo "Upgrading fork extension migration chain"
+        flask extend_db upgrade
+        echo "Recording resulting migration revisions"
+        flask db current
+        flask extend_db current
+        echo "Both migration chains completed; verify data before starting business services."
+    depends_on:
+      init_permissions:
+        condition: service_completed_successfully
+      db_postgres:
+        condition: service_healthy
+        required: false
+      db_mysql:
+        condition: service_healthy
+        required: false
+      oceanbase:
+        condition: service_healthy
+        required: false
+      seekdb:
+        condition: service_healthy
+        required: false
+      redis:
+        condition: service_started
+    volumes:
+      - ./volumes/app/storage:/app/api/storage
+    networks:
+      - ssrf_proxy_network
+      - default
 
   # API service
   api:

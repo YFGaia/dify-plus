@@ -59,10 +59,59 @@
         "No private image pull, digest, container runtime, or real environment verification was performed.",
         "13.2–13.6 remain pending; this is not M07 node acceptance or a deployable release."
       ]
+    },
+    "13.2": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m07_13_2_migration",
+      "source_commit_before_subtask": "4f16d29b011bca49b46ee59d810de98eb26b6ada",
+      "changed_paths": [
+        "docker/docker-compose.dify-plus.yaml"
+      ],
+      "summary": [
+        "Forced MIGRATION_ENABLED=false in the shared API/worker environment so a legacy .env value cannot re-enable automatic migrations in business containers.",
+        "Added an explicit migration profile with one replica and restart=no, using the private API 1.17.1 image.",
+        "Runs flask db upgrade then flask extend_db upgrade and records both current revisions; a failure stops the sequence and leaves a nonzero exit with recovery guidance.",
+        "Operator flow keeps business services stopped until both chains and data are checked; the compose comment forbids scaling or concurrent release jobs."
+      ],
+      "upstream_and_local_inputs": [
+        "upstream 8387590ace4a094de812b7847fc6a4c3a27cd52b docker/docker-compose.yaml and api/docker/entrypoint.sh",
+        "fork api/docker/entrypoint.sh and api/commands/extend.py; confirmed upgrade-db lock contention may exit successfully without migrating"
+      ],
+      "checks": [
+        {
+          "command": "git diff --check -- docker/docker-compose.dify-plus.yaml",
+          "exit_code": 0
+        },
+        {
+          "command": "docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB/CERTBOT values in isolated empty environment."
+        },
+        {
+          "command": "docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml --profile '*' config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB/CERTBOT values in isolated empty environment."
+        },
+        {
+          "command": "Compose config assertions for default, migration profile, and external MIGRATION_ENABLED=true",
+          "exit_code": 0
+        },
+        {
+          "command": "Mock Flask shell execution of the rendered migration command, success and four injected failure locations",
+          "exit_code": 0,
+          "assertions": "Serial order and current commands verified; each failure preserved exit code 23 and prevented later commands."
+        }
+      ],
+      "limitations": [
+        "No live database, container, or image was started or pulled; real migration execution, data validation, and recovery remain unverified.",
+        "Single execution is an operator/release-topology constraint; no distributed lock prevents a manually concurrent job from another Compose project."
+      ]
     }
   },
   "tasks_complete": [
-    "13.1"
+    "13.1",
+    "13.2"
   ],
-  "next_subtask": "13.2"
+  "next_subtask": "13.3"
 }

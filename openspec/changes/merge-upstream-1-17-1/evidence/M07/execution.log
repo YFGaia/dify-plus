@@ -39,3 +39,20 @@ Coordinator checks:
 - docker compose version: 2.36.2-desktop.1
 
 13.1 passed. No private image pull, digest, container runtime, or real environment verification was performed. Subtasks 13.2-13.6 remain pending; M07 remains in progress and is not deployable.
+
+M07 13.2 implementation and coordinator review: 2026-09-29
+Branch: codex/merge-upstream-1.17.1
+Source commit before subtask: 4f16d29b011bca49b46ee59d810de98eb26b6ada
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Implementation task: /root/m07_13_2_migration
+
+Result: docker/docker-compose.dify-plus.yaml forces MIGRATION_ENABLED=false in shared business-service environment and adds one explicit migration-profile service using the private 1.17.1 API image, one replica, and restart=no. It executes flask db upgrade, flask extend_db upgrade, and both current-revision checks in order. Failure exits nonzero and instructs operators to preserve logs and inspect state before retry. Business services remain stopped until both migration heads and data are verified. The deployment comment warns against scaling or launching concurrent jobs.
+
+Coordinator checks:
+- git diff --check -- docker/docker-compose.dify-plus.yaml: exit 0
+- default and all-profile docker compose config --quiet in empty environment: exit 0; unset DB/CERTBOT warnings only
+- agent assertions for default, all-profile, and external MIGRATION_ENABLED=true configurations: pass
+- agent mock Flask command execution: success and four injected failure points passed; later commands are skipped and failure exit code 23 is preserved
+- source inspection confirmed Flask workdir /app/api, extend_db command registration in api/extensions/ext_commands.py and api/commands/extend.py, plus upgrade-db lock contention can skip migration with success
+
+13.2 passed for Compose implementation and command flow. No live database/container/image was used. The single-executor guard is an operator/release-topology constraint, not a distributed lock; concurrent manual jobs outside this Compose project are not prevented. 13.3-13.6 remain pending; M07 remains in progress and is not deployable.
