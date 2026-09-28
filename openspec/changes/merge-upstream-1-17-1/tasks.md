@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 规划已进入执行：A00/A01/A02/A04/M00/M01/M02/M03 已通过；M04 passed；M05 11.1–11.3 已通过（summary 权限链和窄范围失效 client 导入迁移已完成）；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略需复核而重开，13.6 验收暂缓；M06/M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
+> 规划已进入执行：A00/A01/A02/A04/M00/M01/M02/M03 已通过；M04 passed；M05 11.1–11.3 已通过；11.4 Sol 契约矩阵审计完成，正补 summary 写缓存前 schema 校验；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略需复核而重开，13.6 验收暂缓；M06/M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -88,7 +88,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 11.1 [M05] 在目标 Console 架构注册 fork segment，迁移双阶段 Header/Cookie 协议；核验：`evidence/M05/result.json` 记录 1.17.1 标准生成、请求局部 token/Cookie/no-store、403 不盲重试、systemManage 唯一 owner 与 201；9 项聚焦测试通过，原 HEAD 同样复现的 6 项完整套件失败如实记录，独立 Luna 无 P1/P2。
 - [x] 11.2 [M05] SSR optional/hard 调用守卫形状，public snapshot 与 fork 配置按 A04 合成；核验：`evidence/M05/result.json` 记录缓存/hydration 前的 generated schema 校验、公开 license 裁剪、身份隔离 login_config、SSR 禁止网络调用及 public-first 合成；20 项聚焦测试与 feature scoped check 通过。M06 必须迁移额度徽章以读取配置汇率。
 - [x] 11.3 [M05] 生成 schema 校验 workspace summary 并保留 admin_extend/tenant_extend 到权限 atom；清理已移除 Console client 导入；11 项权限链、与 bootstrap 合计 24 项及 9 文件 scoped check 通过。代码执行控制页面 suite 因现有 `cn` 依赖缺失未能收集用例，见 `evidence/M05/result.json`。
-- [ ] 11.4 [M05] 与 M02/M03 逐字段确认鉴权错误、缓存键及响应类型；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核；核验：在 `evidence/M05/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [ ] 11.4 [M05] Sol 已核验 C01–C04/C08/systemManage 的字段、权限与错误语义；新增 `web/context/workspace-state.ts` 的 M05 路径登记。正在将 workspace summary 生成 schema 校验移入 queryFn，确保畸形 HTTP 200 不进入 TanStack cache，并补测试。
 - [ ] 11.5 [M05] 节点验收：不恢复已删旧服务成为双源；SSR 不把 ping 当配置，匿名不读敏感 license；权限位不丢失；保存绑定版本的证据并更新节点状态。
 
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）

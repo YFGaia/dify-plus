@@ -252,7 +252,89 @@
       "commit": "c0ac97edd4"
     },
     "11.4": {
-      "status": "pending"
+      "status": "in_progress",
+      "analysis": {
+        "model": "gpt-6-sol",
+        "agent": "/root/m05_11_4_contract_matrix",
+        "status": "complete_read_only",
+        "field_and_error_matrix": [
+          {
+            "contract": "C01 login_config_bootstrap",
+            "finding": "Backend and generated response agree on ok:boolean/token:string; HttpOnly, SameSite=Lax, one-hour cookie, and no-store. Browser bootstraps before config, sends only request-scoped header plus cookie; 403 is propagated and next call reboots. CORS permits the header.",
+            "evidence": [
+              "api/controllers/console/feature.py",
+              "web/service/console/browser.ts",
+              "web/service/console/client.spec.ts",
+              "api/extensions/ext_blueprints.py"
+            ]
+          },
+          {
+            "contract": "C02 public system-features",
+            "finding": "Generated DTO exposes license.status only; client and SSR validate core shape and project away extra fork/license details before caching/dehydration; optional/hard failure semantics covered.",
+            "evidence": [
+              "packages/contracts/generated/api/console/system-features/types.gen.ts",
+              "web/features/system-features/snapshot.ts",
+              "web/features/system-features/__tests__/server.spec.ts"
+            ]
+          },
+          {
+            "contract": "C03 login_config",
+            "finding": "Generated DTO matches six backend fields: is_custom_auth2:boolean, logout URL, DingTalk enabled and two IDs, and rmb_to_usd_rate:number; public-first composition and 403 behavior match. Identity/workspace key, gcTime 0, retry false, and SSR request guard are present. is_custom_auth2_button is absent and not fabricated.",
+            "evidence": [
+              "api/services/login_config_service_extend.py",
+              "packages/contracts/generated/api/console/login-config/types.gen.ts",
+              "web/features/system-features/client.ts",
+              "web/features/system-features/extend.ts"
+            ]
+          },
+          {
+            "contract": "C04 detailed license",
+            "finding": "Detailed seats/expiry stay in a separate endpoint; backend denies anonymous/bootstrap identity with 401 and allows authenticated Console access.",
+            "evidence": [
+              "api/controllers/console/feature.py",
+              "api/tests/unit_tests/controllers/console/test_feature.py",
+              "web/app/components/header/license-badge/index.tsx"
+            ]
+          },
+          {
+            "contract": "C08 current workspace summary",
+            "finding": "Backend/generated DTO require admin_extend and tenant_extend booleans; archived workspace returns 409; role flags remain independent and account/workspace isolation uses current logout-clear and full-page-switch boundaries. However generated Zod validation is currently in query select, so malformed raw HTTP 200 can enter TanStack's underlying cache.",
+            "evidence": [
+              "api/services/workspace_service.py",
+              "api/controllers/console/workspace/workspace.py",
+              "web/context/workspace-state.ts",
+              "web/context/__tests__/workspace-summary-extend.spec.ts"
+            ]
+          },
+          {
+            "contract": "systemManage codeExecutionControl",
+            "finding": "Handwritten GET/POST/DELETE is the sole runtime owner; POST status 201, response/list/cache_synced fields, and backend 400/403/404 errors agree.",
+            "evidence": [
+              "web/contract/console/system-manage.ts",
+              "api/controllers/console/system_manage_extend.py",
+              "web/service/console/client.spec.ts"
+            ]
+          }
+        ],
+        "required_follow_up": "Move generated summary schema parsing into the queryFn before TanStack writes the response to cache; preserve role fallback after parsing and add a focused assertion that malformed HTTP 200 is absent from query cache and leaves fork permission atoms false.",
+        "handoffs": [
+          "M06 must connect loginConfigQueryOptions to account-money-extend.tsx to consume configured RMB_TO_USD_RATE.",
+          "V02 must exercise Cookie/CORS, 401/403/409, and account/workspace switching in a real browser."
+        ]
+      },
+      "scope_registration": {
+        "path": "web/context/workspace-state.ts",
+        "owner_node": "M05",
+        "verify_node": "V02",
+        "registered_before_implementation": true
+      },
+      "implementation": null,
+      "checks": [],
+      "independent_review": null,
+      "limitations": [
+        "loginConfigQueryOptions has no production consumer yet; this is an M06 handoff, not a 11.4 blocker.",
+        "Real browser auth/cache identity coverage remains a V02 responsibility."
+      ]
     },
     "11.5": {
       "status": "pending"

@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.3 已通过、11.4 待开始；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略需复核而重开，13.6 验收暂缓；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.3 已通过、11.4 进行中；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略需复核而重开，13.6 验收暂缓；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02/M03 已通过；M04 已通过；M05 11.1–11.3 已通过、11.4 待开始，M07 13.1–13.3、13.5 已通过，13.4 待复核且 13.6 验收暂缓；M06–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02/M03 已通过；M04 已通过；M05 11.1–11.3 已通过、11.4 进行中，M07 13.1–13.3、13.5 已通过，13.4 待复核且 13.6 验收暂缓；M06–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -325,7 +325,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M05 · Console transport 与前端契约
 
-- 状态：11.1–11.3 passed，11.4–11.5 待执行；完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3 新增路径已登记。M06 仍需迁移额度徽章以读取 login_config 汇率；真实浏览器 Cookie/CORS 与账号切换由 V02 验收。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
+- 状态：11.1–11.3 passed，11.4 进行中、11.5 待执行；完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3 新增路径已登记。M06 仍需迁移额度徽章以读取 login_config 汇率；Sol 的 11.4 矩阵发现 workspace summary 目前在 query select 校验，原始畸形响应仍可能进底层 cache；已登记 query-owner 路径并正在移至 queryFn 校验。真实浏览器 Cookie/CORS 与账号切换由 V02 验收。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
 - 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。

@@ -84,6 +84,7 @@ web/app/components/main-nav/index.tsx	M06	V02	content	pending	frontend business 
 web/app/components/main-nav/routes.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/app/signin/normal-form.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/context/app-context-normalizers.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
+web/context/workspace-state.ts	M05	V02	content	pending	Console workspace summary query validates generated response before TanStack cache insertion
 web/contract/console/system.ts	M05	V02	modify/delete	pending	remove handwritten DTOs now owned by generated Console contracts
 web/contract/router-extend.ts	M05	V02	content	pending	fork-only Console contract aggregation without duplicate generated endpoints
 web/features/home/template-card.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization

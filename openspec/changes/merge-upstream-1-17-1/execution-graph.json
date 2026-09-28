@@ -763,6 +763,7 @@
         "packages/contracts/generated/api/web/zod.gen.ts",
         "packages/contracts/openapi-ts.api.config.ts",
         "web/context/app-context-normalizers.ts",
+        "web/context/workspace-state.ts",
         "web/contract/console/system-manage.ts",
         "web/contract/console/system.ts",
         "web/contract/router-extend.ts",
@@ -808,9 +809,9 @@
         "subtask_11_1_scope_registered": true,
         "subtask_11_3_scope_registered": true,
         "current_subtask": {
-          "id": "11.3",
-          "status": "complete",
-          "evidence": "evidence/M05/result.json#/subtasks/11.3"
+          "id": "11.4",
+          "status": "in_progress",
+          "evidence": "evidence/M05/result.json#/subtasks/11.4/analysis"
         },
         "codegen_diagnosis": {
           "status": "complete_root_cause_identified_owner_decided",
@@ -824,7 +825,8 @@
           "system_manage_duplicate_routes": 3,
           "system_manage_owner": "handwritten DTO/runtime; exclude exact generated duplicates",
           "owner_review_model": "gpt-6-sol"
-        }
+        },
+        "subtask_11_4_scope_registered": true
       },
       "registered_additional_paths": [
         "packages/contracts/console.ts",
@@ -872,6 +874,7 @@
         "web/context/__tests__/workspace-summary-extend.spec.ts",
         "web/context/app-context-defaults.ts",
         "web/context/app-context-extend.ts",
+        "web/context/workspace-state.ts",
         "web/contract/base.ts",
         "web/contract/console/system-manage.ts",
         "web/contract/console/system.ts",
