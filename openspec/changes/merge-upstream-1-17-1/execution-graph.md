@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 源码节点验收通过（11.1–11.5 全部通过，仍不可部署）；M06 前置分析已记录，尚未实施；M07 13.1–13.3、13.5 已通过，13.4 已完成 906 行审计与共享密钥存储修复，83/52 项检查及双 profile Compose 解析通过，等待 fresh Luna 复验，13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 源码节点验收通过（11.1–11.5 全部通过，仍不可部署）；M06 前置分析已记录，尚未实施；M07 13.1–13.3、13.5 已通过，13.4 的共享密钥卷和双 profile 渲染复验通过，但 Luna 要求解决首次密钥生成竞争与 init_permissions 失败被掩盖风险；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -371,7 +371,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M07 · 综合部署和 CI 对齐
 
-- 状态：13.1–13.3、13.5 passed；13.4 已完成逐变量 startup-scope 修正并更新为 906 行审计。`api_websocket` 与 `worker_beat` 已挂载共享 app storage，WebSocket 同步上游 `init_permissions` 依赖；83/52 项检查与默认/全 profile Compose 解析通过，等 fresh Luna 复验；13.6 暂缓。Compose/迁移/Agent/plugin/SSRF/Web 契约已移植，保留私有镜像、独立 worker、Agent 关闭默认与 259200 秒 retention。Sol 确认根 `.env.example` 有 244 项，严格启动样例仅保留 `COMPOSE_PROFILES`、`DIFY_AGENT_SERVER_SECRET_KEY`；修正保留 `CELERY_WORKER_AMOUNT=4`、`POSTGRES_MAX_CONNECTIONS=200`、匿名访问 `true`、WebSocket 上游 `api_websocket:5001`、`VECTOR_STORE=weaviate` 及嵌套 PostgreSQL 默认值，去掉 `SECRET_KEY` 硬编码开发 fallback。237 项可选变量已有服务样例，另 5 项补上文档落点。13.5 已分开记录 GitHub build validate 与 GitLab 私有镜像供货；GitLab manifest 风险是静态推断。真实凭据、镜像 digest/pull、容器、数据库、代理与 Agent 未验收；单执行者仍依赖发布操作约束，没有跨 Compose project 的分布式锁。证据见 `evidence/M07/result.json`、`evidence/M07/env-variable-audit.tsv` 和 `evidence/M07/ci-analysis.md`。
+- 状态：13.1–13.3、13.5 passed；13.4 已完成逐变量 startup-scope 修正并更新为 906 行审计。`api_websocket` 与 `worker_beat` 已挂载共享 app storage，WebSocket 同步上游 `init_permissions` 依赖；83/52 项检查和默认/全 profile Compose 解析复验通过。Luna 发现首次多进程并发生成空 `SECRET_KEY` 会竞争覆盖持久化值，且 `init_permissions` 的尾部 `echo` 会掩盖 `chown/touch` 失败，需修复或通过启动顺序消除竞争并让权限初始化失败闭合；13.6 暂缓。Compose/迁移/Agent/plugin/SSRF/Web 契约已移植，保留私有镜像、独立 worker、Agent 关闭默认与 259200 秒 retention。Sol 确认根 `.env.example` 有 244 项，严格启动样例仅保留 `COMPOSE_PROFILES`、`DIFY_AGENT_SERVER_SECRET_KEY`；修正保留 `CELERY_WORKER_AMOUNT=4`、`POSTGRES_MAX_CONNECTIONS=200`、匿名访问 `true`、WebSocket 上游 `api_websocket:5001`、`VECTOR_STORE=weaviate` 及嵌套 PostgreSQL 默认值，去掉 `SECRET_KEY` 硬编码开发 fallback。237 项可选变量已有服务样例，另 5 项补上文档落点。13.5 已分开记录 GitHub build validate 与 GitLab 私有镜像供货；GitLab manifest 风险是静态推断。真实凭据、镜像 digest/pull、容器、数据库、代理与 Agent 未验收；单执行者仍依赖发布操作约束，没有跨 Compose project 的分布式锁。证据见 `evidence/M07/result.json`、`evidence/M07/env-variable-audit.tsv` 和 `evidence/M07/ci-analysis.md`。
 
 - 前置：M01；负责人：部署负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`部署负责人`。

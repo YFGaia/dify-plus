@@ -298,7 +298,7 @@
         ]
       },
       "independent_review": {
-        "status": "repair_applied_pending_fresh_review",
+        "status": "initial_blocker_repaired",
         "model": "gpt-6-luna",
         "agent": "/root/m07_secret_key_audit",
         "reviewed_source_commit": "4048e97aeb00a05cc5c6c6ccfce21036092d357d",
@@ -311,13 +311,14 @@
         "checks_run_by_reviewer": [
           "Static inspection of Compose, app_factory, entrypoint, secret-key persistence helper, and exact upstream 1.17.1 Compose. No containers, tests, or docker compose config were run."
         ],
-        "next_action": "The Astra repair is recorded below. Fresh Luna re-review of the repaired source and checks is now pending."
+        "next_action": "The shared-storage blocker was repaired and re-reviewed below; resolve the first-start key-generation race and init_permissions failure masking before accepting 13.4."
       },
       "repair": {
-        "status": "implemented_pending_independent_review",
+        "status": "implemented_and_reviewed_risk_resolution_required",
         "model": "gpt-6-astra",
         "agent": "/root/m07_shared_secret_storage_repair",
         "source_commit_before_repair": "f4ef2f546394a432b7a3f40e5c38befe0a74b897",
+        "source_commit_after_repair": "122e7529c26ac9e79126382a94e0da5602f4ef68",
         "changed_paths": [
           "docker/docker-compose.dify-plus.yaml"
         ],
@@ -361,7 +362,27 @@
           "Existing init_permissions script can mask chown/touch failure with a trailing echo; not changed in this scoped repair.",
           "Worker startup test coverage remains static under macOS Bash 3.2."
         ],
-        "next_action": "Commit the scoped Compose repair with this graph update, then have a fresh Luna review the committed 13.4 source and evidence."
+        "next_action": "Resolve or explicitly constrain first-start secret-key generation concurrency and make init_permissions fail nonzero when chown/touch fails; then rerun the Compose assertions and fresh Luna review before marking 13.4 passed."
+      },
+      "post_repair_review": {
+        "status": "risk_resolution_required",
+        "model": "gpt-6-luna",
+        "agent": "/root/m07_storage_fix_luna_review",
+        "source_commit": "122e7529c26ac9e79126382a94e0da5602f4ef68",
+        "findings": [
+          "api_websocket now matches upstream init_permissions dependency and shared storage mount; worker_beat and all API/worker services share the same app storage bind. No unintended environment, network, image, profile, or topology changes were found.",
+          "Default and all-profile Compose renders passed with 19 and 43 services. Root env sample contains exactly the two strict startup entries; the 906-row variable audit and five retained Compose defaults plus nested PostgreSQL defaults were verified.",
+          "Concurrent first startup remains unsafe for generated SECRET_KEY: multiple processes can all observe a missing key, generate different values, and overwrite the shared persisted file because resolve_secret_key has no lock or atomic create.",
+          "The init_permissions shell command ends with an unconditional echo, so failed chown/touch can still exit zero and satisfy service_completed_successfully; real host volume permissions and container startup were not exercised."
+        ],
+        "checks_run_by_reviewer": [
+          "Static diff review against exact upstream 1.17.1.",
+          "Isolated default and all-profile docker compose config --quiet; 19/43 services rendered; no containers started."
+        ],
+        "limitations": [
+          "No real-volume permission verification, image pull, container startup, or multi-process first-start test."
+        ],
+        "next_action": "Use a fresh Sol analysis to check the minimal safe startup serialization and fail-closed init_permissions changes, then implement and re-review in fresh tasks."
       }
     },
     "13.5": {
