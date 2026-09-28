@@ -243,7 +243,7 @@
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -271,7 +271,7 @@
         "git show --no-patch --format=%P HEAD"
       ],
       "acceptance": [
-        "双父 merge commit 第一父为原 fork HEAD、第二父为固定 target；无未解决索引",
+        "双父 merge commit 第一父为步骤 1 记录的执行前授权分支 HEAD、第二父为固定 target；无未解决索引",
         "91 个预测冲突与实际冲突逐项核对并有唯一 owner；冲突树采用 upstream 版本或删除，fork 原始内容可从第一父与 A02 台账追溯",
         "基线明确不可部署，后续适配、M08 候选和验证门槛未被提前判通过"
       ],
@@ -284,7 +284,15 @@
       "outputs": [
         "evidence/M00/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "completion": {
+        "merge_commit": "948fefb69ae87abefa7e91a13968213696b3e310",
+        "merge_tree": "56d356a4eb2cacbea577b5fd885bd19637b1203f",
+        "first_parent": "b17761ed0166e8ef49474da418b95a9462adbb9c",
+        "second_parent": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+        "deployable": false,
+        "note": "91 个实际冲突与预测逐项一致，71 个 upstream blob / 20 个删除；M01–M08/V01/V02/R01 尚未通过，A03 与生产门槛保持原状态。"
+      }
     },
     {
       "id": "M01",
