@@ -901,6 +901,20 @@
         },
         "next_subtask": "11.6",
         "implementation_agent_model": "gpt-6-astra"
+      },
+      "active_subtasks": {
+        "11.6_message_contract_generation": {
+          "status": "implementation_in_progress",
+          "model": "gpt-6-astra",
+          "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c",
+          "worktree_base_commit": "4e1b5964cc99d6471130f446671696d2203d98a7",
+          "changed_paths": [
+            "packages/contracts/generated/api/console/message/orpc.gen.ts",
+            "packages/contracts/generated/api/console/message/types.gen.ts",
+            "packages/contracts/generated/api/console/message/zod.gen.ts"
+          ],
+          "acceptance": "Pending standard generator command, schema/type assertions, and root-side review."
+        }
       }
     },
     {

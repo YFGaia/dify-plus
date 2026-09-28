@@ -439,7 +439,7 @@
   ],
   "next_subtask": "complete",
   "followup_context_contract": {
-    "status": "conversation_provisioning",
+    "status": "implementation_in_progress",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
     "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
     "subtask": "11.6",
@@ -454,8 +454,14 @@
     },
     "reason": "Generated message contracts are already registered and M05-owned. Standard generation must wait for the M02 backend schema/security repair; generated files must not be hand-edited.",
     "unblocked_by_commit": "30410b8fff",
-    "next_action": "A fresh Astra implementation conversation has been created from the current working tree; wait for worktree provisioning and the standard generator handoff.",
+    "next_action": "Await the Astra task report with standard generator command and verification results, then inspect and apply only these registered generated files to the main branch and bind evidence before accepting 11.6.",
     "implementation_model": "gpt-6-astra",
-    "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c"
+    "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c",
+    "worktree_base_commit": "4e1b5964cc99d6471130f446671696d2203d98a7",
+    "observed_worktree_changes": [
+      "packages/contracts/generated/api/console/message/orpc.gen.ts",
+      "packages/contracts/generated/api/console/message/types.gen.ts",
+      "packages/contracts/generated/api/console/message/zod.gen.ts"
+    ]
   }
 }
