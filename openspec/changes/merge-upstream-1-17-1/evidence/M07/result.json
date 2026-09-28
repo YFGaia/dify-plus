@@ -107,11 +107,85 @@
         "No live database, container, or image was started or pulled; real migration execution, data validation, and recovery remain unverified.",
         "Single execution is an operator/release-topology constraint; no distributed lock prevents a manually concurrent job from another Compose project."
       ]
+    },
+    "13.3": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m07_13_3_agent_plugin_ingress",
+      "source_commit_before_subtask": "21bdeec37cacaac22f9f9c3308de381041ceab9b",
+      "changed_paths": [
+        "docker/docker-compose.dify-plus.yaml"
+      ],
+      "summary": [
+        "Moved API/worker and Agent backend onto the shared DIFY_AGENT_API_TOKEN contract; preserved the old shellctl variable as a lower-priority fallback.",
+        "Updated Agent backend/local sandbox to 1.17.1; added dedicated Agent SSRF proxy, isolated networks, common Squid template mount, and persistent home/workspace volumes.",
+        "Updated private plugin daemon to 0.6.10-local and attached required networks while preserving fork queues and worker topology.",
+        "Aligned Web Turnstile/Vinext values and upstream defaults; removed the obsolete PM2 value after confirming no consumer.",
+        "Preserved Agent disabled policy and 259200-second run retention; updated run and shellctl settings for 1.17.1."
+      ],
+      "upstream_sources": [
+        "refs/tags/1.17.1:docker/docker-compose-template.yaml",
+        "refs/tags/1.17.1:docker/envs/core-services/api.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/shared.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/dify-agent.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/web.env.example",
+        "refs/tags/1.17.1:api/configs/extra/agent_backend_config.py",
+        "refs/tags/1.17.1:dify-agent/src/dify_agent/server/settings.py"
+      ],
+      "unchanged_upstream_files": [
+        "api/docker/entrypoint.sh",
+        "web/Dockerfile",
+        "web/docker/entrypoint.sh",
+        "docker/nginx/conf.d/default.conf.template",
+        "docker/ssrf_proxy/squid-agent.conf.template",
+        "docker/ssrf_proxy/squid-common.conf.template",
+        "docker/ssrf_proxy/squid.conf.template",
+        "docker/ssrf_proxy/docker-entrypoint.sh",
+        "docker/ssrf_proxy/docker-agent-entrypoint.sh"
+      ],
+      "checks": [
+        {
+          "command": "python3 /private/tmp/m07-13-3-check.py",
+          "exit_code": 0,
+          "assertions": "83 static and isolated Web launch assertions; no containers, images, network, or real credentials."
+        },
+        {
+          "command": "docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB/CERTBOT values in empty environment."
+        },
+        {
+          "command": "docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml --profile '*' config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB/CERTBOT values in empty environment."
+        },
+        {
+          "command": "bash docker/ssrf_proxy/test_agent_ssrf_allowlist_unit.sh",
+          "exit_code": 0
+        },
+        {
+          "command": "bash -n on the four relevant entrypoints",
+          "exit_code": 0
+        },
+        {
+          "command": "git diff --check -- docker/docker-compose.dify-plus.yaml",
+          "exit_code": 0
+        }
+      ],
+      "environment_constraints": [
+        "macOS Bash 3.2 cannot execute the upstream worker entrypoint Bash 4 lowercase expansion; worker queue coverage was verified statically against the exact upstream entrypoint without altering source."
+      ],
+      "limitations": [
+        "No image pull, container startup, live nginx/Squid/Agent test, or real environment access.",
+        "Private image supply and digest are not verified; Agent credentials must be configured consistently before enabling Agent v2.",
+        "M07 13.4 environment sample policy, 13.5 CI, and 13.6 node acceptance remain pending."
+      ]
     }
   },
   "tasks_complete": [
     "13.1",
-    "13.2"
+    "13.2",
+    "13.3"
   ],
-  "next_subtask": "13.3"
+  "next_subtask": "13.4"
 }

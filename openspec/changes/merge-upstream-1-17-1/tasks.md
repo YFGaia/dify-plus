@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 规划已进入执行：A00/A01/A02/A04/M00/M01/M02/M03 已通过；M04 passed；M05 11.1–11.2 已通过，11.3 待开始（45 条 11.1 实际变更路径均已登记）；M07 13.1–13.2 已通过，13.3 实施和静态核验完成、状态待提交（15 条新增路径已登记）；M06/M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
+> 规划已进入执行：A00/A01/A02/A04/M00/M01/M02/M03 已通过；M04 passed；M05 11.1–11.2 已通过，11.3 待开始（45 条 11.1 实际变更路径均已登记）；M07 13.1–13.3 已通过，13.4 待开始（15 条新增路径已登记）；M06/M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -104,7 +104,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 - [x] 13.1 [M07] 人工移植上游 Compose 契约到 fork 综合 Compose，保留独立 worker/sandbox-full/私有镜像；核验：`evidence/M07/result.json` 记录 1.17.1 源文件、39 项环境键/默认值对照、私有 tag 与 worker 结构断言，以及默认/全 profile Compose 检查。
 - [x] 13.2 [M07] 单执行者双迁移；发布业务容器关闭自动迁移；核验：`evidence/M07/result.json` 记录自动迁移固定关闭、单次私有镜像迁移服务的主链/扩展链顺序、成功和失败位置断言；默认/全 profile Compose 解析通过。单执行者的跨 project 并发防护仍是操作约束。
-- [ ] 13.3 [M07] 更新 Agent token/网络/SSRF/卷、plugin版本/队列、Web Next/Vinext 与 ingress；核验：在 `evidence/M07/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 13.3 [M07] 更新 Agent token/网络/SSRF/卷、plugin版本/队列、Web Next/Vinext 与 ingress；核验：`evidence/M07/result.json` 记录 token 双端、专用 SSRF/隔离网/持久卷、plugin 0.6.10-local、Vinext 和未改动的上游同版 ingress/entrypoint；83 项静态断言、默认/全 profile Compose 解析通过。
 - [ ] 13.4 [M07] 保留现有业务开关和 retention；env 每项标新增/删除/保留/改值依据；核验：在 `evidence/M07/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 13.5 [M07] CI build validate 和镜像推送分开记账；核验：在 `evidence/M07/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 13.6 [M07] 节点验收：配置/镜像矩阵可审查；无误用官方 api/web 镜像替代 fork；fork Compose 不因无文本冲突被漏审；保存绑定版本的证据并更新节点状态。

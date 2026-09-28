@@ -56,3 +56,21 @@ Coordinator checks:
 - source inspection confirmed Flask workdir /app/api, extend_db command registration in api/extensions/ext_commands.py and api/commands/extend.py, plus upgrade-db lock contention can skip migration with success
 
 13.2 passed for Compose implementation and command flow. No live database/container/image was used. The single-executor guard is an operator/release-topology constraint, not a distributed lock; concurrent manual jobs outside this Compose project are not prevented. 13.3-13.6 remain pending; M07 remains in progress and is not deployable.
+
+M07 13.3 implementation and coordinator review: 2026-09-29
+Branch: codex/merge-upstream-1.17.1
+Source commit before subtask: 21bdeec37cacaac22f9f9c3308de381041ceab9b
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Implementation task: /root/m07_13_3_agent_plugin_ingress (gpt-6-astra)
+
+Result: only docker/docker-compose.dify-plus.yaml changed. The API/worker and Agent backend now use the same DIFY_AGENT_API_TOKEN; local sandbox accepts the new auth variable and preserves the old shellctl fallback. Agent backend and local sandbox images are 1.17.1. Added dedicated Agent SSRF proxy, isolated sandbox/proxy networks, shared Squid template mounts, and persistent home/workspace volumes. Private plugin daemon now targets 0.6.10-local and joins required networks. Web environment includes Turnstile and Vinext settings with updated upstream defaults and no obsolete PM2 setting. Fork Agent disabled policy, private API/Web images, fork queues, and 259200-second retention remain.
+
+Exact upstream template/env examples and Agent settings source are in evidence/M07/result.json. API/Web entrypoints, Dockerfile, ingress, Squid configs, and Squid entrypoints already match the pinned upstream and were not changed.
+
+Coordinator checks:
+- python3 /private/tmp/m07-13-3-check.py: exit 0, 83 assertions; no container/image/network/credential use.
+- default and all-profile docker compose config --quiet: exit 0; unset DB/CERTBOT warnings in empty environment only.
+- git diff --check -- docker/docker-compose.dify-plus.yaml: exit 0.
+- Agent-reported SSRF allowlist unit and four entrypoint bash -n checks: exit 0.
+
+Environment limit: macOS Bash 3.2 could not execute the upstream Bash 4 worker script; queue behavior was checked statically against the exact upstream script. No image pull, container start, live proxy/Agent, or real environment verification was performed. 13.4-13.6 remain pending; M07 is partial/non-deployable.

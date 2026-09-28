@@ -762,11 +762,13 @@ x-shared-env: &shared-api-worker-env
   SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL: ${SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL:-200}
   DIFY_ENV_NACOS_REQUEST_TIMEOUT: ${DIFY_ENV_NACOS_REQUEST_TIMEOUT:-10.0}
   DIFY_ENV_NACOS_CONNECT_TIMEOUT: ${DIFY_ENV_NACOS_CONNECT_TIMEOUT:-3.0}
-  # 上游 1.16.0 新增：Dify Agent 后端（api/worker 调用 agent_backend 服务）
+  # Agent control-plane token must match agent_backend; configure before enabling Agent v2.
   AGENT_BACKEND_BASE_URL: ${AGENT_BACKEND_BASE_URL:-http://agent_backend:5050}
+  AGENT_BACKEND_API_TOKEN: ${DIFY_AGENT_API_TOKEN:-}
   AGENT_BACKEND_STREAM_READ_TIMEOUT_SECONDS: ${AGENT_BACKEND_STREAM_READ_TIMEOUT_SECONDS:-30}
   AGENT_BACKEND_STREAM_MAX_RECONNECTS: ${AGENT_BACKEND_STREAM_MAX_RECONNECTS:-3}
-  AGENT_BACKEND_RUN_TIMEOUT_SECONDS: ${AGENT_BACKEND_RUN_TIMEOUT_SECONDS:-1200}
+  AGENT_BACKEND_HOME_SNAPSHOT_TIMEOUT_SECONDS: ${AGENT_BACKEND_HOME_SNAPSHOT_TIMEOUT_SECONDS:-45}
+  AGENT_BACKEND_BINDING_FILE_DOWNLOAD_TIMEOUT_SECONDS: ${AGENT_BACKEND_BINDING_FILE_DOWNLOAD_TIMEOUT_SECONDS:-240}
   # 二开配置
   EMAIL_DOMAIN: ${EMAIL_DOMAIN:-}
   RMB_TO_USD_RATE: ${RMB_TO_USD_RATE:-6.95}
@@ -1079,18 +1081,19 @@ services:
       SERVER_CONSOLE_API_URL: ${SERVER_CONSOLE_API_URL:-http://api:5001}
       APP_API_URL: ${APP_API_URL:-}
       AMPLITUDE_API_KEY: ${AMPLITUDE_API_KEY:-}
+      TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:-}
       NEXT_PUBLIC_COOKIE_DOMAIN: ${NEXT_PUBLIC_COOKIE_DOMAIN:-}
       SENTRY_DSN: ${WEB_SENTRY_DSN:-}
       NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED:-0}
+      EXPERIMENTAL_ENABLE_VINEXT: ${EXPERIMENTAL_ENABLE_VINEXT:-false}
       TEXT_GENERATION_TIMEOUT_MS: ${TEXT_GENERATION_TIMEOUT_MS:-60000}
       CSP_WHITELIST: ${CSP_WHITELIST:-}
       ALLOW_EMBED: ${ALLOW_EMBED:-false}
       ALLOW_UNSAFE_DATA_SCHEME: ${ALLOW_UNSAFE_DATA_SCHEME:-false}
       MARKETPLACE_API_URL: ${MARKETPLACE_API_URL:-https://marketplace.dify.ai}
       MARKETPLACE_URL: ${MARKETPLACE_URL:-https://marketplace.dify.ai}
-      TOP_K_MAX_VALUE: ${TOP_K_MAX_VALUE:-}
-      INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH: ${INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH:-}
-      PM2_INSTANCES: ${PM2_INSTANCES:-2}
+      TOP_K_MAX_VALUE: ${TOP_K_MAX_VALUE:-10}
+      INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH: ${INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH:-4000}
       LOOP_NODE_MAX_COUNT: ${LOOP_NODE_MAX_COUNT:-100}
       MAX_TOOLS_NUM: ${MAX_TOOLS_NUM:-10}
       MAX_PARALLEL_LIMIT: ${MAX_PARALLEL_LIMIT:-10}
@@ -1220,13 +1223,19 @@ services:
     networks:
       - ssrf_proxy_network
 
-  # 上游 1.16.0 新增：Agent v2 本地沙箱（shellctl）。
+  # Agent v2 local sandbox (shellctl), isolated from the default service network.
   # 镜像暂用上游官方源，如需内网加速可自行镜像到私有仓库。
   local_sandbox:
-    image: langgenius/dify-agent-local-sandbox:1.16.0
+    image: langgenius/dify-agent-local-sandbox:1.17.1
     restart: always
     environment:
-      SHELLCTL_AUTH_TOKEN: ${DIFY_AGENT_SHELLCTL_AUTH_TOKEN:-}
+      SHELLCTL_AUTH_TOKEN: ${DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN:-${DIFY_AGENT_SHELLCTL_AUTH_TOKEN:-}}
+      HTTP_PROXY: http://agent_ssrf_proxy:3128
+      HTTPS_PROXY: http://agent_ssrf_proxy:3128
+      NO_PROXY: localhost,127.0.0.1
+    volumes:
+      - dify_agent_local_sandbox_home:/home/dify
+      - dify_agent_local_sandbox_workspace:/workspace
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5004/healthz"]
       interval: 30s
@@ -1234,12 +1243,13 @@ services:
       retries: 3
       start_period: 10s
     networks:
-      - default
+      - agent_sandbox_network
+      - local_sandbox_proxy_network
 
-  # 上游 1.16.0 新增：Dify Agent 后端服务（api/worker 经 AGENT_BACKEND_BASE_URL 调用）。
+  # Dify Agent backend (api/worker call AGENT_BACKEND_BASE_URL).
   # 镜像暂用上游官方源，如需内网加速可自行镜像到私有仓库。
   agent_backend:
-    image: langgenius/dify-agent-backend:1.16.0
+    image: langgenius/dify-agent-backend:1.17.1
     restart: always
     environment:
       DIFY_AGENT_REDIS_URL: ${DIFY_AGENT_REDIS_URL:-redis://:${REDIS_PASSWORD:-difyai123456}@redis:6379/2}
@@ -1248,16 +1258,20 @@ services:
       DIFY_AGENT_PLUGIN_DAEMON_API_KEY: ${DIFY_AGENT_PLUGIN_DAEMON_API_KEY:-${PLUGIN_DAEMON_KEY:-lYkiYYT6owG+71oLerGzA7GXCgOT++6ovaezWAjpCjf+Sjc3ZtU+qUEi}}
       DIFY_AGENT_INNER_API_URL: ${DIFY_AGENT_INNER_API_URL:-${PLUGIN_DIFY_INNER_API_URL:-http://api:5001}}
       DIFY_AGENT_INNER_API_KEY: ${DIFY_AGENT_INNER_API_KEY:-${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}}
-      DIFY_AGENT_SHELLCTL_ENTRYPOINT: ${DIFY_AGENT_SHELLCTL_ENTRYPOINT:-http://local_sandbox:5004}
-      DIFY_AGENT_SHELLCTL_AUTH_TOKEN: ${DIFY_AGENT_SHELLCTL_AUTH_TOKEN:-}
+      DIFY_AGENT_RUNTIME_BACKEND: ${DIFY_AGENT_RUNTIME_BACKEND:-local}
+      DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT: ${DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT:-${DIFY_AGENT_SHELLCTL_ENTRYPOINT:-http://local_sandbox:5004}}
+      DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN: ${DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN:-${DIFY_AGENT_SHELLCTL_AUTH_TOKEN:-}}
       DIFY_AGENT_STUB_API_BASE_URL: ${DIFY_AGENT_STUB_API_BASE_URL:-http://agent_backend:5050/agent-stub}
+      DIFY_AGENT_SANDBOX_FILES_BASE_URL: ${DIFY_AGENT_SANDBOX_FILES_BASE_URL:-http://api:5001}
       # 安全敏感：Agent Stub bearer token 的 JWE 加密密钥派生源。
       # 二开注意：这里不内置上游公开的开发默认值（避免生产误用弱密钥），
       # 使用 Agent v2 前必须在 .env 中显式配置（见 docker/.env.example），
       # 生成方式：python -c 'import secrets; print(secrets.token_urlsafe(32))'
       DIFY_AGENT_SERVER_SECRET_KEY: ${DIFY_AGENT_SERVER_SECRET_KEY:-}
+      DIFY_AGENT_API_TOKEN: ${DIFY_AGENT_API_TOKEN:-}
       DIFY_AGENT_SHUTDOWN_GRACE_SECONDS: ${DIFY_AGENT_SHUTDOWN_GRACE_SECONDS:-30}
       DIFY_AGENT_RUN_RETENTION_SECONDS: ${DIFY_AGENT_RUN_RETENTION_SECONDS:-259200}
+      DIFY_AGENT_RUN_TIMEOUT_SECONDS: ${DIFY_AGENT_RUN_TIMEOUT_SECONDS:-3600}
     depends_on:
       redis:
         condition: service_started
@@ -1267,11 +1281,15 @@ services:
         condition: service_started
     networks:
       - default
+      - agent_sandbox_network
 
   # plugin daemon
   plugin_daemon:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plugin-daemon:0.6.3-local
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plugin-daemon:0.6.10-local
     restart: always
+    networks:
+      - ssrf_proxy_network
+      - default
     environment:
       # Use the shared environment variables.
       <<: *shared-api-worker-env
@@ -1339,6 +1357,29 @@ services:
         condition: service_healthy
         required: false
 
+  # Dedicated SSRF proxy for the Agent sandbox; keep the private allowlist explicit.
+  agent_ssrf_proxy:
+    image: ccr.ccs.tencentyun.com/yfgaia/ubuntu-squid:latest
+    restart: always
+    volumes:
+      - ./ssrf_proxy/squid-agent.conf.template:/etc/squid/squid.conf.template
+      - ./ssrf_proxy/squid-common.conf.template:/etc/squid/dify_common.conf.template
+      - ./ssrf_proxy/docker-agent-entrypoint.sh:/docker-entrypoint-mount.sh
+    entrypoint:
+      [
+        "sh",
+        "-c",
+        "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i 's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh",
+      ]
+    environment:
+      HTTP_PORT: ${SSRF_HTTP_PORT:-3128}
+      COREDUMP_DIR: ${SSRF_COREDUMP_DIR:-/var/spool/squid}
+      SSRF_PROXY_ALLOW_PRIVATE_IPS: ${SSRF_PROXY_ALLOW_PRIVATE_IPS:-}
+      SSRF_PROXY_ALLOW_PRIVATE_DOMAINS: ${SSRF_PROXY_ALLOW_PRIVATE_DOMAINS:-}
+    networks:
+      - default
+      - local_sandbox_proxy_network
+
   # ssrf_proxy server
   # for more information, please refer to
   # https://docs.dify.ai/learn-more/faq/install-faq#18-why-is-ssrf-proxy-needed%3F
@@ -1347,6 +1388,7 @@ services:
     restart: always
     volumes:
       - ./ssrf_proxy/squid.conf.template:/etc/squid/squid.conf.template
+      - ./ssrf_proxy/squid-common.conf.template:/etc/squid/dify_common.conf.template
       - ./ssrf_proxy/docker-entrypoint.sh:/docker-entrypoint-mount.sh
     entrypoint:
       [
@@ -1943,6 +1985,15 @@ networks:
   ssrf_proxy_network:
     driver: bridge
     internal: true
+  # Only agent_ssrf_proxy and local_sandbox share this proxy network.
+  local_sandbox_proxy_network:
+    driver: bridge
+    internal: true
+  # shellctl control channel. As upstream notes, sandbox code can still reach
+  # agent_backend here; this is not complete isolation from the Agent backend.
+  agent_sandbox_network:
+    driver: bridge
+    internal: true
   milvus:
     driver: bridge
   opensearch-net:
@@ -1955,3 +2006,5 @@ volumes:
   redis:
   oradata:
   dify_es01_data:
+  dify_agent_local_sandbox_home:
+  dify_agent_local_sandbox_workspace:
