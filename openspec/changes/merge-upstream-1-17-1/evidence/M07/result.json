@@ -182,7 +182,7 @@
       ]
     },
     "13.4": {
-      "status": "passed",
+      "status": "review_required",
       "model": "gpt-6-astra",
       "agent": "/root/m07_13_4_env_examples",
       "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
@@ -238,7 +238,12 @@
       "limitations": [
         "No image pulls, containers, private .env reads, credentials, or live environment were used.",
         "agent_backend starts unconditionally and its configured Agent Stub URL makes a non-empty DIFY_AGENT_SERVER_SECRET_KEY necessary even while Agent v2 is disabled; the blank sample is intentionally a prompt to configure a secret before startup."
-      ]
+      ],
+      "follow_up": {
+        "trigger": "M07 13.6 Luna acceptance found that docker/.env.example still contains optional/provider settings while repository AGENTS.md limits the root sample to variables required for a default Compose deployment to start.",
+        "upstream_comparison": "The same introductory wording and broad variable set exist in upstream 1.17.1; source parity alone does not establish compliance with fork AGENTS.md.",
+        "next_action": "Run a read-only variable-by-variable startup requirement analysis before deciding whether to move optional entries to service samples or correct documentation; preserve fork Compose explicit-mapping caveat."
+      }
     },
     "13.5": {
       "status": "passed",
@@ -263,16 +268,56 @@
         "GitLab manifest transport/collision issue is a static inference; the pipeline was not run.",
         "No real credentials, image pushes, tags, digests, or host pulls were verified. Repairing .gitlab-ci.yml would require path registration and a separately scoped implementation task."
       ]
+    },
+    "13.6": {
+      "status": "review_pending_13_4_follow_up",
+      "initial_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m07_13_6_luna_acceptance",
+        "static_source_result": "Compose default/all-profile, matrix, migration, token, network/volume, and diff assertions passed; source-level acceptance is otherwise ready.",
+        "open_findings": [
+          {
+            "priority": "P2",
+            "finding": "Private GitLab image supply may fail because architecture manifest files are not transferred as artifacts and filenames collide; static inference only, no pipeline run."
+          },
+          {
+            "priority": "P2",
+            "finding": "agent_backend requires non-empty JWE server secret with configured Stub URL even when Agent v2 is false; explicitly documented, deployment configuration still required."
+          },
+          {
+            "priority": "P2/P3",
+            "finding": "Root env sample policy requires only default-startup variables but sample retains many optional/provider settings; must reconcile against repo AGENTS.md before final node acceptance."
+          }
+        ],
+        "checks": [
+          {
+            "command": "docker compose default and all-profile config --quiet",
+            "exit_code": 0
+          },
+          {
+            "command": "all-profile image/service matrix assertions",
+            "exit_code": 0
+          },
+          {
+            "command": "external MIGRATION_ENABLED=true override assertions",
+            "exit_code": 0
+          },
+          {
+            "command": "git diff --check on Compose/env/GitLab CI",
+            "exit_code": 0
+          }
+        ],
+        "deployment_boundary": "Source node review does not establish deployability; no private image pull/digest, real credentials, containers, database migration, proxy, or Agent runtime was tested."
+      }
     }
   },
   "tasks_complete": [
     "13.1",
     "13.2",
     "13.3",
-    "13.4",
     "13.5"
   ],
-  "next_subtask": "13.6",
+  "next_subtask": "13.4",
   "known_limits": [
     "No private image pull, tag/digest or deployment-host verification has been performed; GitHub build validation is not private fork image supply evidence.",
     "The GitLab private-image manifest job statically appears to lack cross-job artifacts and uses colliding architecture manifest filenames; this unexecuted pipeline requires a registered repair task if selected.",

@@ -1055,17 +1055,16 @@
           "evidence": "evidence/M07/pre-analysis.md",
           "working_tree_modified": false
         },
-        "next_subtask": "13.6",
+        "next_subtask": "13.4",
         "current_subtask": {
-          "id": "13.5",
-          "status": "complete",
-          "evidence": "evidence/M07/ci-analysis.md"
+          "id": "13.4",
+          "status": "review_required",
+          "evidence": "evidence/M07/env-variable-audit.tsv"
         },
         "tasks_complete": [
           "13.1",
           "13.2",
           "13.3",
-          "13.4",
           "13.5"
         ]
       },

@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.3 已通过、11.4 待开始；M07 13.1–13.5 已通过、13.6 待验收；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.3 已通过、11.4 待开始；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略需复核而重开，13.6 验收暂缓；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02/M03 已通过；M04 已通过；M05 11.1–11.3 已通过、11.4 待开始，M07 13.1–13.5 已通过且 13.6 待验收；M06–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02/M03 已通过；M04 已通过；M05 11.1–11.3 已通过、11.4 待开始，M07 13.1–13.3、13.5 已通过，13.4 待复核且 13.6 验收暂缓；M06–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -371,7 +371,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M07 · 综合部署和 CI 对齐
 
-- 状态：13.1–13.5 passed，13.6 待验收；M01 初始锁专项通过，前置已满足。上游 Compose、迁移、Agent/plugin/SSRF/Web 契约已移植，同时保留私有 fork 镜像、独立 worker、Agent 关闭默认与 259200 秒 retention。13.4 保存十份样例相对 fork 1.16.0 和上游 1.17.1 的 900 行逐变量处置/依据；52 项断言、5 组隔离 Compose 渲染和 diff-check 通过。13.5 记录 GitHub build validate 与 GitLab 私有镜像供货分界；GitHub 工作流与上游相同，GitLab manifest 跨 job artifact/同名风险仅为静态推断。真实凭据、镜像 digest/pull、容器、数据库、代理与 Agent 未验收；单执行者仍依赖发布操作约束，没有跨 Compose project 的分布式锁。证据见 `evidence/M07/result.json`、`evidence/M07/env-variable-audit.tsv` 和 `evidence/M07/ci-analysis.md`。
+- 状态：13.1–13.3、13.5 passed；13.4 因策略复核重开，13.6 暂缓。Compose/迁移/Agent/plugin/SSRF/Web 契约已移植，保留私有镜像、独立 worker、Agent 关闭默认与 259200 秒 retention；10 份样例的 900 行变量审计及 52 项断言、5 组隔离渲染仍是有效证据。Luna 发现根 `.env.example` 的大量可选变量与仓库 AGENTS.md“仅保留默认 Compose 启动必需变量”要求可能冲突；虽同样的注释与变量表来自上游 1.17.1，仍需 Sol 按实际 Compose/服务启动要求逐项分析后收敛。13.5 已分开记录 GitHub build validate 与 GitLab 私有镜像供货；GitLab manifest 风险是静态推断。真实凭据、镜像 digest/pull、容器、数据库、代理与 Agent 未验收；单执行者仍依赖发布操作约束，没有跨 Compose project 的分布式锁。证据见 `evidence/M07/result.json`、`evidence/M07/env-variable-audit.tsv` 和 `evidence/M07/ci-analysis.md`。
 
 - 前置：M01；负责人：部署负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`部署负责人`。
