@@ -319,6 +319,8 @@ M03 子项进度：9.1–9.5 全部通过，代码、测试、证据随本节点
 
 证据：`evidence/M04/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
 
+M04 精确执行证据：`evidence/M04/{execution.log,scope-registration.json,focused-tests.log,lint.log,verify.sh,verify_static.py,plan-checks.log,static-checks.log}`；全部路径已核实存在。
+
 M04 实现进度：10.1–10.4 已完成源码与自测，370 passed；源码提交 `521eb98761`、`a65840a41a`、`08e130ed1d`。36 callers、16 项边界和输入哈希见 `evidence/M04/`；保持 ready，10.5 等待独立 Luna 验收，未推进后继。
 
 ## M05 · Console transport 与前端契约

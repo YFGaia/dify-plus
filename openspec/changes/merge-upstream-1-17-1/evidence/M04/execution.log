@@ -1,3 +1,4 @@
+cwd: /Users/liuxingwang/go/src/dify-plus
 M04 local implementation, branch codex/merge-upstream-1.17.1
 Input: e83bdfe536eb114aa5dee17ddec539d9a71ab99e
 Fixed upstream: 8387590ace4a094de812b7847fc6a4c3a27cd52b
@@ -45,3 +46,7 @@ a65840a41a85de545811b8b879891a9f5d5ad278 app quota CRUD (2 files)
 08e130ed1dbe7f8c0907a9171b76406836eeb668 chatflow guard and hooks tests (4 files)
 Final evidence commit is identified by Git history, avoiding self-referential SHA.
 M04 ready; tasks 10.1-10.4 implemented/self-tested, 10.5 independent acceptance pending.
+
+Final plan command: openspec validate merge-upstream-1-17-1 --strict
+Exit 0; valid. DAG/unique ownership/tasks/frozen hashes checks exit 0.
+Final graph evidence link audit: all M04 evidence paths exist; ready and 10.5 unchecked.

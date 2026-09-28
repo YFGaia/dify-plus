@@ -591,7 +591,14 @@
         "evidence/M04/verified-inputs.json",
         "evidence/M04/callers.json",
         "evidence/M04/static-scope.json",
-        "evidence/M04/schema-assertions.json"
+        "evidence/M04/schema-assertions.json",
+        "evidence/M04/scope-registration.json",
+        "evidence/M04/focused-tests.log",
+        "evidence/M04/lint.log",
+        "evidence/M04/verify.sh",
+        "evidence/M04/verify_static.py",
+        "evidence/M04/plan-checks.log",
+        "evidence/M04/static-checks.log"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
