@@ -303,7 +303,7 @@
       "owner_role": "构建负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [

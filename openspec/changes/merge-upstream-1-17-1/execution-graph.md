@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 前置、授权与资源条件均满足，当前 ready 待实施；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -227,6 +227,7 @@ git show --no-patch --format=%P HEAD
 
 ## M01 · 工具链、依赖与生成物
 
+- 状态：ready；M00 已通过、implementation 授权有效；等待本节点单独实施任务，未开始验收。
 - 前置：M00；负责人：构建负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`构建负责人`。
 - 写入范围：package.json；pnpm-lock.yaml；pnpm-workspace.yaml；oxlint-suppressions.json；web/package.json；web/next.config.ts；api/pyproject.toml；api/uv.lock；api/providers/**/pyproject.toml；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记。
