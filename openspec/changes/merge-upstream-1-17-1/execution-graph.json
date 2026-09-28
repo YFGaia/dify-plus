@@ -549,7 +549,8 @@
       "inputs": [
         "research/source-inventory.json",
         "design.md#decisions",
-        "evidence/M03/result.json"
+        "evidence/M03/result.json",
+        "evidence/M04/pre-analysis.md"
       ],
       "write_scope": [
         "api/controllers/service_api/**",
@@ -569,17 +570,18 @@
         "计费负责人"
       ],
       "steps": [
-        "按 research/backend 十项挂点逐项移植，审计自动合并调用者",
+        "建立十项挂点完整证据：M04 实施/复核九项计费与记忆挂点；OAuth 引用 M03 已通过证据，避免重复实现",
         "保留 token kwargs/请求线程 extras/初始执行 join；恢复路径不新增派发",
         "保留上游 dataset binding、RBAC、遮罩和 Cloud 限额；fork 配额语义独立",
         "保留 NULL retention、匿名 context 修复、三个 beat reset；记录非幂等既有债务；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
       "commands": [],
       "acceptance": [
-        "十项挂点有新路径与调用证据",
+        "九项由 M04 实施/复核并有新路径与调用证据；OAuth 引用 M03 证据闭合十项总览",
         "所有被装饰入口签名兼容；不新增漏扣/重复派发"
       ],
       "evidence": [
+        "evidence/M04/pre-analysis.md",
         "evidence/M04/result.json",
         "evidence/M04/execution.log"
       ],
