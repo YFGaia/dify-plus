@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；曾因 message/context 安全交接重开 8.6–8.7；四个源码/测试路径已登记，36 项测试、Swagger schema 及独立 Luna 复核均通过，M02 已恢复 passed；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 原 11.1–11.5 源码验收通过（仍不可部署）；现重开且已解锁 11.6，可对已登记 message generated 三文件执行标准重新生成；M06 已实施 12.1a 应用级 WebApp 认证开关，卡片聚焦测试因缺失已锁 cn@0.2.4 暂缓收集；12.2 应用中心与 12.3 API key/汇率两个独立 Sol 分析任务正在 worktree provisioning；context caller 等待 M05 标准生成契约。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，新建 gpt-6-luna 独立只读复核对话，worktree provisioning 中；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；曾因 message/context 安全交接重开 8.6–8.7；四个源码/测试路径已登记，36 项测试、Swagger schema 及独立 Luna 复核均通过，M02 已恢复 passed；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 原 11.1–11.5 源码验收通过（仍不可部署）；现重开且已解锁 11.6，可对已登记 message generated 三文件执行标准重新生成；M06 已实施 12.1a 应用级 WebApp 认证开关已完成代码审查，卡片聚焦测试因缺失已锁 cn@0.2.4 暂缓收集，现由独立 Luna worktree 恢复 frozen 依赖并验证；12.2 应用中心与 12.3 API key/汇率两个独立 Sol 分析任务正在 worktree provisioning；context caller 等待 M05 标准生成契约。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，新建 gpt-6-luna 独立只读复核对话，worktree provisioning 中；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 原 11.1–11.5 已通过，11.6 已解锁并待标准生成；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a 实现与独立 Luna 审查完成但测试环境阻断，12.2 与 12.3 的独立 Sol 分析任务正在 worktree provisioning，context caller 等待 M05 generated contract，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 原 11.1–11.5 已通过，11.6 已解锁并待标准生成；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a 实现与独立 Luna 代码审查完成，聚焦测试由新 Luna worktree 验证；12.2 与 12.3 的独立 Sol 分析任务正在 worktree provisioning，context caller 等待 M05 generated contract，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。

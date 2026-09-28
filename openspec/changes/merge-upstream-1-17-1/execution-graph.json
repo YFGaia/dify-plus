@@ -1042,6 +1042,12 @@
           "model": "gpt-6-sol",
           "client_thread_id": "client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947",
           "scope": "Read-only API-key scope/balance display and login_config exchange-rate data-flow analysis."
+        },
+        "12.1a_test_verification": {
+          "status": "conversation_provisioning",
+          "model": "gpt-6-luna",
+          "client_thread_id": "client-new-thread:633765b7-88e4-446d-96f5-e50a6e62e064",
+          "scope": "Independent focused test verification of the committed WebApp auth switch and recovery of the declared locked dependency inside its isolated worktree."
         }
       }
     },

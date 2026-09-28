@@ -127,7 +127,13 @@
         ],
         "next_action": "Restore the declared cn package using the compatible frozen workspace dependency environment and run the full focused card suite before accepting 12.1a."
       },
-      "implementation_commit": "ea853611dc"
+      "implementation_commit": "ea853611dc",
+      "independent_test_verification": {
+        "status": "conversation_provisioning",
+        "model": "gpt-6-luna",
+        "client_thread_id": "client-new-thread:633765b7-88e4-446d-96f5-e50a6e62e064",
+        "scope": "Run the focused WebApp card suite in an isolated worktree; may restore only the exact frozen workspace dependencies there; no source/status edits."
+      }
     },
     "12.2_analysis": {
       "status": "conversation_provisioning",
