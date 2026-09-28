@@ -871,6 +871,7 @@
         "web/context/__tests__/workspace-summary-extend.spec.ts",
         "web/context/app-context-defaults.ts",
         "web/context/app-context-extend.ts",
+        "web/contract/base.ts",
         "web/contract/console/system-manage.ts",
         "web/contract/console/system.ts",
         "web/contract/router-extend.ts",
