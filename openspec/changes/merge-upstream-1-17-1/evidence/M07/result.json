@@ -383,6 +383,30 @@
           "No real-volume permission verification, image pull, container startup, or multi-process first-start test."
         ],
         "next_action": "Use a fresh Sol analysis to check the minimal safe startup serialization and fail-closed init_permissions changes, then implement and re-review in fresh tasks."
+      },
+      "startup_risk_analysis": {
+        "status": "completed_read_only",
+        "model": "gpt-6-sol",
+        "agent": "/root/m07_key_startup_risk_analysis",
+        "source_commit": "c64cb30a3e",
+        "findings": [
+          "Adding api: service_healthy to key consumers is not a general guarantee: Gunicorn may have multiple workers, API can be scaled, and migration or direct starts can race. It also does not cover --no-deps or another Compose project.",
+          "Recommended Compose-level serialization: add a one-shot private API image init_secret_key service. After init_permissions succeeds, initialize the configured storage adapter and call resolve_secret_key once without printing the value. Gate api, api_websocket, worker, worker-gaia, worker-dataset, worker_beat, and migration on init_secret_key service_completed_successfully.",
+          "This provides a single key seed before the listed Compose consumers, avoids API/worker/agent dependency cycles, and preserves explicit SECRET_KEY behavior. Manual bypasses and cross-project starts remain operationally constrained; general storage compare-and-set would require reopening M02 and registering backend source/tests.",
+          "Change the init_permissions command to `chown ... && touch ... || exit 1` so either failure returns nonzero and cannot be masked by the success echo. This preserves existing marker behavior.",
+          "The migration release command uses --no-deps, so its documented preflight must explicitly complete init_permissions and init_secret_key before running the migration service."
+        ],
+        "acceptance_gates": [
+          "Default and all-profile Compose configs render without dependency cycles; every API/worker/migration key consumer waits for init_secret_key.",
+          "The seed service uses the same storage environment and volume and does not emit the generated secret.",
+          "init_permissions exits nonzero when chown or touch fails and preserves existing marker short-circuit behavior.",
+          "Document that --no-deps, direct container runs, and cross-project concurrent starts require operators to seed/serialize the key first."
+        ],
+        "limitations": [
+          "No code, tests, or containers were run by the Sol analysis.",
+          "This Compose gate serializes the default declared service graph but does not provide a distributed storage compare-and-set guarantee for manual bypasses or multiple Compose projects."
+        ],
+        "next_action": "A fresh Astra implementation task adds the seed gate, fail-closed storage initialization, and migration command guidance, then runs isolated default/all-profile assertions before another Luna review."
       }
     },
     "13.5": {
