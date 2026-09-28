@@ -59,7 +59,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 ## 8. M02 后端基础与共同契约适配（前置：M01）
 
-> M02 原 8.1–8.5 与独立验收已通过。M06 安全交接发现 `/message/context` 缺少 conversation/app/tenant 与 app/Agent 权限校验，现仅重开 8.6–8.7，并已登记四个后端源码/测试路径；原通过范围及 review 证据保留。详见 `evidence/M02/result.json`、`evidence/M06/result.json#/preflight/contract_handoff`。
+> M02 原 8.1–8.5 与独立验收已通过。M06 安全交接发现 `/message/context` 缺少 conversation/app/tenant 与 app/Agent 权限校验，现仅重开 8.6–8.7，四个后端源码/测试路径已登记，8.6 由独立 Astra 任务实施中；原通过范围及 review 证据保留。详见 `evidence/M02/result.json`、`evidence/M06/result.json#/preflight/contract_handoff`。
 
 - [x] 8.1 [M02] 采用新 application service/admission/session 模型与 fork 导出；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [x] 8.2 [M02] 实现 A04 的 public/login_config/license 与 workspace summary 共同契约；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。

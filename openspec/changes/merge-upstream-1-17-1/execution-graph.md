@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；现因 message/context 安全交接重开 8.6–8.7，四个源码/测试路径已登记；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 原 11.1–11.5 源码验收通过（仍不可部署）；现重开 11.6，仅对已登记 message generated 三文件按 M02 修复结果重新生成；M06 已实施 12.1a 应用级 WebApp 认证开关，卡片聚焦测试因缺失已锁 cn@0.2.4 暂缓收集；context caller 等待 M02/M05 安全契约。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，待新 Luna 复核；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；现因 message/context 安全交接重开 8.6–8.7，四个源码/测试路径已登记，Astra 正实施 8.6；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 原 11.1–11.5 源码验收通过（仍不可部署）；现重开 11.6，仅对已登记 message generated 三文件按 M02 修复结果重新生成；M06 已实施 12.1a 应用级 WebApp 认证开关，卡片聚焦测试因缺失已锁 cn@0.2.4 暂缓收集；context caller 等待 M02/M05 安全契约。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，待新 Luna 复核；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 

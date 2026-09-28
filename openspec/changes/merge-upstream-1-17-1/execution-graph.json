@@ -474,7 +474,7 @@
         "completed_subtasks": [],
         "current_subtask": {
           "id": "8.6",
-          "status": "registered_ready",
+          "status": "in_progress",
           "evidence": "evidence/M06/result.json#/preflight/contract_handoff",
           "registered_paths": [
             "api/controllers/console/app/app_extend.py",
