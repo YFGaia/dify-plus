@@ -325,7 +325,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M05 · Console transport 与前端契约
 
-- 状态：ready；M03 已通过，Sol 只读预分析完成，证据见 `evidence/M05/pre-analysis.md`。11.1 写入路径已登记；编码任务待启动。
+- 状态：blocked；M03 已通过，Sol 预分析与范围登记已提交。11.1 隔离全量合同生成在 `extend` segment 失败，并发现生成 router 会新增七个 segment，包含与手写 systemManage 同端点的 `systemManageExtend`。Sol 正在诊断根因和唯一 owner；阻塞证据见 `evidence/M05/codegen-investigation.json`。现存少量未提交改动不完整，11.1 未勾选。
 - 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。

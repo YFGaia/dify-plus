@@ -1,0 +1,93 @@
+{
+  "node": "M05",
+  "subtask": "11.1",
+  "status": "blocked",
+  "integrated_head_at_block": "564478516952f3c741a952e7ba23b6f724255539",
+  "isolated_attempt_base": "8370c69e8d",
+  "standard_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache UV_NO_SYNC=1 pnpm --config.verify-deps-before-run=false --dir /private/tmp/dify-m05-11-1-codegen/packages/contracts run gen-api-contract",
+  "standard_exit_code": 1,
+  "failure": {
+    "job_index_zero_based": 19,
+    "job_number_one_based": 20,
+    "output_path": "packages/contracts/generated/api/console/extend",
+    "message": "Symbol finalName has not been resolved yet for ~ Symbol#34 \"\"",
+    "log": "/private/tmp/dify-m05-11-1-codegen.log"
+  },
+  "selected_login_segment_generation": {
+    "exit_code": 0,
+    "output": "/private/tmp/dify-m05-11-1-codegen/packages/contracts/generated/api/console",
+    "log": "/private/tmp/dify-m05-11-1-selected-codegen.log",
+    "main_checkout_generated_files_copied": false
+  },
+  "new_console_segments_reported": {
+    "dingTalk": [
+      "GET /ding-talk/login",
+      "GET /ding-talk/third-party/login"
+    ],
+    "extend": [
+      "DELETE /extend/{path}",
+      "GET /extend/{path}",
+      "PATCH /extend/{path}",
+      "POST /extend/{path}",
+      "PUT /extend/{path}"
+    ],
+    "installed": [
+      "GET /installed/apps"
+    ],
+    "loginConfig": [
+      "GET /login_config"
+    ],
+    "loginConfigBootstrap": [
+      "GET /login_config_bootstrap"
+    ],
+    "message": [
+      "DELETE /message/context",
+      "GET /message/context"
+    ],
+    "systemManageExtend": [
+      "GET /system-manage-extend/code-execution-control",
+      "POST /system-manage-extend/code-execution-control",
+      "DELETE /system-manage-extend/code-execution-control/{record_id}",
+      "GET /system-manage-extend/forward-tokens",
+      "POST /system-manage-extend/forward-tokens",
+      "DELETE /system-manage-extend/forward-tokens/{seq}",
+      "GET /system-manage-extend/integration/dingtalk",
+      "POST /system-manage-extend/integration/dingtalk",
+      "GET /system-manage-extend/integration/dingtalk/test",
+      "POST /system-manage-extend/integration/dingtalk/test-callback",
+      "POST /system-manage-extend/integration/email-api/test",
+      "GET /system-manage-extend/integration/oauth2",
+      "POST /system-manage-extend/integration/oauth2",
+      "POST /system-manage-extend/integration/oauth2/test",
+      "GET /system-manage-extend/quota-management",
+      "POST /system-manage-extend/quota-management/set"
+    ]
+  },
+  "overlap": {
+    "manual_segment": "systemManage",
+    "generated_segment": "systemManageExtend",
+    "same_endpoints": [
+      "GET /system-manage-extend/code-execution-control",
+      "POST /system-manage-extend/code-execution-control",
+      "DELETE /system-manage-extend/code-execution-control/{record_id}"
+    ],
+    "manual_parameter_name": "id",
+    "generated_parameter_name": "record_id"
+  },
+  "implementation_checkout_changes_not_complete": [
+    "web/service/console/browser.ts",
+    "web/service/console/contract-loader.ts",
+    "web/service/console/index.ts",
+    "web/contract/router-extend.ts",
+    "web/contract/console/system.ts (deleted)"
+  ],
+  "unresolved": [
+    "Root cause classification for extend codegen symbol resolution failure; Sol diagnostic pending.",
+    "Unique contract/runtime DTO owner for endpoints with generated and handwritten contracts.",
+    "Full set of generated output paths and whether broad generation can be made reliable without editing upstream-owned generator."
+  ],
+  "not_completed": [
+    "11.1 remains unchecked; no generated contracts were copied to main checkout.",
+    "No focused tests were run and no source commit was created for this attempt."
+  ]
+}

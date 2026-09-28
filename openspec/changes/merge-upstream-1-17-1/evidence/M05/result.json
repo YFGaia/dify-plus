@@ -1,7 +1,7 @@
 {
   "node": "M05",
-  "status": "ready",
-  "implementation": "not_started",
+  "status": "blocked",
+  "implementation": "partial_uncommitted",
   "deployable": false,
   "branch": "codex/merge-upstream-1.17.1",
   "analysis_head": "3620896b7afe8122f5e4873450031cc942c8c175",
@@ -22,23 +22,17 @@
   ],
   "subtasks": {
     "11.1": {
-      "status": "scope_registered",
-      "registered_paths": [
-        "packages/contracts/console.ts",
-        "packages/contracts/generated/api/console/login-config-bootstrap/orpc.gen.ts",
-        "packages/contracts/generated/api/console/login-config-bootstrap/types.gen.ts",
-        "packages/contracts/generated/api/console/login-config-bootstrap/zod.gen.ts",
-        "packages/contracts/generated/api/console/login-config/orpc.gen.ts",
-        "packages/contracts/generated/api/console/login-config/types.gen.ts",
-        "packages/contracts/generated/api/console/login-config/zod.gen.ts",
-        "packages/contracts/generated/api/console/orpc.gen.ts",
-        "packages/contracts/generated/api/console/router.gen.ts",
-        "web/contract/console/system.ts",
-        "web/contract/router-extend.ts",
+      "status": "blocked",
+      "evidence": [
+        "codegen-investigation.json"
+      ],
+      "reason": "Full Console contract regeneration fails at the extend segment and discovers additional route segments/overlap; root-cause and owner analysis pending.",
+      "working_changes": [
         "web/service/console/browser.ts",
-        "web/service/console/client.spec.ts",
         "web/service/console/contract-loader.ts",
-        "web/service/console/index.ts"
+        "web/service/console/index.ts",
+        "web/contract/router-extend.ts",
+        "web/contract/console/system.ts (deleted)"
       ]
     },
     "11.2": {
@@ -57,5 +51,6 @@
   "known_limits": [
     "No browser cross-origin cookie validation in this analysis; defer real-browser validation to V02.",
     "The is_custom_auth2_button item in A04 C03 is not present in the actual M02 response schema."
-  ]
+  ],
+  "codegen_investigation": "evidence/M05/codegen-investigation.json"
 }

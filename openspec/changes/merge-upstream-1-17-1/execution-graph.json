@@ -677,7 +677,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -714,7 +714,8 @@
       "evidence": [
         "evidence/M05/result.json",
         "evidence/M05/execution.log",
-        "evidence/M05/pre-analysis.md"
+        "evidence/M05/pre-analysis.md",
+        "evidence/M05/codegen-investigation.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -761,7 +762,13 @@
         ],
         "tasks_complete": [],
         "next_subtask": "11.1",
-        "subtask_11_1_scope_registered": true
+        "subtask_11_1_scope_registered": true,
+        "current_subtask": {
+          "id": "11.1",
+          "status": "blocked",
+          "reason": "Full Console codegen failure and endpoint owner overlap; awaiting read-only Sol diagnosis before resuming source edits.",
+          "evidence": "evidence/M05/codegen-investigation.json"
+        }
       },
       "registered_additional_paths": [
         "packages/contracts/console.ts",
@@ -779,7 +786,8 @@
         "web/service/console/client.spec.ts",
         "web/service/console/contract-loader.ts",
         "web/service/console/index.ts"
-      ]
+      ],
+      "blocked_reason": "11.1 paused after isolated full contract generation failed in generated/api/console/extend (unresolved symbol) and exposed additional generated segments plus duplicate systemManage endpoints; Sol diagnostic is in progress."
     },
     {
       "id": "M06",
