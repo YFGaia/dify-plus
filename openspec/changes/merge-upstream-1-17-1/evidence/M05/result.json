@@ -503,6 +503,6 @@
     "evidence": "evidence/M05/11.6-message-contract-generation.log",
     "execution_owner": "integration_agent_standard_generator_rerun",
     "execution_note": "The registered files were regenerated through the package standard command in the root checkout and byte-matched the Astra task worktree. The new task had not returned a readable thread result at acceptance time.",
-    "implementation_commit": "pending_commit_binding"
+    "implementation_commit": "5177f98e1589117341ac152890d53d6abb3707ff"
   }
 }

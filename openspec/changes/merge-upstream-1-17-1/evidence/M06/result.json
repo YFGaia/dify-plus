@@ -160,7 +160,7 @@
       "model": "gpt-6-astra",
       "dependencies": {
         "M02_8.6": "passed; commit 30410b8fff",
-        "M05_11.6": "passed by standard generation and schema assertions; implementation commit pending"
+        "M05_11.6": "passed; commit 5177f98e1589117341ac152890d53d6abb3707ff"
       },
       "contract": "GET /message/context requires conversation_id:string and returns string[]; DELETE requires conversation_id/message_id and returns string ok.",
       "acceptance_cases": [

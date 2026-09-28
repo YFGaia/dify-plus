@@ -1,0 +1,23 @@
+M05 11.6 standard generated message contracts
+
+Branch: codex/merge-upstream-1.17.1
+Input commit: 0858f09cbdc2c0f5d052179b3afa2351d2ad0fe3
+
+Toolchain: Node 24.20.0, pnpm 12.3.4, @hey-api/openapi-ts 0.98.2.
+Command:
+UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache UV_NO_SYNC=1 PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false --dir packages/contracts run gen-api-contract
+
+Exit code: 0. The standard generator exported 4 Swagger specs, completed all 64 openapi-ts jobs, and vp fmt formatted 191 generated files. Only the three registered M05 message contract paths changed; git diff --check passed.
+
+Resolved-schema assertions passed:
+- GET /message/context requires query conversation_id:string and resolves to array<string>.
+- DELETE /message/context requires conversation_id:string and message_id:string and resolves to string; backend runtime literal is "ok".
+
+The three generated files are byte-identical to the output in the Astra task worktree based at 4e1b5964cc99d6471130f446671696d2203d98a7. The root generation was independently rerun because the app task had not returned a readable thread result; generated sources were not hand-edited.
+
+SHA-256:
+42e07031dbc4539633e536eb5557f391cb48437b5b25050847799d867156f1a6  packages/contracts/generated/api/console/message/orpc.gen.ts
+ee5103ac3c36267cb64f6bdbd45bc51547c420f45b8b179797bb95e9de611983  packages/contracts/generated/api/console/message/types.gen.ts
+5f21e79fb8e687b8270f56685f470e7008174eb704bd8965590892bff3eb1c91  packages/contracts/generated/api/console/message/zod.gen.ts
+
+M06 handoff: 12.1b can proceed to precise frontend path registration. Do not infer that M05 is deployable; M06 and downstream gates remain open.
