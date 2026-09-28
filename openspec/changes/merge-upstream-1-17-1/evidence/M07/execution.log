@@ -20,3 +20,22 @@ Result: read-only analysis and exact path registration complete. No deployment c
 
 Resumption: 2026-09-29
 The current available-skills catalog no longer lists karpathy-guidelines. Root AGENTS.md was rechecked. M07 13.1 resumes under the active repository and OpenSpec instructions. A new Astra task is assigned for core Compose alignment; 13.2-13.6 remain pending.
+
+M07 13.1 implementation and coordinator review: 2026-09-29
+Branch: codex/merge-upstream-1.17.1
+Source commit before subtask: 3681a3fed24805cdc4a0fdde09798985c2d92796
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Implementation model: gpt-6-astra
+Implementation task: /root/m07_13_1_core_compose
+
+Result: updated docker/docker-compose.dify-plus.yaml only. All six fork API image references and the fork Web image tag now target 1.17.1 while preserving private image names. Added 36 upstream environment entries, aligned three execution/scaling defaults, and added API/worker/beat healthchecks; worker and beat checks remain disabled by default. Fork worker-gaia, worker-dataset, sandbox-full, retention, feature switches, volumes, ports, networks, dependencies, and commands remain present.
+
+Coordinator checks:
+- git diff --check -- docker/docker-compose.dify-plus.yaml: exit 0
+- empty-environment default and all-profile docker compose config --quiet: exit 0 for both; only unset DB/CERTBOT warnings
+- all-profile JSON assertions for private image tags, fork services, upstream defaults, Agent v2 switch, and retention: exit 0
+- source audit against exact upstream 1.17.1 env examples: 39 added/changed keys, 0 missing
+- openspec validate merge-upstream-1-17-1 --strict: valid
+- docker compose version: 2.36.2-desktop.1
+
+13.1 passed. No private image pull, digest, container runtime, or real environment verification was performed. Subtasks 13.2-13.6 remain pending; M07 remains in progress and is not deployable.

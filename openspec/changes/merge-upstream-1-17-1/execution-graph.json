@@ -1037,13 +1037,15 @@
           "evidence": "evidence/M07/pre-analysis.md",
           "working_tree_modified": false
         },
-        "next_subtask": "13.1",
+        "next_subtask": "13.2",
         "current_subtask": {
           "id": "13.1",
-          "status": "in_progress",
-          "reason": "Resumed under the current skill catalog and repository AGENTS.md; complete only core Compose alignment for subtask 13.1 within the registered M07 boundary.",
-          "evidence": "evidence/M07/pre-analysis.json"
-        }
+          "status": "complete",
+          "evidence": "evidence/M07/result.json#/subtasks/13.1"
+        },
+        "tasks_complete": [
+          "13.1"
+        ]
       },
       "registered_additional_paths": [
         "api/docker/entrypoint.sh",

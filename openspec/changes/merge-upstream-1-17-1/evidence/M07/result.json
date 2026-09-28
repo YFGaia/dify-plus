@@ -1,0 +1,68 @@
+{
+  "node": "M07",
+  "status": "in_progress",
+  "implementation": "partial",
+  "deployable": false,
+  "branch": "codex/merge-upstream-1.17.1",
+  "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "subtasks": {
+    "13.1": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m07_13_1_core_compose",
+      "changed_paths": [
+        "docker/docker-compose.dify-plus.yaml"
+      ],
+      "summary": [
+        "Updated all six fork API service image references and the fork Web image tag to 1.17.1 while retaining private image names.",
+        "Added 36 upstream core environment entries and aligned three existing execution/scaling defaults.",
+        "Added upstream API, worker, and beat healthchecks; worker and beat healthchecks remain disabled by default.",
+        "Kept fork workers, sandbox-full, fork feature switches, Agent retention, service topology, dependencies, volumes, networks, ports, and commands intact."
+      ],
+      "upstream_sources": [
+        "refs/tags/1.17.1:docker/docker-compose.yaml",
+        "refs/tags/1.17.1:docker/docker-compose-template.yaml",
+        "refs/tags/1.17.1:docker/envs/core-services/shared.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/api.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/worker.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/worker-beat.env.example"
+      ],
+      "checks": [
+        {
+          "command": "git diff --check -- docker/docker-compose.dify-plus.yaml",
+          "exit_code": 0
+        },
+        {
+          "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB and CERTBOT variables in the isolated empty environment; no complete config was printed."
+        },
+        {
+          "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml --profile '*' config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB and CERTBOT variables in the isolated empty environment; no complete config was printed."
+        },
+        {
+          "command": "docker compose --profile '*' config --format json | jq -e <private image, fork service, timeout, feature switch, and retention assertions>",
+          "exit_code": 0,
+          "assertions": "Seven versioned fork image references, worker-gaia, worker-dataset, sandbox-full, upstream execution defaults, Agent v2 disabled, and 259200-second retention. Only the jq boolean was emitted."
+        },
+        {
+          "command": "Compare added/updated Compose environment keys to the exact 1.17.1 shared/api/worker/worker-beat env samples",
+          "exit_code": 0,
+          "assertions": "39 added or changed keys checked; 0 missing from upstream samples."
+        }
+      ],
+      "compose_version": "2.36.2-desktop.1",
+      "limitations": [
+        "No private image pull, digest, container runtime, or real environment verification was performed.",
+        "13.2–13.6 remain pending; this is not M07 node acceptance or a deployable release."
+      ]
+    }
+  },
+  "tasks_complete": [
+    "13.1"
+  ],
+  "next_subtask": "13.2"
+}
