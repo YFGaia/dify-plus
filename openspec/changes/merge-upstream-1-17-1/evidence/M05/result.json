@@ -439,7 +439,7 @@
   ],
   "next_subtask": "complete",
   "followup_context_contract": {
-    "status": "ready",
+    "status": "conversation_provisioning",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
     "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
     "subtask": "11.6",
@@ -454,6 +454,8 @@
     },
     "reason": "Generated message contracts are already registered and M05-owned. Standard generation must wait for the M02 backend schema/security repair; generated files must not be hand-edited.",
     "unblocked_by_commit": "30410b8fff",
-    "next_action": "Use the standard generation workflow against the M02 route schemas; edit only the already registered message contract trio and record exact generated diff."
+    "next_action": "A fresh Astra implementation conversation has been created from the current working tree; wait for worktree provisioning and the standard generator handoff.",
+    "implementation_model": "gpt-6-astra",
+    "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c"
   }
 }

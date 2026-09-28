@@ -92,7 +92,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 11.3 [M05] 生成 schema 校验 workspace summary 并保留 admin_extend/tenant_extend 到权限 atom；清理已移除 Console client 导入；11 项权限链、与 bootstrap 合计 24 项及 9 文件 scoped check 通过。代码执行控制页面 suite 因现有 `cn` 依赖缺失未能收集用例，见 `evidence/M05/result.json`。
 - [x] 11.4 [M05] Sol 核验 C01–C04/C08/systemManage 的字段、权限与错误语义；将 workspace summary 生成 schema 校验移入 queryFn，确保畸形 HTTP 200 不进入 TanStack 原始 cache，同时保留 select 校验 hydration/同 key 预填缓存；12 项聚焦测试、25 项受影响测试、两路径 check 通过，独立 Luna 无阻断项。代码提交 `fceb461237f2f175160c8bf56da242f1c4a412c6`；证据见 `evidence/M05/result.json`。
 - [x] 11.5 [M05] Sol 对当前源码与 11.1–11.4 证据执行只读节点验收：旧 Console 服务未恢复为双源；SSR 校验真实 public snapshot、匿名不能读详细 license；workspace 两扩展权限位在缓存前生成 schema 校验；`systemManage` 仍由手写契约唯一持有。节点源码验收通过，绑定 `abe3b9ae33b99a373bc3445e0919b6ab21349fe5`；V02 浏览器验收与 M06 汇率消费者仍待下游。
-- [ ] 11.6 [M05] M02 8.6 已通过，通过标准 API schema 生成更新已登记的 message 三文件：GET 必填 `conversation_id` → `string[]`，DELETE 必填 `conversation_id/message_id` → 字符串 `ok`；不得手改 generated，记录命令、输出 schema 和 M06 消费边界。
+- [ ] 11.6 [M05] M02 8.6 已通过，通过标准 API schema 生成更新已登记的 message 三文件（Astra conversation 正在 provisioning）：GET 必填 `conversation_id` → `string[]`，DELETE 必填 `conversation_id/message_id` → 字符串 `ok`；不得手改 generated，记录命令、输出 schema 和 M06 消费边界。
 
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
 

@@ -890,15 +890,17 @@
         "completed_subtasks": [],
         "current_subtask": {
           "id": "11.6",
-          "status": "ready",
+          "status": "conversation_provisioning",
           "evidence": "evidence/M06/result.json#/preflight/contract_handoff",
           "registered_paths": [
             "packages/contracts/generated/api/console/message/orpc.gen.ts",
             "packages/contracts/generated/api/console/message/types.gen.ts",
             "packages/contracts/generated/api/console/message/zod.gen.ts"
-          ]
+          ],
+          "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c"
         },
-        "next_subtask": "11.6"
+        "next_subtask": "11.6",
+        "implementation_agent_model": "gpt-6-astra"
       }
     },
     {
