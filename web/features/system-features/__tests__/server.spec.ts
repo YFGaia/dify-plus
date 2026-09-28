@@ -1,6 +1,7 @@
 // @vitest-environment node
 
 import { QueryClient } from '@tanstack/react-query'
+import { createSystemFeaturesFixture } from '@/test/console/system-features'
 
 const mocks = vi.hoisted(() => ({
   connection: vi.fn(async () => undefined),
@@ -63,14 +64,20 @@ describe('System Features server requests', () => {
       () => new QueryClient({ defaultOptions: { queries: { retry: false } } }),
     )
     mocks.connection.mockResolvedValue(undefined)
-    mocks.getSystemFeatures.mockResolvedValue({ deployment_edition: 'CLOUD' })
+    mocks.getSystemFeatures.mockResolvedValue(
+      createSystemFeaturesFixture({ deployment_edition: 'CLOUD' }),
+    )
   })
 
   it('reuses a successful optional lookup for the rest of the request', async () => {
     const { dehydrateSystemFeatures, getOptionalSystemFeatures } = await import('../server')
 
-    await expect(getOptionalSystemFeatures()).resolves.toEqual({ deployment_edition: 'CLOUD' })
-    await expect(getOptionalSystemFeatures()).resolves.toEqual({ deployment_edition: 'CLOUD' })
+    await expect(getOptionalSystemFeatures()).resolves.toEqual(
+      createSystemFeaturesFixture({ deployment_edition: 'CLOUD' }),
+    )
+    await expect(getOptionalSystemFeatures()).resolves.toEqual(
+      createSystemFeaturesFixture({ deployment_edition: 'CLOUD' }),
+    )
 
     expect(mocks.getSystemFeatures).toHaveBeenCalledOnce()
     expect(mocks.getQueryClient).toHaveBeenCalledOnce()
@@ -78,7 +85,7 @@ describe('System Features server requests', () => {
       expect.objectContaining({
         queryKey: mocks.queryKey,
         state: expect.objectContaining({
-          data: { deployment_edition: 'CLOUD' },
+          data: createSystemFeaturesFixture({ deployment_edition: 'CLOUD' }),
           status: 'success',
         }),
       }),
@@ -88,12 +95,14 @@ describe('System Features server requests', () => {
   it('keeps optional failures soft and lets required consumers retry', async () => {
     mocks.getSystemFeatures
       .mockRejectedValueOnce(new Error('System Features unavailable'))
-      .mockResolvedValueOnce({ deployment_edition: 'CLOUD' })
+      .mockResolvedValueOnce(createSystemFeaturesFixture({ deployment_edition: 'CLOUD' }))
     const { getOptionalSystemFeatures, getSystemFeatures } = await import('../server')
 
     await expect(getOptionalSystemFeatures()).resolves.toBeUndefined()
     await expect(getOptionalSystemFeatures()).resolves.toBeUndefined()
-    await expect(getSystemFeatures()).resolves.toEqual({ deployment_edition: 'CLOUD' })
+    await expect(getSystemFeatures()).resolves.toEqual(
+      createSystemFeaturesFixture({ deployment_edition: 'CLOUD' }),
+    )
 
     expect(mocks.getSystemFeatures).toHaveBeenCalledTimes(2)
   })
@@ -104,5 +113,47 @@ describe('System Features server requests', () => {
     const { getSystemFeatures } = await import('../server')
 
     await expect(getSystemFeatures()).rejects.toBe(error)
+  })
+})
+
+describe('System Features SSR snapshot validation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.resetModules()
+    mocks.getQueryClient.mockImplementation(
+      () => new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+    )
+  })
+
+  it.each([
+    { ping: true },
+    { deployment_edition: 'COMMUNITY' },
+    { ...createSystemFeaturesFixture(), branding: undefined },
+    { ...createSystemFeaturesFixture(), license: {} },
+    { ...createSystemFeaturesFixture(), enable_email_password_login: 'true' },
+  ])('never hydrates invalid successful responses: %j', async (response) => {
+    mocks.getSystemFeatures.mockResolvedValue(response)
+    const { dehydrateSystemFeatures, getOptionalSystemFeatures, getSystemFeatures } =
+      await import('../server')
+
+    await expect(getOptionalSystemFeatures()).resolves.toBeUndefined()
+    await expect(getOptionalSystemFeatures()).resolves.toBeUndefined()
+    expect(mocks.getSystemFeatures).toHaveBeenCalledOnce()
+    expect(dehydrateSystemFeatures().queries).toEqual([])
+    await expect(getSystemFeatures()).rejects.toThrow()
+    expect(mocks.getSystemFeatures).toHaveBeenCalledTimes(2)
+    expect(dehydrateSystemFeatures().queries).toEqual([])
+  })
+
+  it('hydrates only public fields even if a backend mistakenly includes private data', async () => {
+    const features = createSystemFeaturesFixture()
+    mocks.getSystemFeatures.mockResolvedValue({
+      ...features,
+      ding_talk_client_id: 'fork-client',
+      license: { ...features.license, seats: { size: 5 }, expired_at: '2030-01-01' },
+    })
+    const { dehydrateSystemFeatures, getSystemFeatures } = await import('../server')
+    await expect(getSystemFeatures()).resolves.toEqual(features)
+    expect(dehydrateSystemFeatures().queries[0]?.state.data).toEqual(features)
   })
 })

@@ -102,7 +102,69 @@
       ]
     },
     "11.2": {
-      "status": "pending"
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m05_11_2_ssr_contracts",
+      "source_commit_before_subtask": "21bdeec37cacaac22f9f9c3308de381041ceab9b",
+      "changed_paths": [
+        "web/features/system-features/snapshot.ts",
+        "web/features/system-features/client.ts",
+        "web/features/system-features/server.ts",
+        "web/features/system-features/extend.ts",
+        "web/features/system-features/__tests__/server.spec.ts",
+        "web/features/system-features/__tests__/system-features.spec.ts",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv"
+      ],
+      "summary": [
+        "Added a public snapshot validator based on the generated schema; require core bootstrap fields, strip unknown/fork data, and expose license status without detailed seats or expiry.",
+        "Validate public snapshot data before client cache insertion and SSR hydration; keep optional SSR failures soft and hard consumers throwing/retryable with QueryClient.fetchQuery.",
+        "Added identity/workspace-scoped login_config query keys with staleTime 0, gcTime 0, retry disabled, and an SSR guard; validate generated login_config before caching.",
+        "Compose the view from the public snapshot plus only real fork login_config fields. Removed fabricated is_custom_auth2_button and use the backend boolean is_custom_auth2.",
+        "Registered new source/test ownership paths before implementation. No UI, workspace summary, permission atoms, dependencies, or generated files were changed."
+      ],
+      "checks": [
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit features/system-features/__tests__/server.spec.ts features/system-features/__tests__/system-features.spec.ts",
+          "exit_code": 0,
+          "assertions": "20 passed."
+        },
+        {
+          "command": "vp check web/features/system-features",
+          "exit_code": 0,
+          "assertions": "10 files formatted; 9 files passed lint and type checks."
+        },
+        {
+          "command": "git diff --check on M05 11.2 source/test paths",
+          "exit_code": 0
+        },
+        {
+          "command": "Expanded feature, Console SSR, and hydration suite",
+          "exit_code": 1,
+          "assertions": "18 passed, 4 failed, 2 suite imports failed due the existing unresolved packages/dify-ui/src/cn.ts dependency; no dependency or mock workaround was introduced."
+        }
+      ],
+      "independent_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m05_11_2_luna_review",
+        "status": "passed_no_p1_p2",
+        "findings": "Confirmed SSR fetchQuery error semantics, public schema/limited license projection before cache or hydration, identity-scoped login config, SSR network guard, public-first fork-field projection, A04 alignment, path ownership, and no 11.3/UI spillover.",
+        "limitation": "Independent focused-test command ran without output for 26 seconds and was stopped (exit 130); implementation task log contains the successful 20/20 focused run."
+      },
+      "follow_up": [
+        "M06 must migrate web/app/components/main-nav/components/account-money-extend.tsx to fetch login_config with the current account/workspace identity. Its current asSystemFeaturesExtend(publicSnapshot) call receives the 7.26 fallback and no longer reads configured RMB_TO_USD_RATE. M06 owns web/app/**; preserve this handoff before M06 acceptance."
+      ],
+      "limitations": [
+        "The account-money UI consumer follow-up is assigned to M06; until then it uses the default RMB rate rather than the fork login_config value.",
+        "No real browser, cross-origin cookie/CORS, actual account switching, or production environment test; later V02 acceptance remains required.",
+        "Expanded Console SSR/hydration tests still encounter the existing unresolved cn dependency. Full repository checks remain for later integration gates.",
+        "Only 11.1 and 11.2 are complete. Workspace summary/permission atom migration (11.3), contract matrix review (11.4), and M05 node acceptance (11.5) remain pending."
+      ],
+      "evidence_logs": [
+        "/private/tmp/dify-m05-11-2-tests-final.log",
+        "/private/tmp/dify-m05-11-2-check-final.log",
+        "/private/tmp/dify-m05-11-2-suite.log"
+      ]
     },
     "11.3": {
       "status": "pending"
@@ -115,16 +177,18 @@
     }
   },
   "known_limits": [
-    "Real browser Cookie/CORS validation is deferred to V02.",
+    "Real browser Cookie/CORS validation and actual identity switching are deferred to V02.",
     "A04 C03 is_custom_auth2_button is absent from the M02 response schema and is not fabricated.",
-    "The full client.spec.ts still has six failures, all reproduced on the original HEAD snapshot.",
-    "M05 remains partial and non-deployable until 11.2-11.5 and later integration gates pass."
+    "The expanded Console SSR/hydration suite still encounters existing missing cn dependency errors.",
+    "The current account-money UI caller needs M06 migration to consume login_config and configured RMB_TO_USD_RATE.",
+    "M05 remains partial and non-deployable until 11.3-11.5 and later integration gates pass."
   ],
   "codegen_investigation": "evidence/M05/codegen-investigation.json",
   "codegen_analysis": "evidence/M05/codegen-analysis.md",
   "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
   "tasks_complete": [
-    "11.1"
+    "11.1",
+    "11.2"
   ],
-  "next_subtask": "11.2"
+  "next_subtask": "11.3"
 }

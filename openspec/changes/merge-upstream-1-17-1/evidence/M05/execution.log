@@ -39,3 +39,23 @@ Checks:
 - Independent Luna review found no P1/P2 and confirmed filters, single ownership, request-local token handling, backend header/CORS alignment, POST 201, and baseline-failure comparison. Luna's independent test rerun hung without output and was stopped; captured Astra test logs remain the executable test evidence.
 
 Evidence logs retained under /private/tmp/dify-m05-11-1-*.log. No live browser/CORS or production environment verification was performed. Subtasks 11.2-11.5 remain pending; M05 remains partial and non-deployable.
+
+M05 11.2 implementation and coordinator/Luna review: 2026-09-29
+Branch: codex/merge-upstream-1.17.1
+Source commit before subtask: 21bdeec37cacaac22f9f9c3308de381041ceab9b; new-path registration committed separately as 7aaa5f7d79
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Implementation task: /root/m05_11_2_ssr_contracts (gpt-6-astra)
+Independent read-only review: /root/m05_11_2_luna_review (gpt-6-luna)
+
+Result: generated-schema snapshot parsing now happens before client cache insertion or server dehydration; public license data is limited to status and unknown/fork fields are stripped. SSR optional/hard calls use fetchQuery and preserve the expected soft/hard error behavior. Browser login_config uses a separate account/workspace identity key, staleTime 0, gcTime 0, retry false, validates its generated response, and refuses SSR network calls. asSystemFeaturesExtend uses public values as authoritative and projects only actual fork login fields; is_custom_auth2 is boolean and the absent is_custom_auth2_button is not fabricated. The three new source/test paths were registered before editing.
+
+Checks:
+- Focused server and system-features tests: 20/20 passed.
+- Scoped vp check: exit 0 (10 formatted files; lint/type passed in 9 files).
+- git diff --check on scoped paths: exit 0.
+- Expanded feature/Console SSR/hydration suite: exit 1 (18 passed, 4 failed, 2 import failures), all due to existing unresolved `cn` import; no dependency workaround added.
+- Independent Luna review found no P1/P2 and confirmed request/cache/SSR/public-license boundaries. Luna's test rerun stopped after 26 seconds without output (exit 130); Astra's captured focused result is the executable test evidence.
+
+M06 handoff: web/app/components/main-nav/components/account-money-extend.tsx currently calls asSystemFeaturesExtend(publicSnapshot) without login_config. With the split boundary it reads the 7.26 fallback instead of configured RMB_TO_USD_RATE; update that app consumer to use loginConfigQueryOptions with current account/workspace identity before M06 acceptance. No UI paths were changed in this subtask.
+
+11.2 passed for its feature/SSR contract boundary. No real browser/CORS/account-switch or production verification was performed. Subtasks 11.3-11.5 remain pending and M05 is still partial/non-deployable.

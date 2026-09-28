@@ -800,14 +800,15 @@
           "Exclude the exact generated code-execution-control GET/POST/DELETE operations; retain the precise handwritten systemManage DTO/runtime as their sole owner, and verify POST status 201."
         ],
         "tasks_complete": [
-          "11.1"
+          "11.1",
+          "11.2"
         ],
-        "next_subtask": "11.2",
+        "next_subtask": "11.3",
         "subtask_11_1_scope_registered": true,
         "current_subtask": {
-          "id": "11.1",
+          "id": "11.2",
           "status": "complete",
-          "evidence": "evidence/M05/result.json#/subtasks/11.1"
+          "evidence": "evidence/M05/result.json#/subtasks/11.2"
         },
         "codegen_diagnosis": {
           "status": "complete_root_cause_identified_owner_decided",
