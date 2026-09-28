@@ -38,6 +38,15 @@ const nextConfig: NextConfig = {
     ]
   },
   output: 'standalone',
+  // Keep the fork's same-origin API proxy for local Next development.
+  ...(isDev && {
+    async rewrites() {
+      return [
+        { source: '/console/api/:path*', destination: 'http://localhost:5001/console/api/:path*' },
+        { source: '/api/:path*', destination: 'http://localhost:5001/api/:path*' },
+      ]
+    },
+  }),
   compiler: {
     removeConsole: isDev ? false : { exclude: ['warn', 'error'] },
   },

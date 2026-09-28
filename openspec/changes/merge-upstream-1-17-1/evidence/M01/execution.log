@@ -1,0 +1,1228 @@
+# M01 execution log
+Pre-commit HEAD: 8e47d6c059e530d61a8955a1a28861a9815409a6
+Status: blocked. M01 partial source-preservation commit explicitly authorized; non-deployable.
+
+Early diagnostic captured before timed runner: UV_CACHE_DIR=/private/tmp/dify-m01-uv-cache uv run --project api --no-sync python --version exited 0. It warned that api/.venv/bin/python3 pointed to a non-existent interpreter, then removed/recreated api/.venv and printed Python 3.12.9. Prior pyvenv.cfg was Python 3.12.8, home=/Users/liuxingwang/miniconda3/bin. No claim of environment-content preservation. Main Agent was notified. Subsequent Python checks use a temporary UV_PROJECT_ENVIRONMENT.
+
+Requested karpathy-guidelines skill missing at .agents/skills/karpathy-guidelines/SKILL.md and searched local skill/plugin paths. Main Agent confirmed absence and explicitly permitted continuation with focused/simple/verifiable changes.
+
+Main Agent subsequently explicitly requested propagation of M01 blocked to M02-M08,V01,V02,R01 only; A03 and environment/production states remain unchanged.
+
+[2026-09-28T16:28:39.422Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ git rev-parse HEAD && git branch --show-current && git rev-parse refs/tags/1.17.1 && git show --no-patch --format=%P 948fefb69ae87abefa7e91a13968213696b3e310 && git ls-files -u && git diff --cached --name-only && git status --short --untracked-files=no
+exit_code=0 signal=null
+stdout:
+8e47d6c059e530d61a8955a1a28861a9815409a6
+codex/merge-upstream-1.17.1
+8387590ace4a094de812b7847fc6a4c3a27cd52b
+b17761ed0166e8ef49474da418b95a9462adbb9c 8387590ace4a094de812b7847fc6a4c3a27cd52b
+
+stderr:
+
+[2026-09-28T16:29:52.490Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node --version
+exit_code=0 signal=null
+stdout:
+v26.8.1
+
+stderr:
+
+[2026-09-28T16:29:52.524Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ /opt/homebrew/opt/node@24/bin/node --version
+exit_code=0 signal=null
+stdout:
+v24.19.0
+
+stderr:
+
+[2026-09-28T16:29:52.553Z] cwd=/private/tmp
+$ pnpm --version
+exit_code=0 signal=null
+stdout:
+11.9.0
+
+stderr:
+
+[2026-09-28T16:29:52.749Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ uv --version
+exit_code=0 signal=null
+stdout:
+uv 0.5.7 (Homebrew 2024-12-06)
+
+stderr:
+
+[2026-09-28T16:29:52.776Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ UV_CACHE_DIR=/private/tmp/dify-m01-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m01-python uv run --project api --no-sync --offline python --version
+exit_code=0 signal=null
+stdout:
+Python 3.12.9
+
+stderr:
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring malformed managed Python entry:
+    Failed to parse Python installation key `.temp`: not enough `-`-separated values
+Using CPython 3.12.9 interpreter at: /opt/homebrew/opt/python@3.12/bin/python3.12
+Creating virtual environment at: /private/tmp/dify-m01-python
+
+[2026-09-28T16:31:47.112Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node /private/tmp/dify-m01-audit.cjs
+exit_code=0 signal=null
+stdout:
+{
+  "result": "passed",
+  "assertions": [
+    "Five fork-only dependencies restored at exact prior versions; upstream declarations unchanged",
+    "All workspace catalog references resolve",
+    "pnpm v12 two-document lock parses; five fork deps remain missing pending M08",
+    "Node/pnpm source pins match target",
+    "Development proxy restored and absent in production across two base paths; upstream redirects/origins retained"
+  ],
+  "fork_dependencies": [
+    {
+      "name": "@serwist/next",
+      "version": "9.5.7",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    },
+    {
+      "name": "@serwist/turbopack",
+      "version": "9.5.7",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    },
+    {
+      "name": "dingtalk-jsapi",
+      "version": "3.2.8",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    },
+    {
+      "name": "esbuild-wasm",
+      "version": "0.27.2",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    },
+    {
+      "name": "serwist",
+      "version": "9.5.7",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    }
+  ],
+  "suppressions": [
+    {
+      "file": "web/app/(shareLayout)/components/authenticated-layout.tsx",
+      "rule": "no-restricted-globals",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "host_exists": true,
+      "decision": "Retain upstream baseline; M05/M06 must remeasure after host adaptation; no broad suppress-all."
+    },
+    {
+      "file": "web/app/(shareLayout)/webapp-signin/page.tsx",
+      "rule": "no-restricted-globals",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "host_exists": true,
+      "decision": "Retain upstream baseline; M05/M06 must remeasure after host adaptation; no broad suppress-all."
+    },
+    {
+      "file": "web/app/signin/normal-form.tsx",
+      "rule": "no-restricted-globals",
+      "fork_count": 6,
+      "upstream_count": 0,
+      "host_exists": true,
+      "decision": "Retain upstream baseline; M05/M06 must remeasure after host adaptation; no broad suppress-all."
+    },
+    {
+      "file": "web/service/common-extend.ts",
+      "rule": "no-restricted-imports",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "host_exists": true,
+      "decision": "Retain upstream baseline; M05/M06 must remeasure after host adaptation; no broad suppress-all."
+    },
+    {
+      "file": "web/service/explore.ts",
+      "rule": "no-restricted-imports",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "host_exists": true,
+      "decision": "Retain upstream baseline; M05/M06 must remeasure after host adaptation; no broad suppress-all."
+    },
+    {
+      "file": "web/service/system-manage-extend.ts",
+      "rule": "no-restricted-imports",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "host_exists": true,
+      "decision": "Retain upstream baseline; M05/M06 must remeasure after host adaptation; no broad suppress-all."
+    }
+  ]
+}
+
+stderr:
+
+[2026-09-28T16:31:47.688Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ UV_CACHE_DIR=/private/tmp/dify-m01-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m01-python uv run --project api --no-sync --offline python /private/tmp/dify-m01-audit.py
+exit_code=0 signal=null
+stdout:
+{
+  "result": "passed",
+  "python_declarations": {
+    "api": "~=3.12.0",
+    "lock": "==3.12.*"
+  },
+  "fork_added_declarations": [
+    "alibabacloud_dingtalk>=2.1.99",
+    "pypinyin~=0.53.0"
+  ],
+  "provider_count": 38,
+  "lock_added_packages": [
+    {
+      "name": "alibabacloud-dingtalk",
+      "version": "2.2.51"
+    },
+    {
+      "name": "alibabacloud-endpoint-util",
+      "version": "0.0.4"
+    },
+    {
+      "name": "alibabacloud-gateway-dingtalk",
+      "version": "1.0.2"
+    },
+    {
+      "name": "alibabacloud-openapi-util",
+      "version": "0.2.4"
+    },
+    {
+      "name": "pypinyin",
+      "version": "0.53.0"
+    }
+  ],
+  "lock_changed_packages": [
+    {
+      "name": "alibabacloud-gateway-spi",
+      "before": "0.0.3",
+      "after": "0.0.4"
+    },
+    {
+      "name": "dify-api",
+      "before": "1.17.1",
+      "after": "1.17.1"
+    }
+  ],
+  "note": "Static TOML/source/lock audit only; no dependency installation or live import proof."
+}
+
+stderr:
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+
+[2026-09-28T16:32:16.408Z] cwd=/private/tmp/dify-m01-evidence/lock-probe
+$ pnpm install --lockfile-only --offline --ignore-scripts
+exit_code=1 signal=null
+stdout:
+
+stderr:
+[ERROR] Failed to resolve pnpm@12.3.4 in package mirror /Users/liuxingwang/Library/Caches/pnpm/v11/metadata-full-filtered/registry.npmjs.org/pnpm.jsonl
+For help, run: pnpm help install
+
+[2026-09-28T16:32:16.651Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ UV_CACHE_DIR=/private/tmp/dify-m01-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m01-python uv run --project api --no-sync --offline uv lock --project api --check --offline
+exit_code=2 signal=null
+stdout:
+
+stderr:
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+error: unexpected argument '--check' found
+
+Usage: uv lock --project <PROJECT>
+
+For more information, try '--help'.
+
+[2026-09-28T16:32:16.782Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node_modules/.bin/oxfmt --check package.json pnpm-workspace.yaml web/package.json web/next.config.ts
+exit_code=1 signal=null
+stdout:
+
+stderr:
+This oxfmt wrapper is for IDE extension use only (lsp or stdin mode).
+To format your code, run: vp fmt
+
+[2026-09-28T16:32:17.482Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node node_modules/eslint/bin/eslint.js package.json pnpm-workspace.yaml web/package.json
+exit_code=2 signal=null
+stdout:
+
+stderr:
+
+Oops! Something went wrong! :(
+
+ESLint: 10.7.0
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'eslint-config-flat-gitignore' imported from /Users/liuxingwang/go/src/dify-plus/eslint.config.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:331:9)
+    at packageResolve (node:internal/modules/esm/resolve:784:25)
+    at moduleResolve (node:internal/modules/esm/resolve:873:18)
+    at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+    at #resolve (node:internal/modules/esm/loader:690:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:277:33)
+
+[2026-09-28T16:32:31.497Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ uv lock --help
+exit_code=0 signal=null
+stdout:
+Update the project's lockfile
+
+Usage: uv lock [OPTIONS]
+
+Options:
+      --locked   Assert that the `uv.lock` will remain unchanged [env: UV_LOCKED=]
+      --frozen   Assert that a `uv.lock` exists, without updating it [env: UV_FROZEN=]
+      --dry-run  Perform a dry run, without writing the lockfile
+
+Index options:
+      --index <INDEX>
+          The URLs to use when resolving dependencies, in addition to the default index [env:
+          UV_INDEX=]
+      --default-index <DEFAULT_INDEX>
+          The URL of the default package index (by default: <https://pypi.org/simple>) [env:
+          UV_DEFAULT_INDEX=]
+  -i, --index-url <INDEX_URL>
+          (Deprecated: use `--default-index` instead) The URL of the Python package index (by
+          default: <https://pypi.org/simple>) [env: UV_INDEX_URL=]
+      --extra-index-url <EXTRA_INDEX_URL>
+          (Deprecated: use `--index` instead) Extra URLs of package indexes to use, in addition to
+          `--index-url` [env: UV_EXTRA_INDEX_URL=]
+  -f, --find-links <FIND_LINKS>
+          Locations to search for candidate distributions, in addition to those found in the
+          registry indexes [env: UV_FIND_LINKS=]
+      --no-index
+          Ignore the registry index (e.g., PyPI), instead relying on direct URL dependencies and
+          those provided via `--find-links`
+      --index-strategy <INDEX_STRATEGY>
+          The strategy to use when resolving against multiple index URLs [env: UV_INDEX_STRATEGY=]
+          [possible values: first-index, unsafe-first-match, unsafe-best-match]
+      --keyring-provider <KEYRING_PROVIDER>
+          Attempt to use `keyring` for authentication for index URLs [env: UV_KEYRING_PROVIDER=]
+          [possible values: disabled, subprocess]
+
+Resolver options:
+  -U, --upgrade
+          Allow package upgrades, ignoring pinned versions in any existing output file. Implies
+          `--refresh`
+  -P, --upgrade-package <UPGRADE_PACKAGE>
+          Allow upgrades for a specific package, ignoring pinned versions in any existing output
+          file. Implies `--refresh-package`
+      --resolution <RESOLUTION>
+          The strategy to use when selecting between the different compatible versions for a given
+          package requirement [env: UV_RESOLUTION=] [possible values: highest, lowest,
+          lowest-direct]
+      --prerelease <PRERELEASE>
+          The strategy to use when considering pre-release versions [env: UV_PRERELEASE=] [possible
+          values: disallow, allow, if-necessary, explicit, if-necessary-or-explicit]
+      --exclude-newer <EXCLUDE_NEWER>
+          Limit candidate packages to those that were uploaded prior to the given date [env:
+          UV_EXCLUDE_NEWER=]
+      --no-sources
+          Ignore the `tool.uv.sources` table when resolving dependencies. Used to lock against the
+          standards-compliant, publishable package metadata, as opposed to using any local or Git
+          sources
+
+Build options:
+  -C, --config-setting <CONFIG_SETTING>
+          Settings to pass to the PEP 517 build backend, specified as `KEY=VALUE` pairs
+      --no-build-isolation
+          Disable isolation when building source distributions [env: UV_NO_BUILD_ISOLATION=]
+      --no-build-isolation-package <NO_BUILD_ISOLATION_PACKAGE>
+          Disable isolation when building source distributions for a specific package
+      --no-build
+          Don't build source distributions
+      --no-build-package <NO_BUILD_PACKAGE>
+          Don't build source distributions for a specific package
+      --no-binary
+          Don't install pre-built wheels
+      --no-binary-package <NO_BINARY_PACKAGE>
+          Don't install pre-built wheels for a specific package
+
+Installer options:
+      --link-mode <LINK_MODE>  The method to use when installing packages from the global cache
+                               [env: UV_LINK_MODE=] [possible values: clone, copy, hardlink,
+                               symlink]
+
+Cache options:
+  -n, --no-cache
+          Avoid reading from or writing to the cache, instead using a temporary directory for the
+          duration of the operation [env: UV_NO_CACHE=]
+      --cache-dir <CACHE_DIR>
+          Path to the cache directory [env: UV_CACHE_DIR=]
+      --refresh
+          Refresh all cached data
+      --refresh-package <REFRESH_PACKAGE>
+          Refresh cached data for a specific package
+
+Python options:
+  -p, --python <PYTHON>
+          The Python interpreter to use during resolution. [env: UV_PYTHON=]
+      --python-preference <PYTHON_PREFERENCE>
+          Whether to prefer uv-managed or system Python installations [env: UV_PYTHON_PREFERENCE=]
+          [possible values: only-managed, managed, system, only-system]
+      --no-python-downloads
+          Disable automatic downloads of Python. [env: "UV_PYTHON_DOWNLOADS=never"]
+
+Global options:
+  -q, --quiet
+          Do not print any output
+  -v, --verbose...
+          Use verbose output
+      --color <COLOR_CHOICE>
+          Control colors in output [default: auto] [possible values: auto, always, never]
+      --native-tls
+          Whether to load TLS certificates from the platform's native certificate store [env:
+          UV_NATIVE_TLS=]
+      --offline
+          Disable network access
+      --allow-insecure-host <ALLOW_INSECURE_HOST>
+          Allow insecure connections to a host [env: UV_INSECURE_HOST=]
+      --no-progress
+          Hide all progress outputs [env: UV_NO_PROGRESS=]
+      --directory <DIRECTORY>
+          Change to the given directory prior to running the command
+      --project <PROJECT>
+          Run the command within the given project directory
+      --config-file <CONFIG_FILE>
+          The path to a `uv.toml` file to use for configuration [env: UV_CONFIG_FILE=]
+      --no-config
+          Avoid discovering configuration files (`pyproject.toml`, `uv.toml`) [env: UV_NO_CONFIG=]
+  -h, --help
+          Display the concise help for this command
+  -V, --version
+          Display the uv version
+
+Use `uv help lock` for more details.
+
+stderr:
+
+[2026-09-28T16:32:31.533Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node_modules/.bin/vp fmt --check package.json pnpm-workspace.yaml web/package.json web/next.config.ts
+exit_code=0 signal=null
+stdout:
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 164ms on 4 files using 10 threads.
+
+stderr:
+
+[2026-09-28T16:32:34.170Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node_modules/.bin/vp lint web/next.config.ts web/service/common-extend.ts web/service/system-manage-extend.ts web/service/explore.ts 'web/app/(shareLayout)/components/authenticated-layout.tsx' 'web/app/(shareLayout)/webapp-signin/page.tsx' web/app/signin/normal-form.tsx
+exit_code=1 signal=null
+stdout:
+web/service/common-extend.ts:2:1: error eslint(no-restricted-imports): '@/service/base' import is restricted from being used by a pattern. help: Do not import legacy service/base fetch helpers. Use generated service clients or feature-specific service modules instead.
+web/service/system-manage-extend.ts:9:1: error eslint(no-restricted-imports): '@/service/base' import is restricted from being used by a pattern. help: Do not import legacy service/base fetch helpers. Use generated service clients or feature-specific service modules instead.
+web/app/signin/normal-form.tsx:129:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-contract-line" over "RiContractLine" from "@remixicon/react"
+web/app/signin/normal-form.tsx:130:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-error-warning-fill" over "RiErrorWarningFill" from "@remixicon/react"
+web/app/signin/normal-form.tsx:149:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-contract-line" over "RiContractLine" from "@remixicon/react"
+web/app/signin/normal-form.tsx:150:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-error-warning-fill" over "RiErrorWarningFill" from "@remixicon/react"
+web/app/signin/normal-form.tsx:169:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-contract-line" over "RiContractLine" from "@remixicon/react"
+web/app/signin/normal-form.tsx:170:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-error-warning-fill" over "RiErrorWarningFill" from "@remixicon/react"
+web/app/signin/normal-form.tsx:291:19: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-door-lock-line" over "RiDoorLockLine" from "@remixicon/react"
+: error: There are new violations not covered by the suppressions file. help: Run `oxlint --suppress-all` to update the suppressions file.
+
+stderr:
+
+[2026-09-28T16:32:41.412Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ UV_CACHE_DIR=/private/tmp/dify-m01-uv-cache UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m01-python uv run --project api --no-sync --offline uv lock --project api --locked --offline
+exit_code=1 signal=null
+stdout:
+
+stderr:
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+warning: Missing version constraint (e.g., a lower bound) for `opentelemetry-api`
+warning: Missing version constraint (e.g., a lower bound) for `opentelemetry-exporter-otlp-proto-grpc`
+warning: Missing version constraint (e.g., a lower bound) for `opentelemetry-sdk`
+warning: Missing version constraint (e.g., a lower bound) for `opentelemetry-semantic-conventions`
+  × Failed to download and build `flask-restx @
+  │ git+https://github.com/asukaminato0721/flask-restx@27758e26f8f740d7525d5039c51a9e524b6e2b68`
+  ├─▶ Git operation failed
+  ├─▶ failed to clone into:
+  │   /private/tmp/dify-m01-uv-cache/git-v0/db/859e53d455964162
+  ├─▶ failed to fetch commit `27758e26f8f740d7525d5039c51a9e524b6e2b68`
+  ╰─▶ process didn't exit successfully: `/opt/homebrew/bin/git fetch --force
+      --update-head-ok 'https://github.com/asukaminato0721/flask-restx'
+      '+27758e26f8f740d7525d5039c51a9e524b6e2b68:refs/remotes/origin/HEAD'`
+      (exit status: 128)
+      --- stderr
+      fatal: unable to access
+      'https://github.com/asukaminato0721/flask-restx/': Could not resolve
+      host: github.com
+
+
+[2026-09-28T16:32:41.569Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ git diff -- package.json pnpm-workspace.yaml web/package.json web/next.config.ts api/pyproject.toml api/uv.lock pnpm-lock.yaml oxlint-suppressions.json
+exit_code=0 signal=null
+stdout:
+diff --git a/pnpm-workspace.yaml b/pnpm-workspace.yaml
+index 81a8943022..d592a0b7d6 100644
+--- a/pnpm-workspace.yaml
++++ b/pnpm-workspace.yaml
+@@ -1,5 +1,6 @@
+ allowBuilds:
+   '@parcel/watcher': false
++  '@swc/core': false
+   canvas: false
+   esbuild: false
+   sharp: false
+@@ -86,6 +87,8 @@ catalog:
+   '@remixicon/react': 4.9.0
+   '@rgrove/parse-xml': 4.2.3
+   '@sentry/react': 10.73.0
++  '@serwist/next': 9.5.7
++  '@serwist/turbopack': 9.5.7
+   '@storybook/addon-a11y': 10.5.10
+   '@storybook/addon-docs': 10.5.10
+   '@storybook/addon-links': 10.5.10
+@@ -144,6 +147,7 @@ catalog:
+   cron-parser: 5.6.2
+   dayjs: 1.11.23
+   decimal.js: 10.6.0
++  dingtalk-jsapi: 3.2.8
+   dompurify: 3.4.14
+   echarts: 6.1.0
+   echarts-for-react: 3.0.6
+@@ -153,6 +157,7 @@ catalog:
+   embla-carousel-react: 8.6.0
+   emoji-mart: 5.6.0
+   es-toolkit: 1.52.0
++  esbuild-wasm: 0.27.2
+   eslint: 10.9.1
+   eslint-config-flat-gitignore: 2.4.0
+   eslint-markdown: 0.12.1
+@@ -228,6 +233,7 @@ catalog:
+   remark-directive: 4.0.0
+   scheduler: 0.28.0
+   server-only: 0.0.1
++  serwist: 9.5.7
+   shiki: 4.4.3
+   socket.io-client: 4.8.3
+   sortablejs: 1.15.7
+diff --git a/web/next.config.ts b/web/next.config.ts
+index adceb7f630..4fcc92b79c 100644
+--- a/web/next.config.ts
++++ b/web/next.config.ts
+@@ -38,6 +38,15 @@ const nextConfig: NextConfig = {
+     ]
+   },
+   output: 'standalone',
++  // Keep the fork's same-origin API proxy for local Next development.
++  ...(isDev && {
++    async rewrites() {
++      return [
++        { source: '/console/api/:path*', destination: 'http://localhost:5001/console/api/:path*' },
++        { source: '/api/:path*', destination: 'http://localhost:5001/api/:path*' },
++      ]
++    },
++  }),
+   compiler: {
+     removeConsole: isDev ? false : { exclude: ['warn', 'error'] },
+   },
+diff --git a/web/package.json b/web/package.json
+index 850780cff4..a48a4f4be8 100644
+--- a/web/package.json
++++ b/web/package.json
+@@ -57,6 +57,8 @@
+     "@orpc/tanstack-query": "catalog:",
+     "@remixicon/react": "catalog:",
+     "@sentry/react": "catalog:",
++    "@serwist/next": "catalog:",
++    "@serwist/turbopack": "catalog:",
+     "@streamdown/math": "catalog:",
+     "@svgdotjs/svg.js": "catalog:",
+     "@t3-oss/env-nextjs": "catalog:",
+@@ -73,6 +75,7 @@
+     "cron-parser": "catalog:",
+     "dayjs": "catalog:",
+     "decimal.js": "catalog:",
++    "dingtalk-jsapi": "catalog:",
+     "dompurify": "catalog:",
+     "echarts": "catalog:",
+     "echarts-for-react": "catalog:",
+@@ -82,6 +85,7 @@
+     "embla-carousel-react": "catalog:",
+     "emoji-mart": "catalog:",
+     "es-toolkit": "catalog:",
++    "esbuild-wasm": "catalog:",
+     "fast-deep-equal": "catalog:",
+     "foxact": "catalog:",
+     "fuse.js": "catalog:",
+@@ -126,6 +130,7 @@
+     "remark-directive": "catalog:",
+     "scheduler": "catalog:",
+     "server-only": "catalog:",
++    "serwist": "catalog:",
+     "shiki": "catalog:",
+     "socket.io-client": "catalog:",
+     "sortablejs": "catalog:",
+
+stderr:
+
+[2026-09-28T16:33:05.575Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node_modules/.bin/vp --version
+exit_code=0 signal=null
+stdout:
+vp v0.2.5
+
+Local vite-plus:
+  vite-plus  v0.2.5
+
+Tools:
+  vite             v8.1.4
+  rolldown         v1.1.5
+  vitest           v4.1.10
+  oxfmt            v0.58.0
+  oxlint           v1.73.0
+  oxlint-tsgolint  v0.24.0
+  tsdown           v0.22.7
+
+
+stderr:
+
+[2026-09-28T16:33:05.825Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node -e 'for(const p of ["next","@serwist/next","@serwist/turbopack","serwist","dingtalk-jsapi","esbuild-wasm"]){const f=require.resolve(p+"/package.json",{paths:[process.cwd()+"/web"]});const d=require(f);console.log(JSON.stringify({name:p,installed_version:d.version,peerDependencies:d.peerDependencies,dependencies:d.dependencies}))}'
+exit_code=0 signal=null
+stdout:
+{"name":"next","installed_version":"16.2.10","peerDependencies":{"@opentelemetry/api":"^1.1.0","@playwright/test":"^1.51.1","babel-plugin-react-compiler":"*","react":"^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0","react-dom":"^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0","sass":"^1.3.0"},"dependencies":{"@next/env":"16.2.10","@swc/helpers":"0.5.15","baseline-browser-mapping":"^2.9.19","caniuse-lite":"^1.0.30001579","postcss":"8.4.31","styled-jsx":"5.1.6"}}
+{"name":"@serwist/next","installed_version":"9.5.7","peerDependencies":{"next":">=14.0.0","react":">=18.0.0","typescript":">=5.0.0","@serwist/cli":"^9.5.7"},"dependencies":{"browserslist":"4.28.1","glob":"10.5.0","kolorist":"1.8.0","semver":"7.7.4","zod":"4.3.6","@serwist/build":"9.5.7","@serwist/utils":"9.5.7","@serwist/webpack-plugin":"9.5.7","@serwist/window":"9.5.7","serwist":"9.5.7"}}
+{"name":"@serwist/turbopack","installed_version":"9.5.7","peerDependencies":{"esbuild":">=0.25.0 <1.0.0","esbuild-wasm":">=0.25.0 <1.0.0","next":">=14.0.0","react":">=18.0.0","typescript":">=5.0.0"},"dependencies":{"@swc/core":"1.15.18","browserslist":"4.28.1","kolorist":"1.8.0","semver":"7.7.4","zod":"4.3.6","@serwist/utils":"9.5.7","@serwist/build":"9.5.7","@serwist/window":"9.5.7","serwist":"9.5.7"}}
+{"name":"serwist","installed_version":"9.5.7","peerDependencies":{"typescript":">=5.0.0"},"dependencies":{"idb":"8.0.3","@serwist/utils":"9.5.7"}}
+{"name":"dingtalk-jsapi","installed_version":"3.2.8","dependencies":{"promise-polyfill":"^7.1.0"}}
+{"name":"esbuild-wasm","installed_version":"0.27.2"}
+
+stderr:
+
+[2026-09-28T16:33:04.374Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node_modules/.bin/vp lint web/service/common-extend.ts web/service/system-manage-extend.ts --suppress-all
+exit_code=0 signal=null
+stdout:
+
+stderr:
+
+[2026-09-28T16:33:06.407Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ git diff -- oxlint-suppressions.json
+exit_code=0 signal=null
+stdout:
+diff --git a/oxlint-suppressions.json b/oxlint-suppressions.json
+index f58391f65a..c014bb3767 100644
+--- a/oxlint-suppressions.json
++++ b/oxlint-suppressions.json
+@@ -5446,6 +5446,11 @@
+       "count": 3
+     }
+   },
++  "web/service/common-extend.ts": {
++    "no-restricted-imports": {
++      "count": 1
++    }
++  },
+   "web/service/common.spec.ts": {
+     "@tanstack/query/prefer-query-options": {
+       "count": 2
+@@ -5579,6 +5584,11 @@
+       "count": 1
+     }
+   },
++  "web/service/system-manage-extend.ts": {
++    "no-restricted-imports": {
++      "count": 1
++    }
++  },
+   "web/service/tools.ts": {
+     "no-restricted-imports": {
+       "count": 1
+
+stderr:
+
+[2026-09-28T16:33:55.551Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node /private/tmp/dify-m01-audit.cjs
+exit_code=0 signal=null
+stdout:
+{
+  "result": "passed",
+  "assertions": [
+    "Five fork-only dependencies restored at exact prior versions; upstream declarations unchanged",
+    "All workspace catalog references resolve",
+    "pnpm v12 two-document lock parses; five fork deps remain missing pending M08",
+    "Node/pnpm source pins match target",
+    "Development proxy restored and absent in production across two base paths; upstream redirects/origins retained"
+  ],
+  "fork_dependencies": [
+    {
+      "name": "@serwist/next",
+      "version": "9.5.7",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    },
+    {
+      "name": "@serwist/turbopack",
+      "version": "9.5.7",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    },
+    {
+      "name": "dingtalk-jsapi",
+      "version": "3.2.8",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    },
+    {
+      "name": "esbuild-wasm",
+      "version": "0.27.2",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    },
+    {
+      "name": "serwist",
+      "version": "9.5.7",
+      "declaration": "web/package.json",
+      "catalog": "pnpm-workspace.yaml"
+    }
+  ],
+  "suppressions": [
+    {
+      "file": "web/app/(shareLayout)/components/authenticated-layout.tsx",
+      "rule": "no-restricted-globals",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "current_count": 0,
+      "host_exists": true,
+      "unchanged_from_fork": false,
+      "decision": "Not restored: adapted upstream host no longer reports the prior fork diagnostic; M05/M06 must remeasure after their changes."
+    },
+    {
+      "file": "web/app/(shareLayout)/webapp-signin/page.tsx",
+      "rule": "no-restricted-globals",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "current_count": 0,
+      "host_exists": true,
+      "unchanged_from_fork": false,
+      "decision": "Not restored: adapted upstream host no longer reports the prior fork diagnostic; M05/M06 must remeasure after their changes."
+    },
+    {
+      "file": "web/app/signin/normal-form.tsx",
+      "rule": "no-restricted-globals",
+      "fork_count": 6,
+      "upstream_count": 0,
+      "current_count": 0,
+      "host_exists": true,
+      "unchanged_from_fork": false,
+      "decision": "Not restored: adapted upstream host no longer reports the prior fork diagnostic; M05/M06 must remeasure after their changes."
+    },
+    {
+      "file": "web/service/common-extend.ts",
+      "rule": "no-restricted-imports",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "current_count": 1,
+      "host_exists": true,
+      "unchanged_from_fork": true,
+      "decision": "Restored exact count 1 after targeted lint reproduced the unchanged fork import; M05 migration and M08 remeasurement remain pending."
+    },
+    {
+      "file": "web/service/explore.ts",
+      "rule": "no-restricted-imports",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "current_count": 0,
+      "host_exists": true,
+      "unchanged_from_fork": false,
+      "decision": "Not restored: adapted upstream host no longer reports the prior fork diagnostic; M05/M06 must remeasure after their changes."
+    },
+    {
+      "file": "web/service/system-manage-extend.ts",
+      "rule": "no-restricted-imports",
+      "fork_count": 1,
+      "upstream_count": 0,
+      "current_count": 1,
+      "host_exists": true,
+      "unchanged_from_fork": true,
+      "decision": "Restored exact count 1 after targeted lint reproduced the unchanged fork import; M05 migration and M08 remeasurement remain pending."
+    }
+  ]
+}
+
+stderr:
+
+[2026-09-28T16:33:56.206Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node_modules/.bin/vp lint web/next.config.ts web/service/common-extend.ts web/service/system-manage-extend.ts web/service/explore.ts 'web/app/(shareLayout)/components/authenticated-layout.tsx' 'web/app/(shareLayout)/webapp-signin/page.tsx' web/app/signin/normal-form.tsx
+exit_code=0 signal=null
+stdout:
+web/app/signin/normal-form.tsx:129:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-contract-line" over "RiContractLine" from "@remixicon/react"
+web/app/signin/normal-form.tsx:130:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-error-warning-fill" over "RiErrorWarningFill" from "@remixicon/react"
+web/app/signin/normal-form.tsx:149:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-contract-line" over "RiContractLine" from "@remixicon/react"
+web/app/signin/normal-form.tsx:150:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-error-warning-fill" over "RiErrorWarningFill" from "@remixicon/react"
+web/app/signin/normal-form.tsx:169:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-contract-line" over "RiContractLine" from "@remixicon/react"
+web/app/signin/normal-form.tsx:170:15: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-error-warning-fill" over "RiErrorWarningFill" from "@remixicon/react"
+web/app/signin/normal-form.tsx:291:19: warning dify(prefer-tailwind-icons): Prefer using Tailwind CSS icon class "i-ri-door-lock-line" over "RiDoorLockLine" from "@remixicon/react"
+
+stderr:
+
+[2026-09-28T16:33:59.363Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node_modules/.bin/vp fmt --check package.json pnpm-workspace.yaml web/package.json web/next.config.ts oxlint-suppressions.json
+exit_code=0 signal=null
+stdout:
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 133ms on 4 files using 10 threads.
+
+stderr:
+
+[2026-09-28T16:38:42.039Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node /private/tmp/dify-m01-verify.cjs
+exit_code=0 signal=null
+stdout:
+{
+  "result": "passed",
+  "graph_node_count": 27,
+  "propagated_blocked": [
+    "M02",
+    "M03",
+    "M04",
+    "M05",
+    "M06",
+    "M07",
+    "M08",
+    "V01",
+    "V02",
+    "R01"
+  ],
+  "M00_ancestry_and_conflict_origins": true,
+  "other_node_states_and_all_authorizations_unchanged": true,
+  "locks_unchanged": true,
+  "owned_tracked_paths_only": true,
+  "visible_untracked": {
+    "before": 7735,
+    "missing": [],
+    "added_M01_only": [
+      "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json"
+    ],
+    "original_path_set_sha256": "401cca01522a6f560201354ed80ab3c5144956063f450805e17aac79c44a94a7",
+    "ignored_venv_exception": "api/.venv was recreated by uv; see explicit side-effect evidence."
+  }
+}
+
+stderr:
+
+[2026-09-28T16:38:42.534Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ git diff --check
+exit_code=0 signal=null
+stdout:
+
+stderr:
+
+[2026-09-28T16:38:42.571Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ openspec validate merge-upstream-1-17-1 --strict
+exit_code=0 signal=null
+stdout:
+Change 'merge-upstream-1-17-1' is valid
+
+stderr:
+
+[2026-09-28T16:39:46.261Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ git diff --check
+exit_code=0 signal=null
+stdout:
+
+stderr:
+
+[2026-09-28T16:39:46.332Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ openspec validate merge-upstream-1-17-1 --strict
+exit_code=0 signal=null
+stdout:
+Change 'merge-upstream-1-17-1' is valid
+
+stderr:
+
+[2026-09-28T16:40:10.594Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ git rev-parse HEAD && git diff --cached --name-only && git diff --cached --check && git diff --check
+exit_code=2 signal=null
+stdout:
+8e47d6c059e530d61a8955a1a28861a9815409a6
+openspec/changes/merge-upstream-1-17-1/evidence/M01/execution.log
+openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json
+openspec/changes/merge-upstream-1-17-1/execution-graph.json
+openspec/changes/merge-upstream-1-17-1/execution-graph.md
+openspec/changes/merge-upstream-1-17-1/tasks.md
+oxlint-suppressions.json
+pnpm-workspace.yaml
+web/next.config.ts
+web/package.json
+openspec/changes/merge-upstream-1-17-1/evidence/M01/execution.log:1132: new blank line at EOF.
+
+stderr:
+
+[2026-09-28T16:40:10.645Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node -e 'const fs=require("fs"),cp=require("child_process"),a=require("assert/strict");const r=JSON.parse(fs.readFileSync("openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json"));const paths=cp.execFileSync("git",["diff","--cached","--name-only"],{encoding:"utf8"}).trim().split("\n");a.deepEqual(paths.sort(),r.commit_allowlist.sort());a.equal(cp.execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).trim(),r.pre_commit_head);for(const p of paths)a(fs.readFileSync(p).equals(cp.execFileSync("git",["show",":"+p],{maxBuffer:16*1024*1024})),p);console.log("PASS: 9 staged paths match M01 allowlist and working files; expected parent HEAD")'
+exit_code=0 signal=null
+stdout:
+PASS: 9 staged paths match M01 allowlist and working files; expected parent HEAD
+
+stderr:
+
+[2026-09-28T16:40:46.102Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ git diff --cached --check
+exit_code=0 signal=null
+stdout:
+
+stderr:
+
+[2026-09-28T16:40:46.151Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ git diff --check
+exit_code=0 signal=null
+stdout:
+
+stderr:
+
+[2026-09-28T16:40:46.187Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ openspec validate merge-upstream-1-17-1 --strict
+exit_code=0 signal=null
+stdout:
+Change 'merge-upstream-1-17-1' is valid
+
+stderr:
+
+[2026-09-28T16:40:46.409Z] cwd=/Users/liuxingwang/go/src/dify-plus
+$ node /private/tmp/dify-m01-verify.cjs
+exit_code=0 signal=null
+stdout:
+{
+  "result": "passed",
+  "graph_node_count": 27,
+  "propagated_blocked": [
+    "M02",
+    "M03",
+    "M04",
+    "M05",
+    "M06",
+    "M07",
+    "M08",
+    "V01",
+    "V02",
+    "R01"
+  ],
+  "M00_ancestry_and_conflict_origins": true,
+  "other_node_states_and_all_authorizations_unchanged": true,
+  "locks_unchanged": true,
+  "owned_tracked_paths_only": true,
+  "visible_untracked": {
+    "before": 7735,
+    "missing": [],
+    "added_M01_only": [],
+    "original_path_set_sha256": "401cca01522a6f560201354ed80ab3c5144956063f450805e17aac79c44a94a7",
+    "ignored_venv_exception": "api/.venv was recreated by uv; see explicit side-effect evidence."
+  }
+}
+
+stderr:
+
+
+# Reproducible temporary script: /private/tmp/dify-m01-run.cjs
+const fs = require('node:fs');
+const cp = require('node:child_process');
+const crypto = require('node:crypto');
+const path = require('node:path');
+const root = '/Users/liuxingwang/go/src/dify-plus';
+const dir = '/private/tmp/dify-m01-evidence';
+fs.mkdirSync(dir, { recursive: true });
+function run(cmd, options = {}) {
+  const start = new Date().toISOString();
+  const r = cp.spawnSync('/bin/zsh', ['-lc', cmd], {
+    cwd: root, encoding: 'utf8', timeout: 45000,
+    maxBuffer: 16 * 1024 * 1024, ...options,
+  });
+  const item = { command: cmd, cwd: options.cwd || root, started_at_utc: start,
+    finished_at_utc: new Date().toISOString(), exit_code: r.status,
+    signal: r.signal, error: r.error?.message, stdout: r.stdout || '', stderr: r.stderr || '' };
+  fs.appendFileSync(path.join(dir, 'commands.jsonl'), JSON.stringify(item) + '\n');
+  console.log(JSON.stringify(item));
+  return item;
+}
+const hash = b => crypto.createHash('sha256').update(b).digest('hex');
+module.exports = { run, root, dir, hash };
+if (require.main === module) run(process.argv[2]);
+
+
+# Reproducible temporary script: /private/tmp/dify-m01-audit.cjs
+const fs = require('node:fs');
+const cp = require('node:child_process');
+const assert = require('node:assert/strict');
+const vm = require('node:vm');
+const { root, dir, hash } = require('./dify-m01-run.cjs');
+process.chdir(root);
+const yaml = require(root + '/node_modules/.pnpm/yaml@2.9.0/node_modules/yaml');
+const ts = require(root + '/node_modules/typescript');
+const refs = { base: '5c6372d2f76d240265b92fd27c16bc772ffcb107', fork: 'b17761ed0166e8ef49474da418b95a9462adbb9c', upstream: '8387590ace4a094de812b7847fc6a4c3a27cd52b', before: '8e47d6c059e530d61a8955a1a28861a9815409a6' };
+const read = (file, ref) => ref ? cp.execFileSync('git', ['show', ref + ':' + file], {encoding:'utf8',maxBuffer:16*1024*1024}) : fs.readFileSync(file,'utf8');
+const json = (f,r) => JSON.parse(read(f,r));
+const yml = (f,r) => yaml.parse(read(f,r));
+const delta = (a,b) => [...new Set([...Object.keys(a||{}),...Object.keys(b||{})])].sort().filter(k=>JSON.stringify(a?.[k])!==JSON.stringify(b?.[k])).map(k=>({name:k,before:a?.[k]??null,after:b?.[k]??null}));
+const audit = { refs, files: {}, fork_dependencies: [], suppressions: [], assertions: [] };
+for (const f of ['package.json','pnpm-workspace.yaml','web/package.json','web/next.config.ts','oxlint-suppressions.json','pnpm-lock.yaml','api/pyproject.toml','api/uv.lock']) audit.files[f] = {sha256:hash(read(f)),same_as_upstream:read(f)===read(f,refs.upstream),changed_in_M01:read(f)!==read(f,refs.before)};
+for (const f of ['package.json','web/package.json']) {
+  audit.files[f].fork_delta = {};audit.files[f].M01_delta = {};
+  for (const key of ['dependencies','devDependencies','scripts','engines','devEngines']) {
+    audit.files[f].fork_delta[key] = delta(json(f,refs.base)[key],json(f,refs.fork)[key]);
+    audit.files[f].M01_delta[key] = delta(json(f,refs.before)[key],json(f)[key]);
+  }
+}
+const ws=yml('pnpm-workspace.yaml');
+audit.catalog_fork_delta=delta(yml('pnpm-workspace.yaml',refs.base).catalog,yml('pnpm-workspace.yaml',refs.fork).catalog);
+audit.catalog_M01_delta=delta(yml('pnpm-workspace.yaml',refs.before).catalog,ws.catalog);
+assert.equal(audit.catalog_fork_delta.length,5);
+assert.deepEqual(audit.catalog_M01_delta,audit.catalog_fork_delta);
+for(const d of audit.catalog_fork_delta){assert.equal(json('web/package.json').dependencies[d.name],'catalog:');audit.fork_dependencies.push({name:d.name,version:ws.catalog[d.name],declaration:'web/package.json',catalog:'pnpm-workspace.yaml'});}
+assert.equal(ws.allowBuilds['@swc/core'],false);
+assert.deepEqual(ws.packages,yml('pnpm-workspace.yaml',refs.upstream).packages);
+const manifests=cp.execFileSync('git',['ls-files','**/package.json','package.json'],{encoding:'utf8'}).trim().split('\n').filter(f=>f==='package.json'||f==='web/package.json'||f==='e2e/package.json'||f==='sdks/nodejs-client/package.json'||f==='cli/package.json'||/^packages\/[^/]+\/package.json$/.test(f));
+audit.workspace_manifests=manifests;
+for(const f of manifests) for(const [name,spec] of Object.entries({...json(f).dependencies,...json(f).devDependencies})) if(spec==='catalog:') assert.ok(ws.catalog[name],f+': missing catalog '+name);
+const lockDocs=yaml.parseAllDocuments(read('pnpm-lock.yaml'));
+for(const doc of lockDocs) assert.equal(doc.errors.length,0);
+assert.equal(lockDocs.length,2);
+const envLock=lockDocs[0].toJS(),lock=lockDocs[1].toJS();
+assert.equal(envLock.importers['.'].packageManagerDependencies.pnpm.version,'12.3.4');
+audit.pnpm_lock={documents:lockDocs.length,unchanged_upstream:true,package_manager:envLock.importers['.'].packageManagerDependencies.pnpm.version,missing_web_dependencies:audit.fork_dependencies.filter(d=>!lock.importers.web.dependencies[d.name]).map(d=>d.name),final_refresh_owner:'M08'};
+assert.equal(audit.pnpm_lock.missing_web_dependencies.length,5);
+assert.equal(json('package.json').devEngines.runtime.version,'24.20.0');
+assert.equal(json('package.json').packageManager,'pnpm@12.3.4');
+const b=json('oxlint-suppressions.json',refs.base),f=json('oxlint-suppressions.json',refs.fork),c=json('oxlint-suppressions.json');
+for(const file of Object.keys(f))for(const [rule,v] of Object.entries(f[file]))if(JSON.stringify(v)!==JSON.stringify(b[file]?.[rule]))audit.suppressions.push({file,rule,fork_count:v.count,upstream_count:json('oxlint-suppressions.json',refs.upstream)[file]?.[rule]?.count??0,current_count:c[file]?.[rule]?.count??0,host_exists:fs.existsSync(file),unchanged_from_fork:read(file)===read(file,refs.fork),decision:['web/service/common-extend.ts','web/service/system-manage-extend.ts'].includes(file)?'Restored exact count 1 after targeted lint reproduced the unchanged fork import; M05 migration and M08 remeasurement remain pending.':'Not restored: adapted upstream host no longer reports the prior fork diagnostic; M05/M06 must remeasure after their changes.'});
+assert.deepEqual(delta(json('oxlint-suppressions.json',refs.upstream),c).map(d=>d.name),['web/service/common-extend.ts','web/service/system-manage-extend.ts']);
+const src=read('web/next.config.ts');
+const js=ts.transpileModule(src,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS},reportDiagnostics:true});
+assert.equal(js.diagnostics.length,0);
+async function verifyConfig(mode,basePath){
+  const sandbox={exports:{},process:{env:{NODE_ENV:mode,NEXT_ALLOWED_DEV_ORIGINS:' localhost, test.local, '}},require:(id)=>{if(id==='code-inspector-plugin')return {codeInspectorPlugin:()=>({})};if(id==='./env')return {env:{NEXT_PUBLIC_BASE_PATH:basePath}};throw Error('Unexpected import '+id)}};
+  vm.runInNewContext(js.outputText,sandbox);
+  const cfg=sandbox.exports.default;
+  assert.equal(cfg.basePath,basePath);assert.equal(cfg.output,'standalone');
+  assert.deepEqual(Array.from(cfg.allowedDevOrigins),['localhost','test.local']);
+  const redirects=JSON.parse(JSON.stringify(await cfg.redirects()));assert.equal(redirects.length,2);assert.equal(redirects[0].permanent,true);
+  if(mode==='development')assert.deepEqual(JSON.parse(JSON.stringify(await cfg.rewrites())),[{source:'/console/api/:path*',destination:'http://localhost:5001/console/api/:path*'},{source:'/api/:path*',destination:'http://localhost:5001/api/:path*'}]);else assert.equal(cfg.rewrites,undefined);
+  return {mode,basePath,result:'passed',kind:'isolated config evaluation; env/plugin imports stubbed; not live Next/Vinext'};
+}
+(async()=>{audit.config_checks=[];for(const mode of ['development','production'])for(const base of ['','/dify'])audit.config_checks.push(await verifyConfig(mode,base));audit.assertions=['Five fork-only dependencies restored at exact prior versions; upstream declarations unchanged','All workspace catalog references resolve','pnpm v12 two-document lock parses; five fork deps remain missing pending M08','Node/pnpm source pins match target','Development proxy restored and absent in production across two base paths; upstream redirects/origins retained'];fs.writeFileSync(dir+'/js-audit.json',JSON.stringify(audit,null,2)+'\n');console.log(JSON.stringify({result:'passed',assertions:audit.assertions,fork_dependencies:audit.fork_dependencies,suppressions:audit.suppressions},null,2));})().catch(e=>{console.error(e);process.exitCode=1});
+
+
+# Reproducible temporary script: /private/tmp/dify-m01-audit.py
+import json
+import pathlib
+import subprocess
+import tomllib
+
+root = pathlib.Path('/Users/liuxingwang/go/src/dify-plus')
+upstream = '8387590ace4a094de812b7847fc6a4c3a27cd52b'
+fork = 'b17761ed0166e8ef49474da418b95a9462adbb9c'
+base = '5c6372d2f76d240265b92fd27c16bc772ffcb107'
+def read(file, ref=None):
+    data = subprocess.check_output(['git', 'show', f'{ref}:{file}'], cwd=root).decode() if ref else (root / file).read_text()
+    return tomllib.loads(data)
+api = read('api/pyproject.toml')
+lock = read('api/uv.lock')
+fork_added = set(read('api/pyproject.toml', fork)['project']['dependencies']) - set(read('api/pyproject.toml', base)['project']['dependencies'])
+assert fork_added == {'alibabacloud_dingtalk>=2.1.99', 'pypinyin~=0.53.0'}
+assert set(api['project']['dependencies']) - set(read('api/pyproject.toml', upstream)['project']['dependencies']) == fork_added
+assert api['project']['requires-python'] == '~=3.12.0'
+assert lock['requires-python'] == '==3.12.*'
+packages = {p['name']:p for p in lock['package']}
+up = {p['name']:p for p in read('api/uv.lock', upstream)['package']}
+assert packages['alibabacloud-dingtalk']['version'] == '2.2.51'
+assert packages['pypinyin']['version'] == '0.53.0'
+required = {x['name']:x.get('specifier') for x in packages['dify-api']['metadata']['requires-dist']}
+assert required['alibabacloud-dingtalk'] == '>=2.1.99'
+assert required['pypinyin'] == '~=0.53.0'
+for name in ['alibabacloud-dingtalk','alibabacloud-gateway-dingtalk','alibabacloud-openapi-util']:
+    for d in packages[name].get('dependencies',[]): assert d['name'] in packages
+providers = []
+for file in sorted(root.glob('api/providers/*/*/pyproject.toml')):
+    relative = str(file.relative_to(root))
+    p = read(relative)
+    assert p == read(relative, upstream)
+    name = p['project']['name']
+    assert api['tool']['uv']['sources'][name] == {'workspace': True}
+    assert name in lock['manifest']['members']
+    assert name in packages
+    providers.append({'path':relative,'name':name,'requires_python':p['project'].get('requires-python'),'unchanged_from_upstream':True})
+result = {'result':'passed','python_declarations':{'api':api['project']['requires-python'],'lock':lock['requires-python']},'fork_added_declarations':sorted(fork_added),'provider_count':len(providers),'providers':providers,'lock_added_packages':[{'name':n,'version':packages[n]['version']} for n in sorted(packages.keys()-up.keys())],'lock_changed_packages':[{'name':n,'before':up[n]['version'],'after':packages[n]['version']} for n in sorted(packages.keys()&up.keys()) if packages[n]!=up[n]],'note':'Static TOML/source/lock audit only; no dependency installation or live import proof.'}
+pathlib.Path('/private/tmp/dify-m01-evidence/python-audit.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({k:v for k,v in result.items() if k!='providers'},indent=2))
+
+
+# Reproducible temporary script: /private/tmp/dify-m01-verify.cjs
+const fs=require('node:fs');
+const cp=require('node:child_process');
+const assert=require('node:assert/strict');
+const {root,dir,hash}=require('./dify-m01-run.cjs');
+process.chdir(root);
+const b='openspec/changes/merge-upstream-1-17-1/';
+const evidence=JSON.parse(fs.readFileSync(b+'evidence/M01/result.json'));
+const before=JSON.parse(fs.readFileSync(dir+'/graph-before.json'));
+const after=JSON.parse(fs.readFileSync(b+'execution-graph.json'));
+const ids=evidence.downstream_status_propagation.nodes;
+assert.equal(cp.execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),evidence.pre_commit_head);
+assert.equal(cp.execFileSync('git',['branch','--show-current'],{encoding:'utf8'}).trim(),evidence.branch);
+assert.equal(cp.execFileSync('git',['rev-parse',evidence.target_ref],{encoding:'utf8'}).trim(),evidence.target_commit);
+assert.equal(cp.execFileSync('git',['show','--no-patch','--format=%P',evidence.merge_baseline],{encoding:'utf8'}).trim(),evidence.merge_parents.join(' '));
+cp.execFileSync('git',['merge-base','--is-ancestor',evidence.merge_baseline,'HEAD']);
+assert.equal(cp.execFileSync('git',['ls-files','-u'],{encoding:'utf8'}),'');
+for(const n of after.nodes){
+ const old=before.nodes.find(x=>x.id===n.id);
+ if(n.id==='M01'){assert.equal(n.status,'blocked');for(const key of ['dependencies','authorization','write_scope','owned_conflict_paths','acceptance'])assert.deepEqual(n[key],old[key]);}
+ else if(ids.includes(n.id)){assert.equal(n.status,'blocked');const copy={...n};delete copy.blocked_reason;copy.status=old.status;assert.deepEqual(copy,old);}
+ else assert.deepEqual(n,old);
+}
+const seen=new Set(),active=new Set();function visit(id){assert(!active.has(id),'cycle');if(seen.has(id))return;active.add(id);const node=after.nodes.find(n=>n.id===id);assert(node);node.dependencies.forEach(visit);active.delete(id);seen.add(id)}after.nodes.forEach(n=>visit(n.id));
+const owned=fs.readFileSync(b+'research/conflict-ownership.tsv','utf8').trim().split('\n').slice(1).map(x=>x.split('\t')).filter(x=>x[1]==='M01').map(x=>x[0]).sort();assert.deepEqual(owned,after.nodes.find(n=>n.id==='M01').owned_conflict_paths.slice().sort());
+for(const f of owned)assert(cp.execFileSync('git',['show',evidence.pre_commit_head+':'+f]).equals(cp.execFileSync('git',['show',evidence.target_commit+':'+f])),f+' M00 was not upstream');
+for(const f of ['pnpm-lock.yaml','api/uv.lock'])assert(fs.readFileSync(f).equals(cp.execFileSync('git',['show',evidence.pre_commit_head+':'+f],{maxBuffer:16*1024*1024})),f+' changed');
+const modified=cp.execFileSync('git',['diff','HEAD','--name-only','-z']).toString().split('\0').filter(Boolean);for(const f of modified)assert(evidence.commit_allowlist.includes(f),'unowned tracked edit '+f);
+const original=fs.readFileSync(dir+'/untracked-before').toString().split('\0').filter(Boolean);
+const now=cp.execFileSync('git',['ls-files','--others','--exclude-standard','-z']).toString().split('\0').filter(Boolean);
+const added=now.filter(f=>!original.includes(f));const missing=original.filter(f=>!now.includes(f));
+assert.equal(missing.length,0);for(const f of added)assert(evidence.commit_allowlist.includes(f),'unowned untracked addition '+f);
+const tasks=fs.readFileSync(b+'tasks.md','utf8');assert(tasks.includes('- [x] 7.1 [M01]'));assert(tasks.includes('- [ ] 7.2 [M01]'));assert(tasks.includes('- [x] 7.3 [M01]'));assert(tasks.includes('- [ ] 7.4 [M01]'));assert(!tasks.split('\n')[2].includes('ready 待'));
+const output={result:'passed',graph_node_count:after.nodes.length,propagated_blocked:ids,M00_ancestry_and_conflict_origins:true,other_node_states_and_all_authorizations_unchanged:true,locks_unchanged:true,owned_tracked_paths_only:true,visible_untracked:{before:original.length,missing:missing,added_M01_only:added,original_path_set_sha256:hash(fs.readFileSync(dir+'/untracked-before')),ignored_venv_exception:'api/.venv was recreated by uv; see explicit side-effect evidence.'}};
+fs.writeFileSync(dir+'/verification.json',JSON.stringify(output,null,2)+'\n');console.log(JSON.stringify(output,null,2));

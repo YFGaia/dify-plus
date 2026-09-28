@@ -1,5 +1,6 @@
 allowBuilds:
   '@parcel/watcher': false
+  '@swc/core': false
   canvas: false
   esbuild: false
   sharp: false
@@ -86,6 +87,8 @@ catalog:
   '@remixicon/react': 4.9.0
   '@rgrove/parse-xml': 4.2.3
   '@sentry/react': 10.73.0
+  '@serwist/next': 9.5.7
+  '@serwist/turbopack': 9.5.7
   '@storybook/addon-a11y': 10.5.10
   '@storybook/addon-docs': 10.5.10
   '@storybook/addon-links': 10.5.10
@@ -144,6 +147,7 @@ catalog:
   cron-parser: 5.6.2
   dayjs: 1.11.23
   decimal.js: 10.6.0
+  dingtalk-jsapi: 3.2.8
   dompurify: 3.4.14
   echarts: 6.1.0
   echarts-for-react: 3.0.6
@@ -153,6 +157,7 @@ catalog:
   embla-carousel-react: 8.6.0
   emoji-mart: 5.6.0
   es-toolkit: 1.52.0
+  esbuild-wasm: 0.27.2
   eslint: 10.9.1
   eslint-config-flat-gitignore: 2.4.0
   eslint-markdown: 0.12.1
@@ -228,6 +233,7 @@ catalog:
   remark-directive: 4.0.0
   scheduler: 0.28.0
   server-only: 0.0.1
+  serwist: 9.5.7
   shiki: 4.4.3
   socket.io-client: 4.8.3
   sortablejs: 1.15.7

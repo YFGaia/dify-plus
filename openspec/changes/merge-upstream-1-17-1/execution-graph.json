@@ -303,7 +303,7 @@
       "owner_role": "构建负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -351,7 +351,31 @@
       "outputs": [
         "evidence/M01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "execution": {
+        "pre_commit_head": "8e47d6c059e530d61a8955a1a28861a9815409a6",
+        "source_changes": [
+          "pnpm-workspace.yaml",
+          "web/package.json",
+          "web/next.config.ts",
+          "oxlint-suppressions.json"
+        ],
+        "new_file_registration": [
+          "evidence/M01/result.json",
+          "evidence/M01/execution.log"
+        ],
+        "steps": {
+          "7.1": "passed_declarations_only",
+          "7.2": "blocked_initial_lock_verification",
+          "7.3": "passed_final_lock_handoff",
+          "7.4": "blocked"
+        },
+        "final_lock_write_owner": "M08",
+        "initial_lock_retry_owner": "M01",
+        "evidence": "evidence/M01/result.json",
+        "deployable": false
+      },
+      "blocked_reason": "声明与定向检查已完成；目标 Node 24.20.0 / pnpm 12.3.4 未实际复现，隔离 pnpm 锁生成因目标版本无离线缓存失败，uv 锁校验因固定 flask-restx Git 源不可达失败；初始锁验证和非代码 ESLint 尚未通过。M02–M08、V01/V02、R01 同步依赖阻塞；环境与生产节点不变。"
     },
     {
       "id": "M02",
@@ -362,7 +386,7 @@
       "owner_role": "后端基础负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -411,7 +435,8 @@
       "outputs": [
         "evidence/M02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "M03",
@@ -422,7 +447,7 @@
       "owner_role": "身份负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -468,7 +493,8 @@
       "outputs": [
         "evidence/M03/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "M04",
@@ -479,7 +505,7 @@
       "owner_role": "计费负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -551,7 +577,8 @@
       "outputs": [
         "evidence/M04/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "M05",
@@ -562,7 +589,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -613,7 +640,8 @@
       "outputs": [
         "evidence/M05/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "M06",
@@ -625,7 +653,7 @@
       "owner_role": "前端业务负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -713,7 +741,8 @@
       "outputs": [
         "evidence/M06/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "M07",
@@ -724,7 +753,7 @@
       "owner_role": "部署负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -769,7 +798,8 @@
       "outputs": [
         "evidence/M07/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "M08",
@@ -785,7 +815,7 @@
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -836,7 +866,8 @@
       "outputs": [
         "evidence/M08/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "V01",
@@ -847,7 +878,7 @@
       "owner_role": "后端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -884,7 +915,8 @@
       "outputs": [
         "evidence/V01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "V02",
@@ -895,7 +927,7 @@
       "owner_role": "前端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -937,7 +969,8 @@
       "outputs": [
         "evidence/V02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "R01",
@@ -949,7 +982,7 @@
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -982,7 +1015,8 @@
       "outputs": [
         "evidence/R01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "blocked_reason": "M01 工具链/初始锁验证未通过；按 state_rules.failure 传播依赖阻断。尚未实施本节点，待 M01 新证据解除后由主 Agent 重新判定 pending/ready。"
     },
     {
       "id": "V03",
