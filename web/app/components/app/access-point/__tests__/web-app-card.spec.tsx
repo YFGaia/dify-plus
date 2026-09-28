@@ -2,7 +2,7 @@ import type { AccessPointAppInfo, PublishedWorkflow } from '../shared/utils'
 import type { InputVar, Node } from '@/app/components/workflow/types'
 import { toast } from '@langgenius/dify-ui/toast'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { screen, waitFor, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import { BlockEnum, InputVarType } from '@/app/components/workflow/types'
@@ -15,6 +15,7 @@ import { WebAppAccessPointCard } from '../built-in-access-points/web-app-card'
 
 const mocks = vi.hoisted(() => ({
   siteEnable: vi.fn(),
+  updateSite: vi.fn(),
   resetSiteAccessToken: vi.fn().mockResolvedValue({}),
 }))
 
@@ -38,6 +39,12 @@ vi.mock('@/service/console', () => ({
           },
         },
         site: {
+          post: {
+            mutationOptions: (options = {}) => ({
+              mutationFn: mocks.updateSite,
+              ...options,
+            }),
+          },
           accessTokenReset: {
             post: {
               mutationOptions: (options = {}) => ({
@@ -113,13 +120,17 @@ function renderCard(
   workflow?: PublishedWorkflow,
   {
     canManageAccessPoint = true,
+    showAccessControl = true,
+    appOverrides = {},
     onRefreshApp = vi.fn().mockResolvedValue(undefined),
   }: {
     canManageAccessPoint?: boolean
+    showAccessControl?: boolean
+    appOverrides?: Partial<AccessPointAppInfo>
     onRefreshApp?: () => Promise<void>
   } = {},
 ) {
-  useAppStore.setState({ appDetail: createAppInfo(mode) })
+  useAppStore.setState({ appDetail: { ...createAppInfo(mode), ...appOverrides } })
   const queryClient = createTestQueryClient()
 
   return render(
@@ -128,6 +139,7 @@ function renderCard(
         availability={availability}
         canManageAccessPoint={canManageAccessPoint}
         onRefreshApp={onRefreshApp}
+        showAccessControl={showAccessControl}
         workflow={workflow}
       />
     </QueryClientProvider>,
@@ -138,10 +150,12 @@ function StoreConnectedWebAppCard({
   availability,
   canManageAccessPoint,
   onRefreshApp,
+  showAccessControl,
   workflow,
 }: {
   availability: 'available' | 'loading' | 'unavailable'
   canManageAccessPoint: boolean
+  showAccessControl: boolean
   onRefreshApp: () => Promise<void>
   workflow?: PublishedWorkflow
 }) {
@@ -155,7 +169,7 @@ function StoreConnectedWebAppCard({
       canDeploy
       canManageAccess
       canManageAccessPoint={canManageAccessPoint}
-      showAccessControl
+      showAccessControl={showAccessControl}
       onRefreshApp={onRefreshApp}
       onSaveSiteConfig={vi.fn().mockResolvedValue(undefined)}
       workflow={workflow}
@@ -222,6 +236,7 @@ describe('WebAppAccessPointCard', () => {
       enable_site: true,
     })
     mocks.resetSiteAccessToken.mockResolvedValue({})
+    mocks.updateSite.mockResolvedValue({})
   })
 
   afterEach(() => {
@@ -261,7 +276,7 @@ describe('WebAppAccessPointCard', () => {
     const user = userEvent.setup()
     renderCard(AppModeEnum.CHAT)
 
-    await user.click(screen.getByRole('switch'))
+    await user.click(screen.getByRole('switch', { name: 'appOverview.overview.appInfo.title' }))
 
     await waitFor(() => {
       expect(mocks.siteEnable.mock.calls[0]?.[0]).toEqual({
@@ -275,9 +290,113 @@ describe('WebAppAccessPointCard', () => {
     const user = userEvent.setup()
     renderCard(AppModeEnum.CHAT, 'available', undefined, { canManageAccessPoint: false })
 
-    await user.click(screen.getByRole('switch'))
+    await user.click(screen.getByRole('switch', { name: 'appOverview.overview.appInfo.title' }))
 
     expect(mocks.siteEnable).not.toHaveBeenCalled()
+  })
+
+  it.each([undefined, true, false])(
+    'shows saved per-app authentication with a secure default (%s)',
+    (enabled) => {
+      renderCard(AppModeEnum.CHAT, 'available', undefined, {
+        appOverrides: { webapp_auth_enabled_extend: enabled },
+      })
+
+      expect(screen.getByRole('switch', { name: /webappAuth\.title/ })).toHaveAttribute(
+        'aria-checked',
+        String(enabled ?? true),
+      )
+      expect(screen.getByRole('switch', { name: /webappAuth\.title/ })).toHaveAccessibleDescription(
+        'extend.appOverview.appInfo.webappAuth.tooltip',
+      )
+    },
+  )
+
+  it.each([true, false])(
+    'saves per-app authentication independently of site status (%s)',
+    async (enabled) => {
+      const user = userEvent.setup()
+      const saved = createDeferredPromise<object>()
+      mocks.updateSite.mockReturnValueOnce(saved.promise)
+      renderCard(AppModeEnum.CHAT, 'available', undefined, {
+        appOverrides: { webapp_auth_enabled_extend: enabled, enable_site: false },
+        showAccessControl: false,
+      })
+      const authSwitch = screen.getByRole('switch', { name: /webappAuth\.title/ })
+
+      await user.click(authSwitch)
+
+      expect(mocks.updateSite.mock.calls[0]?.[0]).toEqual({
+        params: { app_id: 'app-1' },
+        body: { webapp_auth_enabled_extend: !enabled },
+      })
+      expect(authSwitch).toHaveAttribute('aria-checked', String(enabled))
+      expect(authSwitch).toHaveAttribute('aria-busy', 'true')
+      expect(useAppStore.getState().appDetail?.webapp_auth_enabled_extend).toBe(enabled)
+      await user.click(authSwitch)
+      expect(mocks.updateSite).toHaveBeenCalledTimes(1)
+
+      saved.resolve({})
+
+      await waitFor(() => {
+        expect(authSwitch).toHaveAttribute('aria-checked', String(!enabled))
+        expect(authSwitch).not.toHaveAttribute('aria-busy')
+      })
+      expect(useAppStore.getState().appDetail?.enable_site).toBe(false)
+      expect(mocks.siteEnable).not.toHaveBeenCalled()
+    },
+  )
+
+  it('keeps per-app authentication behind Access Point management permission', async () => {
+    const user = userEvent.setup()
+    renderCard(AppModeEnum.CHAT, 'available', undefined, { canManageAccessPoint: false })
+    const authSwitch = screen.getByRole('switch', { name: /webappAuth\.title/ })
+
+    expect(authSwitch).toHaveAttribute('aria-disabled', 'true')
+    await user.click(authSwitch)
+
+    expect(mocks.updateSite).not.toHaveBeenCalled()
+  })
+
+  it('preserves authentication when saving fails and allows retry', async () => {
+    const user = userEvent.setup()
+    mocks.updateSite.mockRejectedValueOnce(new Error('request failed'))
+    renderCard(AppModeEnum.CHAT)
+    const authSwitch = screen.getByRole('switch', { name: /webappAuth\.title/ })
+
+    await user.click(authSwitch)
+
+    await waitFor(() => {
+      expect(toast.error).toHaveBeenCalledWith('common.actionMsg.modifiedUnsuccessfully')
+      expect(authSwitch).not.toHaveAttribute('aria-busy')
+    })
+    expect(authSwitch).toHaveAttribute('aria-checked', 'true')
+    expect(useAppStore.getState().appDetail?.webapp_auth_enabled_extend).toBeUndefined()
+
+    await user.click(authSwitch)
+    await waitFor(() => expect(authSwitch).toHaveAttribute('aria-checked', 'false'))
+  })
+
+  it('does not apply a completed authentication save to another app', async () => {
+    const user = userEvent.setup()
+    const saved = createDeferredPromise<object>()
+    mocks.updateSite.mockReturnValueOnce(saved.promise)
+    renderCard(AppModeEnum.CHAT)
+
+    await user.click(screen.getByRole('switch', { name: /webappAuth\.title/ }))
+    const nextApp = { ...createAppInfo(AppModeEnum.CHAT), id: 'app-2' }
+    await act(async () => {
+      useAppStore.setState({ appDetail: nextApp })
+      saved.resolve({})
+      await saved.promise
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('switch', { name: /webappAuth\.title/ })).not.toHaveAttribute(
+        'aria-busy',
+      )
+    })
+    expect(useAppStore.getState().appDetail).toEqual(nextApp)
   })
 
   it('resets the site access token through the generated contract', async () => {
@@ -302,7 +421,7 @@ describe('WebAppAccessPointCard', () => {
     mocks.siteEnable.mockRejectedValueOnce(error)
     renderCard(AppModeEnum.CHAT)
 
-    await user.click(screen.getByRole('switch'))
+    await user.click(screen.getByRole('switch', { name: 'appOverview.overview.appInfo.title' }))
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('common.actionMsg.modifiedUnsuccessfully')
@@ -362,7 +481,7 @@ describe('WebAppAccessPointCard', () => {
       .mockReturnValueOnce(secondToggle.promise)
     renderCard(AppModeEnum.CHAT)
 
-    const accessSwitch = screen.getByRole('switch')
+    const accessSwitch = screen.getByRole('switch', { name: 'appOverview.overview.appInfo.title' })
     await user.click(accessSwitch)
 
     expect(accessSwitch).toHaveAttribute('aria-checked', 'false')
@@ -396,7 +515,9 @@ describe('WebAppAccessPointCard', () => {
   it('disables Web App management actions without Access Point management', () => {
     renderCard(AppModeEnum.CHAT, 'available', undefined, { canManageAccessPoint: false })
 
-    expect(screen.getByRole('switch')).toHaveAttribute('aria-disabled', 'true')
+    expect(
+      screen.getByRole('switch', { name: 'appOverview.overview.appInfo.title' }),
+    ).toHaveAttribute('aria-disabled', 'true')
     expect(screen.getByRole('button', { name: /embedIntoSite/ })).toBeDisabled()
     expect(screen.getByRole('button', { name: /customize\.entry/ })).toBeDisabled()
     expect(screen.getByRole('button', { name: /settings\.settings/ })).toBeDisabled()

@@ -1008,7 +1008,9 @@
         "current_subtask": {
           "id": "12.1a",
           "status": "implementation_complete_verification_blocked",
-          "evidence": "evidence/M06/result.json#/subtasks/12.1a"
+          "evidence": "evidence/M06/result.json#/subtasks/12.1a",
+          "review_status": "no_blocking_findings",
+          "review_evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_review"
         },
         "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"
       },

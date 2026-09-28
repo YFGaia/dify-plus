@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 规划已进入执行：A00/A01/A02/A04/M00/M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7，M05 原 11.1–11.5 通过后重开 11.6；M04 节点源码验收已通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 已启动：12.1a 应用级 WebApp 认证开关已实现，卡片套件因缺失已锁定 cn@0.2.4 尚未收集；context caller 等待 M02/M05 安全契约跟进。M07 13.1–13.3、13.5 已通过；13.4 的 env 范围修正及 init_secret_key 串行门实现完成，待新 Luna 复核；13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
+> 规划已进入执行：A00/A01/A02/A04/M00/M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7，M05 原 11.1–11.5 通过后重开 11.6；M04 节点源码验收已通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 已启动：12.1a 应用级 WebApp 认证开关已实现并经独立 Luna 审查无阻断，卡片套件因缺失已锁定 cn@0.2.4 尚未收集；context caller 等待 M02/M05 安全契约跟进。M07 13.1–13.3、13.5 已通过；13.4 的 env 范围修正及 init_secret_key 串行门实现完成，待新 Luna 复核；13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -97,7 +97,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
 
 - [ ] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；preflight 已确定 context caller 依赖 M02 8.6 和 M05 11.6 的权限/类型契约。详情见 `evidence/M06/result.json#/preflight/contract_handoff`。
-  - [ ] 12.1a [M06] built-in WebApp 开关独立于站点启用及 environment/global auth；代码与 8 个参数化测试已写，卡片测试因 cn@0.2.4 未安装而阻断，需恢复已锁依赖后复验；15 项现有地址/认证测试通过。当前证据见 `evidence/M06/result.json#/subtasks/12.1a`。
+  - [ ] 12.1a [M06] built-in WebApp 开关独立于站点启用及 environment/global auth；代码与 8 个参数化测试已写，独立 Luna 无阻断发现；卡片测试因 cn@0.2.4 未安装而阻断，需恢复已锁依赖后复验；15 项现有地址/认证测试通过。当前证据见 `evidence/M06/result.json#/subtasks/12.1a`。
   - [ ] 12.1b [M06] M02/M05 契约验收后再接入匿名 context guard：没有 Console CSRF cookie 时跳过，401 不触发登录重定向，调用参数来自当前 conversation。
 - [ ] 12.2 [M06] 迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。

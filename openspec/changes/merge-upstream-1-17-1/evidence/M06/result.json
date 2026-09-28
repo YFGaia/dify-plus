@@ -1,7 +1,7 @@
 {
   "node": "M06",
   "status": "in_progress",
-  "implementation": "not_started",
+  "implementation": "in_progress",
   "deployable": false,
   "preflight": {
     "status": "completed",
@@ -102,8 +102,32 @@
         "Focused card behavior tests have not executed; do not mark 12.1a accepted until they pass.",
         "The environment address/passport behavior was already present and its existing 15 focused tests pass; the anonymous context caller remains blocked on M02/M05 contract follow-up."
       ],
-      "next_action": "Restore the declared cn dependency in an isolated/compatible dependency environment and run the card suite, then continue 12.1b only after M02 8.6 and M05 11.6."
+      "next_action": "Restore the declared cn dependency in an isolated/compatible dependency environment and run the card suite, then continue 12.1b only after M02 8.6 and M05 11.6.",
+      "independent_review": {
+        "status": "no_blocking_findings",
+        "model": "gpt-6-luna",
+        "agent": "/root/m06_switch_luna_review",
+        "reviewed_worktree_head": "d6105324d4",
+        "reviewed_source_sha256": {
+          "web/app/components/app/access-point/built-in-access-points/web-app-card.tsx": "3b93dcc6be2254a256c7f7f7df47da786682fc4c3e65c8e726261e29e8529281",
+          "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx": "4d40dd17e76ec7c666c1c07b4f864723cc647097d5d152ccf0d4a98d2c3a4c7d"
+        },
+        "findings": [],
+        "non_blocking_coverage_gap": "Focused tests do not explicitly set global systemFeatures.webapp_auth false and assert the per-app switch remains available; reviewer verified the component itself does not read that global feature.",
+        "checks": [
+          {
+            "command": "git diff --check -- web/app/components/app/access-point/built-in-access-points/web-app-card.tsx web/app/components/app/access-point/__tests__/web-app-card.spec.tsx",
+            "exit_code": 0
+          },
+          {
+            "command": "focused WebApp card suite",
+            "exit_code": null,
+            "result": "Not run by reviewer; previously blocked before collection by missing installed cn@0.2.4."
+          }
+        ],
+        "next_action": "Restore the declared cn package using the compatible frozen workspace dependency environment and run the full focused card suite before accepting 12.1a."
+      }
     }
   },
-  "next_subtask": "12.1"
+  "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"
 }

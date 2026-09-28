@@ -14,6 +14,8 @@ import {
   AlertDialogTitle,
 } from '@langgenius/dify-ui/alert-dialog'
 import { Button } from '@langgenius/dify-ui/button'
+import { Field, FieldDescription, FieldLabel } from '@langgenius/dify-ui/field'
+import { Switch } from '@langgenius/dify-ui/switch'
 import { toast } from '@langgenius/dify-ui/toast'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -115,6 +117,22 @@ export function WebAppAccessPointCard({
       onError: () => {
         toast.error(t(($) => $['actionMsg.generatedUnsuccessfully'], { ns: 'common' }))
         setShowRegenerate(false)
+      },
+    }),
+  )
+  const toggleWebAppAuthMutation = useMutation(
+    consoleQuery.apps.byAppId.site.post.mutationOptions({
+      onSuccess: (_site, variables) => {
+        const currentAppDetail = useAppStore.getState().appDetail
+        if (!currentAppDetail || currentAppDetail.id !== variables.params.app_id) return
+
+        setAppDetail({
+          ...currentAppDetail,
+          webapp_auth_enabled_extend: variables.body.webapp_auth_enabled_extend ?? true,
+        })
+      },
+      onError: () => {
+        toast.error(t(($) => $['actionMsg.modifiedUnsuccessfully'], { ns: 'common' }))
       },
     }),
   )
@@ -254,6 +272,29 @@ export function WebAppAccessPointCard({
           regenerating={resetSiteAccessToken.isPending}
           onRegenerate={() => setShowRegenerate(true)}
         />
+        <Field className="flex items-center justify-between gap-4 border-t border-divider-subtle p-4">
+          <div className="min-w-0">
+            <FieldLabel>
+              {t(($) => $['appOverview.appInfo.webappAuth.title'], { ns: 'extend' })}
+            </FieldLabel>
+            <FieldDescription>
+              {t(($) => $['appOverview.appInfo.webappAuth.tooltip'], { ns: 'extend' })}
+            </FieldDescription>
+          </div>
+          <Switch
+            checked={appInfo.webapp_auth_enabled_extend ?? true}
+            disabled={!canManageAccessPoint}
+            loading={toggleWebAppAuthMutation.isPending}
+            onCheckedChange={(enabled) => {
+              if (!canManageAccessPoint || toggleWebAppAuthMutation.isPending) return
+
+              toggleWebAppAuthMutation.mutate({
+                params: { app_id: appInfo.id },
+                body: { webapp_auth_enabled_extend: enabled },
+              })
+            }}
+          />
+        </Field>
         {showAccessControl &&
           (availability === 'available' ? (
             <WebAppAccessControlEntry
