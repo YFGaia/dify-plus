@@ -182,7 +182,7 @@
       ]
     },
     "13.4": {
-      "status": "review_required",
+      "status": "in_progress",
       "model": "gpt-6-astra",
       "agent": "/root/m07_13_4_env_examples",
       "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
@@ -241,8 +241,48 @@
       ],
       "follow_up": {
         "trigger": "M07 13.6 Luna acceptance found that docker/.env.example still contains optional/provider settings while repository AGENTS.md limits the root sample to variables required for a default Compose deployment to start.",
-        "upstream_comparison": "The same introductory wording and broad variable set exist in upstream 1.17.1; source parity alone does not establish compliance with fork AGENTS.md.",
-        "next_action": "Run a read-only variable-by-variable startup requirement analysis before deciding whether to move optional entries to service samples or correct documentation; preserve fork Compose explicit-mapping caveat."
+        "completed_analysis": "Sol classified all 244 current root variables: 2 strict startup entries, 242 optional entries, with 5 documentation destinations added to the relevant service samples.",
+        "next_action": "Apply the minimal root sample and Compose fallback correction, regenerate the per-variable audit, rerun isolated default/all-profile Compose assertions, then ask a fresh Luna for 13.6 acceptance."
+      },
+      "startup_scope_analysis": {
+        "model": "gpt-6-sol",
+        "agent": "/root/m07_env_exact_scope",
+        "status": "complete_read_only",
+        "source_commit": "abe3b9ae33d21fcb3ebc6abfaeef1946591fd456",
+        "root_sample_variable_count": 244,
+        "root_sample_disposition": {
+          "keep_for_default_startup": [
+            "COMPOSE_PROFILES",
+            "DIFY_AGENT_SERVER_SECRET_KEY"
+          ],
+          "move_or_remove_as_optional": 242,
+          "optional_already_in_core_service_samples": 237,
+          "optional_without_service_sample_destination": [
+            "SERVER_CONSOLE_API_URL",
+            "FILES_URL",
+            "INTERNAL_FILES_URL",
+            "PLUGIN_MAX_FILE_SIZE",
+            "MARKETPLACE_URL"
+          ]
+        },
+        "preserve_effective_fork_defaults_before_removing_root_assignments": {
+          "CELERY_WORKER_AMOUNT": "4 (current Compose fallback is empty)",
+          "POSTGRES_MAX_CONNECTIONS": "200 (current Compose fallback is 100)",
+          "WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED": "true (current Compose fallback is false)",
+          "NGINX_SOCKET_IO_UPSTREAM": "api_websocket:5001 (current Compose fallback is api:5001)"
+        },
+        "secret_key_finding": "Root sample says blank SECRET_KEY auto-generates a persistent value, but fork Compose supplies a hard-coded development key for blank input. Change Compose fallback to empty to activate api/configs/secret_key.py storage-backed generation; remove SECRET_KEY from root startup sample.",
+        "compose_loading": "Fork Compose has no env_file entries; it interpolates docker/.env through explicit environment mappings. Copying a core service sample alone does not configure fork services. Upstream Compose loads service env_file plus ./.env, though explicit environment mappings can override sample values.",
+        "runtime_destination_mapping": {
+          "SERVER_CONSOLE_API_URL": "docker/envs/core-services/web.env.example",
+          "FILES_URL": "docker/envs/core-services/shared.env.example",
+          "INTERNAL_FILES_URL": "docker/envs/core-services/shared.env.example",
+          "PLUGIN_MAX_FILE_SIZE": "docker/envs/core-services/shared.env.example (requires explicit fork service environment override because current fork Compose has no mapping)",
+          "MARKETPLACE_URL": "docker/envs/core-services/web.env.example"
+        },
+        "limits": [
+          "Source/config analysis only; no actual credentials, containers, private images, or live deployment were used."
+        ]
       }
     },
     "13.5": {
