@@ -1,0 +1,124 @@
+{
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "fork_baseline": "fork-merged-1.16.0",
+  "row_count": 900,
+  "files": {
+    "docker/.env.example": {
+      "vs_fork": {
+        "保留": 235,
+        "删除": 12,
+        "新增": 7,
+        "改值": 2
+      },
+      "vs_upstream": {
+        "保留": 240,
+        "不存在": 12,
+        "改值": 4
+      },
+      "effective_variables": 244
+    },
+    "docker/envs/core-services/api.env.example": {
+      "vs_fork": {
+        "新增": 9,
+        "保留": 9
+      },
+      "vs_upstream": {
+        "保留": 18
+      },
+      "effective_variables": 18
+    },
+    "docker/envs/core-services/dify-agent.env.example": {
+      "vs_fork": {
+        "保留": 11,
+        "删除": 5,
+        "新增": 23,
+        "改值": 1
+      },
+      "vs_upstream": {
+        "保留": 32,
+        "不存在": 5,
+        "新增": 1,
+        "改值": 2
+      },
+      "effective_variables": 35
+    },
+    "docker/envs/core-services/local-sandbox.env.example": {
+      "vs_fork": {
+        "保留": 1
+      },
+      "vs_upstream": {
+        "保留": 1
+      },
+      "effective_variables": 1
+    },
+    "docker/envs/core-services/plugin-daemon.env.example": {
+      "vs_fork": {
+        "保留": 19
+      },
+      "vs_upstream": {
+        "保留": 19
+      },
+      "effective_variables": 19
+    },
+    "docker/envs/core-services/sandbox.env.example": {
+      "vs_fork": {
+        "保留": 13
+      },
+      "vs_upstream": {
+        "保留": 13
+      },
+      "effective_variables": 13
+    },
+    "docker/envs/core-services/shared.env.example": {
+      "vs_fork": {
+        "保留": 466,
+        "新增": 34,
+        "改值": 5,
+        "删除": 1
+      },
+      "vs_upstream": {
+        "保留": 504,
+        "改值": 1,
+        "不存在": 1
+      },
+      "effective_variables": 505
+    },
+    "docker/envs/core-services/web.env.example": {
+      "vs_fork": {
+        "保留": 26,
+        "新增": 6,
+        "删除": 1,
+        "改值": 1
+      },
+      "vs_upstream": {
+        "保留": 32,
+        "不存在": 1,
+        "改值": 1
+      },
+      "effective_variables": 33
+    },
+    "docker/envs/core-services/worker-beat.env.example": {
+      "vs_fork": {
+        "保留": 4
+      },
+      "vs_upstream": {
+        "保留": 4
+      },
+      "effective_variables": 4
+    },
+    "docker/envs/core-services/worker.env.example": {
+      "vs_fork": {
+        "保留": 9
+      },
+      "vs_upstream": {
+        "保留": 9
+      },
+      "effective_variables": 9
+    }
+  },
+  "preserved_upstream_duplicates": {
+    "docker/envs/core-services/shared.env.example": [
+      "UV_CACHE_DIR"
+    ]
+  }
+}

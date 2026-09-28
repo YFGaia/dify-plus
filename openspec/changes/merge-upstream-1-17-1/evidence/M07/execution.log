@@ -73,4 +73,7 @@ Coordinator checks:
 - git diff --check -- docker/docker-compose.dify-plus.yaml: exit 0.
 - Agent-reported SSRF allowlist unit and four entrypoint bash -n checks: exit 0.
 
-Environment limit: macOS Bash 3.2 could not execute the upstream Bash 4 worker script; queue behavior was checked statically against the exact upstream script. No image pull, container start, live proxy/Agent, or real environment verification was performed. 13.4-13.6 remain pending; M07 is partial/non-deployable.
+Environment limit: macOS Bash 3.2 could not execute the upstream Bash 4 worker script; queue behavior was checked statically against the exact upstream script. No image pull, container start, live proxy/Agent, or real environment verification was performed. 13.4 and 13.5 have since passed with itemized env and CI evidence; 13.6 remains pending. M07 is partial/non-deployable.
+
+2026-09-29 M07 13.4: Compared ten env samples against fork-merged-1.16.0 and upstream 1.17.1; retained 900-row itemized audit in env-variable-audit.tsv. 52 assertions, five isolated Compose renders, and diff-check passed. No image/container/private env/credential access.
+2026-09-29 M07 13.5: Sol read-only audit confirmed registered GitHub workflows byte-identical to upstream and documented fork GitLab private image supply separately; no workflow or release pipeline ran. Static manifest artifact/collision risk remains unverified.

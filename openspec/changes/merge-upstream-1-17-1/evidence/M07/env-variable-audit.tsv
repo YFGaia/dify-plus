@@ -1,0 +1,901 @@
+path	variable	action_vs_fork_1_16_0	action_vs_upstream_1_17_1	basis
+docker/.env.example	AGENT_BACKEND_BASE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	AGENT_BACKEND_RUN_TIMEOUT_SECONDS	删除	不存在	DIFY_AGENT_RUN_TIMEOUT_SECONDS; upstream 1.17.1 backend-loop deadline, plus APP/WORKFLOW outer limits
+docker/.env.example	AGENT_BACKEND_STREAM_MAX_RECONNECTS	删除	不存在	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	AGENT_BACKEND_STREAM_READ_TIMEOUT_SECONDS	删除	不存在	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	ALLOW_EMBED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	ALLOW_UNSAFE_DATA_SCHEME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	AMPLITUDE_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	API_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	API_SENTRY_PROFILES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	API_SENTRY_TRACES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	API_WEBSOCKET_GUNICORN_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	API_WEBSOCKET_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	API_WEBSOCKET_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	API_WEBSOCKET_WORKER_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	APP_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	APP_WEB_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	BROKER_USE_SSL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CELERY_AUTO_SCALE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CELERY_BACKEND	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CELERY_BROKER_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CELERY_MAX_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CELERY_MIN_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CELERY_TASK_ANNOTATIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CELERY_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CELERY_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CHECK_UPDATE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_CONNECT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_POOL_KEEPALIVE_EXPIRY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_POOL_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_POOL_MAX_KEEPALIVE_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_READ_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_SSL_VERIFY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CODE_EXECUTION_WRITE_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	COMPOSE_PROFILES	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_DISABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CONSOLE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CONSOLE_CORS_ALLOW_ORIGINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CONSOLE_WEB_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	COOKIE_DOMAIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	CSP_WHITELIST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DB_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DB_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DB_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DB_PLUGIN_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DB_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DB_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DB_USERNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DEBUG	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DEPLOY_ENV	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_AGENT_API_TOKEN	新增	改值	upstream 1.17.1 control-plane contract; fork Compose maps one blank-by-default token to API/worker and Agent backend
+docker/.env.example	DIFY_AGENT_INNER_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_AGENT_INNER_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
+docker/.env.example	DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
+docker/.env.example	DIFY_AGENT_PLUGIN_DAEMON_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_AGENT_PLUGIN_DAEMON_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_AGENT_REDIS_PREFIX	删除	不存在	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_REDIS_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_AGENT_RUNTIME_BACKEND	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
+docker/.env.example	DIFY_AGENT_RUN_RETENTION_SECONDS	删除	不存在	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_SANDBOX_FILES_BASE_URL	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
+docker/.env.example	DIFY_AGENT_SERVER_SECRET_KEY	保留	改值	fork Compose has no public secret; Agent ServerSettings requires secret with Stub URL; configure separate strong random key
+docker/.env.example	DIFY_AGENT_SHELLCTL_AUTH_TOKEN	删除	不存在	DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN; legacy fallback retained by fork Compose and Agent Settings AliasChoices
+docker/.env.example	DIFY_AGENT_SHELLCTL_ENTRYPOINT	删除	不存在	DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT; legacy fallback retained by fork Compose and Agent Settings AliasChoices
+docker/.env.example	DIFY_AGENT_SHUTDOWN_GRACE_SECONDS	删除	不存在	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_STUB_API_BASE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_BIND_ADDRESS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	ENABLE_COLLABORATION_MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	ENABLE_LEARN_APP	删除	不存在	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	ENABLE_REQUEST_LOGGING	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	ENABLE_WEBSITE_FIRECRAWL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	ENABLE_WEBSITE_JINAREADER	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	ENABLE_WEBSITE_WATERCRAWL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	ENDPOINT_URL_TEMPLATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EVENT_BUS_REDIS_CHANNEL_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EVENT_BUS_REDIS_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EVENT_BUS_REDIS_USE_CLUSTERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EXPERIMENTAL_ENABLE_VINEXT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EXPOSE_NGINX_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EXPOSE_NGINX_SSL_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EXPOSE_PLUGIN_DAEMON_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EXPOSE_PLUGIN_DEBUGGING_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	EXPOSE_PLUGIN_DEBUGGING_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	FILES_ACCESS_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	FILES_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	FLASK_DEBUG	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	FORCE_VERIFYING_SIGNATURE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	GUNICORN_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	INIT_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	INTERNAL_FILES_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LANG	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LC_ALL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LOG_DATEFORMAT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LOG_FILE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LOG_FILE_BACKUP_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LOG_FILE_MAX_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LOG_LEVEL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LOG_OUTPUT_FORMAT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LOG_TZ	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	LOOP_NODE_MAX_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	MARKETPLACE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	MARKETPLACE_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	MARKETPLACE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	MAX_ITERATIONS_NUM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	MAX_PARALLEL_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	MAX_TOOLS_NUM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	MAX_TREE_DEPTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	MIGRATION_ENABLED	改值	改值	M07 13.2 fork business containers hard-code false; explicit migration profile upgrades both chains
+docker/.env.example	NEXT_PUBLIC_BATCH_CONCURRENCY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NEXT_PUBLIC_COOKIE_DOMAIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NEXT_PUBLIC_ENABLE_AGENT_V2	改值	改值	fork Compose API/Web fallback=false; enable only after Agent credential/runtime acceptance
+docker/.env.example	NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW	删除	不存在	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NEXT_PUBLIC_SOCKET_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_CLIENT_MAX_BODY_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_ENABLE_CERTBOT_CHALLENGE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_HTTPS_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_KEEPALIVE_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_PROXY_READ_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_PROXY_SEND_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_SERVER_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_SOCKET_IO_UPSTREAM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_SSL_CERT_FILENAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_SSL_CERT_KEY_FILENAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_SSL_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_SSL_PROTOCOLS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NGINX_WORKER_PROCESSES	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	OPENAI_API_BASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	OPENDAL_FS_ROOT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	OPENDAL_SCHEME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PGDATA	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PIP_MIRROR_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_DAEMON_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_DAEMON_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_DAEMON_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_DEBUGGING_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_DEBUGGING_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_DIFY_INNER_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_DIFY_INNER_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_INSTALLED_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_MAX_EXECUTION_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_MAX_FILE_SIZE	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
+docker/.env.example	PLUGIN_MAX_PACKAGE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_MEDIA_CACHE_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_MODEL_SCHEMA_CACHE_TTL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_PACKAGE_CACHE_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_PPROF_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_PYTHON_ENV_INIT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_SENTRY_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_STDIO_BUFFER_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_STDIO_MAX_BUFFER_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_STORAGE_LOCAL_ROOT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_STORAGE_OSS_BUCKET	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_STORAGE_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PLUGIN_WORKING_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	POSTGRES_EFFECTIVE_CACHE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	POSTGRES_MAINTENANCE_WORK_MEM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	POSTGRES_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	POSTGRES_SHARED_BUFFERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	POSTGRES_STATEMENT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	POSTGRES_WORK_MEM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	PYTHONIOENCODING	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_DB	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_HEALTH_CHECK_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_KEEPALIVE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_KEEPALIVE_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_KEEPALIVE_IDLE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_KEEPALIVE_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_KEY_PREFIX	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_RETRY_BACKOFF_BASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_RETRY_BACKOFF_CAP	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_RETRY_RETRIES	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_SOCKET_CONNECT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_SOCKET_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_SSL_CA_CERTS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_SSL_CERTFILE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_SSL_CERT_REQS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_SSL_KEYFILE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_USERNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	REDIS_USE_SSL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SANDBOX_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SANDBOX_ENABLE_NETWORK	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SANDBOX_GIN_MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SANDBOX_HTTPS_PROXY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SANDBOX_HTTP_PROXY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SANDBOX_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SANDBOX_WORKER_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SERVER_CONSOLE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SERVER_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SERVER_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SERVER_WORKER_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SERVICE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SQLALCHEMY_ECHO	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SQLALCHEMY_MAX_OVERFLOW	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SQLALCHEMY_POOL_PRE_PING	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SQLALCHEMY_POOL_RECYCLE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SQLALCHEMY_POOL_RESET_ON_RETURN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SQLALCHEMY_POOL_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SQLALCHEMY_POOL_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SQLALCHEMY_POOL_USE_LIFO	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_COREDUMP_DIR	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_DEFAULT_CONNECT_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_DEFAULT_READ_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_DEFAULT_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_DEFAULT_WRITE_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_HTTP_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_POOL_KEEPALIVE_EXPIRY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_POOL_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_POOL_MAX_KEEPALIVE_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_PROXY_ALLOW_PRIVATE_DOMAINS	删除	不存在	moved/retained in docker/envs/middleware.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_PROXY_ALLOW_PRIVATE_IPS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_PROXY_HTTPS_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_PROXY_HTTP_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	STORAGE_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	TEXT_GENERATION_TIMEOUT_MS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	TOP_K_MAX_VALUE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	TRIGGER_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	TURNSTILE_SITE_KEY	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
+docker/.env.example	UV_CACHE_DIR	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	VECTOR_INDEX_NAME_PREFIX	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	VECTOR_STORE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_ALLOWED_KEYS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_USERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_AUTHORIZATION_ADMINLIST_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_AUTHORIZATION_ADMINLIST_USERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_CLUSTER_HOSTNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_DEFAULT_VECTORIZER_MODULE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_DISABLE_TELEMETRY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_GSE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_KAGOME_JA	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_KAGOME_KR	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_GRPC_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_PERSISTENCE_DATA_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_QUERY_DEFAULTS_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEAVIATE_TOKENIZATION	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEB_API_CORS_ALLOW_ORIGINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WEB_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	WORKFLOW_GENERATION_TIMEOUT_MS	删除	不存在	moved/retained in docker/envs/core-services/web.env.example
+docker/envs/core-services/api.env.example	AGENT_BACKEND_BINDING_FILE_DOWNLOAD_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/api.env.example	INNER_API_KEY_FOR_PLUGIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	KNOWLEDGE_FS_BASE_URL	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/api.env.example	KNOWLEDGE_FS_ENABLED	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/api.env.example	KNOWLEDGE_FS_JWT_SECRET	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/api.env.example	KNOWLEDGE_FS_SSE_READ_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/api.env.example	KNOWLEDGE_FS_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/api.env.example	MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	PLUGIN_DAEMON_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	PLUGIN_MAX_PACKAGE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	PLUGIN_REMOTE_INSTALL_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	PLUGIN_REMOTE_INSTALL_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	SENTRY_PROFILES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	SENTRY_TRACES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
+docker/envs/core-services/api.env.example	TURNSTILE_ALLOWED_HOSTNAMES	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/api.env.example	TURNSTILE_EMAIL_CODE_VERIFY_REQUIRED	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/api.env.example	TURNSTILE_SECRET_KEY	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	AGENT_BACKEND_BASE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	AGENT_BACKEND_RUN_TIMEOUT_SECONDS	删除	不存在	DIFY_AGENT_RUN_TIMEOUT_SECONDS; upstream 1.17.1 backend-loop deadline, plus APP/WORKFLOW outer limits
+docker/envs/core-services/dify-agent.env.example	AGENT_BACKEND_STREAM_MAX_RECONNECTS	删除	不存在	moved/retained in docker/envs/core-services/shared.env.example
+docker/envs/core-services/dify-agent.env.example	AGENT_BACKEND_STREAM_READ_TIMEOUT_SECONDS	删除	不存在	moved/retained in docker/envs/core-services/shared.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_API_TOKEN	新增	新增	upstream 1.17.1 control-plane contract; fork Compose maps one blank-by-default token to API/worker and Agent backend
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_BINDING_FILE_DOWNLOAD_COMMAND_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_E2B_ACTIVE_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_E2B_API_KEY	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_E2B_SHELLCTL_PORT	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_E2B_TEMPLATE	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_INNER_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_INNER_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_OUTBOUND_HTTP_CONNECT_TIMEOUT	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_OUTBOUND_HTTP_KEEPALIVE_EXPIRY	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_OUTBOUND_HTTP_MAX_CONNECTIONS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_OUTBOUND_HTTP_MAX_KEEPALIVE_CONNECTIONS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_OUTBOUND_HTTP_POOL_TIMEOUT	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_OUTBOUND_HTTP_READ_TIMEOUT	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_OUTBOUND_HTTP_WRITE_TIMEOUT	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_PLUGIN_DAEMON_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_PLUGIN_DAEMON_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_REDIS_PREFIX	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_REDIS_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_RUNTIME_BACKEND	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_RUN_EVENT_STREAM_MAX_LENGTH	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_RUN_RETENTION_SECONDS	保留	改值	fork Compose and fork-merged-1.16.0 policy=259200; optional setting stays in Agent service sample
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_RUN_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_SANDBOX_FILES_BASE_URL	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_SERVER_SECRET_KEY	改值	改值	fork Compose has no public secret; Agent ServerSettings requires secret with Stub URL; configure separate strong random key
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_SHELLCTL_AUTH_TOKEN	删除	不存在	DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN; legacy fallback retained by fork Compose and Agent Settings AliasChoices
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_SHELLCTL_ENTRYPOINT	删除	不存在	DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT; legacy fallback retained by fork Compose and Agent Settings AliasChoices
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_SHELL_REDACT_PATTERNS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_SHUTDOWN_GRACE_SECONDS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_STREAM_TEXT_DELTA_COALESCING_ENABLED	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_STREAM_TEXT_DELTA_FLUSH_INTERVAL_MS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_STREAM_TEXT_DELTA_MAX_CHARS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_STUB_API_BASE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/dify-agent.env.example
+docker/envs/core-services/dify-agent.env.example	DIFY_AGENT_STUB_UPLOAD_FILE_SIZE_LIMIT	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/dify-agent.env.example; new upstream variable
+docker/envs/core-services/local-sandbox.env.example	SHELLCTL_ENABLE_PATH_ISOLATION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/local-sandbox.env.example
+docker/envs/core-services/plugin-daemon.env.example	CELERY_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	DB_PLUGIN_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	FORCE_VERIFYING_SIGNATURE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_DAEMON_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_DAEMON_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_DAEMON_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_DEBUGGING_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_DEBUGGING_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_DIFY_INNER_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_DIFY_INNER_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_MAX_EXECUTION_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_PPROF_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_PYTHON_ENV_INIT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_STDIO_BUFFER_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_STDIO_MAX_BUFFER_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_STORAGE_LOCAL_ROOT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_STORAGE_OSS_BUCKET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_STORAGE_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/plugin-daemon.env.example	PLUGIN_WORKING_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/plugin-daemon.env.example
+docker/envs/core-services/sandbox.env.example	PIP_MIRROR_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_ENABLE_NETWORK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_MAX_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_EXPIRED_RECORDS_CLEAN_BATCH_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_EXPIRED_RECORDS_CLEAN_GRACEFUL_PERIOD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_EXPIRED_RECORDS_CLEAN_TASK_LOCK_TTL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_EXPIRED_RECORDS_RETENTION_DAYS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_GIN_MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_HTTPS_PROXY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_HTTP_PROXY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/sandbox.env.example	SANDBOX_WORKER_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/sandbox.env.example
+docker/envs/core-services/shared.env.example	ACCESS_TOKEN_EXPIRE_MINUTES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	AGENT_BACKEND_HOME_SNAPSHOT_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	AGENT_BACKEND_STREAM_MAX_RECONNECTS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	AGENT_BACKEND_STREAM_READ_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ALIBABACLOUD_MYSQL_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIBABACLOUD_MYSQL_HNSW_M	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIBABACLOUD_MYSQL_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIBABACLOUD_MYSQL_MAX_CONNECTION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIBABACLOUD_MYSQL_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIBABACLOUD_MYSQL_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIBABACLOUD_MYSQL_USER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_CLOUDBOX_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_OSS_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_OSS_AUTH_VERSION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_OSS_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_OSS_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_OSS_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_OSS_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_OSS_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_SLS_ACCESS_KEY_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_SLS_ACCESS_KEY_SECRET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_SLS_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_SLS_LOGSTORE_TTL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_SLS_PROJECT_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALIYUN_SLS_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ALLOW_CREATE_WORKSPACE	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ALLOW_REGISTER	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ANALYTICDB_ACCOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_INSTANCE_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_KEY_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_KEY_SECRET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_MAX_CONNECTION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_MIN_CONNECTION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_NAMESPACE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_NAMESPACE_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANALYTICDB_REGION_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANNOTATION_IMPORT_FILE_SIZE_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANNOTATION_IMPORT_MAX_CONCURRENT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANNOTATION_IMPORT_MAX_RECORDS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANNOTATION_IMPORT_MIN_RECORDS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANNOTATION_IMPORT_RATE_LIMIT_PER_HOUR	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ANNOTATION_IMPORT_RATE_LIMIT_PER_MINUTE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_SENTRY_PROFILES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_SENTRY_TRACES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_TOOL_DEFAULT_CONNECT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_TOOL_DEFAULT_READ_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_WEBSOCKET_GUNICORN_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_WEBSOCKET_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_WEBSOCKET_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_WEBSOCKET_WORKER_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_WORKFLOW_NODE_EXECUTION_REPOSITORY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	API_WORKFLOW_RUN_REPOSITORY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	APP_DEFAULT_ACTIVE_REQUESTS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	APP_MAX_ACTIVE_REQUESTS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	APP_MAX_EXECUTION_TIME	改值	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; upstream default alignment
+docker/envs/core-services/shared.env.example	APP_WEB_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ARCHIVE_STORAGE_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ARCHIVE_STORAGE_ARCHIVE_BUCKET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ARCHIVE_STORAGE_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ARCHIVE_STORAGE_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ARCHIVE_STORAGE_EXPORT_BUCKET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ARCHIVE_STORAGE_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ARCHIVE_STORAGE_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ATTACHMENT_IMAGE_DOWNLOAD_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ATTACHMENT_IMAGE_FILE_SIZE_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	AZURE_BLOB_ACCOUNT_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	AZURE_BLOB_ACCOUNT_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	AZURE_BLOB_ACCOUNT_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	AZURE_BLOB_CONTAINER_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	AZURE_KEYVAULT_KEY_SIZE	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	AZURE_KEYVAULT_ROTATION_INTERVAL_DAYS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	AZURE_KEYVAULT_VAULT_URL	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	BAIDU_OBS_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_OBS_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_OBS_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_OBS_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_ACCOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_AUTO_BUILD_ROW_COUNT_INCREMENT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_AUTO_BUILD_ROW_COUNT_INCREMENT_RATIO	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_CONNECTION_TIMEOUT_MS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_INVERTED_INDEX_ANALYZER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_INVERTED_INDEX_PARSER_MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_REBUILD_INDEX_TIMEOUT_IN_SECONDS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_REPLICAS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	BAIDU_VECTOR_DB_SHARD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_AUTO_SCALE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_BACKEND	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_BROKER_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_MAX_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_MIN_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_SENTINEL_MASTER_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_SENTINEL_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_SENTINEL_SOCKET_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_TASK_ANNOTATIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_USE_SENTINEL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CELERY_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CHANGE_EMAIL_TOKEN_EXPIRY_MINUTES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CHECK_UPDATE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_ANALYZER_MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_ANALYZER_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_BATCH_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_ENABLE_INVERTED_INDEX	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_INSTANCE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_SCHEMA	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_SERVICE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_USERNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_VCLUSTER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_VECTOR_DISTANCE_FUNCTION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_VOLUME_DIFY_PREFIX	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_VOLUME_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_VOLUME_TABLE_PREFIX	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_VOLUME_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CLICKZETTA_WORKSPACE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_CONNECT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_POOL_KEEPALIVE_EXPIRY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_POOL_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_POOL_MAX_KEEPALIVE_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_READ_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_SSL_VERIFY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_EXECUTION_WRITE_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_MAX_DEPTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_MAX_NUMBER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_MAX_NUMBER_ARRAY_LENGTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_MAX_OBJECT_ARRAY_LENGTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_MAX_PRECISION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_MAX_STRING_ARRAY_LENGTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_MAX_STRING_LENGTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CODE_MIN_NUMBER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	COMPOSE_PROFILES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CONSOLE_CORS_ALLOW_ORIGINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CONSOLE_WEB_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CONVERSATION_CLEANUP_BATCH_SIZE	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	CONVERSATION_CLEANUP_TASK_INTERVAL	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	COOKIE_DOMAIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CORE_WORKFLOW_EXECUTION_REPOSITORY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CORE_WORKFLOW_NODE_EXECUTION_REPOSITORY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CREATE_TIDB_SERVICE_JOB_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CREATORS_PLATFORM_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CREATORS_PLATFORM_FEATURES_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	CREATORS_PLATFORM_OAUTH_CLIENT_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DATASET_MAX_SEGMENTS_PER_REQUEST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DEBUG	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DEPLOYMENT_EDITION	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	DEPLOY_ENV	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DEVICE_FLOW_APPROVE_RATE_LIMIT_PER_HOUR	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DIFY_BIND_ADDRESS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DIFY_ENV_NACOS_CONNECT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DIFY_ENV_NACOS_REQUEST_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DIFY_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	DSL_EXPORT_ENCRYPT_DATASET_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	EMAIL_CODE_LOGIN_MAX_ATTEMPTS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	EMAIL_CODE_LOGIN_TOKEN_EXPIRY_MINUTES	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	EMAIL_REGISTER_TOKEN_EXPIRY_MINUTES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_CHANGE_EMAIL	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_CHECK_UPGRADABLE_PLUGIN_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_CLEAN_EMBEDDING_CACHE_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_CLEAN_MESSAGES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_CLEAN_UNUSED_DATASETS_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_COLLABORATION_MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_CONVERSATION_CLEANUP_TASK	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_CREATE_TIDB_SERVERLESS_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_DATASETS_QUEUE_MONITOR	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_EMAIL_CODE_LOGIN	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_EMAIL_PASSWORD_LOGIN	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_EXPLORE_BANNER	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_HUMAN_INPUT_TIMEOUT_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_LEARN_APP	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_LICENSE_EXPIRY_NOTICE	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_MAIL_CLEAN_DOCUMENT_NOTIFY_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_OAUTH_BEARER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_OTEL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_REQUEST_LOGGING	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_SKILL	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_SOCIAL_OAUTH_LOGIN	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_STEP_BY_STEP_TOUR	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_TRIAL_APP	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	ENABLE_UPDATE_TIDB_SERVERLESS_STATUS_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_WORKFLOW_RUN_CLEANUP_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENABLE_WORKFLOW_SCHEDULE_POLLER_TASK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ENDPOINT_URL_TEMPLATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	ETL_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	EXPOSE_NGINX_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	EXPOSE_NGINX_SSL_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	EXPOSE_PLUGIN_DAEMON_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	EXPOSE_PLUGIN_DEBUGGING_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	EXPOSE_PLUGIN_DEBUGGING_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	FILES_ACCESS_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	FLASK_DEBUG	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	GOOGLE_STORAGE_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	GOOGLE_STORAGE_SERVICE_ACCOUNT_JSON_BASE64	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	GRAPH_ENGINE_MAX_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	GRAPH_ENGINE_MIN_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	GRAPH_ENGINE_SCALE_DOWN_IDLE_TIME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	GRAPH_ENGINE_SCALE_UP_THRESHOLD	改值	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; upstream default alignment
+docker/envs/core-services/shared.env.example	GUNICORN_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_ACCESS_KEY_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_ACCESS_KEY_SECRET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_BASE_QUANTIZATION_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_DISTANCE_METHOD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_EF_CONSTRUCTION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_MAX_DEGREE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_SCHEMA	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HOLOGRES_TOKENIZER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HTTP_REQUEST_MAX_CONNECT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HTTP_REQUEST_MAX_READ_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HTTP_REQUEST_MAX_WRITE_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HTTP_REQUEST_NODE_MAX_BINARY_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HTTP_REQUEST_NODE_MAX_TEXT_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HTTP_REQUEST_NODE_SSL_VERIFY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUAWEI_CLOUD_HOSTS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUAWEI_CLOUD_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUAWEI_CLOUD_USER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUAWEI_OBS_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUAWEI_OBS_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUAWEI_OBS_PATH_STYLE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUAWEI_OBS_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUAWEI_OBS_SERVER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	HUMAN_INPUT_TIMEOUT_TASK_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	IMAGE_FILE_BATCH_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	INVITE_EXPIRY_HOURS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	KEY_PROVIDER_TYPE	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	KNOWLEDGE_UPLOAD_FILE_SIZE_LIMIT_FOR_PAID_PLAN	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	LANG	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LC_ALL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LINDORM_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LINDORM_QUERY_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LINDORM_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LINDORM_USERNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LINDORM_USING_UGC	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOGSTORE_DUAL_READ_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOGSTORE_DUAL_WRITE_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOGSTORE_ENABLE_PUT_GRAPH_FIELD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOG_DATEFORMAT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOG_FILE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOG_FILE_BACKUP_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOG_FILE_MAX_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOG_LEVEL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOG_OUTPUT_FORMAT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	LOG_TZ	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MAIL_DEFAULT_SEND_FROM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MAIL_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MARKETPLACE_ENABLED	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	MAX_SUBMIT_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MAX_VARIABLE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MIGRATION_ENABLED	改值	改值	M07 13.2 fork business containers hard-code false; explicit migration profile upgrades both chains
+docker/envs/core-services/shared.env.example	MILVUS_ANALYZER_PARAMS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MILVUS_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MILVUS_ENABLE_HYBRID_SEARCH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MILVUS_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MILVUS_TOKEN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MILVUS_URI	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MILVUS_USER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	MULTIMODAL_SEND_FORMAT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	NEW_USER_DEFAULT_MODELS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	NEW_USER_DEFAULT_PLUGIN_IDS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	NOTION_CLIENT_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	NOTION_CLIENT_SECRET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	NOTION_INTEGRATION_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	NOTION_INTERNAL_SECRET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCEANBASE_ENABLE_HYBRID_SEARCH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCEANBASE_FULLTEXT_PARSER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCEANBASE_VECTOR_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCEANBASE_VECTOR_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCEANBASE_VECTOR_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCEANBASE_VECTOR_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCEANBASE_VECTOR_USER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCI_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCI_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCI_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCI_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OCI_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPENAI_API_BASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPENAPI_CORS_ALLOW_ORIGINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPENAPI_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPENAPI_KNOWN_CLIENT_IDS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPENAPI_RATE_LIMIT_PER_TOKEN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPENDAL_FS_ROOT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPENDAL_SCHEME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPS_TRACE_PARENT_CONTEXT_TTL_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	OPS_TRACE_RETRYABLE_DISPATCH_DELAY_SECONDS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OPS_TRACE_RETRYABLE_DISPATCH_MAX_RETRIES	改值	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; upstream default alignment
+docker/envs/core-services/shared.env.example	OPS_TRACE_UNIFIED_ENABLED	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	OTEL_BATCH_EXPORT_SCHEDULE_DELAY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTEL_BATCH_EXPORT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTEL_EXPORTER_OTLP_PROTOCOL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTEL_EXPORTER_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTEL_MAX_EXPORT_BATCH_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTEL_MAX_QUEUE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTEL_METRIC_EXPORT_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTEL_METRIC_EXPORT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTEL_SAMPLING_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTLP_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTLP_BASE_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTLP_METRIC_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OTLP_TRACE_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	OWNER_TRANSFER_TOKEN_EXPIRY_MINUTES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGDATA	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_MAX_CONNECTION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_MIN_CONNECTION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_PG_BIGM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_PG_BIGM_VERSION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PGVECTOR_USER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_ALIYUN_OSS_ACCESS_KEY_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_ALIYUN_OSS_ACCESS_KEY_SECRET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_ALIYUN_OSS_AUTH_VERSION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_ALIYUN_OSS_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_ALIYUN_OSS_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_ALIYUN_OSS_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_AWS_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_AWS_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_AWS_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_AZURE_BLOB_STORAGE_CONNECTION_STRING	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_AZURE_BLOB_STORAGE_CONTAINER_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_BASED_TOKEN_COUNTING_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_INSTALLED_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_MAX_PACKAGE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_MEDIA_CACHE_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_MODEL_PROVIDERS_CACHE_ENABLED	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	PLUGIN_MODEL_PROVIDERS_CACHE_TTL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_MODEL_SCHEMA_CACHE_TTL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_PACKAGE_CACHE_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_S3_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_S3_USE_AWS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_S3_USE_AWS_MANAGED_IAM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_S3_USE_PATH_STYLE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_SENTRY_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_TENCENT_COS_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_TENCENT_COS_SECRET_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_TENCENT_COS_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_VOLCENGINE_TOS_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_VOLCENGINE_TOS_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_VOLCENGINE_TOS_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_VOLCENGINE_TOS_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	POSITION_PROVIDER_EXCLUDES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	POSITION_PROVIDER_INCLUDES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	POSITION_PROVIDER_PINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	POSITION_TOOL_EXCLUDES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	POSITION_TOOL_INCLUDES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	POSITION_TOOL_PINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PYTHONIOENCODING	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QDRANT_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QDRANT_CLIENT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QDRANT_GRPC_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QDRANT_GRPC_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QDRANT_REPLICATION_FACTOR	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QDRANT_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QUEUE_MONITOR_ALERT_EMAILS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QUEUE_MONITOR_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	QUEUE_MONITOR_THRESHOLD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RBAC_ENABLED	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	REFRESH_TOKEN_EXPIRE_DAYS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RELYT_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RELYT_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RELYT_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RELYT_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RELYT_USER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RESEND_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RESEND_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RESET_PASSWORD_TOKEN_EXPIRY_MINUTES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	RESPECT_XFORWARD_HEADERS_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	S3_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	S3_ADDRESS_STYLE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	S3_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	S3_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	S3_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	S3_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	S3_USE_AWS_MANAGED_IAM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SCARF_NO_ANALYTICS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SEEKDB_MEMORY_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SENDGRID_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SERVER_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SERVER_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SERVER_WORKER_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SERVICE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SINGLE_CHUNK_ATTACHMENT_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SMTP_LOCAL_HOSTNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SMTP_OPPORTUNISTIC_TLS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SMTP_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SMTP_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SMTP_SERVER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SMTP_USERNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SMTP_USE_TLS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_COREDUMP_DIR	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_DEFAULT_CONNECT_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_DEFAULT_READ_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_DEFAULT_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_DEFAULT_WRITE_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_HTTP_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_POOL_KEEPALIVE_EXPIRY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_POOL_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_POOL_MAX_KEEPALIVE_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_PROXY_HTTPS_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SSRF_PROXY_HTTP_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	STORAGE_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SUPABASE_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SUPABASE_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SUPABASE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SWAGGER_UI_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SWAGGER_UI_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TABLESTORE_ACCESS_KEY_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TABLESTORE_ACCESS_KEY_SECRET	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TABLESTORE_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TABLESTORE_INSTANCE_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TABLESTORE_NORMALIZE_FULLTEXT_BM25_SCORE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TEMPLATE_TRANSFORM_MAX_LENGTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENANT_ISOLATED_TASK_CONCURRENCY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_COS_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_COS_CUSTOM_DOMAIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_COS_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_COS_SCHEME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_COS_SECRET_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_COS_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_VECTOR_DB_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_VECTOR_DB_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_VECTOR_DB_ENABLE_HYBRID_SEARCH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_VECTOR_DB_REPLICAS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_VECTOR_DB_SHARD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_VECTOR_DB_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_VECTOR_DB_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TENCENT_VECTOR_DB_USERNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_IAM_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_ON_QDRANT_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_ON_QDRANT_CLIENT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_ON_QDRANT_ESTIMATED_STORAGE_LIMITS_MB	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	TIDB_ON_QDRANT_GRPC_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_ON_QDRANT_GRPC_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_ON_QDRANT_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_PRIVATE_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_PROJECT_ID	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_PUBLIC_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_SPEND_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_VECTOR_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_VECTOR_ENABLE_FULLTEXT_SEARCH	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	TIDB_VECTOR_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_VECTOR_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_VECTOR_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TIDB_VECTOR_USER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	TRIGGER_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UNSTRUCTURED_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UNSTRUCTURED_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UPLOAD_AUDIO_FILE_SIZE_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UPLOAD_FILE_BATCH_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UPLOAD_FILE_EXTENSION_BLACKLIST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UPLOAD_FILE_SIZE_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UPLOAD_IMAGE_FILE_SIZE_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UPLOAD_SKILL_FILE_SIZE_LIMIT	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	UPLOAD_VIDEO_FILE_SIZE_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UPSTASH_VECTOR_TOKEN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UPSTASH_VECTOR_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	UV_CACHE_DIR	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example; existing upstream duplicate retained, effective final assignment unchanged
+docker/envs/core-services/shared.env.example	VECTOR_INDEX_NAME_PREFIX	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VECTOR_STORE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VIKINGDB_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VIKINGDB_CONNECTION_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VIKINGDB_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VIKINGDB_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VIKINGDB_SCHEME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VIKINGDB_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VIKINGDB_SOCKET_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VOLCENGINE_TOS_ACCESS_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VOLCENGINE_TOS_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VOLCENGINE_TOS_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VOLCENGINE_TOS_REGION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	VOLCENGINE_TOS_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WEAVIATE_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WEAVIATE_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WEAVIATE_GRPC_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WEAVIATE_TOKENIZATION	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WEBHOOK_REQUEST_BODY_MAX_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WEBSOCKET_MAX_HTTP_BUFFER_SIZE	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
+docker/envs/core-services/shared.env.example	WEB_API_CORS_ALLOW_ORIGINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WEB_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_CALL_MAX_DEPTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_FILE_UPLOAD_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_GENERATION_TIMEOUT_MS	删除	不存在	moved/retained in docker/envs/core-services/web.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_GENERATOR_NODE_BUILDER_MAX_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_LOG_CLEANUP_BATCH_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_LOG_CLEANUP_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_LOG_CLEANUP_SPECIFIC_WORKFLOW_IDS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_LOG_RETENTION_DAYS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_MAX_EXECUTION_STEPS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_MAX_EXECUTION_TIME	改值	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; upstream default alignment
+docker/envs/core-services/shared.env.example	WORKFLOW_NODE_EXECUTION_STORAGE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_SCHEDULE_MAX_DISPATCH_PER_TICK	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_SCHEDULE_POLLER_BATCH_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	WORKFLOW_SCHEDULE_POLLER_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/web.env.example	ALLOW_EMBED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	ALLOW_INLINE_STYLES	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	ALLOW_UNSAFE_DATA_SCHEME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	AMPLITUDE_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	APP_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	CONSOLE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	COOKIEYES_SITE_KEY	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable
+docker/envs/core-services/web.env.example	CSP_WHITELIST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	ENABLE_WEBSITE_FIRECRAWL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	ENABLE_WEBSITE_JINAREADER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	ENABLE_WEBSITE_WATERCRAWL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	EXPERIMENTAL_ENABLE_VINEXT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	LOOP_NODE_MAX_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	MARKDOWN_FORM_FIELD_NAME_EXTRA_CHARS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable
+docker/envs/core-services/web.env.example	MARKDOWN_FORM_FIELD_NAME_MAX_LENGTH	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable
+docker/envs/core-services/web.env.example	MARKETPLACE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	MARKETPLACE_ENABLED	删除	不存在	moved/retained in docker/.env.example, docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/envs/core-services/web.env.example	MAX_ITERATIONS_NUM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	MAX_PARALLEL_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	MAX_TOOLS_NUM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	MAX_TREE_DEPTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	NEXT_PUBLIC_BATCH_CONCURRENCY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	NEXT_PUBLIC_COOKIE_DOMAIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	NEXT_PUBLIC_ENABLE_AGENT_V2	改值	改值	fork Compose API/Web fallback=false; enable only after Agent credential/runtime acceptance
+docker/envs/core-services/web.env.example	NEXT_PUBLIC_ENABLE_AGENT_V2_IN_CHATFLOW	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable
+docker/envs/core-services/web.env.example	NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	NEXT_PUBLIC_SOCKET_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	TEXT_GENERATION_TIMEOUT_MS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	TOP_K_MAX_VALUE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	TURNSTILE_SITE_KEY	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable
+docker/envs/core-services/web.env.example	WORKFLOW_GENERATION_TIMEOUT_MS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable
+docker/envs/core-services/worker-beat.env.example	COMPOSE_WORKER_HEALTHCHECK_DISABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker-beat.env.example
+docker/envs/core-services/worker-beat.env.example	COMPOSE_WORKER_HEALTHCHECK_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker-beat.env.example
+docker/envs/core-services/worker-beat.env.example	COMPOSE_WORKER_HEALTHCHECK_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker-beat.env.example
+docker/envs/core-services/worker-beat.env.example	MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker-beat.env.example
+docker/envs/core-services/worker.env.example	COMPOSE_WORKER_HEALTHCHECK_DISABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example
+docker/envs/core-services/worker.env.example	COMPOSE_WORKER_HEALTHCHECK_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example
+docker/envs/core-services/worker.env.example	COMPOSE_WORKER_HEALTHCHECK_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example
+docker/envs/core-services/worker.env.example	INNER_API_KEY_FOR_PLUGIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example
+docker/envs/core-services/worker.env.example	MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example
+docker/envs/core-services/worker.env.example	PLUGIN_MAX_PACKAGE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example
+docker/envs/core-services/worker.env.example	SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example
+docker/envs/core-services/worker.env.example	SENTRY_PROFILES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example
+docker/envs/core-services/worker.env.example	SENTRY_TRACES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/worker.env.example

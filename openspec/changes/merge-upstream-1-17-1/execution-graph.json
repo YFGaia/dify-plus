@@ -1054,16 +1054,18 @@
           "evidence": "evidence/M07/pre-analysis.md",
           "working_tree_modified": false
         },
-        "next_subtask": "13.4",
+        "next_subtask": "13.6",
         "current_subtask": {
-          "id": "13.3",
+          "id": "13.5",
           "status": "complete",
-          "evidence": "evidence/M07/result.json#/subtasks/13.3"
+          "evidence": "evidence/M07/ci-analysis.md"
         },
         "tasks_complete": [
           "13.1",
           "13.2",
-          "13.3"
+          "13.3",
+          "13.4",
+          "13.5"
         ]
       },
       "registered_additional_paths": [

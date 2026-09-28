@@ -180,12 +180,102 @@
         "Private image supply and digest are not verified; Agent credentials must be configured consistently before enabling Agent v2.",
         "M07 13.4 environment sample policy, 13.5 CI, and 13.6 node acceptance remain pending."
       ]
+    },
+    "13.4": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m07_13_4_env_examples",
+      "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
+      "changed_paths": [
+        "docker/.env.example",
+        "docker/envs/core-services/dify-agent.env.example",
+        "docker/envs/core-services/shared.env.example",
+        "docker/envs/core-services/web.env.example"
+      ],
+      "summary": [
+        "Compared all ten root/core service samples against fork-merged-1.16.0 and upstream 1.17.1; retained an item-by-item 900-row TSV with each disposition and basis.",
+        "Kept optional Agent retention in the Agent service sample at the fork policy of 259200 seconds; root sample points operators to that optional setting.",
+        "Set Agent v2 sample defaults false; blanked the sample control-plane token and Agent Stub JWE secret and documented required configuration and matching API/backend token.",
+        "Documented that fork Compose uses explicit environment mappings instead of service env_file; unmapped provider options require an explicit service environment override.",
+        "Kept E2B fallback and shellctl legacy fallback behavior; preserved upstream UV_CACHE_DIR duplicate."
+      ],
+      "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+      "fork_baseline": "fork-merged-1.16.0",
+      "variable_audit": {
+        "path": "evidence/M07/env-variable-audit.tsv",
+        "summary_path": "evidence/M07/env-variable-audit-summary.json",
+        "rows": 900,
+        "classification_columns": [
+          "action_vs_fork_1_16_0",
+          "action_vs_upstream_1_17_1",
+          "basis"
+        ]
+      },
+      "sample_files_unchanged_from_upstream": [
+        "docker/envs/core-services/api.env.example",
+        "docker/envs/core-services/local-sandbox.env.example",
+        "docker/envs/core-services/plugin-daemon.env.example",
+        "docker/envs/core-services/sandbox.env.example",
+        "docker/envs/core-services/worker-beat.env.example",
+        "docker/envs/core-services/worker.env.example"
+      ],
+      "checks": [
+        {
+          "command": "python3 /private/tmp/m07-13-4-check.py",
+          "exit_code": 0,
+          "assertions": "52 text/Compose assertions and five isolated Compose config renders passed, covering default/all profiles, migration disabled, Agent disabled, retention, token mapping, and legacy/new sandbox token precedence."
+        },
+        {
+          "command": "git diff --check -- docker/.env.example docker/envs/core-services/{dify-agent,shared,web}.env.example",
+          "exit_code": 0
+        },
+        {
+          "command": "docker compose config warnings",
+          "exit_code": 0,
+          "assertions": "Only unset sample CERTBOT_DOMAIN/CERTBOT_EMAIL warnings in isolated renders."
+        }
+      ],
+      "limitations": [
+        "No image pulls, containers, private .env reads, credentials, or live environment were used.",
+        "agent_backend starts unconditionally and its configured Agent Stub URL makes a non-empty DIFY_AGENT_SERVER_SECRET_KEY necessary even while Agent v2 is disabled; the blank sample is intentionally a prompt to configure a secret before startup."
+      ]
+    },
+    "13.5": {
+      "status": "passed",
+      "model": "gpt-6-sol",
+      "agent": "/root/m07_13_5_ci_analysis",
+      "source_commit_before_subtask": "396f8aff2add33879b44de1f01eed8a4bfd689fe",
+      "changed_paths": [],
+      "evidence": "evidence/M07/ci-analysis.md",
+      "summary": [
+        "Both registered GitHub workflows are byte-identical to upstream 1.17.1; fork build validation uses push:false and official push/manifest jobs are repository-guarded.",
+        "The current codex/merge-upstream-1.17.1 branch is outside configured build-push branch/tag filters; no CI run is claimed.",
+        "Recorded GitLab tag-triggered private API/Web multi-architecture supply as a separate chain. Static review found manifest files are not declared as artifacts and same-service architectures share the manifest filename; arbitrary tags also update latest."
+      ],
+      "checks": [
+        {
+          "command": "git diff --exit-code 1.17.1 -- .github/workflows/build-push.yml .github/workflows/docker-build.yml",
+          "exit_code": 0,
+          "assertions": "Both registered GitHub workflow files are unchanged from upstream 1.17.1."
+        }
+      ],
+      "limitations": [
+        "GitLab manifest transport/collision issue is a static inference; the pipeline was not run.",
+        "No real credentials, image pushes, tags, digests, or host pulls were verified. Repairing .gitlab-ci.yml would require path registration and a separately scoped implementation task."
+      ]
     }
   },
   "tasks_complete": [
     "13.1",
     "13.2",
-    "13.3"
+    "13.3",
+    "13.4",
+    "13.5"
   ],
-  "next_subtask": "13.4"
+  "next_subtask": "13.6",
+  "known_limits": [
+    "No private image pull, tag/digest or deployment-host verification has been performed; GitHub build validation is not private fork image supply evidence.",
+    "The GitLab private-image manifest job statically appears to lack cross-job artifacts and uses colliding architecture manifest filenames; this unexecuted pipeline requires a registered repair task if selected.",
+    "agent_backend requires a configured JWE server secret while its Agent Stub URL is set, including with Agent v2 disabled."
+  ]
 }
