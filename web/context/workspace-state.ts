@@ -7,7 +7,12 @@ import { initialWorkspaceSummary } from './app-context-defaults'
 import { getWorkspaceRoleFlags, normalizeCurrentWorkspaceSummary } from './app-context-normalizers'
 
 const currentWorkspaceQueryAtom = atomWithQuery(() => {
+  const queryOptions = consoleQuery.workspaces.current.summary.get.queryOptions()
   return consoleQuery.workspaces.current.summary.get.queryOptions({
+    // Extend: reject malformed permission summaries before TanStack caches them.
+    queryFn: async (context) =>
+      normalizeCurrentWorkspaceSummary(await queryOptions.queryFn(context)),
+    // Other observers and SSR hydration can seed this shared query key.
     select: normalizeCurrentWorkspaceSummary,
   })
 })

@@ -5,10 +5,10 @@ import { queryClientAtom } from 'jotai-tanstack-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { consoleQuery } from '@/service/console'
 import { adminExtendAtom, tenantExtendAtom } from '../app-context-extend'
-import { normalizeCurrentWorkspaceSummary } from '../app-context-normalizers'
 import {
   currentWorkspaceAtom,
   currentWorkspaceLoadingAtom,
+  isCurrentWorkspaceDatasetOperatorAtom,
   isCurrentWorkspaceManagerAtom,
   isCurrentWorkspaceOwnerAtom,
 } from '../workspace-state'
@@ -33,8 +33,11 @@ const createSummary = (
 
 const cleanups: Array<() => void> = []
 
-function subscribeToWorkspace() {
+function subscribeToWorkspace(initialSummary?: GetWorkspacesCurrentSummaryResponse) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  if (initialSummary !== undefined) {
+    queryClient.setQueryData(consoleQuery.workspaces.current.summary.get.queryKey(), initialSummary)
+  }
   const store = createStore()
   store.set(queryClientAtom, queryClient)
   const unsubscribe = store.sub(currentWorkspaceAtom, () => {})
@@ -143,13 +146,18 @@ describe('Workspace summary fork permissions', () => {
 
       await vi.waitFor(() => expect(store.get(currentWorkspaceLoadingAtom)).toBe(false))
 
-      const response = queryClient.getQueryData<GetWorkspacesCurrentSummaryResponse>(
-        consoleQuery.workspaces.current.summary.get.queryKey(),
-      )
-      expect(() => normalizeCurrentWorkspaceSummary(response)).toThrow()
+      const queryKey = consoleQuery.workspaces.current.summary.get.queryKey()
+      expect(queryClient.getQueryState(queryKey)).toMatchObject({
+        status: 'error',
+        error: { name: 'ZodError' },
+      })
+      expect(queryClient.getQueryData(queryKey)).toBeUndefined()
       expect(store.get(currentWorkspaceAtom).id).toBe('')
       expect(store.get(adminExtendAtom)).toBe(false)
       expect(store.get(tenantExtendAtom)).toBe(false)
+      expect(store.get(isCurrentWorkspaceOwnerAtom)).toBe(false)
+      expect(store.get(isCurrentWorkspaceManagerAtom)).toBe(false)
+      expect(store.get(isCurrentWorkspaceDatasetOperatorAtom)).toBe(false)
     },
   )
 
@@ -173,5 +181,19 @@ describe('Workspace summary fork permissions', () => {
     } finally {
       errorLog.mockRestore()
     }
+  })
+
+  it('does not grant permissions from a malformed summary seeded by another cache writer', () => {
+    request.mockImplementation(() => new Promise<Response>(() => {}))
+    const { store } = subscribeToWorkspace(
+      createSummary({ role: 'owner', admin_extend: true, tenant_extend: undefined }),
+    )
+
+    expect(store.get(currentWorkspaceAtom).id).toBe('')
+    expect(store.get(adminExtendAtom)).toBe(false)
+    expect(store.get(tenantExtendAtom)).toBe(false)
+    expect(store.get(isCurrentWorkspaceOwnerAtom)).toBe(false)
+    expect(store.get(isCurrentWorkspaceManagerAtom)).toBe(false)
+    expect(store.get(isCurrentWorkspaceDatasetOperatorAtom)).toBe(false)
   })
 })
