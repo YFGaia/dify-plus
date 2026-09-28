@@ -351,7 +351,7 @@
     "openspec/changes/merge-upstream-1-17-1/tasks.md"
   ],
   "followup_context_contract": {
-    "status": "in_progress",
+    "status": "implementation_complete_pending_independent_review",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
     "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
     "subtasks": [
@@ -365,6 +365,52 @@
       "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
     ],
     "reason": "Security review found message context identifiers were not bound to the current tenant/app, and app/Agent permissions were not checked. Original 8.1-8.5 acceptance remains historical evidence; node is reopened only for this bounded follow-up.",
-    "implementation_agent": "/root/m02_context_security"
+    "implementation_agent": "/root/m02_context_security",
+    "implementation_model": "gpt-6-astra",
+    "implementation_base_commit": "63f843a383",
+    "source_sha256": {
+      "api/controllers/console/app/app_extend.py": "ded4b12d5192c9ce2274bfec10194e4b4771c004bbe93c5a1166d07a24556301",
+      "api/services/recommended_app_service_extend.py": "ad6bcbcb5f10a6b3365f25f1315158d3c664128511b969f416b47f9a341f3d01",
+      "api/tests/unit_tests/controllers/console/app/test_app_extend.py": "0a476957e761ea8a2a8e381e20ed033780d3ac778cad37d5a3e8b84ab27f4619",
+      "api/tests/unit_tests/services/test_recommended_app_service_extend.py": "10df730e3e0dcdb3ee80909aa12fbe9041ee9132c51b4f2a66832465063b998a"
+    },
+    "implementation_summary": [
+      "Preserved HTTP 400 for missing/empty identifiers before shared schema validation.",
+      "Resolved Conversation→App and constrained tenant ownership; missing, soft-deleted, deleted-app, and cross-tenant rows return 404 before any context-row access.",
+      "Applied APP_VIEW_LAYOUT/APP_EDIT for PlainApp and AGENT_TEST_AND_RUN/AGENT_EDIT for AgentBehindApp; workflow-only Agent is denied.",
+      "Context service reads/deletes are further scoped by tenant, server-resolved app, conversation, and selected message id.",
+      "Registered the same /message/context route under console_ns to provide Pydantic query/RootModel schemas and avoid duplicate registration; no client app_id or generated file edits."
+    ],
+    "verification": [
+      {
+        "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/app/test_app_extend.py api/tests/unit_tests/services/test_recommended_app_service_extend.py -q --no-cov",
+        "exit_code": 0,
+        "passed": 36,
+        "warnings": 2
+      },
+      {
+        "command": "... uv run --project api --no-sync ruff check [the four registered paths]",
+        "exit_code": 0
+      },
+      {
+        "command": "... uv run --project api --no-sync ruff format --check [the four registered paths]",
+        "exit_code": 0,
+        "result": "4 files already formatted"
+      },
+      {
+        "command": "... uv run --project api --no-sync python api/dev/generate_swagger_specs.py --output-dir /private/tmp/dify-m02-context-openapi",
+        "exit_code": 0,
+        "result": "GET required conversation_id query → array(string); DELETE required conversation_id and message_id queries → string; operation IDs unchanged."
+      },
+      {
+        "command": "git diff --check -- [the four registered paths]",
+        "exit_code": 0
+      }
+    ],
+    "limitations": [
+      "No backend integration tests or live database were run.",
+      "LiteLLM remote price-table access failed during test setup and used its local backup; it did not affect the 36 focused tests or schema checks."
+    ],
+    "next_action": "Commit the four registered paths, then request a fresh read-only Luna review. M05 11.6 and M06 12.1b remain gated on review/contract handoff."
   }
 }

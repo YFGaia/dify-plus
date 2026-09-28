@@ -474,16 +474,27 @@
         "completed_subtasks": [],
         "current_subtask": {
           "id": "8.6",
-          "status": "in_progress",
+          "status": "implementation_complete_pending_independent_review",
           "evidence": "evidence/M06/result.json#/preflight/contract_handoff",
           "registered_paths": [
             "api/controllers/console/app/app_extend.py",
             "api/services/recommended_app_service_extend.py",
             "api/tests/unit_tests/controllers/console/app/test_app_extend.py",
             "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
-          ]
+          ],
+          "implementation_base_commit": "63f843a383",
+          "source_sha256": {
+            "api/controllers/console/app/app_extend.py": "ded4b12d5192c9ce2274bfec10194e4b4771c004bbe93c5a1166d07a24556301",
+            "api/services/recommended_app_service_extend.py": "ad6bcbcb5f10a6b3365f25f1315158d3c664128511b969f416b47f9a341f3d01",
+            "api/tests/unit_tests/controllers/console/app/test_app_extend.py": "0a476957e761ea8a2a8e381e20ed033780d3ac778cad37d5a3e8b84ab27f4619",
+            "api/tests/unit_tests/services/test_recommended_app_service_extend.py": "10df730e3e0dcdb3ee80909aa12fbe9041ee9132c51b4f2a66832465063b998a"
+          },
+          "verification": "36 focused tests; Ruff check/format; Swagger schema assertions; diff-check passed"
         },
-        "next_subtask": "8.6"
+        "next_subtask": "8.6_independent_review",
+        "implemented_subtasks": [
+          "8.6"
+        ]
       }
     },
     {

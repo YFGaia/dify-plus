@@ -1,10 +1,14 @@
 import logging
 
 from flask_login import current_user
+from sqlalchemy import select
+from sqlalchemy.sql import Select
+from werkzeug.exceptions import NotFound
 
 from extensions.ext_database import db
 from models.model import (
     App,
+    Conversation,
     InstalledApp,
     RecommendedApp,
     Tag,
@@ -149,28 +153,58 @@ class RecommendedAppService:
 
     # Extend: start messages context handling
     @classmethod
-    def message_context(cls, conversation_id: str):
+    def message_context_app(cls, *, tenant_id: str, conversation_id: str) -> App:
+        """Resolve the trusted app owner without accessing any context markers."""
+        app = (
+            db.session.query(App)
+            .join(Conversation, Conversation.app_id == App.id)
+            .filter(
+                App.tenant_id == tenant_id,
+                Conversation.id == conversation_id,
+                Conversation.is_deleted.is_(False),
+            )
+            .first()
+        )
+        if app is None:
+            raise NotFound("Conversation not found")
+        return app
+
+    @staticmethod
+    def _context_conversations(*, tenant_id: str, app_id: str, conversation_id: str) -> Select[tuple[str]]:
+        """Keep the entire owner chain on marker reads and writes after authorization."""
+        return (
+            select(Conversation.id)
+            .join(App, App.id == Conversation.app_id)
+            .where(
+                App.tenant_id == tenant_id,
+                App.id == app_id,
+                Conversation.id == conversation_id,
+                Conversation.is_deleted.is_(False),
+            )
+        )
+
+    @classmethod
+    def message_context(cls, *, tenant_id: str, app_id: str, conversation_id: str) -> list[str]:
         from models.model_extend import MessageContextExtend
 
-        message_list = []
+        conversations = cls._context_conversations(tenant_id=tenant_id, app_id=app_id, conversation_id=conversation_id)
         message_context = (
             db.session.query(MessageContextExtend)
-            .filter(MessageContextExtend.conversation_id == conversation_id)
+            .filter(MessageContextExtend.conversation_id.in_(conversations))
             .order_by(MessageContextExtend.created_at.desc())
             .all()
         )
-        for v in message_context:
-            message_list.append(v.message_id)
-        return message_list
+        return [context.message_id for context in message_context]
 
     @classmethod
-    def delete_message_context(cls, conversation_id, message_id: str):
+    def delete_message_context(cls, *, tenant_id: str, app_id: str, conversation_id: str, message_id: str) -> str:
         from models.model_extend import MessageContextExtend
 
+        conversations = cls._context_conversations(tenant_id=tenant_id, app_id=app_id, conversation_id=conversation_id)
         db.session.query(MessageContextExtend).filter(
-            MessageContextExtend.conversation_id == conversation_id,
+            MessageContextExtend.conversation_id.in_(conversations),
             MessageContextExtend.message_id == message_id,
-        ).delete()
+        ).delete(synchronize_session=False)
         db.session.commit()
         return "ok"
 
