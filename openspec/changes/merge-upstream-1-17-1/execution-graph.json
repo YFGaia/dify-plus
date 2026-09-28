@@ -1026,7 +1026,16 @@
           "review_evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_review",
           "implementation_commit": "ea853611dc"
         },
-        "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"
+        "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6",
+        "parallel_subtasks": [
+          {
+            "id": "12.2_analysis",
+            "status": "conversation_provisioning",
+            "model": "gpt-6-sol",
+            "client_thread_id": "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
+            "scope": "read-only app-center implementation handoff"
+          }
+        ]
       },
       "registered_additional_paths": [
         "web/app/components/app/access-point/built-in-access-points/web-app-card.tsx",
@@ -1104,7 +1113,7 @@
         ],
         "current_subtask": {
           "id": "13.4",
-          "status": "independent_review_in_progress",
+          "status": "independent_review_provisioning",
           "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation",
           "implementation_commit": "1b1ddf4eb3"
         },

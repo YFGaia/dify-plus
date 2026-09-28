@@ -128,6 +128,12 @@
         "next_action": "Restore the declared cn package using the compatible frozen workspace dependency environment and run the full focused card suite before accepting 12.1a."
       },
       "implementation_commit": "ea853611dc"
+    },
+    "12.2_analysis": {
+      "status": "conversation_provisioning",
+      "model": "gpt-6-sol",
+      "client_thread_id": "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
+      "scope": "App-center categories/filtering, installed-app navigation, recommended app rows/runtime validation, and Studio sync menu; read-only handoff."
     }
   },
   "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"
