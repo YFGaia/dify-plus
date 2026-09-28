@@ -677,7 +677,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "in_progress",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -790,14 +790,16 @@
           "11.1",
           "11.2",
           "11.3",
-          "11.4"
+          "11.4",
+          "11.5"
         ],
         "current_subtask": {
           "id": "11.5",
-          "status": "pending",
+          "status": "passed",
           "evidence": "evidence/M05/result.json#/subtasks/11.5"
         },
-        "next_subtask": "11.5"
+        "next_subtask": "complete",
+        "deployable": false
       },
       "registered_additional_paths": [
         "packages/contracts/console.ts",
@@ -867,7 +869,7 @@
       "owner_role": "前端业务负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -955,8 +957,7 @@
       "outputs": [
         "evidence/M06/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ],
-      "blocked_reason": "前置节点 M04, M05 尚未通过；未执行本节点。"
+      ]
     },
     {
       "id": "M07",

@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 规划已进入执行：A00/A01/A02/A04/M00/M01/M02/M03 已通过；M04 passed；M05 11.1–11.4 已通过、11.5 待验收；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略复核仍打开，Sol 已完成 244 项逐变量范围分析，正在按最小范围修正，13.6 验收暂缓；M06/M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
+> 规划已进入执行：A00/A01/A02/A04/M00/M01/M02/M03 已通过；M04、M05 节点源码验收已通过，M05 11.1–11.5 全部通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 已解锁待实施。M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略复核仍打开，Sol 已完成 244 项逐变量范围分析，Astra 正按最小范围修正，13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -89,7 +89,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 11.2 [M05] SSR optional/hard 调用守卫形状，public snapshot 与 fork 配置按 A04 合成；核验：`evidence/M05/result.json` 记录缓存/hydration 前的 generated schema 校验、公开 license 裁剪、身份隔离 login_config、SSR 禁止网络调用及 public-first 合成；20 项聚焦测试与 feature scoped check 通过。M06 必须迁移额度徽章以读取配置汇率。
 - [x] 11.3 [M05] 生成 schema 校验 workspace summary 并保留 admin_extend/tenant_extend 到权限 atom；清理已移除 Console client 导入；11 项权限链、与 bootstrap 合计 24 项及 9 文件 scoped check 通过。代码执行控制页面 suite 因现有 `cn` 依赖缺失未能收集用例，见 `evidence/M05/result.json`。
 - [x] 11.4 [M05] Sol 核验 C01–C04/C08/systemManage 的字段、权限与错误语义；将 workspace summary 生成 schema 校验移入 queryFn，确保畸形 HTTP 200 不进入 TanStack 原始 cache，同时保留 select 校验 hydration/同 key 预填缓存；12 项聚焦测试、25 项受影响测试、两路径 check 通过，独立 Luna 无阻断项。代码提交 `fceb461237f2f175160c8bf56da242f1c4a412c6`；证据见 `evidence/M05/result.json`。
-- [ ] 11.5 [M05] 节点验收：不恢复已删旧服务成为双源；SSR 不把 ping 当配置，匿名不读敏感 license；权限位不丢失；保存绑定版本的证据并更新节点状态。
+- [x] 11.5 [M05] Sol 对当前源码与 11.1–11.4 证据执行只读节点验收：旧 Console 服务未恢复为双源；SSR 校验真实 public snapshot、匿名不能读详细 license；workspace 两扩展权限位在缓存前生成 schema 校验；`systemManage` 仍由手写契约唯一持有。节点源码验收通过，绑定 `abe3b9ae33b99a373bc3445e0919b6ab21349fe5`；V02 浏览器验收与 M06 汇率消费者仍待下游。
 
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
 

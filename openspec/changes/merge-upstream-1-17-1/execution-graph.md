@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.4 已通过、11.5 待验收；11.4 畸形 summary 在 queryFn 校验并不入 TanStack 原始缓存，12 项聚焦、25 项受影响测试和两路径 check 通过，独立 Luna 无阻断项；M07 13.1–13.3、13.5 已通过；13.4 根 env 样例审计确认 244 项中仅 `COMPOSE_PROFILES` 与 `DIFY_AGENT_SERVER_SECRET_KEY` 属严格启动范围，最小修正与 13.6 验收待做；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 源码节点验收通过（11.1–11.5 全部通过，仍不可部署）；M06 已解锁；M07 13.1–13.3、13.5 已通过；13.4 根 env 样例审计确认 244 项中仅 `COMPOSE_PROFILES` 与 `DIFY_AGENT_SERVER_SECRET_KEY` 属严格启动范围，最小修正与 13.6 验收待做；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -325,7 +325,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M05 · Console transport 与前端契约
 
-- 状态：11.1–11.4 passed，11.5 待执行；完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。11.4 将 schema 解析置于 queryFn，保证畸形 HTTP 200 不进入 TanStack 原始缓存，并保留 select 校验 hydration/同 key 预填数据；12 项聚焦、25 项受影响测试和两路径 check 通过，独立 Luna 无阻断项。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3/11.4 新增路径已登记。M06 仍需迁移额度徽章以读取 login_config 汇率。真实浏览器 Cookie/CORS 与账号切换由 V02 验收。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
+- 状态：源码节点 passed（11.1–11.5 全部通过），deployable 仍为 false。完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。11.4 将 schema 解析置于 queryFn，保证畸形 HTTP 200 不进入 TanStack 原始缓存，并保留 select 校验 hydration/同 key 预填数据；12 项聚焦、25 项受影响测试和两路径 check 通过，独立 Luna 无阻断项。11.5 Sol 只读验收确认旧服务未形成双源、SSR 不将 ping 当配置、匿名不能读取详细 license、手写 systemManage 为唯一 owner。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3/11.4 新增路径已登记。M06 已解锁并需迁移额度徽章读取 login_config 汇率。真实浏览器 Cookie/CORS 与账号切换由 V02 验收。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
 - 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
@@ -348,7 +348,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：blocked；前置节点 M04, M05 尚未通过；未执行本节点。
+- 状态：ready；前置节点 M04、M05 源码验收已通过；尚未实施本节点。额度徽章必须接入 login_config 配置汇率，24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。

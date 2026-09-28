@@ -1,7 +1,7 @@
 {
   "node": "M05",
-  "status": "in_progress",
-  "implementation": "partial",
+  "status": "passed",
+  "implementation": "complete",
   "deployable": false,
   "branch": "codex/merge-upstream-1.17.1",
   "analysis_head": "3620896b7afe8122f5e4873450031cc942c8c175",
@@ -385,7 +385,37 @@
       ]
     },
     "11.5": {
-      "status": "pending"
+      "status": "passed",
+      "analysis": {
+        "model": "gpt-6-sol",
+        "agent": "/root/m05_11_5_sol_acceptance",
+        "status": "complete_read_only",
+        "source_commit": "abe3b9ae33b99a373bc3445e0919b6ab21349fe5",
+        "findings": [
+          "Legacy Console service/client and loader entrypoints are absent from the working tree and have no active imports; generated Console login endpoints and handwritten fork systemManage remain separately owned.",
+          "SSR snapshot handling validates the actual public feature shape before cache/hydration; ping-only input is rejected. Detailed license remains behind authenticated Console access; anonymous public features expose only the public status.",
+          "Workspace admin_extend and tenant_extend are required generated-schema booleans. The 11.4 queryFn validates before raw cache write, and select protects hydrated or other same-key cache values; atoms read validated permission bits.",
+          "Handwritten systemManage remains the sole GET/POST/DELETE codeExecutionControl contract/runtime owner; generator excludes exact duplicate operations and fails on drift."
+        ],
+        "source_evidence": [
+          "web/features/system-features/snapshot.ts",
+          "web/features/system-features/client.ts",
+          "web/features/system-features/server.ts",
+          "api/controllers/console/feature.py",
+          "web/context/workspace-state.ts",
+          "web/context/__tests__/workspace-summary-extend.spec.ts",
+          "web/contract/console/system-manage.ts",
+          "web/contract/router-extend.ts",
+          "web/service/console/contract-loader.ts",
+          "packages/contracts/openapi-ts.api.config.ts"
+        ],
+        "recommendation": "Pass M05 source-node acceptance. This does not mark the merged branch deployable or replace V02 real-browser verification."
+      },
+      "limitations": [
+        "V02 still must verify real Cookie/CORS behavior and account/workspace switching in a browser.",
+        "M06 still must connect account-money-extend to loginConfigQueryOptions for the configured RMB_TO_USD_RATE.",
+        "Existing unresolved cn import prevents collection of the broader SSR/hydration and code-execution page suites; the 11.3 limitation and zero executed page cases are recorded above."
+      ]
     }
   },
   "known_limits": [
@@ -393,7 +423,7 @@
     "A04 C03 is_custom_auth2_button is absent from the M02 response schema and is not fabricated.",
     "The expanded Console SSR/hydration suite still encounters existing missing cn dependency errors.",
     "The current account-money UI caller needs M06 migration to consume login_config and configured RMB_TO_USD_RATE.",
-    "M05 remains partial and non-deployable until 11.5 and later integration gates pass.",
+    "M05 source node acceptance is passed; the merge remains non-deployable until downstream M06-M08, V01/V02, and environment gates pass.",
     "M05 11.3 code-execution-control page suite collection is blocked by the existing unresolved cn dependency; its behavior has scoped type/lint checks, but the page suite has 0 executed cases.",
     "Workspace permission refresh was validated through generated query/normalizer/atom tests and existing full-page/logout cache boundaries, not a live browser identity switch."
   ],
@@ -404,7 +434,8 @@
     "11.1",
     "11.2",
     "11.3",
-    "11.4"
+    "11.4",
+    "11.5"
   ],
-  "next_subtask": "11.5"
+  "next_subtask": "complete"
 }
