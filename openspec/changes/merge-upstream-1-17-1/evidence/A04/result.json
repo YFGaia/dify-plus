@@ -1,0 +1,72 @@
+{
+  "node": "A04",
+  "status": "passed",
+  "recorded_at_utc": "2026-09-28T15:49:19Z",
+  "branch": "codex/merge-upstream-1.17.1",
+  "source_commit_before_A04": "2a2482c330091755be23da2ec35788bddb82751c",
+  "source_tree_before_A04": "ec94659769330e7ae253add9127534af099f5b83",
+  "target_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "target_ref": "refs/tags/1.17.1",
+  "matrix": {
+    "path": "research/contract-matrix.md",
+    "contract_count": 14,
+    "ids": ["C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C10", "C11", "C12", "C13", "C14"],
+    "unique_owner_per_row": true,
+    "basis": [
+      "design.md#D3-D5",
+      "specs/fork-extension-compatibility/spec.md",
+      "research/backend-analysis.md",
+      "research/frontend-analysis.md",
+      "evidence/A02/result.json",
+      "fork input tree and upstream 1.17.1 source files named per matrix row"
+    ]
+  },
+  "step_results": [
+    {
+      "task": "5.1",
+      "result": "passed",
+      "output": "C01-C14 each define request/response/error, identity/permission, cache or transaction, fork and target paths, one owner, and observable acceptance."
+    },
+    {
+      "task": "5.2",
+      "result": "passed",
+      "output": "C01-C04 separate bootstrap JWT, public system-features, fork login_config synthesis, and authenticated full license; C08 computes summary permission bits from current account and tenant IDs."
+    },
+    {
+      "task": "5.3",
+      "result": "passed",
+      "output": "C09-C11 preserve app key quota, dataset scope and masking, and hide unsupported environment quota inputs."
+    },
+    {
+      "task": "5.4",
+      "result": "passed",
+      "output": "C13-C14 preserve existing anonymous payer/limit/context behavior and separate P4/P6 unimplemented changes."
+    },
+    {
+      "task": "5.5",
+      "result": "passed",
+      "output": "One common, source-backed contract is bound for M02-M06 implementation owners. No external owner signature or runtime behavior acceptance is claimed."
+    }
+  ],
+  "proposal_authorization_sync": "The final Impact bullet now reflects A00: local source implementation and validation on the named branch are authorized; real environment read-only access and production changes/publication are not.",
+  "source_findings_requiring_implementation": [
+    "Target AccountService.create_account commits internally; M03 must establish an atomic Account and AccountMoneyExtend creation boundary before accepting setup/email/OAuth/invitation.",
+    "Fork WebAppAuthExtendService invalidates Redis before caller commit; M03 must make invalidation occur after successful Site/AppExtend commit.",
+    "Target dataset API key has binding and reveal-once masking; fork quota display is conditional on a real persisted and enforced API contract.",
+    "Target environment key DTO has no fork quota contract; M06 hides unsupported inputs."
+  ],
+  "checks": [
+    {"command": "A04 matrix structural and source-path assertions", "exit_code": 0, "output": "14 rows; all required fields and one owner per row; referenced fork and target paths found"},
+    {"command": "JSON and graph dependency/status assertions", "exit_code": 0, "output": "A04 passed; M00 ready; A03 blocked; target SHA and input tree match"},
+    {"command": "git diff --check and git diff --cached --check", "exit_code": 0, "output": "no whitespace errors"},
+    {"command": "openspec validate merge-upstream-1-17-1 --strict", "exit_code": 0, "output": "Change 'merge-upstream-1-17-1' is valid"},
+    {"command": "git diff --cached --name-only -z exact allowlist assertion", "exit_code": 0, "output": "7 A04-owned staged paths; no other staged paths"}
+  ],
+  "known_limits": [
+    "A04 is a planning/contract freeze; no formal merge, business code change, functional test or runtime acceptance occurred.",
+    "No external identity/frontend/quota owner signature was obtained; implementation owners must verify behavior at their M/V gates.",
+    "A03 remains blocked pending separate authorization for real deployment and business-data read-only access.",
+    "Production changes and publication remain unauthorized.",
+    "A04 evidence commit SHA is assigned after result.json is committed; Git history is the final commit identity."
+  ]
+}

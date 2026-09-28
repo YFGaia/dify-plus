@@ -36,4 +36,4 @@ Dify-Plus 当前基于 upstream 1.16.0，计划合入官方 1.17.1，并保留�
 - 数据：主 Alembic 链、独立 `migrations_extend` 链、Agent 运行数据、模型凭据、向量库及对象存储的匹配恢复点。
 - 验证：六条计费业务链、认证矩阵、系统管理、应用中心、知识库检索、API Key scope、Human Input 和 Agent 路径。
 - 并行工作：`p4-billing-quota-hardening`、`p6-console-manage-standardization` 保留为独立 change；在新基线上重审其路径及假设，新增业务改造不混入本轮合并。
-- 当前授权仅涵盖分析和规划材料。创建执行分支/工作树、实施合并和生产上线分别按执行图中的授权门处理。
+- 当前已获授权在指定分支 `codex/merge-upstream-1.17.1` 实施本地源码合并与校验，且该分支已创建；真实环境只读访问、生产变更与发布仍未获授权，继续按执行图中的授权门处理。
