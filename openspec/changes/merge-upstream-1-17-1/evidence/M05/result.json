@@ -1,7 +1,7 @@
 {
   "node": "M05",
-  "status": "blocked",
-  "implementation": "partial_uncommitted",
+  "status": "in_progress",
+  "implementation": "partial",
   "deployable": false,
   "branch": "codex/merge-upstream-1.17.1",
   "analysis_head": "3620896b7afe8122f5e4873450031cc942c8c175",
@@ -22,19 +22,83 @@
   ],
   "subtasks": {
     "11.1": {
-      "status": "blocked",
-      "evidence": [
-        "codegen-investigation.json",
-        "codegen-analysis.md"
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m05_11_1_resume",
+      "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
+      "registered_changed_paths": 45,
+      "summary": [
+        "Generated loginConfig and loginConfigBootstrap contracts now own the login endpoints; the handwritten duplicate file was removed.",
+        "Registered the handwritten systemManage segment as the sole owner of the three code-execution-control operations and declared POST successStatus 201.",
+        "Browser login_config requests first bootstrap, validate the generated response, include cookies, disable caching, and attach the token only to that request. A 403 is propagated; a later call bootstraps a fresh token.",
+        "Generator removes only OPTIONS /extend/{path} and exact duplicate GET/POST/DELETE routes, failing closed if the handwritten route contract drifts. It retains five extend business methods and thirteen other systemManageExtend operations.",
+        "Nine focused transport tests exercise the generated/bootstrap and handwritten operations through the real loader/oRPC/fetch path; three existing fixtures were updated for generated 1.17.1 fields."
       ],
-      "reason": "Coding is paused pending user guidance because the required karpathy-guidelines SKILL.md is unavailable at the listed path or searched skill roots. Existing filters remain uncommitted and unverified; standard generation was terminated before outputs and tests were produced.",
-      "working_changes": [
-        "web/service/console/browser.ts",
-        "web/service/console/contract-loader.ts",
-        "web/service/console/index.ts",
-        "web/contract/router-extend.ts",
-        "web/contract/console/system.ts (deleted)",
-        "packages/contracts/openapi-ts.api.config.ts"
+      "checks": [
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir packages/contracts run gen-api-contract (native Node 24.20.0 / pnpm 12.3.4; isolated UV environment)",
+          "exit_code": 0,
+          "assertions": "64 jobs; standard generation rerun produced byte-identical output across 191 generated files."
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit service/console/client.spec.ts -t 'fork Console transport'",
+          "exit_code": 0,
+          "assertions": "9 passed."
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit service/console/client.spec.ts",
+          "exit_code": 1,
+          "assertions": "51 passed, 6 failed. Original-HEAD isolated snapshot: 42 passed, the same 6 failures. Failures are missing cn dependency resolution and five stale QueryClient.query assertions; no dependency/mock workaround was added."
+        },
+        {
+          "command": "vp check on production M05 source files",
+          "exit_code": 0,
+          "assertions": "Formatting, lint, and type checks passed for six files."
+        },
+        {
+          "command": "vp check including web/service/console/client.spec.ts",
+          "exit_code": 1,
+          "assertions": "Only existing QueryClient.query type errors in the broader test file; no new errors attributed to this implementation."
+        },
+        {
+          "command": "contracts TypeScript typecheck (tsc --noEmit)",
+          "exit_code": 0
+        },
+        {
+          "command": "git diff --check on all M05 implementation paths",
+          "exit_code": 0
+        },
+        {
+          "command": "M05 working-tree source/generated path audit against execution-graph.json registration",
+          "exit_code": 0,
+          "assertions": "45 actual leaf paths; 45 registered or owned; 0 unregistered."
+        },
+        {
+          "command": "openspec validate merge-upstream-1-17-1 --strict",
+          "exit_code": 0,
+          "assertions": "Change valid."
+        }
+      ],
+      "independent_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m05_11_1_luna_audit",
+        "status": "passed_no_p1_p2",
+        "findings": "Confirmed registered path scope, exact generator filters, unique contract ownership, request-local token/header behavior against backend CORS/header handling, 201 assertion, and same six baseline failures.",
+        "limitation": "Independent focused-test rerun hung without output and was stopped; review relied on captured Astra test output."
+      },
+      "limitations": [
+        "No live browser, real cross-origin Cookie/CORS, or production environment validation; later V02 acceptance remains required.",
+        "The broader client test file still has six failures that reproduce at the original HEAD; they are recorded rather than hidden.",
+        "Only 11.1 is complete. SSR/public snapshot behavior (11.2), workspace summary/permission atom migration (11.3), contract matrix review (11.4), and M05 node acceptance (11.5) remain pending."
+      ],
+      "evidence_logs": [
+        "/private/tmp/dify-m05-11-1-generation-final.log",
+        "/private/tmp/dify-m05-11-1-focused-tests.log",
+        "/private/tmp/dify-m05-11-1-tests-final.log",
+        "/private/tmp/dify-m05-11-1-head-baseline-verified.log",
+        "/private/tmp/dify-m05-11-1-production-check.log",
+        "/private/tmp/dify-m05-11-1-check-final.log",
+        "/private/tmp/dify-m05-11-1-contract-typecheck.log"
       ]
     },
     "11.2": {
@@ -47,15 +111,20 @@
       "status": "pending"
     },
     "11.5": {
-      "status": "pending_independent_acceptance"
+      "status": "pending"
     }
   },
   "known_limits": [
-    "No browser cross-origin cookie validation in this analysis; defer real-browser validation to V02.",
-    "The is_custom_auth2_button item in A04 C03 is not present in the actual M02 response schema.",
-    "The handwritten code-execution-control POST contract has not yet been verified against the backend HTTP 201 response; add a focused transport assertion before accepting 11.1.",
-    "Coding is paused pending user guidance on the unavailable required karpathy-guidelines skill; no M05 generated artifacts or tests are accepted."
+    "Real browser Cookie/CORS validation is deferred to V02.",
+    "A04 C03 is_custom_auth2_button is absent from the M02 response schema and is not fabricated.",
+    "The full client.spec.ts still has six failures, all reproduced on the original HEAD snapshot.",
+    "M05 remains partial and non-deployable until 11.2-11.5 and later integration gates pass."
   ],
   "codegen_investigation": "evidence/M05/codegen-investigation.json",
-  "codegen_analysis": "evidence/M05/codegen-analysis.md"
+  "codegen_analysis": "evidence/M05/codegen-analysis.md",
+  "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
+  "tasks_complete": [
+    "11.1"
+  ],
+  "next_subtask": "11.2"
 }

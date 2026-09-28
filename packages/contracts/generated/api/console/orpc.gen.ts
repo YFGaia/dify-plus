@@ -24,17 +24,20 @@ export const contractLoaders = {
   compliance: () => import('./compliance/orpc.gen').then(({ compliance }) => ({ compliance })),
   dataSource: () => import('./data-source/orpc.gen').then(({ dataSource }) => ({ dataSource })),
   datasets: () => import('./datasets/orpc.gen').then(({ datasets }) => ({ datasets })),
+  dingTalk: () => import('./ding-talk/orpc.gen').then(({ dingTalk }) => ({ dingTalk })),
   emailCodeLogin: () =>
     import('./email-code-login/orpc.gen').then(({ emailCodeLogin }) => ({ emailCodeLogin })),
   emailRegister: () =>
     import('./email-register/orpc.gen').then(({ emailRegister }) => ({ emailRegister })),
   explore: () => import('./explore/orpc.gen').then(({ explore }) => ({ explore })),
+  extend: () => import('./extend/orpc.gen').then(({ extend }) => ({ extend })),
   features: () => import('./features/orpc.gen').then(({ features }) => ({ features })),
   files: () => import('./files/orpc.gen').then(({ files }) => ({ files })),
   forgotPassword: () =>
     import('./forgot-password/orpc.gen').then(({ forgotPassword }) => ({ forgotPassword })),
   form: () => import('./form/orpc.gen').then(({ form }) => ({ form })),
   init: () => import('./init/orpc.gen').then(({ init }) => ({ init })),
+  installed: () => import('./installed/orpc.gen').then(({ installed }) => ({ installed })),
   installedApps: () =>
     import('./installed-apps/orpc.gen').then(({ installedApps }) => ({ installedApps })),
   instructionGenerate: () =>
@@ -42,7 +45,13 @@ export const contractLoaders = {
       instructionGenerate,
     })),
   login: () => import('./login/orpc.gen').then(({ login }) => ({ login })),
+  loginConfig: () => import('./login-config/orpc.gen').then(({ loginConfig }) => ({ loginConfig })),
+  loginConfigBootstrap: () =>
+    import('./login-config-bootstrap/orpc.gen').then(({ loginConfigBootstrap }) => ({
+      loginConfigBootstrap,
+    })),
   logout: () => import('./logout/orpc.gen').then(({ logout }) => ({ logout })),
+  message: () => import('./message/orpc.gen').then(({ message }) => ({ message })),
   notification: () =>
     import('./notification/orpc.gen').then(({ notification }) => ({ notification })),
   notion: () => import('./notion/orpc.gen').then(({ notion }) => ({ notion })),
@@ -68,6 +77,10 @@ export const contractLoaders = {
   spec: () => import('./spec/orpc.gen').then(({ spec }) => ({ spec })),
   systemFeatures: () =>
     import('./system-features/orpc.gen').then(({ systemFeatures }) => ({ systemFeatures })),
+  systemManageExtend: () =>
+    import('./system-manage-extend/orpc.gen').then(({ systemManageExtend }) => ({
+      systemManageExtend,
+    })),
   tagBindings: () => import('./tag-bindings/orpc.gen').then(({ tagBindings }) => ({ tagBindings })),
   tags: () => import('./tags/orpc.gen').then(({ tags }) => ({ tags })),
   trialApps: () => import('./trial-apps/orpc.gen').then(({ trialApps }) => ({ trialApps })),

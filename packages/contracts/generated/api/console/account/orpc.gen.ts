@@ -11,6 +11,7 @@ import {
   zGetAccountEducationResponse,
   zGetAccountEducationVerifyResponse,
   zGetAccountIntegratesResponse,
+  zGetAccountMoneyResponse,
   zGetAccountProfileResponse,
   zPatchAccountProfileBody,
   zPatchAccountProfileResponse,
@@ -321,6 +322,20 @@ export const interfaceTheme = {
   post: post11,
 }
 
+export const get7 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getAccountMoney',
+    path: '/account/money',
+    tags: ['default'],
+  })
+  .output(zGetAccountMoneyResponse)
+
+export const money = {
+  get: get7,
+}
+
 /**
  * Deprecated. Use PATCH /account/profile instead.
  *
@@ -358,7 +373,7 @@ export const password = {
   post: post13,
 }
 
-export const get7 = oc
+export const get8 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -380,7 +395,7 @@ export const patch = oc
   .output(zPatchAccountProfileResponse)
 
 export const profile = {
-  get: get7,
+  get: get8,
   patch,
 }
 
@@ -415,6 +430,7 @@ export const account = {
   integrates,
   interfaceLanguage,
   interfaceTheme,
+  money,
   name,
   password,
   profile,

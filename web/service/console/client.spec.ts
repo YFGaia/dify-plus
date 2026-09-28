@@ -1,11 +1,13 @@
 import type { ApiBasedExtensionResponse } from '@dify/contracts/api/console/api-based-extension/types.gen'
 import type { AppDetail, AppSiteResponse } from '@dify/contracts/api/console/apps/types.gen'
+import type { LoginConfigResponse } from '@dify/contracts/api/console/login-config/types.gen'
 import type { TagResponse as Tag } from '@dify/contracts/api/console/tags/types.gen'
 import type { DocumentProcessingTaskEvent } from '@dify/contracts/knowledge-fs/types.gen'
 import type { MutationFunctionContext, QueryFunctionContext } from '@tanstack/react-query'
 import type { consoleQuery as ConsoleQuery } from '@/service/console'
 import { MutationObserver, QueryClient, QueryObserver } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { createSystemFeaturesFixture } from '@/test/console/system-features'
 import { normalizeConsoleOpenAPIURL } from './openapi-url'
 
 const loadConsoleQuery = async () => {
@@ -91,6 +93,7 @@ const createAgent = (overrides: Partial<AgentMutationResponse> = {}): AgentMutat
   debug_conversation_message_count: overrides.debug_conversation_message_count ?? 0,
   enable_api: overrides.enable_api ?? true,
   enable_site: overrides.enable_site ?? true,
+  webapp_auth_enabled_extend: overrides.webapp_auth_enabled_extend ?? true,
   description: overrides.description ?? 'Agent description',
   hidden_app_backed: overrides.hidden_app_backed ?? false,
   id: overrides.id ?? 'agent-1',
@@ -646,6 +649,7 @@ describe('consoleQuery app mutation defaults', () => {
       id: 'app-1',
       mode: 'chat',
       name: 'Updated app',
+      webapp_auth_enabled_extend: true,
     }
     queryClient.setQueryData(detailQueryKey, { ...updatedApp, name: 'Old app' })
     queryClient.setQueryData(otherDetailQueryKey, { ...updatedApp, id: 'app-2', name: 'Other app' })
@@ -839,7 +843,7 @@ describe('consoleQuery app mutation defaults', () => {
           type: 'app',
           dataset_ids: [],
         },
-        { params: { resource_id: 'app-1' } },
+        { params: { resource_id: 'app-1' }, body: {} },
         undefined,
         context,
       ),
@@ -2015,5 +2019,181 @@ describe('consoleQuery apiBasedExtension mutation defaults', () => {
     )
 
     expect(queryClient.getQueryData(listKey)).toEqual([remainingExtension])
+  })
+})
+
+// Fork transport contract: generated login endpoints and handwritten management routes.
+describe('fork Console transport', () => {
+  const loginConfig: LoginConfigResponse = {
+    ...createSystemFeaturesFixture(),
+    ding_talk: false,
+    ding_talk_client_id: '',
+    ding_talk_corp_id: '',
+    is_custom_auth2: false,
+    is_custom_auth2_logout: '',
+    rmb_to_usd_rate: 7.26,
+  }
+  const jsonResponse = (body: unknown, status = 200) =>
+    new Response(JSON.stringify(body), {
+      status,
+      headers: { 'content-type': 'application/json' },
+    })
+  const loadClient = async () => {
+    vi.doMock('@langgenius/dify-ui/toast', () => ({ toast: { error: vi.fn() } }))
+    await loadConsoleQueryWithFetch()
+    return (await import('@/service/console')).consoleClient
+  }
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    vi.doUnmock('@/config')
+    vi.doUnmock('@langgenius/dify-ui/toast')
+  })
+
+  it.each(['/console/api', 'https://console-api.example.test/console/api'])(
+    'bootstraps before configuration with cookie credentials and a request-local header at %s',
+    async (apiPrefix) => {
+      vi.doMock('@/config', async (importOriginal) => ({
+        ...(await importOriginal<typeof import('@/config')>()),
+        API_PREFIX: apiPrefix,
+      }))
+      const requests: Request[] = []
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+        const request = new Request(input, init)
+        requests.push(request)
+        if (request.url.endsWith('/login_config_bootstrap'))
+          return jsonResponse({ ok: true, token: 'request-token' })
+        expect(request.headers.get('X-Login-Config-Token')).toBe('request-token')
+        return jsonResponse(loginConfig)
+      })
+      const client = await loadClient()
+
+      await expect(client.loginConfig.get()).resolves.toEqual(loginConfig)
+
+      expect(fetchSpy).toHaveBeenCalledTimes(2)
+      const base = new URL(apiPrefix, window.location.origin).href
+      expect(requests.map((request) => request.url)).toEqual([
+        `${base}/login_config_bootstrap`,
+        `${base}/login_config`,
+      ])
+      for (const request of requests) {
+        expect(request.credentials).toBe('include')
+      }
+      expect(requests[0]!.headers.has('X-Login-Config-Token')).toBe(false)
+    },
+  )
+
+  it('disables caching for both phases at the base request boundary', async () => {
+    // happy-dom does not implement Request.cache; assert the adapter input instead.
+    const request = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ ok: true, token: 'uncached-token' }))
+      .mockResolvedValueOnce(jsonResponse(loginConfig))
+    await loadConsoleQueryWithRequest(request)
+    const { consoleClient } = await import('@/service/console')
+
+    await consoleClient.loginConfig.get()
+
+    expect(request).toHaveBeenCalledTimes(2)
+    for (const call of request.mock.calls) {
+      expect(call[1]).toEqual(
+        expect.objectContaining({ cache: 'no-store', credentials: 'include' }),
+      )
+    }
+  })
+
+  it('propagates configuration 403 without retry and bootstraps a fresh token on the next call', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const requests: Request[] = []
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      requests.push(new Request(input, init))
+      if (requests.length === 1) return jsonResponse({ ok: true, token: 'expired-token' })
+      if (requests.length === 2)
+        return jsonResponse({ message: 'Expired login configuration token' }, 403)
+      if (requests.length === 3) return jsonResponse({ ok: true, token: 'fresh-token' })
+      return jsonResponse(loginConfig)
+    })
+    const client = await loadClient()
+
+    await expect(
+      client.loginConfig.get(undefined, { context: { silent: true } }),
+    ).rejects.toMatchObject({ status: 403 })
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
+    await expect(client.loginConfig.get()).resolves.toEqual(loginConfig)
+
+    expect(requests.map((request) => new URL(request.url).pathname.split('/').at(-1))).toEqual([
+      'login_config_bootstrap',
+      'login_config',
+      'login_config_bootstrap',
+      'login_config',
+    ])
+    expect(requests[1]!.headers.get('X-Login-Config-Token')).toBe('expired-token')
+    expect(requests[3]!.headers.get('X-Login-Config-Token')).toBe('fresh-token')
+  })
+
+  it.each([{ ok: false, token: 'denied-token' }, { ok: true, token: '' }, { ok: true }])(
+    'does not request configuration after invalid bootstrap %j',
+    async (bootstrap) => {
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse(bootstrap))
+      const client = await loadClient()
+
+      await expect(client.loginConfig.get()).rejects.toThrow()
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+    },
+  )
+
+  it('does not forward bootstrap tokens to other Console segments', async () => {
+    const requests: Request[] = []
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const request = new Request(input, init)
+      requests.push(request)
+      if (request.url.endsWith('/login_config_bootstrap'))
+        return jsonResponse({ ok: true, token: 'login-only-token' })
+      if (request.url.endsWith('/login_config')) return jsonResponse(loginConfig)
+      return jsonResponse({ items: [] })
+    })
+    const client = await loadClient()
+    await client.loginConfig.get()
+    await expect(client.systemManage.codeExecutionControlList()).resolves.toEqual({ items: [] })
+
+    expect(requests).toHaveLength(3)
+    expect(requests[2]!.headers.has('X-Login-Config-Token')).toBe(false)
+  })
+
+  it('loads the sole handwritten management owner and accepts the real POST 201 response', async () => {
+    const item = {
+      id: 'record-1',
+      email: 'member@example.test',
+      created_by: null,
+      created_at: '2026-09-29T00:00:00Z',
+    }
+    const added = { result: 'success', item, cache_synced: true }
+    const removed = { result: 'success', cache_synced: false }
+    const requests: Request[] = []
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const request = new Request(input, init)
+      requests.push(request)
+      if (request.method === 'POST') {
+        expect(await request.json()).toEqual({ email: item.email })
+        return jsonResponse(added, 201)
+      }
+      if (request.method === 'DELETE') return jsonResponse(removed)
+      return jsonResponse({ items: [item] })
+    })
+    const client = await loadClient()
+
+    await expect(
+      client.systemManage.codeExecutionControlAdd({ body: { email: item.email } }),
+    ).resolves.toEqual(added)
+    await expect(client.systemManage.codeExecutionControlList()).resolves.toEqual({ items: [item] })
+    await expect(
+      client.systemManage.codeExecutionControlRemove({ params: { id: item.id } }),
+    ).resolves.toEqual(removed)
+    expect(requests.map((request) => [request.method, new URL(request.url).pathname])).toEqual([
+      ['POST', '/console/api/system-manage-extend/code-execution-control'],
+      ['GET', '/console/api/system-manage-extend/code-execution-control'],
+      ['DELETE', '/console/api/system-manage-extend/code-execution-control/record-1'],
+    ])
   })
 })

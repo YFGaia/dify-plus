@@ -1641,11 +1641,13 @@ export const zTenantAccountRole = z.enum(['admin', 'dataset_operator', 'editor',
  * CurrentWorkspaceSummaryResponse
  */
 export const zCurrentWorkspaceSummaryResponse = z.object({
+  admin_extend: z.boolean(),
   credits: z.int().nullable(),
   id: z.string(),
   name: z.string(),
   plan: zCloudPlan.nullable(),
   role: zTenantAccountRole,
+  tenant_extend: z.boolean(),
 })
 
 /**
@@ -1961,6 +1963,7 @@ export const zTriggerProviderSubscriptionListResponse = z.array(
  * TenantInfoResponse
  */
 export const zTenantInfoResponse = z.object({
+  admin_extend: z.boolean().nullish(),
   created_at: z.int().nullish(),
   custom_config: zWorkspaceCustomConfigResponse.nullish(),
   id: z.string(),
@@ -1970,6 +1973,7 @@ export const zTenantInfoResponse = z.object({
   plan: zCloudPlan.nullish(),
   role: z.string().nullish(),
   status: z.string().nullish(),
+  tenant_extend: z.boolean().nullish(),
   trial_credits: z.int().nullish(),
   trial_credits_exhausted_at: z.int().nullish(),
   trial_credits_used: z.int().nullish(),

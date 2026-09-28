@@ -326,7 +326,9 @@ export type LoginStatusQuery = {
 
 export type LoginStatusResponse = {
   app_logged_in: boolean
+  console_logged_in?: boolean
   logged_in: boolean
+  webapp_auth_enabled_extend?: boolean
 }
 
 export type MessageFeedbackPayload = {

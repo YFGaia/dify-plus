@@ -75,10 +75,16 @@ export type DatasetApiKeyCreatePayload = {
 }
 
 export type ApiKeyItem = {
+  accumulated_quota?: number | null
   created_at?: number | null
   dataset_ids?: Array<string>
+  day_limit_quota?: number | null
+  day_used_quota?: number | null
+  description?: string | null
   id: string
   last_used_at?: number | null
+  month_limit_quota?: number | null
+  month_used_quota?: number | null
   token: string
   type: string
 }

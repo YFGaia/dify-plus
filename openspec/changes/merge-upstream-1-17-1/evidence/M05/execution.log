@@ -19,3 +19,23 @@ Additional 11.1 path registered before source edit: web/service/console/index.ts
 
 Resumption: 2026-09-29
 The current available-skills catalog no longer lists karpathy-guidelines. Root and web AGENTS.md were rechecked. M05 11.1 resumes under the active repository and OpenSpec instructions. Existing uncommitted implementation edits were preserved; a new Astra task is assigned to inspect and complete 11.1.
+
+M05 11.1 implementation and coordinator/Luna review: 2026-09-29
+Branch: codex/merge-upstream-1.17.1
+Source commit before subtask: 3681a3fed24805cdc4a0fdde09798985c2d92796
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Implementation task: /root/m05_11_1_resume (gpt-6-astra)
+Independent read-only review: /root/m05_11_1_luna_audit (gpt-6-luna)
+
+Result: generated loginConfig/loginConfigBootstrap contracts own both login endpoints; browser config requests bootstrap first, validate the generated response, include Cookie credentials, disable cache, and attach the token only to the matching request. A 403 is propagated without blind retry. Handwritten systemManage remains the sole owner of GET/POST/DELETE codeExecutionControl routes, with successStatus 201. Generator filters exact OPTIONS /extend/{path} and the three duplicate management methods, retaining the five extend business methods and thirteen remaining systemManageExtend methods. Nine focused transport tests cover these boundaries.
+
+Checks:
+- Standard gen-api-contract with Node 24.20.0/pnpm 12.3.4: 64 jobs, exit 0; second run byte-identical across 191 outputs.
+- Focused transport tests: 9 passed.
+- Full client.spec.ts: 51 passed, 6 failed. An original-HEAD isolated snapshot had 42 passed and the same six failures (missing cn resolution plus five stale QueryClient.query assertions).
+- Production-source vp check: exit 0. Including the full test file: exit 1 only for pre-existing QueryClient.query type errors.
+- Contracts tsc --noEmit: exit 0; git diff --check: exit 0; strict OpenSpec validation: valid.
+- Scope audit: all 45 changed M05 leaf paths are registered/owned, no unregistered paths.
+- Independent Luna review found no P1/P2 and confirmed filters, single ownership, request-local token handling, backend header/CORS alignment, POST 201, and baseline-failure comparison. Luna's independent test rerun hung without output and was stopped; captured Astra test logs remain the executable test evidence.
+
+Evidence logs retained under /private/tmp/dify-m05-11-1-*.log. No live browser/CORS or production environment verification was performed. Subtasks 11.2-11.5 remain pending; M05 remains partial and non-deployable.

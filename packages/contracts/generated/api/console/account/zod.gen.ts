@@ -360,6 +360,11 @@ export const zPostAccountInterfaceThemeBody = zAccountInterfaceThemePayload
  */
 export const zPostAccountInterfaceThemeResponse = zAccountResponse
 
+/**
+ * Success
+ */
+export const zGetAccountMoneyResponse = z.record(z.string(), z.unknown())
+
 export const zPostAccountNameBody = zAccountNamePayload
 
 /**

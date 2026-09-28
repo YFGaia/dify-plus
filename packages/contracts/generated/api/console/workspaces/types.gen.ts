@@ -838,11 +838,13 @@ export type SkillVersionUpdatePayload = {
 }
 
 export type CurrentWorkspaceSummaryResponse = {
+  admin_extend: boolean
   credits: number | null
   id: string
   name: string
   plan: CloudPlan | null
   role: TenantAccountRole
+  tenant_extend: boolean
 }
 
 export type ToolLabelListResponse = Array<ToolLabel>
@@ -2026,6 +2028,7 @@ export type TriggerProviderSubscriptionApiEntity = {
 }
 
 export type TenantInfoResponse = {
+  admin_extend?: boolean | null
   created_at?: number | null
   custom_config?: WorkspaceCustomConfigResponse | null
   id: string
@@ -2035,6 +2038,7 @@ export type TenantInfoResponse = {
   plan?: CloudPlan | null
   role?: string | null
   status?: string | null
+  tenant_extend?: boolean | null
   trial_credits?: number | null
   trial_credits_exhausted_at?: number | null
   trial_credits_used?: number | null

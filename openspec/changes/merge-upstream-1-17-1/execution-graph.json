@@ -796,14 +796,15 @@
           "A04 C03 is_custom_auth2_button is absent from M02 schema; record as contract gap and do not fabricate the field.",
           "Exclude the exact generated code-execution-control GET/POST/DELETE operations; retain the precise handwritten systemManage DTO/runtime as their sole owner, and verify POST status 201."
         ],
-        "tasks_complete": [],
-        "next_subtask": "11.1",
+        "tasks_complete": [
+          "11.1"
+        ],
+        "next_subtask": "11.2",
         "subtask_11_1_scope_registered": true,
         "current_subtask": {
           "id": "11.1",
-          "status": "in_progress",
-          "reason": "Resumed under current skill catalog and repository guidance; reconcile existing uncommitted filter and transport edits, then complete only subtask 11.1 with standard generation and focused contract verification.",
-          "evidence": "evidence/M05/codegen-analysis.md"
+          "status": "complete",
+          "evidence": "evidence/M05/result.json#/subtasks/11.1"
         },
         "codegen_diagnosis": {
           "status": "complete_root_cause_identified_owner_decided",

@@ -21,6 +21,8 @@ import {
   zDeleteAppsByAppIdResponse,
   zDeleteAppsByAppIdStarPath,
   zDeleteAppsByAppIdStarResponse,
+  zDeleteAppsByAppIdSyncPath,
+  zDeleteAppsByAppIdSyncResponse,
   zDeleteAppsByAppIdTraceConfigPath,
   zDeleteAppsByAppIdTraceConfigQuery,
   zDeleteAppsByAppIdTraceConfigResponse,
@@ -432,6 +434,7 @@ import {
   zPostAppsByAppIdWorkflowsPublishBody,
   zPostAppsByAppIdWorkflowsPublishPath,
   zPostAppsByAppIdWorkflowsPublishResponse,
+  zPostAppsByResourceIdApiKeysBody,
   zPostAppsByResourceIdApiKeysPath,
   zPostAppsByResourceIdApiKeysResponse,
   zPostAppsImportsBody,
@@ -447,6 +450,8 @@ import {
   zPutAppsByAppIdServerBody,
   zPutAppsByAppIdServerPath,
   zPutAppsByAppIdServerResponse,
+  zPutAppsByAppIdSyncPath,
+  zPutAppsByAppIdSyncResponse,
   zPutAppsByAppIdWorkflowCommentsByCommentIdBody,
   zPutAppsByAppIdWorkflowCommentsByCommentIdPath,
   zPutAppsByAppIdWorkflowCommentsByCommentIdRepliesByReplyIdBody,
@@ -458,6 +463,9 @@ import {
   zPutAppsByAppIdWorkflowsDraftNodesByNodeIdAgentComposerResponse,
   zPutAppsByAppIdWorkflowsDraftVariablesByVariableIdResetPath,
   zPutAppsByAppIdWorkflowsDraftVariablesByVariableIdResetResponse,
+  zPutAppsByResourceIdApiKeysBody,
+  zPutAppsByResourceIdApiKeysPath,
+  zPutAppsByResourceIdApiKeysResponse,
 } from './zod.gen'
 
 export const get = oc
@@ -2346,6 +2354,41 @@ export const statistics = {
 }
 
 /**
+ * Delete sync app
+ */
+export const delete8 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'DELETE',
+    operationId: 'deleteAppsByAppIdSync',
+    path: '/apps/{app_id}/sync',
+    summary: 'Delete sync app',
+    tags: ['default'],
+  })
+  .input(z.object({ params: zDeleteAppsByAppIdSyncPath }))
+  .output(zDeleteAppsByAppIdSyncResponse)
+
+/**
+ * Sync app
+ */
+export const put2 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putAppsByAppIdSync',
+    path: '/apps/{app_id}/sync',
+    summary: 'Sync app',
+    tags: ['default'],
+  })
+  .input(z.object({ params: zPutAppsByAppIdSyncPath }))
+  .output(zPutAppsByAppIdSyncResponse)
+
+export const sync = {
+  delete: delete8,
+  put: put2,
+}
+
+/**
  * Get available TTS voices for a specific language
  */
 export const get43 = oc
@@ -2434,7 +2477,7 @@ export const trace = {
  *
  * Delete an existing tracing configuration for an application
  */
-export const delete8 = oc
+export const delete9 = oc
   .route({
     description: 'Delete an existing tracing configuration for an application',
     inputStructure: 'detailed',
@@ -2512,7 +2555,7 @@ export const post36 = oc
   .output(zPostAppsByAppIdTraceConfigResponse)
 
 export const traceConfig = {
-  delete: delete8,
+  delete: delete9,
   get: get45,
   patch,
   post: post36,
@@ -2839,7 +2882,7 @@ export const mentionUsers = {
  *
  * Delete a comment reply
  */
-export const delete9 = oc
+export const delete10 = oc
   .route({
     description: 'Delete a comment reply',
     inputStructure: 'detailed',
@@ -2858,7 +2901,7 @@ export const delete9 = oc
  *
  * Update a comment reply
  */
-export const put2 = oc
+export const put3 = oc
   .route({
     description: 'Update a comment reply',
     inputStructure: 'detailed',
@@ -2877,8 +2920,8 @@ export const put2 = oc
   .output(zPutAppsByAppIdWorkflowCommentsByCommentIdRepliesByReplyIdResponse)
 
 export const byReplyId = {
-  delete: delete9,
-  put: put2,
+  delete: delete10,
+  put: put3,
 }
 
 /**
@@ -2937,7 +2980,7 @@ export const resolve = {
  *
  * Delete a workflow comment
  */
-export const delete10 = oc
+export const delete11 = oc
   .route({
     description: 'Delete a workflow comment',
     inputStructure: 'detailed',
@@ -2974,7 +3017,7 @@ export const get55 = oc
  *
  * Update a workflow comment
  */
-export const put3 = oc
+export const put4 = oc
   .route({
     description: 'Update a workflow comment',
     inputStructure: 'detailed',
@@ -2993,9 +3036,9 @@ export const put3 = oc
   .output(zPutAppsByAppIdWorkflowCommentsByCommentIdResponse)
 
 export const byCommentId = {
-  delete: delete10,
+  delete: delete11,
   get: get55,
-  put: put3,
+  put: put4,
   replies,
   resolve,
 }
@@ -3604,7 +3647,7 @@ export const get66 = oc
   )
   .output(zGetAppsByAppIdWorkflowsDraftNodesByNodeIdAgentComposerResponse)
 
-export const put4 = oc
+export const put5 = oc
   .route({
     inputStructure: 'detailed',
     method: 'PUT',
@@ -3622,7 +3665,7 @@ export const put4 = oc
 
 export const agentComposer = {
   get: get66,
-  put: put4,
+  put: put5,
   candidates,
   copyFromRoster,
   impact,
@@ -3705,7 +3748,7 @@ export const trigger = {
 /**
  * Delete all variables for a specific node
  */
-export const delete11 = oc
+export const delete12 = oc
   .route({
     description: 'Delete all variables for a specific node',
     inputStructure: 'detailed',
@@ -3734,7 +3777,7 @@ export const get68 = oc
   .output(zGetAppsByAppIdWorkflowsDraftNodesByNodeIdVariablesResponse)
 
 export const variables = {
-  delete: delete11,
+  delete: delete12,
   get: get68,
 }
 
@@ -3953,7 +3996,7 @@ export const trigger2 = {
 /**
  * Reset a workflow variable to its default value
  */
-export const put5 = oc
+export const put6 = oc
   .route({
     description: 'Reset a workflow variable to its default value',
     inputStructure: 'detailed',
@@ -3966,13 +4009,13 @@ export const put5 = oc
   .output(zPutAppsByAppIdWorkflowsDraftVariablesByVariableIdResetResponse)
 
 export const reset = {
-  put: put5,
+  put: put6,
 }
 
 /**
  * Delete a workflow variable
  */
-export const delete12 = oc
+export const delete13 = oc
   .route({
     description: 'Delete a workflow variable',
     inputStructure: 'detailed',
@@ -4021,7 +4064,7 @@ export const patch2 = oc
   .output(zPatchAppsByAppIdWorkflowsDraftVariablesByVariableIdResponse)
 
 export const byVariableId = {
-  delete: delete12,
+  delete: delete13,
   get: get74,
   patch: patch2,
   reset,
@@ -4030,7 +4073,7 @@ export const byVariableId = {
 /**
  * Delete all draft workflow variables
  */
-export const delete13 = oc
+export const delete14 = oc
   .route({
     description: 'Delete all draft workflow variables',
     inputStructure: 'detailed',
@@ -4067,7 +4110,7 @@ export const get75 = oc
   .output(zGetAppsByAppIdWorkflowsDraftVariablesResponse)
 
 export const variables2 = {
-  delete: delete13,
+  delete: delete14,
   get: get75,
   byVariableId,
 }
@@ -4326,7 +4369,7 @@ export const restore = {
 /**
  * Delete workflow
  */
-export const delete14 = oc
+export const delete15 = oc
   .route({
     inputStructure: 'detailed',
     method: 'DELETE',
@@ -4362,7 +4405,7 @@ export const patch3 = oc
   .output(zPatchAppsByAppIdWorkflowsByWorkflowIdResponse)
 
 export const byWorkflowId = {
-  delete: delete14,
+  delete: delete15,
   patch: patch3,
   restore,
 }
@@ -4405,7 +4448,7 @@ export const workflows3 = {
  *
  * Delete application
  */
-export const delete15 = oc
+export const delete16 = oc
   .route({
     description: 'Delete application',
     inputStructure: 'detailed',
@@ -4442,7 +4485,7 @@ export const get84 = oc
  *
  * Update application details
  */
-export const put6 = oc
+export const put7 = oc
   .route({
     description: 'Update application details',
     inputStructure: 'detailed',
@@ -4456,9 +4499,9 @@ export const put6 = oc
   .output(zPutAppsByAppIdResponse)
 
 export const byAppId2 = {
-  delete: delete15,
+  delete: delete16,
   get: get84,
-  put: put6,
+  put: put7,
   advancedChat,
   agent,
   annotationReply,
@@ -4486,6 +4529,7 @@ export const byAppId2 = {
   siteEnable,
   star,
   statistics,
+  sync,
   textToAudio,
   trace,
   traceConfig,
@@ -4502,7 +4546,7 @@ export const byAppId2 = {
  *
  * Delete an API key for an app
  */
-export const delete16 = oc
+export const delete17 = oc
   .route({
     description: 'Delete an API key for an app',
     inputStructure: 'detailed',
@@ -4517,7 +4561,7 @@ export const delete16 = oc
   .output(zDeleteAppsByResourceIdApiKeysByApiKeyIdResponse)
 
 export const byApiKeyId = {
-  delete: delete16,
+  delete: delete17,
 }
 
 /**
@@ -4554,12 +4598,28 @@ export const post63 = oc
     summary: 'Create a new API key for an app',
     tags: ['console'],
   })
-  .input(z.object({ params: zPostAppsByResourceIdApiKeysPath }))
+  .input(
+    z.object({ body: zPostAppsByResourceIdApiKeysBody, params: zPostAppsByResourceIdApiKeysPath }),
+  )
   .output(zPostAppsByResourceIdApiKeysResponse)
+
+export const put8 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putAppsByResourceIdApiKeys',
+    path: '/apps/{resource_id}/api-keys',
+    tags: ['console'],
+  })
+  .input(
+    z.object({ body: zPutAppsByResourceIdApiKeysBody, params: zPutAppsByResourceIdApiKeysPath }),
+  )
+  .output(zPutAppsByResourceIdApiKeysResponse)
 
 export const apiKeys = {
   get: get85,
   post: post63,
+  put: put8,
   byApiKeyId,
 }
 

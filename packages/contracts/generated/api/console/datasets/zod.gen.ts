@@ -20,10 +20,16 @@ export const zDatasetApiKeyCreatePayload = z.object({
  * ApiKeyItem
  */
 export const zApiKeyItem = z.object({
+  accumulated_quota: z.number().nullish(),
   created_at: z.int().nullish(),
   dataset_ids: z.array(z.string()).optional().default([]),
+  day_limit_quota: z.number().nullish(),
+  day_used_quota: z.number().nullish(),
+  description: z.string().nullish(),
   id: z.string(),
   last_used_at: z.int().nullish(),
+  month_limit_quota: z.number().nullish(),
+  month_used_quota: z.number().nullish(),
   token: z.string(),
   type: z.string(),
 })

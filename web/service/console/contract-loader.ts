@@ -7,6 +7,10 @@ const generatedConsoleContractLoaders: Partial<Record<string, () => Promise<AnyC
   contractLoaders
 
 async function loadConsoleContractForSegment(segment: string): Promise<AnyContractRouter> {
+  if (segment === 'systemManage') {
+    const { forkConsoleContractExtend } = await import('@/contract/router-extend')
+    return forkConsoleContractExtend
+  }
   if (segment === 'enterprise') {
     const [{ contract: enterpriseContract }, { contract: appDeployContract }] = await Promise.all([
       import('@dify/contracts/enterprise/orpc.gen'),

@@ -10,6 +10,7 @@ export type AgentAppPagination = {
   limit: number
   page: number
   publication_counts: AgentPublicationCountsResponse
+  recommended_apps?: Array<string>
   total: number
 }
 
@@ -50,6 +51,7 @@ export type AgentAppDetailWithSite = {
   model_config?: AppModelConfigResponse | null
   name: string
   permission_keys: Array<string>
+  retention_number?: number | null
   role?: string | null
   site?: AppDetailSiteResponse | null
   tags?: Array<Tag>
@@ -57,6 +59,7 @@ export type AgentAppDetailWithSite = {
   updated_at?: number | null
   updated_by?: string | null
   use_icon_as_answer_icon?: boolean | null
+  webapp_auth_enabled_extend?: boolean
   workflow?: WorkflowPartial | null
 }
 
@@ -106,10 +109,16 @@ export type ApiKeyList = {
 }
 
 export type ApiKeyItem = {
+  accumulated_quota?: number | null
   created_at?: number | null
   dataset_ids?: Array<string>
+  day_limit_quota?: number | null
+  day_used_quota?: number | null
+  description?: string | null
   id: string
   last_used_at?: number | null
+  month_limit_quota?: number | null
+  month_used_quota?: number | null
   token: string
   type: string
 }
@@ -1741,6 +1750,7 @@ export type AgentAppPaginationWritable = {
   limit: number
   page: number
   publication_counts: AgentPublicationCountsResponse
+  recommended_apps?: Array<string>
   total: number
 }
 
@@ -1771,6 +1781,7 @@ export type AgentAppDetailWithSiteWritable = {
   model_config?: AppModelConfigResponse | null
   name: string
   permission_keys: Array<string>
+  retention_number?: number | null
   role?: string | null
   site?: AppDetailSiteResponseWritable | null
   tags?: Array<Tag>
@@ -1778,6 +1789,7 @@ export type AgentAppDetailWithSiteWritable = {
   updated_at?: number | null
   updated_by?: string | null
   use_icon_as_answer_icon?: boolean | null
+  webapp_auth_enabled_extend?: boolean
   workflow?: WorkflowPartial | null
 }
 

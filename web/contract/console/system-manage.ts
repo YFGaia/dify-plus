@@ -35,6 +35,7 @@ export const codeExecutionControlAddContract = base
   .route({
     path: '/system-manage-extend/code-execution-control',
     method: 'POST',
+    successStatus: 201,
   })
   .input(
     type<{

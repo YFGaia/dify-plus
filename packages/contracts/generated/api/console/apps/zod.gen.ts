@@ -392,6 +392,7 @@ export const zAppSiteUpdatePayload = z.object({
   show_workflow_steps: z.boolean().nullish(),
   title: z.string().nullish(),
   use_icon_as_answer_icon: z.boolean().nullish(),
+  webapp_auth_enabled_extend: z.boolean().nullish(),
 })
 
 /**
@@ -713,13 +714,28 @@ export const zWorkflowRestoreResponse = z.object({
 })
 
 /**
+ * ApiKeyQuotaPayload
+ */
+export const zApiKeyQuotaPayload = z.object({
+  day_limit_quota: z.number().optional().default(-1),
+  description: z.string().max(50).optional().default('默认'),
+  month_limit_quota: z.number().optional().default(-1),
+})
+
+/**
  * ApiKeyItem
  */
 export const zApiKeyItem = z.object({
+  accumulated_quota: z.number().nullish(),
   created_at: z.int().nullish(),
   dataset_ids: z.array(z.string()).optional().default([]),
+  day_limit_quota: z.number().nullish(),
+  day_used_quota: z.number().nullish(),
+  description: z.string().nullish(),
   id: z.string(),
   last_used_at: z.int().nullish(),
+  month_limit_quota: z.number().nullish(),
+  month_used_quota: z.number().nullish(),
   token: z.string(),
   type: z.string(),
 })
@@ -729,6 +745,16 @@ export const zApiKeyItem = z.object({
  */
 export const zApiKeyList = z.object({
   data: z.array(zApiKeyItem),
+})
+
+/**
+ * ApiKeyQuotaUpdatePayload
+ */
+export const zApiKeyQuotaUpdatePayload = z.object({
+  day_limit_quota: z.number().optional().default(-1),
+  description: z.string().max(50).optional().default('默认'),
+  id: z.string(),
+  month_limit_quota: z.number().optional().default(-1),
 })
 
 /**
@@ -896,12 +922,14 @@ export const zAppDetailWithSite = z.object({
   model_config: zAppModelConfigResponse.nullish(),
   name: z.string(),
   permission_keys: z.array(z.string()).optional(),
+  retention_number: z.int().nullish(),
   site: zAppDetailSiteResponse.nullish(),
   tags: z.array(zTag).optional(),
   tracing: z.unknown().nullish(),
   updated_at: z.int().nullish(),
   updated_by: z.string().nullish(),
   use_icon_as_answer_icon: z.boolean().nullish(),
+  webapp_auth_enabled_extend: z.boolean().optional().default(true),
   workflow: zWorkflowPartial.nullish(),
 })
 
@@ -2215,6 +2243,7 @@ export const zAppPagination = z.object({
   has_more: z.boolean(),
   limit: z.int(),
   page: z.int(),
+  recommended_apps: z.array(z.string()).optional(),
   total: z.int(),
 })
 
@@ -4017,6 +4046,7 @@ export const zAppPaginationWritable = z.object({
   has_more: z.boolean(),
   limit: z.int(),
   page: z.int(),
+  recommended_apps: z.array(z.string()).optional(),
   total: z.int(),
 })
 
@@ -4074,12 +4104,14 @@ export const zAppDetailWithSiteWritable = z.object({
   model_config: zAppModelConfigResponse.nullish(),
   name: z.string(),
   permission_keys: z.array(z.string()).optional(),
+  retention_number: z.int().nullish(),
   site: zAppDetailSiteResponseWritable.nullish(),
   tags: z.array(zTag).optional(),
   tracing: z.unknown().nullish(),
   updated_at: z.int().nullish(),
   updated_by: z.string().nullish(),
   use_icon_as_answer_icon: z.boolean().nullish(),
+  webapp_auth_enabled_extend: z.boolean().optional().default(true),
   workflow: zWorkflowPartial.nullish(),
 })
 
@@ -5336,6 +5368,24 @@ export const zGetAppsByAppIdStatisticsUserSatisfactionRateQuery = z.object({
 export const zGetAppsByAppIdStatisticsUserSatisfactionRateResponse =
   zUserSatisfactionRateStatisticResponse
 
+export const zDeleteAppsByAppIdSyncPath = z.object({
+  app_id: z.uuid(),
+})
+
+/**
+ * Success
+ */
+export const zDeleteAppsByAppIdSyncResponse = z.record(z.string(), z.unknown())
+
+export const zPutAppsByAppIdSyncPath = z.object({
+  app_id: z.uuid(),
+})
+
+/**
+ * Success
+ */
+export const zPutAppsByAppIdSyncResponse = z.record(z.string(), z.unknown())
+
 export const zPostAppsByAppIdTextToAudioBody = zTextToSpeechPayload
 
 export const zPostAppsByAppIdTextToAudioPath = z.object({
@@ -6370,6 +6420,8 @@ export const zGetAppsByResourceIdApiKeysPath = z.object({
  */
 export const zGetAppsByResourceIdApiKeysResponse = zApiKeyList
 
+export const zPostAppsByResourceIdApiKeysBody = zApiKeyQuotaPayload
+
 export const zPostAppsByResourceIdApiKeysPath = z.object({
   resource_id: z.uuid(),
 })
@@ -6378,6 +6430,17 @@ export const zPostAppsByResourceIdApiKeysPath = z.object({
  * API key created successfully
  */
 export const zPostAppsByResourceIdApiKeysResponse = zApiKeyItem
+
+export const zPutAppsByResourceIdApiKeysBody = zApiKeyQuotaUpdatePayload
+
+export const zPutAppsByResourceIdApiKeysPath = z.object({
+  resource_id: z.uuid(),
+})
+
+/**
+ * API key quota updated
+ */
+export const zPutAppsByResourceIdApiKeysResponse = zApiKeyItem
 
 export const zDeleteAppsByResourceIdApiKeysByApiKeyIdPath = z.object({
   api_key_id: z.uuid(),

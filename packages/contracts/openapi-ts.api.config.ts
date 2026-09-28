@@ -552,19 +552,39 @@ const splitConsoleDocument = (document: SwaggerDocument) => {
   }
 
   const segments = [...pathsBySegment.keys()].sort((left, right) => left.localeCompare(right))
-  const jobs = segments.map((segment): ApiJob => ({
-    document: cloneDocumentWithPaths(document, pathsBySegment.get(segment) ?? {}),
-    outputPath: `generated/api/console/${toKebabCase(segment)}`,
-  }))
+  const jobs = segments.map(
+    (segment): ApiJob => ({
+      document: cloneDocumentWithPaths(document, pathsBySegment.get(segment) ?? {}),
+      outputPath: `generated/api/console/${toKebabCase(segment)}`,
+    }),
+  )
 
   return [...jobs, createConsoleContractEntryJob(document, segments)]
 }
 
 const createApiJobs = (spec: ApiSpec): ApiJob[] => {
+  const source = readApiSwagger(spec.filename)
+  if (spec.name === 'console') {
+    // Fork contract exceptions, applied only to the in-memory client input.
+    // CORS OPTIONS has no callable oRPC contract and breaks its code generation.
+    delete source.paths?.['/extend/{path}']?.options
+    // These three operations are owned by web/contract/console/system-manage.ts.
+    // Fail on route drift instead of silently generating a second DTO/runtime owner.
+    for (const [method, routePath] of [
+      ['get', '/system-manage-extend/code-execution-control'],
+      ['post', '/system-manage-extend/code-execution-control'],
+      ['delete', '/system-manage-extend/code-execution-control/{record_id}'],
+    ] as const) {
+      const pathItem = source.paths?.[routePath]
+      if (!pathItem || !isObject(pathItem[method]))
+        throw new Error(
+          `Missing handwritten Console contract operation: ${method.toUpperCase()} ${routePath}`,
+        )
+      delete pathItem[method]
+    }
+  }
   const document = normalizeApiSwagger(
-    spec.name === 'console'
-      ? mergeFastOpenApiConsoleSwagger(readApiSwagger(spec.filename))
-      : readApiSwagger(spec.filename),
+    spec.name === 'console' ? mergeFastOpenApiConsoleSwagger(source) : source,
   )
 
   if (spec.name === 'console') return splitConsoleDocument(document)

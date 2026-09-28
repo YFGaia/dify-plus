@@ -402,6 +402,21 @@ export type PostAccountInterfaceThemeResponses = {
 export type PostAccountInterfaceThemeResponse =
   PostAccountInterfaceThemeResponses[keyof PostAccountInterfaceThemeResponses]
 
+export type GetAccountMoneyData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/account/money'
+}
+
+export type GetAccountMoneyResponses = {
+  200: {
+    [key: string]: unknown
+  }
+}
+
+export type GetAccountMoneyResponse = GetAccountMoneyResponses[keyof GetAccountMoneyResponses]
+
 export type PostAccountNameData = {
   body: AccountNamePayload
   path?: never

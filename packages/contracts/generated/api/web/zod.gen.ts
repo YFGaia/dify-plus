@@ -392,7 +392,9 @@ export const zLoginStatusQuery = z.object({
  */
 export const zLoginStatusResponse = z.object({
   app_logged_in: z.boolean(),
+  console_logged_in: z.boolean().optional().default(false),
   logged_in: z.boolean(),
+  webapp_auth_enabled_extend: z.boolean().optional().default(true),
 })
 
 /**

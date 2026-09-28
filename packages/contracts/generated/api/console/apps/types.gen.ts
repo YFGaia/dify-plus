@@ -9,6 +9,7 @@ export type AppPagination = {
   has_more: boolean
   limit: number
   page: number
+  recommended_apps?: Array<string>
   total: number
 }
 
@@ -43,12 +44,14 @@ export type AppDetailWithSite = {
   model_config?: AppModelConfigResponse | null
   name: string
   permission_keys?: Array<string>
+  retention_number?: number | null
   site?: AppDetailSiteResponse | null
   tags?: Array<Tag>
   tracing?: unknown | null
   updated_at?: number | null
   updated_by?: string | null
   use_icon_as_answer_icon?: boolean | null
+  webapp_auth_enabled_extend?: boolean
   workflow?: WorkflowPartial | null
 }
 
@@ -626,6 +629,7 @@ export type AppSiteUpdatePayload = {
   show_workflow_steps?: boolean | null
   title?: string | null
   use_icon_as_answer_icon?: boolean | null
+  webapp_auth_enabled_extend?: boolean | null
 }
 
 export type AppSiteResponse = {
@@ -1182,13 +1186,32 @@ export type ApiKeyList = {
   data: Array<ApiKeyItem>
 }
 
+export type ApiKeyQuotaPayload = {
+  day_limit_quota?: number
+  description?: string
+  month_limit_quota?: number
+}
+
 export type ApiKeyItem = {
+  accumulated_quota?: number | null
   created_at?: number | null
   dataset_ids?: Array<string>
+  day_limit_quota?: number | null
+  day_used_quota?: number | null
+  description?: string | null
   id: string
   last_used_at?: number | null
+  month_limit_quota?: number | null
+  month_used_quota?: number | null
   token: string
   type: string
+}
+
+export type ApiKeyQuotaUpdatePayload = {
+  day_limit_quota?: number
+  description?: string
+  id: string
+  month_limit_quota?: number
 }
 
 export type AppPartial = {
@@ -2913,6 +2936,7 @@ export type AppPaginationWritable = {
   has_more: boolean
   limit: number
   page: number
+  recommended_apps?: Array<string>
   total: number
 }
 
@@ -2937,12 +2961,14 @@ export type AppDetailWithSiteWritable = {
   model_config?: AppModelConfigResponse | null
   name: string
   permission_keys?: Array<string>
+  retention_number?: number | null
   site?: AppDetailSiteResponseWritable | null
   tags?: Array<Tag>
   tracing?: unknown | null
   updated_at?: number | null
   updated_by?: string | null
   use_icon_as_answer_icon?: boolean | null
+  webapp_auth_enabled_extend?: boolean
   workflow?: WorkflowPartial | null
 }
 
@@ -4909,6 +4935,42 @@ export type GetAppsByAppIdStatisticsUserSatisfactionRateResponses = {
 export type GetAppsByAppIdStatisticsUserSatisfactionRateResponse =
   GetAppsByAppIdStatisticsUserSatisfactionRateResponses[keyof GetAppsByAppIdStatisticsUserSatisfactionRateResponses]
 
+export type DeleteAppsByAppIdSyncData = {
+  body?: never
+  path: {
+    app_id: string
+  }
+  query?: never
+  url: '/apps/{app_id}/sync'
+}
+
+export type DeleteAppsByAppIdSyncResponses = {
+  200: {
+    [key: string]: unknown
+  }
+}
+
+export type DeleteAppsByAppIdSyncResponse =
+  DeleteAppsByAppIdSyncResponses[keyof DeleteAppsByAppIdSyncResponses]
+
+export type PutAppsByAppIdSyncData = {
+  body?: never
+  path: {
+    app_id: string
+  }
+  query?: never
+  url: '/apps/{app_id}/sync'
+}
+
+export type PutAppsByAppIdSyncResponses = {
+  200: {
+    [key: string]: unknown
+  }
+}
+
+export type PutAppsByAppIdSyncResponse =
+  PutAppsByAppIdSyncResponses[keyof PutAppsByAppIdSyncResponses]
+
 export type PostAppsByAppIdTextToAudioData = {
   body: TextToSpeechPayload
   path: {
@@ -6574,7 +6636,7 @@ export type GetAppsByResourceIdApiKeysResponse =
   GetAppsByResourceIdApiKeysResponses[keyof GetAppsByResourceIdApiKeysResponses]
 
 export type PostAppsByResourceIdApiKeysData = {
-  body?: never
+  body: ApiKeyQuotaPayload
   path: {
     resource_id: string
   }
@@ -6592,6 +6654,22 @@ export type PostAppsByResourceIdApiKeysResponses = {
 
 export type PostAppsByResourceIdApiKeysResponse =
   PostAppsByResourceIdApiKeysResponses[keyof PostAppsByResourceIdApiKeysResponses]
+
+export type PutAppsByResourceIdApiKeysData = {
+  body: ApiKeyQuotaUpdatePayload
+  path: {
+    resource_id: string
+  }
+  query?: never
+  url: '/apps/{resource_id}/api-keys'
+}
+
+export type PutAppsByResourceIdApiKeysResponses = {
+  200: ApiKeyItem
+}
+
+export type PutAppsByResourceIdApiKeysResponse =
+  PutAppsByResourceIdApiKeysResponses[keyof PutAppsByResourceIdApiKeysResponses]
 
 export type DeleteAppsByResourceIdApiKeysByApiKeyIdData = {
   body?: never

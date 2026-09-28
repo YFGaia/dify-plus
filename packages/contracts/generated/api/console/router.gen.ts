@@ -16,18 +16,24 @@ import { codeBasedExtension } from './code-based-extension/orpc.gen'
 import { compliance } from './compliance/orpc.gen'
 import { dataSource } from './data-source/orpc.gen'
 import { datasets } from './datasets/orpc.gen'
+import { dingTalk } from './ding-talk/orpc.gen'
 import { emailCodeLogin } from './email-code-login/orpc.gen'
 import { emailRegister } from './email-register/orpc.gen'
 import { explore } from './explore/orpc.gen'
+import { extend } from './extend/orpc.gen'
 import { features } from './features/orpc.gen'
 import { files } from './files/orpc.gen'
 import { forgotPassword } from './forgot-password/orpc.gen'
 import { form } from './form/orpc.gen'
 import { init } from './init/orpc.gen'
 import { installedApps } from './installed-apps/orpc.gen'
+import { installed } from './installed/orpc.gen'
 import { instructionGenerate } from './instruction-generate/orpc.gen'
+import { loginConfigBootstrap } from './login-config-bootstrap/orpc.gen'
+import { loginConfig } from './login-config/orpc.gen'
 import { login } from './login/orpc.gen'
 import { logout } from './logout/orpc.gen'
+import { message } from './message/orpc.gen'
 import { notification } from './notification/orpc.gen'
 import { notion } from './notion/orpc.gen'
 import { oauth } from './oauth/orpc.gen'
@@ -44,6 +50,7 @@ import { setup } from './setup/orpc.gen'
 import { snippets } from './snippets/orpc.gen'
 import { spec } from './spec/orpc.gen'
 import { systemFeatures } from './system-features/orpc.gen'
+import { systemManageExtend } from './system-manage-extend/orpc.gen'
 import { tagBindings } from './tag-bindings/orpc.gen'
 import { tags } from './tags/orpc.gen'
 import { trialApps } from './trial-apps/orpc.gen'
@@ -71,18 +78,24 @@ const communityContract = {
   compliance,
   dataSource,
   datasets,
+  dingTalk,
   emailCodeLogin,
   emailRegister,
   explore,
+  extend,
   features,
   files,
   forgotPassword,
   form,
   init,
+  installed,
   installedApps,
   instructionGenerate,
   login,
+  loginConfig,
+  loginConfigBootstrap,
   logout,
+  message,
   notification,
   notion,
   oauth,
@@ -99,6 +112,7 @@ const communityContract = {
   snippets,
   spec,
   systemFeatures,
+  systemManageExtend,
   tagBindings,
   tags,
   trialApps,

@@ -34,10 +34,16 @@ export const zAgentApiStatusPayload = z.object({
  * ApiKeyItem
  */
 export const zApiKeyItem = z.object({
+  accumulated_quota: z.number().nullish(),
   created_at: z.int().nullish(),
   dataset_ids: z.array(z.string()).optional().default([]),
+  day_limit_quota: z.number().nullish(),
+  day_used_quota: z.number().nullish(),
+  description: z.string().nullish(),
   id: z.string(),
   last_used_at: z.int().nullish(),
+  month_limit_quota: z.number().nullish(),
+  month_used_quota: z.number().nullish(),
   token: z.string(),
   type: z.string(),
 })
@@ -377,6 +383,7 @@ export const zAgentAppDetailWithSite = z.object({
   model_config: zAppModelConfigResponse.nullish(),
   name: z.string(),
   permission_keys: z.array(z.string()),
+  retention_number: z.int().nullish(),
   role: z.string().nullish(),
   site: zAppDetailSiteResponse.nullish(),
   tags: z.array(zTag).optional(),
@@ -384,6 +391,7 @@ export const zAgentAppDetailWithSite = z.object({
   updated_at: z.int().nullish(),
   updated_by: z.string().nullish(),
   use_icon_as_answer_icon: z.boolean().nullish(),
+  webapp_auth_enabled_extend: z.boolean().optional().default(true),
   workflow: zWorkflowPartial.nullish(),
 })
 
@@ -881,6 +889,7 @@ export const zAgentAppPagination = z.object({
   limit: z.int(),
   page: z.int(),
   publication_counts: zAgentPublicationCountsResponse,
+  recommended_apps: z.array(z.string()).optional(),
   total: z.int(),
 })
 
@@ -2504,6 +2513,7 @@ export const zAgentAppPaginationWritable = z.object({
   limit: z.int(),
   page: z.int(),
   publication_counts: zAgentPublicationCountsResponse,
+  recommended_apps: z.array(z.string()).optional(),
   total: z.int(),
 })
 
@@ -2567,6 +2577,7 @@ export const zAgentAppDetailWithSiteWritable = z.object({
   model_config: zAppModelConfigResponse.nullish(),
   name: z.string(),
   permission_keys: z.array(z.string()),
+  retention_number: z.int().nullish(),
   role: z.string().nullish(),
   site: zAppDetailSiteResponseWritable.nullish(),
   tags: z.array(zTag).optional(),
@@ -2574,6 +2585,7 @@ export const zAgentAppDetailWithSiteWritable = z.object({
   updated_at: z.int().nullish(),
   updated_by: z.string().nullish(),
   use_icon_as_answer_icon: z.boolean().nullish(),
+  webapp_auth_enabled_extend: z.boolean().optional().default(true),
   workflow: zWorkflowPartial.nullish(),
 })
 
