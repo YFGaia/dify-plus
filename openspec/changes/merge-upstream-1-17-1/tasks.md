@@ -61,11 +61,11 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 > M02 首次尝试因临时 Python 环境缺 pytest 且离线缓存缺 llvmlite 0.47.0 而阻断；独立 Luna 随后在 `/private/tmp/dify-m02-python` 通过获批的 `uv sync --locked` 准备好 Python 3.12.9 与开发依赖，锁文件 SHA 未变。当前 M02 已恢复为 ready，实施尚未开始；8.1–8.5 仍全部未完成。详见 `evidence/M02/result.json` 和 `environment-readiness.json`。
 
-- [ ] 8.1 [M02] 采用新 application service/admission/session 模型与 fork 导出；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 8.2 [M02] 实现 A04 的 public/login_config/license 与 workspace summary 共同契约；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 8.3 [M02] 逐一审计 extend 对重构 service 的调用和懒加载 ORM 属性，保持 session 生命周期；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 8.4 [M02] 路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 8.5 [M02] 节点验收：public/license 分级无泄露；summary 权限字段真实可读；无旧签名/双重路由；保存绑定版本的证据并更新节点状态。
+- [x] 8.1 [M02] 采用新 application service/admission/session 模型与 fork 导出；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 8.2 [M02] 实现 A04 的 public/login_config/license 与 workspace summary 共同契约；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 8.3 [M02] 逐一审计 extend 对重构 service 的调用和懒加载 ORM 属性，保持 session 生命周期；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 8.4 [M02] 路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 8.5 [M02] 节点验收：public/license 分级无泄露；summary 权限字段真实可读；无旧签名/双重路由；保存绑定版本的证据并更新节点状态。
 
 ## 9. M03 账号、OAuth 与 WebApp 后端（前置：M02）
 

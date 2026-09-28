@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from flask import Flask
-from sqlalchemy import create_engine
+from sqlalchemy import DefaultClause, MetaData, create_engine, text
 from sqlalchemy.engine import URL, Engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -142,7 +142,19 @@ def _sqlite_database_template(tmp_path_factory: pytest.TempPathFactory) -> Path:
     database_path = tmp_path_factory.mktemp("sqlite-template") / "unit-tests.sqlite3"
     engine = create_engine(URL.create("sqlite", database=str(database_path)))
     try:
-        TypeBase.metadata.create_all(engine)
+        # Fork tables retain PostgreSQL precision/cast syntax. Adapt only these
+        # equivalent defaults in a metadata copy, never the production models.
+        sqlite_defaults = {"CURRENT_TIMESTAMP(0)": "CURRENT_TIMESTAMP", "''::character varying": "''"}
+        sqlite_metadata = MetaData()
+        for table in TypeBase.metadata.tables.values():
+            copied = table.to_metadata(sqlite_metadata)
+            if table.name.endswith("_extend"):
+                for column in copied.columns:
+                    if isinstance(column.server_default, DefaultClause):
+                        replacement = sqlite_defaults.get(str(column.server_default.arg))
+                        if replacement is not None:
+                            column.server_default = DefaultClause(text(replacement))
+        sqlite_metadata.create_all(engine)
     finally:
         engine.dispose()
     return database_path

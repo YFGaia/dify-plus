@@ -12,6 +12,7 @@ from libs.helper import escape_like_pattern
 from models import Account, EndUser, TenantAccountJoin, WorkflowAppLog, WorkflowRun
 from models.enums import CreatorUserRole
 from models.trigger import WorkflowTriggerLog
+from models.workflow_log_extend import WorkflowLogUserExtend, workflow_log_users_extend
 from services.workflow_app_log_query_service import (
     WorkflowAppLogAccount,
     WorkflowAppLogEndUser,
@@ -49,6 +50,7 @@ class WorkflowAppLogQueryRepository(WorkflowAppLogQuery):
                     WorkflowAppLog.id.label("log_id"),
                     WorkflowAppLog.created_from.label("log_created_from"),
                     WorkflowAppLog.created_by_role.label("log_created_by_role"),
+                    WorkflowAppLog.created_by.label("log_created_by"),
                     WorkflowAppLog.created_at.label("log_created_at"),
                     workflow_run.id.label("run_id"),
                     workflow_run.version.label("run_version"),
@@ -180,17 +182,38 @@ class WorkflowAppLogQueryRepository(WorkflowAppLogQuery):
                 .limit(limit)
             )
             rows = session.execute(paginated_stmt).mappings().all()
+            display_users = workflow_log_users_extend(
+                session=session,
+                tenant_id=tenant_id,
+                app_id=app_id,
+                end_user_ids=[
+                    row["log_created_by"] for row in rows if row["log_created_by_role"] == CreatorUserRole.END_USER
+                ],
+            )
 
             return WorkflowAppLogPage(
                 page=page,
                 limit=limit,
                 total=total,
                 has_more=total > page * limit,
-                data=tuple(self._to_item(row=row, detail=detail) for row in rows),
+                data=tuple(
+                    self._to_item(
+                        row=row,
+                        detail=detail,
+                        display_user=(
+                            display_users.get(row["log_created_by"])
+                            if row["log_created_by_role"] == CreatorUserRole.END_USER
+                            else None
+                        ),
+                    )
+                    for row in rows
+                ),
             )
 
     @staticmethod
-    def _to_item(*, row: RowMapping, detail: bool) -> WorkflowAppLogItem:
+    def _to_item(
+        *, row: RowMapping, detail: bool, display_user: WorkflowLogUserExtend | None = None
+    ) -> WorkflowAppLogItem:
         run_id = row["run_id"]
         workflow_run = (
             WorkflowAppLogRunSummary(
@@ -231,6 +254,13 @@ class WorkflowAppLogQueryRepository(WorkflowAppLogQuery):
             if end_user_id is not None
             else None
         )
+        if display_user is not None:
+            end_user = WorkflowAppLogEndUser(
+                id=display_user.id,
+                type=display_user.type,
+                is_anonymous=display_user.is_anonymous,
+                session_id=display_user.session_id,
+            )
 
         return WorkflowAppLogItem(
             id=row["log_id"],

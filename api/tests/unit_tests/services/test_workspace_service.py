@@ -50,6 +50,8 @@ def test_get_current_workspace_summary_sandbox_uses_trial_only(sqlite_session: S
         "role": "owner",
         "plan": CloudPlan.SANDBOX,
         "credits": 180,
+        "admin_extend": False,
+        "tenant_extend": True,
     }
     get_info.assert_called_once_with(tenant.id, exclude_vector_space=True)
     get_pool.assert_called_once_with(tenant_id=tenant.id, pool_type="trial", session=sqlite_session)
@@ -110,6 +112,8 @@ def test_get_current_workspace_summary_non_cloud_skips_billing_and_credits(sqlit
         "role": "editor",
         "plan": None,
         "credits": None,
+        "admin_extend": False,
+        "tenant_extend": True,
     }
     get_info.assert_not_called()
     get_pool.assert_not_called()

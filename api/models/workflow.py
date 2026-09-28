@@ -1394,8 +1394,16 @@ class WorkflowAppLog(TypeBase):
 
     def created_by_end_user(self, session: orm.Session):
         from .model import EndUser
+        from .workflow_log_extend import workflow_log_users_extend
 
         created_by_role = CreatorUserRole(self.created_by_role)
+        if created_by_role != CreatorUserRole.END_USER:
+            return None
+        display = workflow_log_users_extend(
+            session=session, tenant_id=self.tenant_id, app_id=self.app_id, end_user_ids=[self.created_by]
+        ).get(self.created_by)
+        if display is not None:
+            return display
         return session.get(EndUser, self.created_by) if created_by_role == CreatorUserRole.END_USER else None
 
     def to_dict(self) -> WorkflowAppLogDict:

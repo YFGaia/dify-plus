@@ -14,10 +14,59 @@ from models.enums import (
     WorkflowTriggerStatus,
 )
 from models.model import EndUser
+from models.model_extend import EndUserAccountJoinsExtend
 from models.trigger import WorkflowTriggerLog
 from models.workflow import WorkflowAppLog, WorkflowAppLogCreatedFrom, WorkflowRun, WorkflowType
 from repositories.workflow_app_log_query_repository import WorkflowAppLogQueryRepository
 from services.workflow_app_log_query_service import WorkflowAppLogAccount, WorkflowAppLogEndUser
+
+
+@pytest.mark.parametrize("mapping", ["explicit", "external", "wrong-app", "missing-account", "invalid-external"])
+def test_fork_log_identity_is_scoped_and_materialized_before_session_close(
+    mapping: str, sqlite_session: Session, sqlite_session_factory: sessionmaker[Session]
+) -> None:
+    from fields.end_user_fields import SimpleEndUser
+
+    now = datetime(2026, 1, 1)
+    account = Account(name="Mapped account", email="mapped@example.com")
+    end_user = EndUser(tenant_id="tenant-1", app_id="app-1", type=EndUserType.BROWSER, session_id="original-session")
+    if mapping == "external":
+        end_user.external_user_id = account.id
+    elif mapping == "invalid-external":
+        end_user.external_user_id = "not-a-uuid"
+    sqlite_session.add_all([account, end_user])
+    sqlite_session.flush()
+    log = _log("mapped-log", created_by=end_user.id, created_by_role=CreatorUserRole.END_USER, created_at=now)
+    sqlite_session.add(log)
+    if mapping in {"explicit", "wrong-app", "missing-account"}:
+        sqlite_session.add(
+            EndUserAccountJoinsExtend(
+                id="mapping-1",
+                end_user_id=end_user.id,
+                account_id="deleted-account" if mapping == "missing-account" else account.id,
+                app_id="other-app" if mapping == "wrong-app" else "app-1",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+    sqlite_session.commit()
+    accessor = SimpleEndUser.model_validate(log.created_by_end_user(sqlite_session), from_attributes=True)
+    sqlite_session.close()
+    result = WorkflowAppLogQueryRepository(session_factory=sqlite_session_factory).get_paginated(
+        tenant_id="tenant-1", app_id="app-1"
+    )
+    assert result.total == 1
+    # Both the accessor and the live repository use the same mapping; only scalar DTOs escape the session.
+    payload = SimpleEndUser.model_validate(result.data[0].created_by_end_user, from_attributes=True).model_dump()
+    assert payload == accessor.model_dump()
+    if mapping in {"explicit", "external"}:
+        assert payload["id"] == account.id
+        assert payload["session_id"] == "Mapped account"
+        assert payload["is_anonymous"] is True
+    else:
+        assert payload["id"] == end_user.id
+        assert payload["session_id"] == "original-session"
+    assert result.data[0].created_by_role == "end_user"
 
 
 def _log(

@@ -59,6 +59,7 @@ from . import (
     setup,
     spec,
     system,
+    system_manage_extend,
     workflow_run_archive,
 )
 from .agent import composer as agent_composer
@@ -72,12 +73,15 @@ from .app import (
     agent_app_feature,
     agent_app_sandbox,
     agent_config_inspector,
+    ai_draw_extnd,
     annotation,
     app,
+    app_extend,
     audio,
     completion,
     conversation,
     conversation_variables,
+    ding_talk_extend,
     generator,
     mcp_server,
     message,
@@ -149,6 +153,7 @@ from .tag import tags
 # Import workspace controllers
 from .workspace import (
     account,
+    account_extend,
     agent_providers,
     endpoint,
     load_balancing_config,
@@ -168,6 +173,7 @@ api.add_namespace(console_ns)
 
 __all__ = [
     "account",
+    "account_extend",
     "activate",
     "advanced_prompt_template",
     "agent",
@@ -178,10 +184,12 @@ __all__ = [
     "agent_config_inspector",
     "agent_providers",
     "agent_roster",
+    "ai_draw_extnd",
     "annotation",
     "api",
     "apikey",
     "app",
+    "app_extend",
     "audio",
     "banner",
     "billing",
@@ -199,6 +207,7 @@ __all__ = [
     "datasets_segments",
     "datasource_auth",
     "datasource_content_preview",
+    "ding_talk_extend",
     "email_register",
     "endpoint",
     "extension",
@@ -245,6 +254,7 @@ __all__ = [
     "spec",
     "statistic",
     "system",
+    "system_manage_extend",
     "tags",
     "tool_providers",
     "trial",

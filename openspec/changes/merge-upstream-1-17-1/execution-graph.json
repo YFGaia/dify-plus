@@ -393,7 +393,7 @@
       "owner_role": "后端基础负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -443,7 +443,13 @@
       "outputs": [
         "evidence/M02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "execution": {
+        "pre_commit_head": "3c4c28947777b3437ec95c1e559ffa76fcd32041",
+        "evidence": "evidence/M02/result.json",
+        "test_results": "146 focused/schema + 29 final HTTP tests passed",
+        "deployable": false
+      }
     },
     {
       "id": "M03",
@@ -454,7 +460,7 @@
       "owner_role": "身份负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -500,8 +506,7 @@
       "outputs": [
         "evidence/M03/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ],
-      "blocked_reason": "M02 未通过；仅依赖阻断，未执行本节点。"
+      ]
     },
     {
       "id": "M04",
@@ -585,7 +590,7 @@
         "evidence/M04/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M02 未通过；仅依赖阻断，未执行本节点。"
+      "blocked_reason": "前置节点 M03 尚未通过；未执行本节点。"
     },
     {
       "id": "M05",
@@ -648,7 +653,7 @@
         "evidence/M05/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M02 未通过；仅依赖阻断，未执行本节点。"
+      "blocked_reason": "前置节点 M03 尚未通过；未执行本节点。"
     },
     {
       "id": "M06",
@@ -749,7 +754,7 @@
         "evidence/M06/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M02 未通过；仅依赖阻断，未执行本节点。"
+      "blocked_reason": "前置节点 M04, M05 尚未通过；未执行本节点。"
     },
     {
       "id": "M07",
@@ -873,7 +878,7 @@
         "evidence/M08/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M02 未通过；仅依赖阻断，未执行本节点。"
+      "blocked_reason": "前置节点 M03, M04, M05, M06, M07 尚未通过；未执行本节点。"
     },
     {
       "id": "V01",
@@ -922,7 +927,7 @@
         "evidence/V01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M02 未通过；仅依赖阻断，未执行本节点。"
+      "blocked_reason": "前置节点 M08 尚未通过；未执行本节点。"
     },
     {
       "id": "V02",
@@ -976,7 +981,7 @@
         "evidence/V02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M02 未通过；仅依赖阻断，未执行本节点。"
+      "blocked_reason": "前置节点 M08 尚未通过；未执行本节点。"
     },
     {
       "id": "R01",
@@ -1022,7 +1027,7 @@
         "evidence/R01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M02 未通过；仅依赖阻断，未执行本节点。"
+      "blocked_reason": "前置节点 V01, V02 尚未通过；未执行本节点。"
     },
     {
       "id": "V03",

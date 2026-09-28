@@ -366,6 +366,8 @@ class TestCurrentWorkspaceSummaryApi:
             "role": "owner",
             "plan": CloudPlan.SANDBOX,
             "credits": 180,
+            "admin_extend": True,
+            "tenant_extend": False,
         }
 
         with (
@@ -384,6 +386,8 @@ class TestCurrentWorkspaceSummaryApi:
             "role": "owner",
             "plan": "sandbox",
             "credits": 180,
+            "admin_extend": True,
+            "tenant_extend": False,
         }
         get_summary.assert_called_once_with(tenant, user.id, session=session)
 

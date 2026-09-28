@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from configs import dify_config
 from enums import CloudPlan, DeploymentEdition
-from models.account import Tenant, TenantAccountJoin, TenantAccountRole
+from models.account import Account, Tenant, TenantAccountJoin, TenantAccountRole
 from services.account_service import TenantService
 from services.billing_service import BillingService
 from services.feature_service import FeatureService
@@ -112,6 +112,10 @@ class WorkspaceService:
             "role": tenant_account_join.role,
             "plan": effective_pool.plan,
             "credits": effective_pool.remaining_credits,
+            # Fork visibility hints use the same first-created IDs as TenantExtendService.
+            # Query scalars within this session; these flags do not grant backend roles.
+            "admin_extend": account_id == session.scalar(select(Account.id).order_by(Account.created_at).limit(1)),
+            "tenant_extend": tenant.id == session.scalar(select(Tenant.id).order_by(Tenant.created_at).limit(1)),
         }
 
     @classmethod

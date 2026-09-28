@@ -1,172 +1,207 @@
 {
   "node": "M02",
-  "status": "ready",
-  "recorded_at_utc": "2026-09-28T17:37:12Z",
+  "status": "passed",
+  "recorded_at_utc": "2026-09-28T18:08:09.710214+00:00",
   "branch": "codex/merge-upstream-1.17.1",
-  "pre_commit_head": "d4ecd2f9d0d4e25cfefc5bd3c924ef45aef789b3",
+  "pre_commit_head": "3c4c28947777b3437ec95c1e559ffa76fcd32041",
   "target_ref": "refs/tags/1.17.1",
   "target_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
   "merge_baseline": "948fefb69ae87abefa7e91a13968213696b3e310",
   "fork_first_parent": "b17761ed0166e8ef49474da418b95a9462adbb9c",
   "deployable": false,
-  "preflight": "preflight.json",
-  "implementation_started": false,
-  "source_changes": [],
-  "blocker": {
-    "kind": "targeted_test_dependencies_unavailable",
-    "detail": "No pytest in isolated environment; approved offline locked install cannot satisfy cached artifacts. Stopped before source edits per single-node stop-on-blocker instruction.",
-    "resolved": true,
-    "resolution_evidence": "environment-readiness.json",
-    "resume": "The locked temporary environment is now available. Resume M02 in a fresh task with full input recheck. No relaxed pins or fixture-only pass."
+  "implementation_started": true,
+  "source_changes": [
+    "api/controllers/console/__init__.py",
+    "api/controllers/console/feature.py",
+    "api/controllers/console/workspace/workspace.py",
+    "api/models/__init__.py",
+    "api/models/workflow.py",
+    "api/models/workflow_log_extend.py",
+    "api/repositories/workflow_app_log_query_repository.py",
+    "api/services/login_config_service_extend.py",
+    "api/services/workspace_service.py",
+    "api/tests/unit_tests/conftest.py",
+    "api/tests/unit_tests/controllers/console/test_feature.py",
+    "api/tests/unit_tests/controllers/console/workspace/test_workspace.py",
+    "api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py",
+    "api/tests/unit_tests/services/test_login_config_service_extend.py",
+    "api/tests/unit_tests/services/test_workspace_service.py"
+  ],
+  "source_sha256": {
+    "api/controllers/console/__init__.py": "e4e9bc708fea5ba8320a8a3a09b8ba448083135becc8f5def512d77f075163a2",
+    "api/controllers/console/feature.py": "08bb14501fb7ad67e9dc25e18f9c280310ea6a156186a3b28a2236c059f1cc3d",
+    "api/controllers/console/workspace/workspace.py": "029291adc46a29de5efdfbcfab52e329ebb8a7e29f9878012849e7d86a2caef5",
+    "api/models/__init__.py": "e50308612aaf864292cb642e7c7051289c35f6e55fc4cfa854d5e2ba7c0d3993",
+    "api/models/workflow.py": "752c0dc27d05e4649a829daae650cd923f7d2cd4ab7f38f80030bd03c71b88e6",
+    "api/models/workflow_log_extend.py": "9d858a8e7b32a8a73d35c87d0b753aadbb101ddfb363deaaf146432273d9a69b",
+    "api/repositories/workflow_app_log_query_repository.py": "73de5b724222f717dfce9e5974acda7d14060f4d525e3749ed45ba5c66b82e49",
+    "api/services/login_config_service_extend.py": "f58c57705b223c88c2e6c10854492b9fc13ea66268bcc0d7ce13e5af34d5d8dc",
+    "api/services/workspace_service.py": "a60a0cf3b7628f6b8706dcc83634a10d99889462e17a19f48b4d35a394a555b4",
+    "api/tests/unit_tests/conftest.py": "213b6523de6db54b308cf5f117adfee1d75ec7bcefa9bed9532cf5ccf63d6da5",
+    "api/tests/unit_tests/controllers/console/test_feature.py": "06e846c17329d41c317463b66d2625bff7ec9b3fae5152bd3cdbac4ea5928db5",
+    "api/tests/unit_tests/controllers/console/workspace/test_workspace.py": "698722711c1e7d04221d400e4064560bea6b7e6b8949e7640f4b9909988bdcf2",
+    "api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py": "3d1d60294f77fc226d0b739dc9d299bdfc345e2f7a4143a02dbb676393c518e1",
+    "api/tests/unit_tests/services/test_login_config_service_extend.py": "ba2b6e1ac492c25d7cb298a70e44d388eb08b76d3087b8da30116635367e438c",
+    "api/tests/unit_tests/services/test_workspace_service.py": "4b517888e00fcd7f6961da2d2da4a73a536ffb8ee5a13b924079767f3ad53eb3"
   },
-  "environment_recovery": {
-    "task_thread_id": "01a0e910-38a4-7382-9884-957082e1857a",
-    "evidence": "environment-readiness.json",
-    "status": "passed",
-    "implementation_started": false,
-    "tests_executed": false
+  "prior_attempts": {
+    "blocked_commit": "075f2973440c0d2da4379ab5b85abd0041dfb7f3",
+    "environment_readiness_commit": "3c4c28947777b3437ec95c1e559ffa76fcd32041",
+    "history": "Original preflight/offline-sync/environment-readiness files and execution.log retained; prior result version available in Git."
   },
-  "tools": {
-    "uv_initial": "0.5.7",
-    "uv_verified": "/Users/liuxingwang/.local/bin/uv 0.11.19",
-    "python": "3.12.9"
+  "environment": {
+    "path": "/private/tmp/dify-m02-python-complete",
+    "cache": "/private/tmp/dify-m02-uv-cache",
+    "preparation_thread": "01a0e91f-3aed-7e71-9a5e-72633b64c044",
+    "preparation_evidence_source": "independent Luna thread handoff",
+    "command": "uv sync --project api --locked --group dev --python 3.12.9 (default groups enabled)",
+    "exit_code": 0,
+    "uv": "0.11.19",
+    "python": "3.12.9",
+    "installed_report": 524,
+    "prepared_report": 188,
+    "distribution_count": 563,
+    "import_probe": {
+      "pytest": "9.1.1",
+      "pydantic-settings": "2.14.2"
+    },
+    "api_uv_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+    "repo_venv_modified": false
   },
-  "dependency_attempt": {
-    "scope": "API base + dev; no default provider groups",
-    "sources": "api/uv.lock and approved existing ~/.cache/uv only; network disabled",
-    "installed_distributions": [],
-    "environment": "/private/tmp/dify-m02-python",
-    "api_venv": "No M02 command targeted api/.venv; not removed/restored/synced."
-  },
-  "commands": [
+  "verification": [
     {
-      "command": "git branch --show-current; git rev-parse HEAD; git rev-parse refs/tags/1.17.1; git status --short; git diff --cached --name-only",
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py api/tests/unit_tests/services/test_login_config_service_extend.py api/tests/unit_tests/services/test_workspace_service.py api/tests/unit_tests/controllers/console/workspace/test_workspace.py api/tests/unit_tests/models/test_workflow_app_log_models.py api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py api/tests/unit_tests/controllers/common/test_schema.py api/tests/unit_tests/commands/test_generate_swagger_specs.py api/tests/unit_tests/controllers/test_swagger.py -q -x",
       "exit_code": 0,
-      "result": "Expected branch/HEAD/tag; clean tracked worktree and index; original untracked paths inventoried."
+      "passed": 146,
+      "warnings": 2,
+      "log": "focused-tests.log",
+      "note": "Final production source validated. The later test-only URL assertions were additionally validated by the following run."
     },
     {
-      "command": "openspec status --change merge-upstream-1-17-1 --json; openspec instructions apply --change merge-upstream-1-17-1 --json",
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py -q --no-cov",
       "exit_code": 0,
-      "result": "spec-driven; M02 tasks 8.1-8.5 incomplete; all task acceptance remains pending."
+      "passed": 29,
+      "warnings": 2,
+      "log": "http-routes.log"
     },
     {
-      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python -c [interpreter and pytest import probe]",
-      "exit_code": 1,
-      "result": "uv 0.5.7 created temporary CPython 3.12.9 environment; ModuleNotFoundError: pytest."
-    },
-    {
-      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py -q",
-      "exit_code": 2,
-      "result": "Sandbox prevented cache initialization at ~/.cache/uv/sdists-v9/.git; no tests collected."
-    },
-    {
-      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev --dry-run",
-      "exit_code": 2,
-      "result": "Initial sandbox attempt blocked on cache initialization; retried with approved cache access."
-    },
-    {
-      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev --dry-run",
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python api/dev/generate_swagger_specs.py --output-dir /private/tmp/dify-m02-openapi",
       "exit_code": 0,
-      "permission": "require_escalated approved",
-      "result": "Resolved 530 packages; would download 289 and install 336. Dry-run success is NOT dependency installation or test acceptance."
+      "result": "Four actual OpenAPI JSON exports generated. Affected response refs, no GET bodies, minimal license status, fork field isolation and required summary bools asserted.",
+      "evidence": "schema-verification.json"
     },
     {
-      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py -q",
-      "exit_code": 1,
-      "result": "No module named pytest; zero tests executed."
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync ruff check [15 explicitly owned Python files]",
+      "exit_code": 0
     },
     {
-      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev",
-      "exit_code": 1,
-      "permission": "require_escalated approved",
-      "result": "llvmlite==0.47.0 cp312 macOS arm64 wheel absent from cache; network disabled by --offline. Dependency chain: dify-api -> graphon -> unstructured -> numba -> llvmlite.",
-      "raw_output": "offline-sync.log"
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync ruff format --check [15 explicitly owned Python files]",
+      "exit_code": 0
     },
     {
-      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -c [sys and importlib.metadata inventory]",
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "openspec validate merge-upstream-1-17-1 --strict",
       "exit_code": 0,
-      "result": {
-        "executable": "/private/tmp/dify-m02-python/bin/python3",
-        "python": "3.12.9",
-        "distributions": []
-      }
+      "output": "Change 'merge-upstream-1-17-1' is valid"
+    }
+  ],
+  "failed_runs_resolved": [
+    {
+      "log": "/private/tmp/dify-m02-tests-current.log",
+      "exit_code": 4,
+      "cause": "Earlier dev-only environment omitted pydantic_settings; no tests collected. Complete default-group environment resolves this."
     },
     {
-      "command": "git add -- [seven exact M02 allowlist paths]",
+      "log": "/private/tmp/dify-m02-tests-complete.log",
       "exit_code": 1,
-      "result": "Two *.log artifacts ignored; no commit. Retry uses -f for those two explicit evidence logs only."
+      "errors": 83,
+      "cause": "Full-schema SQLite could not parse existing fork PostgreSQL CURRENT_TIMESTAMP(0)."
+    },
+    {
+      "log": "/private/tmp/dify-m02-tests-complete-2.log",
+      "exit_code": 1,
+      "errors": 83,
+      "cause": "Next existing fork PostgreSQL default cast empty-string::character varying also unsupported by SQLite."
+    },
+    {
+      "log": "/private/tmp/dify-m02-tests-complete-3.log",
+      "exit_code": 1,
+      "passed": 70,
+      "failed": 1,
+      "cause": "New mapping fixture read EndUser.id before flush; corrected fixture ordering."
     }
   ],
   "conflict_dispositions": [
     {
       "path": "api/controllers/console/__init__.py",
-      "status": "pending",
-      "source_sha256": "8c40544c7732bf72ffd4e51099a6e985992746e56a980fb2886bd0400bd7c48f",
-      "reason": "Fork system_manage_extend, ai_draw_extnd, app_extend, ding_talk_extend and account_extend imports/exports lost. Restore registration once, retain original authorization wrappers, then verify real URL map."
+      "status": "resolved",
+      "decision": "Restore the five fork module imports and __all__; keep upstream resource/admission registration. Every restored URL is unique in the real Flask URL map.",
+      "source_sha256": "e4e9bc708fea5ba8320a8a3a09b8ba448083135becc8f5def512d77f075163a2"
     },
     {
       "path": "api/controllers/console/feature.py",
-      "status": "pending",
-      "source_sha256": "7e936e4131abb8a3fa4124b3928e8d7b6c45b9f2258cd9e676afe91f5a6ebee2",
-      "reason": "Public/licensed upstream routes preserved; login_config_bootstrap/login_config missing. Reintroduce fork token boundary and safe login response without full license."
+      "status": "resolved",
+      "decision": "Retain upstream public and authenticated license handlers. Add isolated fork bootstrap/login routes, typed response, IP/signature/expiry/purpose validation, Cookie/Header support, and no-store.",
+      "source_sha256": "08bb14501fb7ad67e9dc25e18f9c280310ea6a156186a3b28a2236c059f1cc3d"
     },
     {
       "path": "api/models/__init__.py",
-      "status": "pending",
-      "source_sha256": "7ccb66c706e73b0c846aa5ba0a05e8230b8c1913001f53d2be25e74dae2b1b49",
-      "reason": "db and SystemIntegrationExtend exports lost; independent extend model files still present."
+      "status": "resolved",
+      "decision": "Restore db compatibility export and SystemIntegrationExtend; the export is the existing engine db, not a second instance.",
+      "source_sha256": "e50308612aaf864292cb642e7c7051289c35f6e55fc4cfa854d5e2ba7c0d3993"
     },
     {
       "path": "api/models/workflow.py",
-      "status": "pending",
-      "source_sha256": "28d034602693a9e8433b06c9ed199a809eb071435d02d5164a06656748fd7832",
-      "reason": "WorkflowAppLog.created_by_end_user now requires explicit Session; fork account mapping was dropped. Adapt mapping to new session boundary and caller serialization, not old property. Draft-variable alias requires caller audit before restoring."
+      "status": "resolved",
+      "decision": "Adapt fork end-user display mapping to explicit Session. Account-role logs remain upstream. Unused old draft-variable constraint alias is not restored; retain upstream user-scoped constraint.",
+      "source_sha256": "752c0dc27d05e4649a829daae650cd923f7d2cd4ab7f38f80030bd03c71b88e6"
     },
     {
       "path": "api/services/feature_service.py",
-      "status": "pending",
-      "source_sha256": "dd3035a2129ad3ed05bf97a1706d41d935b4ade55485f14c5df34b883fad7aee",
-      "reason": "Upstream split SystemFeatureService/entities/FeatureQueryService retained. Fork login fields lost; place fork-only configuration behind distinct extension service/DTO rather than expanding public SystemFeatureModel."
+      "status": "resolved",
+      "decision": "Keep upstream unchanged. Its system-feature owner split is retained; fork fields live only in login_config_service_extend and LoginConfigResponse, without changing SystemFeatureModel.",
+      "source_sha256": "dd3035a2129ad3ed05bf97a1706d41d935b4ade55485f14c5df34b883fad7aee"
     },
     {
       "path": "api/services/workspace_service.py",
-      "status": "pending",
-      "source_sha256": "702ddd854c579803280393844fc9d38fbe822683c074c1d6d501801f4ba3433c",
-      "reason": "Summary outputs no admin_extend/tenant_extend; calculate against earliest Account/Tenant IDs using live Session and serialize through CurrentWorkspaceSummaryResponse."
+      "status": "resolved",
+      "decision": "Materialize first Account/Tenant ID comparison flags within existing summary Session. Preserve id/name/role/plan/credits and archived-workspace behavior.",
+      "source_sha256": "a60a0cf3b7628f6b8706dcc83634a10d99889462e17a19f48b4d35a394a555b4"
     },
     {
       "path": "api/tests/unit_tests/controllers/console/test_feature.py",
-      "status": "pending",
-      "source_sha256": "7cfffcdb5cdae9b921b4b9110f909896afed9f3d552b14aabb4580c66999dc41",
-      "reason": "Upstream tests use real application-service types but unwrap license handler; add HTTP admission matrix, token tests and actual-session summary checks."
+      "status": "resolved",
+      "decision": "Preserve upstream tests; add real Flask transport/admission and real SQLite summary checks, with deterministic external feature query stubs.",
+      "source_sha256": "06e846c17329d41c317463b66d2625bff7ec9b3fae5152bd3cdbac4ea5928db5"
     }
   ],
   "security_matrix": [
     {
-      "case": "anonymous /system-features",
-      "source": "SystemFeatureApi -> application_services.feature_queries -> SystemFeatureService",
-      "expected": "real branding and LicenseStatusModel only",
-      "status": "source reviewed, HTTP not executed"
+      "case": "Anonymous public system-features",
+      "result": "200 actual snapshot shape; branding exists, no ping, license status only."
     },
     {
-      "case": "anonymous/bootstrap-only /system-features/license",
-      "source": "console_account_admission -> setup/login/CSRF/account initialization",
-      "expected": "reject before full license service",
-      "status": "source reviewed, HTTP not executed"
+      "case": "login_config Cookie and Header",
+      "result": "Both paths equal; no secret or detailed license; HttpOnly/SameSite=Lax/max-age; no-store; integration values read from actual SQLite rows."
     },
     {
-      "case": "admitted Console account /system-features/license",
-      "expected": "full LicenseModel",
-      "status": "not executed"
+      "case": "Invalid/missing/signature/expired/IP/purpose/no-exp bootstrap",
+      "result": "403 before feature or license query."
     },
     {
-      "case": "/login_config",
-      "expected": "Cookie/Header IP-bound bootstrap; public license status only",
-      "status": "missing; not implemented"
+      "case": "Anonymous and bootstrap replay at license route",
+      "result": "401 for absent/custom-header/Bearer/access-cookie, through actual login loader; license query not called."
+    },
+    {
+      "case": "Admitted Account + CSRF",
+      "result": "200 full license model for admitted account; CSRF rejection stops license query. Test supplies the admitted Account and deterministic feature query gateway."
     }
   ],
   "summary": {
-    "expected_fields": [
+    "fields": [
       "id",
       "name",
       "role",
@@ -175,119 +210,78 @@
       "admin_extend",
       "tenant_extend"
     ],
-    "permission_source": "TenantExtendService baseline selects earliest Account.created_at and earliest Tenant.created_at; compare IDs only, never grant backend roles.",
-    "observed": "first five fields exist; both booleans absent from service and CurrentWorkspaceSummaryResponse. Archived workspace guard retained (409).",
-    "verification": "No real-session or role/tenant-switch matrix executed."
+    "verification": "Actual persisted Account/Tenant/membership rows. owner/admin/editor/normal × first/non-first Account, each switched between first/other Tenant. Real admission and summary service; roles remain unchanged. Existing archived409 test passes."
   },
   "session_audit": {
-    "complete": false,
-    "observations": [
-      "WorkflowAppLog.created_by_end_user(session) uses explicit Session; fork mapping pending.",
-      "CurrentWorkspaceSummaryApi serializes inside with_session(write=False); preserve this boundary.",
-      "RecommendedAppService.installed_app_list accesses removed app.tags; target provides tags_with_session(session=...).",
-      "DingTalkService calls RegisterService.register without newly required keyword-only session. AccountService.login and TenantService.switch_tenant already pass session."
-    ]
+    "fork_modules_parsed": 59,
+    "direct_imported_service_calls": 44,
+    "evidence": "service-signatures.json",
+    "limitations": "AST signature audit covers resolved direct imported service class calls, not arbitrary dynamic dispatch. Cross-owner full behavior is validated by later nodes.",
+    "workflow": "Batch account projection uses tenant/app/end-user scope and explicit mapping precedence; invalid/missing mapping falls back to upstream EndUser. Real model accessor and actual query repository serialize scalar DTOs after session close. Existing ID-overlap/role/pagination/scope tests preserved and pass.",
+    "auto_merge_preserved": [
+      "constants login Cookie/Header names",
+      "controllers/common LoginStatusResponse fork fields",
+      "extensions/ext_commands extend_db registration",
+      "models/model Conversation explicit-session identity mapping"
+    ],
+    "sqlite_adapter": "Copies test metadata, only normalizes two exact PostgreSQL defaults on _extend tables; no production schema/ORM metadata edit."
   },
   "step_results": [
     {
       "task": "8.1",
-      "status": "incomplete",
-      "reason": "Source comparison only; no exports restored."
+      "status": "passed",
+      "result": "Restored fork registration/exports on upstream application-service/admission/session architecture; real route imports and HTTP tests pass."
     },
     {
       "task": "8.2",
-      "status": "incomplete",
-      "reason": "Contract gaps identified; no implementation or HTTP evidence."
+      "status": "passed",
+      "result": "Cookie/Header configuration, public/license security matrix and 8 role/account summary combinations across two workspaces pass."
     },
     {
       "task": "8.3",
-      "status": "incomplete",
-      "reason": "Partial caller/lazy-property audit; fixes and full audit pending."
+      "status": "passed",
+      "result": "Parsed 59 fork modules, audited 44 direct imported service calls, mapped changed lazy properties. Fixed M02 workflow accessor and actual query repository; documented M03/M04-owned failures."
     },
     {
       "task": "8.4",
-      "status": "incomplete",
-      "reason": "No source/test migration."
+      "status": "passed",
+      "result": "All restored URLs uniquely registered; security wrappers retained. Tests and SQLite-only metadata adapter are versioned with implementation."
     },
     {
       "task": "8.5",
-      "status": "blocked",
-      "reason": "Neither acceptance item has executed behavioral proof."
-    }
-  ],
-  "acceptance": [
-    {
-      "criterion": "public/license 分级无泄露",
-      "status": "unproven"
-    },
-    {
-      "criterion": "summary 权限字段真实可读；无旧签名/双重路由",
-      "status": "not_met"
+      "status": "passed",
+      "result": "146 focused/schema tests and 29 final HTTP tests pass; OpenAPI fields and response references asserted; scoped source and handoff evidence captured."
     }
   ],
   "handoffs": [
     {
-      "owner": "M02 retry",
-      "issue": "All seven owned conflicts pending; restore routes/exports/login and summary contracts, explicit-session workflow mapping."
-    },
-    {
       "owner": "M03",
       "path": "api/services/ding_talk_extend.py:381",
-      "issue": "RegisterService.register now requires session; missing at DingTalk new-user registration. No modification in M02."
+      "issue": "RegisterService.register requires keyword-only session. Existing login/switch_tenant already supply db.session(). Must adapt in identity implementation."
     },
     {
-      "owner": "M02/M08 ownership registration",
+      "owner": "M04; M08 confirm ownership",
       "path": "api/services/recommended_app_service_extend.py:34",
-      "issue": "app.tags removed; register ownership before adapting to tags_with_session and audit config/lazy reads."
+      "issue": "App.tags removed; use tags_with_session and audit app_model_config_with_session in the same live Session. Do not treat restored route registration as business acceptance."
+    },
+    {
+      "owner": "M05",
+      "issue": "Use LoginConfigResponse (not public SystemFeatureModel). is_custom_auth2 boolean, rmb_to_usd_rate number, other fork IDs/logout strings; bootstrap now requires type=login_config, so renew cached old-purpose tokens. Keep Cookie/Header transport and no-store."
     },
     {
       "owner": "M05/M06",
-      "issue": "Backend contracts not ready; do not regenerate/consume assumed fields yet."
+      "issue": "CurrentWorkspaceSummaryResponse now requires admin_extend and tenant_extend bool; UI visibility flags do not grant backend role."
+    },
+    {
+      "owner": "M05/M08",
+      "issue": "Generate frontend Zod/TypeScript and OpenAPI Markdown in owner stage from final schema; temporary backend OpenAPI evidence is not a committed consumer contract or final lock."
     }
   ],
-  "backend_review": {
-    "skill": ".agents/skills/backend-code-review/SKILL.md",
-    "packs": [
-      "db-schema",
-      "architecture",
-      "repositories",
-      "sqlalchemy"
-    ],
-    "scope": "Read-only current baseline plus evidence-only pending diff",
-    "findings": [
-      {
-        "priority": "P1",
-        "path": "api/controllers/console/feature.py",
-        "issue": "Fork bootstrap/login_config routes missing after upstream selection."
-      },
-      {
-        "priority": "P1",
-        "path": "api/services/workspace_service.py:99",
-        "issue": "Summary omits required fork permission booleans; response schema omits them too."
-      },
-      {
-        "priority": "P1",
-        "path": "api/services/recommended_app_service_extend.py:34",
-        "issue": "Installed app listing accesses App.tags removed upstream; AttributeError once route restored."
-      },
-      {
-        "priority": "P1",
-        "path": "api/services/ding_talk_extend.py:381",
-        "issue": "New DingTalk registration lacks required RegisterService.register session keyword."
-      }
-    ],
-    "verification_gap": "No behavioral test executed; review does not approve baseline or node."
-  },
-  "skills": {
-    "applied": [
-      "openspec-apply-change",
-      "backend-code-review"
-    ],
-    "missing": "karpathy-guidelines not in available catalog/declared location; focused/simple/verifiable guidance followed; not blocker."
-  },
   "downstream_status_propagation": {
-    "blocked": [
-      "M03",
+    "ready": [
+      "M03"
+    ],
+    "remain_blocked": [
       "M04",
       "M05",
       "M06",
@@ -296,7 +290,7 @@
       "V02",
       "R01"
     ],
-    "untouched": [
+    "unchanged": [
       "M07",
       "A03",
       "V03",
@@ -309,44 +303,51 @@
       "D02",
       "D03",
       "D04"
-    ],
-    "note": "Environment/production statuses preserved as explicitly required; dependency chain through blocked R01 still prevents execution."
+    ]
   },
   "known_limits": [
-    "No source changes or completed M02 tasks.",
-    "No HTTP, DB, session, Swagger or import acceptance.",
-    "No full API tests, services, production operations or network dependency downloads.",
-    "M00 remains non-deployable; M01 lock evidence is not installed-runtime evidence."
+    "No local integration/full API tests or long-running services. SQLite unit fixtures do not validate PostgreSQL migration/runtime behavior.",
+    "Feature query gateways are deterministic test inputs; no live Enterprise/license/SSO/model service was queried.",
+    "Upstream deprecation warnings remain (cgi, class-based Pydantic config).",
+    "Legacy api_host Redis write intentionally omitted after no consumer found; no global request-host cache introduced.",
+    "This node is scoped backend contract acceptance only; full source merge, deployment and production acceptance remain downstream."
   ],
   "checks": {
-    "git_diff_check": {
-      "exit_code": 0
-    },
-    "openspec_strict": {
-      "command": "openspec validate merge-upstream-1-17-1 --strict",
-      "exit_code": 0,
-      "output": "Change 'merge-upstream-1-17-1' is valid"
-    },
-    "graph": {
-      "exit_code": 0,
-      "M07": "ready",
-      "A03": "blocked",
-      "environment_and_production": "unchanged"
-    },
-    "untracked": {
+    "source_hashes": "passed",
+    "head_and_empty_index": "passed",
+    "api_lock_unchanged": "passed",
+    "graph_preserved_non_descendants": "passed",
+    "ownership_tsv_six_columns": "passed",
+    "original_untracked_preserved": {
       "count": 7735,
-      "preserved": true
-    },
-    "backend_review": "completed; baseline gaps reported, no new API diff",
-    "commit_parent_and_allowlist": "Verify externally after commit; expected parent is pre_commit_head."
+      "passed": true
+    }
   },
   "commit_allowlist": [
+    "api/controllers/console/__init__.py",
+    "api/controllers/console/feature.py",
+    "api/controllers/console/workspace/workspace.py",
+    "api/models/__init__.py",
+    "api/models/workflow.py",
+    "api/models/workflow_log_extend.py",
+    "api/repositories/workflow_app_log_query_repository.py",
+    "api/services/login_config_service_extend.py",
+    "api/services/workspace_service.py",
+    "api/tests/unit_tests/conftest.py",
+    "api/tests/unit_tests/controllers/console/test_feature.py",
+    "api/tests/unit_tests/controllers/console/workspace/test_workspace.py",
+    "api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py",
+    "api/tests/unit_tests/services/test_login_config_service_extend.py",
+    "api/tests/unit_tests/services/test_workspace_service.py",
     "openspec/changes/merge-upstream-1-17-1/evidence/M02/execution.log",
-    "openspec/changes/merge-upstream-1-17-1/evidence/M02/offline-sync.log",
-    "openspec/changes/merge-upstream-1-17-1/evidence/M02/preflight.json",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/focused-tests.log",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/http-routes.log",
     "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
     "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
     "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+    "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
     "openspec/changes/merge-upstream-1-17-1/tasks.md"
   ]
 }

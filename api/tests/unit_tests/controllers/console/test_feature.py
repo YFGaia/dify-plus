@@ -2,6 +2,7 @@ from inspect import unwrap
 from types import SimpleNamespace
 from unittest.mock import MagicMock, create_autospec
 
+import pytest
 from pytest_mock import MockerFixture
 
 from enums import DeploymentEdition
@@ -187,3 +188,205 @@ class TestSystemFeatureLicenseApi:
         assert result == license_model.model_dump()
         assert result["seats"] == {"enabled": True, "limit": 5, "size": 2}
         get_license.assert_called_once_with()
+
+
+# Fork contract tests exercise the registered HTTP routes and their real admission wrappers.
+@pytest.fixture
+def feature_http(mocker: MockerFixture, config_overrides):
+    from flask import Flask
+
+    from controllers.console import bp
+    from extensions.ext_login import login_manager
+
+    config_overrides(SECRET_KEY="m02-test-secret-key-with-32-characters", LOGIN_DISABLED=False)
+    app = Flask("m02-feature-http")
+    app.config["TESTING"] = True
+    app.secret_key = "m02-test-secret-key-with-32-characters"
+    app.register_blueprint(bp)
+    login_manager.init_app(app)
+    mocker.patch("controllers.console.wraps._is_setup_completed", return_value=True)
+    return app
+
+
+class TestForkLoginConfig:
+    def test_cookie_and_header_keep_public_license_shape(self, feature_http, mocker: MockerFixture, sqlite_session):
+        from constants import COOKIE_NAME_LOGIN_CONFIG_TOKEN, HEADER_NAME_LOGIN_CONFIG_TOKEN
+        from models.system_extend import SystemIntegrationExtend
+
+        sqlite_session.add(SystemIntegrationExtend(id=1, classify=1, status=True, app_key="client", corp_id="corp"))
+        sqlite_session.commit()
+        queries = _install_application_services(mocker)
+        queries.get_public_system_features.return_value = SystemFeatureModel(
+            deployment_edition=DeploymentEdition.COMMUNITY,
+            license=LicenseModel(status=LicenseStatus.ACTIVE, expired_at="2099-01-01"),
+        )
+        client = feature_http.test_client()
+        bootstrap = client.get("/console/api/login_config_bootstrap")
+        assert bootstrap.status_code == 200
+        assert "HttpOnly" in bootstrap.headers["Set-Cookie"]
+        assert "SameSite=Lax" in bootstrap.headers["Set-Cookie"]
+        assert "Max-Age=3600" in bootstrap.headers["Set-Cookie"]
+        token = bootstrap.json["token"]
+        cookie_result = client.get("/console/api/login_config")
+        assert cookie_result.status_code == 200
+        assert cookie_result.json["ding_talk_client_id"] == "client"
+        assert cookie_result.json["license"] == {"status": "active"}
+        assert "branding" in cookie_result.json
+        assert cookie_result.headers["Cache-Control"] == "no-store"
+        client.delete_cookie(COOKIE_NAME_LOGIN_CONFIG_TOKEN)
+        header_result = client.get("/console/api/login_config", headers={HEADER_NAME_LOGIN_CONFIG_TOKEN: token})
+        assert header_result.json == cookie_result.json
+        assert queries.get_license.call_count == 0
+
+    @pytest.mark.parametrize("invalid", ["missing", "signature", "expired", "ip", "purpose", "no-exp"])
+    def test_rejects_invalid_bootstrap(self, invalid, feature_http, mocker: MockerFixture):
+        from datetime import UTC, datetime, timedelta
+
+        import jwt
+
+        from configs import dify_config
+        from constants import HEADER_NAME_LOGIN_CONFIG_TOKEN
+
+        payload = {"ip": "127.0.0.1", "exp": datetime.now(UTC) + timedelta(hours=1), "type": "login_config"}
+        key = dify_config.SECRET_KEY
+        if invalid == "expired":
+            payload["exp"] = datetime.now(UTC) - timedelta(seconds=1)
+        elif invalid == "signature":
+            key = "wrong-secret-key-with-at-least-32-characters"
+        elif invalid == "ip":
+            payload["ip"] = "192.0.2.1"
+        elif invalid == "purpose":
+            payload["type"] = "access"
+        elif invalid == "no-exp":
+            payload.pop("exp")
+        token = jwt.encode(payload, key, algorithm="HS256")
+        queries = _install_application_services(mocker)
+        headers = {} if invalid == "missing" else {HEADER_NAME_LOGIN_CONFIG_TOKEN: token}
+        response = feature_http.test_client().get("/console/api/login_config", headers=headers)
+        assert response.status_code == 403
+        queries.get_public_system_features.assert_not_called()
+        queries.get_license.assert_not_called()
+
+    @pytest.mark.parametrize("bootstrap", ["none", "custom-header", "bearer", "access-cookie"])
+    def test_anonymous_and_bootstrap_cannot_read_license(self, bootstrap, feature_http, mocker: MockerFixture):
+        from constants import COOKIE_NAME_ACCESS_TOKEN, HEADER_NAME_LOGIN_CONFIG_TOKEN
+        from libs.token import _real_cookie_name
+
+        queries = _install_application_services(mocker)
+        client = feature_http.test_client()
+        headers = {}
+        if bootstrap != "none":
+            token = client.get("/console/api/login_config_bootstrap").json["token"]
+            if bootstrap == "custom-header":
+                headers[HEADER_NAME_LOGIN_CONFIG_TOKEN] = token
+            elif bootstrap == "bearer":
+                headers["Authorization"] = f"Bearer {token}"
+            else:
+                client.set_cookie(_real_cookie_name(COOKIE_NAME_ACCESS_TOKEN), token)
+        assert client.get("/console/api/system-features/license", headers=headers).status_code == 401
+        queries.get_license.assert_not_called()
+
+    def test_admitted_account_gets_license_after_csrf(self, feature_http, mocker: MockerFixture):
+        from werkzeug.exceptions import Unauthorized
+
+        from models.account import Account, AccountStatus, Tenant
+
+        account = Account(name="Owner", email="owner@example.com", status=AccountStatus.ACTIVE)
+        account._current_tenant = Tenant(name="Workspace")
+        mocker.patch("libs.login._resolve_current_user", return_value=account)
+        csrf = mocker.patch("libs.login.check_csrf_token")
+        queries = _install_application_services(mocker)
+        queries.get_license.return_value = LicenseModel(status=LicenseStatus.ACTIVE, expired_at="2099-01-01")
+        client = feature_http.test_client()
+        response = client.get("/console/api/system-features/license")
+        assert response.status_code == 200
+        assert response.json["expired_at"] == "2099-01-01"
+        csrf.assert_called_once()
+        queries.get_license.assert_called_once()
+        queries.get_license.reset_mock()
+        csrf.side_effect = Unauthorized()
+        assert client.get("/console/api/system-features/license").status_code == 401
+        queries.get_license.assert_not_called()
+
+    @pytest.mark.parametrize("role", ["owner", "admin", "editor", "normal"])
+    @pytest.mark.parametrize("super_account", [False, True])
+    def test_summary_identity_flags_follow_account_and_workspace(
+        self, role, super_account, feature_http, mocker: MockerFixture, sqlite_session, config_overrides
+    ):
+        from datetime import datetime
+
+        from models.account import Account, AccountStatus, Tenant, TenantAccountJoin, TenantAccountRole
+
+        config_overrides(DEPLOYMENT_EDITION=DeploymentEdition.COMMUNITY)
+        first = Account(name="First", email="first@example.com", status=AccountStatus.ACTIVE)
+        ordinary = Account(name="Other", email="other@example.com", status=AccountStatus.ACTIVE)
+        first.created_at, ordinary.created_at = datetime(2025, 1, 1), datetime(2025, 1, 2)
+        tenants = [Tenant(name="First workspace"), Tenant(name="Other workspace")]
+        tenants[0].created_at, tenants[1].created_at = datetime(2025, 1, 1), datetime(2025, 1, 2)
+        actor = first if super_account else ordinary
+        sqlite_session.add_all([first, ordinary, *tenants])
+        sqlite_session.add_all(
+            TenantAccountJoin(tenant_id=tenant.id, account_id=actor.id, role=TenantAccountRole(role))
+            for tenant in tenants
+        )
+        sqlite_session.commit()
+        mocker.patch("libs.login._resolve_current_user", return_value=actor)
+        mocker.patch("libs.login.check_csrf_token")
+        client = feature_http.test_client()
+        for index, tenant in enumerate(tenants):
+            actor.set_current_tenant_with_session(tenant, session=sqlite_session)
+            response = client.get("/console/api/workspaces/current/summary")
+            assert response.status_code == 200
+            assert response.json == {
+                "id": tenant.id,
+                "name": tenant.name,
+                "role": role,
+                "plan": None,
+                "credits": None,
+                "admin_extend": super_account,
+                "tenant_extend": index == 0,
+            }
+            assert actor.role == role
+
+    def test_public_route_and_fork_routes_are_registered_once(self, feature_http, mocker: MockerFixture):
+        queries = _install_application_services(mocker)
+        queries.get_public_system_features.return_value = SystemFeatureModel(
+            deployment_edition=DeploymentEdition.COMMUNITY
+        )
+        response = feature_http.test_client().get("/console/api/system-features")
+        assert response.status_code == 200
+        assert "branding" in response.json
+        assert "ping" not in response.json
+        assert response.json["license"] == {"status": "none"}
+        paths = [rule.rule for rule in feature_http.url_map.iter_rules() if "GET" in rule.methods]
+        for route in (
+            "system-features",
+            "system-features/license",
+            "login_config",
+            "login_config_bootstrap",
+            "account/money",
+        ):
+            assert paths.count(f"/console/api/{route}") == 1
+        all_paths = [rule.rule for rule in feature_http.url_map.iter_rules()]
+        for route in (
+            "extend/<path:path>",
+            "apps/<uuid:app_id>/sync",
+            "installed/apps",
+            "message/context",
+            "ding-talk/login",
+            "ding-talk/third-party/login",
+            "system-manage-extend/integration/dingtalk",
+            "system-manage-extend/integration/dingtalk/test",
+            "system-manage-extend/integration/dingtalk/test-callback",
+            "system-manage-extend/integration/oauth2",
+            "system-manage-extend/integration/oauth2/test",
+            "system-manage-extend/integration/email-api/test",
+            "system-manage-extend/forward-tokens",
+            "system-manage-extend/forward-tokens/<int:seq>",
+            "system-manage-extend/quota-management",
+            "system-manage-extend/quota-management/set",
+            "system-manage-extend/code-execution-control",
+            "system-manage-extend/code-execution-control/<string:record_id>",
+        ):
+            assert all_paths.count(f"/console/api/{route}") == 1
+        queries.get_license.assert_not_called()

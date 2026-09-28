@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 首次环境阻断已解除并恢复为 ready，M03–M06/M08/V01/V02/R01 仍因 M02 尚未通过而 blocked，M07 ready；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过），M03 ready；M04–M06/M08/V01/V02/R01 仍待各自前置，M07 ready；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02 已通过；M03–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -230,7 +230,7 @@ git show --no-patch --format=%P HEAD
 - 状态：passed（初始锁专项）；五个 fork 前端依赖及 Python 钉钉/pypinyin 保留。
 - 工具实测：官方 pnpm 12.3.4 包和原生二进制 SRI 一致；初始解析使用获授权的 Node24.19.0；随后官方 Node24.20.0 归档 SHA256 校验及精确版本仓库锁检查通过。Python 3.12.9 的 locked/offline/no-sync 检查通过。
 - 锁文件：仓库 pnpm-lock.yaml 已更新并通过 frozen/offline/lockfile-only；新增 50 个 package / 53 个 snapshot 全部属于五依赖的可达范围，既有条目无改动/删除；api/uv.lock SHA 不变。五项 peer 问题与原锁相同。
-- 交接：M08 保有最终锁/契约生成物刷新权；非代码 ESLint、完整安装和构建待 M08/V02。M02/M07 ready，M03–M06/M08/V01/V02/R01 pending；A03/环境/生产状态不变。本次不实施下游。
+- 交接：M08 保有最终锁/契约生成物刷新权；非代码 ESLint、完整安装和构建待 M08/V02。M02 已通过；M03/M07 ready，M04–M06/M08/V01/V02/R01 等待前置；A03/环境/生产状态不变。本次不实施下游。
 - 本地副作用：早期 `uv run --no-sync` 自动重建了指向失效解释器的 `api/.venv`，原 3.12.8 环境变为 3.12.9 空环境；后续检查已隔离到 `/private/tmp`。详情见证据。
 - 前置：M00；负责人：构建负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`构建负责人`。
@@ -251,7 +251,7 @@ git show --no-patch --format=%P HEAD
 
 ## M02 · 后端基础与共同契约适配
 
-- 状态：ready；先前的临时依赖缺失阻断已由独立 Luna 在锁定环境中解决；M02 尚未实施，见 evidence/M02/environment-readiness.json。
+- 状态：passed；后端共同契约与定向验收通过，证据见 evidence/M02/result.json；仍非可部署版本。
 
 - 前置：M01；负责人：后端基础负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`backend_core`。
@@ -273,7 +273,7 @@ git show --no-patch --format=%P HEAD
 
 ## M03 · 账号、OAuth 与 WebApp 后端
 
-- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
+- 状态：ready；M02 已通过，前置满足；本节点尚未实施。
 
 - 前置：M02；负责人：身份负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`身份负责人`。
@@ -295,7 +295,7 @@ git show --no-patch --format=%P HEAD
 
 ## M04 · 计费、Service API 与记忆挂点
 
-- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
+- 状态：blocked；前置节点 M03 尚未通过；未执行本节点。
 
 - 前置：M03；负责人：计费负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`计费负责人`。
@@ -317,7 +317,7 @@ git show --no-patch --format=%P HEAD
 
 ## M05 · Console transport 与前端契约
 
-- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
+- 状态：blocked；前置节点 M03 尚未通过；未执行本节点。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端契约负责人`。
@@ -339,7 +339,7 @@ git show --no-patch --format=%P HEAD
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
+- 状态：blocked；前置节点 M04, M05 尚未通过；未执行本节点。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。
@@ -385,7 +385,7 @@ git show --no-patch --format=%P HEAD
 
 ## M08 · 集成审查与候选源码提交
 
-- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
+- 状态：blocked；前置节点 M03, M04, M05, M06, M07 尚未通过；未执行本节点。
 
 - 前置：M02, M03, M04, M05, M06, M07；负责人：集成负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`git_index, lockfiles`。
@@ -415,7 +415,7 @@ git status --short
 
 ## V01 · 后端静态与定向回归
 
-- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
+- 状态：blocked；前置节点 M08 尚未通过；未执行本节点。
 
 - 前置：M08；负责人：后端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。
@@ -444,7 +444,7 @@ uv run --project api pytest api/tests/unit_tests/controllers/console/test_apikey
 
 ## V02 · 前端检查、定向测试与双构建
 
-- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
+- 状态：blocked；前置节点 M08 尚未通过；未执行本节点。
 
 - 前置：M08；负责人：前端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。
@@ -478,7 +478,7 @@ pnpm --dir web build:vinext
 
 ## R01 · 源码合并候选验收
 
-- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
+- 状态：blocked；前置节点 V01, V02 尚未通过；未执行本节点。
 
 - 前置：V01, V02；负责人：集成负责人；建议模型：Sol/high。
 - 授权：`implementation`；资源锁：`集成负责人`。

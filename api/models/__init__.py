@@ -55,6 +55,7 @@ from .dataset import (
     TidbAuthBinding,
     Whitelist,
 )
+from .engine import db  # Fork model compatibility export.
 from .enums import (
     AppTriggerStatus,
     AppTriggerType,
@@ -116,6 +117,7 @@ from .provider import (
 from .skill import AgentSkillBinding, Skill, SkillDraftFile, SkillFileKind, SkillFileStorage, SkillVersion
 from .snippet import CustomizedSnippet, SnippetType
 from .source import DataSourceApiKeyAuthBinding, DataSourceOauthBinding
+from .system_extend import SystemIntegrationExtend
 from .task import CeleryTask, CeleryTaskSet
 from .tools import (
     ApiToolProvider,
@@ -257,6 +259,7 @@ __all__ = [
     "SkillFileStorage",
     "SkillVersion",
     "SnippetType",
+    "SystemIntegrationExtend",
     "Tag",
     "TagBinding",
     "Tenant",
@@ -300,5 +303,6 @@ __all__ = [
     "WorkflowTriggerStatus",
     "WorkflowType",
     "WorkflowVersionCounter",
+    "db",
     "resolve_workflow_kind",
 ]

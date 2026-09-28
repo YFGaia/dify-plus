@@ -119,6 +119,8 @@ class CurrentWorkspaceSummaryResponse(ResponseModel):
     role: TenantAccountRole
     plan: CloudPlan | None
     credits: int | None = Field(description="Remaining credits in the effective pool; -1 means unlimited.")
+    admin_extend: bool
+    tenant_extend: bool
 
 
 class TenantListItemResponse(ResponseModel):
