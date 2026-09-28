@@ -1,0 +1,105 @@
+{
+  "node": "M04",
+  "status": "ready",
+  "implementation": "complete",
+  "independent_acceptance": "pending Luna",
+  "deployable": false,
+  "branch": "codex/merge-upstream-1.17.1",
+  "input_head": "e83bdfe536eb114aa5dee17ddec539d9a71ab99e",
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "source_commits": [
+    "521eb98761517347f28a18dcdfdcf646c389ddb8",
+    "a65840a41a85de545811b8b879891a9f5d5ad278",
+    "08e130ed1dbe7f8c0907a9171b76406836eeb668"
+  ],
+  "steps": {
+    "10.1": {
+      "implementation_complete": true,
+      "evidence": [
+        "handoff.md",
+        "callers.json"
+      ]
+    },
+    "10.2": {
+      "implementation_complete": true,
+      "evidence": [
+        "focused-tests.log",
+        "verified-inputs.json"
+      ]
+    },
+    "10.3": {
+      "implementation_complete": true,
+      "evidence": [
+        "static-scope.json",
+        "schema-assertions.json",
+        "focused-tests.log"
+      ]
+    },
+    "10.4": {
+      "implementation_complete": true,
+      "evidence": [
+        "handoff.md",
+        "focused-tests.log"
+      ]
+    },
+    "10.5": {
+      "status": "pending_independent_acceptance"
+    }
+  },
+  "verification": {
+    "command": "sh openspec/changes/merge-upstream-1-17-1/evidence/M04/verify.sh",
+    "environment": {
+      "UV_PROJECT_ENVIRONMENT": "/private/tmp/dify-m02-python-complete",
+      "UV_CACHE_DIR": "/private/tmp/dify-m02-uv-cache"
+    },
+    "pytest": {
+      "exit_code": 0,
+      "passed": 370,
+      "warnings": 2
+    },
+    "lint": {
+      "exit_code": 0,
+      "changed_python_files": 9
+    },
+    "static": {
+      "immutable_checks": 16,
+      "callers": 36,
+      "hashed_inputs": 51,
+      "all_passed": true
+    },
+    "schema": {
+      "generator_exit_code": 0,
+      "assertions_passed": 6
+    },
+    "source_and_tests_unchanged_during_final_run": true,
+    "plan": {
+      "openspec_strict_exit_code": 0,
+      "dag_ownership_tasks_hashes": "passed"
+    }
+  },
+  "changed_source_and_test_paths": [
+    "api/controllers/console/apikey.py",
+    "api/controllers/service_api/wraps.py",
+    "api/core/app/apps/advanced_chat/generate_task_pipeline.py",
+    "api/tests/unit_tests/controllers/console/test_apikey.py",
+    "api/tests/unit_tests/controllers/service_api/test_billing_extend.py",
+    "api/tests/unit_tests/controllers/service_api/test_wraps.py",
+    "api/tests/unit_tests/core/app/test_billing_hooks_extend.py",
+    "api/tests/unit_tests/core/app/workflow/test_persistence_layer.py",
+    "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
+  ],
+  "oauth_reference": {
+    "owner": "M03",
+    "step": "9.2",
+    "result": "../M03/result.json",
+    "handoff": "../M03/handoff.md"
+  },
+  "known_limits": [
+    "Independent Luna acceptance pending; M04 stays ready and task 10.5 unchecked.",
+    "Celery redelivery, message concurrent read-modify-write and anonymous payer/limit gaps remain P4 debt.",
+    "No token total-limit field exists; accumulated_quota is usage, -1 unlimited applies to key day/month only.",
+    "Token deletion retains historical joins; quota is soft-deleted.",
+    "No production, PostgreSQL concurrency, live provider, scheduler or queue validation; not deployable.",
+    "OpenAPI/TS generated contracts delegated to M05/M08; no locks or repository venv changed."
+  ]
+}

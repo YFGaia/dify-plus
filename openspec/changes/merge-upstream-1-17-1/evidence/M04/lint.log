@@ -1,0 +1,4 @@
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+All checks passed!

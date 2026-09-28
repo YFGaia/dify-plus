@@ -575,7 +575,10 @@
         "保留上游 dataset binding、RBAC、遮罩和 Cloud 限额；fork 配额语义独立",
         "保留 NULL retention、匿名 context 修复、三个 beat reset；记录非幂等既有债务；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
-      "commands": [],
+      "commands": [
+        "sh openspec/changes/merge-upstream-1-17-1/evidence/M04/verify.sh",
+        "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python openspec/changes/merge-upstream-1-17-1/evidence/M04/verify_static.py"
+      ],
       "acceptance": [
         "九项由 M04 实施/复核并有新路径与调用证据；OAuth 引用 M03 证据闭合十项总览",
         "所有被装饰入口签名兼容；不新增漏扣/重复派发"
@@ -583,7 +586,12 @@
       "evidence": [
         "evidence/M04/pre-analysis.md",
         "evidence/M04/result.json",
-        "evidence/M04/execution.log"
+        "evidence/M04/execution.log",
+        "evidence/M04/handoff.md",
+        "evidence/M04/verified-inputs.json",
+        "evidence/M04/callers.json",
+        "evidence/M04/static-scope.json",
+        "evidence/M04/schema-assertions.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -627,7 +635,23 @@
         "api/tests/unit_tests/core/app/test_billing_hooks_extend.py",
         "api/tests/unit_tests/controllers/service_api/test_wraps.py",
         "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
-      ]
+      ],
+      "implementation_progress": {
+        "tasks_complete": [
+          "10.1",
+          "10.2",
+          "10.3",
+          "10.4"
+        ],
+        "independent_acceptance_pending": "10.5",
+        "source_commits": [
+          "521eb98761517347f28a18dcdfdcf646c389ddb8",
+          "a65840a41a85de545811b8b879891a9f5d5ad278",
+          "08e130ed1dbe7f8c0907a9171b76406836eeb668"
+        ],
+        "self_test": "370 passed, 2 warnings; 36 callers; 16 immutable-boundary assertions",
+        "handoff": "evidence/M04/handoff.md"
+      }
     },
     {
       "id": "M05",

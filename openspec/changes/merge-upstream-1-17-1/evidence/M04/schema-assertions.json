@@ -1,0 +1,19 @@
+{
+  "generator_exit_code": 0,
+  "assertions_passed": 6,
+  "assertions": [
+    "Six fork fields in ApiKeyItem response",
+    "App POST request schema",
+    "App PUT request schema",
+    "PUT id required",
+    "Day quota defaults to unlimited -1",
+    "Dataset binding field preserved"
+  ],
+  "schema_hashes": {
+    "console-openapi.json": "97b587fa471a7ca5984589bf44b40a1b4a1cb8447db364a7b8a655942063f28c",
+    "openapi-openapi.json": "79da89686e05ca9fead85351f8a1f103ef4b649a778935d2ced575e10a242751",
+    "service-openapi.json": "92012cfaef48db5b00dd60db0aff1c92306a724348e9d7a830a793ee988e99ec",
+    "web-openapi.json": "713b0d02d975b1f4192ecdde6dbf9527781c9241a893c50d2eaec4031cddcc1c"
+  },
+  "generated_contract_refresh_owner": "M05/M08; no generated contracts hand-edited"
+}

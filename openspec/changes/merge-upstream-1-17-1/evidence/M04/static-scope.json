@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "cloud_edition_billing_resource_check_matches_upstream": true,
+    "cloud_edition_billing_knowledge_limit_check_matches_upstream": true,
+    "cloud_edition_billing_rate_limit_check_matches_upstream": true,
+    "validate_dataset_token_matches_upstream": true,
+    "validate_and_get_api_token_matches_upstream": true,
+    "api/controllers/console/datasets/datasets.py_unchanged": true,
+    "api/controllers/web/completion.py_unchanged": true,
+    "api/events/event_handlers/update_account_money_when_messaeg_created_extend.py_unchanged": true,
+    "api/core/app/workflow/layers/persistence.py_unchanged": true,
+    "api/core/memory/token_buffer_memory.py_unchanged": true,
+    "api/core/app/apps/base_app_runner.py_unchanged": true,
+    "api/extensions/ext_celery.py_unchanged": true,
+    "api/uv.lock_unchanged": true,
+    "pnpm-lock.yaml_unchanged": true,
+    "api/controllers/console/auth/oauth.py_unchanged": true,
+    "api/services/account_oauth_gateway_extend.py_unchanged": true
+  },
+  "callers": 36,
+  "all_passed": true,
+  "production_changed_paths": [
+    "api/controllers/console/apikey.py",
+    "api/controllers/service_api/wraps.py",
+    "api/core/app/apps/advanced_chat/generate_task_pipeline.py"
+  ],
+  "limits": [
+    "Signature probe executes actual decorator with real SQLite quota and attribution, endpoint business bodies are covered by their existing tests.",
+    "No dataset quota or total token limit invented; accumulated_quota is usage."
+  ]
+}

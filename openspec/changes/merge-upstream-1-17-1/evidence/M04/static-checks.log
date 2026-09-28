@@ -1,0 +1,4 @@
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+16 immutable-boundary checks passed; 36 callers; 51 source/test/lock hashes
