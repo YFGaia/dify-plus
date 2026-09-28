@@ -1,9 +1,9 @@
 {
   "node": "M01",
-  "status": "blocked",
-  "recorded_at_utc": "2026-09-28T16:40:47.065Z",
+  "status": "passed",
+  "recorded_at_utc": "2026-09-28T17:13:45.750Z",
   "branch": "codex/merge-upstream-1.17.1",
-  "pre_commit_head": "8e47d6c059e530d61a8955a1a28861a9815409a6",
+  "pre_commit_head": "44b58afc15f7ca99a16834af6f861d4d073ba2bc",
   "target_ref": "refs/tags/1.17.1",
   "target_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
   "merge_baseline": "948fefb69ae87abefa7e91a13968213696b3e310",
@@ -47,9 +47,15 @@
     "oxlint": "1.73.0",
     "eslint": "10.7.0",
     "next_installed": "16.2.10",
-    "note": "Existing node_modules is not a target frozen install; checks using it are limited diagnostics."
+    "note": "Existing node_modules is not a target frozen install; checks using it are limited diagnostics.",
+    "exact_node": "24.20.0 (official archive in /private/tmp)",
+    "exact_pnpm": "12.3.4 (official native binary in /private/tmp)"
   },
   "changes": [
+    {
+      "path": "pnpm-lock.yaml",
+      "reason": "M01 retry: official pnpm12.3.4 generated five restored fork dependencies and their necessary closure; no existing package/snapshot changed."
+    },
     {
       "path": "pnpm-workspace.yaml",
       "reason": "Restore the five exact fork catalog pins plus @swc/core:false build policy; retain all upstream catalogs, overrides, workspace members and toolchain policies."
@@ -101,12 +107,8 @@
       "reason": "All 38 manifests equal fixed upstream; all project names have workspace sources and lock manifest entries."
     },
     {
-      "path": "pnpm-lock.yaml",
-      "reason": "Fixed upstream two-document lock retained; includes pnpm12.3.4 environment lock, but lacks five restored web deps; resolver unavailable."
-    },
-    {
       "path": "api/uv.lock",
-      "reason": "M00 auto-merged fork SDK/pinyin entries; retained byte-for-byte. Static TOML audit passes; actual locked resolution blocked."
+      "reason": "Retained byte-for-byte; actual locked/offline/no-sync check now passed using original local cache."
     }
   ],
   "dependency_reasons": {
@@ -771,8 +773,8 @@
     },
     {
       "task": "7.2",
-      "status": "blocked",
-      "scope": "Declarations/workspace/config/suppression review done; initial pnpm lock generation and uv lock verification not proven."
+      "status": "passed",
+      "scope": "M01 authorized initial-lock acceptance passed; see retry_2026_09_29 for actual versions, repo-lock checks and deferred full quality gates."
     },
     {
       "task": "7.3",
@@ -781,28 +783,23 @@
     },
     {
       "task": "7.4",
-      "status": "blocked",
-      "scope": "声明与定向检查已完成；目标 Node 24.20.0 / pnpm 12.3.4 未实际复现，隔离 pnpm 锁生成因目标版本无离线缓存失败，uv 锁校验因固定 flask-restx Git 源不可达失败；初始锁验证和非代码 ESLint 尚未通过。M02–M08、V01/V02、R01 同步依赖阻塞；环境与生产节点不变。"
+      "status": "passed",
+      "scope": "M01 authorized initial-lock acceptance passed; see retry_2026_09_29 for actual versions, repo-lock checks and deferred full quality gates."
     }
   ],
   "acceptance": [
     {
       "requirement": "依赖变化可解释；无抹除钉钉/pypinyin 等 fork 依赖",
-      "status": "passed_declaration_audit_only",
-      "evidence": "Exact fork-vs-base dependency delta restored; API fork declarations and lock records retained; installed/runtime compatibility not proven."
+      "status": "passed",
+      "evidence": "Five fork dependencies restored by pnpm12.3.4; all additions reachable, no existing version changed; Python locked check passed."
     },
     {
       "requirement": "生成物来源明确，工具链版本可复现",
-      "status": "blocked",
-      "evidence": "Generation sources identified, but exact Node/pnpm runtime and initial resolver checks failed."
+      "status": "passed",
+      "evidence": "Official Node24.20.0 SHA256 and pnpm12.3.4 SRI/version verified; repository frozen/offline/lockfile-only passed. Python3.12.9 locked check passed. Full install/build gates remain M08/V02."
     }
   ],
   "handoffs": [
-    {
-      "owner": "M01",
-      "kind": "blocking_retry",
-      "action": "Provide isolated Node24.20.0/pnpm12.3.4 and suitable uv with reachable/cached fixed sources. Repeat initial lock-only resolution, frozen/locked checks, non-code lint and source audit. Update evidence in a new scoped M01 retry; do not mark passed based only on this source commit."
-    },
     {
       "owner": "M08",
       "kind": "conditional_final_write_ownership",
@@ -811,7 +808,7 @@
         "api/uv.lock",
         "packages/contracts/generated/**"
       ],
-      "action": "After all prerequisites pass, serialize final lock generation from final manifests and regenerate contracts from API schema sources/scripts. Initial M01 blocker must be resolved before M08 becomes eligible; no hand edits to generated contracts."
+      "action": "After all M02–M07 prerequisites pass, serialize final lock generation from final manifests and regenerate contracts. M01 initial lock now passed; final refresh remains M08."
     },
     {
       "owner": "M05/M06",
@@ -833,11 +830,11 @@
         "api/Dockerfile",
         "web/Dockerfile"
       ],
-      "action": "Docker Node24.20.0/Python3.12 already match. Review autofix setup-python3.11 bootstrap versus uv project3.12 selection; retain ownership of Docker/CI fields, including uv0.8.9 image pin. M01 changed no M07 files. Node remains dependency-blocked; handoff does not authorize implementation now."
+      "action": "Docker Node24.20.0/Python3.12 already match. Review autofix setup-python3.11 bootstrap versus uv project3.12 selection; retain ownership of Docker/CI fields, including uv0.8.9 image pin. M01 changed no M07 files. M07 is ready after this M01 retry; implementation is outside this task."
     }
   ],
   "generator_provenance": {
-    "pnpm": "pnpm install --lockfile-only with pinned pnpm12.3.4 and Node24.20.0; initial probe isolated under /private/tmp; final run belongs to M08.",
+    "pnpm": "Official pnpm12.3.4 native binary; initial lock-only generation using allowed Node24.19.0 PATH in temporary manifest copy, copied exact result into repository and passed frozen/offline/lockfile-only. Final refresh M08.",
     "python": "uv lock --project api using API workspace plus editable ../dify-agent; final API lock refresh belongs to M08. Standalone dify-agent/uv.lock was not touched.",
     "contracts": "packages/contracts/package.json gen-api-contract invokes api/dev/generate_swagger_specs.py, api/dev/generate_fastopenapi_specs.py and openapi-ts.api.config.ts. Other script entries generate enterprise, enterprise-app-deploy and knowledge-fs. M01 invoked none.",
     "suppressions": "node_modules/.bin/vp lint web/service/common-extend.ts web/service/system-manage-extend.ts --suppress-all; exact two-entry diff reviewed."
@@ -880,24 +877,18 @@
     "containment": "All subsequent uv checks set UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m01-python and UV_CACHE_DIR=/private/tmp/dify-m01-uv-cache. Reported to main Agent. Recreate dependencies only in a separately authorized local recovery/retry after target tools are available."
   },
   "known_limits": [
-    "M01 is blocked and this commit is not deployable. No full product build, API import/runtime integration, frozen install or production verification passed.",
-    "Next config checks transpile/evaluate with env and inspector imports stubbed; do not prove live proxy or Vinext runtime.",
-    "pnpm-lock.yaml deliberately remains inconsistent with restored manifests until a successful initial M01 resolver retry. Final refresh is separately M08 responsibility.",
-    "api/uv.lock static entries are preserved but the auto-merged lock has not passed modern uv resolver validation.",
-    "Existing visible untracked tool directories are preserved; api/.venv was an ignored local environment side effect disclosed separately.",
-    "A03 blocked and all production gates/authorizations unchanged; M02–M08, V01/V02 and R01 are blocked by dependency propagation.",
-    "Pre-commit HEAD and source hashes are recorded; the node commit must be reviewed externally and its own SHA is not embedded here."
+    "Lockfile-only validation does not install or build the application.",
+    "Final frozen dependency install, non-code ESLint and full quality gates remain for M08/V02. No claim that prior non-code ESLint failure passed.",
+    "Python locked/no-sync check validates the existing lock; no package-import or runtime acceptance.",
+    "M08 retains final lock/generated write ownership after prerequisites pass."
   ],
   "commit_allowlist": [
-    "pnpm-workspace.yaml",
-    "web/package.json",
-    "web/next.config.ts",
-    "oxlint-suppressions.json",
-    "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
-    "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-    "openspec/changes/merge-upstream-1-17-1/tasks.md",
+    "pnpm-lock.yaml",
     "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
-    "openspec/changes/merge-upstream-1-17-1/evidence/M01/execution.log"
+    "openspec/changes/merge-upstream-1-17-1/evidence/M01/execution.log",
+    "openspec/changes/merge-upstream-1-17-1/tasks.md",
+    "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+    "openspec/changes/merge-upstream-1-17-1/execution-graph.md"
   ],
   "commands": [
     {
@@ -1253,57 +1244,31 @@
   ],
   "downstream_status_propagation": {
     "explicit_main_agent_instruction": true,
-    "from": "pending",
-    "to": "blocked",
-    "nodes": [
+    "from": "blocked",
+    "ready": [
       "M02",
+      "M07"
+    ],
+    "pending": [
       "M03",
       "M04",
       "M05",
       "M06",
-      "M07",
       "M08",
       "V01",
       "V02",
       "R01"
     ],
-    "scope": "Only specified source-chain descendants; A03/environment/production statuses unchanged."
-  },
-  "verification": {
-    "result": "passed",
-    "graph_node_count": 27,
-    "propagated_blocked": [
-      "M02",
-      "M03",
-      "M04",
-      "M05",
-      "M06",
-      "M07",
-      "M08",
-      "V01",
-      "V02",
-      "R01"
-    ],
-    "M00_ancestry_and_conflict_origins": true,
-    "other_node_states_and_all_authorizations_unchanged": true,
-    "locks_unchanged": true,
-    "owned_tracked_paths_only": true,
-    "visible_untracked": {
-      "before": 7735,
-      "missing": [],
-      "added_M01_only": [],
-      "original_path_set_sha256": "401cca01522a6f560201354ed80ab3c5144956063f450805e17aac79c44a94a7",
-      "ignored_venv_exception": "api/.venv was recreated by uv; see explicit side-effect evidence."
-    }
+    "scope": "Only M01 source-chain blockers removed; all other nodes and authorizations unchanged."
   },
   "validation_summary": {
     "source_audits": "passed",
     "targeted_config": "passed (stubbed imports; not runtime)",
     "targeted_lint": "passed with 7 existing icon warnings",
     "targeted_format": "passed for 4 applicable files",
-    "pnpm_initial_lock": "blocked; exit1",
-    "uv_initial_lock": "blocked; exit1 after unsupported --check exit2",
-    "noncode_eslint": "blocked; exit2 missing installed dependency",
+    "pnpm_initial_lock": "passed; generated by pnpm12.3.4, repository frozen/offline/lockfile-only exit0",
+    "uv_initial_lock": "passed; uv0.5.7 --locked --offline --no-sync Python3.12.9 exit0; lock SHA unchanged",
+    "noncode_eslint": "not rerun in this focused retry; prior missing installed dependency remains deferred to V02",
     "diff_check": 0,
     "openspec_strict": 0
   },
@@ -1311,18 +1276,449 @@
     "pnpm-workspace.yaml": "8fbda359d1f5387db8ecd5beabb8aa71edb1c0db61e1a578b67e4a80a8583e43",
     "web/package.json": "d4b810e9bd3c978540138b6a766f0f337909fc60a0bd9f846471e41f85fc0bc9",
     "web/next.config.ts": "eb9fc3cfde01e3773716386d82776cdec0d4c305ed3a0aebd70729833f8cfa64",
-    "oxlint-suppressions.json": "944d76f7b46be95f6a09848536d1312e22b7d42464d6af49f5fd8938b05afd52"
+    "oxlint-suppressions.json": "944d76f7b46be95f6a09848536d1312e22b7d42464d6af49f5fd8938b05afd52",
+    "pnpm-lock.yaml": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824"
   },
   "scoped_commit_authorization": "Delegation explicitly requests committing source/evidence/status even if toolchain blockers require M01 blocked; this is a partial source-preservation commit, not acceptance.",
+  "previous_attempt_summary": {
+    "recorded_at_utc": "2026-09-28T16:40:47.065Z",
+    "status": "blocked",
+    "validation_summary": {
+      "source_audits": "passed",
+      "targeted_config": "passed (stubbed imports; not runtime)",
+      "targeted_lint": "passed with 7 existing icon warnings",
+      "targeted_format": "passed for 4 applicable files",
+      "pnpm_initial_lock": "blocked; exit1",
+      "uv_initial_lock": "blocked; exit1 after unsupported --check exit2",
+      "noncode_eslint": "blocked; exit2 missing installed dependency",
+      "diff_check": 0,
+      "openspec_strict": 0
+    },
+    "step_results": [
+      {
+        "task": "7.1",
+        "status": "passed",
+        "scope": "Declaration alignment and fork preservation only; no claim that measured tools match target."
+      },
+      {
+        "task": "7.2",
+        "status": "blocked",
+        "scope": "Declarations/workspace/config/suppression review done; initial pnpm lock generation and uv lock verification not proven."
+      },
+      {
+        "task": "7.3",
+        "status": "passed",
+        "scope": "No fork contracts edited in generated files; final write ownership handed to M08 subject to DAG prerequisites."
+      },
+      {
+        "task": "7.4",
+        "status": "blocked",
+        "scope": "声明与定向检查已完成；目标 Node 24.20.0 / pnpm 12.3.4 未实际复现，隔离 pnpm 锁生成因目标版本无离线缓存失败，uv 锁校验因固定 flask-restx Git 源不可达失败；初始锁验证和非代码 ESLint 尚未通过。M02–M08、V01/V02、R01 同步依赖阻塞；环境与生产节点不变。"
+      }
+    ],
+    "commit_preflight": {
+      "expected_parent": "8e47d6c059e530d61a8955a1a28861a9815409a6",
+      "staged_path_count": 9,
+      "staged_paths_match_allowlist": true,
+      "cached_diff_check_exit_code": 0,
+      "diff_check_exit_code": 0,
+      "openspec_strict_exit_code": 0,
+      "evidence_log_eof_issue": "Initial cached check found an extra final blank line in the new execution.log; removed only that trailing blank line and reran successfully.",
+      "index_access": "Initial evidence restage hit sandbox index.lock restriction; exact two-path restage was approved and succeeded.",
+      "note": "The final refresh changes only the two evidence files, then both checks run once more before committing. Own SHA is recorded externally after commit."
+    },
+    "verification": {
+      "result": "passed",
+      "graph_node_count": 27,
+      "propagated_blocked": [
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M08",
+        "V01",
+        "V02",
+        "R01"
+      ],
+      "M00_ancestry_and_conflict_origins": true,
+      "other_node_states_and_all_authorizations_unchanged": true,
+      "locks_unchanged": true,
+      "owned_tracked_paths_only": true,
+      "visible_untracked": {
+        "before": 7735,
+        "missing": [],
+        "added_M01_only": [],
+        "original_path_set_sha256": "401cca01522a6f560201354ed80ab3c5144956063f450805e17aac79c44a94a7",
+        "ignored_venv_exception": "api/.venv was recreated by uv; see explicit side-effect evidence."
+      }
+    },
+    "downstream_status_propagation": {
+      "explicit_main_agent_instruction": true,
+      "from": "pending",
+      "to": "blocked",
+      "nodes": [
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07",
+        "M08",
+        "V01",
+        "V02",
+        "R01"
+      ],
+      "scope": "Only specified source-chain descendants; A03/environment/production statuses unchanged."
+    }
+  },
+  "historical_evidence_note": "Original js_audit/python_audit/commands/diagnostics/local_side_effect describe the first attempt at source commit 44b58af. retry_2026_09_29 and current status/summary supersede its tool/lock blockers; historical failed commands remain evidence.",
+  "retry_2026_09_29": {
+    "status": "passed",
+    "recorded_at_utc": "2026-09-28T17:13:45.750Z",
+    "pre_commit_head": "44b58afc15f7ca99a16834af6f861d4d073ba2bc",
+    "scope": "M01 toolchain and initial lock only; no M02+ implementation, full tests, builds, deployment or environment operations.",
+    "authorization": "Delegated M01 retry explicitly permits public official downloads in /private/tmp, pnpm12.3.4 with existing Node24.19.0 when supported, initial repo pnpm-lock update, locked Python cache access, state propagation and scoped commit.",
+    "preflight": {
+      "branch": "codex/merge-upstream-1.17.1",
+      "head": "44b58afc15f7ca99a16834af6f861d4d073ba2bc",
+      "target_tag_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+      "M00": "948fefb69ae87abefa7e91a13968213696b3e310",
+      "M00_parents": [
+        "b17761ed0166e8ef49474da418b95a9462adbb9c",
+        "8387590ace4a094de812b7847fc6a4c3a27cd52b"
+      ],
+      "M00_is_ancestor": true,
+      "index_initially_empty": true,
+      "tracked_worktree_initially_clean": true
+    },
+    "tools": {
+      "node_actual": "24.20.0",
+      "node_path": "/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin/node",
+      "node_target_declaration": "24.20.0 (unchanged)",
+      "node_scope": "Official exact target verified by SHASUMS256.txt; final repository frozen/offline/lockfile-only passed with this Node PATH.",
+      "pnpm_actual": "12.3.4",
+      "pnpm_implementation": "Official native darwin-arm64 executable; supports initial lock under provided Node24.19.0 PATH.",
+      "pnpm_scripts_executed": false,
+      "python_actual": "3.12.9",
+      "uv_actual": "0.5.7",
+      "node_initial_resolver": "24.19.0",
+      "node_download": {
+        "archive_url": "https://nodejs.org/dist/v24.20.0/node-v24.20.0-darwin-arm64.tar.gz",
+        "checksum_url": "https://nodejs.org/dist/v24.20.0/SHASUMS256.txt",
+        "archive_sha256": "40e5607e5ecb3db9192723776da2d75d966260fc74a7a9e731c1bd67dda96bc8",
+        "shasum_check_exit": 0,
+        "actual_version": "v24.20.0",
+        "ordinary_download_exit": 6,
+        "escalated_download_exit": 0,
+        "permission": "require_escalated"
+      }
+    },
+    "tarball_integrity": {
+      "method": "npm pack registry integrity verification, followed by SHA512 comparison against committed upstream environment lock before resolution.",
+      "pnpm": "sha512-lhqkH7B32joEpEHZ+OFevAyW2o73ELLrZ7+e58sGEOq9SPH9hfUc/+c4RnhfoPh8VqOocqHYk/hEZ0G1zORUVw==",
+      "native": "sha512-PAyUol8T1+/+ViOiXAt51ECA+QnfXCqz6foL4bW+LsoX0NcVd5XVEM2mRQu+LV4oc7uRz9zf9U0P+XFfuQeDAw==",
+      "both_match": true
+    },
+    "pnpm_initial_lock": {
+      "status": "passed",
+      "generated_in": "/private/tmp/dify-m01-unblock/lock-probe",
+      "copied_to_repository": true,
+      "repository_frozen_offline_lockfile_only_exit": 0,
+      "before_sha256": "8e67f5fe7aa349f0c6113b3f38ef98669f6d2f45bee3c221142b437012ab9568",
+      "after_sha256": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+      "repository_validation_before_after_sha256_equal": true,
+      "environment_lock_unchanged": true,
+      "only_importer_changed": "web",
+      "added_direct_dependencies": [
+        "@serwist/next",
+        "@serwist/turbopack",
+        "dingtalk-jsapi",
+        "esbuild-wasm",
+        "serwist"
+      ],
+      "closure_audit": {
+        "roots": [
+          "@serwist/next",
+          "@serwist/turbopack",
+          "serwist",
+          "dingtalk-jsapi",
+          "esbuild-wasm"
+        ],
+        "reachable_snapshots": 200,
+        "added_packages": 50,
+        "added_snapshots": 53,
+        "unreachable_additions": [],
+        "unresolved_roots": [],
+        "existing_package_records_changed": 0,
+        "existing_snapshot_records_changed": 0,
+        "removed_packages": 0,
+        "removed_snapshots": 0
+      },
+      "added_packages": [
+        "@isaacs/cliui@8.0.2",
+        "@pkgjs/parseargs@0.11.0",
+        "@serwist/build@9.5.7",
+        "@serwist/next@9.5.7",
+        "@serwist/turbopack@9.5.7",
+        "@serwist/utils@9.5.7",
+        "@serwist/webpack-plugin@9.5.7",
+        "@serwist/window@9.5.7",
+        "@swc/core-darwin-arm64@1.15.18",
+        "@swc/core-darwin-x64@1.15.18",
+        "@swc/core-linux-arm-gnueabihf@1.15.18",
+        "@swc/core-linux-arm64-gnu@1.15.18",
+        "@swc/core-linux-arm64-musl@1.15.18",
+        "@swc/core-linux-x64-gnu@1.15.18",
+        "@swc/core-linux-x64-musl@1.15.18",
+        "@swc/core-win32-arm64-msvc@1.15.18",
+        "@swc/core-win32-ia32-msvc@1.15.18",
+        "@swc/core-win32-x64-msvc@1.15.18",
+        "@swc/core@1.15.18",
+        "@swc/counter@0.1.3",
+        "@swc/types@0.1.28",
+        "balanced-match@1.0.2",
+        "brace-expansion@2.1.4",
+        "browserslist@4.28.1",
+        "common-tags@1.8.2",
+        "dingtalk-jsapi@3.2.8",
+        "emoji-regex@8.0.0",
+        "esbuild-wasm@0.27.2",
+        "foreground-child@3.3.1",
+        "glob@10.5.0",
+        "idb@8.0.3",
+        "is-fullwidth-code-point@3.0.0",
+        "jackspeak@3.4.3",
+        "lru-cache@10.4.3",
+        "minimatch@9.0.9",
+        "package-json-from-dist@1.0.1",
+        "path-scurry@1.11.1",
+        "pretty-bytes@6.1.1",
+        "promise-polyfill@7.1.2",
+        "semver@7.7.4",
+        "serwist@9.5.7",
+        "source-map@0.8.0-beta.0",
+        "string-width@4.2.3",
+        "strip-ansi@6.0.1",
+        "tr46@1.0.1",
+        "webidl-conversions@4.0.2",
+        "whatwg-url@7.1.0",
+        "wrap-ansi@7.0.0",
+        "wrap-ansi@8.1.0",
+        "zod@4.3.6"
+      ],
+      "added_snapshots": [
+        "@isaacs/cliui@8.0.2",
+        "@pkgjs/parseargs@0.11.0",
+        "@serwist/build@9.5.7(@typescript/typescript6@6.0.2)(browserslist@4.28.1)",
+        "@serwist/next@9.5.7(@typescript/typescript6@6.0.2)(next@16.3.4(@babel/core@7.29.7(supports-color@11.0.0))(@playwright/test@1.62.1)(@types/node@25.9.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)",
+        "@serwist/turbopack@9.5.7(@swc/helpers@0.5.23)(@typescript/typescript6@6.0.2)(esbuild-wasm@0.27.2)(esbuild@0.28.2)(next@16.3.4(@babel/core@7.29.7(supports-color@11.0.0))(@playwright/test@1.62.1)(@types/node@25.9.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)",
+        "@serwist/utils@9.5.7(browserslist@4.28.1)",
+        "@serwist/utils@9.5.7(browserslist@4.28.8)",
+        "@serwist/webpack-plugin@9.5.7(@typescript/typescript6@6.0.2)(browserslist@4.28.1)",
+        "@serwist/window@9.5.7(@typescript/typescript6@6.0.2)(browserslist@4.28.1)",
+        "@swc/core-darwin-arm64@1.15.18",
+        "@swc/core-darwin-x64@1.15.18",
+        "@swc/core-linux-arm-gnueabihf@1.15.18",
+        "@swc/core-linux-arm64-gnu@1.15.18",
+        "@swc/core-linux-arm64-musl@1.15.18",
+        "@swc/core-linux-x64-gnu@1.15.18",
+        "@swc/core-linux-x64-musl@1.15.18",
+        "@swc/core-win32-arm64-msvc@1.15.18",
+        "@swc/core-win32-ia32-msvc@1.15.18",
+        "@swc/core-win32-x64-msvc@1.15.18",
+        "@swc/core@1.15.18(@swc/helpers@0.5.23)",
+        "@swc/counter@0.1.3",
+        "@swc/types@0.1.28",
+        "balanced-match@1.0.2",
+        "brace-expansion@2.1.4",
+        "browserslist@4.28.1",
+        "common-tags@1.8.2",
+        "dingtalk-jsapi@3.2.8",
+        "emoji-regex@8.0.0",
+        "esbuild-wasm@0.27.2",
+        "foreground-child@3.3.1",
+        "glob@10.5.0",
+        "idb@8.0.3",
+        "is-fullwidth-code-point@3.0.0",
+        "jackspeak@3.4.3",
+        "lru-cache@10.4.3",
+        "minimatch@9.0.9",
+        "package-json-from-dist@1.0.1",
+        "path-scurry@1.11.1",
+        "pretty-bytes@6.1.1",
+        "promise-polyfill@7.1.2",
+        "semver@7.7.4",
+        "serwist@9.5.7(@typescript/typescript6@6.0.2)(browserslist@4.28.1)",
+        "serwist@9.5.7(@typescript/typescript6@6.0.2)(browserslist@4.28.8)",
+        "source-map@0.8.0-beta.0",
+        "string-width@4.2.3",
+        "strip-ansi@6.0.1",
+        "tr46@1.0.1",
+        "update-browserslist-db@1.3.2(browserslist@4.28.1)",
+        "webidl-conversions@4.0.2",
+        "whatwg-url@7.1.0",
+        "wrap-ansi@7.0.0",
+        "wrap-ansi@8.1.0",
+        "zod@4.3.6"
+      ],
+      "explanation": "All 50 new package records and 53 snapshots are reachable from the five restored fork dependencies. Includes Serwist build/webpack/window utilities, SWC optional platform packages, DingTalk URL/polyfill dependencies and resolved peer contexts. Existing package/snapshot entries are byte-equivalent as parsed data; none removed or upgraded. Existing browserslist4.28.8 remains;4.28.1 is an additional Serwist dependency context. Environment document and all other importers unchanged.",
+      "peer_issues": {
+        "baseline_and_retry_exit": 1,
+        "outputs_identical": true,
+        "new_issues": 0,
+        "existing": [
+          "storybook -> vite-plus",
+          "tsconfck -> typescript",
+          "@monaco-editor/react -> monaco-editor",
+          "react-server-dom-webpack -> webpack",
+          "@lexical/yjs -> yjs"
+        ]
+      },
+      "final_node_version": "24.20.0"
+    },
+    "python_initial_lock": {
+      "status": "passed",
+      "before_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+      "after_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m01-python uv run --project api --locked --offline --no-sync python --version",
+      "exit_code": 0,
+      "original_cache_access_approved": true,
+      "network_used": false,
+      "dependency_sync": false,
+      "requires_python": "~=3.12.0",
+      "lock_requires_python": "==3.12.*",
+      "fork_pins": {
+        "alibabacloud-dingtalk": "2.2.51",
+        "pypinyin": "0.53.0"
+      },
+      "flask_restx_commit": "27758e26f8f740d7525d5039c51a9e524b6e2b68"
+    },
+    "source_revalidation": {
+      "prior_source_hashes_match": true,
+      "version_manifests_unchanged": true
+    },
+    "commands": [
+      {
+        "command": "npm --cache /private/tmp/dify-m01-unblock/npm-cache --registry https://registry.npmjs.org --fetch-retries=0 --fetch-timeout=20000 pack pnpm@12.3.4 --ignore-scripts --pack-destination /private/tmp/dify-m01-unblock/tools",
+        "cwd": "/private/tmp/dify-m01-unblock/",
+        "exit_code": 1,
+        "log": "pnpm-download.log",
+        "permission": "sandbox",
+        "result": "ENOTFOUND"
+      },
+      {
+        "command": "npm --cache /private/tmp/dify-m01-unblock/npm-cache --registry https://registry.npmjs.org --fetch-retries=0 --fetch-timeout=20000 pack pnpm@12.3.4 --ignore-scripts --pack-destination /private/tmp/dify-m01-unblock/tools",
+        "cwd": "/private/tmp/dify-m01-unblock/",
+        "exit_code": 0,
+        "log": "pnpm-download-escalated.log",
+        "permission": "require_escalated"
+      },
+      {
+        "command": "npm --cache /private/tmp/dify-m01-unblock/npm-cache --registry https://registry.npmjs.org --fetch-retries=0 --fetch-timeout=20000 pack @pnpm/exe.darwin-arm64@12.3.4 --ignore-scripts --pack-destination /private/tmp/dify-m01-unblock/tools",
+        "cwd": "/private/tmp/dify-m01-unblock/",
+        "exit_code": 0,
+        "log": "pnpm-native-download.log",
+        "permission": "require_escalated"
+      },
+      {
+        "command": "PATH=/opt/homebrew/opt/node@24/bin:$PATH XDG_CACHE_HOME=/private/tmp/dify-m01-unblock/cache XDG_DATA_HOME=/private/tmp/dify-m01-unblock/data /private/tmp/dify-m01-unblock/tools/native/package/pnpm install --lockfile-only --ignore-scripts --offline --store-dir /private/tmp/dify-m01-unblock/store",
+        "cwd": "/private/tmp/dify-m01-unblock/lock-probe",
+        "exit_code": 1,
+        "log": "pnpm-lock-offline.log"
+      },
+      {
+        "command": "PATH=/opt/homebrew/opt/node@24/bin:$PATH XDG_CACHE_HOME=/private/tmp/dify-m01-unblock/cache XDG_DATA_HOME=/private/tmp/dify-m01-unblock/data /private/tmp/dify-m01-unblock/tools/native/package/pnpm install --lockfile-only --ignore-scripts --store-dir /private/tmp/dify-m01-unblock/store --registry https://registry.npmjs.org",
+        "cwd": "/private/tmp/dify-m01-unblock/lock-probe",
+        "exit_code": 0,
+        "log": "pnpm-lock-online.log",
+        "permission": "require_escalated"
+      },
+      {
+        "command": "PATH=/opt/homebrew/opt/node@24/bin:$PATH XDG_CACHE_HOME=/private/tmp/dify-m01-unblock/cache XDG_DATA_HOME=/private/tmp/dify-m01-unblock/data /private/tmp/dify-m01-unblock/tools/native/package/pnpm peers check",
+        "cwd": "/private/tmp/dify-m01-unblock/lock-probe",
+        "exit_code": 1,
+        "log": "pnpm-peers.log",
+        "result": "Five existing issues; byte-identical to original-lock baseline output."
+      },
+      {
+        "command": "PATH=/opt/homebrew/opt/node@24/bin:$PATH XDG_CACHE_HOME=/private/tmp/dify-m01-unblock/cache XDG_DATA_HOME=/private/tmp/dify-m01-unblock/data /private/tmp/dify-m01-unblock/tools/native/package/pnpm --dir /private/tmp/dify-m01-unblock/baseline-probe peers check",
+        "cwd": "/Users/liuxingwang/go/src/dify-plus",
+        "exit_code": 1,
+        "log": "pnpm-peers-baseline.log"
+      },
+      {
+        "command": "PATH=/opt/homebrew/opt/node@24/bin:$PATH XDG_CACHE_HOME=/private/tmp/dify-m01-unblock/cache XDG_DATA_HOME=/private/tmp/dify-m01-unblock/data /private/tmp/dify-m01-unblock/tools/native/package/pnpm install --lockfile-only --frozen-lockfile --ignore-scripts --offline --store-dir /private/tmp/dify-m01-unblock/store",
+        "cwd": "/private/tmp/dify-m01-unblock/lock-probe",
+        "exit_code": 0,
+        "log": "pnpm-frozen-temp.log"
+      },
+      {
+        "command": "PATH=/opt/homebrew/opt/node@24/bin:$PATH XDG_CACHE_HOME=/private/tmp/dify-m01-unblock/cache XDG_DATA_HOME=/private/tmp/dify-m01-unblock/data /private/tmp/dify-m01-unblock/tools/native/package/pnpm install --lockfile-only --frozen-lockfile --ignore-scripts --offline --store-dir /private/tmp/dify-m01-unblock/store",
+        "cwd": "/Users/liuxingwang/go/src/dify-plus",
+        "exit_code": 0,
+        "log": "pnpm-frozen-repo.log"
+      },
+      {
+        "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m01-python uv run --project api --locked --offline --no-sync python --version",
+        "cwd": "/Users/liuxingwang/go/src/dify-plus",
+        "exit_code": 2,
+        "log": "uv-default.log",
+        "permission": "sandbox"
+      },
+      {
+        "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m01-python uv run --project api --locked --offline --no-sync python --version",
+        "cwd": "/Users/liuxingwang/go/src/dify-plus",
+        "exit_code": 0,
+        "log": "uv-escalated-offline.log",
+        "permission": "require_escalated",
+        "result": "Python 3.12.9; uv 0.5.7; original local cache; no dependency sync, no network."
+      },
+      {
+        "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH XDG_CACHE_HOME=/private/tmp/dify-m01-unblock/cache XDG_DATA_HOME=/private/tmp/dify-m01-unblock/data /private/tmp/dify-m01-unblock/tools/native/package/pnpm install --lockfile-only --frozen-lockfile --ignore-scripts --offline --store-dir /private/tmp/dify-m01-unblock/store",
+        "cwd": "/Users/liuxingwang/go/src/dify-plus",
+        "exit_code": 0,
+        "log": "pnpm-frozen-node24.20.log",
+        "node_version": "24.20.0",
+        "pnpm_version": "12.3.4",
+        "lock_hashes_unchanged": true
+      }
+    ],
+    "limits": [
+      "Lockfile-only validation does not install or build the application.",
+      "Final frozen dependency install, non-code ESLint and full quality gates remain for M08/V02. No claim that prior non-code ESLint failure passed.",
+      "Python locked/no-sync check validates the existing lock; no package-import or runtime acceptance.",
+      "M08 retains final lock/generated write ownership after prerequisites pass."
+    ]
+  },
+  "verification": {
+    "result": "passed",
+    "graph_node_count": 27,
+    "ready": [
+      "M02",
+      "M07"
+    ],
+    "pending": [
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M08",
+      "V01",
+      "V02",
+      "R01"
+    ],
+    "other_node_states_and_all_authorizations_unchanged": true,
+    "M00_ancestry_verified": true,
+    "pnpm_lock": "578 added lines; zero removals; generated only",
+    "python_lock_unchanged": true,
+    "owned_tracked_paths_only": true,
+    "untracked_path_set_unchanged": true
+  },
   "commit_preflight": {
-    "expected_parent": "8e47d6c059e530d61a8955a1a28861a9815409a6",
-    "staged_path_count": 9,
-    "staged_paths_match_allowlist": true,
-    "cached_diff_check_exit_code": 0,
-    "diff_check_exit_code": 0,
-    "openspec_strict_exit_code": 0,
-    "evidence_log_eof_issue": "Initial cached check found an extra final blank line in the new execution.log; removed only that trailing blank line and reran successfully.",
-    "index_access": "Initial evidence restage hit sandbox index.lock restriction; exact two-path restage was approved and succeeded.",
-    "note": "The final refresh changes only the two evidence files, then both checks run once more before committing. Own SHA is recorded externally after commit."
+    "expected_parent": "44b58afc15f7ca99a16834af6f861d4d073ba2bc",
+    "allowlist_count": 6,
+    "note": "Exact paths staged and cached diff checked after this evidence update; own commit SHA verified externally after commit."
   }
 }
