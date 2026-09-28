@@ -140,3 +140,18 @@ api/tests/unit_tests/controllers/service_api/test_billing_extend.py	M04	V01	non-
 api/tests/unit_tests/core/app/test_billing_hooks_extend.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
 api/tests/unit_tests/controllers/service_api/test_wraps.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
 api/tests/unit_tests/core/memory/test_token_buffer_memory.py	M04	V01	non-conflict-test	registered	Account for preserved fork context query in upstream batch-file query-count regression
+api/docker/entrypoint.sh	M07	M08	non-conflict-write	registered	M07 single migration executor and main plus extension chain entrypoint; registered before implementation
+docker/docker-compose.dify-plus.yaml	M07	M08	non-conflict-write	registered	M07 fork deployment topology and upstream 1.17.1 contract alignment; registered before implementation
+docker/envs/core-services/api.env.example	M07	M08	non-conflict-write	registered	M07 API migration and Agent token environment example alignment; registered before implementation
+docker/envs/core-services/dify-agent.env.example	M07	M08	non-conflict-write	registered	M07 Agent runtime and retention environment example alignment; registered before implementation
+docker/envs/core-services/local-sandbox.env.example	M07	M08	non-conflict-write	registered	M07 local sandbox environment example alignment; registered before implementation
+docker/envs/core-services/plugin-daemon.env.example	M07	M08	non-conflict-write	registered	M07 plugin daemon version and queue environment example alignment; registered before implementation
+docker/envs/core-services/sandbox.env.example	M07	M08	non-conflict-write	registered	M07 sandbox environment example alignment; registered before implementation
+docker/envs/core-services/shared.env.example	M07	M08	non-conflict-write	registered	M07 shared migration and deployment environment example alignment; registered before implementation
+docker/envs/core-services/worker-beat.env.example	M07	M08	non-conflict-write	registered	M07 worker beat migration environment example alignment; registered before implementation
+docker/envs/core-services/worker.env.example	M07	M08	non-conflict-write	registered	M07 worker migration environment example alignment; registered before implementation
+docker/ssrf_proxy/squid-agent.conf.template	M07	M08	non-conflict-write	registered	M07 dedicated Agent SSRF policy template alignment; registered before implementation
+docker/ssrf_proxy/squid-common.conf.template	M07	M08	non-conflict-write	registered	M07 shared SSRF policy template alignment; registered before implementation
+docker/ssrf_proxy/squid.conf.template	M07	M08	non-conflict-write	registered	M07 existing shared SSRF template alignment; registered before implementation
+.github/workflows/build-push.yml	M07	M08	non-conflict-write	registered	M07 distinguish CI validation from private image publication; registered before implementation
+.github/workflows/docker-build.yml	M07	M08	non-conflict-write	registered	M07 upstream Docker build validation alignment; registered before implementation

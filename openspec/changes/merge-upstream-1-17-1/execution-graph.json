@@ -978,7 +978,7 @@
       "owner_role": "部署负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -1012,7 +1012,10 @@
       ],
       "evidence": [
         "evidence/M07/result.json",
-        "evidence/M07/execution.log"
+        "evidence/M07/execution.log",
+        "evidence/M07/pre-analysis.md",
+        "evidence/M07/pre-analysis.json",
+        "evidence/M07/path-registration.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -1023,6 +1026,41 @@
       "outputs": [
         "evidence/M07/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "blocked_reason": "M07 只读执行前分析已完成；代码实施受必需 karpathy-guidelines SKILL.md 缺失阻塞，等待用户提供路径或确认依据目录摘要继续。不得把分析记作 13.1–13.6 完成。",
+      "implementation_progress": {
+        "pre_analysis": {
+          "status": "complete",
+          "model": "gpt-6-sol",
+          "agent": "/root/m07_deploy_analysis",
+          "base_head": "ef55de14766ce2aba660c379f7b9b507cfc5561e",
+          "evidence": "evidence/M07/pre-analysis.md",
+          "working_tree_modified": false
+        },
+        "next_subtask": "13.1",
+        "current_subtask": {
+          "id": "13.1",
+          "status": "blocked",
+          "reason": "Required karpathy-guidelines SKILL.md is missing from its listed path and searched skill roots; user guidance is pending.",
+          "evidence": "evidence/M07/pre-analysis.json"
+        }
+      },
+      "registered_additional_paths": [
+        "api/docker/entrypoint.sh",
+        "docker/docker-compose.dify-plus.yaml",
+        "docker/envs/core-services/api.env.example",
+        "docker/envs/core-services/dify-agent.env.example",
+        "docker/envs/core-services/local-sandbox.env.example",
+        "docker/envs/core-services/plugin-daemon.env.example",
+        "docker/envs/core-services/sandbox.env.example",
+        "docker/envs/core-services/shared.env.example",
+        "docker/envs/core-services/worker-beat.env.example",
+        "docker/envs/core-services/worker.env.example",
+        "docker/ssrf_proxy/squid-agent.conf.template",
+        "docker/ssrf_proxy/squid-common.conf.template",
+        "docker/ssrf_proxy/squid.conf.template",
+        ".github/workflows/build-push.yml",
+        ".github/workflows/docker-build.yml"
       ]
     },
     {

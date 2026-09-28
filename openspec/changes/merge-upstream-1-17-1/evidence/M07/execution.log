@@ -1,0 +1,19 @@
+M07 read-only pre-analysis registration
+Branch: codex/merge-upstream-1.17.1
+Source commit: ef55de14766ce2aba660c379f7b9b507cfc5561e
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Analysis model: gpt-6-sol
+Analysis agent: /root/m07_deploy_analysis
+
+Commands run by coordinator:
+- openspec status --change merge-upstream-1-17-1 --json: exit 0
+- openspec instructions apply --change merge-upstream-1-17-1 --json: exit 0
+- git rev-parse HEAD: ef55de14766ce2aba660c379f7b9b507cfc5561e
+- git rev-parse refs/tags/1.17.1^{commit}: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+- docker and docker-compose executable presence: found; no Compose validation run before implementation
+
+Result: read-only analysis and exact path registration complete. No deployment code changed, no containers started, no live environment accessed, and no M07 implementation tasks marked complete. M07 code work is blocked pending resolution of the unavailable required karpathy-guidelines SKILL.md.
+- jq JSON parsing of execution graph and M07 evidence: exit 0
+- exact registered path existence check: exit 0
+- conflict-ownership.tsv six-column check: exit 0; M07 additional registered paths: 15
+- openspec validate merge-upstream-1-17-1 --strict: exit 0 (valid)

@@ -1,0 +1,40 @@
+{
+  "node": "M07",
+  "subtask": "read_only_pre_analysis",
+  "status": "complete",
+  "model": "gpt-6-sol",
+  "agent": "/root/m07_deploy_analysis",
+  "branch": "codex/merge-upstream-1.17.1",
+  "source_commit": "ef55de14766ce2aba660c379f7b9b507cfc5561e",
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "dependency": {
+    "node": "M01",
+    "status": "passed"
+  },
+  "working_tree_modified_by_analysis": false,
+  "containers_started": false,
+  "real_environment_accessed": false,
+  "implementation_tasks_complete": [],
+  "implementation_status": "blocked",
+  "blocked_reason": "The required karpathy-guidelines SKILL.md is unavailable at its catalog path and searched skill roots. Awaiting user-provided path or confirmation to proceed using the catalog summary and repository AGENTS.md.",
+  "evidence": [
+    "research/deployment-analysis.md",
+    "docker/docker-compose.dify-plus.yaml",
+    "api/docker/entrypoint.sh",
+    "docker/.env.example",
+    "docker/envs/core-services/web.env.example",
+    "docker/nginx/conf.d/default.conf.template",
+    ".github/workflows/build-push.yml",
+    ".github/workflows/docker-build.yml",
+    "evidence/M01/result.json"
+  ],
+  "findings": [
+    "Keep the fork Compose topology, private API/Web image sources, worker-gaia, worker-dataset, sandbox-full, feature switches, nginx routes, and persistent mounts.",
+    "Use one migration executor for the main and extension Alembic chains; disable automatic migration for business containers.",
+    "Align Agent API tokens, isolated networks, dedicated SSRF rules, local sandbox volumes, plugin configuration, and env examples without exposing real credentials.",
+    "Preserve the fork Agent retention policy and keep Agent v2 disabled in examples until separately validated.",
+    "The CI workflows build with push disabled; they do not prove private image availability or target-host pullability.",
+    "A03 and V04 remain responsible for actual environment and vector database facts; M07 is source configuration only."
+  ],
+  "next_subtask": "13.1"
+}
