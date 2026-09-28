@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.3 已通过、11.4 进行中；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略需复核而重开，13.6 验收暂缓；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.4 已通过、11.5 待验收；11.4 畸形 summary 在 queryFn 校验并不入 TanStack 原始缓存，12 项聚焦、25 项受影响测试和两路径 check 通过，独立 Luna 无阻断项；M07 13.1–13.3、13.5 已通过；13.4 根 env 样例审计确认 244 项中仅 `COMPOSE_PROFILES` 与 `DIFY_AGENT_SERVER_SECRET_KEY` 属严格启动范围，最小修正与 13.6 验收待做；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -325,7 +325,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M05 · Console transport 与前端契约
 
-- 状态：11.1–11.3 passed，11.4 进行中、11.5 待执行；完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3 新增路径已登记。M06 仍需迁移额度徽章以读取 login_config 汇率；Sol 的 11.4 矩阵发现 workspace summary 目前在 query select 校验，原始畸形响应仍可能进底层 cache；已登记 query-owner 路径并正在移至 queryFn 校验。真实浏览器 Cookie/CORS 与账号切换由 V02 验收。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
+- 状态：11.1–11.4 passed，11.5 待执行；完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。11.4 将 schema 解析置于 queryFn，保证畸形 HTTP 200 不进入 TanStack 原始缓存，并保留 select 校验 hydration/同 key 预填数据；12 项聚焦、25 项受影响测试和两路径 check 通过，独立 Luna 无阻断项。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3/11.4 新增路径已登记。M06 仍需迁移额度徽章以读取 login_config 汇率。真实浏览器 Cookie/CORS 与账号切换由 V02 验收。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
 - 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
@@ -371,7 +371,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M07 · 综合部署和 CI 对齐
 
-- 状态：13.1–13.3、13.5 passed；13.4 因策略复核重开，13.6 暂缓。Compose/迁移/Agent/plugin/SSRF/Web 契约已移植，保留私有镜像、独立 worker、Agent 关闭默认与 259200 秒 retention；10 份样例的 900 行变量审计及 52 项断言、5 组隔离渲染仍是有效证据。Luna 发现根 `.env.example` 的大量可选变量与仓库 AGENTS.md“仅保留默认 Compose 启动必需变量”要求可能冲突；虽同样的注释与变量表来自上游 1.17.1，仍需 Sol 按实际 Compose/服务启动要求逐项分析后收敛。13.5 已分开记录 GitHub build validate 与 GitLab 私有镜像供货；GitLab manifest 风险是静态推断。真实凭据、镜像 digest/pull、容器、数据库、代理与 Agent 未验收；单执行者仍依赖发布操作约束，没有跨 Compose project 的分布式锁。证据见 `evidence/M07/result.json`、`evidence/M07/env-variable-audit.tsv` 和 `evidence/M07/ci-analysis.md`。
+- 状态：13.1–13.3、13.5 passed；13.4 已完成逐变量 startup-scope 分析，修正与独立验收待做，13.6 暂缓。Compose/迁移/Agent/plugin/SSRF/Web 契约已移植，保留私有镜像、独立 worker、Agent 关闭默认与 259200 秒 retention；10 份样例的 900 行变量审计及原 52 项断言、5 组隔离渲染仍是此前状态的证据。Sol 确认根 `.env.example` 有 244 项，严格启动样例仅保留 `COMPOSE_PROFILES`、`DIFY_AGENT_SERVER_SECRET_KEY`；删其余项前须调整 4 个 fork Compose fallback 以保持 `CELERY_WORKER_AMOUNT=4`、`POSTGRES_MAX_CONNECTIONS=200`、匿名访问 `true`、WebSocket 上游 `api_websocket:5001`。另需去掉 `SECRET_KEY` 的硬编码开发 fallback，恢复存储持久化生成行为。237 项可选变量已有服务样例，另 5 项尚缺文档落点。13.5 已分开记录 GitHub build validate 与 GitLab 私有镜像供货；GitLab manifest 风险是静态推断。真实凭据、镜像 digest/pull、容器、数据库、代理与 Agent 未验收；单执行者仍依赖发布操作约束，没有跨 Compose project 的分布式锁。证据见 `evidence/M07/result.json`、`evidence/M07/env-variable-audit.tsv` 和 `evidence/M07/ci-analysis.md`。
 
 - 前置：M01；负责人：部署负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`部署负责人`。

@@ -65,3 +65,10 @@ Branch: codex/merge-upstream-1.17.1; source baseline: 8ef95f6a929ac6f6e811386619
 Generated schema validation now preserves workspace admin_extend/tenant_extend through the normalizer and permission atoms; initial state grants neither bit. Stale Console client imports in the code-execution-control page, page test mock, and mutation hook now use the current Console client.
 Checks: permission-chain 11/11; permission plus Console bootstrap 24/24; scoped vp check 9 files exit 0; diff-check and stale import scan exit 0. Page suite failed during collection with unresolved existing `cn` import (0 cases); no dependency/test workaround. No live browser/account-switch test.
 M05 11.3 source and evidence commit: c0ac97edd4.
+
+M05 11.4 implementation and independent review: 2026-09-29
+Source baseline: 47143d8f51b5b61bb898703816437a487d679050; implementation commit: fceb461237f2f175160c8bf56da242f1c4a412c6; upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b.
+Sol completed the C01-C04/C08/systemManage request, response, authorization, cache, and error matrix. The 11.4 registered workspace-state query owner validates the generated workspace summary in queryFn before the HTTP payload reaches TanStack's raw cache; select remains to validate hydration and other same-key cache writers.
+Regression reproduction before the fix: exit 1 as expected, 9 passed and 2 failed because malformed permission summaries still left the raw query successful. After the fix: focused spec 12 passed; focused spec plus Console bootstrap 25 passed across 2 files; Node 24.20.0 scoped check on both files passed formatting, lint, and type checks; git diff --check passed.
+Independent Luna review: no blocking findings. Existing retry policy, 409 propagation, role fallback and query key are unchanged. Real Cookie/CORS and identity switch remain V02; login_config consumer remains M06.
+Task 11.4 is passed. M05 remains in progress and non-deployable; next subtask 11.5.

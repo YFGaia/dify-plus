@@ -252,7 +252,7 @@
       "commit": "c0ac97edd4"
     },
     "11.4": {
-      "status": "in_progress",
+      "status": "passed",
       "analysis": {
         "model": "gpt-6-sol",
         "agent": "/root/m05_11_4_contract_matrix",
@@ -298,7 +298,7 @@
           },
           {
             "contract": "C08 current workspace summary",
-            "finding": "Backend/generated DTO require admin_extend and tenant_extend booleans; archived workspace returns 409; role flags remain independent and account/workspace isolation uses current logout-clear and full-page-switch boundaries. However generated Zod validation is currently in query select, so malformed raw HTTP 200 can enter TanStack's underlying cache.",
+            "finding": "Backend/generated DTO require admin_extend and tenant_extend booleans; archived workspace returns 409; role flags remain independent and account/workspace isolation uses current logout-clear and full-page-switch boundaries. The original select-only validation allowed malformed raw HTTP 200 to enter TanStack's underlying cache; the implementation now validates in queryFn before cache write and retains select to guard hydration or other same-key cache writers. Focused tests confirm the raw query state is error and the malformed response is absent from cache.",
             "evidence": [
               "api/services/workspace_service.py",
               "api/controllers/console/workspace/workspace.py",
@@ -316,7 +316,7 @@
             ]
           }
         ],
-        "required_follow_up": "Move generated summary schema parsing into the queryFn before TanStack writes the response to cache; preserve role fallback after parsing and add a focused assertion that malformed HTTP 200 is absent from query cache and leaves fork permission atoms false.",
+        "required_follow_up": "Completed: generated summary schema parsing now runs in queryFn before TanStack caches the raw HTTP response; select remains as protection for hydration and other same-key cache writers. Missing permission fields produce query error with no cached response and all permission atoms false.",
         "handoffs": [
           "M06 must connect loginConfigQueryOptions to account-money-extend.tsx to consume configured RMB_TO_USD_RATE.",
           "V02 must exercise Cookie/CORS, 401/403/409, and account/workspace switching in a real browser."
@@ -328,12 +328,60 @@
         "verify_node": "V02",
         "registered_before_implementation": true
       },
-      "implementation": null,
-      "checks": [],
-      "independent_review": null,
+      "implementation": {
+        "model": "gpt-6-astra",
+        "agent": "/root/m05_11_4_precache_impl",
+        "source_commit_before_subtask": "47143d8f51b5b61bb898703816437a487d679050",
+        "commit": "fceb461237f2f175160c8bf56da242f1c4a412c6",
+        "changed_paths": [
+          "web/context/workspace-state.ts",
+          "web/context/__tests__/workspace-summary-extend.spec.ts"
+        ],
+        "summary": [
+          "Wrapped the generated workspace summary queryFn so generated schema validation and role fallback finish before TanStack writes HTTP data to its raw query cache.",
+          "Kept select validation to protect hydration and other same-key cache writers; existing query key, retry behavior, and 409 propagation are unchanged.",
+          "Added regressions for each missing permission field, raw query cache absence, false permission atoms, and malformed preseeded same-key data."
+        ]
+      },
+      "checks": [
+        {
+          "command": "Pre-fix regression reproduction for context/__tests__/workspace-summary-extend.spec.ts using Node 24.20.0",
+          "exit_code": 1,
+          "expected": true,
+          "assertions": "Reproduced prior defect: 9 passed, 2 failed because malformed HTTP 200 remained a successful cached query."
+        },
+        {
+          "command": "Focused workspace-summary unit spec using Node 24.20.0",
+          "exit_code": 0,
+          "assertions": "12 passed."
+        },
+        {
+          "command": "Focused workspace-summary plus Console bootstrap unit specs using Node 24.20.0",
+          "exit_code": 0,
+          "assertions": "25 passed across 2 files."
+        },
+        {
+          "command": "vp check on web/context/workspace-state.ts and web/context/__tests__/workspace-summary-extend.spec.ts",
+          "exit_code": 0,
+          "assertions": "Both files formatted; lint and type checks clean."
+        },
+        {
+          "command": "git diff --check on the two M05 11.4 paths",
+          "exit_code": 0
+        }
+      ],
+      "independent_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m05_11_4_luna_review",
+        "status": "passed_no_blocking_findings",
+        "findings": "Confirmed validation occurs before the raw query cache write and retained select protects malformed hydrated/preseeded data. Query key and inherited retry behavior remain intact. Tests cover each missing bit, raw cache absence, false permissions, and 409 preservation.",
+        "limitations": [
+          "Validation exceptions use the existing retry policy; retry semantics were intentionally left unchanged."
+        ]
+      },
       "limitations": [
-        "loginConfigQueryOptions has no production consumer yet; this is an M06 handoff, not a 11.4 blocker.",
-        "Real browser auth/cache identity coverage remains a V02 responsibility."
+        "Real browser Cookie/CORS validation and account/workspace identity switching remain in V02.",
+        "loginConfigQueryOptions still has no production consumer; account-money exchange-rate wiring belongs to M06."
       ]
     },
     "11.5": {
@@ -345,7 +393,7 @@
     "A04 C03 is_custom_auth2_button is absent from the M02 response schema and is not fabricated.",
     "The expanded Console SSR/hydration suite still encounters existing missing cn dependency errors.",
     "The current account-money UI caller needs M06 migration to consume login_config and configured RMB_TO_USD_RATE.",
-    "M05 remains partial and non-deployable until 11.3-11.5 and later integration gates pass.",
+    "M05 remains partial and non-deployable until 11.5 and later integration gates pass.",
     "M05 11.3 code-execution-control page suite collection is blocked by the existing unresolved cn dependency; its behavior has scoped type/lint checks, but the page suite has 0 executed cases.",
     "Workspace permission refresh was validated through generated query/normalizer/atom tests and existing full-page/logout cache boundaries, not a live browser identity switch."
   ],
@@ -355,7 +403,8 @@
   "tasks_complete": [
     "11.1",
     "11.2",
-    "11.3"
+    "11.3",
+    "11.4"
   ],
-  "next_subtask": "11.4"
+  "next_subtask": "11.5"
 }

@@ -677,7 +677,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "in_progress",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -786,47 +786,18 @@
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
       "implementation_progress": {
-        "pre_analysis": {
-          "status": "complete",
-          "model": "gpt-6-sol",
-          "base_head": "3620896b7afe8122f5e4873450031cc942c8c175",
-          "evidence": "evidence/M05/pre-analysis.md"
-        },
-        "design_decisions": [
-          "Generated Console contracts are the sole runtime/type owner of login_config_bootstrap and login_config; fork-only router retains the handwritten codeExecutionControl contract under systemManage.",
-          "Public system-features snapshot and fork login_config use separate DTOs and cache identity boundaries.",
-          "Validate public response shape before cache or hydration; preserve SSR optional soft-failure and hard-failure semantics.",
-          "Regenerate workspace summary contract for admin_extend and tenant_extend; do not hand-edit generated files.",
-          "A04 C03 is_custom_auth2_button is absent from M02 schema; record as contract gap and do not fabricate the field.",
-          "Exclude the exact generated code-execution-control GET/POST/DELETE operations; retain the precise handwritten systemManage DTO/runtime as their sole owner, and verify POST status 201."
-        ],
         "tasks_complete": [
           "11.1",
           "11.2",
-          "11.3"
+          "11.3",
+          "11.4"
         ],
-        "next_subtask": "11.4",
-        "subtask_11_1_scope_registered": true,
-        "subtask_11_3_scope_registered": true,
         "current_subtask": {
-          "id": "11.4",
-          "status": "in_progress",
-          "evidence": "evidence/M05/result.json#/subtasks/11.4/analysis"
+          "id": "11.5",
+          "status": "pending",
+          "evidence": "evidence/M05/result.json#/subtasks/11.5"
         },
-        "codegen_diagnosis": {
-          "status": "complete_root_cause_identified_owner_decided",
-          "model": "gpt-6-sol",
-          "evidence": "evidence/M05/codegen-analysis.md",
-          "failing_segment": "extend",
-          "failing_operation": "OPTIONS /extend/{path}",
-          "isolated_operation": true,
-          "full_generation_exit_code": 0,
-          "full_generation_jobs": 64,
-          "system_manage_duplicate_routes": 3,
-          "system_manage_owner": "handwritten DTO/runtime; exclude exact generated duplicates",
-          "owner_review_model": "gpt-6-sol"
-        },
-        "subtask_11_4_scope_registered": true
+        "next_subtask": "11.5"
       },
       "registered_additional_paths": [
         "packages/contracts/console.ts",
@@ -996,7 +967,7 @@
       "owner_role": "部署负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "in_progress",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -1050,26 +1021,18 @@
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
       "implementation_progress": {
-        "pre_analysis": {
-          "status": "complete",
-          "model": "gpt-6-sol",
-          "agent": "/root/m07_deploy_analysis",
-          "base_head": "ef55de14766ce2aba660c379f7b9b507cfc5561e",
-          "evidence": "evidence/M07/pre-analysis.md",
-          "working_tree_modified": false
-        },
-        "next_subtask": "13.4",
-        "current_subtask": {
-          "id": "13.4",
-          "status": "review_required",
-          "evidence": "evidence/M07/env-variable-audit.tsv"
-        },
         "tasks_complete": [
           "13.1",
           "13.2",
           "13.3",
           "13.5"
-        ]
+        ],
+        "current_subtask": {
+          "id": "13.4",
+          "status": "in_progress",
+          "evidence": "evidence/M07/result.json#/subtasks/13.4"
+        },
+        "next_subtask": "13.4"
       },
       "registered_additional_paths": [
         "api/docker/entrypoint.sh",

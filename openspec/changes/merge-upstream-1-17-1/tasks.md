@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 规划已进入执行：A00/A01/A02/A04/M00/M01/M02/M03 已通过；M04 passed；M05 11.1–11.3 已通过；11.4 Sol 契约矩阵审计完成，正补 summary 写缓存前 schema 校验；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略需复核而重开，13.6 验收暂缓；M06/M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
+> 规划已进入执行：A00/A01/A02/A04/M00/M01/M02/M03 已通过；M04 passed；M05 11.1–11.4 已通过、11.5 待验收；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M07 13.1–13.3、13.5 已通过；13.4 因根 env 样例策略复核仍打开，Sol 已完成 244 项逐变量范围分析，正在按最小范围修正，13.6 验收暂缓；M06/M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -88,7 +88,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 11.1 [M05] 在目标 Console 架构注册 fork segment，迁移双阶段 Header/Cookie 协议；核验：`evidence/M05/result.json` 记录 1.17.1 标准生成、请求局部 token/Cookie/no-store、403 不盲重试、systemManage 唯一 owner 与 201；9 项聚焦测试通过，原 HEAD 同样复现的 6 项完整套件失败如实记录，独立 Luna 无 P1/P2。
 - [x] 11.2 [M05] SSR optional/hard 调用守卫形状，public snapshot 与 fork 配置按 A04 合成；核验：`evidence/M05/result.json` 记录缓存/hydration 前的 generated schema 校验、公开 license 裁剪、身份隔离 login_config、SSR 禁止网络调用及 public-first 合成；20 项聚焦测试与 feature scoped check 通过。M06 必须迁移额度徽章以读取配置汇率。
 - [x] 11.3 [M05] 生成 schema 校验 workspace summary 并保留 admin_extend/tenant_extend 到权限 atom；清理已移除 Console client 导入；11 项权限链、与 bootstrap 合计 24 项及 9 文件 scoped check 通过。代码执行控制页面 suite 因现有 `cn` 依赖缺失未能收集用例，见 `evidence/M05/result.json`。
-- [ ] 11.4 [M05] Sol 已核验 C01–C04/C08/systemManage 的字段、权限与错误语义；新增 `web/context/workspace-state.ts` 的 M05 路径登记。正在将 workspace summary 生成 schema 校验移入 queryFn，确保畸形 HTTP 200 不进入 TanStack cache，并补测试。
+- [x] 11.4 [M05] Sol 核验 C01–C04/C08/systemManage 的字段、权限与错误语义；将 workspace summary 生成 schema 校验移入 queryFn，确保畸形 HTTP 200 不进入 TanStack 原始 cache，同时保留 select 校验 hydration/同 key 预填缓存；12 项聚焦测试、25 项受影响测试、两路径 check 通过，独立 Luna 无阻断项。代码提交 `fceb461237f2f175160c8bf56da242f1c4a412c6`；证据见 `evidence/M05/result.json`。
 - [ ] 11.5 [M05] 节点验收：不恢复已删旧服务成为双源；SSR 不把 ping 当配置，匿名不读敏感 license；权限位不丢失；保存绑定版本的证据并更新节点状态。
 
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
@@ -105,7 +105,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 13.1 [M07] 人工移植上游 Compose 契约到 fork 综合 Compose，保留独立 worker/sandbox-full/私有镜像；核验：`evidence/M07/result.json` 记录 1.17.1 源文件、39 项环境键/默认值对照、私有 tag 与 worker 结构断言，以及默认/全 profile Compose 检查。
 - [x] 13.2 [M07] 单执行者双迁移；发布业务容器关闭自动迁移；核验：`evidence/M07/result.json` 记录自动迁移固定关闭、单次私有镜像迁移服务的主链/扩展链顺序、成功和失败位置断言；默认/全 profile Compose 解析通过。单执行者的跨 project 并发防护仍是操作约束。
 - [x] 13.3 [M07] 更新 Agent token/网络/SSRF/卷、plugin版本/队列、Web Next/Vinext 与 ingress；核验：`evidence/M07/result.json` 记录 token 双端、专用 SSRF/隔离网/持久卷、plugin 0.6.10-local、Vinext 和未改动的上游同版 ingress/entrypoint；83 项静态断言、默认/全 profile Compose 解析通过。
-- [ ] 13.4 [M07] env 逐变量审计和 52 项断言已通过；13.6 独立验收指出根 `.env.example` 可选变量与仓库 AGENTS.md 范围要求可能不一致。先由 Sol 按 default Compose 启动条件逐项分析，再按最小范围修正并重跑本项。
+- [ ] 13.4 [M07] 900 行 env 逐变量审计和原 52 项断言已通过；Sol 对根样例当前 244 个变量逐项核对后确认仅 `COMPOSE_PROFILES`、`DIFY_AGENT_SERVER_SECRET_KEY` 属严格启动样例范围；另有四项需先迁移 Compose fallback 以保留当前有效值，并需修正误导性的 `SECRET_KEY` 默认值。现由独立 Astra 按最小范围修正并重跑本项，随后重新做 Luna 验收。
 - [x] 13.5 [M07] GitHub build validate 与 GitLab 私有镜像供货分开记账；两份 GitHub workflow 与上游相同且不为 fork 推送；GitLab manifest/artifact 静态风险见 `evidence/M07/ci-analysis.md`。
 - [ ] 13.6 [M07] 节点验收：配置/镜像矩阵可审查；无误用官方 api/web 镜像替代 fork；fork Compose 不因无文本冲突被漏审；保存绑定版本的证据并更新节点状态。
 
