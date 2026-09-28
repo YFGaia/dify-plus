@@ -16,13 +16,13 @@
 
 ### D1. 固定 tag，采用可追溯的正式 merge
 
-目标锁定 `1.17.1` / `8387590ace4a094de812b7847fc6a4c3a27cd52b`，不随 `main` 漂移。执行前重新确认 HEAD 与 tag；若变化，重算差异与所有权。采用 `merge --no-commit --no-ff` 分阶段解冲突，保留 upstream 祖先关系。重放 fork 的数百处改动易遗漏隐式挂点，故不选在新上游上全量 cherry-pick。分支默认名 `codex/merge-upstream-1.17.1`，须用户明确授权后才创建；不需要工作树即可按文件所有权并行。
+目标锁定 `1.17.1` / `8387590ace4a094de812b7847fc6a4c3a27cd52b`，不随 `main` 漂移。执行前重新确认 HEAD 与 tag；若变化，重算差异与所有权。M00 在已授权分支执行正式 merge，逐项核对实际冲突及 owner，冲突结果先以 upstream 版本形成双父 merge 基线提交；上游删除的文件维持删除。原 fork 父提交与 A02 台账保留恢复依据，M01–M07 再按 owner 逐节点适配并各自提交，M08 形成集成候选源码提交。M00 基线未经适配与验证，不可部署或标记升级完成。Git 在 `MERGE_HEAD` 存在时拒绝部分路径提交，提交边界依据见 [commit-cadence.md](research/commit-cadence.md)。不通过额外分支、工作树或多头 cherry-pick 绕开此限制。
 
 ### D2. 中央 DAG 作为任务状态事实源
 
 [execution-graph.json](execution-graph.json) 定义节点、依赖、授权、文件范围、资源锁、命令、证据和失败去向；[execution-graph.md](execution-graph.md) 为同一图的可读投影。专项分析中的 B/F/D 编号只是研究切分，以中央图 A/M/V/R/D 编号为准。每个节点状态从 pending → ready → running → passed/failed/blocked；有条件节点允许有证据的 skipped。只有前置全部通过或合法跳过、授权满足且资源锁空闲才可开始。失败阻断所有后继，不能跳过失败的验收。
 
-证据绑定源码提交或树摘要、锁文件、镜像 digest、环境配置摘要、数据库起始/终止 head 和时间。上游输入或对应源文件变化使受影响的验收失效。实施者不得以“已有报告”“命令已列出”更新为 passed。同一文件一个 owner，Git 索引/提交由集成负责人独占；冲突清单的 owner 是初始分配，新文件须登记后才能并行编辑。机器可读图是工作说明，不是可以自动获得权限的执行器。
+证据绑定源码提交或树摘要、锁文件、镜像 digest、环境配置摘要、数据库起始/终止 head 和时间。上游输入或对应源文件变化使受影响的验收失效。实施者不得以“已有报告”“命令已列出”更新为 passed。同一文件一个 owner，Git 索引/提交由集成负责人独占；M01–M07 每节点的代码、配套测试、证据和状态各自形成提交，提交前按 owner 路径精确暂存。证据可记录提交前 HEAD/树与提交后校验，不能把提交自身 SHA 写进该提交。冲突清单的 owner 是初始分配，新文件须登记后才能并行编辑。机器可读图是工作说明，不是可以自动获得权限的执行器。
 
 ### D3. 先稳定前后端共享契约，再迁移宿主
 
@@ -81,7 +81,7 @@ Agent runtime/drive 表删除、JSON 删除、preset outputs 清理和模型凭�
 
 ## Migration Plan
 
-顺序与命令见 [execution-graph.md](execution-graph.md) 和 [runbook.md](runbook.md)。源码链：授权与冻结 → 合并启动 → 基础/身份/计费/前端/部署适配 → 集成 → 静态与定向验证 → 代码候选。环境链：真实盘点 → 镜像与空库 → 存量双迁移及向量演练 → 业务与恢复演练 → 上线操作包 → 生产授权 → 停写快照 → 向量/双迁移 → 放量观察。生产阶段任何失败均执行 runbook 对应恢复路线。
+顺序与命令见 [execution-graph.md](execution-graph.md) 和 [runbook.md](runbook.md)。源码链：授权与冻结 → 非部署 merge 基线提交 → 基础/身份/计费/前端/部署逐节点适配提交 → 集成候选源码提交 → 静态与定向验证 → 代码候选。环境链：真实盘点 → 镜像与空库 → 存量双迁移及向量演练 → 业务与恢复演练 → 上线操作包 → 生产授权 → 停写快照 → 向量/双迁移 → 放量观察。生产阶段任何失败均执行 runbook 对应恢复路线。
 
 ## Open Questions
 

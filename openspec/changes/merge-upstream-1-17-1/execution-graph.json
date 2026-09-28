@@ -6,7 +6,7 @@
   "state_rules": {
     "ready": "deps passed or evidence-backed skipped; authorization satisfied; resources available",
     "failure": "block descendants; invalidate affected evidence on source/config change",
-    "git": "single integration owner; no broad staging/reset/clean",
+    "git": "single integration owner; no broad staging/reset/clean; M00 merge baseline commit, M01-M07 each own scoped implementation/evidence/status commit, M08 integrated candidate source commit",
     "skip": "only inapplicable feature subchecks; core migration/verification nodes may not be silently skipped"
   },
   "nodes": [
@@ -236,7 +236,7 @@
     },
     {
       "id": "M00",
-      "title": "启动正式 merge",
+      "title": "形成非部署 merge 基线提交",
       "dependencies": [
         "A04"
       ],
@@ -259,15 +259,21 @@
       ],
       "steps": [
         "确认 A01 所有保护措施完成",
-        "在授权分支执行 no-commit merge；冲突退出码不等于失败，核对 MERGE_HEAD",
-        "登记实际冲突差异；停止其他 Git 写入"
+        "在授权分支执行正式 merge；冲突退出码不等于失败，核对 MERGE_HEAD 与固定 target",
+        "将实际冲突逐项与 A02 的 91 路径及唯一 owner 核对；不一致则阻断并返回 A02 更新台账",
+        "全部冲突选择 upstream 1.17.1 版本，上游删除则维持删除；逐项记录处置、保留 fork 第一父提交及后续适配 owner",
+        "核验无未解决索引后提交双父 upstream merge 基线；记录父提交和树摘要，标记为不可部署基线"
       ],
       "commands": [
         "git merge --no-commit --no-ff refs/tags/1.17.1",
-        "git diff --name-only --diff-filter=U"
+        "git diff --name-only --diff-filter=U",
+        "git ls-files -u",
+        "git show --no-patch --format=%P HEAD"
       ],
       "acceptance": [
-        "存在固定 target MERGE_HEAD；所有实际冲突入所有权表"
+        "双父 merge commit 第一父为原 fork HEAD、第二父为固定 target；无未解决索引",
+        "91 个预测冲突与实际冲突逐项核对并有唯一 owner；冲突树采用 upstream 版本或删除，fork 原始内容可从第一父与 A02 台账追溯",
+        "基线明确不可部署，后续适配、M08 候选和验证门槛未被提前判通过"
       ],
       "evidence": [
         "evidence/M00/result.json",
@@ -373,7 +379,7 @@
         "采用新 application service/admission/session 模型与 fork 导出",
         "实现 A04 的 public/login_config/license 与 workspace summary 共同契约",
         "逐一审计 extend 对重构 service 的调用和懒加载 ORM 属性，保持 session 生命周期",
-        "路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结"
+        "路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
       "commands": [],
       "acceptance": [
@@ -432,7 +438,7 @@
         "所有实际账号创建入口同事务幂等建额度；不重置已有账号",
         "将 OaOAuth/Casdoor 注册到新 gateway，适配 token 类型、state 与同源回跳，保留钉钉",
         "WebApp site 字段隔离转换，同事务写入扩展和正确缓存失效",
-        "built-in 与 environment passport 分流，保留公开/需登录逻辑；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结"
+        "built-in 与 environment passport 分流，保留公开/需登录逻辑；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
       "commands": [],
       "acceptance": [
@@ -494,7 +500,7 @@
         "按 research/backend 十项挂点逐项移植，审计自动合并调用者",
         "保留 token kwargs/请求线程 extras/初始执行 join；恢复路径不新增派发",
         "保留上游 dataset binding、RBAC、遮罩和 Cloud 限额；fork 配额语义独立",
-        "保留 NULL retention、匿名 context 修复、三个 beat reset；记录非幂等既有债务；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结"
+        "保留 NULL retention、匿名 context 修复、三个 beat reset；记录非幂等既有债务；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
       "commands": [],
       "acceptance": [
@@ -575,7 +581,7 @@
         "在目标 Console 架构注册 fork segment，迁移双阶段 Header/Cookie 协议",
         "SSR optional/hard 调用守卫形状，public snapshot 与 fork 配置按 A04 合成",
         "迁移 workspace summary 字段与权限 atom；清理旧 client/loader 导入",
-        "与 M02/M03 逐字段确认鉴权错误、缓存键及响应类型；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结"
+        "与 M02/M03 逐字段确认鉴权错误、缓存键及响应类型；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
       "commands": [],
       "acceptance": [
@@ -646,7 +652,7 @@
         "迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单",
         "API key modal/table 按 scope 显示已支持额度，余额保留独立显示",
         "系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施",
-        "补 lo-LA extend，共24语言；移除旧 Overview/secret-key/category 生产引用；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结"
+        "补 lo-LA extend，共24语言；移除旧 Overview/secret-key/category 生产引用；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
       "commands": [],
       "acceptance": [
@@ -759,7 +765,7 @@
     },
     {
       "id": "M08",
-      "title": "集成审查与候选合并提交",
+      "title": "集成审查与候选源码提交",
       "dependencies": [
         "M02",
         "M03",
@@ -796,9 +802,9 @@
         "lockfiles"
       ],
       "steps": [
-        "由各 owner 提交冲突处理与自动合并语义清单",
+        "核对 M01–M07 各自已提交代码、配套测试、证据与状态；由各 owner 交付冲突处理与自动合并语义清单",
         "M01 将锁文件写入权显式移交集成负责人，由 M08 统一刷新最终锁文件/契约生成物；扫描 orphan、旧 import、安全包装、四个后续提交",
-        "只暂存逐项列出的本轮源文件，不 stage 未跟踪用户目录；创建候选 merge commit",
+        "只暂存逐项列出的本轮集成修复、证据和状态文件，不 stage 未跟踪用户目录；创建候选源码提交，不再创建 upstream merge commit",
         "更新冲突表每项处置/新宿主/验收映射"
       ],
       "commands": [
@@ -808,7 +814,7 @@
       ],
       "acceptance": [
         "未解决索引为零、冲突标记和孤儿宿主为零",
-        "候选 commit 含两个正确 parent，十挂点和全部91路径有审查记录"
+        "M00 双父 merge 祖先仍可追溯，M01–M07 各有独立提交；候选源码提交覆盖最终集成修复，十挂点和全部91路径有审查记录"
       ],
       "evidence": [
         "evidence/M08/result.json",

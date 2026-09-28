@@ -11,7 +11,7 @@ flowchart TD
   A02["A02 刷新差异与冲突所有权"]
   A03["A03 盘点真实部署与数据"]
   A04["A04 冻结跨层行为与接口契约"]
-  M00["M00 启动正式 merge"]
+  M00["M00 形成非部署 merge 基线提交"]
   M01["M01 工具链、依赖与生成物"]
   M02["M02 后端基础与共同契约适配"]
   M03["M03 账号、OAuth 与 WebApp 后端"]
@@ -19,7 +19,7 @@ flowchart TD
   M05["M05 Console transport 与前端契约"]
   M06["M06 前端业务挂载与国际化"]
   M07["M07 综合部署和 CI 对齐"]
-  M08["M08 集成审查与候选合并提交"]
+  M08["M08 集成审查与候选源码提交"]
   V01["V01 后端静态与定向回归"]
   V02["V02 前端检查、定向测试与双构建"]
   R01["R01 源码合并候选验收"]
@@ -77,6 +77,7 @@ flowchart TD
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
 - 任一节点修复导致源代码改变，更新候选 commit/digest 并使相应后继检查失效；不得复用旧结果冒充新结果。
 - 91 个预测冲突的唯一初始 owner 见 research/conflict-ownership.tsv；155 个 fork/upstream 重叠路径见 research/overlap-ownership.tsv，20 个新增或移动宿主落点见 research/host-ownership.tsv。实际 merge 出现新路径须先登记。
+- Git 索引由集成负责人串行管理：M00 形成双父 upstream merge 基线；M01–M07 的代码、配套测试、证据及状态逐节点独立提交；M08 提交集成修复和候选源码。M00 基线不可部署，R01/V03 等后续门槛不提前通过。
 - 时间估算：基线/共同契约 0.5–1 人日；源码适配 6–10 人日；验证/数据演练 3–6 人日；运维操作包 1–2 人日。合计约 10.5–19 人日，三路并行约 6–10 工作日；为当前规模下的估计，旧向量库逐站迁移另计，A03 后更新。
 
 ## A00 · 实施与分支授权
@@ -191,7 +192,7 @@ git merge-base HEAD refs/tags/1.17.1
 
 状态：passed；共同契约见 `research/contract-matrix.md`（C01–C14）。这是已授权设计与源码支持的实施交接，不表示外部负责人签字或业务回归通过。证据：`evidence/A04/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
 
-## M00 · 启动正式 merge
+## M00 · 形成非部署 merge 基线提交
 
 - 前置：A04；负责人：集成负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`git_index`。
@@ -200,18 +201,24 @@ git merge-base HEAD refs/tags/1.17.1
 执行：
 
 1. 确认 A01 所有保护措施完成
-2. 在授权分支执行 no-commit merge；冲突退出码不等于失败，核对 MERGE_HEAD
-3. 登记实际冲突差异；停止其他 Git 写入
+2. 在授权分支执行正式 merge；冲突退出码不等于失败，核对 MERGE_HEAD 与固定 target
+3. 将实际冲突逐项与 A02 的 91 路径及唯一 owner 核对；不一致则阻断并返回 A02 更新台账
+4. 全部冲突选择 upstream 1.17.1 版本，上游删除则维持删除；逐项记录处置、保留 fork 第一父提交及后续适配 owner
+5. 核验无未解决索引后提交双父 upstream merge 基线；记录父提交和树摘要，标记为不可部署基线
 
 验收：
 
-- 存在固定 target MERGE_HEAD；所有实际冲突入所有权表
+- 双父 merge commit 第一父为原 fork HEAD、第二父为固定 target；无未解决索引
+- 91 个预测冲突与实际冲突逐项核对并有唯一 owner；冲突树采用 upstream 版本或删除，fork 原始内容可从第一父与 A02 台账追溯
+- 基线明确不可部署，后续适配、M08 候选和验证门槛未被提前判通过
 
 命令（先满足本节点前置，路径以合并后实际结构复核）：
 
 ```sh
 git merge --no-commit --no-ff refs/tags/1.17.1
 git diff --name-only --diff-filter=U
+git ls-files -u
+git show --no-patch --format=%P HEAD
 ```
 
 证据：`evidence/M00/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
@@ -246,7 +253,7 @@ git diff --name-only --diff-filter=U
 1. 采用新 application service/admission/session 模型与 fork 导出
 2. 实现 A04 的 public/login_config/license 与 workspace summary 共同契约
 3. 逐一审计 extend 对重构 service 的调用和懒加载 ORM 属性，保持 session 生命周期
-4. 路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结
+4. 路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
 
 验收：
 
@@ -266,7 +273,7 @@ git diff --name-only --diff-filter=U
 1. 所有实际账号创建入口同事务幂等建额度；不重置已有账号
 2. 将 OaOAuth/Casdoor 注册到新 gateway，适配 token 类型、state 与同源回跳，保留钉钉
 3. WebApp site 字段隔离转换，同事务写入扩展和正确缓存失效
-4. built-in 与 environment passport 分流，保留公开/需登录逻辑；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结
+4. built-in 与 environment passport 分流，保留公开/需登录逻辑；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
 
 验收：
 
@@ -286,7 +293,7 @@ git diff --name-only --diff-filter=U
 1. 按 research/backend 十项挂点逐项移植，审计自动合并调用者
 2. 保留 token kwargs/请求线程 extras/初始执行 join；恢复路径不新增派发
 3. 保留上游 dataset binding、RBAC、遮罩和 Cloud 限额；fork 配额语义独立
-4. 保留 NULL retention、匿名 context 修复、三个 beat reset；记录非幂等既有债务；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结
+4. 保留 NULL retention、匿名 context 修复、三个 beat reset；记录非幂等既有债务；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
 
 验收：
 
@@ -306,7 +313,7 @@ git diff --name-only --diff-filter=U
 1. 在目标 Console 架构注册 fork segment，迁移双阶段 Header/Cookie 协议
 2. SSR optional/hard 调用守卫形状，public snapshot 与 fork 配置按 A04 合成
 3. 迁移 workspace summary 字段与权限 atom；清理旧 client/loader 导入
-4. 与 M02/M03 逐字段确认鉴权错误、缓存键及响应类型；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结
+4. 与 M02/M03 逐字段确认鉴权错误、缓存键及响应类型；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
 
 验收：
 
@@ -327,7 +334,7 @@ git diff --name-only --diff-filter=U
 2. 迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单
 3. API key modal/table 按 scope 显示已支持额度，余额保留独立显示
 4. 系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施
-5. 补 lo-LA extend，共24语言；移除旧 Overview/secret-key/category 生产引用；同步迁移或补充对应定向测试源码，随 M08 候选提交冻结
+5. 补 lo-LA extend，共24语言；移除旧 Overview/secret-key/category 生产引用；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
 
 验收：
 
@@ -357,7 +364,7 @@ git diff --name-only --diff-filter=U
 
 证据：`evidence/M07/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
 
-## M08 · 集成审查与候选合并提交
+## M08 · 集成审查与候选源码提交
 
 - 前置：M02, M03, M04, M05, M06, M07；负责人：集成负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`git_index, lockfiles`。
@@ -365,15 +372,15 @@ git diff --name-only --diff-filter=U
 
 执行：
 
-1. 由各 owner 提交冲突处理与自动合并语义清单
+1. 核对 M01–M07 各自已提交代码、配套测试、证据与状态；由各 owner 交付冲突处理与自动合并语义清单
 2. M01 将锁文件写入权显式移交集成负责人，由 M08 统一刷新最终锁文件/契约生成物；扫描 orphan、旧 import、安全包装、四个后续提交
-3. 只暂存逐项列出的本轮源文件，不 stage 未跟踪用户目录；创建候选 merge commit
+3. 只暂存逐项列出的本轮集成修复、证据和状态文件，不 stage 未跟踪用户目录；创建候选源码提交，不再创建 upstream merge commit
 4. 更新冲突表每项处置/新宿主/验收映射
 
 验收：
 
 - 未解决索引为零、冲突标记和孤儿宿主为零
-- 候选 commit 含两个正确 parent，十挂点和全部91路径有审查记录
+- M00 双父 merge 祖先仍可追溯，M01–M07 各有独立提交；候选源码提交覆盖最终集成修复，十挂点和全部91路径有审查记录
 
 命令（先满足本节点前置，路径以合并后实际结构复核）：
 
