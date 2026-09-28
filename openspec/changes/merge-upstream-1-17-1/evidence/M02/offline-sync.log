@@ -1,0 +1,10 @@
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+Resolved 530 packages in 10ms
+  × Failed to download `llvmlite==0.47.0`
+  ╰─▶ Network connectivity is disabled, but the
+      requested data wasn't found in the cache for:
+      `https://files.pythonhosted.org/packages/fa/48/4b7fe0e34c169fa2f12532916133e0b219d2823b540733651b34fdac509a/llvmlite-0.47.0-cp312-cp312-macosx_11_0_arm64.whl`
+
+hint: `llvmlite` (v0.47.0) was included because `dify-api` (v1.17.1) depends on `graphon` (v0.7.0) which depends on `unstructured` (v0.27.5) which depends on `numba` (v0.65.0) which depends on `llvmlite`

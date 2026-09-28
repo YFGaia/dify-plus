@@ -59,6 +59,8 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 ## 8. M02 后端基础与共同契约适配（前置：M01）
 
+> M02 本次阻断：临时 Python 环境缺 pytest；获准读取本地缓存后，locked/offline 安装仍缺 llvmlite 0.47.0（退出码 1）。8.1–8.5 均未完成；无业务源码改动。详见 `evidence/M02/result.json`。恢复测试依赖后须重新实施和验收。
+
 - [ ] 8.1 [M02] 采用新 application service/admission/session 模型与 fork 导出；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 8.2 [M02] 实现 A04 的 public/login_config/license 与 workspace summary 共同契约；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 8.3 [M02] 逐一审计 extend 对重构 service 的调用和懒加载 ORM 属性，保持 session 生命周期；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。

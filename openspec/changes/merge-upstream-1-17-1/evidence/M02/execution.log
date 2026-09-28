@@ -1,0 +1,51 @@
+M02 preflight: expected branch, HEAD and tag matched; index and tracked worktree clean. M00/M01 passed. Original untracked inventory saved in preflight.json.
+Skills read: openspec-apply-change, backend-code-review and API/web AGENTS. karpathy-guidelines declared skill unavailable; focused, simple, verifiable changes apply.
+
+$ git branch --show-current; git rev-parse HEAD; git rev-parse refs/tags/1.17.1; git status --short; git diff --cached --name-only
+exit=0
+Expected branch/HEAD/tag; clean tracked worktree and index; original untracked paths inventoried.
+
+$ openspec status --change merge-upstream-1-17-1 --json; openspec instructions apply --change merge-upstream-1-17-1 --json
+exit=0
+spec-driven; M02 tasks 8.1-8.5 incomplete. CLI progress total is 124 with complete=26 although its task array includes four completed M01 tasks; no dependency acceptance inferred from aggregate.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python -c [interpreter and pytest import probe]
+exit=1
+uv 0.5.7 created temporary CPython 3.12.9 environment; ModuleNotFoundError: pytest.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py -q
+exit=2
+Sandbox prevented cache initialization at ~/.cache/uv/sdists-v9/.git; no tests collected.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev --dry-run
+exit=2
+Initial sandbox attempt blocked on cache initialization; retried with approved cache access.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev --dry-run
+exit=0
+Resolved 530 packages; would download 289 and install 336. Dry-run success is NOT dependency installation or test acceptance.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py -q
+exit=1
+No module named pytest; zero tests executed.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev
+exit=1
+llvmlite==0.47.0 cp312 macOS arm64 wheel absent from cache; network disabled by --offline. Dependency chain: dify-api -> graphon -> unstructured -> numba -> llvmlite.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -c [sys and importlib.metadata inventory]
+exit=0
+{"executable":"/private/tmp/dify-m02-python/bin/python3","python":"3.12.9","distributions":[]}
+
+Decision: blocked before business source edits; no acceptance/task marked passed. See result.json for partial root-cause audit, ownership handoffs and preserved graph states.
+
+$ git diff --check
+exit=0
+$ openspec validate merge-upstream-1-17-1 --strict
+exit=0; Change is valid.
+Graph audit: only M02 and code descendants blocked; M07 ready; A03/environment/production unchanged.
+Untracked audit: original 7735 paths preserved exactly. No API source diff.
+Backend review: completed under four rule packs; baseline findings and test gaps in result.json.
+Commit allowlist: seven M02 evidence/graph/task files; expected parent d4ecd2f9d0d4e25cfefc5bd3c924ef45aef789b3. Post-commit SHA/parent/path verification is external to this commit.
+
+First exact git add exited 1: *.log ignored. No commit occurred. Retrying with git add -f only for the two required M02 log artifacts; other paths remain exact allowlist.

@@ -1,0 +1,343 @@
+{
+  "node": "M02",
+  "status": "blocked",
+  "recorded_at_utc": "2026-09-28T17:25:34.298Z",
+  "branch": "codex/merge-upstream-1.17.1",
+  "pre_commit_head": "d4ecd2f9d0d4e25cfefc5bd3c924ef45aef789b3",
+  "target_ref": "refs/tags/1.17.1",
+  "target_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "merge_baseline": "948fefb69ae87abefa7e91a13968213696b3e310",
+  "fork_first_parent": "b17761ed0166e8ef49474da418b95a9462adbb9c",
+  "deployable": false,
+  "preflight": "preflight.json",
+  "implementation_started": false,
+  "source_changes": [],
+  "blocker": {
+    "kind": "targeted_test_dependencies_unavailable",
+    "detail": "No pytest in isolated environment; approved offline locked install cannot satisfy cached artifacts. Stopped before source edits per single-node stop-on-blocker instruction.",
+    "resume": "Provide a compatible local test environment or permit a separate dependency provisioning attempt, then resume M02 with full input recheck. No relaxed pins or fixture-only pass."
+  },
+  "tools": {
+    "uv_initial": "0.5.7",
+    "uv_verified": "/Users/liuxingwang/.local/bin/uv 0.11.19",
+    "python": "3.12.9"
+  },
+  "dependency_attempt": {
+    "scope": "API base + dev; no default provider groups",
+    "sources": "api/uv.lock and approved existing ~/.cache/uv only; network disabled",
+    "installed_distributions": [],
+    "environment": "/private/tmp/dify-m02-python",
+    "api_venv": "No M02 command targeted api/.venv; not removed/restored/synced."
+  },
+  "commands": [
+    {
+      "command": "git branch --show-current; git rev-parse HEAD; git rev-parse refs/tags/1.17.1; git status --short; git diff --cached --name-only",
+      "exit_code": 0,
+      "result": "Expected branch/HEAD/tag; clean tracked worktree and index; original untracked paths inventoried."
+    },
+    {
+      "command": "openspec status --change merge-upstream-1-17-1 --json; openspec instructions apply --change merge-upstream-1-17-1 --json",
+      "exit_code": 0,
+      "result": "spec-driven; M02 tasks 8.1-8.5 incomplete; all task acceptance remains pending."
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python -c [interpreter and pytest import probe]",
+      "exit_code": 1,
+      "result": "uv 0.5.7 created temporary CPython 3.12.9 environment; ModuleNotFoundError: pytest."
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py -q",
+      "exit_code": 2,
+      "result": "Sandbox prevented cache initialization at ~/.cache/uv/sdists-v9/.git; no tests collected."
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev --dry-run",
+      "exit_code": 2,
+      "result": "Initial sandbox attempt blocked on cache initialization; retried with approved cache access."
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev --dry-run",
+      "exit_code": 0,
+      "permission": "require_escalated approved",
+      "result": "Resolved 530 packages; would download 289 and install 336. Dry-run success is NOT dependency installation or test acceptance."
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py -q",
+      "exit_code": 1,
+      "result": "No module named pytest; zero tests executed."
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python /Users/liuxingwang/.local/bin/uv sync --project api --locked --offline --no-default-groups --group dev",
+      "exit_code": 1,
+      "permission": "require_escalated approved",
+      "result": "llvmlite==0.47.0 cp312 macOS arm64 wheel absent from cache; network disabled by --offline. Dependency chain: dify-api -> graphon -> unstructured -> numba -> llvmlite.",
+      "raw_output": "offline-sync.log"
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -c [sys and importlib.metadata inventory]",
+      "exit_code": 0,
+      "result": {
+        "executable": "/private/tmp/dify-m02-python/bin/python3",
+        "python": "3.12.9",
+        "distributions": []
+      }
+    },
+    {
+      "command": "git add -- [seven exact M02 allowlist paths]",
+      "exit_code": 1,
+      "result": "Two *.log artifacts ignored; no commit. Retry uses -f for those two explicit evidence logs only."
+    }
+  ],
+  "conflict_dispositions": [
+    {
+      "path": "api/controllers/console/__init__.py",
+      "status": "pending",
+      "source_sha256": "8c40544c7732bf72ffd4e51099a6e985992746e56a980fb2886bd0400bd7c48f",
+      "reason": "Fork system_manage_extend, ai_draw_extnd, app_extend, ding_talk_extend and account_extend imports/exports lost. Restore registration once, retain original authorization wrappers, then verify real URL map."
+    },
+    {
+      "path": "api/controllers/console/feature.py",
+      "status": "pending",
+      "source_sha256": "7e936e4131abb8a3fa4124b3928e8d7b6c45b9f2258cd9e676afe91f5a6ebee2",
+      "reason": "Public/licensed upstream routes preserved; login_config_bootstrap/login_config missing. Reintroduce fork token boundary and safe login response without full license."
+    },
+    {
+      "path": "api/models/__init__.py",
+      "status": "pending",
+      "source_sha256": "7ccb66c706e73b0c846aa5ba0a05e8230b8c1913001f53d2be25e74dae2b1b49",
+      "reason": "db and SystemIntegrationExtend exports lost; independent extend model files still present."
+    },
+    {
+      "path": "api/models/workflow.py",
+      "status": "pending",
+      "source_sha256": "28d034602693a9e8433b06c9ed199a809eb071435d02d5164a06656748fd7832",
+      "reason": "WorkflowAppLog.created_by_end_user now requires explicit Session; fork account mapping was dropped. Adapt mapping to new session boundary and caller serialization, not old property. Draft-variable alias requires caller audit before restoring."
+    },
+    {
+      "path": "api/services/feature_service.py",
+      "status": "pending",
+      "source_sha256": "dd3035a2129ad3ed05bf97a1706d41d935b4ade55485f14c5df34b883fad7aee",
+      "reason": "Upstream split SystemFeatureService/entities/FeatureQueryService retained. Fork login fields lost; place fork-only configuration behind distinct extension service/DTO rather than expanding public SystemFeatureModel."
+    },
+    {
+      "path": "api/services/workspace_service.py",
+      "status": "pending",
+      "source_sha256": "702ddd854c579803280393844fc9d38fbe822683c074c1d6d501801f4ba3433c",
+      "reason": "Summary outputs no admin_extend/tenant_extend; calculate against earliest Account/Tenant IDs using live Session and serialize through CurrentWorkspaceSummaryResponse."
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_feature.py",
+      "status": "pending",
+      "source_sha256": "7cfffcdb5cdae9b921b4b9110f909896afed9f3d552b14aabb4580c66999dc41",
+      "reason": "Upstream tests use real application-service types but unwrap license handler; add HTTP admission matrix, token tests and actual-session summary checks."
+    }
+  ],
+  "security_matrix": [
+    {
+      "case": "anonymous /system-features",
+      "source": "SystemFeatureApi -> application_services.feature_queries -> SystemFeatureService",
+      "expected": "real branding and LicenseStatusModel only",
+      "status": "source reviewed, HTTP not executed"
+    },
+    {
+      "case": "anonymous/bootstrap-only /system-features/license",
+      "source": "console_account_admission -> setup/login/CSRF/account initialization",
+      "expected": "reject before full license service",
+      "status": "source reviewed, HTTP not executed"
+    },
+    {
+      "case": "admitted Console account /system-features/license",
+      "expected": "full LicenseModel",
+      "status": "not executed"
+    },
+    {
+      "case": "/login_config",
+      "expected": "Cookie/Header IP-bound bootstrap; public license status only",
+      "status": "missing; not implemented"
+    }
+  ],
+  "summary": {
+    "expected_fields": [
+      "id",
+      "name",
+      "role",
+      "plan",
+      "credits",
+      "admin_extend",
+      "tenant_extend"
+    ],
+    "permission_source": "TenantExtendService baseline selects earliest Account.created_at and earliest Tenant.created_at; compare IDs only, never grant backend roles.",
+    "observed": "first five fields exist; both booleans absent from service and CurrentWorkspaceSummaryResponse. Archived workspace guard retained (409).",
+    "verification": "No real-session or role/tenant-switch matrix executed."
+  },
+  "session_audit": {
+    "complete": false,
+    "observations": [
+      "WorkflowAppLog.created_by_end_user(session) uses explicit Session; fork mapping pending.",
+      "CurrentWorkspaceSummaryApi serializes inside with_session(write=False); preserve this boundary.",
+      "RecommendedAppService.installed_app_list accesses removed app.tags; target provides tags_with_session(session=...).",
+      "DingTalkService calls RegisterService.register without newly required keyword-only session. AccountService.login and TenantService.switch_tenant already pass session."
+    ]
+  },
+  "step_results": [
+    {
+      "task": "8.1",
+      "status": "incomplete",
+      "reason": "Source comparison only; no exports restored."
+    },
+    {
+      "task": "8.2",
+      "status": "incomplete",
+      "reason": "Contract gaps identified; no implementation or HTTP evidence."
+    },
+    {
+      "task": "8.3",
+      "status": "incomplete",
+      "reason": "Partial caller/lazy-property audit; fixes and full audit pending."
+    },
+    {
+      "task": "8.4",
+      "status": "incomplete",
+      "reason": "No source/test migration."
+    },
+    {
+      "task": "8.5",
+      "status": "blocked",
+      "reason": "Neither acceptance item has executed behavioral proof."
+    }
+  ],
+  "acceptance": [
+    {
+      "criterion": "public/license 分级无泄露",
+      "status": "unproven"
+    },
+    {
+      "criterion": "summary 权限字段真实可读；无旧签名/双重路由",
+      "status": "not_met"
+    }
+  ],
+  "handoffs": [
+    {
+      "owner": "M02 retry",
+      "issue": "All seven owned conflicts pending; restore routes/exports/login and summary contracts, explicit-session workflow mapping."
+    },
+    {
+      "owner": "M03",
+      "path": "api/services/ding_talk_extend.py:381",
+      "issue": "RegisterService.register now requires session; missing at DingTalk new-user registration. No modification in M02."
+    },
+    {
+      "owner": "M02/M08 ownership registration",
+      "path": "api/services/recommended_app_service_extend.py:34",
+      "issue": "app.tags removed; register ownership before adapting to tags_with_session and audit config/lazy reads."
+    },
+    {
+      "owner": "M05/M06",
+      "issue": "Backend contracts not ready; do not regenerate/consume assumed fields yet."
+    }
+  ],
+  "backend_review": {
+    "skill": ".agents/skills/backend-code-review/SKILL.md",
+    "packs": [
+      "db-schema",
+      "architecture",
+      "repositories",
+      "sqlalchemy"
+    ],
+    "scope": "Read-only current baseline plus evidence-only pending diff",
+    "findings": [
+      {
+        "priority": "P1",
+        "path": "api/controllers/console/feature.py",
+        "issue": "Fork bootstrap/login_config routes missing after upstream selection."
+      },
+      {
+        "priority": "P1",
+        "path": "api/services/workspace_service.py:99",
+        "issue": "Summary omits required fork permission booleans; response schema omits them too."
+      },
+      {
+        "priority": "P1",
+        "path": "api/services/recommended_app_service_extend.py:34",
+        "issue": "Installed app listing accesses App.tags removed upstream; AttributeError once route restored."
+      },
+      {
+        "priority": "P1",
+        "path": "api/services/ding_talk_extend.py:381",
+        "issue": "New DingTalk registration lacks required RegisterService.register session keyword."
+      }
+    ],
+    "verification_gap": "No behavioral test executed; review does not approve baseline or node."
+  },
+  "skills": {
+    "applied": [
+      "openspec-apply-change",
+      "backend-code-review"
+    ],
+    "missing": "karpathy-guidelines not in available catalog/declared location; focused/simple/verifiable guidance followed; not blocker."
+  },
+  "downstream_status_propagation": {
+    "blocked": [
+      "M03",
+      "M04",
+      "M05",
+      "M06",
+      "M08",
+      "V01",
+      "V02",
+      "R01"
+    ],
+    "untouched": [
+      "M07",
+      "A03",
+      "V03",
+      "V04",
+      "V05",
+      "V06",
+      "R02",
+      "D00",
+      "D01",
+      "D02",
+      "D03",
+      "D04"
+    ],
+    "note": "Environment/production statuses preserved as explicitly required; dependency chain through blocked R01 still prevents execution."
+  },
+  "known_limits": [
+    "No source changes or completed M02 tasks.",
+    "No HTTP, DB, session, Swagger or import acceptance.",
+    "No full API tests, services, production operations or network dependency downloads.",
+    "M00 remains non-deployable; M01 lock evidence is not installed-runtime evidence."
+  ],
+  "checks": {
+    "git_diff_check": {
+      "exit_code": 0
+    },
+    "openspec_strict": {
+      "command": "openspec validate merge-upstream-1-17-1 --strict",
+      "exit_code": 0,
+      "output": "Change 'merge-upstream-1-17-1' is valid"
+    },
+    "graph": {
+      "exit_code": 0,
+      "M07": "ready",
+      "A03": "blocked",
+      "environment_and_production": "unchanged"
+    },
+    "untracked": {
+      "count": 7735,
+      "preserved": true
+    },
+    "backend_review": "completed; baseline gaps reported, no new API diff",
+    "commit_parent_and_allowlist": "Verify externally after commit; expected parent is pre_commit_head."
+  },
+  "commit_allowlist": [
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/execution.log",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/offline-sync.log",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/preflight.json",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+    "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+    "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+    "openspec/changes/merge-upstream-1-17-1/tasks.md"
+  ]
+}

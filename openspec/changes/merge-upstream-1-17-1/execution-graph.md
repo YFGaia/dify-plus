@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02/M07 ready，M03–M06/M08/V01/V02/R01 pending；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 blocked，M03–M06/M08/V01/V02/R01 因 M02 未通过而 blocked，M07 ready；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -251,7 +251,7 @@ git show --no-patch --format=%P HEAD
 
 ## M02 · 后端基础与共同契约适配
 
-- 状态：ready；M01 初始锁专项通过，前置已满足；本节点尚未实施。
+- 状态：blocked；定向测试环境缺依赖；锁定依赖离线安装失败，见 evidence/M02/result.json。
 
 - 前置：M01；负责人：后端基础负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`backend_core`。
@@ -273,7 +273,7 @@ git show --no-patch --format=%P HEAD
 
 ## M03 · 账号、OAuth 与 WebApp 后端
 
-- 状态：pending；已解除 M01 引起的阻塞，等待各自前置节点通过；本节点尚未实施。
+- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
 
 - 前置：M02；负责人：身份负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`身份负责人`。
@@ -295,7 +295,7 @@ git show --no-patch --format=%P HEAD
 
 ## M04 · 计费、Service API 与记忆挂点
 
-- 状态：pending；已解除 M01 引起的阻塞，等待各自前置节点通过；本节点尚未实施。
+- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
 
 - 前置：M03；负责人：计费负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`计费负责人`。
@@ -317,7 +317,7 @@ git show --no-patch --format=%P HEAD
 
 ## M05 · Console transport 与前端契约
 
-- 状态：pending；已解除 M01 引起的阻塞，等待各自前置节点通过；本节点尚未实施。
+- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端契约负责人`。
@@ -339,7 +339,7 @@ git show --no-patch --format=%P HEAD
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：pending；已解除 M01 引起的阻塞，等待各自前置节点通过；本节点尚未实施。
+- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。
@@ -385,7 +385,7 @@ git show --no-patch --format=%P HEAD
 
 ## M08 · 集成审查与候选源码提交
 
-- 状态：pending；已解除 M01 引起的阻塞，等待各自前置节点通过；本节点尚未实施。
+- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
 
 - 前置：M02, M03, M04, M05, M06, M07；负责人：集成负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`git_index, lockfiles`。
@@ -415,7 +415,7 @@ git status --short
 
 ## V01 · 后端静态与定向回归
 
-- 状态：pending；已解除 M01 引起的阻塞，等待各自前置节点通过；本节点尚未实施。
+- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
 
 - 前置：M08；负责人：后端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。
@@ -444,7 +444,7 @@ uv run --project api pytest api/tests/unit_tests/controllers/console/test_apikey
 
 ## V02 · 前端检查、定向测试与双构建
 
-- 状态：pending；已解除 M01 引起的阻塞，等待各自前置节点通过；本节点尚未实施。
+- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
 
 - 前置：M08；负责人：前端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。
@@ -478,7 +478,7 @@ pnpm --dir web build:vinext
 
 ## R01 · 源码合并候选验收
 
-- 状态：pending；已解除 M01 引起的阻塞，等待各自前置节点通过；本节点尚未实施。
+- 状态：blocked；M02 未通过；仅依赖阻断，未执行本节点。
 
 - 前置：V01, V02；负责人：集成负责人；建议模型：Sol/high。
 - 授权：`implementation`；资源锁：`集成负责人`。
