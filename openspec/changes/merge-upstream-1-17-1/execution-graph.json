@@ -713,7 +713,8 @@
       ],
       "evidence": [
         "evidence/M05/result.json",
-        "evidence/M05/execution.log"
+        "evidence/M05/execution.log",
+        "evidence/M05/pre-analysis.md"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -728,7 +729,24 @@
       "outputs": [
         "evidence/M05/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "implementation_progress": {
+        "pre_analysis": {
+          "status": "complete",
+          "model": "gpt-6-sol",
+          "base_head": "3620896b7afe8122f5e4873450031cc942c8c175",
+          "evidence": "evidence/M05/pre-analysis.md"
+        },
+        "design_decisions": [
+          "Generated Console contracts are the sole runtime/type owner of login_config_bootstrap and login_config; fork-only router keeps systemManage.",
+          "Public system-features snapshot and fork login_config use separate DTOs and cache identity boundaries.",
+          "Validate public response shape before cache or hydration; preserve SSR optional soft-failure and hard-failure semantics.",
+          "Regenerate workspace summary contract for admin_extend and tenant_extend; do not hand-edit generated files.",
+          "A04 C03 is_custom_auth2_button is absent from M02 schema; record as contract gap and do not fabricate the field."
+        ],
+        "tasks_complete": [],
+        "next_subtask": "11.1"
+      }
     },
     {
       "id": "M06",

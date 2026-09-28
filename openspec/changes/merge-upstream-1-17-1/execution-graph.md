@@ -325,7 +325,8 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M05 · Console transport 与前端契约
 
-- 状态：ready；M03 已通过，等待独立实施对话。
+- 状态：ready；M03 已通过，Sol 只读预分析完成，证据见 `evidence/M05/pre-analysis.md`。首个编码子任务 11.1 待启动。
+- 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端契约负责人`。

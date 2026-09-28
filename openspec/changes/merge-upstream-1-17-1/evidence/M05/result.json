@@ -1,0 +1,44 @@
+{
+  "node": "M05",
+  "status": "ready",
+  "implementation": "not_started",
+  "deployable": false,
+  "branch": "codex/merge-upstream-1.17.1",
+  "analysis_head": "3620896b7afe8122f5e4873450031cc942c8c175",
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "pre_analysis": {
+    "status": "complete",
+    "model": "gpt-6-sol",
+    "agent": "/root/m05_analysis",
+    "evidence": "evidence/M05/pre-analysis.md",
+    "working_tree_modified": false
+  },
+  "design_decisions": [
+    "Generated Console contracts are the sole runtime/type owner of login_config_bootstrap and login_config; fork-only router keeps systemManage.",
+    "Public system-features snapshot and fork login_config use separate DTOs and cache identity boundaries.",
+    "Validate public response shape before cache or hydration; preserve SSR optional soft-failure and hard-failure semantics.",
+    "Regenerate workspace summary contract for admin_extend and tenant_extend; do not hand-edit generated files.",
+    "A04 C03 is_custom_auth2_button is absent from M02 schema; record as contract gap and do not fabricate the field."
+  ],
+  "subtasks": {
+    "11.1": {
+      "status": "pending"
+    },
+    "11.2": {
+      "status": "pending"
+    },
+    "11.3": {
+      "status": "pending"
+    },
+    "11.4": {
+      "status": "pending"
+    },
+    "11.5": {
+      "status": "pending_independent_acceptance"
+    }
+  },
+  "known_limits": [
+    "No browser cross-origin cookie validation in this analysis; defer real-browser validation to V02.",
+    "The is_custom_auth2_button item in A04 C03 is not present in the actual M02 response schema."
+  ]
+}

@@ -1,0 +1,9 @@
+M05 read-only pre-analysis completed by independent gpt-6-sol subtask `/root/m05_analysis`.
+Base HEAD: 3620896b7afe8122f5e4873450031cc942c8c175
+Upstream 1.17.1 SHA: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+No repository files, Git refs, index, or worktree state were modified by analysis.
+Finding: OpenAPI contract generation will overlap the existing handwritten loginConfigBootstrap/loginConfig fork router after M02 exports their response schemas. Integrator decision: generated route/DTO sole owner; handwritten fork router retains systemManage.
+Finding: M02 is_custom_auth2 is boolean; A04 mentions is_custom_auth2_button but actual M02 schema has no such field. Keep this discrepancy explicit.
+Finding: generated CurrentWorkspaceSummaryResponse lacks backend admin_extend/tenant_extend fields; regenerate contracts through standard pipeline.
+Other SSR shape, query identity, ownership, path, and test recommendations: pre-analysis.md.
+Execution graph remains M05=ready; analysis marked complete; implementation subtasks 11.1-11.4 and acceptance 11.5 remain pending.
