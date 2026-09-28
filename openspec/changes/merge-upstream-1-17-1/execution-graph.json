@@ -805,6 +805,7 @@
         ],
         "next_subtask": "11.3",
         "subtask_11_1_scope_registered": true,
+        "subtask_11_3_scope_registered": true,
         "current_subtask": {
           "id": "11.2",
           "status": "complete",
@@ -864,13 +865,20 @@
         "packages/contracts/generated/api/web/types.gen.ts",
         "packages/contracts/generated/api/web/zod.gen.ts",
         "packages/contracts/openapi-ts.api.config.ts",
+        "web/app/(commonLayout)/system-manage-extend/code-execution-control/__tests__/page.spec.tsx",
+        "web/app/(commonLayout)/system-manage-extend/code-execution-control/page.tsx",
+        "web/context/__tests__/console-bootstrap.spec.tsx",
+        "web/context/__tests__/workspace-summary-extend.spec.ts",
+        "web/context/app-context-defaults.ts",
+        "web/context/app-context-extend.ts",
         "web/contract/console/system-manage.ts",
         "web/contract/console/system.ts",
         "web/contract/router-extend.ts",
         "web/service/console/browser.ts",
         "web/service/console/client.spec.ts",
         "web/service/console/contract-loader.ts",
-        "web/service/console/index.ts"
+        "web/service/console/index.ts",
+        "web/service/use-system-manage.ts"
       ]
     },
     {
@@ -1016,11 +1024,14 @@
         "fork Compose 不因无文本冲突被漏审"
       ],
       "evidence": [
-        "evidence/M07/result.json",
+        "evidence/M07/ci-analysis.md",
+        "evidence/M07/env-variable-audit-summary.json",
+        "evidence/M07/env-variable-audit.tsv",
         "evidence/M07/execution.log",
-        "evidence/M07/pre-analysis.md",
-        "evidence/M07/pre-analysis.json",
         "evidence/M07/path-registration.json",
+        "evidence/M07/pre-analysis.json",
+        "evidence/M07/pre-analysis.md",
+        "evidence/M07/result.json",
         "evidence/M07/resumption.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
