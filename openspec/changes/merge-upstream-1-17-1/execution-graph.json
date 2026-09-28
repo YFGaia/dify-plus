@@ -474,7 +474,7 @@
         "completed_subtasks": [],
         "current_subtask": {
           "id": "8.6",
-          "status": "implementation_complete_pending_independent_review",
+          "status": "independent_review_in_progress",
           "evidence": "evidence/M06/result.json#/preflight/contract_handoff",
           "registered_paths": [
             "api/controllers/console/app/app_extend.py",
@@ -489,7 +489,9 @@
             "api/tests/unit_tests/controllers/console/app/test_app_extend.py": "0a476957e761ea8a2a8e381e20ed033780d3ac778cad37d5a3e8b84ab27f4619",
             "api/tests/unit_tests/services/test_recommended_app_service_extend.py": "10df730e3e0dcdb3ee80909aa12fbe9041ee9132c51b4f2a66832465063b998a"
           },
-          "verification": "36 focused tests; Ruff check/format; Swagger schema assertions; diff-check passed"
+          "verification": "36 focused tests; Ruff check/format; Swagger schema assertions; diff-check passed",
+          "implementation_commit": "30410b8fff",
+          "review_agent": "/root/m02_context_luna_review"
         },
         "next_subtask": "8.6_independent_review",
         "implemented_subtasks": [

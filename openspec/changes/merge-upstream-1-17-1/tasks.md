@@ -66,7 +66,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 8.3 [M02] 逐一审计 extend 对重构 service 的调用和懒加载 ORM 属性，保持 session 生命周期；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [x] 8.4 [M02] 路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [x] 8.5 [M02] 原节点验收：public/license 分级无泄露；summary 权限字段真实可读；无旧签名/双重路由；保存绑定版本的证据并更新节点状态。
-- [ ] 8.6 [M02] 安全修复 message/context：缺参保持 400；服务端解析 Conversation→App 并限制当前 tenant，跨租户/缺失统一 404 且不得读写 context；GET 校验 APP_VIEW_LAYOUT，DELETE 校验 APP_EDIT，Agent 应用补充 AgentBehindApp 权限；更新已登记路由/服务及两项定向测试。实现完成，36 项聚焦测试、四文件 Ruff/格式、Swagger schema 断言均通过，等待独立 Luna 复核；契约见 `evidence/M06/result.json#/preflight/contract_handoff`，结果见 `evidence/M02/result.json#/followup_context_contract`。
+- [ ] 8.6 [M02] 安全修复 message/context：缺参保持 400；服务端解析 Conversation→App 并限制当前 tenant，跨租户/缺失统一 404 且不得读写 context；GET 校验 APP_VIEW_LAYOUT，DELETE 校验 APP_EDIT，Agent 应用补充 AgentBehindApp 权限；更新已登记路由/服务及两项定向测试。实现完成，36 项聚焦测试、四文件 Ruff/格式、Swagger schema 断言均通过，代码已提交 `30410b8fff`，独立 Luna 复核进行中；契约见 `evidence/M06/result.json#/preflight/contract_handoff`，结果见 `evidence/M02/result.json#/followup_context_contract`。
 - [ ] 8.7 [M02] 冻结 8.6 的 HTTP 权限矩阵、schema 结果及独立 Luna 复核；保留原 8.1–8.5 证据并将 M02 follow-up 状态收束。
 
 ## 9. M03 账号、OAuth 与 WebApp 后端（前置：M02）

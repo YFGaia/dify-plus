@@ -351,7 +351,7 @@
     "openspec/changes/merge-upstream-1-17-1/tasks.md"
   ],
   "followup_context_contract": {
-    "status": "implementation_complete_pending_independent_review",
+    "status": "independent_review_in_progress",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
     "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
     "subtasks": [
@@ -411,6 +411,16 @@
       "No backend integration tests or live database were run.",
       "LiteLLM remote price-table access failed during test setup and used its local backup; it did not affect the 36 focused tests or schema checks."
     ],
-    "next_action": "Commit the four registered paths, then request a fresh read-only Luna review. M05 11.6 and M06 12.1b remain gated on review/contract handoff."
+    "next_action": "Fresh gpt-6-luna review is in progress against the committed source and generated Swagger export; preserve original 8.1-8.5 acceptance evidence.",
+    "implementation_commit": "30410b8fff",
+    "independent_review": {
+      "status": "in_progress",
+      "model": "gpt-6-luna",
+      "agent": "/root/m02_context_luna_review",
+      "reviewed_commit": "30410b8fff",
+      "scope": "read-only authorization, route uniqueness, required query and exact response schema review",
+      "focused_tests_requested": "36 context controller/service tests",
+      "swagger_artifact": "/private/tmp/dify-m02-context-openapi/console-openapi.json"
+    }
   }
 }
