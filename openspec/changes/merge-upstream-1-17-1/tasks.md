@@ -93,7 +93,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
 
-- [ ] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；M06 preflight 已完成，message/context caller 暂不得恢复，需先完成后端 conversation/app/tenant 权限与 generated contract owner handoff，详见 `evidence/M06/result.json#/preflight`；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [ ] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；preflight 已确定 message/context 必须先由 M02 增加 server-side conversation/app/tenant 与 app/Agent permission 校验并保持缺参 400，再由 M05 生成必填 query 与精确 response contract；无需改路由或客户端传 app_id。详情见 `evidence/M06/result.json#/preflight/contract_handoff`；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.2 [M06] 迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.4 [M06] 系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。

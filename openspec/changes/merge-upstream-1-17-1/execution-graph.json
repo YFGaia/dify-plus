@@ -960,11 +960,13 @@
       ],
       "preflight_status": "completed",
       "implementation_progress": {
-        "completed_subtasks": [],
+        "completed_subtasks": [
+          "preflight"
+        ],
         "current_subtask": {
           "id": "12.1",
           "status": "ready_with_context_contract_precondition",
-          "evidence": "evidence/M06/result.json#/preflight"
+          "evidence": "evidence/M06/result.json#/preflight/contract_handoff"
         },
         "next_subtask": "12.1"
       }

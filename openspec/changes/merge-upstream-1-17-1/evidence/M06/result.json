@@ -10,6 +10,8 @@
     "analysis_model": "gpt-6-sol",
     "contract_review_agent": "/root/m06_message_context_contract",
     "contract_review_model": "gpt-6-sol",
+    "contract_handoff_review_agent": "/root/m06_context_contract_handoff",
+    "contract_handoff_review_model": "gpt-6-sol",
     "findings": [
       "Built-in WebApp authentication, environment address/passport settings, and anonymous context guarding need to be restored at the 1.17.1 host; built-in authentication must remain independent from environment passport/access-point controls.",
       "The current production frontend has no message/context caller. The generated GET and DELETE contracts expose no query parameters and generic object responses, while the backend requires conversation_id and message_id and returns string[] and the string ok.",
@@ -20,13 +22,58 @@
     ],
     "next_actions": [
       "Implement independent M06 UI work only after registering each new path and preserving generated-contract boundaries.",
-      "Before restoring the message/context caller, register and implement the tenant/app authorization and typed API contract under the backend owner, regenerate the three M05-owned message contract files, then add the guarded M06 caller.",
+      "Reopen/register M02 ownership for api/controllers/console/app/app_extend.py, api/services/recommended_app_service_extend.py, and focused controller/service tests. Preserve 400 for missing or empty identifiers; resolve Conversation.app_id server-side; return 404 for missing/deleted/cross-tenant conversations and 403 for same-tenant callers without app permission; check Agent-bound app permissions too.",
+      "Reopen M05 only for the existing owned message contract trio and regenerate it from backend Pydantic/OpenAPI schemas: GET query {conversation_id} -> string[], DELETE query {conversation_id, message_id} -> string 'ok'. Do not hand-edit generated files or add client-supplied app_id.",
+      "After the M02/M05 handoff is complete, add the M06 caller in the registered chat host and skip it for anonymous WebApps without a Console CSRF cookie; do not redirect anonymous sessions to login from this endpoint.",
       "Keep V02 responsible for real browser Cookie/CORS and identity-switch acceptance."
     ],
     "limitations": [
       "Read-only source analysis only; no files or tests were changed by the analysis agents.",
       "This preflight does not complete any 12.1-12.6 implementation task and does not mark M06 passed."
-    ]
+    ],
+    "contract_handoff": {
+      "status": "completed_read_only",
+      "backend_owner": "M02 (reopen and register before implementation)",
+      "generated_contract_owner": "M05 (reopen its existing message trio for standard regeneration)",
+      "frontend_consumer_owner": "M06",
+      "permission_chain": [
+        "Reject missing/empty IDs with the existing HTTP 400 behavior before shared model validation can return 422.",
+        "Resolve Conversation by conversation_id, join its App by Conversation.app_id, and constrain App.tenant_id to current_user.current_tenant_id.",
+        "Return 404 for missing, deleted, or cross-tenant conversations without reading or deleting context rows.",
+        "GET requires APP_VIEW_LAYOUT; DELETE requires APP_EDIT; same-tenant unauthorized callers receive 403. Preserve adjacent legacy edit checks where applicable.",
+        "For agent-bound apps, also apply AgentBehindApp permission checks because PlainApp does not authorize those applications."
+      ],
+      "contract_shapes": {
+        "GET /message/context": "required query { conversation_id: string }; 200 response string[]",
+        "DELETE /message/context": "required query { conversation_id: string, message_id: string }; 200 response string 'ok'"
+      },
+      "frontend_boundary": "No route change or client-provided app_id is needed. Console caller must be skipped for anonymous WebApps without Console CSRF cookie, and its 401 must not trigger login redirect.",
+      "acceptance_cases": [
+        "missing/empty IDs -> 400",
+        "anonymous Console request -> 401",
+        "cross-tenant conversation -> 404 with no context query/delete",
+        "same-tenant unauthorized app -> 403",
+        "authorized GET returns newest-first list of string message IDs",
+        "DELETE removes only the selected message_id in the selected conversation",
+        "generated query parameters are required and response schemas are array(string)/string",
+        "anonymous WebApp does not call the Console context endpoint"
+      ],
+      "key_sources": [
+        "api/controllers/console/app/app_extend.py",
+        "api/services/recommended_app_service_extend.py",
+        "api/controllers/console/app/conversation.py",
+        "api/controllers/common/rbac/checks.py",
+        "api/controllers/common/rbac/locators.py",
+        "api/controllers/console/wraps.py",
+        "packages/contracts/generated/api/console/message/{orpc,types,zod}.gen.ts",
+        "packages/contracts/package.json gen-api-contract script",
+        "research/contract-matrix.md"
+      ],
+      "limitations": [
+        "No implementation or tests were run.",
+        "Agent-bound app context GET should be aligned with the existing AGENT_TEST_AND_RUN message-read policy when implementing the permission chain."
+      ]
+    }
   },
   "subtasks": {},
   "next_subtask": "12.1"
