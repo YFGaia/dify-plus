@@ -126,7 +126,8 @@
           }
         ],
         "next_action": "Restore the declared cn package using the compatible frozen workspace dependency environment and run the full focused card suite before accepting 12.1a."
-      }
+      },
+      "implementation_commit": "ea853611dc"
     }
   },
   "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"

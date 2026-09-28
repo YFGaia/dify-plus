@@ -348,7 +348,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：preflight 已完成；12.1a 代码已完成且独立 Luna 未发现阻断，但卡片测试因 cn@0.2.4 缺失而阻断；context caller 等待 M02/M05 follow-up。前置节点 M04、M05 原源码验收已通过。12.1 的 WebApp 开关/地址迁移可独立推进；message/context caller 暂缓：先重开并登记 M02 后端路由/服务/测试，服务端从 conversation 解析 app/tenant，跨租户 404、同租户无权限 403、缺参保持 400，Agent 绑定应用也执行 Agent 权限；再重开 M05 并通过标准生成得到必填 query 与 `string[]`/`"ok"` 响应，之后 M06 才接入无 Console CSRF cookie 时跳过的 caller。无需改路由或客户端传 app_id。额度徽章必须接入 login_config 配置汇率；应用中心响应需运行时校验；24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。分析证据见 `evidence/M06/result.json#/preflight` 与 `execution.log`。
+- 状态：preflight 已完成；12.1a 代码已由 `ea853611dc` 提交且独立 Luna 未发现阻断，但卡片测试因 cn@0.2.4 缺失而阻断；context caller 等待 M02/M05 follow-up。前置节点 M04、M05 原源码验收已通过。12.1 的 WebApp 开关/地址迁移可独立推进；message/context caller 暂缓：先重开并登记 M02 后端路由/服务/测试，服务端从 conversation 解析 app/tenant，跨租户 404、同租户无权限 403、缺参保持 400，Agent 绑定应用也执行 Agent 权限；再重开 M05 并通过标准生成得到必填 query 与 `string[]`/`"ok"` 响应，之后 M06 才接入无 Console CSRF cookie 时跳过的 caller。无需改路由或客户端传 app_id。额度徽章必须接入 login_config 配置汇率；应用中心响应需运行时校验；24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。分析证据见 `evidence/M06/result.json#/preflight` 与 `execution.log`。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。

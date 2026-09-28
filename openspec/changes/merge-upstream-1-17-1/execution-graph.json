@@ -1010,7 +1010,8 @@
           "status": "implementation_complete_verification_blocked",
           "evidence": "evidence/M06/result.json#/subtasks/12.1a",
           "review_status": "no_blocking_findings",
-          "review_evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_review"
+          "review_evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_review",
+          "implementation_commit": "ea853611dc"
         },
         "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"
       },
