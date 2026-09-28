@@ -428,7 +428,8 @@
       "evidence": [
         "evidence/M02/result.json",
         "evidence/M02/execution.log",
-        "evidence/M02/environment-readiness.json"
+        "evidence/M02/environment-readiness.json",
+        "evidence/M02/independent-review.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -442,13 +443,22 @@
       ],
       "outputs": [
         "evidence/M02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
+        "本节点 steps 对应文件/环境变更及验收结果",
+        "evidence/M02/independent-review.json"
       ],
       "execution": {
         "pre_commit_head": "3c4c28947777b3437ec95c1e559ffa76fcd32041",
         "evidence": "evidence/M02/result.json",
         "test_results": "146 focused/schema + 29 final HTTP tests passed",
-        "deployable": false
+        "deployable": false,
+        "independent_review": {
+          "status": "passed",
+          "thread_id": "01a0e937-62ba-7530-80de-cdd75f9af298",
+          "reviewed_commit": "023d0665586e5b2919af037fec690bbdc9f9047e",
+          "findings": "0 P1 / 0 P2",
+          "focused_tests": "146 passed",
+          "static_checks": "Ruff, format, OpenSpec strict, and diff-check passed"
+        }
       }
     },
     {

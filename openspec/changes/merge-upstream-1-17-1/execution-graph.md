@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过），M03 ready；M04–M06/M08/V01/V02/R01 仍待各自前置，M07 ready；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 ready；M04–M06/M08/V01/V02/R01 仍待各自前置，M07 ready；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -251,7 +251,7 @@ git show --no-patch --format=%P HEAD
 
 ## M02 · 后端基础与共同契约适配
 
-- 状态：passed；后端共同契约与定向验收通过，证据见 evidence/M02/result.json；仍非可部署版本。
+- 状态：passed；后端共同契约与定向验收通过，独立 Luna 复核未发现 P1/P2；146 项定向复测、Ruff/格式、OpenSpec strict 与 diff-check 通过。证据见 evidence/M02/result.json 与 evidence/M02/independent-review.json；仍非可部署版本。
 
 - 前置：M01；负责人：后端基础负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`backend_core`。
