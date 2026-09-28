@@ -28,3 +28,24 @@ api/tests/unit_tests/controllers/console/workspace/test_workspace.py	M02	V01	M02
 api/tests/unit_tests/models/test_workflow_app_log_models.py	M02	V01	M02 common contracts	M02_registered	log accessor and persisted mapping regressions
 api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py	M02	V01	M02 common contracts	M02_registered	real log endpoint repository projection and session-lifetime regression
 api/tests/unit_tests/conftest.py	M02	V01	api/models/*extend.py	exists_in_1.17.1	SQLite metadata-copy adapter for existing fork PostgreSQL timestamp defaults; production schema unchanged
+api/services/account_quota_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/account_oauth_gateway_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/entities/account_oauth_entities.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/ding_talk_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/app_site_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/repositories/app_site_command_repository.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/webapp_auth_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/webapp_console_identity_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/services/test_account_quota_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/services/test_account_oauth_gateway_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/services/test_webapp_auth_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/repositories/test_app_site_command_repository.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/controllers/console/app/test_site_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/controllers/console/auth/test_oauth.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/controllers/web/test_web_login_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/controllers/web/completion.py::is_end_login	M03	V01	contract-matrix.md C05	M03_hunk_transfer_approved	Main agent approved Console identity hunk only; is_money_limit and all billing logic remain M04
+api/tests/unit_tests/controllers/web/conftest.py	M03	V01	M03 generation identity tests	M03_registered	Restore missing SimpleNamespace import in existing identity fixture only
+api/tests/unit_tests/services/test_account_oauth_service.py	M03	V01	contract-matrix.md C02	M03_test_host	OAuth2 token fallback and upstream claim locks
+api/tests/unit_tests/controllers/web/test_web_login.py	M03	V01	contract-matrix.md C05	M03_test_host	Existing status fixture and identity contract coverage
+api/controllers/console/auth/oauth_admission_extend.py	M03	V01	M03 OAuth2 SSO contract	M03_new_host	Keep custom integration admission separate from GitHub Google social switch

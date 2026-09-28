@@ -1,6 +1,6 @@
 """SQLAlchemy persistence adapter for Console app site management."""
 
-from dataclasses import asdict
+from dataclasses import fields
 from typing import override
 
 from sqlalchemy import select
@@ -16,6 +16,8 @@ from services.app_site_service import (
     AppSiteNotFoundError,
     AppSiteStore,
 )
+from services.app_site_service_extend import AppSiteChangesExtend
+from services.webapp_auth_service_extend import WebAppAuthExtendService
 
 
 class AppSiteCommandRepository(AppSiteStore):
@@ -33,14 +35,25 @@ class AppSiteCommandRepository(AppSiteStore):
     ) -> AppSiteCommandResult:
         with self._session_factory.begin() as session:
             site = self._get_site(session, workspace_id, app_id)
-            for field_name, value in asdict(changes).items():
+            for field in fields(AppSiteChanges):
+                field_name = field.name
+                value = getattr(changes, field_name)
                 if value is not None:
                     setattr(site, field_name, value)
+
+            auth_changed = isinstance(changes, AppSiteChangesExtend) and changes.webapp_auth_enabled_extend is not None
+            if isinstance(changes, AppSiteChangesExtend) and changes.webapp_auth_enabled_extend is not None:
+                WebAppAuthExtendService.set_webapp_auth_enabled(
+                    app_id, changes.webapp_auth_enabled_extend, session=session
+                )
 
             site.updated_by = actor_id
             site.updated_at = naive_utc_now()
             session.flush()
-            return self._to_command_result(site)
+            result = self._to_command_result(site)
+        if auth_changed:
+            WebAppAuthExtendService.invalidate_after_commit(app_id)
+        return result
 
     @override
     def reset_access_token(
@@ -68,6 +81,7 @@ class AppSiteCommandRepository(AppSiteStore):
                 App.tenant_id == workspace_id,
                 App.status == AppStatus.NORMAL,
             )
+            .with_for_update(of=Site)
             .limit(1)
         )
         if site is not None:

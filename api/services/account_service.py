@@ -45,6 +45,7 @@ from models.account import (
     TenantPluginAutoUpgradeStrategy,
     TenantStatus,
 )
+from models.account_money_extend import AccountMoneyExtend
 from models.dataset import Dataset
 from models.model import App, DifySetup
 from services.account_email import normalize_email
@@ -55,6 +56,7 @@ from services.account_forgot_password_service import (
     FORGOT_PASSWORD_VERIFICATION_FAILURE_LIMIT,
     FORGOT_PASSWORD_VERIFICATION_KEY_PREFIX,
 )
+from services.account_quota_service_extend import ensure_account_quota_extend
 from services.billing_service import BillingService
 from services.enterprise.rbac_service import ListOption, RBACService
 from services.entities.auth_entities import (
@@ -474,8 +476,14 @@ class AccountService:
             last_login_ip=ip_address,
         )
 
-        session.add(account)
-        session.commit()
+        try:
+            session.add(account)
+            session.flush()
+            ensure_account_quota_extend(account.id, session=session)
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
         return account
 
     @staticmethod
@@ -1715,6 +1723,7 @@ class RegisterService:
         :param ip_address: ip address
         :param language: language
         """
+        created_account_id: str | None = None
         try:
             account = AccountService.create_account(
                 email=email,
@@ -1726,6 +1735,7 @@ class RegisterService:
                 session=session,
             )
 
+            created_account_id = account.id
             account.initialized_at = naive_utc_now()
 
             TenantService.create_owner_tenant_if_not_exist(account=account, is_setup=True, session=session)
@@ -1734,6 +1744,9 @@ class RegisterService:
             session.add(dify_setup)
             session.commit()
         except Exception as e:
+            session.rollback()
+            if created_account_id is not None:
+                session.execute(delete(AccountMoneyExtend).where(AccountMoneyExtend.account_id == created_account_id))
             session.execute(delete(DifySetup))
             session.execute(delete(TenantAccountJoin))
             session.execute(delete(Account))

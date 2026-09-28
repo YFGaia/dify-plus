@@ -307,12 +307,14 @@ def _harness(
     *,
     identity: OAuthIdentity | None = None,
     additional_identities: dict[str, OAuthIdentity] | None = None,
+    provider_overrides: dict[str, FakeProvider] | None = None,
 ) -> Harness:
     provider = FakeProvider(identity)
     providers = {"github": provider}
     providers.update(
         {name: FakeProvider(additional_identity) for name, additional_identity in (additional_identities or {}).items()}
     )
+    providers.update(provider_overrides or {})
     accounts = FakeAccounts()
     integrations = FakeIntegrations(accounts=accounts)
     account_claims = FakeAccountClaims()
@@ -760,3 +762,43 @@ def test_banned_account_is_rejected_before_writes() -> None:
         harness.service.complete_authorization(_command())
 
     assert harness.integrations.links == []
+
+
+class FakeTokenProvider(FakeProvider):
+    def get_identity_from_token(self, token: str) -> OAuthIdentity:
+        self.codes.append(f"token:{token}")
+        return self.identity
+
+
+def test_fork_token_callback_uses_upstream_claims_and_existing_account() -> None:
+    provider = FakeTokenProvider(OAuthIdentity(id="provider-user", name="User", email="user@example.com"))
+    harness = _harness(provider_overrides={"oauth2": provider})
+    _bind_identity(harness, _account(), provider="oauth2")
+    result = harness.service.complete_authorization(_command(provider="oauth2", code="", access_token="provider-token"))
+    assert isinstance(result, OAuthSignInResult)
+    assert result.oauth_new_user is False
+    assert provider.codes == ["token:provider-token"]
+    assert harness.account_claims.claims == [("oauth2", "provider-user", "user@example.com")]
+    assert harness.account_claims.account_ids == ["account-1"]
+    assert not harness.registration.registrations
+
+
+@pytest.mark.parametrize("provider_name", ["github", "google", "oauth2"])
+def test_token_callback_rejects_unsupported_gateway_before_account_work(provider_name: str) -> None:
+    from services.account_errors import OAuthProviderAuthorizationError
+
+    harness = _harness(provider_overrides={provider_name: FakeProvider()})
+    with pytest.raises(OAuthProviderAuthorizationError):
+        harness.service.complete_authorization(_command(provider=provider_name, access_token="token"))
+    assert not harness.account_claims.claims
+    assert not harness.integrations.links
+
+
+def test_casdoor_id_token_survives_domain_signin() -> None:
+    harness = _harness(
+        identity=OAuthIdentity(id="provider-user", name="User", email="user@example.com", id_token="casdoor-id")
+    )
+    _bind_identity(harness, _account())
+    result = harness.service.complete_authorization(_command())
+    assert isinstance(result, OAuthSignInResult)
+    assert result.id_token == "casdoor-id"

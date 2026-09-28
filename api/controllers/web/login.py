@@ -45,6 +45,8 @@ from services.app_service import AppService
 from services.entities.auth_audit_entities import LoginFailureReason
 from services.entities.auth_entities import LoginPayloadBase
 from services.webapp_auth_service import WebAppAuthService
+from services.webapp_auth_service_extend import WebAppAuthExtendService
+from services.webapp_console_identity_extend import get_console_account_extend
 
 logger = logging.getLogger(__name__)
 
@@ -146,9 +148,13 @@ class LoginStatusApi(Resource):
         app_code = query.app_code
         user_id = query.user_id
         token = extract_webapp_access_token(request)
+        console_logged_in = get_console_account_extend(request, session=db.session()) is not None
         if not app_code:
-            return LoginStatusResponse(logged_in=bool(token), app_logged_in=False).model_dump(mode="json")
+            return LoginStatusResponse(
+                logged_in=bool(token), app_logged_in=False, console_logged_in=console_logged_in
+            ).model_dump(mode="json")
         app_id = AppService.get_app_id_by_code(app_code, session=db.session())
+        webapp_auth_enabled_extend = WebAppAuthExtendService.is_webapp_auth_enabled(app_id)
         is_public = (
             dify_config.DEPLOYMENT_EDITION != DeploymentEdition.ENTERPRISE
             or not WebAppAuthService.is_app_require_permission_check(app_id=app_id, session=db.session())
@@ -170,7 +176,12 @@ class LoginStatusApi(Resource):
         except Exception:
             app_logged_in = False
 
-        return LoginStatusResponse(logged_in=user_logged_in, app_logged_in=app_logged_in).model_dump(mode="json")
+        return LoginStatusResponse(
+            logged_in=user_logged_in,
+            app_logged_in=app_logged_in,
+            console_logged_in=console_logged_in,
+            webapp_auth_enabled_extend=webapp_auth_enabled_extend,
+        ).model_dump(mode="json")
 
 
 @web_ns.route("/logout")

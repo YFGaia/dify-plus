@@ -1,0 +1,5 @@
+M03 started at source acf866871a50316ea514d35a9d04092bd3e32b20. Branch codex/merge-upstream-1.17.1. Tracked worktree/index clean. Existing untracked directories preserved. OpenSpec status/instructions read: spec-driven, 31/124 complete; M03 steps 9.1-9.5 pending.
+
+Final implementation: quota same Account transaction; active OAuth2 gateway and dedicated admission; Site/AppExtend atomic writes; authoritative DB switch reads after cache failure; Console Cookie purpose check with isolated Session. Parent approved is_end_login hunk only.
+Initial existing tests:193 passed. Account/OAuth:79 passed. Atomic tests:31 passed. Luna site:20 passed; identity:41 passed. Sol review two findings fixed. Final first run344 passed/1 fixture IP failure; rerun345 passed. Default-false social OAuth regression then fixed and four admission tests added. Final independent Luna acceptance349 passed, exit0, source hashes unchanged. Schema generation exit0;6 assertions passed.
+No external provider calls, runtime deployment, branch/worktree creation or production operations. Existing untracked paths preserved. See handoff.md for ownership, limitations and successor contracts.

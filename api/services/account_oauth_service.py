@@ -3,7 +3,7 @@
 from collections.abc import Callable, Mapping, Sequence
 from contextlib import AbstractContextManager
 from datetime import datetime
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from services.account_email import normalize_email
 from services.account_errors import (
@@ -14,6 +14,7 @@ from services.account_errors import (
     OAuthAccountBannedError,
     OAuthAccountNotFoundError,
     OAuthInvitationAccountMismatchError,
+    OAuthProviderAuthorizationError,
     OAuthRegistrationError,
     OAuthWorkspaceCreationNotAllowedError,
 )
@@ -38,6 +39,11 @@ class OAuthProviderGateway(Protocol):
     def get_authorization_url(self, request: OAuthAuthorizationRequest) -> str: ...
 
     def get_identity(self, code: str) -> OAuthIdentity: ...
+
+
+@runtime_checkable
+class OAuthTokenProviderGateway(Protocol):
+    def get_identity_from_token(self, token: str) -> OAuthIdentity: ...
 
 
 class OAuthInvitationGateway(Protocol):
@@ -115,7 +121,12 @@ class AccountOAuthService:
 
     def complete_authorization(self, command: OAuthCallbackCommand) -> OAuthCallbackResult:
         provider = self._provider(command.provider)
-        identity = provider.get_identity(command.code)
+        if command.access_token is not None:
+            if command.provider != "oauth2" or not isinstance(provider, OAuthTokenProviderGateway):
+                raise OAuthProviderAuthorizationError("Token callback is not supported by this provider")
+            identity = provider.get_identity_from_token(command.access_token)
+        else:
+            identity = provider.get_identity(command.code)
         identity_email_key = self._identity_email_key(identity.email)
 
         with self._account_claims.acquire(
@@ -157,7 +168,7 @@ class AccountOAuthService:
 
         identity_claim.ensure_owned()
         tokens = self._sessions.login(account.id, ip_address=command.ip_address)
-        return OAuthSignInResult(tokens=tokens, oauth_new_user=oauth_new_user)
+        return OAuthSignInResult(tokens=tokens, oauth_new_user=oauth_new_user, id_token=identity.id_token)
 
     def _provision_new_account_workspaces(
         self,

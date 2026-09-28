@@ -25,6 +25,7 @@ from services.app_site_service import (
     AppSiteNotFoundError,
     AppSiteTokenStrategy,
 )
+from services.app_site_service_extend import AppSiteChangesExtend
 
 _APP_SITE_EDIT_ROLES = frozenset(
     {
@@ -42,6 +43,7 @@ _APP_SITE_TOKEN_RESET_ROLES = frozenset(
 
 
 class AppSiteUpdatePayload(BaseModel):
+    webapp_auth_enabled_extend: bool | None = Field(default=None, strict=True)
     title: str | None = Field(default=None)
     icon_type: str | None = Field(default=None)
     icon: str | None = Field(default=None)
@@ -68,7 +70,10 @@ class AppSiteUpdatePayload(BaseModel):
         return supported_language(value)
 
     def to_changes(self) -> AppSiteChanges:
-        return AppSiteChanges(**self.model_dump())
+        values = self.model_dump(exclude={"webapp_auth_enabled_extend"})
+        if self.webapp_auth_enabled_extend is None:
+            return AppSiteChanges(**values)
+        return AppSiteChangesExtend(**values, webapp_auth_enabled_extend=self.webapp_auth_enabled_extend)
 
 
 class AppSiteResponse(ResponseModel):

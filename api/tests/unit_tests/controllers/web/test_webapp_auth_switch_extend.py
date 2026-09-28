@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from flask import Flask
 
-from controllers.web.completion import ChatApi
+from controllers.web.completion import ChatApi, CompletionApi
 from controllers.web.error_extend import WebAuthRequiredErrorExtend
 from controllers.web.workflow import WorkflowRunApi
 from services.webapp_auth_service_extend import WebAppAuthExtendService
@@ -30,14 +30,70 @@ def _workflow_app() -> SimpleNamespace:
     return SimpleNamespace(id="app-1", mode="workflow")
 
 
+def _completion_app() -> SimpleNamespace:
+    return SimpleNamespace(id="app-1", mode="completion")
+
+
 def _end_user() -> SimpleNamespace:
     return SimpleNamespace(id="eu-1")
 
 
+@pytest.mark.parametrize(
+    ("endpoint", "module_name", "app_factory", "payload"),
+    [
+        (CompletionApi, "controllers.web.completion", _completion_app, {"inputs": {}, "query": "hi"}),
+        (ChatApi, "controllers.web.completion", _chat_app, {"inputs": {}, "query": "hi"}),
+        (WorkflowRunApi, "controllers.web.workflow", _workflow_app, {"inputs": {}}),
+    ],
+)
+@pytest.mark.parametrize("auth_enabled", [None, True, False])
+@pytest.mark.parametrize("logged_in", [False, True])
+def test_generation_auth_matrix(
+    endpoint,
+    module_name: str,
+    app_factory,
+    payload: dict,
+    auth_enabled: bool | None,
+    logged_in: bool,
+    app: Flask,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """All three generation routes honor NULL/true/false auth for anonymous and Console users."""
+    module = __import__(module_name, fromlist=["*"])
+    user = SimpleNamespace(id="console-account") if logged_in else None
+    monkeypatch.setattr(module, "is_end_login", lambda _end_user: user)
+    monkeypatch.setattr(module, "is_money_limit", lambda _end_user: False)
+    monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", lambda _app_id: auth_enabled is not False)
+    monkeypatch.setattr(module.AppGenerateService, "generate", lambda **_kwargs: "generated")
+    monkeypatch.setattr(module.AppGenerateServiceExtend, "calculate_cumulative_usage", lambda **_kwargs: None)
+    monkeypatch.setattr(module.helper, "compact_generate_response", lambda _response: {"ok": True})
+
+    request_path = {CompletionApi: "/completion-messages", ChatApi: "/chat-messages", WorkflowRunApi: "/workflows/run"}[
+        endpoint
+    ]
+    with app.test_request_context(request_path, method="POST", json=payload):
+        if not logged_in and auth_enabled is not False:
+            with pytest.raises(WebAuthRequiredErrorExtend):
+                endpoint().post(app_factory(), _end_user())
+        else:
+            assert endpoint().post(app_factory(), _end_user()) == {"ok": True}
+
+
 class TestChatApiWebAppAuthSwitch:
+    def test_webapp_bearer_does_not_bypass_console_login_gate(
+        self, app: Flask, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr("controllers.web.completion.is_end_login", lambda _end_user: None)
+        monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", lambda _app_id: True)
+        with app.test_request_context(
+            "/chat-messages", method="POST", json={}, headers={"Authorization": "Bearer webapp-access-token"}
+        ):
+            with pytest.raises(WebAuthRequiredErrorExtend):
+                ChatApi().post(_chat_app(), _end_user())
+
     def test_anonymous_blocked_when_auth_enabled(self, app: Flask, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr("controllers.web.completion.is_end_login", lambda end_user: None)
-        monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", lambda app_id: True)
+        monkeypatch.setattr("controllers.web.completion.is_end_login", lambda _end_user: None)
+        monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", lambda _app_id: True)
 
         with app.test_request_context("/chat-messages", method="POST"):
             with pytest.raises(WebAuthRequiredErrorExtend):
@@ -54,7 +110,7 @@ class TestChatApiWebAppAuthSwitch:
         app: Flask,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        monkeypatch.setattr("controllers.web.completion.is_end_login", lambda end_user: None)
+        monkeypatch.setattr("controllers.web.completion.is_end_login", lambda _end_user: None)
         switch = MagicMock(return_value=False)
         monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", switch)
         mock_ns.payload = {"inputs": {}, "query": "hi"}
@@ -62,6 +118,8 @@ class TestChatApiWebAppAuthSwitch:
         with app.test_request_context("/chat-messages", method="POST"):
             result = ChatApi().post(_chat_app(), _end_user())
 
+        mock_compact.assert_called_once()
+        mock_gen.assert_called_once()
         assert result == {"answer": "reply"}
         switch.assert_called_once_with("app-1")
         # 匿名放行时不做计费归因
@@ -86,6 +144,8 @@ class TestChatApiWebAppAuthSwitch:
         with app.test_request_context("/chat-messages", method="POST"):
             result = ChatApi().post(_chat_app(), _end_user())
 
+        mock_compact.assert_called_once()
+        mock_gen.assert_called_once()
         assert result == {"answer": "reply"}
         switch.assert_not_called()
         # 已登录时保留计费归因
@@ -93,9 +153,20 @@ class TestChatApiWebAppAuthSwitch:
 
 
 class TestWorkflowRunApiWebAppAuthSwitch:
+    def test_webapp_bearer_does_not_bypass_console_login_gate(
+        self, app: Flask, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setattr("controllers.web.workflow.is_end_login", lambda _end_user: None)
+        monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", lambda _app_id: True)
+        with app.test_request_context(
+            "/workflows/run", method="POST", json={}, headers={"Authorization": "Bearer webapp-access-token"}
+        ):
+            with pytest.raises(WebAuthRequiredErrorExtend):
+                WorkflowRunApi().post(_workflow_app(), _end_user())
+
     def test_anonymous_blocked_when_auth_enabled(self, app: Flask, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setattr("controllers.web.workflow.is_end_login", lambda end_user: None)
-        monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", lambda app_id: True)
+        monkeypatch.setattr("controllers.web.workflow.is_end_login", lambda _end_user: None)
+        monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", lambda _app_id: True)
 
         with app.test_request_context("/workflows/run", method="POST"):
             with pytest.raises(WebAuthRequiredErrorExtend):
@@ -112,7 +183,7 @@ class TestWorkflowRunApiWebAppAuthSwitch:
         app: Flask,
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
-        monkeypatch.setattr("controllers.web.workflow.is_end_login", lambda end_user: None)
+        monkeypatch.setattr("controllers.web.workflow.is_end_login", lambda _end_user: None)
         switch = MagicMock(return_value=False)
         monkeypatch.setattr(WebAppAuthExtendService, "is_webapp_auth_enabled", switch)
         mock_ns.payload = {"inputs": {}}
@@ -120,5 +191,7 @@ class TestWorkflowRunApiWebAppAuthSwitch:
         with app.test_request_context("/workflows/run", method="POST"):
             result = WorkflowRunApi().post(_workflow_app(), _end_user())
 
+        mock_gen.assert_called_once()
+        mock_compact.assert_called_once()
         assert result == {"result": "ok"}
         switch.assert_called_once_with("app-1")

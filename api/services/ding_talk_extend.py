@@ -383,6 +383,7 @@ class DingTalkService:
                     name=username,
                     password=new_password,
                     language=dify_config.DEFAULT_LANGUAGE,
+                    session=db.session(),
                 )
             except EOFError as a:
                 return "", f"register user error: {str(a)}， info {json.loads(reqs)}"

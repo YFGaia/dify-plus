@@ -8,14 +8,15 @@
 - NULL / True：访问需登录 Console（默认，保持 fork 既有行为）；
 - False：允许匿名访问（回到上游 Dify 的公开 WebApp 语义）。
 
-读路径位于生成请求热路径，走 redis 投影缓存（键 `webapp_auth_enabled_extend:{app_id}`，
-写后删除、读侧回填，模式同 `retention_number_{app_id}`）。写路径由 Console 站点设置接口
+读路径使用 redis 投影缓存；授权决策始终重查 DB，避免失效失败造成旧配置继续生效。
+写路径由 Console 站点设置接口
 （`controllers/console/app/site.py`）调用，使用调用方注入的 session，不自行 commit。
 
 注意：与上游企业版 `system_features.webapp_auth`（WEB_SSO / access_mode）语义无关，勿混用。
 """
 
 import logging
+from uuid import uuid4
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -49,12 +50,12 @@ class WebAppAuthExtendService:
             logger.exception("read webapp_auth_enabled cache failed, fallback to db. app_id=%s", app_id)
             cached = None
 
-        if cached is not None:
-            value = cached.decode() if isinstance(cached, bytes) else str(cached)
-            return value == "1"
-
+        # Redis is a projection, not an authorization source: either direction of
+        # a committed switch change must be visible even when invalidation fails.
         try:
-            app_extend = db.session.scalar(select(AppExtend).where(AppExtend.app_id == app_id))
+            app_extend = db.session.scalar(
+                select(AppExtend).where(AppExtend.app_id == app_id).execution_options(populate_existing=True)
+            )
         except Exception:
             logger.exception("query webapp_auth_enabled failed, default to enabled. app_id=%s", app_id)
             return True
@@ -64,25 +65,28 @@ class WebAppAuthExtendService:
         else:
             enabled = bool(app_extend.webapp_auth_enabled)
         try:
-            redis_client.set(cache_key, "1" if enabled else "0")
+            value = "1" if enabled else "0"
+            if cached not in (value, value.encode()):
+                redis_client.set(cache_key, value, ex=60)
         except Exception:
             logger.exception("write webapp_auth_enabled cache failed. app_id=%s", app_id)
         return bool(enabled)
 
     @classmethod
     def set_webapp_auth_enabled(cls, app_id: str, enabled: bool, *, session: Session) -> None:
-        """写入开关（AppExtend 行不存在时创建），并删除 redis 投影缓存。
+        """只写入开关；调用方提交成功后必须调用 invalidate_after_commit。
 
-        使用调用方注入的 session，由调用方（如 with_session 装饰的 controller）统一提交。
+        使用调用方注入的 session，由 AppSiteCommandRepository 的事务统一提交。
         """
         app_extend = session.scalar(select(AppExtend).where(AppExtend.app_id == app_id))
         if app_extend is None:
-            session.add(AppExtend(app_id=app_id, webapp_auth_enabled=enabled))
+            session.add(AppExtend(id=str(uuid4()), app_id=app_id, webapp_auth_enabled=enabled))
         else:
             app_extend.webapp_auth_enabled = enabled
 
-        # 先删缓存再等调用方 commit 存在极小窗口内被旧值回填的可能，
-        # 与 retention_number 的既有做法一致；开关属低频写，可接受。
+    @classmethod
+    def invalidate_after_commit(cls, app_id: str) -> None:
+        """Invalidate only after commit; stale public cache entries never authorize a request."""
         try:
             redis_client.delete(cls._cache_key(app_id))
         except Exception:

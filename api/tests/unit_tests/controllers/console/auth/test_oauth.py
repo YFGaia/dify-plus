@@ -301,3 +301,68 @@ def test_oauth_admission_rejects_disabled_social_login(
         OAuthLogin().get("github")
 
     assert service.authorization_calls == []
+
+
+@pytest.mark.parametrize(
+    ("query", "expected_code", "expected_token"),
+    [
+        ("access_token=legacy-token", "", "legacy-token"),
+        ("code=code-first&access_token=legacy-token", "code-first", None),
+    ],
+)
+def test_fork_callback_credentials(app, monkeypatch, query, expected_code, expected_token):
+    service = FakeOAuthService()
+    _install_service(monkeypatch, service)
+    with app.test_request_context(f"/oauth/authorize/oauth2?{query}"):
+        response = OAuthCallback().get("oauth2")
+    assert response.status_code == 302
+    assert service.callback_calls[0].code == expected_code
+    assert service.callback_calls[0].access_token == expected_token
+
+
+@pytest.mark.parametrize(
+    ("target", "expected_path"), [("/apps?keep=1#section", "/apps"), ("https://evil.invalid/steal", "")]
+)
+def test_casdoor_id_token_redirect_is_encoded_and_same_origin(app, monkeypatch, target, expected_path):
+    from urllib.parse import parse_qs, urlsplit
+
+    service = FakeOAuthService(
+        callback_result=OAuthSignInResult(
+            tokens=AccountSessionTokens("access-token", "refresh-token", "csrf-token"),
+            oauth_new_user=True,
+            id_token="id&token=#?+",
+        )
+    )
+    _install_service(monkeypatch, service)
+    state = encode_oauth_state(redirect_url=target)
+    with app.test_request_context(f"/oauth/authorize/oauth2?code=code&state={state}"):
+        response = OAuthCallback().get("oauth2")
+    parts = urlsplit(response.headers["Location"])
+    assert parts.path == expected_path
+    assert parts.netloc in ("", "console.example.com")
+    assert parse_qs(parts.query)["id_token"] == ["id&token=#?+"]
+    assert parse_qs(parts.query)["oauth_new_user"] == ["true"]
+    if expected_path:
+        assert parts.fragment == "section"
+        assert parse_qs(parts.query)["keep"] == ["1"]
+
+
+@pytest.mark.parametrize("endpoint", ["login", "callback"])
+def test_custom_sso_is_independent_of_disabled_github_google_login(app, monkeypatch, config_overrides, endpoint):
+    config_overrides(ENABLE_SOCIAL_OAUTH_LOGIN=False)
+    service = FakeOAuthService()
+    _install_service(monkeypatch, service)
+    path = "/oauth/login/oauth2" if endpoint == "login" else "/oauth/authorize/oauth2?code=code"
+    with app.test_request_context(path):
+        response = OAuthLogin().get("oauth2") if endpoint == "login" else OAuthCallback().get("oauth2")
+    assert response.status_code == 302
+
+
+@pytest.mark.parametrize("provider", ["github", "google"])
+def test_disabled_social_callback_never_calls_service(app, monkeypatch, config_overrides, provider):
+    config_overrides(ENABLE_SOCIAL_OAUTH_LOGIN=False)
+    service = FakeOAuthService()
+    _install_service(monkeypatch, service)
+    with app.test_request_context(f"/oauth/authorize/{provider}?code=code"), pytest.raises(Forbidden):
+        OAuthCallback().get(provider)
+    assert service.callback_calls == []

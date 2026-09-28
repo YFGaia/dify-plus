@@ -18,6 +18,7 @@ class OAuthIdentity:
     id: str
     name: str
     email: str
+    id_token: str | None = None  # extend: optional Casdoor logout handoff
 
 
 @dataclass(frozen=True, slots=True)
@@ -29,6 +30,7 @@ class OAuthCallbackCommand:
     language: str | None
     browser_language: str | None
     ip_address: str
+    access_token: str | None = None  # extend: existing OAuth2 implicit callback only
 
 
 @dataclass(frozen=True, slots=True)
@@ -51,6 +53,7 @@ class OAuthAccountRegistration:
 class OAuthSignInResult:
     tokens: _AccountSessionTokens
     oauth_new_user: bool
+    id_token: str | None = None  # extend: provider token, never a Console identity
 
 
 @dataclass(frozen=True, slots=True)

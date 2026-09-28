@@ -50,37 +50,22 @@ from controllers.web.error_extend import (
     WebAuthRequiredErrorExtend,
 )
 from extensions.ext_database import db
-from libs.passport import PassportService
-from libs.token import extract_access_token
 from models.account_money_extend import AccountMoneyExtend
-from services.account_service import AccountService
 from services.app_generate_service_extend import AppGenerateServiceExtend
 from services.webapp_auth_service_extend import WebAppAuthExtendService
+from services.webapp_console_identity_extend import get_console_account_extend
 
 
 def is_end_login(end_user):
     """extend: 从 WebApp 当前请求中解析 Console 用户，并在首次识别时绑定 external_user_id。"""
     user_info = None
     try:
-        # 从 cookie 中读取 access_token
-        auth_token = extract_access_token(request)
-        if not auth_token:
-            return None
-
-        # 验证 access_token
-        decoded = PassportService().verify(auth_token)
-        user_id = decoded.get("user_id")
-        if not user_id:
-            return None
-
-        # 加载 Console 用户信息（upstream 1.15.0 起 session 为必填关键字参数；
-        # db.session() 取 scoped_session 背后的实体 Session 以匹配签名）
-        user_info = AccountService.load_logged_in_account(account_id=user_id, session=db.session())
+        user_info = get_console_account_extend(request, session=db.session())
 
         # 绑定 end_user 与 Console 用户
         if user_info is not None:
             if end_user.external_user_id is None:
-                end_user.external_user_id = user_id
+                end_user.external_user_id = user_info.id
                 db.session.commit()  # 提交绑定关系
     except Exception:
         logging.exception("load_logged_in_account error")

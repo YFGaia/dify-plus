@@ -4,8 +4,11 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from models.enums import CustomizeTokenStrategy
 from models.model import App, AppMode, Site
+from models.model_extend import AppExtend
 from repositories.app_site_command_repository import AppSiteCommandRepository
 from services.app_site_service import AppSiteAppNotFoundError, AppSiteChanges, AppSiteNotFoundError
+from services.app_site_service_extend import AppSiteChangesExtend
+from services.webapp_auth_service_extend import WebAppAuthExtendService
 
 _APP_ID = "11111111-1111-1111-1111-111111111111"
 _WORKSPACE_ID = "22222222-2222-2222-2222-222222222222"
@@ -159,3 +162,180 @@ def test_reset_access_token_uses_the_owned_transaction(
         assert site is not None
         assert site.code == "new-code"
         assert site.updated_by == _ACTOR_ID
+
+
+@pytest.mark.parametrize("enabled", [True, False])
+def test_site_and_auth_extend_persist_atomically_and_invalidate_after_commit(
+    sqlite_session: Session,
+    sqlite_session_factory: sessionmaker[Session],
+    monkeypatch: pytest.MonkeyPatch,
+    enabled: bool,
+) -> None:
+    _persist_app(sqlite_session)
+    calls: list[tuple[str, bool]] = []
+    original_setter = WebAppAuthExtendService.set_webapp_auth_enabled
+    write_sessions: list[Session] = []
+
+    def write_extend(app_id: str, value: bool, *, session: Session) -> None:
+        calls.append(("write", session.in_transaction()))
+        write_sessions.append(session)
+        original_setter(app_id, value, session=session)
+
+    def invalidate(app_id: str) -> None:
+        calls.append(("invalidate", app_id == _APP_ID))
+        assert not write_sessions[0].in_transaction()
+        # The repository must call this only after the owned transaction commits.
+        with sqlite_session_factory() as verify_session:
+            persisted = verify_session.scalar(select(AppExtend).where(AppExtend.app_id == app_id))
+            assert persisted is not None
+            assert persisted.webapp_auth_enabled is enabled
+
+    monkeypatch.setattr(WebAppAuthExtendService, "set_webapp_auth_enabled", write_extend)
+    monkeypatch.setattr(WebAppAuthExtendService, "invalidate_after_commit", invalidate)
+
+    _repository(sqlite_session_factory).update_site(
+        workspace_id=_WORKSPACE_ID,
+        app_id=_APP_ID,
+        actor_id=_ACTOR_ID,
+        changes=AppSiteChangesExtend(title="Changed", webapp_auth_enabled_extend=enabled),
+    )
+
+    assert calls == [("write", True), ("invalidate", True)]
+    with sqlite_session_factory() as session:
+        site = session.scalar(select(Site).where(Site.app_id == _APP_ID))
+        extend = session.scalar(select(AppExtend).where(AppExtend.app_id == _APP_ID))
+        assert site is not None
+        assert site.title == "Changed"
+        assert extend is not None
+        assert extend.webapp_auth_enabled is enabled
+
+
+def test_auth_update_failure_rolls_back_site_and_does_not_invalidate(
+    sqlite_session: Session,
+    sqlite_session_factory: sessionmaker[Session],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _persist_app(sqlite_session)
+    invalidated: list[str] = []
+
+    def fail_write(app_id: str, value: bool, *, session: Session) -> None:
+        session.add(AppExtend(app_id=app_id, webapp_auth_enabled=value))
+        raise RuntimeError("extend write failed")
+
+    monkeypatch.setattr(WebAppAuthExtendService, "set_webapp_auth_enabled", fail_write)
+    monkeypatch.setattr(WebAppAuthExtendService, "invalidate_after_commit", invalidated.append)
+
+    with pytest.raises(RuntimeError, match="extend write failed"):
+        _repository(sqlite_session_factory).update_site(
+            workspace_id=_WORKSPACE_ID,
+            app_id=_APP_ID,
+            actor_id=_ACTOR_ID,
+            changes=AppSiteChangesExtend(title="Must roll back", webapp_auth_enabled_extend=False),
+        )
+
+    assert invalidated == []
+    with sqlite_session_factory() as session:
+        site = session.scalar(select(Site).where(Site.app_id == _APP_ID))
+        assert site is not None
+        assert site.title == "Original"
+        assert site.updated_by is None
+        assert session.scalar(select(AppExtend).where(AppExtend.app_id == _APP_ID)) is None
+
+
+def test_null_extension_flag_leaves_auth_row_and_cache_untouched(
+    sqlite_session: Session,
+    sqlite_session_factory: sessionmaker[Session],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _persist_app(sqlite_session)
+    sqlite_session.add(AppExtend(id="55555555-5555-5555-5555-555555555555", app_id=_APP_ID, webapp_auth_enabled=None))
+    sqlite_session.commit()
+    invalidated: list[str] = []
+    monkeypatch.setattr(WebAppAuthExtendService, "invalidate_after_commit", invalidated.append)
+
+    _repository(sqlite_session_factory).update_site(
+        workspace_id=_WORKSPACE_ID,
+        app_id=_APP_ID,
+        actor_id=_ACTOR_ID,
+        changes=AppSiteChangesExtend(title="Site only", webapp_auth_enabled_extend=None),
+    )
+
+    assert invalidated == []
+    with sqlite_session_factory() as session:
+        extend = session.scalar(select(AppExtend).where(AppExtend.app_id == _APP_ID))
+        assert extend is not None
+        assert extend.webapp_auth_enabled is None
+
+
+@pytest.mark.parametrize("existing", [False, True])
+def test_commit_failure_rolls_back_real_site_and_extension(
+    sqlite_session, sqlite_session_factory, monkeypatch, existing
+):
+    from sqlalchemy import event
+
+    _persist_app(sqlite_session)
+    if existing:
+        sqlite_session.add(
+            AppExtend(id="55555555-5555-5555-5555-555555555555", app_id=_APP_ID, webapp_auth_enabled=True)
+        )
+        sqlite_session.commit()
+    invalidated = []
+    monkeypatch.setattr(WebAppAuthExtendService, "invalidate_after_commit", invalidated.append)
+
+    def fail_commit(_session):
+        raise RuntimeError("commit unavailable")
+
+    event.listen(sqlite_session_factory.class_, "before_commit", fail_commit)
+    try:
+        with pytest.raises(RuntimeError, match="commit unavailable"):
+            _repository(sqlite_session_factory).update_site(
+                workspace_id=_WORKSPACE_ID,
+                app_id=_APP_ID,
+                actor_id=_ACTOR_ID,
+                changes=AppSiteChangesExtend(title="rollback", webapp_auth_enabled_extend=False),
+            )
+    finally:
+        event.remove(sqlite_session_factory.class_, "before_commit", fail_commit)
+    assert not invalidated
+    with sqlite_session_factory() as session:
+        assert session.scalar(select(Site).where(Site.app_id == _APP_ID)).title == "Original"
+        row = session.scalar(select(AppExtend).where(AppExtend.app_id == _APP_ID))
+        assert (row is not None and row.webapp_auth_enabled is True) if existing else row is None
+
+
+@pytest.mark.parametrize("enabled", [False, True])
+def test_failed_cache_invalidation_observes_committed_switch(
+    sqlite_session, sqlite_session_factory, monkeypatch, enabled
+):
+    from types import SimpleNamespace
+    from unittest.mock import MagicMock
+
+    from sqlalchemy.orm import scoped_session
+
+    from services import webapp_auth_service_extend as service_module
+
+    _persist_app(sqlite_session)
+    sqlite_session.add(
+        AppExtend(id="55555555-5555-5555-5555-555555555555", app_id=_APP_ID, webapp_auth_enabled=not enabled)
+    )
+    sqlite_session.commit()
+    sessions = scoped_session(sqlite_session_factory)
+    monkeypatch.setattr(service_module, "db", SimpleNamespace(session=sessions))
+    cache = MagicMock()
+    cache.get.return_value = b"0" if enabled else b"1"
+    cache.delete.side_effect = ConnectionError("redis down")
+    cache.set.side_effect = ConnectionError("redis down")
+    monkeypatch.setattr(service_module, "redis_client", cache)
+    try:
+        # Prime the Session identity map with the old public row as well.
+        assert WebAppAuthExtendService.is_webapp_auth_enabled(_APP_ID) is not enabled
+        _repository(sqlite_session_factory).update_site(
+            workspace_id=_WORKSPACE_ID,
+            app_id=_APP_ID,
+            actor_id=_ACTOR_ID,
+            changes=AppSiteChangesExtend(webapp_auth_enabled_extend=enabled),
+        )
+        assert WebAppAuthExtendService.is_webapp_auth_enabled(_APP_ID) is enabled
+        cache.delete.assert_called_once_with(f"webapp_auth_enabled_extend:{_APP_ID}")
+    finally:
+        sessions.remove()

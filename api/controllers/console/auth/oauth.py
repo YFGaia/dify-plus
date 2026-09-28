@@ -2,15 +2,16 @@ import urllib.parse
 
 from flask import redirect, request
 from flask_restx import Resource
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from werkzeug.wrappers import Response
 
 from configs import dify_config
 from constants.languages import languages
 from controllers.common.fields import RedirectResponse
 from controllers.common.schema import query_params_from_model, register_response_schema_models, register_schema_models
+from controllers.console.auth.oauth_admission_extend import oauth_login_enabled_extend
 from controllers.console.error import AccountInFreezeError, EmailDomainSuspendedError
-from controllers.console.wraps import model_validate, setup_required, social_oauth_login_enabled
+from controllers.console.wraps import model_validate, setup_required
 from extensions.ext_application_services import application_services
 from fields.base import ResponseModel
 from libs.helper import dump_response, extract_remote_ip
@@ -55,8 +56,15 @@ class OAuthLoginQuery(BaseModel):
 
 
 class OAuthCallbackQuery(BaseModel):
-    code: str = Field(description="Authorization code from OAuth provider")
+    code: str | None = Field(default=None, description="Authorization code from OAuth provider")
     state: str | None = Field(default=None, description="OAuth state parameter")
+    access_token: str | None = Field(default=None, description="Legacy OAuth2 provider token callback")
+
+    @model_validator(mode="after")
+    def require_credential(self) -> "OAuthCallbackQuery":
+        if not self.code and not self.access_token:
+            raise ValueError("Authorization code is required")
+        return self
 
 
 class OAuthErrorResponse(ResponseModel):
@@ -104,8 +112,12 @@ def _oauth_callback_target(result: OAuthCallbackResult, requested_redirect: str 
         return f"{dify_config.CONSOLE_WEB_URL}/signin/invite-settings?{query}"
 
     target_url = _safe_console_redirect_target(requested_redirect)
-    query_char = "&" if "?" in target_url else "?"
-    return f"{target_url}{query_char}oauth_new_user={str(result.oauth_new_user).lower()}"
+    parts = urllib.parse.urlsplit(target_url)
+    query = urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
+    query.append(("oauth_new_user", str(result.oauth_new_user).lower()))
+    if result.id_token:
+        query.append(("id_token", result.id_token))
+    return urllib.parse.urlunsplit(parts._replace(query=urllib.parse.urlencode(query)))
 
 
 def _safe_console_redirect_target(redirect_url: str | None) -> str:
@@ -145,12 +157,12 @@ def _signin_redirect(message: str, **params: str) -> Response:
 class OAuthLogin(Resource):
     @console_ns.doc("oauth_login")
     @console_ns.doc(description="Initiate OAuth login process")
-    @console_ns.doc(params={"provider": "OAuth provider name (github/google)"})
+    @console_ns.doc(params={"provider": "OAuth provider name (github/google/oauth2)"})
     @console_ns.doc(params=query_params_from_model(OAuthLoginQuery))
     @console_ns.response(302, "Redirect to OAuth authorization URL", console_ns.models[RedirectResponse.__name__])
     @console_ns.response(400, "Invalid provider", console_ns.models[OAuthErrorResponse.__name__])
     @setup_required
-    @social_oauth_login_enabled
+    @oauth_login_enabled_extend
     @model_validate(OAuthLoginQuery)
     def get(self, req_data: OAuthLoginQuery, provider: str):
         try:
@@ -165,6 +177,8 @@ class OAuthLogin(Resource):
             )
         except InvalidOAuthProviderError:
             return dump_response(OAuthErrorResponse, {"error": "Invalid provider"}), 400
+        except (OAuthProviderAuthorizationError, OAuthProviderRequestError):
+            return dump_response(OAuthErrorResponse, {"error": "OAuth process failed"}), 400
         return redirect(auth_url)
 
 
@@ -172,12 +186,12 @@ class OAuthLogin(Resource):
 class OAuthCallback(Resource):
     @console_ns.doc("oauth_callback")
     @console_ns.doc(description="Handle OAuth callback and complete login process")
-    @console_ns.doc(params={"provider": "OAuth provider name (github/google)"})
+    @console_ns.doc(params={"provider": "OAuth provider name (github/google/oauth2)"})
     @console_ns.doc(params=query_params_from_model(OAuthCallbackQuery))
     @console_ns.response(302, "Redirect to console with access token", console_ns.models[RedirectResponse.__name__])
     @console_ns.response(400, "OAuth process failed", console_ns.models[OAuthErrorResponse.__name__])
     @setup_required
-    @social_oauth_login_enabled
+    @oauth_login_enabled_extend
     @model_validate(OAuthCallbackQuery)
     def get(self, req_data: OAuthCallbackQuery, provider: str):
         oauth_state = decode_oauth_state(req_data.state)
@@ -185,12 +199,13 @@ class OAuthCallback(Resource):
             result = application_services().accounts.oauth.complete_authorization(
                 OAuthCallbackCommand(
                     provider=provider,
-                    code=req_data.code,
+                    code=req_data.code or "",
                     invite_token=oauth_state.get("invite_token"),
                     timezone=_validated_timezone(oauth_state.get("timezone")),
                     language=_validated_language(oauth_state.get("language")),
                     browser_language=_preferred_interface_language(),
                     ip_address=extract_remote_ip(request),
+                    access_token=req_data.access_token if not req_data.code else None,
                 )
             )
         except InvalidOAuthProviderError:

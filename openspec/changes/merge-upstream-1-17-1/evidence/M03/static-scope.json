@@ -1,0 +1,22 @@
+{
+  "api/controllers/web/completion.py": {
+    "baseline_issues": 0,
+    "current_issues": 0,
+    "new_issues": 0,
+    "changed_functions_or_classes": [
+      "is_end_login"
+    ],
+    "billing_ast_unchanged": true
+  },
+  "api/services/ding_talk_extend.py": {
+    "baseline_issues": 0,
+    "current_issues": 0,
+    "new_issues": 0
+  },
+  "api/tests/unit_tests/controllers/web/conftest.py": {
+    "baseline_issues": 4,
+    "current_issues": 4,
+    "new_issues": 0
+  },
+  "parsed_python_files": 27
+}

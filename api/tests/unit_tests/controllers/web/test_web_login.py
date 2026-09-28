@@ -1,10 +1,11 @@
 import base64
 import logging
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import ANY, MagicMock, patch
 
 import pytest
-from flask import Flask
+from flask import Flask, request
 from jwt import InvalidTokenError
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
@@ -14,7 +15,7 @@ import services.errors.account
 from controllers.console import wraps as console_wraps
 from controllers.web.login import EmailCodeLoginApi, EmailCodeLoginSendEmailApi, LoginApi, LoginStatusApi, LogoutApi
 from enums import DeploymentEdition
-from models.account import Account
+from models.account import Account, Tenant, TenantAccountJoin, TenantAccountRole
 from models.model import DifySetup
 from services.entities.auth_audit_entities import LoginFailureReason
 
@@ -250,6 +251,106 @@ class TestLoginStatusApi:
 
         assert result["logged_in"] is False
         assert result["app_logged_in"] is False
+
+    @patch("controllers.web.login.extract_webapp_access_token", return_value=None)
+    @patch("controllers.web.login.get_console_account_extend", return_value=None)
+    def test_status_without_app_code_reports_console_identity_separately(
+        self, mock_console: MagicMock, mock_webapp_token: MagicMock, app: Flask
+    ) -> None:
+        with app.test_request_context("/web/login/status"):
+            result = LoginStatusApi().get()
+        assert result["logged_in"] is False
+        assert result["app_logged_in"] is False
+        assert result["console_logged_in"] is False
+        mock_console.assert_called_once()
+
+    @patch("controllers.web.login.WebAppAuthExtendService.is_webapp_auth_enabled", return_value=False)
+    @patch("controllers.web.login.WebAppAuthService.is_app_require_permission_check", return_value=True)
+    @patch("controllers.web.login.AppService.get_app_id_by_code", return_value="app-1")
+    @patch("controllers.web.login.get_console_account_extend", return_value=None)
+    @patch("controllers.web.login.extract_webapp_access_token", return_value=None)
+    def test_status_resolved_app_code_reports_actual_switch(
+        self,
+        mock_token: MagicMock,
+        mock_console: MagicMock,
+        mock_app_id: MagicMock,
+        mock_permission: MagicMock,
+        mock_switch: MagicMock,
+        app: Flask,
+    ) -> None:
+        with app.test_request_context("/web/login/status?app_code=resolved&user_id=missing"):
+            result = LoginStatusApi().get()
+        assert result["logged_in"] is False
+        assert result["app_logged_in"] is False
+        assert result["console_logged_in"] is False
+        assert result["webapp_auth_enabled_extend"] is False
+        mock_token.assert_called_once()
+        mock_console.assert_called_once()
+        mock_app_id.assert_called_once()
+        mock_permission.assert_called_once()
+        mock_switch.assert_called_once_with("app-1")
+
+
+class TestConsoleIdentityExtend:
+    def test_only_valid_console_passport_cookie_resolves_account(
+        self, app: Flask, sqlite_session: Session, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from libs.passport import PassportService
+        from services.webapp_console_identity_extend import get_console_account_extend
+
+        account = Account(name="Console", email="console@example.com")
+        tenant = Tenant(name="Console tenant")
+        sqlite_session.add_all([account, tenant])
+        sqlite_session.commit()
+        sqlite_session.add(TenantAccountJoin(tenant_id=tenant.id, account_id=account.id, role=TenantAccountRole.OWNER))
+        sqlite_session.commit()
+        from configs import dify_config
+
+        monkeypatch.setattr(dify_config, "SECRET_KEY", "unit-test-console-passport-secret")
+        passport = PassportService()
+
+        def token(sub: str, user_id: str, exp: datetime | None = None) -> str:
+            return passport.issue(
+                {"sub": sub, "user_id": user_id, "exp": exp or datetime.now(UTC) + timedelta(minutes=5)}
+            )
+
+        with app.test_request_context(
+            "/", headers={"Authorization": f"Bearer {token('Console API Passport', account.id)}"}
+        ):
+            assert get_console_account_extend(request, session=sqlite_session) is None
+        with app.test_request_context(
+            "/", headers={"Cookie": f"access_token={token('WebApp API Passport', account.id)}"}
+        ):
+            assert get_console_account_extend(request, session=sqlite_session) is None
+        with app.test_request_context(
+            "/", headers={"Cookie": f"access_token={token('Console API Passport', 'missing')}"}
+        ):
+            assert get_console_account_extend(request, session=sqlite_session) is None
+        with app.test_request_context(
+            "/",
+            headers={
+                "Cookie": "access_token="
+                + token("Console API Passport", account.id, datetime.now(UTC) - timedelta(minutes=1))
+            },
+        ):
+            assert get_console_account_extend(request, session=sqlite_session) is None
+        with app.test_request_context(
+            "/", headers={"Cookie": f"access_token={token('Console API Passport', account.id)}"}
+        ):
+            assert get_console_account_extend(request, session=sqlite_session).id == account.id
+
+    def test_webapp_cookie_and_passport_headers_cannot_be_console_identity(
+        self, app: Flask, sqlite_session: Session
+    ) -> None:
+        from extensions.ext_database import db
+        from services.webapp_console_identity_extend import get_console_account_extend
+
+        end_user = SimpleNamespace(external_user_id=None)
+        with app.test_request_context(
+            "/", headers={"Authorization": "Bearer webapp-token", "Cookie": "webapp_access_token=app-token"}
+        ):
+            assert get_console_account_extend(request, session=db.session()) is None
+        assert end_user.external_user_id is None
 
     @patch("controllers.web.login.decode_jwt_token")
     @patch("controllers.web.login.PassportService")

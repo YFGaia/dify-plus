@@ -470,7 +470,7 @@
       "owner_role": "身份负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -516,7 +516,23 @@
       "outputs": [
         "evidence/M03/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "execution": {
+        "pre_commit_head": "acf866871a50316ea514d35a9d04092bd3e32b20",
+        "thread_id": "01a0e943-cafc-79a0-bf18-d9264fa3d5d7",
+        "deployable": false,
+        "substeps": {
+          "9.1": "passed",
+          "9.2": "passed",
+          "9.3": "passed",
+          "9.4": "passed",
+          "9.5": "passed"
+        },
+        "evidence": "evidence/M03/result.json",
+        "focused_tests_passed": 349,
+        "schema_assertions_passed": 6,
+        "source_fingerprints": "evidence/M03/verified-inputs.json"
+      }
     },
     {
       "id": "M04",
@@ -527,7 +543,7 @@
       "owner_role": "计费负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -599,8 +615,7 @@
       "outputs": [
         "evidence/M04/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ],
-      "blocked_reason": "前置节点 M03 尚未通过；未执行本节点。"
+      ]
     },
     {
       "id": "M05",
@@ -611,7 +626,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -662,8 +677,7 @@
       "outputs": [
         "evidence/M05/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ],
-      "blocked_reason": "前置节点 M03 尚未通过；未执行本节点。"
+      ]
     },
     {
       "id": "M06",
@@ -888,7 +902,7 @@
         "evidence/M08/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "前置节点 M03, M04, M05, M06, M07 尚未通过；未执行本节点。"
+      "blocked_reason": "前置节点 M04, M05, M06, M07 尚未通过；未执行本节点。"
     },
     {
       "id": "V01",

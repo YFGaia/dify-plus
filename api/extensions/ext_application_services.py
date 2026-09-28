@@ -132,6 +132,7 @@ from services.account_oauth_adapters import (
     DifyOAuthProviderGateway,
     RedisOAuthAccountClaimLock,
 )
+from services.account_oauth_gateway_extend import ForkOAuthProviderGateway
 from services.account_oauth_service import AccountOAuthService, OAuthProviderGateway
 from services.account_password_hasher import DefaultAccountPasswordHasher
 from services.account_password_service import AccountPasswordService
@@ -375,6 +376,7 @@ def _build_account_oauth_service(
     memberships: WorkspaceQueryRepository,
 ) -> AccountOAuthService:
     providers: dict[str, OAuthProviderGateway] = {}
+    providers["oauth2"] = ForkOAuthProviderGateway(session_factory=database_client)
     if dify_config.GITHUB_CLIENT_ID and dify_config.GITHUB_CLIENT_SECRET:
         providers["github"] = DifyOAuthProviderGateway(
             provider_name="github",
