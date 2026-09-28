@@ -792,16 +792,49 @@ services:
           exit 0
         fi
         echo "Initializing permissions for /app/api/storage"
-        chown -R 1001:1001 /app/api/storage && touch "$${FLAG_FILE}"
+        chown -R 1001:1001 /app/api/storage && touch "$${FLAG_FILE}" || exit 1
         echo "Permissions initialized. Exiting."
     volumes:
       - ./volumes/app/storage:/app/api/storage
     restart: "no"
 
+  # Seed the shared key once before the declared API/worker/migration consumers.
+  # --no-deps and direct container runs bypass this gate: complete both init jobs
+  # first. Serialize startup across Compose projects sharing storage; this gate
+  # does not provide a distributed lock. Never scale or run concurrent seed jobs.
+  init_secret_key:
+    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    restart: "no"
+    deploy:
+      replicas: 1
+    environment:
+      <<: *shared-api-worker-env
+    working_dir: /app/api
+    # Initialize only the storage adapter; bypass the full app and migrations.
+    entrypoint: ["python", "-c"]
+    command:
+      - |
+        from flask import Flask
+        from configs import dify_config
+        from extensions.ext_storage import storage
+        from configs.secret_key import resolve_secret_key
+
+        storage.init_app(Flask("init_secret_key"))
+        resolve_secret_key(dify_config.SECRET_KEY)
+    depends_on:
+      init_permissions:
+        condition: service_completed_successfully
+    volumes:
+      - ./volumes/app/storage:/app/api/storage
+    networks:
+      - ssrf_proxy_network
+      - default
+
   # Fork release migration job. Keep all business writers stopped, then run:
   #   docker compose -f docker-compose.dify-plus.yaml --profile migration up --no-deps --abort-on-container-exit --exit-code-from migration migration
-  # Start DB/Redis and initialize storage first when using --no-deps. Inspect both
-  # version tables and data before starting business services. On failure, retain
+  # Before using --no-deps, start DB/Redis and successfully complete both
+  # init_permissions and init_secret_key. Inspect both version tables and data
+  # before starting business services. On failure, retain
   # this container/logs and inspect committed revisions before any manual retry.
   # Use this single service via `up`, never scale it or launch concurrent `run`
   # jobs (including from another Compose project) against the same database.
@@ -830,6 +863,8 @@ services:
         flask extend_db current
         echo "Both migration chains completed; verify data before starting business services."
     depends_on:
+      init_secret_key:
+        condition: service_completed_successfully
       init_permissions:
         condition: service_completed_successfully
       db_postgres:
@@ -872,6 +907,8 @@ services:
       FULL_CODE_EXECUTION_ENDPOINT: ${FULL_CODE_EXECUTION_ENDPOINT:-http://sandbox-full:8194}
       ALLOW_REGISTER: ${ALLOW_REGISTER:-True}
     depends_on:
+      init_secret_key:
+        condition: service_completed_successfully
       init_permissions:
         condition: service_completed_successfully
       db_postgres:
@@ -922,6 +959,8 @@ services:
       SERVER_WORKER_CONNECTIONS: ${API_WEBSOCKET_WORKER_CONNECTIONS:-1000}
       GUNICORN_TIMEOUT: ${API_WEBSOCKET_GUNICORN_TIMEOUT:-360}
     depends_on:
+      init_secret_key:
+        condition: service_completed_successfully
       init_permissions:
         condition: service_completed_successfully
       db_postgres:
@@ -954,6 +993,8 @@ services:
       PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
       INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
     depends_on:
+      init_secret_key:
+        condition: service_completed_successfully
       init_permissions:
         condition: service_completed_successfully
       db_postgres:
@@ -1004,8 +1045,12 @@ services:
       PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
       INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
     depends_on:
-      - db_postgres
-      - redis
+      init_secret_key:
+        condition: service_completed_successfully
+      db_postgres:
+        condition: service_started
+      redis:
+        condition: service_started
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
@@ -1030,8 +1075,12 @@ services:
       PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
       INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
     depends_on:
-      - db_postgres
-      - redis
+      init_secret_key:
+        condition: service_completed_successfully
+      db_postgres:
+        condition: service_started
+      redis:
+        condition: service_started
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
@@ -1050,6 +1099,8 @@ services:
       # Startup mode, 'worker_beat' starts the Celery beat for scheduling periodic tasks.
       MODE: beat
     depends_on:
+      init_secret_key:
+        condition: service_completed_successfully
       init_permissions:
         condition: service_completed_successfully
       db_postgres:

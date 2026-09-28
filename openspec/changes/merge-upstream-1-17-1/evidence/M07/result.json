@@ -182,7 +182,7 @@
       ]
     },
     "13.4": {
-      "status": "repair_required",
+      "status": "implementation_complete_pending_independent_review",
       "model": "gpt-6-astra",
       "agent": "/root/m07_13_4_env_examples",
       "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
@@ -407,6 +407,67 @@
           "This Compose gate serializes the default declared service graph but does not provide a distributed storage compare-and-set guarantee for manual bypasses or multiple Compose projects."
         ],
         "next_action": "A fresh Astra implementation task adds the seed gate, fail-closed storage initialization, and migration command guidance, then runs isolated default/all-profile assertions before another Luna review."
+      },
+      "prior_status_history": [
+        {
+          "status": "repair_required",
+          "reason": "prior Luna review found concurrent key initialization and init_permissions false-success risks"
+        }
+      ],
+      "startup_gate_implementation": {
+        "status": "implementation_complete_pending_independent_review",
+        "model": "gpt-6-astra",
+        "agent": "/root/m07_seed_key_gate",
+        "source_commit_before_subtask": "58ae912797e82c09f22b7497481e45f30f425877",
+        "changed_paths": [
+          "docker/docker-compose.dify-plus.yaml"
+        ],
+        "source_sha256": "089311a9810bd98e84e495b49cb061a3b586eec38264503e3c4be45bfd35a072",
+        "summary": [
+          "Added one-shot private API init_secret_key service that initializes the configured shared storage adapter and invokes resolve_secret_key once without emitting the key.",
+          "Gated migration, API, WebSocket, worker, worker-gaia, worker-dataset, and worker_beat on successful initialization while preserving their existing dependencies.",
+          "Made init_permissions fail closed for chown/touch and documented both init jobs as --no-deps migration preconditions."
+        ],
+        "checks": [
+          {
+            "command": "python3 /private/tmp/m07-seed-key-gate-check.py",
+            "exit_code": 0,
+            "assertions": "358 scoped assertions; default/all-profile renders 20/44 services; dependency graph, shared environment/storage, explicit/S3 parity, four shell failure cases, seven persistence helper cases; no emitted key."
+          },
+          {
+            "command": "python3 /private/tmp/m07-13-4-check.py",
+            "exit_code": 0,
+            "assertions": "52 retained 13.4 environment/Compose assertions passed."
+          },
+          {
+            "command": "python3 /private/tmp/m07-13-3-seed-aware-check.py",
+            "exit_code": 0,
+            "assertions": "83 assertions passed with only the authorized seed-gate delta normalized."
+          },
+          {
+            "command": "python3 /private/tmp/m07-shared-storage-seed-aware-check.py",
+            "exit_code": 0,
+            "assertions": "Prior shared-storage assertions passed with only the seed-gate delta normalized."
+          },
+          {
+            "command": "bash docker/ssrf_proxy/test_agent_ssrf_allowlist_unit.sh",
+            "exit_code": 0
+          },
+          {
+            "command": "git diff --check -- docker/docker-compose.dify-plus.yaml",
+            "exit_code": 0
+          }
+        ],
+        "historical_checker_notes": [
+          "The original 13.3 snapshot checker rejects the intentionally added init_secret_key service because it disallows any new service; its seed-aware temporary copy passes.",
+          "The original shared-storage snapshot checker rejects the intentionally changed dependencies; its narrowly normalized temporary copy passes. Original scripts remain unchanged."
+        ],
+        "limitations": [
+          "No containers, image pulls, private .env reads, real host storage, or private image execution.",
+          "Compose dependency gate does not cover --no-deps, direct container runs, or concurrent Compose projects; operators must initialize and serialize these paths.",
+          "No distributed compare-and-set was added; general cross-project concurrency would require a storage-level atomicity change."
+        ],
+        "next_action": "Fresh Luna read-only review of exact Compose implementation, then accept or repair before checking 13.4 and proceeding to 13.6."
       }
     },
     "13.5": {

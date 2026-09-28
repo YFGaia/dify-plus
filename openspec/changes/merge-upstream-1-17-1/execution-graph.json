@@ -393,7 +393,7 @@
       "owner_role": "后端基础负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "passed",
+      "status": "in_progress",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -409,7 +409,11 @@
         "api/services/workspace_service.py",
         "workspace summary 与 session 相关宿主",
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
-        "本节点行为对应的配套测试源码，跨 owner 文件先登记移交"
+        "本节点行为对应的配套测试源码，跨 owner 文件先登记移交",
+        "api/controllers/console/app/app_extend.py",
+        "api/services/recommended_app_service_extend.py",
+        "api/tests/unit_tests/controllers/console/app/test_app_extend.py",
+        "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
       ],
       "resources": [
         "backend_core"
@@ -439,7 +443,11 @@
         "api/models/workflow.py",
         "api/services/feature_service.py",
         "api/services/workspace_service.py",
-        "api/tests/unit_tests/controllers/console/test_feature.py"
+        "api/tests/unit_tests/controllers/console/test_feature.py",
+        "api/controllers/console/app/app_extend.py",
+        "api/services/recommended_app_service_extend.py",
+        "api/tests/unit_tests/controllers/console/app/test_app_extend.py",
+        "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
       ],
       "outputs": [
         "evidence/M02/result.json",
@@ -459,6 +467,23 @@
           "focused_tests": "146 passed",
           "static_checks": "Ruff, format, OpenSpec strict, and diff-check passed"
         }
+      },
+      "followup_progress": {
+        "prior_acceptance": "passed for original 8.1-8.5; independent review remains valid for those paths",
+        "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
+        "completed_subtasks": [],
+        "current_subtask": {
+          "id": "8.6",
+          "status": "registered_ready",
+          "evidence": "evidence/M06/result.json#/preflight/contract_handoff",
+          "registered_paths": [
+            "api/controllers/console/app/app_extend.py",
+            "api/services/recommended_app_service_extend.py",
+            "api/tests/unit_tests/controllers/console/app/test_app_extend.py",
+            "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
+          ]
+        },
+        "next_subtask": "8.6"
       }
     },
     {
@@ -677,7 +702,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "passed",
+      "status": "in_progress",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -857,7 +882,24 @@
         "web/service/console/contract-loader.ts",
         "web/service/console/index.ts",
         "web/service/use-system-manage.ts"
-      ]
+      ],
+      "followup_progress": {
+        "prior_acceptance": "passed for original 11.1-11.5; follow-up limited to existing registered message contract trio",
+        "blocked_on": "M02 8.6 backend schema/permission fix",
+        "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
+        "completed_subtasks": [],
+        "current_subtask": {
+          "id": "11.6",
+          "status": "registered_blocked_on_M02",
+          "evidence": "evidence/M06/result.json#/preflight/contract_handoff",
+          "registered_paths": [
+            "packages/contracts/generated/api/console/message/orpc.gen.ts",
+            "packages/contracts/generated/api/console/message/types.gen.ts",
+            "packages/contracts/generated/api/console/message/zod.gen.ts"
+          ]
+        },
+        "next_subtask": "11.6"
+      }
     },
     {
       "id": "M06",
@@ -869,7 +911,7 @@
       "owner_role": "前端业务负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "in_progress",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -964,12 +1006,16 @@
           "preflight"
         ],
         "current_subtask": {
-          "id": "12.1",
-          "status": "ready_with_context_contract_precondition",
-          "evidence": "evidence/M06/result.json#/preflight/contract_handoff"
+          "id": "12.1a",
+          "status": "implementation_complete_verification_blocked",
+          "evidence": "evidence/M06/result.json#/subtasks/12.1a"
         },
-        "next_subtask": "12.1"
-      }
+        "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"
+      },
+      "registered_additional_paths": [
+        "web/app/components/app/access-point/built-in-access-points/web-app-card.tsx",
+        "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx"
+      ]
     },
     {
       "id": "M07",
@@ -1042,10 +1088,10 @@
         ],
         "current_subtask": {
           "id": "13.4",
-          "status": "implementation_ready_after_sol_analysis",
-          "evidence": "evidence/M07/result.json#/subtasks/13.4"
+          "status": "implementation_complete_pending_independent_review",
+          "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation"
         },
-        "next_subtask": "13.4"
+        "next_subtask": "13.4_independent_luna_review"
       },
       "registered_additional_paths": [
         "api/docker/entrypoint.sh",

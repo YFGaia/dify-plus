@@ -75,6 +75,35 @@
       ]
     }
   },
-  "subtasks": {},
+  "subtasks": {
+    "12.1a": {
+      "status": "implementation_complete_verification_blocked",
+      "model": "gpt-6-astra",
+      "agent": "/root/m06_builtin_auth_switch",
+      "source_commit_before_subtask": "58ae912797e82c09f22b7497481e45f30f425877",
+      "source_sha256": {
+        "web/app/components/app/access-point/built-in-access-points/web-app-card.tsx": "3b93dcc6be2254a256c7f7f7df47da786682fc4c3e65c8e726261e29e8529281",
+        "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx": "4d40dd17e76ec7c666c1c07b4f864723cc647097d5d152ccf0d4a98d2c3a4c7d"
+      },
+      "summary": [
+        "Added a per-app WebApp authentication switch backed by the generated site POST contract, independent from enable_site and the environment/global auth feature.",
+        "Preserved the default enabled behavior, access-point permission, success-only store update, and error toast.",
+        "Added eight focused parameterized cases for defaulting, both update directions, permission, retry, and late cross-app responses.",
+        "Existing WebApp address/auth suites passed 15 tests; scoped lint/type check and git diff --check passed."
+      ],
+      "verification_blocker": {
+        "suite": "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx",
+        "status": "blocked_before_test_collection",
+        "cause": "The installed workspace lacks the already-declared/locked cn@0.2.4 package imported by packages/dify-ui/src/cn.ts.",
+        "scope_policy": "No dependency manifest/lock changes or UI mock were made; retry after using a compatible workspace dependency install.",
+        "node_option": "NODE_OPTIONS=--no-experimental-webstorage is required on the current Node 26 runtime for existing localStorage-based suites."
+      },
+      "limitations": [
+        "Focused card behavior tests have not executed; do not mark 12.1a accepted until they pass.",
+        "The environment address/passport behavior was already present and its existing 15 focused tests pass; the anonymous context caller remains blocked on M02/M05 contract follow-up."
+      ],
+      "next_action": "Restore the declared cn dependency in an isolated/compatible dependency environment and run the card suite, then continue 12.1b only after M02 8.6 and M05 11.6."
+    }
+  },
   "next_subtask": "12.1"
 }

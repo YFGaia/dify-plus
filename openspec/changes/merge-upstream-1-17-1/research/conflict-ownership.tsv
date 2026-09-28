@@ -159,3 +159,7 @@ docker/ssrf_proxy/squid.conf.template	M07	M08	non-conflict-write	registered	M07 
 web/features/system-features/snapshot.ts	M05	V02	content	pending	M05 11.2 public snapshot shape and isolated login configuration
 web/features/system-features/extend.ts	M05	V02	content	pending	M05 11.2 public snapshot shape and isolated login configuration
 web/features/system-features/__tests__/server.spec.ts	M05	V02	content	pending	M05 11.2 public snapshot shape and isolated login configuration
+api/controllers/console/app/app_extend.py	M02	V01	content	pending	message context endpoint tenant ownership and app/Agent permission follow-up from M06 security handoff
+api/services/recommended_app_service_extend.py	M02	V01	content	pending	message context endpoint tenant ownership and app/Agent permission follow-up from M06 security handoff
+api/tests/unit_tests/controllers/console/app/test_app_extend.py	M02	V01	test	pending	message context endpoint tenant ownership and app/Agent permission follow-up from M06 security handoff
+api/tests/unit_tests/services/test_recommended_app_service_extend.py	M02	V01	test	pending	message context endpoint tenant ownership and app/Agent permission follow-up from M06 security handoff

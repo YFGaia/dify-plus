@@ -437,5 +437,21 @@
     "11.4",
     "11.5"
   ],
-  "next_subtask": "complete"
+  "next_subtask": "complete",
+  "followup_context_contract": {
+    "status": "registered_blocked_on_M02",
+    "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
+    "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
+    "subtask": "11.6",
+    "registered_paths": [
+      "packages/contracts/generated/api/console/message/orpc.gen.ts",
+      "packages/contracts/generated/api/console/message/types.gen.ts",
+      "packages/contracts/generated/api/console/message/zod.gen.ts"
+    ],
+    "contract_shapes": {
+      "GET /message/context": "required query conversation_id:string; response string[]",
+      "DELETE /message/context": "required query conversation_id:string and message_id:string; response string ok"
+    },
+    "reason": "Generated message contracts are already registered and M05-owned. Standard generation must wait for the M02 backend schema/security repair; generated files must not be hand-edited."
+  }
 }

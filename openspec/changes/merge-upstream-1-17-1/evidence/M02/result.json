@@ -349,5 +349,21 @@
     "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
     "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
     "openspec/changes/merge-upstream-1-17-1/tasks.md"
-  ]
+  ],
+  "followup_context_contract": {
+    "status": "registered_pending_implementation",
+    "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
+    "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
+    "subtasks": [
+      "8.6",
+      "8.7"
+    ],
+    "registered_paths": [
+      "api/controllers/console/app/app_extend.py",
+      "api/services/recommended_app_service_extend.py",
+      "api/tests/unit_tests/controllers/console/app/test_app_extend.py",
+      "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
+    ],
+    "reason": "Security review found message context identifiers were not bound to the current tenant/app, and app/Agent permissions were not checked. Original 8.1-8.5 acceptance remains historical evidence; node is reopened only for this bounded follow-up."
+  }
 }
