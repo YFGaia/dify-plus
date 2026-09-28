@@ -155,3 +155,6 @@ docker/ssrf_proxy/squid-common.conf.template	M07	M08	non-conflict-write	register
 docker/ssrf_proxy/squid.conf.template	M07	M08	non-conflict-write	registered	M07 existing shared SSRF template alignment; registered before implementation
 .github/workflows/build-push.yml	M07	M08	non-conflict-write	registered	M07 distinguish CI validation from private image publication; registered before implementation
 .github/workflows/docker-build.yml	M07	M08	non-conflict-write	registered	M07 upstream Docker build validation alignment; registered before implementation
+web/features/system-features/snapshot.ts	M05	V02	content	pending	M05 11.2 public snapshot shape and isolated login configuration
+web/features/system-features/extend.ts	M05	V02	content	pending	M05 11.2 public snapshot shape and isolated login configuration
+web/features/system-features/__tests__/server.spec.ts	M05	V02	content	pending	M05 11.2 public snapshot shape and isolated login configuration
