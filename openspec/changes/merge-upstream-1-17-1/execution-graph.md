@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05/M07 blocked（只读分析完成，代码实施等待必需 karpathy-guidelines SKILL.md 路径或摘要确认）；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1 与 M07 13.1 已恢复并由新的 Astra 子任务实施；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02/M03 已通过；M04 已通过；M05/M07 的只读执行前分析已完成，但代码实施受缺失的必需技能文件阻塞；M06–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02/M03 已通过；M04 已通过；M05 11.1 与 M07 13.1 正由各自新的 Astra 任务实施，M06–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -325,7 +325,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M05 · Console transport 与前端契约
 
-- 状态：blocked；根因 `OPTIONS /extend/{path}` 和手写 systemManage 的唯一 owner 均已确认，31 条生成/契约路径已登记。新 Astra 在改动共享生成配置后遇到必需的 `karpathy-guidelines` 技能文件缺失；按任务规则暂停源码、生成和测试，正在等用户提供文件路径或确认按技能摘要继续。当前过滤改动未提交且未验证，完整 generated outputs 未写入主 checkout。诊断见 `evidence/M05/codegen-analysis.md` 与 `evidence/M05/codegen-investigation.json`。
+- 状态：11.1 in progress；当前技能目录清单不再提供 `karpathy-guidelines`，按现行仓库 AGENTS 和 OpenSpec 规则恢复。根因 `OPTIONS /extend/{path}` 和手写 systemManage 的唯一 owner 已确认，31 条路径已登记；此前未提交过滤和 transport 改动仍需新 Astra 复核，完整 generated outputs 尚未写入主 checkout。诊断见 `evidence/M05/codegen-analysis.md`、`codegen-investigation.json` 与 `resumption.json`。
 - 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
@@ -371,7 +371,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M07 · 综合部署和 CI 对齐
 
-- 状态：blocked；M01 初始锁专项通过，前置已满足；只读执行前分析已完成。代码实施等待必需 `karpathy-guidelines/SKILL.md` 路径或用户确认依据已提供目录摘要继续，13.1–13.6 均未完成。
+- 状态：13.1 in progress；M01 初始锁专项通过，前置已满足；只读执行前分析已完成。当前技能目录清单不再提供 `karpathy-guidelines`，按现行仓库 AGENTS 和 OpenSpec 规则恢复；13.2–13.6 均未完成。
 
 - 前置：M01；负责人：部署负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`部署负责人`。

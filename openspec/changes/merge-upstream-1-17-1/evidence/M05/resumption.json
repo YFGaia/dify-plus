@@ -1,0 +1,18 @@
+{
+  "node": "M05",
+  "subtask": "11.1",
+  "status": "in_progress",
+  "resumed_from": "blocked",
+  "date": "2026-09-29",
+  "reason": "The current available-skills catalog no longer lists karpathy-guidelines. The actual repository root and web AGENTS.md files were rechecked; implementation resumes under those active instructions and the OpenSpec apply workflow.",
+  "working_changes_preserved": [
+    "packages/contracts/openapi-ts.api.config.ts",
+    "web/contract/router-extend.ts",
+    "web/service/console/browser.ts",
+    "web/service/console/contract-loader.ts",
+    "web/service/console/index.ts",
+    "deleted web/contract/console/system.ts"
+  ],
+  "verification": "The existing filter and transport changes remain uncommitted and unverified. The new Astra task must inspect them before completing generation and focused contract verification.",
+  "next_subtask": "11.1"
+}

@@ -17,3 +17,6 @@ Result: read-only analysis and exact path registration complete. No deployment c
 - exact registered path existence check: exit 0
 - conflict-ownership.tsv six-column check: exit 0; M07 additional registered paths: 15
 - openspec validate merge-upstream-1-17-1 --strict: exit 0 (valid)
+
+Resumption: 2026-09-29
+The current available-skills catalog no longer lists karpathy-guidelines. Root AGENTS.md was rechecked. M07 13.1 resumes under the active repository and OpenSpec instructions. A new Astra task is assigned for core Compose alignment; 13.2-13.6 remain pending.

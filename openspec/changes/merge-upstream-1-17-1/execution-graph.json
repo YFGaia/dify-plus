@@ -677,7 +677,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -718,7 +718,8 @@
         "evidence/M05/execution.log",
         "evidence/M05/pre-analysis.md",
         "evidence/M05/codegen-investigation.json",
-        "evidence/M05/codegen-analysis.md"
+        "evidence/M05/codegen-analysis.md",
+        "evidence/M05/resumption.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -800,8 +801,8 @@
         "subtask_11_1_scope_registered": true,
         "current_subtask": {
           "id": "11.1",
-          "status": "blocked",
-          "reason": "Implementation paused pending user guidance for missing required skill karpathy-guidelines. The path is registered. An uncommitted, not-yet-verified filter edit exists in packages/contracts/openapi-ts.api.config.ts; no generated outputs or tests were produced.",
+          "status": "in_progress",
+          "reason": "Resumed under current skill catalog and repository guidance; reconcile existing uncommitted filter and transport edits, then complete only subtask 11.1 with standard generation and focused contract verification.",
           "evidence": "evidence/M05/codegen-analysis.md"
         },
         "codegen_diagnosis": {
@@ -865,8 +866,7 @@
         "web/service/console/client.spec.ts",
         "web/service/console/contract-loader.ts",
         "web/service/console/index.ts"
-      ],
-      "blocked_reason": "M05 11.1 coding is paused because the required karpathy-guidelines SKILL.md listed for all coding is missing from the catalog path, project, user skill roots, plugin cache, and go/src. User clarification is pending. Current generated-config filter edit is uncommitted; no main-checkout generation or tests ran."
+      ]
     },
     {
       "id": "M06",
@@ -978,7 +978,7 @@
       "owner_role": "部署负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -1015,7 +1015,8 @@
         "evidence/M07/execution.log",
         "evidence/M07/pre-analysis.md",
         "evidence/M07/pre-analysis.json",
-        "evidence/M07/path-registration.json"
+        "evidence/M07/path-registration.json",
+        "evidence/M07/resumption.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -1027,7 +1028,6 @@
         "evidence/M07/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M07 只读执行前分析已完成；代码实施受必需 karpathy-guidelines SKILL.md 缺失阻塞，等待用户提供路径或确认依据目录摘要继续。不得把分析记作 13.1–13.6 完成。",
       "implementation_progress": {
         "pre_analysis": {
           "status": "complete",
@@ -1040,8 +1040,8 @@
         "next_subtask": "13.1",
         "current_subtask": {
           "id": "13.1",
-          "status": "blocked",
-          "reason": "Required karpathy-guidelines SKILL.md is missing from its listed path and searched skill roots; user guidance is pending.",
+          "status": "in_progress",
+          "reason": "Resumed under the current skill catalog and repository AGENTS.md; complete only core Compose alignment for subtask 13.1 within the registered M07 boundary.",
           "evidence": "evidence/M07/pre-analysis.json"
         }
       },

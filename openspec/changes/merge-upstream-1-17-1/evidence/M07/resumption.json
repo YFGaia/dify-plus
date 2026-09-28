@@ -1,0 +1,12 @@
+{
+  "node": "M07",
+  "subtask": "13.1",
+  "status": "in_progress",
+  "resumed_from": "blocked",
+  "date": "2026-09-29",
+  "reason": "The current available-skills catalog no longer lists karpathy-guidelines. The active root AGENTS.md was rechecked; M07 resumes under its deployment scope and OpenSpec apply workflow.",
+  "pre_analysis": "evidence/M07/pre-analysis.md",
+  "registered_paths": "evidence/M07/path-registration.json",
+  "code_changes_before_resumption": false,
+  "next_subtask": "13.1"
+}
