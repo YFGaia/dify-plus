@@ -1089,7 +1089,8 @@
         "current_subtask": {
           "id": "13.4",
           "status": "implementation_complete_pending_independent_review",
-          "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation"
+          "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation",
+          "implementation_commit": "1b1ddf4eb3"
         },
         "next_subtask": "13.4_independent_luna_review"
       },
