@@ -1,0 +1,319 @@
+ca94019ab36e21d2ea52fdd8773ebb646205cc79
+AGENTS.md
+README.md
+api/controllers/console/__init__.py
+api/controllers/console/apikey.py
+api/controllers/console/app/site.py
+api/controllers/console/app/statistic.py
+api/controllers/console/app/workflow.py
+api/controllers/console/auth/oauth.py
+api/controllers/console/explore/completion.py
+api/controllers/console/explore/installed_app.py
+api/controllers/console/explore/workflow.py
+api/controllers/console/explore/wraps.py
+api/controllers/console/feature.py
+api/controllers/console/tag/tags.py
+api/controllers/service_api/__init__.py
+api/controllers/service_api/app/annotation.py
+api/controllers/service_api/app/app.py
+api/controllers/service_api/app/audio.py
+api/controllers/service_api/app/conversation.py
+api/controllers/service_api/app/file.py
+api/controllers/service_api/app/file_preview.py
+api/controllers/service_api/app/human_input_form.py
+api/controllers/service_api/app/message.py
+api/controllers/service_api/app/site.py
+api/controllers/service_api/app/workflow_events.py
+api/controllers/service_api/wraps.py
+api/controllers/web/login.py
+api/models/__init__.py
+api/models/workflow.py
+api/services/account_service.py
+api/services/feature_service.py
+api/services/workspace_service.py
+api/tests/integration_tests/workflow/nodes/code_executor/test_code_javascript.py
+api/tests/unit_tests/controllers/console/explore/test_installed_app.py
+api/tests/unit_tests/controllers/console/tag/test_tags.py
+api/tests/unit_tests/controllers/console/test_apikey.py
+api/tests/unit_tests/controllers/console/test_feature.py
+api/tests/unit_tests/core/app/apps/chat/test_app_generator_and_runner.py
+api/tests/unit_tests/core/app/workflow/test_persistence_layer.py
+api/tests/unit_tests/services/test_account_service.py
+docker/.env.example
+docker/envs/core-services/web.env.example
+docker/nginx/conf.d/default.conf.template
+oxlint-suppressions.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+web/app/(shareLayout)/components/__tests__/authenticated-layout.spec.tsx
+web/app/(shareLayout)/components/authenticated-layout.tsx
+web/app/(shareLayout)/webapp-signin/normalForm.tsx
+web/app/(shareLayout)/webapp-signin/page.tsx
+web/app/components/app/configuration/hooks/use-configuration-utils.ts
+web/app/components/app/configuration/hooks/use-configuration.ts
+web/app/components/app/overview/__tests__/app-card.spec.tsx
+web/app/components/app/overview/app-card-sections.tsx
+web/app/components/app/overview/app-card.tsx
+web/app/components/apps/__tests__/app-card.spec.tsx
+web/app/components/apps/app-card.tsx
+web/app/components/apps/list.tsx
+web/app/components/base/chat/chat/index.tsx
+web/app/components/develop/__tests__/ApiServer.spec.tsx
+web/app/components/develop/secret-key/__tests__/secret-key-button.spec.tsx
+web/app/components/develop/secret-key/__tests__/secret-key-modal.spec.tsx
+web/app/components/develop/secret-key/secret-key-button.tsx
+web/app/components/develop/secret-key/secret-key-modal.tsx
+web/app/components/develop/secret-key/style.module.css
+web/app/components/explore/__tests__/index.spec.tsx
+web/app/components/explore/app-list/__tests__/index.spec.tsx
+web/app/components/explore/app-list/index.tsx
+web/app/components/explore/sidebar/__tests__/index.spec.tsx
+web/app/components/explore/sidebar/index.tsx
+web/app/components/header/account-setting/index.tsx
+web/app/components/main-nav/__tests__/index.spec.tsx
+web/app/components/main-nav/index.tsx
+web/app/components/main-nav/routes.ts
+web/app/signin/normal-form.tsx
+web/context/app-context-normalizers.ts
+web/features/home/template-card.tsx
+web/features/system-features/__tests__/system-features.spec.ts
+web/features/system-features/client.ts
+web/features/system-features/server.ts
+web/i18n/uk-UA/plugin-tags.json
+web/models/app.ts
+web/models/common.ts
+web/next.config.ts
+web/package.json
+web/service/apps.ts
+web/service/client.ts
+web/service/console-router-loader.ts
+web/service/explore.ts
+web/service/use-explore.ts
+web/service/webapp-auth.ts
+
+Auto-merging .github/ISSUE_TEMPLATE/config.yml
+Auto-merging .github/workflows/db-migration-test.yml
+Auto-merging .gitignore
+Auto-merging AGENTS.md
+CONFLICT (content): Merge conflict in AGENTS.md
+Auto-merging README.md
+CONFLICT (content): Merge conflict in README.md
+Auto-merging api/Dockerfile
+Auto-merging api/constants/__init__.py
+Auto-merging api/controllers/common/fields.py
+Auto-merging api/controllers/console/__init__.py
+CONFLICT (content): Merge conflict in api/controllers/console/__init__.py
+Auto-merging api/controllers/console/apikey.py
+CONFLICT (content): Merge conflict in api/controllers/console/apikey.py
+Auto-merging api/controllers/console/app/app.py
+Auto-merging api/controllers/console/app/completion.py
+Auto-merging api/controllers/console/app/model_config.py
+Auto-merging api/controllers/console/app/site.py
+CONFLICT (content): Merge conflict in api/controllers/console/app/site.py
+Auto-merging api/controllers/console/app/statistic.py
+CONFLICT (content): Merge conflict in api/controllers/console/app/statistic.py
+Auto-merging api/controllers/console/app/workflow.py
+CONFLICT (content): Merge conflict in api/controllers/console/app/workflow.py
+Auto-merging api/controllers/console/auth/oauth.py
+CONFLICT (content): Merge conflict in api/controllers/console/auth/oauth.py
+Auto-merging api/controllers/console/explore/completion.py
+CONFLICT (content): Merge conflict in api/controllers/console/explore/completion.py
+Auto-merging api/controllers/console/explore/installed_app.py
+CONFLICT (content): Merge conflict in api/controllers/console/explore/installed_app.py
+Auto-merging api/controllers/console/explore/workflow.py
+CONFLICT (content): Merge conflict in api/controllers/console/explore/workflow.py
+Auto-merging api/controllers/console/explore/wraps.py
+CONFLICT (content): Merge conflict in api/controllers/console/explore/wraps.py
+Auto-merging api/controllers/console/feature.py
+CONFLICT (content): Merge conflict in api/controllers/console/feature.py
+Auto-merging api/controllers/console/tag/tags.py
+CONFLICT (content): Merge conflict in api/controllers/console/tag/tags.py
+Auto-merging api/controllers/console/workspace/workspace.py
+Auto-merging api/controllers/service_api/__init__.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/__init__.py
+Auto-merging api/controllers/service_api/app/annotation.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/annotation.py
+Auto-merging api/controllers/service_api/app/app.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/app.py
+Auto-merging api/controllers/service_api/app/audio.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/audio.py
+Auto-merging api/controllers/service_api/app/completion.py
+Auto-merging api/controllers/service_api/app/conversation.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/conversation.py
+Auto-merging api/controllers/service_api/app/file.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/file.py
+Auto-merging api/controllers/service_api/app/file_preview.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/file_preview.py
+Auto-merging api/controllers/service_api/app/human_input_form.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/human_input_form.py
+Auto-merging api/controllers/service_api/app/message.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/message.py
+Auto-merging api/controllers/service_api/app/site.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/site.py
+Auto-merging api/controllers/service_api/app/workflow.py
+Auto-merging api/controllers/service_api/app/workflow_events.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/app/workflow_events.py
+Auto-merging api/controllers/service_api/wraps.py
+CONFLICT (content): Merge conflict in api/controllers/service_api/wraps.py
+Auto-merging api/controllers/web/login.py
+CONFLICT (content): Merge conflict in api/controllers/web/login.py
+Auto-merging api/controllers/web/workflow.py
+Auto-merging api/core/app/apps/advanced_chat/app_generator.py
+Auto-merging api/core/app/apps/advanced_chat/app_runner.py
+Auto-merging api/core/app/apps/advanced_chat/generate_task_pipeline.py
+Auto-merging api/core/app/apps/chat/app_runner.py
+Auto-merging api/core/app/apps/completion/app_generator.py
+Auto-merging api/core/app/apps/message_based_app_generator.py
+Auto-merging api/core/app/apps/pipeline/pipeline_runner.py
+Auto-merging api/core/app/apps/workflow/app_generator.py
+Auto-merging api/core/app/apps/workflow/app_runner.py
+Auto-merging api/core/app/apps/workflow/generate_task_pipeline.py
+Auto-merging api/core/app/entities/app_invoke_entities.py
+Auto-merging api/core/app/workflow/layers/persistence.py
+Auto-merging api/core/tools/tool_manager.py
+Auto-merging api/core/workflow/node_factory.py
+Auto-merging api/extensions/ext_celery.py
+Auto-merging api/extensions/ext_commands.py
+Auto-merging api/models/__init__.py
+CONFLICT (content): Merge conflict in api/models/__init__.py
+Auto-merging api/models/model.py
+Auto-merging api/models/workflow.py
+CONFLICT (content): Merge conflict in api/models/workflow.py
+Auto-merging api/pyproject.toml
+Auto-merging api/services/account_service.py
+CONFLICT (content): Merge conflict in api/services/account_service.py
+Auto-merging api/services/conversation_service.py
+Auto-merging api/services/feature_service.py
+CONFLICT (content): Merge conflict in api/services/feature_service.py
+Auto-merging api/services/workspace_service.py
+CONFLICT (content): Merge conflict in api/services/workspace_service.py
+Auto-merging api/tasks/delete_segment_from_index_task.py
+CONFLICT (modify/delete): api/tests/integration_tests/workflow/nodes/code_executor/test_code_javascript.py deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of api/tests/integration_tests/workflow/nodes/code_executor/test_code_javascript.py left in tree.
+Auto-merging api/tests/unit_tests/controllers/console/app/test_model_config_api.py
+Auto-merging api/tests/unit_tests/controllers/console/datasets/test_datasets.py
+Auto-merging api/tests/unit_tests/controllers/console/explore/test_installed_app.py
+CONFLICT (content): Merge conflict in api/tests/unit_tests/controllers/console/explore/test_installed_app.py
+Auto-merging api/tests/unit_tests/controllers/console/explore/test_wraps.py
+Auto-merging api/tests/unit_tests/controllers/console/tag/test_tags.py
+CONFLICT (content): Merge conflict in api/tests/unit_tests/controllers/console/tag/test_tags.py
+Auto-merging api/tests/unit_tests/controllers/console/test_apikey.py
+CONFLICT (content): Merge conflict in api/tests/unit_tests/controllers/console/test_apikey.py
+Auto-merging api/tests/unit_tests/controllers/console/test_feature.py
+CONFLICT (content): Merge conflict in api/tests/unit_tests/controllers/console/test_feature.py
+Auto-merging api/tests/unit_tests/controllers/console/test_files.py
+Auto-merging api/tests/unit_tests/controllers/service_api/conftest.py
+Auto-merging api/tests/unit_tests/controllers/service_api/test_wraps.py
+Auto-merging api/tests/unit_tests/controllers/web/conftest.py
+Auto-merging api/tests/unit_tests/core/app/apps/chat/test_app_generator_and_runner.py
+CONFLICT (content): Merge conflict in api/tests/unit_tests/core/app/apps/chat/test_app_generator_and_runner.py
+Auto-merging api/tests/unit_tests/core/app/workflow/test_persistence_layer.py
+CONFLICT (content): Merge conflict in api/tests/unit_tests/core/app/workflow/test_persistence_layer.py
+Auto-merging api/tests/unit_tests/core/workflow/test_node_factory.py
+Auto-merging api/tests/unit_tests/services/test_account_service.py
+CONFLICT (content): Merge conflict in api/tests/unit_tests/services/test_account_service.py
+Auto-merging api/uv.lock
+Auto-merging cli/scripts/e2e-provision.ts
+Auto-merging cli/test/e2e/setup/global-setup.ts
+Auto-merging docker/.env.example
+CONFLICT (content): Merge conflict in docker/.env.example
+Auto-merging docker/docker-compose.middleware.yaml
+Auto-merging docker/envs/core-services/web.env.example
+CONFLICT (content): Merge conflict in docker/envs/core-services/web.env.example
+Auto-merging docker/nginx/conf.d/default.conf.template
+CONFLICT (content): Merge conflict in docker/nginx/conf.d/default.conf.template
+Auto-merging oxlint-suppressions.json
+CONFLICT (content): Merge conflict in oxlint-suppressions.json
+Auto-merging pnpm-lock.yaml
+CONFLICT (content): Merge conflict in pnpm-lock.yaml
+Auto-merging pnpm-workspace.yaml
+CONFLICT (content): Merge conflict in pnpm-workspace.yaml
+Auto-merging web/__tests__/embedded-user-id-auth.test.tsx
+Auto-merging web/app/(shareLayout)/components/__tests__/authenticated-layout.spec.tsx
+CONFLICT (content): Merge conflict in web/app/(shareLayout)/components/__tests__/authenticated-layout.spec.tsx
+Auto-merging web/app/(shareLayout)/components/__tests__/splash.spec.tsx
+Auto-merging web/app/(shareLayout)/components/authenticated-layout.tsx
+CONFLICT (content): Merge conflict in web/app/(shareLayout)/components/authenticated-layout.tsx
+Auto-merging web/app/(shareLayout)/webapp-signin/__tests__/page.spec.tsx
+Auto-merging web/app/(shareLayout)/webapp-signin/components/__tests__/external-member-sso-auth.spec.tsx
+Auto-merging web/app/(shareLayout)/webapp-signin/components/__tests__/sso-auth.spec.tsx
+Auto-merging web/app/(shareLayout)/webapp-signin/normalForm.tsx
+CONFLICT (content): Merge conflict in web/app/(shareLayout)/webapp-signin/normalForm.tsx
+Auto-merging web/app/(shareLayout)/webapp-signin/page.tsx
+CONFLICT (content): Merge conflict in web/app/(shareLayout)/webapp-signin/page.tsx
+Auto-merging web/app/components/app/configuration/__tests__/configuration-view.spec.tsx
+Auto-merging web/app/components/app/configuration/config/index.tsx
+Auto-merging web/app/components/app/configuration/debug/__tests__/index.spec.tsx
+CONFLICT (modify/delete): web/app/components/app/configuration/hooks/use-configuration-utils.ts deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/app/configuration/hooks/use-configuration-utils.ts left in tree.
+Auto-merging web/app/components/app/configuration/hooks/use-configuration.ts
+CONFLICT (content): Merge conflict in web/app/components/app/configuration/hooks/use-configuration.ts
+CONFLICT (modify/delete): web/app/components/app/overview/__tests__/app-card.spec.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/app/overview/__tests__/app-card.spec.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/app/overview/app-card-sections.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/app/overview/app-card-sections.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/app/overview/app-card.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/app/overview/app-card.tsx left in tree.
+Auto-merging web/app/components/app/overview/app-chart.tsx
+Auto-merging web/app/components/apps/__tests__/app-card.spec.tsx
+CONFLICT (content): Merge conflict in web/app/components/apps/__tests__/app-card.spec.tsx
+CONFLICT (modify/delete): web/app/components/apps/app-card.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/apps/app-card.tsx left in tree.
+Auto-merging web/app/components/apps/list.tsx
+CONFLICT (content): Merge conflict in web/app/components/apps/list.tsx
+Auto-merging web/app/components/base/chat/chat/index.tsx
+CONFLICT (content): Merge conflict in web/app/components/base/chat/chat/index.tsx
+CONFLICT (modify/delete): web/app/components/develop/__tests__/ApiServer.spec.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/develop/__tests__/ApiServer.spec.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/develop/secret-key/__tests__/secret-key-button.spec.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/develop/secret-key/__tests__/secret-key-button.spec.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/develop/secret-key/__tests__/secret-key-modal.spec.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/develop/secret-key/__tests__/secret-key-modal.spec.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/develop/secret-key/secret-key-button.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/develop/secret-key/secret-key-button.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/develop/secret-key/secret-key-modal.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/develop/secret-key/secret-key-modal.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/develop/secret-key/style.module.css deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/develop/secret-key/style.module.css left in tree.
+CONFLICT (modify/delete): web/app/components/explore/__tests__/index.spec.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/explore/__tests__/index.spec.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/explore/app-list/__tests__/index.spec.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/explore/app-list/__tests__/index.spec.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/explore/app-list/index.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/explore/app-list/index.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/explore/sidebar/__tests__/index.spec.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/explore/sidebar/__tests__/index.spec.tsx left in tree.
+CONFLICT (modify/delete): web/app/components/explore/sidebar/index.tsx deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/app/components/explore/sidebar/index.tsx left in tree.
+Auto-merging web/app/components/header/account-setting/index.tsx
+CONFLICT (content): Merge conflict in web/app/components/header/account-setting/index.tsx
+Auto-merging web/app/components/main-nav/__tests__/index.spec.tsx
+CONFLICT (content): Merge conflict in web/app/components/main-nav/__tests__/index.spec.tsx
+Auto-merging web/app/components/main-nav/index.tsx
+CONFLICT (content): Merge conflict in web/app/components/main-nav/index.tsx
+Auto-merging web/app/components/main-nav/routes.ts
+CONFLICT (content): Merge conflict in web/app/components/main-nav/routes.ts
+Auto-merging web/app/signin/__tests__/normal-form.spec.tsx
+Auto-merging web/app/signin/check-code/__tests__/page.spec.tsx
+Auto-merging web/app/signin/invite-settings/__tests__/page.spec.tsx
+Auto-merging web/app/signin/normal-form.tsx
+CONFLICT (content): Merge conflict in web/app/signin/normal-form.tsx
+Auto-merging web/app/signin/utils/__tests__/post-login-redirect.spec.ts
+Auto-merging web/app/signup/set-password/__tests__/page.spec.tsx
+Auto-merging web/context/app-context-normalizers.ts
+CONFLICT (content): Merge conflict in web/context/app-context-normalizers.ts
+Auto-merging web/context/debug-configuration.ts
+Auto-merging web/features/home/template-card.tsx
+CONFLICT (content): Merge conflict in web/features/home/template-card.tsx
+CONFLICT (modify/delete): web/features/system-features/__tests__/system-features.spec.ts deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/features/system-features/__tests__/system-features.spec.ts left in tree.
+Auto-merging web/features/system-features/client.ts
+CONFLICT (content): Merge conflict in web/features/system-features/client.ts
+Auto-merging web/features/system-features/server.ts
+CONFLICT (content): Merge conflict in web/features/system-features/server.ts
+Auto-merging web/i18n-config/resources.ts
+CONFLICT (modify/delete): web/i18n/uk-UA/plugin-tags.json deleted in 1c3368ed1584c4e9b6387a28334552d10c946ab4 and modified in refs/tags/1.17.1.  Version refs/tags/1.17.1 of web/i18n/uk-UA/plugin-tags.json left in tree.
+Auto-merging web/models/app.ts
+CONFLICT (content): Merge conflict in web/models/app.ts
+Auto-merging web/models/common.ts
+CONFLICT (content): Merge conflict in web/models/common.ts
+Auto-merging web/models/explore.ts
+Auto-merging web/next.config.ts
+CONFLICT (content): Merge conflict in web/next.config.ts
+Auto-merging web/package.json
+CONFLICT (content): Merge conflict in web/package.json
+Auto-merging web/service/apps.ts
+CONFLICT (content): Merge conflict in web/service/apps.ts
+Auto-merging web/service/base.ts
+CONFLICT (modify/delete): web/service/client.ts deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/service/client.ts left in tree.
+CONFLICT (modify/delete): web/service/console-router-loader.ts deleted in refs/tags/1.17.1 and modified in 1c3368ed1584c4e9b6387a28334552d10c946ab4.  Version 1c3368ed1584c4e9b6387a28334552d10c946ab4 of web/service/console-router-loader.ts left in tree.
+Auto-merging web/service/explore.ts
+CONFLICT (content): Merge conflict in web/service/explore.ts
+Auto-merging web/service/use-explore.ts
+CONFLICT (content): Merge conflict in web/service/use-explore.ts
+Auto-merging web/service/webapp-auth.ts
+CONFLICT (content): Merge conflict in web/service/webapp-auth.ts
+Auto-merging web/types/app.ts
+Auto-merging web/utils/__tests__/login-redirect.spec.ts

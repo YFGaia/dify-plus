@@ -1,0 +1,90 @@
+# Dify-Plus 1.16.0 → upstream 1.17.1：前端源码级合并规划
+
+> 规划输入：当前 fork `HEAD=1c3368ed1584c4e9b6387a28334552d10c946ab4`，上游基线 `refs/tags/1.16.0=5c6372d2f76d240265b92fd27c16bc772ffcb107`，目标 `refs/tags/1.17.1=8387590ace4a094de812b7847fc6a4c3a27cd52b`。使用只读 `git diff/show`、`merge-tree.txt`；未 checkout、合并、编译、测试或启动服务。范围是前端、前端契约、UI 包、前端构建/部署挂点。建议在实施前重新检查真实合并树，因为这是三方源码分析，不是合并后的类型检查结果。
+>
+> `merge-tree.txt` 统计的 91 个冲突路径中前端 45 个；上游与 fork 前端相关差异路径交集 71 个。交集包含多项 modify/delete，说明旧文件保留在合并树不等于功能仍有路由或调用者。
+
+## 一、必须先定的迁移边界
+
+| 风险 | 上游 1.17.1 事实 | fork 现有挂点 | 迁移结论 |
+| --- | --- | --- | --- |
+| Console transport 与登录配置 | 上游删除 `web/service/client.ts`、`console-router-loader.ts`、`server.ts`；改为 `web/service/console/{index,browser,server,contract-loader,query-policies}.ts` 与 `packages/contracts/console.ts`。`system-features/client.ts` 直接读 `consoleQuery.systemFeatures.get`，`server.ts` 新增 `getOptionalSystemFeatures/getSystemFeatures/dehydrateSystemFeatures`；根布局有 `SystemFeaturesBootstrapBoundary`。 | `web/contract/{base,router-extend}.ts`、`web/contract/console/system.ts`，`web/service/client.ts::setLoginConfigToken/createConsoleOpenAPILink`，`web/service/console-router-loader.ts`，`web/features/system-features/{client,server,extend}.ts`。当前 fork 的 `/system-features` 返回 `{"ping":true}` 健康桩，敏感登录配置走 `/login_config_bootstrap`→`/login_config`。 | 前后端共同契约节点先确定：保留双阶段 `login_config` 协议，同时让 `/system-features` 兼容上游需要的 public snapshot；健康桩只是当前实现，不固化为目标产品契约。新 browser transport 注册 fork 双阶段路由，并用 `X-Login-Config-Token` 覆盖反向代理/跨域 Cookie 不可用场景。SSR 必须校验 public snapshot 形状，严禁把 `{"ping":true}` 当配置或注入 query 缓存；定义 server optional/hard 读取语义。避免重新引入已删除的旧 `client.ts` 作为双源。 |
+| 最新 WebApp 访问认证开关 | 上游删除概览 `app-card.tsx` 和 `app-card-sections.tsx`，新增 `app/access-point/built-in-access-points/web-app-card.tsx`、`shared/use-access-point-actions.ts`、`shared/web-app-access-control.tsx`；路由 `/app/[appId]/access-point`。 | `1ffa101203` 加入概览 Switch、Tooltip、单字段 `webapp_auth_enabled_extend` 保存与默认开启；`fc5ceb5283` 在 chat context 调用前用 `csrf_token` cookie 探测 Console 会话；`api/login/status?app_code=` 返回开关。 | 在 **built-in** WebApp 卡片重挂开关（不要挂到环境卡片），扩展 `AccessPointAppInfo`/保存参数、app detail 回填、显示权限与禁用条件，保存后刷新 store 和 query。保留 `NULL/true=需登录，false=匿名`、失败按需登录关闭的后端语义。新 UI 的 WebApp enable/disable Switch 与 fork 访问认证 Switch 要有不同标签与操作，不互相覆盖。 |
+| WebApp 地址/Passport | 上游新增 `web/service/webapp-address.ts`（`default` vs `environment`）和 environment passport/session 作用域，`web/service/webapp-auth.ts` 的 `webAppLogout`/passport 签名从 shareCode 改为 address；`authenticated-layout.tsx`、`webapp-signin/page.tsx`、`share.ts`、`base.ts` 跟着改。 | fork `authenticated-layout.tsx` 每次以 shareCode 调 `checkWebAppConsoleAuthStatus`，`webapp-auth.ts` 追加 `app_code` 请求；signin 直接检查 Console 登录，匿名直达 WebApp 时跳转逻辑在布局。 | 保留上游环境地址作用域；仅对 fork 受管辖的 default/built-in WebApp 执行每应用 Console 登录门禁。环境地址沿用上游环境鉴权，不把环境 code 误当 app_code，也不强制送 `/signin`。`webAppLoginStatus`、logout、passport、401 recovery、redirect_url 的新签名一起迁，测试同时覆盖 default/环境/invalid code。 |
+| 应用中心和默认落点 | 上游 `/` 已是新的 Home（`web/app/(commonLayout)/page.tsx`→`web/features/home/page.tsx`）；`main-nav/routes.ts` 的 Home 指 `/`。旧 `web/app/components/explore/category`、`app-list`、sidebar 已删，`web/service/use-explore.ts` 删旧 installed hooks。 | fork 默认落点是 `web/utils/login-redirect.ts::getClientLoginFallback` 的 `/explore/apps-center-extend`；额外手写跳转仍在 `signin/normal-form.tsx`，导航 fork `main-nav/routes.ts`。应用中心 `apps-center-extend/page.tsx`→`app-list-center-extend`，用 `useInstalledAppList`/`fetchOpenInstalledAppList`、分类/标签/关键词筛选、按使用次数顺序、installed id 打开应用。 | 保留独立 fork 应用中心路由与登录 fallback；从已删的 Explore UI 中迁出必需的分类/卡片依赖，确认 `fetchOpenInstalledAppList` 的 `/installed/apps` 响应。导航增加应用中心入口，并确认上游 Home 默认页不会抢走 fork 登录落点。URL token 清理逻辑保留在 route；所有登录/邀请/SSO 回跳统一核对 fallback，不能仅改 nav 链接。 |
+| 模板同步权限与组件 | 上游 `apps/app-card.tsx` 删除，拆到 `apps/app-card/{index,interactions}.tsx`；应用列表 `list.tsx` 大改。`context/app-context-normalizers.ts` 改成 `normalizeCurrentWorkspaceSummary`，输入 `GetWorkspacesCurrentSummaryResponse`，旧 `PostWorkspacesCurrentResponse`/完整 Workspace 形状退出。 | fork `apps/app-card.tsx` 的同步/取消同步菜单由 `recommended_apps`、workspace manager、`admin_extend && tenant_extend` 控制；后两标记来自 fork 对旧 current workspace normalizer 的扩展。 | 后端与前端须共同迁移 workspace summary 的 `admin_extend/tenant_extend` 数据源契约：先确定新响应实际输出和生成契约的扩展边界，再更新 normalizer/Jotai atom，避免默认 false 把菜单隐藏。把菜单与确认框迁到 `apps/app-card/index.tsx` 与 interactions 的菜单所有者；从 1.17.1 列表真实响应重新定位同步状态，不假定旧 `pages.at(-1)?.recommended_apps` 仍存在。核对调用 `syncApp/syncCancelApp` 与列表缓存失效。 |
+| 额度与 API Key | 上游删除 `develop/secret-key/*`，统一新 `web/app/components/api-key/{api-key-modal,api-key-table}.tsx`，由 `app/access-point/shared/api-secret-key-button.tsx` 唤起；弹窗支持 app/dataset/environment 三 scope。上游 MainNav 变为侧栏，额度展示位置为 `workspace-card.tsx` 中 Cloud 专用 credits 区（`showCloudBilling`）。 | fork `main-nav/components/account-money-extend.tsx` 显示后端个人余额、用 `login_config.rmb_to_usd_rate` 转 RMB；`develop/secret-key/secret-key-quota-set-modal-extend.tsx` 支持创建/编辑日月限额、描述；服务端限额字段见 `api/controllers/console/apikey.py`。 | 个人余额以独立 fork UI 继续显示在侧栏可见区域，勿用 Cloud workspace credits 替代个人余额。新 API Key modal/table 只在有后端额度字段的 scope 呈现日/月限额，app/dataset 和 environment 的能力逐一对照 API；合并前先决定 environment scope 是否支持限额，不能静默给无效输入。创建/编辑回写后刷新新 `consoleQuery.apps.byResourceId.apiKeys` 等 key。 |
+| 上下文/保留条数 | 上游 `web/app/components/base/chat/chat/index.tsx` 改 props (`onFeedback`/`theme`/`showRegenerate`)；配置 `use-configuration-utils.ts` 删除、`use-configuration.ts` 大改。 | fork chat 的匿名会话 `csrf_token` guard 与配置 retention 组件挂点。 | 把 guard 移植到新 Chat 中真正发 `/console/api/message/context` 的调用边界（不能只把旧片段合回一个不再引用的代码块）；保留配置 retention 写入与 `NULL` 未配置语义。 |
+| Jotai、generated contracts、i18n | 上游新 workspace summary、资源权限/Query policy；`packages/contracts/console.ts` 是聚合入口。上游新增 `lo-LA` locale 和 `skill` namespace，`locale-resources/lo-LA.ts` 直接动态加载 JSON，`server.ts::getResources` 遍历所有 namespace。 | fork 自有 contract segment、`web/context/app-context-extend.ts` 权限 atom，23 个 `extend.json`；i18n `resources.ts` 注册 extend；其余 locale typed selector。 | 保留 fork contract 只读自有文件并并入新 `packages/contracts/console.ts` 的类型/运行时 loader，不能手改 `packages/contracts/generated/**`。补 `web/i18n/lo-LA/extend.json`，保持 **24** 语言 extend 文件和所有 key。新 key 不用 `t('key',{ns})` 的旧式调用。 |
+| 构建/CI | 目标 root `packageManager=pnpm@12.3.4`、`engines.node=^24.20.0`，`web/Dockerfile` 的 Node 24.20.0 且 `RUN pnpm build && pnpm build:vinext`；web 增 `test:browser`，GitHub web-tests 分 unit/browser，style 调 `vp run -w check`。 | fork CI/compose/nginx 与 `web/package.json`、`next.config.ts`，目标 merge-tree 有 web/package/next、docker env/nginx 冲突。 | 先固定工具链和 env（含 `SERVER_CONSOLE_API_PREFIX`、新 SSR transport URL、`NEXT_PUBLIC_*`）再构建。检查 fork compose 的 web build context/Node args 与 Next/Vinext 两产物启动，CI 触发条件需覆盖 fork 前端文件，保留双构建门槛；不能仅靠本地 dev 页面证明。 |
+
+## 二、Graph Engineer 节点与依赖
+
+| 节点 | 依赖 | 文件所有者与实施动作 | 完成条件/验收 |
+| --- | --- | --- | --- |
+| F0 基线及冲突清单冻结 | 无 | 集成 owner。固定上游 tag 全 SHA、HEAD、`merge-tree.txt`，按 45 前端冲突逐项标记 `content`/`modify-delete`；禁止以旧文件无冲突代表有调用者。 | 输出冲突处置表：保留 fork、采用上游、移植到新宿主三态；未决项有负责人。 |
+| F1 工具链、根容器与 generated 契约 | F0 | 平台 owner。合并 `package.json`/lock/web package/Next config/Dockerfile/compose/nginx/CI；以 1.17.1 生成物为基线，fork route 在独立自有 contract 文件。 | Node 24.20.0 + pnpm 12.3.4 可装 frozen lock；`pnpm check`、`pnpm --dir web build`、`pnpm --dir web build:vinext` 的预期命令与 image boot 命令定稿。 |
+| F2 Console public snapshot 与双阶段登录共同契约 | F1，后端认证 owner 参与 | 前后端共同确定 `/system-features` 的公开字段、SSR 可读性与 `/login_config_bootstrap`→`/login_config` 的敏感字段边界；保留双阶段登录配置。前端认证 owner 独占 `web/service/console/*`、`packages/contracts/console.ts`、`web/contract/*`、`web/features/system-features/*`，在 1.17.1 动态 loader 增 fork 段，browser 请求注入 token Header，server 对 public snapshot 做形状守卫并统一 optional/hard 失败语义。当前 ping 桩可由共同契约节点调整，不能当永久产品契约。 | 不读旧 `@/service/client`；Network 能看到 bootstrap→config 顺序、Header；上游需用的 public snapshot 可供 SSR 使用且不泄露双阶段敏感字段；SSR 绝不把 `{ping:true}` 注入 query 缓存；匿名与登录态渲染导航/登录页无 crash、无请求循环。跨域 Cookie 被浏览器拒绝时仍取得配置。 |
+| F3 登录 UI 与默认落点 | F2 | 认证 UI owner。处理 `web/app/signin/*`、`web/app/(shareLayout)/webapp-signin/*` 与 `web/utils/login-redirect.ts`；合并上游邀请账号识别、SSO 协议枚举、license enum，同时保留钉钉 JSAPI/扫码、OAuth2、自定义按钮和 app center fallback。 | 邮箱/邀请码/钉钉/OAuth2/外部成员 SSO 登录后进入预期目的地；恶意外链/带 token 回跳不会形成开放重定向；默认无 redirect 进入 `/explore/apps-center-extend`。 |
+| F4 WebApp 访问认证与新地址语义 | F2、F3 和后端 `/login/status?app_code=`、site 字段稳定 | WebApp owner 独占 `web/service/webapp-{auth,address}.ts`、share/base、shareLayout 和新 `access-point` WebApp 卡片；依次迁移上游 address/passport，再挂 fork 门禁，再挂新卡片 Switch。 | Built-in 开关默认 on 时匿名跳 Console 登录；off 时匿名可跑 completion/chat/workflow；已登录与非法 app code 有明确定义；环境 WebApp 走环境 passport 不被 fork Console 门禁误拦；匿名 chat 不发 Console context 请求。卡片两种 Switch 分别工作，单字段保存刷新。 |
+| F5 应用中心与模板同步 | F2；后端与前端共同完成 workspace summary `admin_extend/tenant_extend` 数据源契约 | 应用中心 owner 独占 `apps-center-extend`、`app-list-center-extend`、`service/explore*`；Studio owner 独占 `apps/app-card/{index,interactions}.tsx` 和列表同步状态。后端 owner 明确新 summary 的真实字段与权限语义，前端 owner 更新 contract 扩展、normalizer 与 atom。 | `/explore/apps-center-extend` 分类/标签/搜索/去重/使用次数排序/打开安装应用；manager+两权限位能同步和取消，普通成员看不到，列表状态及时变化；Home 的 `/` 与 fork 落点同时可导航。 |
+| F6 个人额度、API Key、上下文 | F2、F4 的 app/API 契约稳定 | 额度 owner 独占新 `api-key/{api-key-modal,api-key-table}` 与个人余额挂点，另处理 `base/chat/chat`、配置 retention。和后端 owner 对照 app/dataset/environment key payload。 | 个人余额 RMB 汇率来自真实登录配置；余额与上游 Cloud credits 各自清晰；API Key 新建/编辑日月限额与描述、刷新列表；匿名 chat/context 无 401 强制跳转；已登录上下文/retention 生效。 |
+| F7 系统管理保活 | F2；workspace role 数据源稳定 | 系统管理 owner。本轮仅将现有三路由和自有 code-execution contract 接入新 transport，保留当前前端 **仅 workspace owner 可见/可进** 的权限语义与后端现有授权行为。P6 的 admin 可见性扩展、contract/query 数据层标准化和页面重构均不在本轮实施。 | owner 能见入口并使用 quota、dingtalk、oauth2、email-api、forward token、code execution；admin/member 在前端仍按当前 owner-only 守卫不可见/不可进。后端直接 API 权限单独按现状验证并记录前后端差异，不借合并改变授权范围。 |
+| F8 i18n/静态与契约校验 | F3–F7 | 集成 owner。更新 `resources.ts`、24 份 extend JSON、生成契约类型/引用；扫描旧路径与硬编码。 | `pnpm --dir web i18n:check`、`pnpm check`、`pnpm --dir web lint:tss`；`rg` 无旧 `@/service/client`/已删 Overview/secret-key/Explore category 的生产 import；24 locale 均能加载 extend namespace。 |
+| F9 容器、三角色业务回归与发版证据 | F1–F8，且后端节点已完成 | 集成 owner。以 fork compose 构建并启动实际 Next 产物，按登录、WebApp、额度、应用中心、系统管理的业务路径记录请求/响应与 UI 证据。 | 单元/浏览器定向测试、两个 web build、容器 Next 进程与 HTTP/浏览器业务结果分别记录；避免把 build 通过当登录/权限通过。 |
+
+依赖主链：`F0→F1→F2→{F3,F5,F6,F7}→F8→F9`；`F3→F4→F6`。F2 是前后端共同契约硬阻塞；F5 的 workspace summary 权限字段、F4 的新地址鉴权和 F6 的额度 payload 分别等待后端对应契约稳定；F7 只依赖 workspace role 的现有 owner 判断。文件独占按上述所有者划分，`resources.ts`、24 个 locale 文件、`package.json`/lockfile 由集成 owner 统一收口，避免并发写同一文件。
+
+## 三、针对性验证命令与业务场景（实施后运行，本次未运行）
+
+静态/构建（在仓库根目录，工具链以合并后 package.json 为准）：
+
+```sh
+corepack enable
+node --version
+pnpm --version
+pnpm install --frozen-lockfile
+pnpm check
+pnpm --dir web lint:tss
+pnpm --dir web i18n:check
+pnpm --dir web build
+pnpm --dir web build:vinext
+```
+
+定向单测可使用 1.17.1 的 Vite+ 项目划分，例如 `vp test run --project unit web/features/system-features web/service/console web/service/webapp-auth.spec.ts web/app/components/app/access-point web/app/components/api-key`；带焦点/地址/浏览器 API 的场景用 `vp test run --project browser` 或真实浏览器。先更新原 fork 旧路径用例的目标与断言，勿把旧测试文件在 merge-tree 保留但不进入新路由当通过。团队要求时再扩展全量 unit/browser/e2e。生产镜像需检查 `web/Dockerfile` 的 Next/Vinext 双 build 与 `web/docker/entrypoint.sh` 指向的实际产物。
+
+定向静态定位：
+
+```sh
+rg -n "@/service/client|console-router-loader|develop/secret-key|overview/app-card|explore/category|app-context-normalizers" web --glob '!**/__tests__/**'
+rg -n "login_config_bootstrap|login_config|X-Login-Config-Token|setLoginConfigToken" web api/controllers/console/feature.py
+rg -n "webapp_auth_enabled_extend|checkWebAppConsoleAuthStatus|message/context" web api/controllers
+rg -n "admin_extend|tenant_extend|recommended_apps|syncCancelApp|syncApp" web api
+rg --files web/i18n | rg '/extend\.json$' | wc -l
+```
+
+业务验收最小矩阵：
+
+1. Console 未登录直访 `/signin`：bootstrap 请求先于敏感配置请求；`login_config` 保留钉钉/OAuth/RMB 汇率等 fork 字段；代理域名下即使 Cookie 不可用也可用 Header。按 F2 共同契约验证 `/system-features` 的上游 public snapshot 供 SSR 使用、敏感字段不泄露；若仍遇旧 `{"ping":true}` 响应，SSR 必须拒绝将其当配置。登录后无 redirect 进入应用中心；邀请码与明确 redirect 保留目的地且拒绝跨站危险 URL。
+2. WebApp built-in：访问认证 on/off × Console 登录/未登录 × completion/chat/workflow；off 的匿名访问请求成功且不触发 `/console/api/message/context`，on 的未登录跳 signin；切换即保存、详情回填、重载后不反跳。环境 WebApp 另测独立 Passport/401 recovery，不能被 built-in app_code 门禁覆盖。
+3. Studio 应用卡片：超管权限、workspace owner/admin/普通成员组合；同步/取消同步确认与新列表状态；应用中心分类、标签、搜索、排序、去重和 installed id 打开。
+4. 余额与 key：个人余额/上游 Cloud credits 分别显示；app/dataset key 的创建、编辑日月限额、删除及后端限制生效；environment key 行为按确认的后端能力验收；余额扣费后刷新。
+5. 系统管理：owner 能见入口并使用管理页面；admin/普通成员按现有前端 owner-only 守卫看不到入口、直访显示无权限。直接 API 按后端现有装饰器另验，不把前后端现状差异当本轮授权修改。owner 回归额度分页/编辑、钉钉/OAuth2 保存及测试、Email API 测试、forward token 增删、代码执行控制增删；管理页面文本在 zh-Hans、en-US、lo-LA 加载。
+
+## 四、P6 active OpenSpec 的过时项与建议顺序
+
+`openspec/changes/p6-console-manage-standardization` 是未完成规划，不可按旧 tasks 直接执行：
+
+- D1/1.2 的 `web/contract/router.ts` 自 1.16.0 已退出，1.17.1 又删除 `web/service/client.ts`。应把系统管理自有 contract 归入新 `packages/contracts/console.ts` 聚合 + `web/service/console/contract-loader.ts` 自有 segment 分支，继续与生成物隔离。
+- 4.1 写 `web/app/components/header/system-manage-nav-extend/index.tsx` 已是旧路径；当前 fork 为 `main-nav/components/system-manage-nav-extend.tsx`，1.17.1 导航更换结构。本轮只把 owner-only 入口接入新侧栏；P6 后续再决定标准化宿主和 owner/admin 扩展。
+- design 写旧 `base/ui/dialog`、`base/toast`、`base/tab-slider-new`；当前 `web/AGENTS.md` 强制 `@langgenius/dify-ui/*` overlay，1.17.1 组件 API 需以 `packages/dify-ui/README.md` 和实际代码为准。
+- P6 的“20 语言”、`auto-gen-i18n.js` 已过时；当前是 23 份 fork extend，加上游 lo-LA 后为 24，翻译采用当前 i18n 流程。旧式 `t('key',{ns})` 在 typed-selector optimize 下可能构建绿但运行时失效。
+- P6 的 `pnpm lint`、`type-check:tsgo` 及 `pnpm vitest run` 需重定为合并后 `pnpm check`、`pnpm --dir web lint:tss`、`vp test run --project unit/browser` 的确切命令；按 `web/docs/test.md` 选择有业务行为的测试。
+- P6 把 code-execution UI 排除在 scope 外，但当前 fork 已有 `web/app/(commonLayout)/system-manage-extend/code-execution-control` 与 `web/contract/console/system-manage.ts`；1.17.1 合并时须保活并纳入 F7 验收，P6 重构可后续再做。
+- 本轮顺序：**F2 前后端共同确定 public snapshot 与双阶段登录契约 → F7 仅保活当前系统管理权限和功能 → F8/F9 验收**。P6 仅列为后续重定基线工作；待本轮合并验收后，另行更新 proposal/design/tasks，再按 contract/query 数据层→页面→权限/i18n 执行。P6 的任务数“6 个端点”与实际 13 个导出函数混用，后续更新时按 API 路由逐项列出，避免遗漏 `dingtalkTestCallback`、forward-token delete 等。
+
+## 五、剩余确认点
+
+- workspace summary 的 `admin_extend/tenant_extend` 是前后端共同迁移的必需数据源契约。后端 owner 应确认 1.17.1 新 summary 的真实输出和权限语义，前端同步更新 contract 扩展、normalizer/Jotai atom；若新 summary 不提供，双方共同指定另一个明确授权的数据源，不能依赖旧 normalizer 的默认 false。
+- 后端 owner 应确认新 environment API Key 是否带 fork 日/月限额，及 `/apps/{id}/site` 在新 access-point 操作中的字段并存规则。
+- 目标 Git tag 的 1.17.1 UI 开关与 fork 访问认证是两个独立状态。若产品希望环境 WebApp 同样受 fork 开关管辖，需要单独定义 environment id→app id 映射、状态 API 和安全边界；现有 fork 代码没有该映射，本规划按仅 built-in 处理。
