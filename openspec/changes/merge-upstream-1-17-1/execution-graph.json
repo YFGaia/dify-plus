@@ -543,7 +543,7 @@
       "owner_role": "计费负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -598,7 +598,8 @@
         "evidence/M04/verify.sh",
         "evidence/M04/verify_static.py",
         "evidence/M04/plan-checks.log",
-        "evidence/M04/static-checks.log"
+        "evidence/M04/static-checks.log",
+        "evidence/M04/independent-review.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -648,16 +649,23 @@
           "10.1",
           "10.2",
           "10.3",
-          "10.4"
+          "10.4",
+          "10.5"
         ],
-        "independent_acceptance_pending": "10.5",
         "source_commits": [
           "521eb98761517347f28a18dcdfdcf646c389ddb8",
           "a65840a41a85de545811b8b879891a9f5d5ad278",
           "08e130ed1dbe7f8c0907a9171b76406836eeb668"
         ],
         "self_test": "370 passed, 2 warnings; 36 callers; 16 immutable-boundary assertions",
-        "handoff": "evidence/M04/handoff.md"
+        "handoff": "evidence/M04/handoff.md",
+        "independent_acceptance": {
+          "status": "passed",
+          "model": "gpt-6-luna",
+          "thread_id": "01a0e987-dcbb-79b0-b535-68612b57bb1f",
+          "tested_head": "615efae14dcff1d02ea51d5c4b61e403df76ec5b",
+          "evidence": "evidence/M04/independent-review.json"
+        }
       }
     },
     {

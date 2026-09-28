@@ -50,3 +50,16 @@ M04 ready; tasks 10.1-10.4 implemented/self-tested, 10.5 independent acceptance 
 Final plan command: openspec validate merge-upstream-1-17-1 --strict
 Exit 0; valid. DAG/unique ownership/tasks/frozen hashes checks exit 0.
 Final graph evidence link audit: all M04 evidence paths exist; ready and 10.5 unchecked.
+
+Independent Luna acceptance: PASS
+Review thread: 01a0e987-dcbb-79b0-b535-68612b57bb1f
+Model: gpt-6-luna
+Tested HEAD: 615efae14dcff1d02ea51d5c4b61e403df76ec5b
+Command: sh openspec/changes/merge-upstream-1-17-1/evidence/M04/verify.sh
+Exit 0; 370 passed, 2 warnings.
+Ruff: exit 0; all 9 changed Python files passed.
+OpenSpec strict: exit 0.
+Verified input hashes: 51/51 matched.
+Code review: no new findings; see independent-review.json.
+Limit: source node passed; deployment and environment gates remain open.
+Graph transition: M04 ready -> passed; tasks 10.1-10.5 complete.

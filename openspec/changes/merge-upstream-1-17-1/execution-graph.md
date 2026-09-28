@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04/M05/M07 ready；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 后端基础与共同契约适配已通过（passed；146 项定向/Schema 测试及 29 项最终 HTTP 测试通过；独立 Luna 复核无 P1/P2），M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05/M07 ready；M06/M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02/M03 已通过；M04–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M02/M03 已通过；M04 已通过；M05/M07 ready，M06–M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -299,7 +299,7 @@ M03 子项进度：9.1–9.5 全部通过，代码、测试、证据随本节点
 
 登记配套测试：`controllers/service_api/test_wraps.py`、`controllers/service_api/test_billing_extend.py`、`core/app/test_billing_hooks_extend.py`（均在 `api/tests/unit_tests/`）。既有 `controllers/console/test_apikey.py` 已在冲突清单。新增两条测试及既有 `test_wraps.py` 已同步到 `research/conflict-ownership.tsv` 与 M04 `owned_conflict_paths`，唯一 owner=M04，verifier=V01。另登记 `core/memory/test_token_buffer_memory.py` 适配 fork context 查询次数；既有 persistence 测试隔离 Celery broker。
 
-- 状态：ready；M03 已通过。Sol 独立只读实施前审查已完成（`evidence/M04/pre-analysis.md`）；OAuth 由 M03 交付，M04 实施/复核其余九项。
+- 状态：passed；M03 已通过。Sol 独立只读实施前审查与 Luna 独立验收均已完成（`evidence/M04/pre-analysis.md`、`evidence/M04/independent-review.json`）；OAuth 由 M03 交付，M04 实施/复核其余九项。
 
 - 前置：M03；负责人：计费负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`计费负责人`。
@@ -321,7 +321,7 @@ M03 子项进度：9.1–9.5 全部通过，代码、测试、证据随本节点
 
 M04 精确执行证据：`evidence/M04/{execution.log,scope-registration.json,focused-tests.log,lint.log,verify.sh,verify_static.py,plan-checks.log,static-checks.log}`；全部路径已核实存在。
 
-M04 实现进度：10.1–10.4 已完成源码与自测，370 passed；源码提交 `521eb98761`、`a65840a41a`、`08e130ed1d`。36 callers、16 项边界和输入哈希见 `evidence/M04/`；保持 ready，10.5 等待独立 Luna 验收，未推进后继。
+M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 warnings，独立 Luna 在冻结 HEAD `615efae14dcff1d02ea51d5c4b61e403df76ec5b` 验收通过。源码提交 `521eb98761`、`a65840a41a`、`08e130ed1d`；36 callers、16 项边界、51 个输入哈希与独立复核见 `evidence/M04/`。该状态仅表示源码节点通过，仍不可部署，环境/生产门槛未通过。
 
 ## M05 · Console transport 与前端契约
 

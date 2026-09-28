@@ -1,8 +1,8 @@
 {
   "node": "M04",
-  "status": "ready",
+  "status": "passed",
   "implementation": "complete",
-  "independent_acceptance": "pending Luna",
+  "independent_acceptance": "passed Luna",
   "deployable": false,
   "branch": "codex/merge-upstream-1.17.1",
   "input_head": "e83bdfe536eb114aa5dee17ddec539d9a71ab99e",
@@ -43,7 +43,11 @@
       ]
     },
     "10.5": {
-      "status": "pending_independent_acceptance"
+      "status": "passed",
+      "tested_head": "615efae14dcff1d02ea51d5c4b61e403df76ec5b",
+      "evidence": [
+        "independent-review.json"
+      ]
     }
   },
   "verification": {
@@ -95,11 +99,23 @@
     "handoff": "../M03/handoff.md"
   },
   "known_limits": [
-    "Independent Luna acceptance pending; M04 stays ready and task 10.5 unchecked.",
     "Celery redelivery, message concurrent read-modify-write and anonymous payer/limit gaps remain P4 debt.",
     "No token total-limit field exists; accumulated_quota is usage, -1 unlimited applies to key day/month only.",
     "Token deletion retains historical joins; quota is soft-deleted.",
     "No production, PostgreSQL concurrency, live provider, scheduler or queue validation; not deployable.",
-    "OpenAPI/TS generated contracts delegated to M05/M08; no locks or repository venv changed."
-  ]
+    "OpenAPI/TS generated contracts delegated to M05/M08; no locks or repository venv changed.",
+    "Independent Luna acceptance passed on tested HEAD 615efae14dcff1d02ea51d5c4b61e403df76ec5b; downstream environment and production gates remain open."
+  ],
+  "tested_head": "615efae14dcff1d02ea51d5c4b61e403df76ec5b",
+  "independent_verification": {
+    "review_thread_id": "01a0e987-dcbb-79b0-b535-68612b57bb1f",
+    "reviewer_model": "gpt-6-luna",
+    "evidence": "evidence/M04/independent-review.json",
+    "tested_head": "615efae14dcff1d02ea51d5c4b61e403df76ec5b",
+    "focused_tests": "370 passed, 2 warnings",
+    "ruff": "passed; 9 changed Python files",
+    "openspec_strict": "passed",
+    "verified_inputs": "51/51 SHA256 matched",
+    "new_findings": []
+  }
 }

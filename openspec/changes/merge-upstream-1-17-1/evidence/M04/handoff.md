@@ -7,7 +7,7 @@
 - `521eb98761517347f28a18dcdfdcf646c389ddb8`：Service API 额度、身份与参数归因；范围登记。
 - `a65840a41a85de545811b8b879891a9f5d5ad278`：app/agent API key 额度 CRUD 与权限、回滚测试。
 - `08e130ed1dbe7f8c0907a9171b76406836eeb668`：chatflow INITIAL 守卫及计费/记忆挂点测试。
-- M04 保持 **ready**。10.1–10.4 源码与自测完成；10.5 留给主 Agent 安排的独立 Luna 验收，未标 passed。未推进后继节点。
+- M04 **passed**。10.1–10.5 全部通过；独立 Luna 验收线程 `01a0e987-dcbb-79b0-b535-68612b57bb1f` 在冻结 HEAD `615efae14dcff1d02ea51d5c4b61e403df76ec5b` 通过，记录见 `independent-review.json`。本节点仍不可部署；未执行环境或生产验证。
 
 ## 九项挂点及 OAuth 引用
 
@@ -42,7 +42,7 @@
 - 16 项固定上游/输入版本不可改边界、36 callers、51 个源码/测试/锁文件 SHA256 见 `static-scope.json`、`callers.json`、`verified-inputs.json`。最终运行前后哈希一致。
 - 新测试路径按主 Agent 要求补登记到 conflict-ownership.tsv、owned_conflict_paths（M04/V01），记录见 scope-registration.json。其它 owner 未变。
 
-## Luna 执行方式
+## 独立验收记录
 
 在仓库根目录执行：
 
@@ -52,7 +52,7 @@ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/priva
 openspec validate merge-upstream-1-17-1 --strict
 ```
 
-验收应确认运行前后 source/test hashes、所有权、提交范围，以及最终 370 项结果；不要仅根据本报告将 10.5/M04 标 passed。若源码改变，更新受影响证据并重跑。`verify_static.py` 会刷新本节点 JSON 证据。
+独立 Luna 在 `615efae14dcff1d02ea51d5c4b61e403df76ec5b` 完成复核：370 项定向测试通过、Ruff 与 OpenSpec strict 通过、51 个输入 SHA 全部匹配，未发现新缺陷。验收细节见 `independent-review.json`。若后续源码改变，应更新受影响证据并重跑。`verify_static.py` 会刷新本节点 JSON 证据。
 
 ## 仍有的限制
 
