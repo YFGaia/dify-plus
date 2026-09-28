@@ -1,6 +1,6 @@
 {
   "node": "M05",
-  "status": "blocked",
+  "status": "ready",
   "implementation": "partial_uncommitted",
   "deployable": false,
   "branch": "codex/merge-upstream-1.17.1",
@@ -14,19 +14,20 @@
     "working_tree_modified": false
   },
   "design_decisions": [
-    "Generated Console contracts are the sole runtime/type owner of login_config_bootstrap and login_config; fork-only router keeps systemManage.",
-    "Public system-features snapshot and fork login_config use separate DTOs and cache identity boundaries.",
-    "Validate public response shape before cache or hydration; preserve SSR optional soft-failure and hard-failure semantics.",
-    "Regenerate workspace summary contract for admin_extend and tenant_extend; do not hand-edit generated files.",
-    "A04 C03 is_custom_auth2_button is absent from M02 schema; record as contract gap and do not fabricate the field."
+    "Generated Console contracts are the sole owner for login_config_bootstrap and login_config; those DTOs are distinct from public system-features.",
+    "Validate public snapshot shape before cache/hydration and preserve SSR optional/hard error semantics.",
+    "Regenerate workspace summary contract for admin_extend and tenant_extend; never hand-edit generated files.",
+    "Keep handwritten codeExecutionControl DTO/runtime as sole owner of GET/POST/DELETE; precisely filter the generated duplicates and verify actual POST 201 handling.",
+    "A04 C03 is_custom_auth2_button is absent from M02 schema; record the gap and do not fabricate the field."
   ],
   "subtasks": {
     "11.1": {
-      "status": "blocked",
+      "status": "in_progress",
       "evidence": [
-        "codegen-investigation.json"
+        "codegen-investigation.json",
+        "codegen-analysis.md"
       ],
-      "reason": "Full Console contract regeneration fails at the extend segment and discovers additional route segments/overlap; root-cause and owner analysis pending.",
+      "reason": "Root cause and unique endpoint owner are resolved. Thirty generator/output paths have been registered; implement the filters, standard full codegen, and 201 transport regression before marking complete.",
       "working_changes": [
         "web/service/console/browser.ts",
         "web/service/console/contract-loader.ts",
@@ -50,7 +51,9 @@
   },
   "known_limits": [
     "No browser cross-origin cookie validation in this analysis; defer real-browser validation to V02.",
-    "The is_custom_auth2_button item in A04 C03 is not present in the actual M02 response schema."
+    "The is_custom_auth2_button item in A04 C03 is not present in the actual M02 response schema.",
+    "The handwritten code-execution-control POST contract has not yet been verified against the backend HTTP 201 response; add a focused transport assertion before accepting 11.1."
   ],
-  "codegen_investigation": "evidence/M05/codegen-investigation.json"
+  "codegen_investigation": "evidence/M05/codegen-investigation.json",
+  "codegen_analysis": "evidence/M05/codegen-analysis.md"
 }

@@ -105,6 +105,36 @@ web/service/console/contract-loader.ts	M05	V02	content	pending	dynamic generated
 web/service/explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/use-explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/webapp-auth.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+packages/contracts/generated/api/console/account/orpc.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/account/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/account/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/agent/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/agent/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/apps/orpc.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/apps/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/apps/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/datasets/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/datasets/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/ding-talk/orpc.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/ding-talk/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/ding-talk/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/extend/orpc.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/extend/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/extend/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/installed/orpc.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/installed/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/installed/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/message/orpc.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/message/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/message/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/system-manage-extend/orpc.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/system-manage-extend/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/system-manage-extend/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/workspaces/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/console/workspaces/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/web/types.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/generated/api/web/zod.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications
+packages/contracts/openapi-ts.api.config.ts	M05	V02	content	pending	localized Console contract filter for CORS OPTIONS and handwritten codeExecutionControl single-owner rules
 api/tests/unit_tests/controllers/service_api/test_billing_extend.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
 api/tests/unit_tests/core/app/test_billing_hooks_extend.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
 api/tests/unit_tests/controllers/service_api/test_wraps.py	M04	V01	non-conflict-test	registered	M04 quota, caller compatibility, billing and memory regression verification
