@@ -156,7 +156,7 @@
       "created_from_commit": "6f828304a8"
     },
     "12.1b": {
-      "status": "path_analysis_in_progress",
+      "status": "registered_ready_for_implementation",
       "model": "gpt-6-astra",
       "dependencies": {
         "M02_8.6": "passed; commit 30410b8fff",
@@ -174,7 +174,7 @@
         "anonymous WebApp does not call the Console context endpoint"
       ],
       "required_frontend_behavior": "Skip the Console context call when no Console CSRF cookie is available; a 401 must not trigger login redirect; use current conversation/message identifiers and never send app_id.",
-      "next_action": "Inspect the current 1.17.1 chat host and existing tests, register the exact minimal source/test paths and owner rows, then create one fresh Astra implementation task.",
+      "next_action": "Create one fresh Astra implementation task from the latest branch commit, restricted to the four registered paths.",
       "path_analysis": {
         "status": "conversation_provisioning",
         "model": "gpt-6-sol",
@@ -182,8 +182,26 @@
         "base_commit": "659d8b9cda6df16292e8a1eb45cd7e98ccf6f1aa",
         "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and minimum exact host/test path registration.",
         "next_action": "Wait for standalone analysis result, register only its verified exact source/test paths, then dispatch a fresh Astra implementation task."
+      },
+      "path_registration": {
+        "status": "completed_by_integrator_source_audit",
+        "registered_paths": [
+          "web/app/components/base/chat/chat/index.tsx",
+          "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+          "web/service/message-context-extend.ts",
+          "web/service/message-context-extend.spec.ts"
+        ],
+        "evidence": "evidence/M06/12.1b-path-registration.md",
+        "basis": [
+          "current chat host and context source",
+          "fork-merged-1.16.0 restored-feature diff",
+          "M05 generated message context contract",
+          "401 redirect behavior in shared service wrapper"
+        ],
+        "decision": "Use a fork-specific service helper so no-console-CSRF and 401 behavior can be isolated without changing shared M05 Console transport or generic Apps service.",
+        "independent_sol_cross_check": "conversation_provisioning; must report any required scope change before Astra edits it"
       }
     }
   },
-  "next_subtask": "12.1b_path_analysis"
+  "next_subtask": "12.1b_implementation"
 }

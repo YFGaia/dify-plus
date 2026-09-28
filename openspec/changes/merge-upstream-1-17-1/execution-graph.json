@@ -995,7 +995,8 @@
       ],
       "evidence": [
         "evidence/M06/result.json",
-        "evidence/M06/execution.log"
+        "evidence/M06/execution.log",
+        "evidence/M06/12.1b-path-registration.md"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -1047,14 +1048,14 @@
         ],
         "current_subtask": {
           "id": "12.1b",
-          "status": "path_analysis_in_progress",
+          "status": "registered_ready_for_implementation",
           "evidence": "evidence/M06/result.json#/subtasks/12.1b",
           "dependencies": {
             "M02_8.6": "30410b8fff",
             "M05_11.6": "5177f98e1589117341ac152890d53d6abb3707ff"
           }
         },
-        "next_subtask": "12.1b_path_analysis",
+        "next_subtask": "12.1b_implementation",
         "parallel_subtasks": [
           {
             "id": "12.2_analysis",
@@ -1067,7 +1068,11 @@
       },
       "registered_additional_paths": [
         "web/app/components/app/access-point/built-in-access-points/web-app-card.tsx",
-        "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx"
+        "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx",
+        "web/app/components/base/chat/chat/index.tsx",
+        "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+        "web/service/message-context-extend.ts",
+        "web/service/message-context-extend.spec.ts"
       ],
       "active_subtasks": {
         "12.2_analysis": {
@@ -1099,7 +1104,8 @@
           "model": "gpt-6-sol",
           "client_thread_id": "client-new-thread:3f8019c7-3df7-4c7c-b8e6-fa755aa6ef07",
           "base_commit": "659d8b9cda6df16292e8a1eb45cd7e98ccf6f1aa",
-          "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and exact source/test path registration."
+          "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and exact source/test path registration.",
+          "registration_decision": "root source audit registered the four exact paths; Sol cross-check remains pending and cannot expand scope without re-registration"
         }
       }
     },

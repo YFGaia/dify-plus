@@ -67,6 +67,7 @@ web/app/components/apps/__tests__/app-card.spec.tsx	M06	V02	content	pending	fron
 web/app/components/apps/app-card.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
 web/app/components/apps/list.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/app/components/base/chat/chat/index.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/base/chat/chat/__tests__/message-context.spec.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/app/components/develop/__tests__/ApiServer.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
 web/app/components/develop/secret-key/__tests__/secret-key-button.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
 web/app/components/develop/secret-key/__tests__/secret-key-modal.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
@@ -104,6 +105,8 @@ web/service/console/browser.ts	M05	V02	content	pending	browser dual-phase login 
 web/service/console/client.spec.ts	M05	V02	content	pending	Console transport behavior regressions
 web/service/console/contract-loader.ts	M05	V02	content	pending	dynamic generated segments and fork systemManage loader
 web/service/explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/service/message-context-extend.spec.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/service/message-context-extend.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/use-explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/webapp-auth.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 packages/contracts/generated/api/console/account/orpc.gen.ts	M05	V02	generated	pending	full M05 contract generation output from the upstream 1.17.1 API specifications

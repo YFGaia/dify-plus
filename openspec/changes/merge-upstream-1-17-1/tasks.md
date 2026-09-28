@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 规划已进入执行：A00/A01/A02/A04/M00/M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7，现已由 36 项测试、Swagger 断言及独立 Luna 复核收束并恢复 passed；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言和 Astra worktree 字节比对均完成；M04 节点源码验收已通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 已启动：12.1a 应用级 WebApp 认证开关已由 `ea853611dc` 提交并经独立 Luna 审查无阻断；12.2、12.3、12.4 三个 Sol 分析对话正在 worktree provisioning；卡片套件因缺失已锁定 cn@0.2.4 尚未收集；context caller 已由 M05 11.6 generated contract 解锁，12.1b 新独立 Sol 对话正在只读定位宿主和聚焦测试路径；M07 13.1–13.3、13.5 已通过；13.4 的 env 范围修正及 init_secret_key 串行门实现完成，待新 Luna 复核；13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
+> 规划已进入执行：A00/A01/A02/A04/M00/M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7，现已由 36 项测试、Swagger 断言及独立 Luna 复核收束并恢复 passed；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言和 Astra worktree 字节比对均完成；M04 节点源码验收已通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 已启动：12.1a 应用级 WebApp 认证开关已由 `ea853611dc` 提交并经独立 Luna 审查无阻断；12.2、12.3、12.4 三个 Sol 分析对话正在 worktree provisioning；卡片套件因缺失已锁定 cn@0.2.4 尚未收集；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已登记宿主和聚焦测试路径，独立 Sol 交叉核对中；M07 13.1–13.3、13.5 已通过；13.4 的 env 范围修正及 init_secret_key 串行门实现完成，待新 Luna 复核；13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -96,9 +96,9 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
 
-- [ ] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；M02 8.6 权限与 M05 11.6 类型契约均已通过；12.1b 已解锁，正在由新独立 Sol 对话只读定位宿主和测试路径。详情见 `evidence/M06/result.json#/preflight/contract_handoff`。
+- [ ] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；M02 8.6 权限与 M05 11.6 类型契约均已通过；12.1b 已登记宿主和测试路径，独立 Sol 交叉核对中。详情见 `evidence/M06/result.json#/preflight/contract_handoff`。
   - [ ] 12.1a [M06] built-in WebApp 开关独立于站点启用及 environment/global auth；代码与 8 个参数化测试已写，独立 Luna 代码审查无阻断发现；卡片测试因 cn@0.2.4 未安装而未收集，独立 Luna frozen-dependency 验证任务正在 provisioning；15 项现有地址/认证测试通过。当前证据见 `evidence/M06/result.json#/subtasks/12.1a`。
-  - [ ] 12.1b [M06] 已由 M02 8.6 和 M05 11.6 解锁；Sol 只读分析 `client-new-thread:3f8019c7-3df7-4c7c-b8e6-fa755aa6ef07` 正在定位最小宿主/测试路径；路径登记完成后，创建新的 Astra 对话接入匿名 context guard：没有 Console CSRF cookie 时跳过，401 不触发登录重定向，调用参数来自当前 conversation。
+  - [ ] 12.1b [M06] 已由 M02 8.6 和 M05 11.6 解锁；已将 Chat 宿主、fork 专用 context service 与两条聚焦测试路径精确登记（`evidence/M06/12.1b-path-registration.md`）；独立 Sol 交叉核对仍在进行。接下来用新的 Astra 对话实施匿名 context guard：没有 Console CSRF cookie 时跳过，401 不触发登录重定向，调用参数来自当前 conversation。
 - [ ] 12.2 [M06] 迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；Sol 只读分析任务 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning，实施路径与测试范围待分析交接后登记；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.4 [M06] 系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施；Sol 只读分析任务 `client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c` 正在 worktree provisioning；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
