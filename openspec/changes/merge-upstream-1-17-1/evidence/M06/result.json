@@ -156,7 +156,7 @@
       "created_from_commit": "6f828304a8"
     },
     "12.1b": {
-      "status": "unblocked_pending_path_registration",
+      "status": "path_analysis_in_progress",
       "model": "gpt-6-astra",
       "dependencies": {
         "M02_8.6": "passed; commit 30410b8fff",
@@ -174,8 +174,16 @@
         "anonymous WebApp does not call the Console context endpoint"
       ],
       "required_frontend_behavior": "Skip the Console context call when no Console CSRF cookie is available; a 401 must not trigger login redirect; use current conversation/message identifiers and never send app_id.",
-      "next_action": "Inspect the current 1.17.1 chat host and existing tests, register the exact minimal source/test paths and owner rows, then create one fresh Astra implementation task."
+      "next_action": "Inspect the current 1.17.1 chat host and existing tests, register the exact minimal source/test paths and owner rows, then create one fresh Astra implementation task.",
+      "path_analysis": {
+        "status": "conversation_provisioning",
+        "model": "gpt-6-sol",
+        "client_thread_id": "client-new-thread:3f8019c7-3df7-4c7c-b8e6-fa755aa6ef07",
+        "base_commit": "659d8b9cda6df16292e8a1eb45cd7e98ccf6f1aa",
+        "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and minimum exact host/test path registration.",
+        "next_action": "Wait for standalone analysis result, register only its verified exact source/test paths, then dispatch a fresh Astra implementation task."
+      }
     }
   },
-  "next_subtask": "12.1b_register_paths"
+  "next_subtask": "12.1b_path_analysis"
 }

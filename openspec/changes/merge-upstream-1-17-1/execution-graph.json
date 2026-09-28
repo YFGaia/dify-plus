@@ -1047,14 +1047,14 @@
         ],
         "current_subtask": {
           "id": "12.1b",
-          "status": "unblocked_pending_path_registration",
+          "status": "path_analysis_in_progress",
           "evidence": "evidence/M06/result.json#/subtasks/12.1b",
           "dependencies": {
             "M02_8.6": "30410b8fff",
             "M05_11.6": "5177f98e1589117341ac152890d53d6abb3707ff"
           }
         },
-        "next_subtask": "12.1b_register_paths",
+        "next_subtask": "12.1b_path_analysis",
         "parallel_subtasks": [
           {
             "id": "12.2_analysis",
@@ -1093,6 +1093,13 @@
           "model": "gpt-6-sol",
           "client_thread_id": "client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c",
           "scope": "Read-only route-host and permission analysis for M06 12.4."
+        },
+        "12.1b_path_analysis": {
+          "status": "conversation_provisioning",
+          "model": "gpt-6-sol",
+          "client_thread_id": "client-new-thread:3f8019c7-3df7-4c7c-b8e6-fa755aa6ef07",
+          "base_commit": "659d8b9cda6df16292e8a1eb45cd7e98ccf6f1aa",
+          "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and exact source/test path registration."
         }
       }
     },
