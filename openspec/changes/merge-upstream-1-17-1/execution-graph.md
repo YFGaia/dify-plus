@@ -348,7 +348,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：ready；前置节点 M04、M05 源码验收已通过；尚未实施本节点。额度徽章必须接入 login_config 配置汇率，24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。
+- 状态：preflight 已完成，实施尚未开始；前置节点 M04、M05 源码验收已通过。12.1 的 WebApp 开关/地址迁移可独立推进；恢复 message/context 调用前，必须先登记后端 owner、补 conversation→app→tenant 与 app permission 校验并生成准确 query/response contract（保留缺参 400），再由 M06 接入匿名 CSRF guard。额度徽章必须接入 login_config 配置汇率；应用中心响应需运行时校验；24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。分析证据见 `evidence/M06/result.json#/preflight` 与 `execution.log`。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。

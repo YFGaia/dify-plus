@@ -1,0 +1,33 @@
+{
+  "node": "M06",
+  "status": "in_progress",
+  "implementation": "not_started",
+  "deployable": false,
+  "preflight": {
+    "status": "completed",
+    "source_commit": "4048e97aeb00a05cc5c6c6ccfce21036092d357d",
+    "analysis_agent": "/root/m06_frontend_analysis",
+    "analysis_model": "gpt-6-sol",
+    "contract_review_agent": "/root/m06_message_context_contract",
+    "contract_review_model": "gpt-6-sol",
+    "findings": [
+      "Built-in WebApp authentication, environment address/passport settings, and anonymous context guarding need to be restored at the 1.17.1 host; built-in authentication must remain independent from environment passport/access-point controls.",
+      "The current production frontend has no message/context caller. The generated GET and DELETE contracts expose no query parameters and generic object responses, while the backend requires conversation_id and message_id and returns string[] and the string ok.",
+      "The existing message/context service filters only supplied IDs. Authentication alone does not prove conversation ownership; reads and deletes must resolve the conversation to its app and tenant and enforce the applicable app permission before a frontend caller is restored.",
+      "The API currently returns 400 for missing or empty context identifiers. Adding query models must preserve that status rather than inheriting the shared model-validation wrapper's 422 behavior.",
+      "The backend route/service/tests are not registered in M06's frontend write scope. Register a backend owner and transfer the generated message contract trio through M05 before editing those paths; M06 may consume the generated contract after that handoff.",
+      "Other confirmed M06 migration gaps: app-center uses a missing useInstalledAppList hook and legacy installed-app URL; the recommended-app placeholder is empty while the fork installed-app API has the actual rows; its response needs runtime validation before cache use; account balance uses the public snapshot's 7.26 fallback instead of login_config exchange rate; system-management navigation hosts are unmounted; lo-LA extend resources are missing."
+    ],
+    "next_actions": [
+      "Implement independent M06 UI work only after registering each new path and preserving generated-contract boundaries.",
+      "Before restoring the message/context caller, register and implement the tenant/app authorization and typed API contract under the backend owner, regenerate the three M05-owned message contract files, then add the guarded M06 caller.",
+      "Keep V02 responsible for real browser Cookie/CORS and identity-switch acceptance."
+    ],
+    "limitations": [
+      "Read-only source analysis only; no files or tests were changed by the analysis agents.",
+      "This preflight does not complete any 12.1-12.6 implementation task and does not mark M06 passed."
+    ]
+  },
+  "subtasks": {},
+  "next_subtask": "12.1"
+}

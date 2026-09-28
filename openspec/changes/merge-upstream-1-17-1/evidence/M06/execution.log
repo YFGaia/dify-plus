@@ -1,0 +1,8 @@
+M06 preflight analysis completed: 2026-09-29
+Source HEAD: 4048e97aeb00a05cc5c6c6ccfce21036092d357d
+Broad frontend source analysis: /root/m06_frontend_analysis (gpt-6-sol), read-only.
+Message-context contract and security review: /root/m06_message_context_contract (gpt-6-sol), read-only.
+
+No production web caller currently invokes /console/api/message/context. Generated GET/DELETE contracts omit the backend query parameters and use generic object response schemas; the backend returns string[] and "ok" and currently authorizes only by login, not by conversation/app tenant. Do not restore the caller until backend tenant/app permission checks and generated contracts are transferred to registered owners. Preserve missing-id HTTP 400.
+
+Other M06 targets confirmed: independent built-in/environment WebApp switches; installed-app list/URL source; runtime validation of installed-app responses; login_config exchange-rate consumer for account balance; mount existing system-management navigation; add lo-LA extend locale. No implementation or tests were run in this preflight.

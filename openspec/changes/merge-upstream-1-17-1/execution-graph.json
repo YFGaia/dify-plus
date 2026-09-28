@@ -957,7 +957,17 @@
       "outputs": [
         "evidence/M06/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "preflight_status": "completed",
+      "implementation_progress": {
+        "completed_subtasks": [],
+        "current_subtask": {
+          "id": "12.1",
+          "status": "ready_with_context_contract_precondition",
+          "evidence": "evidence/M06/result.json#/preflight"
+        },
+        "next_subtask": "12.1"
+      }
     },
     {
       "id": "M07",
