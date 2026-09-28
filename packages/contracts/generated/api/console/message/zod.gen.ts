@@ -3,11 +3,30 @@
 import * as z from 'zod'
 
 /**
- * Success
+ * DeleteMessageContextResponse
  */
-export const zDeleteMessageContextResponse = z.record(z.string(), z.unknown())
+export const zDeleteMessageContextResponse = z.string()
 
 /**
- * Success
+ * MessageContextResponse
  */
-export const zGetMessageContextResponse = z.record(z.string(), z.unknown())
+export const zMessageContextResponse = z.array(z.string())
+
+export const zDeleteMessageContextQuery = z.object({
+  conversation_id: z.string().min(1),
+  message_id: z.string().min(1),
+})
+
+/**
+ * Context marker removed
+ */
+export const zDeleteMessageContextResponse2 = zDeleteMessageContextResponse
+
+export const zGetMessageContextQuery = z.object({
+  conversation_id: z.string().min(1),
+})
+
+/**
+ * Message context IDs
+ */
+export const zGetMessageContextResponse = zMessageContextResponse

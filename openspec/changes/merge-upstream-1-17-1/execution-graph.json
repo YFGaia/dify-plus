@@ -702,7 +702,7 @@
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "in_progress",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -744,7 +744,8 @@
         "evidence/M05/pre-analysis.md",
         "evidence/M05/codegen-investigation.json",
         "evidence/M05/codegen-analysis.md",
-        "evidence/M05/resumption.json"
+        "evidence/M05/resumption.json",
+        "evidence/M05/11.6-message-contract-generation.log"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -816,12 +817,13 @@
           "11.2",
           "11.3",
           "11.4",
-          "11.5"
+          "11.5",
+          "11.6"
         ],
         "current_subtask": {
-          "id": "11.5",
+          "id": "11.6",
           "status": "passed",
-          "evidence": "evidence/M05/result.json#/subtasks/11.5"
+          "evidence": "evidence/M05/result.json#/followup_context_contract"
         },
         "next_subtask": "complete",
         "deployable": false
@@ -884,14 +886,16 @@
         "web/service/use-system-manage.ts"
       ],
       "followup_progress": {
-        "prior_acceptance": "passed for original 11.1-11.5; follow-up limited to existing registered message contract trio",
+        "prior_acceptance": "passed for 11.1-11.5; existing registered message contract trio regenerated and verified in 11.6",
         "blocked_on": null,
         "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
-        "completed_subtasks": [],
+        "completed_subtasks": [
+          "11.6"
+        ],
         "current_subtask": {
           "id": "11.6",
-          "status": "conversation_provisioning",
-          "evidence": "evidence/M06/result.json#/preflight/contract_handoff",
+          "status": "passed",
+          "evidence": "evidence/M05/result.json#/followup_context_contract",
           "registered_paths": [
             "packages/contracts/generated/api/console/message/orpc.gen.ts",
             "packages/contracts/generated/api/console/message/types.gen.ts",
@@ -899,22 +903,40 @@
           ],
           "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c"
         },
-        "next_subtask": "11.6",
-        "implementation_agent_model": "gpt-6-astra"
+        "next_subtask": "complete",
+        "implementation_agent_model": "gpt-6-astra",
+        "acceptance_execution": "root standard generation, schema assertions, diff audit, and byte match to Astra task worktree; see evidence/M05/11.6-message-contract-generation.log"
       },
-      "active_subtasks": {
-        "11.6_message_contract_generation": {
-          "status": "implementation_in_progress",
-          "model": "gpt-6-astra",
-          "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c",
-          "worktree_base_commit": "4e1b5964cc99d6471130f446671696d2203d98a7",
+      "completion": {
+        "source_node": "passed",
+        "deployable": false,
+        "completed_subtasks": [
+          "11.1",
+          "11.2",
+          "11.3",
+          "11.4",
+          "11.5",
+          "11.6"
+        ],
+        "11.6": {
+          "source_commit_before_generation": "0858f09cbdc2c0f5d052179b3afa2351d2ad0fe3",
+          "standard_command_exit_code": 0,
+          "generator_jobs": 64,
+          "formatted_files": 191,
+          "schema_assertions": "required GET conversation_id -> string[]; required DELETE conversation_id/message_id -> string ok",
           "changed_paths": [
             "packages/contracts/generated/api/console/message/orpc.gen.ts",
             "packages/contracts/generated/api/console/message/types.gen.ts",
             "packages/contracts/generated/api/console/message/zod.gen.ts"
           ],
-          "acceptance": "Pending standard generator command, schema/type assertions, and root-side review."
-        }
+          "sha256": {
+            "packages/contracts/generated/api/console/message/orpc.gen.ts": "42e07031dbc4539633e536eb5557f391cb48437b5b25050847799d867156f1a6",
+            "packages/contracts/generated/api/console/message/types.gen.ts": "ee5103ac3c36267cb64f6bdbd45bc51547c420f45b8b179797bb95e9de611983",
+            "packages/contracts/generated/api/console/message/zod.gen.ts": "5f21e79fb8e687b8270f56685f470e7008174eb704bd8965590892bff3eb1c91"
+          },
+          "evidence": "evidence/M05/11.6-message-contract-generation.log"
+        },
+        "note": "The merge is not deployable. M06 and downstream validation/environment gates remain open."
       }
     },
     {
@@ -1029,7 +1051,7 @@
           "review_evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_review",
           "implementation_commit": "ea853611dc"
         },
-        "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6",
+        "next_subtask": "12.1b_register_paths",
         "parallel_subtasks": [
           {
             "id": "12.2_analysis",

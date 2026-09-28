@@ -435,11 +435,12 @@
     "11.2",
     "11.3",
     "11.4",
-    "11.5"
+    "11.5",
+    "11.6"
   ],
   "next_subtask": "complete",
   "followup_context_contract": {
-    "status": "implementation_in_progress",
+    "status": "passed",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
     "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
     "subtask": "11.6",
@@ -454,7 +455,7 @@
     },
     "reason": "Generated message contracts are already registered and M05-owned. Standard generation must wait for the M02 backend schema/security repair; generated files must not be hand-edited.",
     "unblocked_by_commit": "30410b8fff",
-    "next_action": "Await the Astra task report with standard generator command and verification results, then inspect and apply only these registered generated files to the main branch and bind evidence before accepting 11.6.",
+    "next_action": "11.6 is accepted. M06 12.1b is now unblocked; register its frontend host and focused test paths before dispatching a fresh Astra implementation task.",
     "implementation_model": "gpt-6-astra",
     "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c",
     "worktree_base_commit": "4e1b5964cc99d6471130f446671696d2203d98a7",
@@ -462,6 +463,46 @@
       "packages/contracts/generated/api/console/message/orpc.gen.ts",
       "packages/contracts/generated/api/console/message/types.gen.ts",
       "packages/contracts/generated/api/console/message/zod.gen.ts"
-    ]
+    ],
+    "source_commit_before_generation": "0858f09cbdc2c0f5d052179b3afa2351d2ad0fe3",
+    "standard_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache UV_NO_SYNC=1 PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false --dir packages/contracts run gen-api-contract",
+    "standard_exit_code": 0,
+    "toolchain": {
+      "node": "24.20.0",
+      "pnpm": "12.3.4",
+      "openapi_ts": "0.98.2"
+    },
+    "generator_result": {
+      "swagger_exports": 4,
+      "openapi_ts_jobs": 64,
+      "formatted_files": 191,
+      "exit_code": 0
+    },
+    "schema_assertions": {
+      "get_query": "required conversation_id:string",
+      "get_response": "array<string> (resolved from MessageContextResponse component)",
+      "delete_query": "required conversation_id:string and message_id:string",
+      "delete_response": "string (resolved from DeleteMessageContextResponse component)",
+      "assertion_result": "passed"
+    },
+    "changed_paths": [
+      "packages/contracts/generated/api/console/message/orpc.gen.ts",
+      "packages/contracts/generated/api/console/message/types.gen.ts",
+      "packages/contracts/generated/api/console/message/zod.gen.ts"
+    ],
+    "generated_paths_sha256": {
+      "packages/contracts/generated/api/console/message/orpc.gen.ts": "42e07031dbc4539633e536eb5557f391cb48437b5b25050847799d867156f1a6",
+      "packages/contracts/generated/api/console/message/types.gen.ts": "ee5103ac3c36267cb64f6bdbd45bc51547c420f45b8b179797bb95e9de611983",
+      "packages/contracts/generated/api/console/message/zod.gen.ts": "5f21e79fb8e687b8270f56685f470e7008174eb704bd8965590892bff3eb1c91"
+    },
+    "task_worktree_match": {
+      "status": "byte_identical_to_root_standard_generation",
+      "base_commit": "4e1b5964cc99d6471130f446671696d2203d98a7",
+      "paths": "the three registered generated message contract files"
+    },
+    "evidence": "evidence/M05/11.6-message-contract-generation.log",
+    "execution_owner": "integration_agent_standard_generator_rerun",
+    "execution_note": "The registered files were regenerated through the package standard command in the root checkout and byte-matched the Astra task worktree. The new task had not returned a readable thread result at acceptance time.",
+    "implementation_commit": "pending_commit_binding"
   }
 }

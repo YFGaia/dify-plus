@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；曾因 message/context 安全交接重开 8.6–8.7；四个源码/测试路径已登记，36 项测试、Swagger schema 及独立 Luna 复核均通过，M02 已恢复 passed；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 原 11.1–11.5 源码验收通过（仍不可部署）；现重开且已解锁 11.6，独立 Astra worktree 正在对已登记 message generated 三文件执行标准重新生成，尚待命令和验证回报；M06 已实施 12.1a 应用级 WebApp 认证开关已完成代码审查，卡片聚焦测试因缺失已锁 cn@0.2.4 暂缓收集，现由独立 Luna worktree 恢复 frozen 依赖并验证；12.2 应用中心、12.3 API key/汇率、12.4 系统管理路由三个独立 Sol 分析任务正在 worktree provisioning；context caller 等待 M05 标准生成契约。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，新建 gpt-6-luna 独立只读复核对话，worktree provisioning 中；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；曾因 message/context 安全交接重开 8.6–8.7；四个源码/测试路径已登记，36 项测试、Swagger schema 及独立 Luna 复核均通过，M02 已恢复 passed；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.6 源码与标准 message contract 生成均已通过（仍不可部署）；11.6 由根工作区标准生成复跑、schema 断言和 Astra worktree 字节比对验收；M06 已实施 12.1a 应用级 WebApp 认证开关已完成代码审查，卡片聚焦测试因缺失已锁 cn@0.2.4 暂缓收集，现由独立 Luna worktree 恢复 frozen 依赖并验证；12.2 应用中心、12.3 API key/汇率、12.4 系统管理路由三个独立 Sol 分析任务正在 worktree provisioning；context caller 已由 M05 11.6 契约解锁，正在登记前端宿主和聚焦测试路径。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，新建 gpt-6-luna 独立只读复核对话，worktree provisioning 中；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 原 11.1–11.5 已通过，11.6 标准生成任务正在独立 worktree 实施、尚待验收；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a 实现与独立 Luna 代码审查完成，聚焦测试由新 Luna worktree 验证；12.2、12.3 与 12.4 的独立 Sol 分析任务正在 worktree provisioning，context caller 等待 M05 generated contract，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a 实现与独立 Luna 代码审查完成，聚焦测试由新 Luna worktree 验证；12.2、12.3 与 12.4 的独立 Sol 分析任务正在 worktree provisioning，context caller 等待 M05 generated contract，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -325,7 +325,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M05 · Console transport 与前端契约
 
-- 状态：源码节点 passed（11.1–11.5 全部通过），deployable 仍为 false。完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。11.4 将 schema 解析置于 queryFn，保证畸形 HTTP 200 不进入 TanStack 原始缓存，并保留 select 校验 hydration/同 key 预填数据；12 项聚焦、25 项受影响测试和两路径 check 通过，独立 Luna 无阻断项。11.5 Sol 只读验收确认旧服务未形成双源、SSR 不将 ping 当配置、匿名不能读取详细 license、手写 systemManage 为唯一 owner。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3/11.4 新增路径已登记。M06 已解锁并需迁移额度徽章读取 login_config 汇率。真实浏览器 Cookie/CORS 与账号切换由 V02 验收。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
+- 状态：源码节点 passed（11.1–11.6 全部通过），deployable 仍为 false。完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。11.4 将 schema 解析置于 queryFn，保证畸形 HTTP 200 不进入 TanStack 原始缓存，并保留 select 校验 hydration/同 key 预填数据；12 项聚焦、25 项受影响测试和两路径 check 通过，独立 Luna 无阻断项。11.5 Sol 只读验收确认旧服务未形成双源、SSR 不将 ping 当配置、匿名不能读取详细 license、手写 systemManage 为唯一 owner。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3/11.4 新增路径已登记。M06 已解锁并需迁移额度徽章读取 login_config 汇率。真实浏览器 Cookie/CORS 与账号切换由 V02 验收。11.6 标准生成执行 64 个 openapi-ts jobs、格式化 191 个生成文件；GET/DELETE query 与响应 schema 断言通过，三文件和 Astra task worktree 字节一致，见 `evidence/M05/11.6-message-contract-generation.log`。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
 - 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
 
 - 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
@@ -348,7 +348,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：preflight 已完成；12.1a 代码已由 `ea853611dc` 提交且独立 Luna 未发现阻断，但卡片测试因 cn@0.2.4 缺失而阻断；context caller 等待 M05 11.6 standard generation。前置节点 M04、M05 原源码验收已通过；M02 8.6 安全后端 follow-up 已通过。12.1 的 WebApp 开关/地址迁移可独立推进；message/context caller 暂缓至 M05 生成必填 query 与 `string[]`/`"ok"` 响应，之后 M06 才接入无 Console CSRF cookie 时跳过的 caller。无需改路由或客户端传 app_id。12.2 应用中心和 12.3 API key scope/汇率现由两个独立 Sol 分析对话按只读范围调查，其中 12.3 对话 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning；12.3 必须让 API key 额度徽章读取 login_config 配置汇率，余额保留独立显示。应用中心响应需运行时校验；24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。分析证据见 `evidence/M06/result.json#/preflight` 与 `execution.log`。
+- 状态：preflight 已完成；12.1a 代码已由 `ea853611dc` 提交且独立 Luna 未发现阻断，但卡片测试因 cn@0.2.4 缺失而阻断；M05 11.6 standard generation 已通过，12.1b 现在进入前端宿主与聚焦测试路径登记。前置节点 M04、M05 原源码验收已通过；M02 8.6 安全后端 follow-up 已通过。12.1 的 WebApp 开关/地址迁移可独立推进；message/context caller 的必填 query 与 `string[]`/`"ok"` 响应已由 M05 11.6 标准生成确认；12.1b 已解锁，先登记精确前端宿主和聚焦测试路径，再创建独立 Astra 实施任务。无需改路由或客户端传 app_id。12.2 应用中心和 12.3 API key scope/汇率现由两个独立 Sol 分析对话按只读范围调查，其中 12.3 对话 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning；12.3 必须让 API key 额度徽章读取 login_config 配置汇率，余额保留独立显示。应用中心响应需运行时校验；24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。分析证据见 `evidence/M06/result.json#/preflight` 与 `execution.log`。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。

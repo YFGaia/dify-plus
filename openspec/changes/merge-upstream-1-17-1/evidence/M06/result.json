@@ -154,7 +154,28 @@
       "client_thread_id": "client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c",
       "scope": "Read-only trace of the three system-management route families and code-execution-control host, route reachability, permission preservation, exact paths, ownership registration, and focused checks.",
       "created_from_commit": "6f828304a8"
+    },
+    "12.1b": {
+      "status": "unblocked_pending_path_registration",
+      "model": "gpt-6-astra",
+      "dependencies": {
+        "M02_8.6": "passed; commit 30410b8fff",
+        "M05_11.6": "passed by standard generation and schema assertions; implementation commit pending"
+      },
+      "contract": "GET /message/context requires conversation_id:string and returns string[]; DELETE requires conversation_id/message_id and returns string ok.",
+      "acceptance_cases": [
+        "missing/empty IDs -> 400",
+        "anonymous Console request -> 401",
+        "cross-tenant conversation -> 404 with no context query/delete",
+        "same-tenant unauthorized app -> 403",
+        "authorized GET returns newest-first list of string message IDs",
+        "DELETE removes only the selected message_id in the selected conversation",
+        "generated query parameters are required and response schemas are array(string)/string",
+        "anonymous WebApp does not call the Console context endpoint"
+      ],
+      "required_frontend_behavior": "Skip the Console context call when no Console CSRF cookie is available; a 401 must not trigger login redirect; use current conversation/message identifiers and never send app_id.",
+      "next_action": "Inspect the current 1.17.1 chat host and existing tests, register the exact minimal source/test paths and owner rows, then create one fresh Astra implementation task."
     }
   },
-  "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"
+  "next_subtask": "12.1b_register_paths"
 }

@@ -4,33 +4,38 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}/console/api` | (string & {})
 }
 
+export type DeleteMessageContextResponse = string
+
+export type MessageContextResponse = Array<string>
+
 export type DeleteMessageContextData = {
   body?: never
   path?: never
-  query?: never
+  query: {
+    conversation_id: string
+    message_id: string
+  }
   url: '/message/context'
 }
 
 export type DeleteMessageContextResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: DeleteMessageContextResponse
 }
 
-export type DeleteMessageContextResponse =
+export type DeleteMessageContextResponse2 =
   DeleteMessageContextResponses[keyof DeleteMessageContextResponses]
 
 export type GetMessageContextData = {
   body?: never
   path?: never
-  query?: never
+  query: {
+    conversation_id: string
+  }
   url: '/message/context'
 }
 
 export type GetMessageContextResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: MessageContextResponse
 }
 
 export type GetMessageContextResponse = GetMessageContextResponses[keyof GetMessageContextResponses]
