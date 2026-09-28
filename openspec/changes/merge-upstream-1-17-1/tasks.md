@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 规划已进入执行：A00/A01/A02/A04/M00/M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7，现已由 36 项测试、Swagger 断言及独立 Luna 复核收束并恢复 passed；M05 原 11.1–11.5 通过后重开 11.6，现已解锁待标准契约生成；M04 节点源码验收已通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 已启动：12.1a 应用级 WebApp 认证开关已由 `ea853611dc` 提交并经独立 Luna 审查无阻断；12.2 Sol 分析对话正在 worktree provisioning，卡片套件因缺失已锁定 cn@0.2.4 尚未收集；context caller 已等待 M05 11.6 generated contract；M07 13.1–13.3、13.5 已通过；13.4 的 env 范围修正及 init_secret_key 串行门实现完成，待新 Luna 复核；13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
+> 规划已进入执行：A00/A01/A02/A04/M00/M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7，现已由 36 项测试、Swagger 断言及独立 Luna 复核收束并恢复 passed；M05 原 11.1–11.5 通过后重开 11.6，现已解锁待标准契约生成；M04 节点源码验收已通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 已启动：12.1a 应用级 WebApp 认证开关已由 `ea853611dc` 提交并经独立 Luna 审查无阻断；12.2、12.3 两个 Sol 分析对话正在 worktree provisioning；卡片套件因缺失已锁定 cn@0.2.4 尚未收集；context caller 已等待 M05 11.6 generated contract；M07 13.1–13.3、13.5 已通过；13.4 的 env 范围修正及 init_secret_key 串行门实现完成，待新 Luna 复核；13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -100,7 +100,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
   - [ ] 12.1a [M06] built-in WebApp 开关独立于站点启用及 environment/global auth；代码与 8 个参数化测试已写，独立 Luna 无阻断发现；卡片测试因 cn@0.2.4 未安装而阻断，需恢复已锁依赖后复验；15 项现有地址/认证测试通过。当前证据见 `evidence/M06/result.json#/subtasks/12.1a`。
   - [ ] 12.1b [M06] M02 8.6 已通过、M05 11.6 标准生成后再接入匿名 context guard：没有 Console CSRF cookie 时跳过，401 不触发登录重定向，调用参数来自当前 conversation。
 - [ ] 12.2 [M06] 迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；Sol 只读分析任务 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning，实施路径与测试范围待分析交接后登记；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.4 [M06] 系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.5 [M06] 补 lo-LA extend，共24语言；移除旧 Overview/secret-key/category 生产引用；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.6 [M06] 节点验收：现有 fork 路由都能被新宿主访问；两个 WebApp Switch 独立；24 语言资源齐全；旧测试迁移到真实新挂点；保存绑定版本的证据并更新节点状态。

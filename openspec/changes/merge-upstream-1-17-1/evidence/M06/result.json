@@ -134,6 +134,13 @@
       "model": "gpt-6-sol",
       "client_thread_id": "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
       "scope": "App-center categories/filtering, installed-app navigation, recommended app rows/runtime validation, and Studio sync menu; read-only handoff."
+    },
+    "12.3_analysis": {
+      "status": "conversation_provisioning",
+      "model": "gpt-6-sol",
+      "client_thread_id": "client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947",
+      "scope": "Read-only analysis of API-key scope/balance display, configured login_config exchange-rate data flow, generated contracts, exact implementation/test paths, and acceptance cases.",
+      "created_from_commit": "a950289e5d"
     }
   },
   "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"

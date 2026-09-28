@@ -1029,7 +1029,21 @@
       "registered_additional_paths": [
         "web/app/components/app/access-point/built-in-access-points/web-app-card.tsx",
         "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx"
-      ]
+      ],
+      "active_subtasks": {
+        "12.2_analysis": {
+          "status": "conversation_provisioning",
+          "model": "gpt-6-sol",
+          "client_thread_id": "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
+          "scope": "Read-only app-center categories/filtering, installed-app navigation, recommended-app runtime validation, and Studio sync-menu analysis."
+        },
+        "12.3_analysis": {
+          "status": "conversation_provisioning",
+          "model": "gpt-6-sol",
+          "client_thread_id": "client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947",
+          "scope": "Read-only API-key scope/balance display and login_config exchange-rate data-flow analysis."
+        }
+      }
     },
     {
       "id": "M07",
