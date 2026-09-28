@@ -25,19 +25,20 @@
       "status": "scope_registered",
       "registered_paths": [
         "packages/contracts/console.ts",
-        "packages/contracts/generated/api/console/router.gen.ts",
-        "packages/contracts/generated/api/console/orpc.gen.ts",
         "packages/contracts/generated/api/console/login-config-bootstrap/orpc.gen.ts",
         "packages/contracts/generated/api/console/login-config-bootstrap/types.gen.ts",
         "packages/contracts/generated/api/console/login-config-bootstrap/zod.gen.ts",
         "packages/contracts/generated/api/console/login-config/orpc.gen.ts",
         "packages/contracts/generated/api/console/login-config/types.gen.ts",
         "packages/contracts/generated/api/console/login-config/zod.gen.ts",
-        "web/contract/router-extend.ts",
+        "packages/contracts/generated/api/console/orpc.gen.ts",
+        "packages/contracts/generated/api/console/router.gen.ts",
         "web/contract/console/system.ts",
+        "web/contract/router-extend.ts",
         "web/service/console/browser.ts",
+        "web/service/console/client.spec.ts",
         "web/service/console/contract-loader.ts",
-        "web/service/console/client.spec.ts"
+        "web/service/console/index.ts"
       ]
     },
     "11.2": {

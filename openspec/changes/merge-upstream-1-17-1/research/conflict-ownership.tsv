@@ -98,6 +98,7 @@ web/package.json	M01	V02	content	pending	toolchain, package, lockfile or build c
 web/service/apps.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/client.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
 web/service/console-router-loader.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
+web/service/console/index.ts	M05	V02	content	pending	compose generated Console client types with fork systemManage contract
 web/service/console/browser.ts	M05	V02	content	pending	browser dual-phase login configuration transport
 web/service/console/client.spec.ts	M05	V02	content	pending	Console transport behavior regressions
 web/service/console/contract-loader.ts	M05	V02	content	pending	dynamic generated segments and fork systemManage loader
