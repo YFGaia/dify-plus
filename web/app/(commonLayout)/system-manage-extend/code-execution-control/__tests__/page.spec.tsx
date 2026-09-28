@@ -11,7 +11,7 @@ const { addEmail, listEmails, removeEmail } = vi.hoisted(() => ({
   removeEmail: vi.fn(),
 }))
 
-vi.mock('@/service/client', () => ({
+vi.mock('@/service/console', () => ({
   consoleQuery: {
     systemManage: {
       codeExecutionControlList: {

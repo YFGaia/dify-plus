@@ -15,4 +15,6 @@ export const initialWorkspaceSummary: GetWorkspacesCurrentSummaryResponse = {
   plan: null,
   credits: null,
   role: 'normal',
+  admin_extend: false,
+  tenant_extend: false,
 }

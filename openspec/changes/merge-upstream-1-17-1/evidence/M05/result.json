@@ -167,7 +167,88 @@
       ]
     },
     "11.3": {
-      "status": "pending"
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m05_11_3_workspace_atoms",
+      "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
+      "registered_scope_commits": [
+        "396f8aff2add33879b44de1f01eed8a4bfd689fe",
+        "cc0eb704da"
+      ],
+      "changed_paths": [
+        "web/context/app-context-defaults.ts",
+        "web/context/app-context-extend.ts",
+        "web/context/app-context-normalizers.ts",
+        "web/context/__tests__/console-bootstrap.spec.tsx",
+        "web/context/__tests__/workspace-summary-extend.spec.ts",
+        "web/contract/base.ts",
+        "web/service/use-system-manage.ts",
+        "web/app/(commonLayout)/system-manage-extend/code-execution-control/page.tsx",
+        "web/app/(commonLayout)/system-manage-extend/code-execution-control/__tests__/page.spec.tsx"
+      ],
+      "summary": [
+        "The current workspace summary normalizer validates against the generated response schema, preserves admin_extend and tenant_extend, and keeps the upstream role fallback.",
+        "Initial workspace state grants neither fork permission; permission atoms now consume schema-validated booleans directly instead of masking absent fields with ?? false.",
+        "Migrated the code-execution-control page, its test mock, and use-system-manage hook from the removed client entrypoint to the current Console client. Updated stale contract/loader ownership comments without changing page behavior.",
+        "Permission refresh tests cover generated Console query to normalizer to Jotai atoms, pending state, malformed responses, role boundaries, and a fresh session cache. Workspace switching continues to use the existing full-page reload boundary; logout clears QueryClient."
+      ],
+      "checks": [
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit context/__tests__/workspace-summary-extend.spec.ts",
+          "exit_code": 0,
+          "assertions": "11 passed."
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit context/__tests__/workspace-summary-extend.spec.ts context/__tests__/console-bootstrap.spec.tsx",
+          "exit_code": 0,
+          "assertions": "24 passed."
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp check <9 M05 source/test files>",
+          "exit_code": 0,
+          "assertions": "9 files formatted; lint and type checks passed without warnings."
+        },
+        {
+          "command": "git diff --check and scan for stale @/service/client, service/console-router-loader, and service-local ./client imports in the affected paths",
+          "exit_code": 0
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit app/(commonLayout)/system-manage-extend/code-execution-control/__tests__/page.spec.tsx",
+          "exit_code": 1,
+          "assertions": "Suite collection stopped at the existing unresolved packages/dify-ui/src/cn.ts import from cn; 0 tests executed, with no dependency or test mock workaround."
+        }
+      ],
+      "evidence_logs": [
+        "/private/tmp/dify-m05-11-3-permissions-tests.log",
+        "/private/tmp/dify-m05-11-3-affected-tests.log",
+        "/private/tmp/dify-m05-11-3-check-final.log"
+      ],
+      "limitations": [
+        "No live browser or real account/workspace switch was exercised; existing full-page navigation and logout QueryClient clearing remain the isolation boundary.",
+        "The code-execution-control page suite cannot collect while the existing cn dependency is unresolved; independent permission and bootstrap suites passed."
+      ],
+      "independent_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m05_11_3_luna_review",
+        "status": "passed_no_p1_p2",
+        "findings": "Confirmed generated schema fields are required booleans; query select rejects malformed summaries and returns safe empty workspace state; fork bits remain distinct from upstream owner/admin/dataset_operator role grants; current logout/switch lifecycle clears or replaces the query cache; all nine changed paths are registered.",
+        "checks": [
+          {
+            "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH ./node_modules/.bin/vp test run --project unit context/__tests__/workspace-summary-extend.spec.ts context/__tests__/console-bootstrap.spec.tsx",
+            "exit_code": 0,
+            "assertions": "2 files, 24 tests passed."
+          },
+          {
+            "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit app/(commonLayout)/system-manage-extend/code-execution-control/__tests__/page.spec.tsx",
+            "exit_code": 1,
+            "assertions": "Collection failed before tests (0 executed) because existing packages/dify-ui/src/cn.ts cannot resolve cn."
+          }
+        ],
+        "limitations": [
+          "No real browser or account-to-workspace switch was exercised; deferred to V02/M05 final acceptance.",
+          "The code-execution-control page suite is not passing; it is blocked at collection by the unresolved existing cn dependency."
+        ]
+      }
     },
     "11.4": {
       "status": "pending"
@@ -181,14 +262,17 @@
     "A04 C03 is_custom_auth2_button is absent from the M02 response schema and is not fabricated.",
     "The expanded Console SSR/hydration suite still encounters existing missing cn dependency errors.",
     "The current account-money UI caller needs M06 migration to consume login_config and configured RMB_TO_USD_RATE.",
-    "M05 remains partial and non-deployable until 11.3-11.5 and later integration gates pass."
+    "M05 remains partial and non-deployable until 11.3-11.5 and later integration gates pass.",
+    "M05 11.3 code-execution-control page suite collection is blocked by the existing unresolved cn dependency; its behavior has scoped type/lint checks, but the page suite has 0 executed cases.",
+    "Workspace permission refresh was validated through generated query/normalizer/atom tests and existing full-page/logout cache boundaries, not a live browser identity switch."
   ],
   "codegen_investigation": "evidence/M05/codegen-investigation.json",
   "codegen_analysis": "evidence/M05/codegen-analysis.md",
   "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
   "tasks_complete": [
     "11.1",
-    "11.2"
+    "11.2",
+    "11.3"
   ],
-  "next_subtask": "11.3"
+  "next_subtask": "11.4"
 }

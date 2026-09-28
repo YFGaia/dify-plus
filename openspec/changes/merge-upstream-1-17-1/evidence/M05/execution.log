@@ -59,3 +59,8 @@ Checks:
 M06 handoff: web/app/components/main-nav/components/account-money-extend.tsx currently calls asSystemFeaturesExtend(publicSnapshot) without login_config. With the split boundary it reads the 7.26 fallback instead of configured RMB_TO_USD_RATE; update that app consumer to use loginConfigQueryOptions with current account/workspace identity before M06 acceptance. No UI paths were changed in this subtask.
 
 11.2 passed for its feature/SSR contract boundary. No real browser/CORS/account-switch or production verification was performed. Subtasks 11.3-11.5 remain pending and M05 is still partial/non-deployable.
+
+M05 11.3 implementation and focused verification: 2026-09-29
+Branch: codex/merge-upstream-1.17.1; source baseline: 8ef95f6a929ac6f6e811386619d02b497d354c26. Exact new paths were registered in commits 396f8aff2add33879b44de1f01eed8a4bfd689fe and cc0eb704da before source commit.
+Generated schema validation now preserves workspace admin_extend/tenant_extend through the normalizer and permission atoms; initial state grants neither bit. Stale Console client imports in the code-execution-control page, page test mock, and mutation hook now use the current Console client.
+Checks: permission-chain 11/11; permission plus Console bootstrap 24/24; scoped vp check 9 files exit 0; diff-check and stale import scan exit 0. Page suite failed during collection with unresolved existing `cn` import (0 cases); no dependency/test workaround. No live browser/account-switch test.

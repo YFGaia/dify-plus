@@ -801,15 +801,16 @@
         ],
         "tasks_complete": [
           "11.1",
-          "11.2"
+          "11.2",
+          "11.3"
         ],
-        "next_subtask": "11.3",
+        "next_subtask": "11.4",
         "subtask_11_1_scope_registered": true,
         "subtask_11_3_scope_registered": true,
         "current_subtask": {
-          "id": "11.2",
+          "id": "11.3",
           "status": "complete",
-          "evidence": "evidence/M05/result.json#/subtasks/11.2"
+          "evidence": "evidence/M05/result.json#/subtasks/11.3"
         },
         "codegen_diagnosis": {
           "status": "complete_root_cause_identified_owner_decided",

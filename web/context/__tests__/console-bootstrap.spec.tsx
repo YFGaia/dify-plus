@@ -41,6 +41,8 @@ const mockCurrentWorkspaceResponse = vi.hoisted(() => ({
   plan: 'sandbox',
   credits: 200,
   role: 'editor',
+  admin_extend: false,
+  tenant_extend: false,
 }))
 const mockCurrentWorkspaceQueryState = vi.hoisted(() => ({
   data: mockCurrentWorkspaceResponse as typeof mockCurrentWorkspaceResponse | undefined,

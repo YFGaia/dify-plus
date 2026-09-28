@@ -1,6 +1,7 @@
 import type { GetVersionResponse } from '@dify/contracts/api/console/version/types.gen'
 import type { GetWorkspacesCurrentSummaryResponse } from '@dify/contracts/api/console/workspaces/types.gen'
 import type { LangGeniusVersionInfo } from './app-context-types'
+import { zGetWorkspacesCurrentSummaryResponse } from '@dify/contracts/api/console/workspaces/zod.gen'
 import { initialLangGeniusVersionInfo, initialWorkspaceSummary } from './app-context-defaults'
 
 const workspaceRoles = new Set<GetWorkspacesCurrentSummaryResponse['role']>([
@@ -37,13 +38,12 @@ export function normalizeCurrentWorkspaceSummary(
 ): GetWorkspacesCurrentSummaryResponse {
   if (!workspace) return initialWorkspaceSummary
 
-  return {
-    id: workspace.id,
-    name: workspace.name,
-    plan: workspace.plan,
-    credits: workspace.credits,
+  // Extend: validate the generated summary so missing permission bits cannot
+  // silently become a successful response with reduced fork permissions.
+  return zGetWorkspacesCurrentSummaryResponse.parse({
+    ...workspace,
     role: resolveWorkspaceRole(workspace.role),
-  }
+  })
 }
 
 export function getWorkspaceRoleFlags(

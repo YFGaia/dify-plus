@@ -1,6 +1,6 @@
 // Extend: 系统管理 — 代码执行控制（sandbox-full 授权名单）mutation hooks
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { consoleQuery } from './client'
+import { consoleQuery } from './console'
 
 export const useAddCodeExecutionControlEmail = () => {
   const queryClient = useQueryClient()
