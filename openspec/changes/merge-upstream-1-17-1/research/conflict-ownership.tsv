@@ -1,92 +1,92 @@
-path	resolve_node	verify_node	status
-AGENTS.md	M08	M08	pending
-README.md	M08	M08	pending
-api/controllers/console/__init__.py	M02	V01	pending
-api/controllers/console/apikey.py	M04	V01	pending
-api/controllers/console/app/site.py	M03	V01	pending
-api/controllers/console/app/statistic.py	M04	V01	pending
-api/controllers/console/app/workflow.py	M04	V01	pending
-api/controllers/console/auth/oauth.py	M03	V01	pending
-api/controllers/console/explore/completion.py	M04	V01	pending
-api/controllers/console/explore/installed_app.py	M04	V01	pending
-api/controllers/console/explore/workflow.py	M04	V01	pending
-api/controllers/console/explore/wraps.py	M04	V01	pending
-api/controllers/console/feature.py	M02	V01	pending
-api/controllers/console/tag/tags.py	M04	V01	pending
-api/controllers/service_api/__init__.py	M04	V01	pending
-api/controllers/service_api/app/annotation.py	M04	V01	pending
-api/controllers/service_api/app/app.py	M04	V01	pending
-api/controllers/service_api/app/audio.py	M04	V01	pending
-api/controllers/service_api/app/conversation.py	M04	V01	pending
-api/controllers/service_api/app/file.py	M04	V01	pending
-api/controllers/service_api/app/file_preview.py	M04	V01	pending
-api/controllers/service_api/app/human_input_form.py	M04	V01	pending
-api/controllers/service_api/app/message.py	M04	V01	pending
-api/controllers/service_api/app/site.py	M04	V01	pending
-api/controllers/service_api/app/workflow_events.py	M04	V01	pending
-api/controllers/service_api/wraps.py	M04	V01	pending
-api/controllers/web/login.py	M03	V01	pending
-api/models/__init__.py	M02	V01	pending
-api/models/workflow.py	M02	V01	pending
-api/services/account_service.py	M03	V01	pending
-api/services/feature_service.py	M02	V01	pending
-api/services/workspace_service.py	M02	V01	pending
-api/tests/integration_tests/workflow/nodes/code_executor/test_code_javascript.py	M04	V01	pending
-api/tests/unit_tests/controllers/console/explore/test_installed_app.py	M04	V01	pending
-api/tests/unit_tests/controllers/console/tag/test_tags.py	M04	V01	pending
-api/tests/unit_tests/controllers/console/test_apikey.py	M04	V01	pending
-api/tests/unit_tests/controllers/console/test_feature.py	M02	V01	pending
-api/tests/unit_tests/core/app/apps/chat/test_app_generator_and_runner.py	M04	V01	pending
-api/tests/unit_tests/core/app/workflow/test_persistence_layer.py	M04	V01	pending
-api/tests/unit_tests/services/test_account_service.py	M03	V01	pending
-docker/.env.example	M07	M08	pending
-docker/envs/core-services/web.env.example	M07	M08	pending
-docker/nginx/conf.d/default.conf.template	M07	M08	pending
-oxlint-suppressions.json	M01	M08	pending
-pnpm-lock.yaml	M01	M08	pending
-pnpm-workspace.yaml	M01	M08	pending
-web/app/(shareLayout)/components/__tests__/authenticated-layout.spec.tsx	M06	V02	pending
-web/app/(shareLayout)/components/authenticated-layout.tsx	M06	V02	pending
-web/app/(shareLayout)/webapp-signin/normalForm.tsx	M06	V02	pending
-web/app/(shareLayout)/webapp-signin/page.tsx	M06	V02	pending
-web/app/components/app/configuration/hooks/use-configuration-utils.ts	M06	V02	pending
-web/app/components/app/configuration/hooks/use-configuration.ts	M06	V02	pending
-web/app/components/app/overview/__tests__/app-card.spec.tsx	M06	V02	pending
-web/app/components/app/overview/app-card-sections.tsx	M06	V02	pending
-web/app/components/app/overview/app-card.tsx	M06	V02	pending
-web/app/components/apps/__tests__/app-card.spec.tsx	M06	V02	pending
-web/app/components/apps/app-card.tsx	M06	V02	pending
-web/app/components/apps/list.tsx	M06	V02	pending
-web/app/components/base/chat/chat/index.tsx	M06	V02	pending
-web/app/components/develop/__tests__/ApiServer.spec.tsx	M06	V02	pending
-web/app/components/develop/secret-key/__tests__/secret-key-button.spec.tsx	M06	V02	pending
-web/app/components/develop/secret-key/__tests__/secret-key-modal.spec.tsx	M06	V02	pending
-web/app/components/develop/secret-key/secret-key-button.tsx	M06	V02	pending
-web/app/components/develop/secret-key/secret-key-modal.tsx	M06	V02	pending
-web/app/components/develop/secret-key/style.module.css	M06	V02	pending
-web/app/components/explore/__tests__/index.spec.tsx	M06	V02	pending
-web/app/components/explore/app-list/__tests__/index.spec.tsx	M06	V02	pending
-web/app/components/explore/app-list/index.tsx	M06	V02	pending
-web/app/components/explore/sidebar/__tests__/index.spec.tsx	M06	V02	pending
-web/app/components/explore/sidebar/index.tsx	M06	V02	pending
-web/app/components/header/account-setting/index.tsx	M06	V02	pending
-web/app/components/main-nav/__tests__/index.spec.tsx	M06	V02	pending
-web/app/components/main-nav/index.tsx	M06	V02	pending
-web/app/components/main-nav/routes.ts	M06	V02	pending
-web/app/signin/normal-form.tsx	M06	V02	pending
-web/context/app-context-normalizers.ts	M05	V02	pending
-web/features/home/template-card.tsx	M06	V02	pending
-web/features/system-features/__tests__/system-features.spec.ts	M05	V02	pending
-web/features/system-features/client.ts	M05	V02	pending
-web/features/system-features/server.ts	M05	V02	pending
-web/i18n/uk-UA/plugin-tags.json	M06	V02	pending
-web/models/app.ts	M06	V02	pending
-web/models/common.ts	M05	V02	pending
-web/next.config.ts	M01	V02	pending
-web/package.json	M01	V02	pending
-web/service/apps.ts	M06	V02	pending
-web/service/client.ts	M05	V02	pending
-web/service/console-router-loader.ts	M05	V02	pending
-web/service/explore.ts	M06	V02	pending
-web/service/use-explore.ts	M06	V02	pending
-web/service/webapp-auth.ts	M06	V02	pending
+path	resolve_node	verify_node	conflict_type	status	owner_basis
+AGENTS.md	M08	M08	content	pending	integration-owned documentation and root configuration
+README.md	M08	M08	content	pending	integration-owned documentation and root configuration
+api/controllers/console/__init__.py	M02	V01	content	pending	backend foundation, model, feature or workspace contract
+api/controllers/console/apikey.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/console/app/site.py	M03	V01	content	pending	account, OAuth or WebApp identity and site behavior
+api/controllers/console/app/statistic.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/console/app/workflow.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/console/auth/oauth.py	M03	V01	content	pending	account, OAuth or WebApp identity and site behavior
+api/controllers/console/explore/completion.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/console/explore/installed_app.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/console/explore/workflow.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/console/explore/wraps.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/console/feature.py	M02	V01	content	pending	backend foundation, model, feature or workspace contract
+api/controllers/console/tag/tags.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/__init__.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/annotation.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/app.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/audio.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/conversation.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/file.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/file_preview.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/human_input_form.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/message.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/site.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/app/workflow_events.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/service_api/wraps.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/controllers/web/login.py	M03	V01	content	pending	account, OAuth or WebApp identity and site behavior
+api/models/__init__.py	M02	V01	content	pending	backend foundation, model, feature or workspace contract
+api/models/workflow.py	M02	V01	content	pending	backend foundation, model, feature or workspace contract
+api/services/account_service.py	M03	V01	content	pending	account, OAuth or WebApp identity and site behavior
+api/services/feature_service.py	M02	V01	content	pending	backend foundation, model, feature or workspace contract
+api/services/workspace_service.py	M02	V01	content	pending	backend foundation, model, feature or workspace contract
+api/tests/integration_tests/workflow/nodes/code_executor/test_code_javascript.py	M04	V01	modify/delete	pending	billing, API key, service API or execution hooks
+api/tests/unit_tests/controllers/console/explore/test_installed_app.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/tests/unit_tests/controllers/console/tag/test_tags.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/tests/unit_tests/controllers/console/test_apikey.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/tests/unit_tests/controllers/console/test_feature.py	M02	V01	content	pending	backend foundation, model, feature or workspace contract
+api/tests/unit_tests/core/app/apps/chat/test_app_generator_and_runner.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/tests/unit_tests/core/app/workflow/test_persistence_layer.py	M04	V01	content	pending	billing, API key, service API or execution hooks
+api/tests/unit_tests/services/test_account_service.py	M03	V01	content	pending	account, OAuth or WebApp identity and site behavior
+docker/.env.example	M07	M08	content	pending	deployment environment or reverse proxy configuration
+docker/envs/core-services/web.env.example	M07	M08	content	pending	deployment environment or reverse proxy configuration
+docker/nginx/conf.d/default.conf.template	M07	M08	content	pending	deployment environment or reverse proxy configuration
+oxlint-suppressions.json	M01	M08	content	pending	toolchain, package, lockfile or build configuration
+pnpm-lock.yaml	M01	M08	content	pending	toolchain, package, lockfile or build configuration
+pnpm-workspace.yaml	M01	M08	content	pending	toolchain, package, lockfile or build configuration
+web/app/(shareLayout)/components/__tests__/authenticated-layout.spec.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/(shareLayout)/components/authenticated-layout.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/(shareLayout)/webapp-signin/normalForm.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/(shareLayout)/webapp-signin/page.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/app/configuration/hooks/use-configuration-utils.ts	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/app/configuration/hooks/use-configuration.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/app/overview/__tests__/app-card.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/app/overview/app-card-sections.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/app/overview/app-card.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/apps/__tests__/app-card.spec.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/apps/app-card.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/apps/list.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/base/chat/chat/index.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/develop/__tests__/ApiServer.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/develop/secret-key/__tests__/secret-key-button.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/develop/secret-key/__tests__/secret-key-modal.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/develop/secret-key/secret-key-button.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/develop/secret-key/secret-key-modal.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/develop/secret-key/style.module.css	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/explore/__tests__/index.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/explore/app-list/__tests__/index.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/explore/app-list/index.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/explore/sidebar/__tests__/index.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/explore/sidebar/index.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/header/account-setting/index.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/main-nav/__tests__/index.spec.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/main-nav/index.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/components/main-nav/routes.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/app/signin/normal-form.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/context/app-context-normalizers.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
+web/features/home/template-card.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/features/system-features/__tests__/system-features.spec.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
+web/features/system-features/client.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
+web/features/system-features/server.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
+web/i18n/uk-UA/plugin-tags.json	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/models/app.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/models/common.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
+web/next.config.ts	M01	V02	content	pending	toolchain, package, lockfile or build configuration
+web/package.json	M01	V02	content	pending	toolchain, package, lockfile or build configuration
+web/service/apps.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/service/client.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
+web/service/console-router-loader.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
+web/service/explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/service/use-explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
+web/service/webapp-auth.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization

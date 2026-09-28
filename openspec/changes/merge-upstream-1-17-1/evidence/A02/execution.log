@@ -1,0 +1,14 @@
+A02 fixed upstream tag and diff refresh
+source_commit=619a8024971fe6e22faeb1631d086b38f1724a09
+target=8387590ace4a094de812b7847fc6a4c3a27cd52b
+merge_base=5c6372d2f76d240265b92fd27c16bc772ffcb107
+upstream_changed=8120 fork_changed=500 branch_changed=527
+merge_tree_exit=1 (predicted conflicts) conflicts=91 content=70 modify/delete=21
+fetch_initial_exit=255 .git/FETCH_HEAD denied; approved retry exit=0
+no real merge or business-code change
+A02 assertion exit=0: 91 conflict owners, 155 overlap owners (65 auto-merged), 20 host owners, 4 fork commits in baseline ancestry
+A02 planning separation: original fork baseline 500 paths; current branch 527 paths = 500 fork paths plus 27 planning-only paths
+git diff --check exit=0
+openspec validate merge-upstream-1-17-1 --strict exit=0: Change is valid
+git diff --cached --name-only exact allowlist exit=0: 11 A02 paths only
+git diff --cached --check exit=0

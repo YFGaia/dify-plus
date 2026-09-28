@@ -1,0 +1,21 @@
+target_path	owner_node	verify_node	fork_source_path	target_state	owner_basis
+api/services/account_initialization_service.py	M03	V01	api/services/account_service.py	exists_in_1.17.1	all real account creation paths now need quota initialization
+api/services/app_site_service.py	M03	V01	api/controllers/console/app/site.py	exists_in_1.17.1	site update moved behind AppSiteService
+api/services/webapp_access_query_service.py	M03	V01	api/controllers/web/login.py	exists_in_1.17.1	new access query must preserve per-app gate
+api/services/webapp_auth_service.py	M03	V01	api/controllers/web/login.py	exists_in_1.17.1	new passport boundary must preserve built-in gate
+api/extensions/ext_application_services.py	M03	V01	api/controllers/console/auth/oauth.py	exists_in_1.17.1	new provider registry must register fork OAuth gateway
+api/services/account_oauth_service.py	M03	V01	api/controllers/console/auth/oauth.py	exists_in_1.17.1	new OAuth account flow replaces legacy callback
+web/service/console/browser.ts	M05	V02	web/service/client.ts	exists_in_1.17.1	browser transport replaces deleted Console client
+web/service/console/server.ts	M05	V02	web/features/system-features/server.ts	exists_in_1.17.1	server transport must carry public snapshot semantics
+web/service/console/contract-loader.ts	M05	V02	web/service/console-router-loader.ts	exists_in_1.17.1	new contract loader replaces deleted router loader
+packages/contracts/console.ts	M05	V02	web/contract/router-extend.ts	exists_in_1.17.1	new contract aggregate must include fork segment
+web/app/components/app/access-point/built-in-access-points/web-app-card.tsx	M06	V02	web/app/components/app/overview/app-card.tsx	exists_in_1.17.1	built-in WebApp card replaces deleted overview switch host
+web/app/components/app/access-point/shared/use-access-point-actions.ts	M06	V02	web/app/components/app/overview/app-card.tsx	exists_in_1.17.1	access-point save action owns the fork field write
+web/service/webapp-address.ts	M06	V02	web/service/webapp-auth.ts	exists_in_1.17.1	address-scoped passport replaces share-code-only calls
+web/app/components/apps/app-card/index.tsx	M06	V02	web/app/components/apps/app-card.tsx	exists_in_1.17.1	new card split receives sync controls
+web/app/components/apps/app-card/interactions.tsx	M06	V02	web/app/components/apps/app-card.tsx	exists_in_1.17.1	new card interaction menu receives sync actions
+web/app/components/api-key/api-key-modal.tsx	M06	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	new unified modal receives supported quota fields
+web/app/components/api-key/api-key-table.tsx	M06	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	new unified table receives quota display
+web/app/components/main-nav/components/workspace-card.tsx	M06	V02	web/app/components/main-nav/components/account-money-extend.tsx	exists_in_1.17.1	new sidebar location for personal balance
+web/features/home/template-card.tsx	M06	V02	web/app/components/explore/app-card/index.tsx	exists_in_1.17.1	upstream rename of fork-modified template card
+web/i18n/lo-LA/extend.json	M06	V02	web/i18n/en-US/extend.json	create_for_fork	new upstream locale needs fork namespace file

@@ -108,7 +108,7 @@
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -198,7 +198,7 @@
       "owner_role": "架构负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [

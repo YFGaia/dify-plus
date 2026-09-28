@@ -150,5 +150,58 @@
     "web/service/webapp-auth.ts"
   ],
   "untracked_target_collisions": [],
-  "untracked_file_count_at_analysis": 7737
+  "untracked_file_count_at_analysis": 7737,
+  "execution_branch_head_before_A02": "619a8024971fe6e22faeb1631d086b38f1724a09",
+  "execution_branch_tree_before_A02": "1f057f06d3aecbda770cebaa9ce8e6f89f6cd4b5",
+  "branch_commits_from_merge_base": 1910,
+  "upstream_change_types": {
+    "A": 1584,
+    "D": 694,
+    "M": 5793,
+    "R": 49
+  },
+  "upstream_renames": 49,
+  "fork_change_types": {
+    "A": 310,
+    "D": 5,
+    "M": 185
+  },
+  "branch_delta_files": 527,
+  "branch_change_types": {
+    "A": 337,
+    "D": 5,
+    "M": 185
+  },
+  "branch_renames": 0,
+  "planning_delta_files": 27,
+  "conflict_types": {
+    "content": 70,
+    "modify/delete": 21
+  },
+  "host_ownership_count": 20,
+  "four_post_baseline_commits": [
+    {
+      "sha": "ee78816071af0f7cfb9d6e4582e216dcb5adcdcd",
+      "summary": "chore(release): prepare 1.16.0 beta",
+      "changed_file_count": 85
+    },
+    {
+      "sha": "1ffa101203b17ae0e591de1e49c37805d28f3cf1",
+      "summary": "feat(extend): add per-app WebApp access authentication switch",
+      "changed_file_count": 47
+    },
+    {
+      "sha": "fc5ceb5283a2780449a6e392ff5ea834274e96ef",
+      "summary": "fix(extend): skip Console memory-context calls for anonymous WebApp sessions",
+      "changed_file_count": 3
+    },
+    {
+      "sha": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+      "summary": "chore(build): exclude .venv from docker build context",
+      "changed_file_count": 1
+    }
+  ],
+  "fork_upstream_path_overlap": 155,
+  "overlap_without_text_conflict": 65,
+  "overlap_ownership_count": 155
 }
