@@ -755,7 +755,10 @@ class TestGetHistoryPromptMessages:
             result = mem.get_history_prompt_messages()
 
         selects = [sql for sql, _ in database.statements[before:] if sql.lstrip().upper().startswith("SELECT")]
-        assert len(selects) == 4
+        # Fork context segmentation adds one fixed query, independent of history size.
+        assert len(selects) == 5
+        assert sum("FROM message_context_extend" in sql for sql in selects) == 1
+        assert sum("FROM message_files" in sql for sql in selects) == 2
         assert sum("FROM apps" in sql for sql in selects) == 1
         assert len(result) == 10
 

@@ -78,6 +78,7 @@ from core.repositories.human_input_repository import HumanInputFormRepositoryImp
 from core.workflow.file_reference import resolve_file_record_id
 from core.workflow.nodes.human_input.pause_reason import HumanInputRequired
 from core.workflow.system_variables import build_system_variables
+from graphon.entities import WorkflowStartReason
 from graphon.enums import WorkflowExecutionStatus
 from graphon.model_runtime.entities.llm_entities import LLMUsage
 from graphon.model_runtime.utils.encoders import jsonable_encoder
@@ -462,7 +463,7 @@ class AdvancedChatAppGenerateTaskPipeline(GraphRuntimeStateSupport):
 
         # ------------------- 二开部分Begin - 密钥额度限制 -------------------
         app_token_id = self._application_generate_entity.extras.get("app_token_id")
-        if app_token_id:
+        if event.reason == WorkflowStartReason.INITIAL and app_token_id:
             ApiTokenMessageJoinsExtend(
                 app_token_id=app_token_id, record_id=run_id, app_mode=AppMode.ADVANCED_CHAT.value
             ).add_app_token_record_id()

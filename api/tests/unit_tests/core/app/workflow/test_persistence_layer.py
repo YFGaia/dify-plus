@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
 
@@ -35,6 +36,17 @@ from graphon.graph_events import (
 from graphon.model_runtime.entities.llm_entities import LLMUsage
 from graphon.node_events import NodeRunResult
 from graphon.runtime import GraphRuntimeState, ReadOnlyGraphRuntimeStateWrapper, VariablePool
+
+
+@pytest.fixture(autouse=True)
+def isolate_billing_broker(monkeypatch):
+    """Exercise persistence without connecting to the external billing queue."""
+    task = Mock()
+    monkeypatch.setattr(
+        "core.app.workflow.layers.persistence.update_account_money_when_workflow_node_execution_created_extend",
+        task,
+    )
+    return task
 
 
 class _RepoRecorder:
