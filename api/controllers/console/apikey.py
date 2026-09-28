@@ -3,21 +3,23 @@ from datetime import datetime
 from uuid import UUID
 
 import flask_restx
+from flask import has_request_context, request
 from flask_restx import Resource
 from flask_restx._http import HTTPStatus
-from pydantic import field_validator
-from sqlalchemy import func, or_, select
+from pydantic import BaseModel, Field, field_validator
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden
 
 from configs import dify_config
 from controllers.common.rbac import AgentBehindApp, DatasetId, PlainApp, RBACCheck
-from controllers.common.schema import register_response_schema_models
+from controllers.common.schema import register_response_schema_models, register_schema_models
 from controllers.common.session import with_session
 from fields.base import ResponseModel
 from libs.helper import dump_response, to_timestamp
 from libs.login import login_required
 from models import Account
+from models.api_token_money_extend import ApiTokenMoneyExtend
 from models.dataset import Dataset
 from models.enums import ApiTokenType
 from models.model import ApiToken, App
@@ -45,6 +47,12 @@ class ApiKeyItem(ResponseModel):
     dataset_ids: list[str] = []
     last_used_at: int | None = None
     created_at: int | None = None
+    description: str | None = None
+    accumulated_quota: float | None = None
+    day_limit_quota: float | None = None
+    month_limit_quota: float | None = None
+    day_used_quota: float | None = None
+    month_used_quota: float | None = None
 
     @field_validator("last_used_at", "created_at", mode="before")
     @classmethod
@@ -52,11 +60,48 @@ class ApiKeyItem(ResponseModel):
         return to_timestamp(value)
 
 
+class ApiKeyQuotaPayload(BaseModel):
+    description: str = Field(default="默认", max_length=50)
+    day_limit_quota: float = Field(default=-1, allow_inf_nan=False)
+    month_limit_quota: float = Field(default=-1, allow_inf_nan=False)
+
+    @field_validator("day_limit_quota", "month_limit_quota")
+    @classmethod
+    def validate_limit(cls, value: float) -> float:
+        if value < 0 and value != -1:
+            raise ValueError("Quota must be non-negative or -1 (unlimited)")
+        return value
+
+
+class ApiKeyQuotaUpdatePayload(ApiKeyQuotaPayload):
+    id: str
+
+
+DEFAULT_QUOTA_EXTEND = {
+    "description": "",
+    "accumulated_quota": 0.0,
+    "day_limit_quota": -1.0,
+    "month_limit_quota": -1.0,
+    "day_used_quota": 0.0,
+    "month_used_quota": 0.0,
+}
+
+
+def _merge_token_with_quota_extend(token: ApiToken, quota: ApiTokenMoneyExtend | None) -> ApiKeyItem:
+    # Attribute reads reload expired ORM rows after commit. Never merge quota.id
+    # or quota timestamps into the token's identity/lifecycle fields.
+    item = ApiKeyItem.model_validate(token, from_attributes=True)
+    for name, default in DEFAULT_QUOTA_EXTEND.items():
+        setattr(item, name, getattr(quota, name) if quota is not None else default)
+    return item
+
+
 class ApiKeyList(ResponseModel):
     data: list[ApiKeyItem]
 
 
 register_response_schema_models(console_ns, ApiKeyItem, ApiKeyList)
+register_schema_models(console_ns, ApiKeyQuotaPayload, ApiKeyQuotaUpdatePayload)
 
 
 def mask_api_token(token: str) -> str:
@@ -131,6 +176,15 @@ class BaseApiKeyListResource(Resource):
         ).all()
         # App and agent keys keep their existing (unmasked) list behavior; reveal-once
         # masking is scoped to dataset keys, which build their list in datasets.py.
+        if self.resource_type == ApiTokenType.APP:
+            quotas = session.scalars(
+                select(ApiTokenMoneyExtend).where(
+                    ApiTokenMoneyExtend.app_token_id.in_([key.id for key in keys]),
+                    ApiTokenMoneyExtend.is_deleted.is_(False),
+                )
+            ).all()
+            by_token = {quota.app_token_id: quota for quota in quotas}
+            return ApiKeyList(data=[_merge_token_with_quota_extend(key, by_token.get(key.id)) for key in keys])
         return ApiKeyList(data=[ApiKeyItem.model_validate(key, from_attributes=True) for key in keys])
 
     @edit_permission_required
@@ -141,7 +195,7 @@ class BaseApiKeyListResource(Resource):
             self._create_api_key(resource_id, current_tenant_id, session=session),
         ), 201
 
-    def _create_api_key(self, resource_id: str, current_tenant_id: str, *, session: Session) -> ApiToken:
+    def _create_api_key(self, resource_id: str, current_tenant_id: str, *, session: Session) -> ApiToken | ApiKeyItem:
         assert self.resource_id_field is not None, "resource_id_field must be set"
         resource = _get_resource(resource_id, current_tenant_id, self.resource_model, session=session)
         if isinstance(resource, App):
@@ -172,8 +226,60 @@ class BaseApiKeyListResource(Resource):
         api_token.token = key
         api_token.type = self.resource_type
         session.add(api_token)
+        quota = None
+        if self.resource_type == ApiTokenType.APP:
+            payload = ApiKeyQuotaPayload.model_validate(
+                request.get_json(silent=True) or {} if has_request_context() else {}
+            )
+            session.flush()
+            quota = ApiTokenMoneyExtend(
+                app_token_id=api_token.id,
+                accumulated_quota=0,
+                day_used_quota=0,
+                month_used_quota=0,
+                **payload.model_dump(),
+            )
+            session.add(quota)
         session.commit()
-        return api_token
+        return _merge_token_with_quota_extend(api_token, quota) if quota is not None else api_token
+
+    def _update_api_key(
+        self,
+        resource_id: str,
+        current_tenant_id: str,
+        current_user: Account,
+        payload: ApiKeyQuotaUpdatePayload,
+        *,
+        session: Session,
+    ) -> ApiKeyItem:
+        assert self.resource_id_field is not None, "resource_id_field must be set"
+        _get_resource(resource_id, current_tenant_id, self.resource_model, session=session)
+        if not current_user.is_admin_or_owner:
+            raise Forbidden()
+        key = session.scalar(
+            select(ApiToken).where(
+                or_(ApiToken.tenant_id == current_tenant_id, ApiToken.tenant_id.is_(None)),
+                getattr(ApiToken, self.resource_id_field) == resource_id,
+                ApiToken.type == ApiTokenType.APP,
+                ApiToken.id == payload.id,
+            )
+        )
+        if key is None:
+            flask_restx.abort(HTTPStatus.NOT_FOUND, message="API key not found")
+        quota = session.scalar(
+            select(ApiTokenMoneyExtend).where(
+                ApiTokenMoneyExtend.app_token_id == key.id,
+                ApiTokenMoneyExtend.is_deleted.is_(False),
+            )
+        )
+        if quota is None:
+            quota = ApiTokenMoneyExtend(app_token_id=key.id, **DEFAULT_QUOTA_EXTEND)
+            session.add(quota)
+        for name, value in payload.model_dump(exclude={"id"}, exclude_unset=True).items():
+            setattr(quota, name, value)
+        session.commit()
+        ApiTokenCache.delete(key.token, key.type)
+        return _merge_token_with_quota_extend(key, quota)
 
 
 class BaseApiKeyResource(Resource):
@@ -229,6 +335,14 @@ class BaseApiKeyResource(Resource):
         assert key is not None  # nosec - for type checker only
         ApiTokenCache.delete(key.token, key.type)
 
+        if self.resource_type == ApiTokenType.APP:
+            session.execute(
+                update(ApiTokenMoneyExtend)
+                .where(
+                    ApiTokenMoneyExtend.app_token_id == key.id,
+                )
+                .values(is_deleted=True)
+            )
         session.delete(key)
         session.commit()
 
@@ -253,6 +367,7 @@ class AppApiKeyListResource(BaseApiKeyListResource):
             self._get_api_key_list(str(resource_id), current_tenant_id, session=session),  # pyrefly: ignore[unnecessary-type-conversion]
         )
 
+    @console_ns.expect(console_ns.models[ApiKeyQuotaPayload.__name__])
     @console_ns.doc("create_app_api_key")
     @console_ns.doc(description="Create a new API key for an app")
     @console_ns.doc(params={"resource_id": "App ID"})
@@ -271,6 +386,35 @@ class AppApiKeyListResource(BaseApiKeyListResource):
             ApiKeyItem,
             self._create_api_key(str(resource_id), current_tenant_id, session=session),  # pyrefly: ignore[unnecessary-type-conversion]
         ), 201
+
+    @console_ns.expect(console_ns.models[ApiKeyQuotaUpdatePayload.__name__])
+    @console_ns.response(200, "API key quota updated", console_ns.models[ApiKeyItem.__name__])
+    @with_current_user
+    @with_current_tenant_id
+    @edit_permission_required
+    @rbac_permission_required(
+        RBACCheck(RBACPermission.APP_RELEASE_AND_VERSION, PlainApp("resource_id")),
+        RBACCheck(RBACPermission.AGENT_ACCESS_POINT_MANAGE, AgentBehindApp("resource_id")),
+    )
+    @with_session
+    def put(
+        self,
+        session: Session,
+        current_tenant_id: str,
+        current_user: Account,
+        resource_id: UUID,
+    ) -> tuple[dict[str, object], int]:
+        payload = ApiKeyQuotaUpdatePayload.model_validate(console_ns.payload or {})
+        return dump_response(
+            ApiKeyItem,
+            self._update_api_key(
+                str(resource_id),
+                current_tenant_id,
+                current_user,
+                payload,
+                session=session,
+            ),
+        ), 200
 
     resource_type = ApiTokenType.APP
     resource_model = App

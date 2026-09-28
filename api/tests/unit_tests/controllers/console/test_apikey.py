@@ -336,3 +336,245 @@ def test_api_key_lists_reject_legacy_read_only_members(config_overrides: Callabl
                 invoke()
 
     get_api_key_list.assert_not_called()
+
+
+@pytest.fixture(autouse=True)
+def quota_uuid_default(sqlite_session):
+    """Emulate the PostgreSQL UUID default without changing production metadata."""
+    import uuid
+
+    sqlite_session.connection().connection.driver_connection.create_function(
+        "uuid_generate_v4", 0, lambda: str(uuid.uuid4())
+    )
+
+
+def test_app_key_quota_crud_and_legacy_fallback(sqlite_session):
+    from controllers.console.apikey import ApiKeyQuotaUpdatePayload
+    from models.api_token_money_extend import ApiTokenMessageJoinsExtend, ApiTokenMoneyExtend
+
+    session = sqlite_session
+    resource = _make_list_resource()
+    _persist_app(session)
+    app = Flask(__name__)
+    with app.test_request_context(json={"description": "test", "day_limit_quota": 2, "month_limit_quota": -1}):
+        item = resource._create_api_key("app-1", "tenant-1", session=session)
+    quota = session.scalar(select(ApiTokenMoneyExtend).where(ApiTokenMoneyExtend.app_token_id == item.id))
+    assert quota is not None
+    assert item.description == "test"
+    assert item.day_limit_quota == 2
+    assert item.month_limit_quota == -1
+    assert item.id != quota.id
+    with patch("controllers.console.apikey.ApiTokenCache.delete") as invalidate:
+        updated = resource._update_api_key(
+            "app-1",
+            "tenant-1",
+            _make_account(TenantAccountRole.OWNER),
+            ApiKeyQuotaUpdatePayload(id=item.id, day_limit_quota=4),
+            session=session,
+        )
+    assert updated.description == "test"
+    assert updated.day_limit_quota == 4
+    invalidate.assert_called_once_with(item.token, ApiTokenType.APP)
+    session.add(ApiTokenMessageJoinsExtend(app_token_id=item.id, record_id="message-1", app_mode="chat"))
+    session.commit()
+    with patch("controllers.console.apikey.ApiTokenCache.delete") as invalidate:
+        _make_key_resource()._delete_api_key(
+            "app-1", item.id, "tenant-1", _make_account(TenantAccountRole.OWNER), session=session
+        )
+    invalidate.assert_called_once_with(item.token, ApiTokenType.APP)
+    assert session.get(ApiToken, item.id) is None
+    historical_join = session.scalar(select(ApiTokenMessageJoinsExtend))
+    assert historical_join.app_token_id == item.id
+    assert historical_join.record_id == "message-1"
+    session.refresh(quota)
+    assert quota.is_deleted
+
+    legacy = ApiToken(id="legacy", token="legacy", type=ApiTokenType.APP, app_id="app-1", tenant_id="tenant-1")
+    session.add(legacy)
+    session.commit()
+    item = resource._get_api_key_list("app-1", "tenant-1", session=session).data[0]
+    assert (item.description, item.accumulated_quota, item.day_used_quota, item.month_used_quota) == ("", 0, 0, 0)
+    assert (item.day_limit_quota, item.month_limit_quota) == (-1, -1)
+    with patch("controllers.console.apikey.ApiTokenCache.delete"):
+        resource._update_api_key(
+            "app-1",
+            "tenant-1",
+            _make_account(TenantAccountRole.ADMIN),
+            ApiKeyQuotaUpdatePayload(id="legacy", month_limit_quota=3),
+            session=session,
+        )
+    assert (
+        session.scalar(
+            select(ApiTokenMoneyExtend).where(ApiTokenMoneyExtend.app_token_id == "legacy")
+        ).month_limit_quota
+        == 3
+    )
+
+
+@pytest.mark.parametrize("failure", ["quota_insert", "commit"])
+def test_quota_create_failure_rolls_back_token_and_quota(sqlite_session, failure):
+    from models.api_token_money_extend import ApiTokenMoneyExtend
+
+    session = sqlite_session
+    _persist_app(session)
+    session.commit()
+
+    def fail(*_args):
+        raise RuntimeError("injected failure")
+
+    target = ApiTokenMoneyExtend if failure == "quota_insert" else session
+    event_name = "before_insert" if failure == "quota_insert" else "before_commit"
+    event.listen(target, event_name, fail)
+    try:
+        with pytest.raises(RuntimeError, match="injected failure"):
+            _make_list_resource()._create_api_key("app-1", "tenant-1", session=session)
+        session.rollback()
+    finally:
+        event.remove(target, event_name, fail)
+    assert session.scalar(select(ApiToken)) is None
+    assert session.scalar(select(ApiTokenMoneyExtend)) is None
+
+
+@pytest.mark.parametrize("case", ["member", "foreign", "wrong_app", "missing"])
+def test_quota_update_rejects_unauthorized_key(sqlite_session, case):
+    from controllers.console.apikey import ApiKeyQuotaUpdatePayload
+    from models.api_token_money_extend import ApiTokenMoneyExtend
+
+    _persist_app(sqlite_session)
+    sqlite_session.add(
+        ApiToken(
+            id="key",
+            token="secret",
+            type=ApiTokenType.APP,
+            app_id="other" if case == "wrong_app" else "app-1",
+            tenant_id="tenant-2" if case == "foreign" else "tenant-1",
+        )
+    )
+    sqlite_session.commit()
+    role = TenantAccountRole.NORMAL if case == "member" else TenantAccountRole.OWNER
+    with (
+        pytest.raises(Forbidden if case == "member" else NotFound),
+        patch("controllers.console.apikey.ApiTokenCache.delete") as invalidate,
+    ):
+        _make_list_resource()._update_api_key(
+            "app-1",
+            "tenant-1",
+            _make_account(role),
+            ApiKeyQuotaUpdatePayload(id="absent" if case == "missing" else "key", day_limit_quota=1),
+            session=sqlite_session,
+        )
+    invalidate.assert_not_called()
+    assert sqlite_session.scalar(select(ApiTokenMoneyExtend)) is None
+
+
+@pytest.mark.parametrize("limit", [-2, -0.1, float("inf"), float("nan")])
+def test_quota_payload_rejects_invalid_limits(limit):
+    from pydantic import ValidationError
+
+    from controllers.console.apikey import ApiKeyQuotaPayload
+
+    with pytest.raises(ValidationError):
+        ApiKeyQuotaPayload(day_limit_quota=limit)
+
+
+def test_dataset_binding_reveal_once_tenant_isolation_and_no_quota(sqlite_session):
+    from controllers.console.datasets.datasets import DatasetApiDeleteApi
+    from models.api_token_money_extend import ApiTokenMoneyExtend
+    from models.dataset import Dataset
+    from models.model import DatasetApiTokenBinding
+
+    dataset = Dataset(id="dataset-one", tenant_id="tenant-1", name="one", created_by="owner")
+    sqlite_session.add(dataset)
+    sqlite_session.commit()
+    resource = DatasetApiKeyApi()
+    with Flask(__name__).test_request_context(json={"dataset_ids": [dataset.id, dataset.id]}):
+        created, status = inspect.unwrap(resource.post)(resource, sqlite_session, "tenant-1")
+        sqlite_session.commit()
+    assert status == 200
+    assert created["token"].startswith("dataset-")
+    assert created["dataset_ids"] == [dataset.id]
+    listing = inspect.unwrap(resource.get)(resource, sqlite_session, "tenant-1")
+    assert listing["data"][0]["token"] != created["token"]
+    assert "..." in listing["data"][0]["token"]
+    assert listing["data"][0]["dataset_ids"] == [dataset.id]
+    assert inspect.unwrap(resource.get)(resource, sqlite_session, "tenant-other")["data"] == []
+    assert sqlite_session.scalar(select(ApiTokenMoneyExtend)) is None
+    with Flask(__name__).test_request_context(json={"dataset_ids": [dataset.id]}), pytest.raises(BadRequest):
+        inspect.unwrap(resource.post)(resource, sqlite_session, "tenant-other")
+    # SQLite needs FK enforcement enabled explicitly; upstream binding uses ON DELETE CASCADE.
+    sqlite_session.rollback()
+    sqlite_session.connection().exec_driver_sql("PRAGMA foreign_keys=ON")
+    deleter = DatasetApiDeleteApi()
+    with patch("controllers.console.datasets.datasets.ApiTokenCache.delete") as invalidate:
+        inspect.unwrap(deleter.delete)(deleter, sqlite_session, "tenant-1", UUID(created["id"]))
+        sqlite_session.commit()
+    invalidate.assert_called_once_with(created["token"], ApiTokenType.DATASET)
+    assert sqlite_session.scalar(select(DatasetApiTokenBinding)) is None
+
+
+def test_app_quota_put_preserves_rbac_before_mutation(config_overrides):
+    config_overrides(DEPLOYMENT_EDITION=DeploymentEdition.CLOUD, LOGIN_DISABLED=True, RBAC_ENABLED=True)
+    account = _make_account(TenantAccountRole.OWNER)
+    api_id = UUID("00000000-0000-0000-0000-000000000001")
+    with (
+        Flask(__name__).test_request_context(json={"id": "key"}),
+        patch("controllers.console.wraps.current_account_with_tenant", return_value=(account, "tenant-1")),
+        patch("controllers.common.wraps.current_account_with_tenant", return_value=(account, "tenant-1")),
+        patch("controllers.common.rbac.locators.agent_binding", return_value=None),
+        patch("controllers.common.rbac.locators.PlainApp.owner_id", return_value=None),
+        patch("controllers.common.rbac.checks.RBACService.CheckAccess.check", return_value=False) as check,
+        patch.object(BaseApiKeyListResource, "_update_api_key") as update,
+    ):
+        with pytest.raises(Forbidden):
+            AppApiKeyListResource().put(resource_id=api_id)
+    check.assert_called_once()
+    assert check.call_args.kwargs["scene"] == RBACPermission.APP_RELEASE_AND_VERSION
+    update.assert_not_called()
+
+
+@pytest.mark.parametrize("operation", ["edit", "delete"])
+def test_quota_mutation_commit_failure_keeps_original_rows(sqlite_session, operation):
+    from controllers.console.apikey import ApiKeyQuotaUpdatePayload
+    from models.api_token_money_extend import ApiTokenMoneyExtend
+
+    session = sqlite_session
+    resource = _make_list_resource()
+    _persist_app(session)
+    item = resource._create_api_key("app-1", "tenant-1", session=session)
+    key_id = item.id
+
+    def fail(_session):
+        raise RuntimeError("commit failure")
+
+    def mutate():
+        if operation == "edit":
+            resource._update_api_key(
+                "app-1",
+                "tenant-1",
+                _make_account(TenantAccountRole.OWNER),
+                ApiKeyQuotaUpdatePayload(id=key_id, day_limit_quota=5),
+                session=session,
+            )
+        else:
+            _make_key_resource()._delete_api_key(
+                "app-1",
+                key_id,
+                "tenant-1",
+                _make_account(TenantAccountRole.OWNER),
+                session=session,
+            )
+
+    event.listen(session, "before_commit", fail)
+    try:
+        with (
+            patch("controllers.console.apikey.ApiTokenCache.delete"),
+            pytest.raises(RuntimeError, match="commit failure"),
+        ):
+            mutate()
+        session.rollback()
+    finally:
+        event.remove(session, "before_commit", fail)
+    quota = session.scalar(select(ApiTokenMoneyExtend).where(ApiTokenMoneyExtend.app_token_id == key_id))
+    assert session.get(ApiToken, key_id) is not None
+    assert quota.day_limit_quota == -1
+    assert quota.is_deleted is False
