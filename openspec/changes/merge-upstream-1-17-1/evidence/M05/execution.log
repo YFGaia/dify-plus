@@ -64,3 +64,4 @@ M05 11.3 implementation and focused verification: 2026-09-29
 Branch: codex/merge-upstream-1.17.1; source baseline: 8ef95f6a929ac6f6e811386619d02b497d354c26. Exact new paths were registered in commits 396f8aff2add33879b44de1f01eed8a4bfd689fe and cc0eb704da before source commit.
 Generated schema validation now preserves workspace admin_extend/tenant_extend through the normalizer and permission atoms; initial state grants neither bit. Stale Console client imports in the code-execution-control page, page test mock, and mutation hook now use the current Console client.
 Checks: permission-chain 11/11; permission plus Console bootstrap 24/24; scoped vp check 9 files exit 0; diff-check and stale import scan exit 0. Page suite failed during collection with unresolved existing `cn` import (0 cases); no dependency/test workaround. No live browser/account-switch test.
+M05 11.3 source and evidence commit: c0ac97edd4.
