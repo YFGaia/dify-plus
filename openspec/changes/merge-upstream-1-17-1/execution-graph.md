@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 blocked，M03–M06/M08/V01/V02/R01 因 M02 未通过而 blocked，M07 ready；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 首次环境阻断已解除并恢复为 ready，M03–M06/M08/V01/V02/R01 仍因 M02 尚未通过而 blocked，M07 ready；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -251,7 +251,7 @@ git show --no-patch --format=%P HEAD
 
 ## M02 · 后端基础与共同契约适配
 
-- 状态：blocked；定向测试环境缺依赖；锁定依赖离线安装失败，见 evidence/M02/result.json。
+- 状态：ready；先前的临时依赖缺失阻断已由独立 Luna 在锁定环境中解决；M02 尚未实施，见 evidence/M02/environment-readiness.json。
 
 - 前置：M01；负责人：后端基础负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`backend_core`。

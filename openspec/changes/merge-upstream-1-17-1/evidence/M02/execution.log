@@ -49,3 +49,17 @@ Backend review: completed under four rule packs; baseline findings and test gaps
 Commit allowlist: seven M02 evidence/graph/task files; expected parent d4ecd2f9d0d4e25cfefc5bd3c924ef45aef789b3. Post-commit SHA/parent/path verification is external to this commit.
 
 First exact git add exited 1: *.log ignored. No commit occurred. Retrying with git add -f only for the two required M02 log artifacts; other paths remain exact allowlist.
+
+Recovery: temporary validation environment prepared by independent Luna task 01a0e910-38a4-7382-9884-957082e1857a. This resolves the dependency blocker; no M02 source change or test acceptance is inferred.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv sync --project api --locked --no-default-groups --group dev --python 3.12.9
+exit=0
+Resolved 530 packages; uv reported 336 installed distributions, including the pinned flask-restx Git revision. Environment: /private/tmp/dify-m02-python. Python 3.12.9; uv 0.11.19. The exact command's network permission request was approved.
+
+$ UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -c 'import importlib.metadata as m, sys, pytest, llvmlite, numba; print({"python":sys.version.split()[0],"pytest":m.version("pytest"),"llvmlite":m.version("llvmlite"),"numba":m.version("numba"),"distributions":len(list(m.distributions()))})'
+exit=0
+{'python': '3.12.9', 'pytest': '9.1.1', 'llvmlite': '0.47.0', 'numba': '0.65.0', 'distributions': 337}
+
+$ git status --short --branch; shasum -a 256 api/uv.lock
+exit=0
+Branch codex/merge-upstream-1.17.1; HEAD 075f2973440c0d2da4379ab5b85abd0041dfb7f3; only pre-existing untracked directories; lock SHA unchanged at 842bcab778b2605bfd6fb6b8546d7a8d7093008e0b59e0c72cc52f8351d22d07.

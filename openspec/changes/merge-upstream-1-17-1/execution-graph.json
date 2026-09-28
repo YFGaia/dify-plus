@@ -393,7 +393,7 @@
       "owner_role": "后端基础负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -427,7 +427,8 @@
       ],
       "evidence": [
         "evidence/M02/result.json",
-        "evidence/M02/execution.log"
+        "evidence/M02/execution.log",
+        "evidence/M02/environment-readiness.json"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -442,8 +443,7 @@
       "outputs": [
         "evidence/M02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ],
-      "blocked_reason": "定向测试环境缺依赖；锁定依赖离线安装失败，见 evidence/M02/result.json。"
+      ]
     },
     {
       "id": "M03",

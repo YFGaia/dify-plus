@@ -1,7 +1,7 @@
 {
   "node": "M02",
-  "status": "blocked",
-  "recorded_at_utc": "2026-09-28T17:25:34.298Z",
+  "status": "ready",
+  "recorded_at_utc": "2026-09-28T17:37:12Z",
   "branch": "codex/merge-upstream-1.17.1",
   "pre_commit_head": "d4ecd2f9d0d4e25cfefc5bd3c924ef45aef789b3",
   "target_ref": "refs/tags/1.17.1",
@@ -15,7 +15,16 @@
   "blocker": {
     "kind": "targeted_test_dependencies_unavailable",
     "detail": "No pytest in isolated environment; approved offline locked install cannot satisfy cached artifacts. Stopped before source edits per single-node stop-on-blocker instruction.",
-    "resume": "Provide a compatible local test environment or permit a separate dependency provisioning attempt, then resume M02 with full input recheck. No relaxed pins or fixture-only pass."
+    "resolved": true,
+    "resolution_evidence": "environment-readiness.json",
+    "resume": "The locked temporary environment is now available. Resume M02 in a fresh task with full input recheck. No relaxed pins or fixture-only pass."
+  },
+  "environment_recovery": {
+    "task_thread_id": "01a0e910-38a4-7382-9884-957082e1857a",
+    "evidence": "environment-readiness.json",
+    "status": "passed",
+    "implementation_started": false,
+    "tests_executed": false
   },
   "tools": {
     "uv_initial": "0.5.7",

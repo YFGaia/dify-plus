@@ -59,7 +59,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 ## 8. M02 后端基础与共同契约适配（前置：M01）
 
-> M02 本次阻断：临时 Python 环境缺 pytest；获准读取本地缓存后，locked/offline 安装仍缺 llvmlite 0.47.0（退出码 1）。8.1–8.5 均未完成；无业务源码改动。详见 `evidence/M02/result.json`。恢复测试依赖后须重新实施和验收。
+> M02 首次尝试因临时 Python 环境缺 pytest 且离线缓存缺 llvmlite 0.47.0 而阻断；独立 Luna 随后在 `/private/tmp/dify-m02-python` 通过获批的 `uv sync --locked` 准备好 Python 3.12.9 与开发依赖，锁文件 SHA 未变。当前 M02 已恢复为 ready，实施尚未开始；8.1–8.5 仍全部未完成。详见 `evidence/M02/result.json` 和 `environment-readiness.json`。
 
 - [ ] 8.1 [M02] 采用新 application service/admission/session 模型与 fork 导出；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 8.2 [M02] 实现 A04 的 public/login_config/license 与 workspace summary 共同契约；核验：在 `evidence/M02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
