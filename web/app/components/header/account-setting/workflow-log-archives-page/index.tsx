@@ -9,15 +9,18 @@ import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
 import { toast } from '@langgenius/dify-ui/toast'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@langgenius/dify-ui/tooltip'
-import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { skipToken, useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQueryState } from 'nuqs'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { SkeletonRectangle } from '@/app/components/base/skeleton'
-import { Plan } from '@/app/components/billing/type'
-import { API_PREFIX, IS_CLOUD_EDITION } from '@/config'
-import { useModalContext } from '@/context/modal-context'
-import { useProviderContext } from '@/context/provider-context'
-import { consoleQuery } from '@/service/client'
+import {
+  pricingQueryParamName,
+  pricingQueryParser,
+} from '@/app/components/billing/pricing/query-params'
+import { API_PREFIX } from '@/config'
+import { systemFeaturesQueryOptions } from '@/features/system-features/client'
+import { consoleQuery } from '@/service/console'
 
 const numberFormatter = new Intl.NumberFormat()
 const byteFormatter = new Intl.NumberFormat(undefined, {
@@ -64,20 +67,29 @@ const tableGridClassName = 'grid-cols-[0.66fr_0.78fr_0.78fr_1fr]'
 
 export default function WorkflowLogArchivesPage() {
   const { t } = useTranslation()
-  const { plan, enableBilling } = useProviderContext()
+  const { data: deploymentEdition } = useSuspenseQuery({
+    ...systemFeaturesQueryOptions(),
+    select: ({ deployment_edition }) => deployment_edition,
+  })
+  const { data: plan } = useQuery(
+    consoleQuery.features.get.queryOptions({
+      enabled: deploymentEdition === 'CLOUD',
+      select: (data) => data.billing.subscription.plan,
+    }),
+  )
   const [visibleArchiveMonthCount, setVisibleArchiveMonthCount] = useState(ARCHIVE_MONTH_PAGE_SIZE)
   const loadMoreRef = useRef<HTMLDivElement | null>(null)
-  const canViewArchiveContent = IS_CLOUD_EDITION && enableBilling && plan.type !== Plan.sandbox
   const archiveListQuery = useQuery(
     consoleQuery.workflowRunArchives.get.queryOptions({
-      enabled: canViewArchiveContent,
+      enabled: deploymentEdition === 'CLOUD' && (plan === 'professional' || plan === 'team'),
     }),
   )
   const archiveData = archiveListQuery.data
   const archiveMonths = archiveData?.months ?? []
   const visibleArchiveMonths = archiveMonths.slice(0, visibleArchiveMonthCount)
   const summary = archiveData?.summary
-  const isLoading = archiveListQuery.isLoading
+  const isLoading =
+    (deploymentEdition === 'CLOUD' && plan === undefined) || archiveListQuery.isLoading
   const hasMoreArchives = visibleArchiveMonths.length < archiveMonths.length
 
   useEffect(() => {
@@ -124,7 +136,7 @@ export default function WorkflowLogArchivesPage() {
     },
   ]
 
-  if (!canViewArchiveContent) {
+  if (deploymentEdition !== 'CLOUD' || plan === 'sandbox') {
     return (
       <div className="pb-6">
         <ArchivedLogsUpgradeBanner />
@@ -139,7 +151,7 @@ export default function WorkflowLogArchivesPage() {
           {summaryItems.map((item) => (
             <div
               key={item.label}
-              className="flex min-h-[92px] flex-col gap-2 rounded-xl bg-components-panel-bg p-4"
+              className="flex min-h-23 flex-col gap-2 rounded-xl bg-components-panel-bg p-4"
             >
               <span className={cn(item.icon, 'size-4 text-text-tertiary')} aria-hidden="true" />
               <div className="system-xs-medium text-text-tertiary">{item.label}</div>
@@ -159,7 +171,7 @@ export default function WorkflowLogArchivesPage() {
 
       <div className="overflow-hidden rounded-xl border-[0.5px] border-components-card-border bg-components-card-bg shadow-xs">
         <div className="overflow-x-auto">
-          <div className="min-w-[460px]">
+          <div className="min-w-115">
             <div
               className={cn(
                 'grid h-8 items-center gap-3 border-b border-divider-subtle bg-background-section-burn px-4 system-xs-medium-uppercase text-text-tertiary',
@@ -255,7 +267,7 @@ export default function WorkflowLogArchivesPage() {
 
 function ArchivedLogsUpgradeBanner() {
   const { t } = useTranslation()
-  const { setShowPricingModal } = useModalContext()
+  const [, setPricing] = useQueryState(pricingQueryParamName, pricingQueryParser)
 
   return (
     <div className="flex flex-col gap-4 rounded-xl bg-linear-to-r from-components-input-border-active-prompt-1 to-components-input-border-active-prompt-2 p-4 pl-6 shadow-lg backdrop-blur-xs sm:flex-row sm:items-center sm:justify-between">
@@ -269,8 +281,8 @@ function ArchivedLogsUpgradeBanner() {
       </div>
       <button
         type="button"
-        className="flex h-10 w-[120px] shrink-0 cursor-pointer items-center justify-center rounded-3xl border-none bg-white p-0 system-md-semibold text-text-accent shadow-xs hover:opacity-95"
-        onClick={() => setShowPricingModal()}
+        className="flex h-10 w-30 shrink-0 cursor-pointer items-center justify-center rounded-3xl border-none bg-white p-0 system-md-semibold text-text-accent shadow-xs hover:opacity-95"
+        onClick={() => setPricing('open')}
       >
         {t(($) => $['upgradeBtn.encourageShort'], { ns: 'billing' })}
       </button>
@@ -280,6 +292,8 @@ function ArchivedLogsUpgradeBanner() {
 
 function WorkflowArchiveMonthRow({ archive }: { archive: WorkflowRunArchiveMonthResponse }) {
   const { t } = useTranslation()
+  const archiveMonthLabelId = useId()
+  const downloadActionLabelId = useId()
   const [downloadTask, setDownloadTask] = useState<WorkflowRunArchiveDownloadTaskResponse | null>(
     null,
   )
@@ -362,9 +376,6 @@ function WorkflowArchiveMonthRow({ archive }: { archive: WorkflowRunArchiveMonth
     return t(($) => $['archives.action.prepareDownload'], { ns: 'appLog' })
   })()
 
-  const buttonAriaLabel = isReady
-    ? t(($) => $['archives.action.downloadMonth'], { ns: 'appLog', month: archiveMonth })
-    : t(($) => $['archives.action.prepareMonth'], { ns: 'appLog', month: archiveMonth })
   const buttonIconClassName = isReady ? 'i-ri-download-2-line' : 'i-ri-inbox-archive-line'
   const onAction = isReady ? downloadArchive : prepareDownload
 
@@ -376,7 +387,9 @@ function WorkflowArchiveMonthRow({ archive }: { archive: WorkflowRunArchiveMonth
       )}
     >
       <div className="min-w-0 text-center">
-        <span className="truncate system-sm-semibold text-text-primary">{archiveMonth}</span>
+        <span id={archiveMonthLabelId} className="truncate system-sm-semibold text-text-primary">
+          {archiveMonth}
+        </span>
       </div>
       <div className="text-center system-sm-medium text-text-secondary tabular-nums">
         {formatNumber(archive.workflow_run_count)}
@@ -392,23 +405,22 @@ function WorkflowArchiveMonthRow({ archive }: { archive: WorkflowRunArchiveMonth
                 size="small"
                 variant="secondary"
                 loading={isPreparing}
-                disabled={isPreparing}
-                className="gap-1 px-2"
-                aria-label={buttonAriaLabel}
+                className="px-2"
+                aria-labelledby={`${downloadActionLabelId} ${archiveMonthLabelId}`}
                 onClick={onAction}
               >
                 {!isPreparing && (
                   <span className={cn(buttonIconClassName, 'size-3.5')} aria-hidden="true" />
                 )}
-                {buttonContent}
+                <span id={downloadActionLabelId}>{buttonContent}</span>
               </Button>
             }
           />
           <TooltipContent
             placement="top"
             className={cn(
-              'max-w-[260px] text-center text-text-tertiary',
-              isFailed && 'max-w-[300px] text-start [overflow-wrap:anywhere] whitespace-pre-wrap',
+              'max-w-65 text-center text-text-tertiary',
+              isFailed && 'max-w-75 text-start wrap-anywhere whitespace-pre-wrap',
             )}
           >
             {downloadHint}

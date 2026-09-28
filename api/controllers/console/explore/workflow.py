@@ -15,8 +15,7 @@ from controllers.console.app.error import (
 from controllers.console.app.wraps import with_session
 from controllers.console.explore.error import NotWorkflowAppError
 from controllers.console.explore.wraps import InstalledAppResource
-from controllers.console.money_extend import money_limit  # extend: 额度限制
-from controllers.console.wraps import with_current_user
+from controllers.console.wraps import model_validate, with_current_user
 from controllers.web.error import InvokeRateLimitError as InvokeRateLimitHttpError
 from core.app.apps.base_app_queue_manager import AppQueueManager
 from core.app.entities.app_invoke_entities import InvokeFrom
@@ -32,9 +31,6 @@ from libs import helper
 from models import Account
 from models.model import AppMode, InstalledApp
 from services.app_generate_service import AppGenerateService
-from services.app_generate_service_extend import (
-    AppGenerateServiceExtend,  # Extend: App Center - Recommended list sorted by usage frequency
-)
 from services.errors.llm import InvokeRateLimitError
 
 from .. import console_ns
@@ -47,12 +43,18 @@ register_response_schema_models(console_ns, SimpleResultResponse)
 
 @console_ns.route("/installed-apps/<uuid:installed_app_id>/workflows/run")
 class InstalledAppWorkflowRunApi(InstalledAppResource):
-    @money_limit
     @console_ns.expect(console_ns.models[WorkflowRunPayload.__name__])
     @console_ns.response(200, "Success")
     @with_current_user
     @with_session
-    def post(self, session: Session, current_user: Account, installed_app: InstalledApp):
+    @model_validate(WorkflowRunPayload)
+    def post(
+        self,
+        req_data: WorkflowRunPayload,
+        session: Session,
+        current_user: Account,
+        installed_app: InstalledApp,
+    ):
         """
         Run workflow
         """
@@ -63,14 +65,8 @@ class InstalledAppWorkflowRunApi(InstalledAppResource):
         if app_mode != AppMode.WORKFLOW:
             raise NotWorkflowAppError()
 
-        payload = WorkflowRunPayload.model_validate(console_ns.payload or {})
-        args = payload.model_dump(exclude_none=True)
+        args = req_data.model_dump(exclude_none=True)
         try:
-            AppGenerateServiceExtend.calculate_cumulative_usage(
-                app_model=app_model,
-                args=args,
-            )  # Extend: App
-            # Center - Recommended list sorted by usage frequency
             response = AppGenerateService.generate(
                 session=session,
                 app_model=app_model,

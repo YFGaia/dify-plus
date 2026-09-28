@@ -19,6 +19,9 @@ type Props = Readonly<{
   isPlaceholderData: ReturnType<typeof useDatasetList>['isPlaceholderData']
   emptyElement?: ReactNode
   onOpenTagManagement?: () => void
+  stepByStepTourActionMenuHighlightPart?: string
+  stepByStepTourActionMenuOpen?: boolean
+  stepByStepTourCardTarget?: string
 }>
 
 const Datasets = ({
@@ -31,6 +34,9 @@ const Datasets = ({
   isPlaceholderData,
   emptyElement,
   onOpenTagManagement = () => {},
+  stepByStepTourActionMenuHighlightPart,
+  stepByStepTourActionMenuOpen,
+  stepByStepTourCardTarget,
 }: Props) => {
   const { t } = useTranslation()
   const invalidDatasetList = useInvalidDatasetList()
@@ -40,10 +46,6 @@ const Datasets = ({
   const datasets = pages.flatMap(({ data }) => data)
   const showDatasetSkeleton =
     !isFetchingNextPage && (isLoading || (isPlaceholderData && isFetching && datasets.length === 0))
-
-  useEffect(() => {
-    document.title = `${t(($) => $.knowledge, { ns: 'dataset' })} - Dify`
-  }, [t])
 
   useEffect(() => {
     if (anchorRef.current) {
@@ -67,23 +69,30 @@ const Datasets = ({
 
   return (
     <>
-      <nav className="relative grid grow grid-cols-[repeat(auto-fill,minmax(296px,1fr))] content-start gap-3 px-8 pt-2">
+      <div className="relative grid grow grid-cols-[repeat(auto-fill,minmax(296px,1fr))] content-start gap-3 px-8 pt-2">
         {showDatasetSkeleton ? (
           <DatasetCardSkeleton label={t(($) => $.loading, { ns: 'common' })} />
         ) : (
-          datasets.map((dataset) => (
+          datasets.map((dataset, index) => (
             <DatasetCard
               key={dataset.id}
               dataset={dataset}
               onSuccess={invalidDatasetList}
               onOpenTagManagement={onOpenTagManagement}
+              stepByStepTourActionMenuHighlightPart={
+                index === 0 && stepByStepTourActionMenuOpen
+                  ? stepByStepTourActionMenuHighlightPart
+                  : undefined
+              }
+              stepByStepTourActionMenuOpen={index === 0 ? stepByStepTourActionMenuOpen : undefined}
+              stepByStepTourCardTarget={index === 0 ? stepByStepTourCardTarget : undefined}
             />
           ))
         )}
         {!showDatasetSkeleton && !hasAnyDataset && emptyElement}
         {isFetchingNextPage && <Loading />}
         <div ref={anchorRef} className="h-0" />
-      </nav>
+      </div>
     </>
   )
 }

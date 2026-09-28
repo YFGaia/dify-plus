@@ -26,7 +26,7 @@ from core.app.entities.task_entities import StreamEvent
 from core.workflow.human_input_policy import HumanInputSurface
 from extensions.ext_database import db
 from models.enums import CreatorUserRole
-from models.model import ApiToken, App, AppMode, EndUser
+from models.model import App, AppMode, EndUser
 from repositories.factory import DifyAPIRepositoryFactory
 from services.workflow_event_snapshot_service import build_workflow_event_stream
 
@@ -57,7 +57,7 @@ register_schema_models(service_api_ns, WorkflowEventsQuery)
 register_response_schema_model(service_api_ns, EventStreamResponse)
 
 
-@service_api_ns.route("/workflow/<string:task_id>/events")
+@service_api_ns.route("/workflow/<string:workflow_run_id>/events")
 class WorkflowEventsApi(Resource):
     """Service API for getting workflow execution events after resume."""
 
@@ -81,7 +81,7 @@ class WorkflowEventsApi(Resource):
     @event_stream_response(service_api_ns)
     @service_api_ns.doc("get_workflow_events")
     @service_api_ns.doc(description="Get workflow execution events stream after resume")
-    @service_api_ns.doc(params={"task_id": "Workflow run ID returned by the original workflow run request."})
+    @service_api_ns.doc(params={"workflow_run_id": "Workflow run ID returned by the original workflow run request."})
     @service_api_ns.doc(params=query_params_from_model(WorkflowEventsQuery))
     @service_api_ns.doc(
         responses={
@@ -92,8 +92,7 @@ class WorkflowEventsApi(Resource):
     )
     @service_api_ns.response(200, "SSE event stream", service_api_ns.models[EventStreamResponse.__name__])
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY, required=True))
-    # extend - 密钥额度限制，新增api_token（validate_app_token 始终注入）
-    def get(self, app_model: App, end_user: EndUser, task_id: str, api_token: ApiToken | None = None):
+    def get(self, app_model: App, end_user: EndUser, workflow_run_id: str):
         app_mode = AppMode.value_of(app_model.mode)
         if app_mode not in {AppMode.WORKFLOW, AppMode.ADVANCED_CHAT}:
             raise NotWorkflowAppError()
@@ -102,7 +101,7 @@ class WorkflowEventsApi(Resource):
         repo = DifyAPIRepositoryFactory.create_api_workflow_run_repository(session_maker)
         workflow_run = repo.get_workflow_run_by_id_and_tenant_id(
             tenant_id=app_model.tenant_id,
-            run_id=task_id,
+            run_id=workflow_run_id,
         )
 
         if workflow_run is None:

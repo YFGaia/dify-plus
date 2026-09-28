@@ -1,9 +1,9 @@
 import type * as React from 'react'
 import type { TriggerSubscriptionBuilder } from '@/app/components/workflow/block-selector/types'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { SupportedCreationMethods } from '@/app/components/plugins/types'
-import { TriggerCredentialTypeEnum } from '@/app/components/workflow/block-selector/types'
+import { TriggerCredentialType } from '@/app/components/workflow/block-selector/types'
 import { CommonCreateModal } from '../common-modal'
 
 type PluginDetail = {
@@ -63,7 +63,7 @@ function createMockSubscriptionBuilder(
     id: 'builder-123',
     name: 'Test Builder',
     provider: 'test-provider',
-    credential_type: TriggerCredentialTypeEnum.ApiKey,
+    credential_type: TriggerCredentialType.ApiKey,
     credentials: {},
     endpoint: 'https://example.com/callback',
     parameters: {},

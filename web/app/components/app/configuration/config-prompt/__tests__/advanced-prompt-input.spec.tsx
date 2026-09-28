@@ -1,4 +1,3 @@
-/* oxlint-disable typescript/no-explicit-any */
 import type { ReactNode } from 'react'
 import type { PromptRole } from '@/models/debug'
 import { fireEvent, render, screen } from '@testing-library/react'
@@ -50,7 +49,7 @@ vi.mock('@/context/modal-context', () => ({
   }),
 }))
 
-vi.mock('@langgenius/dify-ui/toast', () => ({
+vi.mock('@/app/components/app/configuration/toast', () => ({
   toast: {
     error: (...args: unknown[]) => mockToastError(...args),
   },

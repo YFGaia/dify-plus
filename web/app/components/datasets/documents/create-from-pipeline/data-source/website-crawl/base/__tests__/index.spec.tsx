@@ -1,5 +1,5 @@
 import type { CrawlResultItem as CrawlResultItemType } from '@/models/datasets'
-import { RadioGroup } from '@langgenius/dify-ui/radio'
+import { RadioGroup } from '@langgenius/dify-ui/radio-group'
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as React from 'react'
@@ -515,7 +515,7 @@ describe('Crawling', () => {
       const { container } = render(<Crawling {...defaultProps} />)
 
       // Assert - Should have 3 skeleton items
-      const skeletonItems = container.querySelectorAll('.px-2.py-\\[5px\\]')
+      const skeletonItems = container.querySelectorAll('.px-2.py-1\\.25')
       expect(skeletonItems.length).toBe(3)
     })
 

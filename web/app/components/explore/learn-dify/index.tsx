@@ -7,6 +7,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { MAIN_NAV_APP_CARD_GRID_CLASS_NAME } from '@/app/components/main-nav/app-card-grid'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { useLearnDifyAppList } from '@/service/use-explore'
 import LearnDifyItem from './item'
@@ -16,11 +17,13 @@ type LearnDifyProps = {
   canCreate?: boolean
   className?: string
   dismissible?: boolean
+  forceVisible?: boolean
   itemLimit?: number
   loadingFallback?: React.ReactNode
   onCreate?: (app: App) => void
   onTry?: (params: TryAppSelection) => void
   showDescription?: boolean
+  stepByStepTourTarget?: string
   title?: string
 }
 
@@ -37,6 +40,7 @@ const LearnDifyContent = ({
   onCreate,
   onTry,
   showDescription = true,
+  stepByStepTourTarget,
   title,
 }: LearnDifyContentProps) => {
   const { t } = useTranslation()
@@ -95,6 +99,7 @@ const LearnDifyContent = ({
         isClosing ? { transform: collapseTransform, transformOrigin: 'center center' } : undefined
       }
       aria-labelledby="learn-dify-title"
+      data-step-by-step-tour-target={stepByStepTourTarget}
     >
       <div className="-mx-4 rounded-2xl bg-background-section p-4">
         <div className="flex items-start justify-between gap-4 pb-2.5">
@@ -115,7 +120,7 @@ const LearnDifyContent = ({
           {onHide && (
             <button
               type="button"
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg text-text-tertiary hover:bg-state-base-hover hover:text-text-secondary focus-visible:bg-state-base-hover focus-visible:ring-1 focus-visible:ring-components-input-border-hover focus-visible:outline-hidden"
+              className="flex size-8 shrink-0 touch-manipulation items-center justify-center rounded-lg text-text-tertiary outline-hidden transition-colors hover:bg-state-base-hover hover:text-text-secondary focus-visible:bg-state-base-hover focus-visible:ring-2 focus-visible:ring-state-accent-solid motion-reduce:transition-none"
               aria-label={t(($) => $['learnDify.hide'], { ns: 'explore' })}
               onClick={handleHide}
             >
@@ -123,7 +128,7 @@ const LearnDifyContent = ({
             </button>
           )}
         </div>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(296px,1fr))] gap-2.5">
+        <div className={cn('gap-2.5', MAIN_NAV_APP_CARD_GRID_CLASS_NAME)}>
           {visibleItems.map((item) => (
             <LearnDifyItem
               key={item.app_id}
@@ -153,7 +158,7 @@ const LearnDify = (props: LearnDifyProps) => {
 
   if (!systemFeatures.enable_learn_app) return null
 
-  if (props.dismissible === false) return <LearnDifyContent {...props} />
+  if (props.dismissible === false || props.forceVisible) return <LearnDifyContent {...props} />
 
   return <DismissibleLearnDify {...props} />
 }

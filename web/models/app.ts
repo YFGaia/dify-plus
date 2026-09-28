@@ -12,34 +12,27 @@ import type {
   WeaveConfig,
 } from '@/app/(commonLayout)/app/(appDetailLayout)/[appId]/overview/tracing/type'
 import type { Dependency } from '@/app/components/plugins/types'
-import type { App, AppModeEnum, SiteConfig } from '@/types/app'
+import type { App, AppModeEnum } from '@/types/app'
 
-export enum DSLImportMode {
-  YAML_CONTENT = 'yaml-content',
-  YAML_URL = 'yaml-url',
-}
+export const DSLImportMode = {
+  YAML_CONTENT: 'yaml-content',
+  YAML_URL: 'yaml-url',
+} as const
+export type DSLImportMode = (typeof DSLImportMode)[keyof typeof DSLImportMode]
 
-export enum DSLImportStatus {
-  COMPLETED = 'completed',
-  COMPLETED_WITH_WARNINGS = 'completed-with-warnings',
-  PENDING = 'pending',
-  FAILED = 'failed',
-}
+export const DSLImportStatus = {
+  COMPLETED: 'completed',
+  COMPLETED_WITH_WARNINGS: 'completed-with-warnings',
+  PENDING: 'pending',
+  FAILED: 'failed',
+} as const
+export type DSLImportStatus = (typeof DSLImportStatus)[keyof typeof DSLImportStatus]
 
 export type DSLImportWarning = {
   code: string
   path: string
   message: string
   details: Record<string, unknown>
-}
-
-export type AppListResponse = {
-  data: App[]
-  has_more: boolean
-  limit: number
-  page: number
-  total: number
-  recommended_apps?: string[] // 二开部分：应用同步模板中心的已推荐 app id 列表
 }
 
 export type AppDetailResponse = App
@@ -57,77 +50,7 @@ export type DSLImportResponse = {
   warnings?: DSLImportWarning[]
 }
 
-export type UpdateAppSiteCodeResponse = { app_id: string } & SiteConfig
-
-export type AppDailyMessagesResponse = {
-  data: Array<{ date: string; message_count: number }>
-}
-
-export type AppDailyConversationsResponse = {
-  data: Array<{ date: string; conversation_count: number }>
-}
-
-export type WorkflowDailyConversationsResponse = {
-  data: Array<{ date: string; runs: number }>
-}
-
-export type AppStatisticsResponse = {
-  data: Array<{ date: string }>
-}
-
-export type AppDailyEndUsersResponse = {
-  data: Array<{ date: string; terminal_count: number }>
-}
-
-export type AppTokenCostsResponse = {
-  data: Array<{ date: string; token_count: number; total_price: number; currency: number }>
-}
-
 export type UpdateAppModelConfigResponse = { result: string }
-
-export type ApiKeyItemResponse = {
-  id: string
-  token: string
-  last_used_at: string
-  created_at: string
-  // 二开部分Begin - 密钥额度
-  description: string
-  accumulated_quota: number
-  day_limit_quota: number
-  month_limit_quota: number
-  month_used_quota: number
-  day_used_quota: number
-  // 二开部分End - 密钥额度
-}
-
-// 二开部分Begin - 密钥额度
-export type ApikeyItemResponseWithQuotaLimitExtend = {
-  id: string
-  token: string
-  last_used_at: string
-  created_at: string
-  day_limit_quota: number
-  month_limit_quota: number
-  description: string
-}
-// 二开部分End - 密钥额度
-
-export type ApiKeysListResponse = {
-  data: ApiKeyItemResponse[]
-}
-
-export type CreateApiKeyResponse = {
-  id: string
-  token: string
-  created_at: string
-}
-
-export type AppVoicesListResponse = [
-  {
-    name: string
-    value: string
-  },
-]
 
 export type WorkflowOnlineUser = {
   user_id?: string
@@ -171,19 +94,5 @@ export type WebhookTriggerResponse = {
   webhook_url: string
   webhook_debug_url: string
   node_id: string
-  created_at: string
-}
-
-export type Banner = {
-  id: string
-  content: {
-    category: string
-    title: string
-    description: string
-    'img-src': string
-  }
-  link: string
-  sort: number
-  status: string
   created_at: string
 }

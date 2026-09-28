@@ -12,33 +12,25 @@ from flask_restx import Resource
 from flask_restx.utils import merge
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.orm import sessionmaker
-from werkzeug.exceptions import Forbidden, NotFound, Unauthorized
+from sqlalchemy.orm import Session, sessionmaker
+from werkzeug.exceptions import Forbidden, NotFound, ServiceUnavailable, Unauthorized
 
 from configs import dify_config
-
-# extend: 密钥/账户额度限制错误类型
-from controllers.service_api.app.error_extend import (
-    AccountNoMoneyErrorExtend,
-    ApiTokenDayNoMoneyErrorExtend,
-    ApiTokenMonthNoMoneyErrorExtend,
-)
 from controllers.service_api.schema import (
     USER_FETCH_FROM_ATTR,
     USER_FORM_PARAM,
     USER_QUERY_PARAM,
     USER_REQUIRED_ATTR,
 )
-from enums.cloud_plan import CloudPlan
+from enums import CloudPlan, DeploymentEdition
+from extensions.ext_application_services import application_services
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
 from libs.login import current_user
 from models import Account, Tenant, TenantAccountJoin, TenantStatus
-from models.account_money_extend import AccountMoneyExtend
-from models.api_token_money_extend import ApiTokenMoneyExtend
 from models.dataset import Dataset, RateLimitLog
 from models.model import ApiToken, App
-from models.model_extend import EndUserAccountJoinsExtend
+from services import dataset_api_key_service
 from services.api_token_service import ApiTokenCache, fetch_token_with_single_flight, record_token_usage
 from services.end_user_service import EndUserService
 from services.feature_service import FeatureService
@@ -74,6 +66,12 @@ APP_TOKEN_FORBIDDEN_RESPONSE = {
 DATASET_TOKEN_AUTH_RESPONSES = {
     401: "Unauthorized - invalid API token",
     403: "Forbidden - dataset API access or workspace access denied",
+}
+VECTOR_SPACE_UNAVAILABLE_RESPONSE = {
+    503: (
+        "`service_unavailable` : Vector space usage could not be verified. Returned on the Dify Cloud Sandbox "
+        "plan only; retry the request later."
+    ),
 }
 
 
@@ -130,10 +128,6 @@ def validate_app_token[**P, R](
             if tenant.status == TenantStatus.ARCHIVE:
                 raise Forbidden("The workspace's status is archived.")
 
-            # extend: API Token 调用前置额度校验（账号总额度 + API Key 日/月额度），返回租户 owner 关联
-            tenant_owner_join_extend = validate_token_quota_extend(api_token)
-
-            kwargs["api_token"] = api_token
             kwargs["app_model"] = app_model
 
             # If caller needs end-user context, attach EndUser to current_user
@@ -159,14 +153,6 @@ def validate_app_token[**P, R](
                 # Set EndUser as current logged-in user for flask_login.current_user
                 current_app.login_manager._update_request_context_with_user(end_user)  # type: ignore
                 user_logged_in.send(current_app._get_current_object(), user=end_user)  # type: ignore
-
-                # extend: 建立 end_user 与 tenant owner account 映射，供后续计费链路使用
-                if tenant_owner_join_extend is not None:
-                    create_or_update_end_user_account_join_extend(
-                        end_user.id,
-                        tenant_owner_join_extend.account_id,
-                        app_model.id,
-                    )
             else:
                 # For service API without end-user context, ensure an Account is logged in
                 # so services relying on current_account_with_tenant() work correctly.
@@ -205,35 +191,43 @@ def cloud_edition_billing_resource_check[**P, R](
     api_token_type: str,
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
     def interceptor(view: Callable[P, R]):
+        @wraps(view)
         def decorated(*args: P.args, **kwargs: P.kwargs):
             api_token = validate_and_get_api_token(api_token_type)
-            if resource == "vector_space":
-                if not dify_config.BILLING_ENABLED:
-                    return view(*args, **kwargs)
+            if dify_config.DEPLOYMENT_EDITION != DeploymentEdition.CLOUD:
+                return view(*args, **kwargs)
 
-                vector_space = FeatureService.get_vector_space(api_token.tenant_id)
+            if resource == "vector_space":
+                vector_space = application_services().feature_queries.get_workspace_vector_space(api_token.tenant_id)
+                if vector_space.usage_unknown:
+                    features = FeatureService.get_features(api_token.tenant_id, exclude_vector_space=True)
+                    if features.billing.subscription.plan == CloudPlan.SANDBOX:
+                        raise ServiceUnavailable(
+                            "Unable to verify vector space usage right now. Please try again later."
+                        )
                 if 0 < vector_space.limit <= vector_space.size:
                     raise Forbidden("The capacity of the vector space has reached the limit of your subscription.")
                 return view(*args, **kwargs)
 
             features = FeatureService.get_features(api_token.tenant_id, exclude_vector_space=True)
 
-            if features.billing.enabled:
-                members = features.members
-                apps = features.apps
-                documents_upload_quota = features.documents_upload_quota
+            members = features.members
+            apps = features.apps
+            documents_upload_quota = features.documents_upload_quota
 
-                if resource == "members" and 0 < members.limit <= members.size:
-                    raise Forbidden("The number of members has reached the limit of your subscription.")
-                elif resource == "apps" and 0 < apps.limit <= apps.size:
-                    raise Forbidden("The number of apps has reached the limit of your subscription.")
-                elif resource == "documents" and 0 < documents_upload_quota.limit <= documents_upload_quota.size:
-                    raise Forbidden("The number of documents has reached the limit of your subscription.")
-                else:
-                    return view(*args, **kwargs)
-
+            if resource == "members" and 0 < members.limit <= members.size:
+                raise Forbidden("The number of members has reached the limit of your subscription.")
+            elif resource == "apps" and 0 < apps.limit <= apps.size:
+                raise Forbidden("The number of apps has reached the limit of your subscription.")
+            elif resource == "documents" and 0 < documents_upload_quota.limit <= documents_upload_quota.size:
+                raise Forbidden("The number of documents has reached the limit of your subscription.")
             return view(*args, **kwargs)
 
+        if resource == "vector_space":
+            cast(_RestxDocumentedView, decorated).__apidoc__ = cast(
+                dict[str, object],
+                merge(decorated.__dict__.get("__apidoc__", {}), {"responses": VECTOR_SPACE_UNAVAILABLE_RESPONSE}),
+            )
         return decorated
 
     return interceptor
@@ -247,15 +241,14 @@ def cloud_edition_billing_knowledge_limit_check[**P, R](
         @wraps(view)
         def decorated(*args: P.args, **kwargs: P.kwargs):
             api_token = validate_and_get_api_token(api_token_type)
+            if dify_config.DEPLOYMENT_EDITION != DeploymentEdition.CLOUD or resource != "add_segment":
+                return view(*args, **kwargs)
+
             features = FeatureService.get_features(api_token.tenant_id, exclude_vector_space=True)
-            if features.billing.enabled:
-                if resource == "add_segment":
-                    if features.billing.subscription.plan == CloudPlan.SANDBOX:
-                        raise Forbidden(
-                            "To unlock this feature and elevate your Dify experience, please upgrade to a paid plan."
-                        )
-                else:
-                    return view(*args, **kwargs)
+            if features.billing.subscription.plan == CloudPlan.SANDBOX:
+                raise Forbidden(
+                    "To unlock this feature and elevate your Dify experience, please upgrade to a paid plan."
+                )
 
             return view(*args, **kwargs)
 
@@ -328,6 +321,18 @@ def validate_dataset_token[R](view: Callable[..., R]) -> Callable[..., R]:
             except Exception:
                 logger.exception("Failed to parse dataset_id from positional args")
 
+        # Per-knowledge-base scoping is expressed by DatasetApiTokenBinding rows:
+        #   no rows  -> the key can reach every dataset in its tenant (default / back-compat)
+        #   N rows   -> the key is limited to exactly those datasets
+        # A bound key may only call endpoints carrying one of its dataset ids; endpoints
+        # without a dataset id (e.g. list/create datasets) are rejected. The set is queried
+        # per request (not cached) so scope changes take effect immediately.
+        # db.session is Flask-SQLAlchemy's scoped_session proxy; cast so the plain-Session
+        # typed helper accepts it (runtime proxies every Session method through unchanged).
+        bound_dataset_ids = dataset_api_key_service.get_bound_dataset_ids(cast(Session, db.session), api_token.id)
+        if bound_dataset_ids and (not dataset_id or str(dataset_id) not in bound_dataset_ids):
+            raise Forbidden("The API key is not authorized to access this knowledge base.")
+
         if dataset_id:
             dataset_id = str(dataset_id)
             dataset = db.session.scalar(
@@ -344,11 +349,12 @@ def validate_dataset_token[R](view: Callable[..., R]) -> Callable[..., R]:
                 raise Forbidden("Dataset api access is not enabled.")
 
         tenant_account_join = db.session.execute(
-            select(Tenant, TenantAccountJoin)
-            .where(Tenant.id == api_token.tenant_id)
-            .where(TenantAccountJoin.tenant_id == Tenant.id)
-            .where(TenantAccountJoin.role.in_(["owner"]))
-            .where(Tenant.status == TenantStatus.NORMAL)
+            select(Tenant, TenantAccountJoin).where(
+                Tenant.id == api_token.tenant_id,
+                TenantAccountJoin.tenant_id == Tenant.id,
+                TenantAccountJoin.role.in_(["owner"]),
+                Tenant.status == TenantStatus.NORMAL,
+            )
         ).one_or_none()  # TODO: only owner information is required, so only one is returned.
         if tenant_account_join:
             tenant, ta = tenant_account_join
@@ -406,66 +412,6 @@ def validate_and_get_api_token(scope: str | None = None):
     # Cache miss - use Redis lock for single-flight mode
     # This ensures only one request queries DB for the same token concurrently
     return fetch_token_with_single_flight(auth_token, scope)
-
-
-# extend: API Token 调用前置额度校验（账号总额度 + API Key 日/月额度）
-def validate_token_quota_extend(api_token) -> TenantAccountJoin:
-    """校验密钥所属租户 owner 的账号总额度与该密钥的日/月额度，超额抛出对应异常。
-
-    Returns:
-        TenantAccountJoin: 租户 owner 的关联记录（供 end_user↔account 归因映射使用）。
-
-    Raises:
-        Unauthorized: 租户不存在或非 NORMAL 状态。
-        AccountNoMoneyErrorExtend: 账号总额度耗尽。
-        ApiTokenDayNoMoneyErrorExtend / ApiTokenMonthNoMoneyErrorExtend: 密钥日/月额度耗尽。
-    """
-    ta = (
-        db.session.query(TenantAccountJoin)
-        .join(Tenant, TenantAccountJoin.tenant_id == Tenant.id)
-        .filter(Tenant.id == api_token.tenant_id)
-        .filter(TenantAccountJoin.role.in_(["owner"]))
-        .filter(Tenant.status == TenantStatus.NORMAL)
-        .one_or_none()
-    )
-    if ta is None:
-        raise Unauthorized("Tenant does not exist.")
-
-    account_money = db.session.query(AccountMoneyExtend).filter(AccountMoneyExtend.account_id == ta.account_id).first()
-    if account_money and account_money.used_quota >= account_money.total_quota:
-        raise AccountNoMoneyErrorExtend()
-
-    api_token_money = (
-        db.session.query(ApiTokenMoneyExtend).filter(ApiTokenMoneyExtend.app_token_id == api_token.id).first()
-    )
-    if api_token_money:
-        if api_token_money.day_limit_quota != -1 and api_token_money.day_used_quota >= api_token_money.day_limit_quota:
-            raise ApiTokenDayNoMoneyErrorExtend()
-        if (
-            api_token_money.month_limit_quota != -1
-            and api_token_money.month_used_quota >= api_token_money.month_limit_quota
-        ):
-            raise ApiTokenMonthNoMoneyErrorExtend()
-    else:
-        logger.warning("数据异常，该密钥没有额度数据: %s", api_token.id)
-
-    return ta
-
-
-def create_or_update_end_user_account_join_extend(end_user_id, account_id, app_id: str) -> EndUserAccountJoinsExtend:
-    """extend: 插入 end_user 和 owner account 的关联关系，供计费链路查询使用。"""
-    end_user_account_join = (
-        db.session.query(EndUserAccountJoinsExtend)
-        .filter(EndUserAccountJoinsExtend.end_user_id == end_user_id, EndUserAccountJoinsExtend.app_id == app_id)
-        .first()
-    )
-
-    if end_user_account_join is None:
-        end_user_account_join = EndUserAccountJoinsExtend(end_user_id=end_user_id, account_id=account_id, app_id=app_id)
-        db.session.add(end_user_account_join)
-    db.session.commit()
-
-    return end_user_account_join
 
 
 class DatasetApiResource(Resource):

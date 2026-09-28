@@ -18,10 +18,6 @@ vi.mock('@tanstack/react-query', async (importOriginal) => {
   }
 })
 
-vi.mock('@/features/system-features/client', () => ({
-  systemFeaturesQueryOptions: vi.fn(() => ({})),
-}))
-
 vi.mock('@/next/navigation', () => ({
   useRouter: () => ({ push: vi.fn() }),
 }))
@@ -73,13 +69,18 @@ describe('WorkflowGeneratorModal', () => {
   })
 
   describe('Accessibility', () => {
-    it('should expose the dialog title and instruction label', async () => {
+    it('should expose the dialog title and focus the labeled instruction', async () => {
       render(<WorkflowGeneratorModal />)
 
       expect(screen.getByRole('dialog', { name: /workflowGenerator\.title/i })).toBeInTheDocument()
       expect(
         screen.getByRole('textbox', { name: /workflowGenerator\.instruction/i }),
       ).toBeInTheDocument()
+      await waitFor(() =>
+        expect(
+          screen.getByRole('textbox', { name: /workflowGenerator\.instruction/i }),
+        ).toHaveFocus(),
+      )
     })
 
     it('should keep the instruction field keyboard-operable', async () => {

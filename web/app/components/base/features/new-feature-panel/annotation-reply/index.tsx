@@ -1,6 +1,7 @@
 import type { OnFeaturesChange } from '@/app/components/base/features/types'
 import type { AnnotationReplyConfig } from '@/models/debug'
-import { Button } from '@langgenius/dify-ui/button'
+import { Button, buttonVariants } from '@langgenius/dify-ui/button'
+import { cn } from '@langgenius/dify-ui/cn'
 import { RiEqualizer2Line, RiExternalLinkLine } from '@remixicon/react'
 import { produce } from 'immer'
 import * as React from 'react'
@@ -13,7 +14,8 @@ import FeatureCard from '@/app/components/base/features/new-feature-panel/featur
 import { MessageFast } from '@/app/components/base/icons/src/vender/features'
 import AnnotationFullModal from '@/app/components/billing/annotation-full/modal'
 import { ANNOTATION_DEFAULT } from '@/config'
-import { usePathname, useRouter } from '@/next/navigation'
+import Link from '@/next/link'
+import { usePathname } from '@/next/navigation'
 
 type Props = Readonly<{
   disabled?: boolean
@@ -22,7 +24,6 @@ type Props = Readonly<{
 
 const AnnotationReply = ({ disabled, onChange }: Props) => {
   const { t } = useTranslation()
-  const router = useRouter()
   const pathname = usePathname()
   const matched = /\/app\/([^/]+)/.exec(pathname)
   const appId = matched?.length && matched[1] ? matched[1] : ''
@@ -36,12 +37,13 @@ const AnnotationReply = ({ disabled, onChange }: Props) => {
         draft.annotationReply = newConfig
       })
       setFeatures(newFeatures)
-      if (onChange) onChange(newFeatures)
+      onChange?.()
     },
     [featuresStore, onChange],
   )
 
   const {
+    isAnnotationQuotaUnavailable,
     handleEnableAnnotation,
     handleDisableAnnotation,
     isShowAnnotationConfigInit,
@@ -85,7 +87,7 @@ const AnnotationReply = ({ disabled, onChange }: Props) => {
         onChange={(state) => handleSwitch(state)}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
-        disabled={disabled}
+        disabled={disabled || (!annotationReply?.enabled && isAnnotationQuotaUnavailable)}
       >
         <>
           {!annotationReply?.enabled && (
@@ -105,7 +107,7 @@ const AnnotationReply = ({ disabled, onChange }: Props) => {
                       {annotationReply.score_threshold ?? '-'}
                     </div>
                   </div>
-                  <div className="h-[27px] w-px rotate-12 bg-divider-subtle"></div>
+                  <div className="h-6.75 w-px rotate-12 bg-divider-subtle"></div>
                   <div className="">
                     <div className="mb-0.5 system-2xs-medium-uppercase text-text-tertiary">
                       {t(($) => $['modelProvider.embeddingModel.key'], { ns: 'common' })}
@@ -119,22 +121,20 @@ const AnnotationReply = ({ disabled, onChange }: Props) => {
               {isHovering && (
                 <div className="flex items-center justify-between">
                   <Button
-                    className="w-[178px]"
+                    className="w-44.5"
                     onClick={() => setIsShowAnnotationConfigInit(true)}
                     disabled={disabled}
                   >
-                    <RiEqualizer2Line className="mr-1 size-4" />
+                    <RiEqualizer2Line className="size-4" />
                     {t(($) => $['operation.params'], { ns: 'common' })}
                   </Button>
-                  <Button
-                    className="w-[178px]"
-                    onClick={() => {
-                      router.push(`/app/${appId}/annotations`)
-                    }}
+                  <Link
+                    href={`/app/${appId}/annotations`}
+                    className={cn(buttonVariants(), 'w-44.5')}
                   >
-                    <RiExternalLinkLine className="mr-1 size-4" />
+                    <RiExternalLinkLine className="size-4" />
                     {t(($) => $['feature.annotation.cacheManagement'], { ns: 'appDebug' })}
-                  </Button>
+                  </Link>
                 </div>
               )}
             </>

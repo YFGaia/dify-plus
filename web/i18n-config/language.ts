@@ -13,7 +13,8 @@ export const LanguagesSupported: Locale[] = languages
   .map((item) => item.value)
 
 export const getLanguage = (locale: Locale): Locale => {
-  if (['zh-Hans', 'ja-JP'].includes(locale)) return locale.replace('-', '_') as Locale
+  // Plugin metadata supports only en_US, zh_Hans, ja_JP, and pt_BR; otherwise use en_US.
+  if (['zh-Hans', 'ja-JP', 'pt-BR'].includes(locale)) return locale.replace('-', '_') as Locale
 
   return LanguagesSupported[0]!.replace('-', '_') as Locale
 }
@@ -45,6 +46,7 @@ export const localeMap: Record<Locale, string> = {
   'ja-JP': 'ja',
   ja_JP: 'ja',
   'ko-KR': 'ko',
+  'lo-LA': 'lo',
   'ru-RU': 'ru',
   'it-IT': 'it',
   'th-TH': 'th',
@@ -63,14 +65,6 @@ export const localeMap: Record<Locale, string> = {
 
 export const getDocLanguage = (locale: string): DocLanguage => {
   return DOC_LANGUAGE[locale] || 'en'
-}
-
-const PRICING_PAGE_LANGUAGE: Record<string, string> = {
-  'ja-JP': 'jp',
-}
-
-export const getPricingPageLanguage = (locale: string) => {
-  return PRICING_PAGE_LANGUAGE[locale] || ''
 }
 
 export const getAccessControlTemplateLanguage = (locale: string): AccessControlTemplateLanguage => {

@@ -1,42 +1,78 @@
+import type { WebAppAddress } from './webapp-address'
+import { v4 as uuidV4 } from 'uuid'
 import { ACCESS_TOKEN_LOCAL_STORAGE_NAME, PASSPORT_LOCAL_STORAGE_NAME } from '@/config'
 import { getPublic, postPublic } from './base'
+import { getWebAppPassportKey, getWebAppScopeKey, resolveWebAppAddress } from './webapp-address'
+
+const WEB_APP_AUTHORIZATION_RECOVERY_KEY_PREFIX = 'webapp-authorization-recovery-'
+
+function getWebAppAuthorizationRecoveryKey(address: WebAppAddress) {
+  return `${WEB_APP_AUTHORIZATION_RECOVERY_KEY_PREFIX}${getWebAppScopeKey(address)}`
+}
 
 export function setWebAppAccessToken(token: string) {
   localStorage.setItem(ACCESS_TOKEN_LOCAL_STORAGE_NAME, token)
 }
 
-export function setWebAppPassport(shareCode: string, token: string) {
-  localStorage.setItem(PASSPORT_LOCAL_STORAGE_NAME(shareCode), token)
+export function setWebAppPassport(address: WebAppAddress, token: string) {
+  localStorage.setItem(PASSPORT_LOCAL_STORAGE_NAME(getWebAppPassportKey(address)), token)
+}
+
+export function beginWebAppAuthorizationRecovery(address: WebAppAddress) {
+  const key = getWebAppAuthorizationRecoveryKey(address)
+  if (sessionStorage.getItem(key)) return false
+
+  sessionStorage.setItem(key, 'pending')
+  return true
+}
+
+export function completeWebAppAuthorizationRecovery(address: WebAppAddress) {
+  sessionStorage.removeItem(getWebAppAuthorizationRecoveryKey(address))
 }
 
 export function getWebAppAccessToken() {
   return localStorage.getItem(ACCESS_TOKEN_LOCAL_STORAGE_NAME) || ''
 }
 
-export function getWebAppPassport(shareCode: string) {
-  return localStorage.getItem(PASSPORT_LOCAL_STORAGE_NAME(shareCode)) || ''
+export function getWebAppPassport(address: WebAppAddress | null) {
+  if (!address) return ''
+  return localStorage.getItem(PASSPORT_LOCAL_STORAGE_NAME(getWebAppPassportKey(address))) || ''
+}
+
+export function getOrCreateWebAppSessionId(address: WebAppAddress) {
+  if (address.kind !== 'environment') return ''
+
+  const key = `session_id-${getWebAppScopeKey(address)}`
+  // oxlint-disable-next-line no-restricted-globals -- Environment passport requests need a stable session ID synchronously.
+  const sessionId = localStorage.getItem(key)
+  if (sessionId) return sessionId
+
+  const created = uuidV4()
+  // oxlint-disable-next-line no-restricted-globals -- Environment passport requests need a stable session ID synchronously.
+  localStorage.setItem(key, created)
+  return created
 }
 
 function clearWebAppAccessToken() {
   localStorage.removeItem(ACCESS_TOKEN_LOCAL_STORAGE_NAME)
 }
 
-function clearWebAppPassport(shareCode: string) {
-  localStorage.removeItem(PASSPORT_LOCAL_STORAGE_NAME(shareCode))
+export function clearWebAppPassport(address: WebAppAddress | null) {
+  if (!address) return
+  localStorage.removeItem(PASSPORT_LOCAL_STORAGE_NAME(getWebAppPassportKey(address)))
 }
 
 type isWebAppLogin = {
   logged_in: boolean
   app_logged_in: boolean
-  console_logged_in?: boolean
-  // extend: 该 WebApp 的访问认证开关（false = 允许匿名访问）
-  webapp_auth_enabled_extend?: boolean
 }
 
 export async function webAppLoginStatus(shareCode: string, userId?: string) {
   // always need to check login to prevent passport from being outdated
   // check remotely, the access token could be in cookie (enterprise SSO redirected with https)
-  const params = new URLSearchParams({ app_code: shareCode })
+  const address = resolveWebAppAddress()
+  const params = new URLSearchParams()
+  if (address?.kind !== 'environment') params.set('app_code', shareCode)
   if (userId) params.append('user_id', userId)
   const { logged_in, app_logged_in } = await getPublic<isWebAppLogin>(
     `/login/status?${params.toString()}`,
@@ -47,45 +83,8 @@ export async function webAppLoginStatus(shareCode: string, userId?: string) {
   }
 }
 
-export async function checkConsoleLoginStatus() {
-  try {
-    const { console_logged_in } = await getPublic<isWebAppLogin>('/login/status')
-    return console_logged_in || false
-  } catch (error) {
-    console.error('Failed to check console login status:', error)
-    return false
-  }
-}
-
-// extend: 按 app_code 同时查询 Console 登录态与该 WebApp 的访问认证开关；
-// 请求失败按「需认证且未登录」处理（fail-closed，与 checkConsoleLoginStatus 一致）
-export type WebAppConsoleAuthStatus = {
-  consoleLoggedIn: boolean
-  webAppAuthEnabled: boolean
-}
-
-export async function checkWebAppConsoleAuthStatus(
-  shareCode: string,
-): Promise<WebAppConsoleAuthStatus> {
-  try {
-    const params = new URLSearchParams({ app_code: shareCode })
-    const { console_logged_in, webapp_auth_enabled_extend } = await getPublic<isWebAppLogin>(
-      `/login/status?${params.toString()}`,
-    )
-    return {
-      consoleLoggedIn: console_logged_in || false,
-      webAppAuthEnabled: webapp_auth_enabled_extend ?? true,
-    }
-  } catch (error) {
-    // app_code 无效（404）等场景回退到无参检查，保持既有「已登录用户看到 App 不可用页」的行为
-    console.error('Failed to check webapp console auth status:', error)
-    const consoleLoggedIn = await checkConsoleLoginStatus()
-    return { consoleLoggedIn, webAppAuthEnabled: true }
-  }
-}
-
-export async function webAppLogout(shareCode: string) {
+export async function webAppLogout(address: WebAppAddress | null) {
   clearWebAppAccessToken()
-  clearWebAppPassport(shareCode)
+  clearWebAppPassport(address)
   await postPublic('/logout')
 }

@@ -1,5 +1,4 @@
 'use client'
-import type { EnvironmentVariable } from '@/app/components/workflow/types'
 import {
   AlertDialog,
   AlertDialogActions,
@@ -14,8 +13,8 @@ import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export type DSLExportConfirmModalProps = {
-  envList: EnvironmentVariable[]
+type DSLExportConfirmModalProps = {
+  envList: Array<{ name: string; value: unknown }>
   onConfirm: (state: boolean) => void | Promise<void>
   onClose: () => void
 }
@@ -34,6 +33,7 @@ export const DSLExportConfirmContent = ({
 
   const [exportSecrets, setExportSecrets] = useState<boolean>(false)
   const [isExporting, setIsExporting] = useState(false)
+  const exportButtonLabelId = React.useId()
 
   const submit = useCallback(async () => {
     if (isExporting) return
@@ -98,7 +98,9 @@ export const DSLExportConfirmContent = ({
                     )}
                   >
                     <div className="truncate system-xs-regular text-text-secondary">
-                      {env.value}
+                      {typeof env.value === 'object'
+                        ? JSON.stringify(env.value)
+                        : String(env.value)}
                     </div>
                   </td>
                 </tr>
@@ -130,14 +132,16 @@ export const DSLExportConfirmContent = ({
         <AlertDialogConfirmButton
           tone="default"
           loading={isExporting}
-          disabled={isExporting}
+          aria-labelledby={exportButtonLabelId}
           onClick={submit}
         >
-          {isExporting
-            ? t(($) => $['operation.exporting'], { ns: 'common' })
-            : exportSecrets
-              ? t(($) => $['env.export.export'], { ns: 'workflow' })
-              : t(($) => $['env.export.ignore'], { ns: 'workflow' })}
+          <span id={exportButtonLabelId}>
+            {isExporting
+              ? t(($) => $['operation.exporting'], { ns: 'common' })
+              : exportSecrets
+                ? t(($) => $['env.export.export'], { ns: 'workflow' })
+                : t(($) => $['env.export.ignore'], { ns: 'workflow' })}
+          </span>
         </AlertDialogConfirmButton>
       </AlertDialogActions>
     </AlertDialogContent>

@@ -1,18 +1,22 @@
-import type { AgentSoulConfig } from '@dify/contracts/api/console/agent/types.gen'
 import type { AgentConfigApiContext } from '../../config-context'
 import type { AgentSoulConfigFormState } from '@/features/agent-v2/agent-composer/form-state'
 import { toast } from '@langgenius/dify-ui/toast'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { QueryClient } from '@tanstack/react-query'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useAtomValue } from 'jotai'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { formStateToAgentSoulConfig } from '@/features/agent-v2/agent-composer/conversions'
 import { defaultAgentSoulConfigFormState } from '@/features/agent-v2/agent-composer/form-state'
 import { AgentComposerProvider } from '@/features/agent-v2/agent-composer/provider'
 import { agentComposerDraftAtom } from '@/features/agent-v2/agent-composer/store'
+import { QueryClientTestProvider } from '@/test/console/query-provider'
+import { createSystemFeaturesFixture } from '@/test/console/system-features'
 import { AgentConfigApiContextProvider } from '../../config-context'
-import { AgentOrchestrateReadOnlyContext } from '../../read-only-context'
+import {
+  AgentOrchestrateReadOnlyContext,
+  AgentOrchestrateViewingVersionContext,
+} from '../../read-only-context'
 import { AgentFiles } from '../index'
 
 type ConfigFileQueryOptionsInput = {
@@ -44,6 +48,13 @@ const mocks = vi.hoisted(() => ({
   downloadQueryOptions: vi.fn((_options: ConfigFileQueryOptionsInput) => ({})),
   downloadBlob: vi.fn(),
   downloadUrl: vi.fn(),
+  fileUploadConfig: {
+    file_size_limit: 15,
+    image_file_size_limit: 10,
+    audio_file_size_limit: 50,
+    video_file_size_limit: 100,
+    workflow_file_upload_limit: 10,
+  },
 }))
 
 vi.mock('@langgenius/dify-ui/toast', () => ({
@@ -58,8 +69,22 @@ vi.mock('@/utils/download', () => ({
   downloadUrl: mocks.downloadUrl,
 }))
 
-vi.mock('@/service/client', () => ({
+vi.mock('@/service/use-common', () => ({
+  useFileUploadConfig: () => ({ data: mocks.fileUploadConfig }),
+}))
+
+vi.mock('@/service/console', () => ({
   consoleQuery: {
+    systemFeatures: {
+      get: {
+        queryKey: () => ['console', 'systemFeatures', 'get'],
+        queryOptions: (options?: Record<string, unknown>) => ({
+          queryKey: ['console', 'systemFeatures', 'get'],
+          queryFn: () => new Promise(() => {}),
+          ...options,
+        }),
+      },
+    },
     agent: {
       byAgentId: {
         config: {
@@ -158,42 +183,55 @@ function createInitialDraft(
 
 function renderAgentFiles({
   initialDraft = createInitialDraft(),
-  initialOriginalConfig,
   apiContext = { agentId: 'agent-1', draftType: 'draft' } satisfies AgentConfigApiContext,
   readOnly = false,
+  viewingVersion = false,
 }: {
   initialDraft?: AgentSoulConfigFormState
-  initialOriginalConfig?: AgentSoulConfig
   apiContext?: AgentConfigApiContext
   readOnly?: boolean
+  viewingVersion?: boolean
 } = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: { retry: false },
+      queries: { retry: false, staleTime: Infinity },
       mutations: { retry: false },
     },
   })
-
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <AgentConfigApiContextProvider value={apiContext}>
-        <AgentComposerProvider
-          initialDraft={initialDraft}
-          initialOriginalConfig={initialOriginalConfig}
-        >
-          <AgentOrchestrateReadOnlyContext value={readOnly}>
-            <AgentFiles />
-            <ConfigSnapshotProbe />
-          </AgentOrchestrateReadOnlyContext>
-        </AgentComposerProvider>
-      </AgentConfigApiContextProvider>
-    </QueryClientProvider>,
+  queryClient.setQueryData(
+    ['console', 'systemFeatures', 'get'],
+    createSystemFeaturesFixture({ deployment_edition: 'COMMUNITY' }),
   )
+
+  return {
+    ...render(
+      <QueryClientTestProvider queryClient={queryClient}>
+        <AgentConfigApiContextProvider value={apiContext}>
+          <AgentComposerProvider initialDraft={initialDraft}>
+            <AgentOrchestrateViewingVersionContext value={viewingVersion}>
+              <AgentOrchestrateReadOnlyContext value={readOnly}>
+                <AgentFiles />
+                <ConfigSnapshotProbe />
+              </AgentOrchestrateReadOnlyContext>
+            </AgentOrchestrateViewingVersionContext>
+          </AgentComposerProvider>
+        </AgentConfigApiContextProvider>
+      </QueryClientTestProvider>,
+    ),
+    queryClient,
+  }
 }
 
 describe('AgentFiles', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    Object.assign(mocks.fileUploadConfig, {
+      file_size_limit: 15,
+      image_file_size_limit: 10,
+      audio_file_size_limit: 50,
+      video_file_size_limit: 100,
+      workflow_file_upload_limit: 10,
+    })
     mocks.previewQueryOptions.mockImplementation(({ input }) => ({
       queryKey: ['preview-config-file', input],
       queryFn: async () => ({
@@ -341,6 +379,59 @@ describe('AgentFiles', () => {
     expect(toast.success).toHaveBeenCalled()
   })
 
+  it('should show the configured size limit for every supported file type', async () => {
+    const user = userEvent.setup()
+    renderAgentFiles({ initialDraft: defaultAgentSoulConfigFormState })
+
+    await user.click(
+      screen.getByRole('button', { name: /agentV2\.agentDetail\.configure\.files\.add/i }),
+    )
+
+    const sizeLimitCopy = await screen.findByText(/appDebug\.variableConfig\.maxNumberTip/)
+    expect(sizeLimitCopy).toHaveTextContent('"docLimit":"15.00 MB"')
+    expect(sizeLimitCopy).toHaveTextContent('"imgLimit":"10.00 MB"')
+    expect(sizeLimitCopy).toHaveTextContent('"audioLimit":"50.00 MB"')
+    expect(sizeLimitCopy).toHaveTextContent('"videoLimit":"100.00 MB"')
+  })
+
+  it.each([
+    ['document', 'oversized.pdf', 'application/pdf'],
+    ['image', 'oversized.png', 'image/png'],
+    ['audio', 'oversized.mp3', 'audio/mpeg'],
+    ['video', 'oversized.mp4', 'video/mp4'],
+  ])('should reject an oversized %s file before upload', async (fileType, fileName, mimeType) => {
+    Object.assign(mocks.fileUploadConfig, {
+      file_size_limit: 1,
+      image_file_size_limit: 1,
+      audio_file_size_limit: 1,
+      video_file_size_limit: 1,
+    })
+    const user = userEvent.setup()
+    renderAgentFiles({ initialDraft: defaultAgentSoulConfigFormState })
+
+    await user.click(
+      screen.getByRole('button', { name: /agentV2\.agentDetail\.configure\.files\.add/i }),
+    )
+
+    const input = await waitFor(() => {
+      const element = document.querySelector('input[type="file"]')
+      expect(element).not.toBeNull()
+      return element as HTMLInputElement
+    })
+    const file = new File([new Uint8Array(1024 * 1024 + 1)], fileName, { type: mimeType })
+    await user.upload(input, file)
+
+    expect(toast.error).toHaveBeenCalledWith(
+      `common.fileUploader.uploadFromComputerLimit:{"type":"${fileType}","size":"1.00 MB"}`,
+    )
+    expect(mocks.uploadFileMutationFn).not.toHaveBeenCalled()
+    expect(
+      screen.getByRole('button', {
+        name: /agentDetail\.configure\.files\.upload\.action/i,
+      }),
+    ).toBeDisabled()
+  })
+
   it('should use workflow config file endpoints with node_id for preview and upload', async () => {
     const user = userEvent.setup()
     renderAgentFiles({
@@ -407,42 +498,57 @@ describe('AgentFiles', () => {
     })
   })
 
-  it('should preview and download files through config file endpoints by name', async () => {
+  it('should not expose a stale image URL while the preview refreshes', async () => {
     const user = userEvent.setup()
-    renderAgentFiles()
+    let resolveDownload!: (value: { url: string }) => void
+    const downloadResponse = new Promise<{ url: string }>((resolve) => {
+      resolveDownload = resolve
+    })
+    const downloadQueryFn = vi.fn(() => downloadResponse)
+    mocks.downloadQueryOptions.mockImplementation(({ input }) => ({
+      queryKey: ['download-config-file', input],
+      queryFn: downloadQueryFn,
+    }))
+    const { queryClient } = renderAgentFiles()
+    queryClient.setQueryData(
+      [
+        'download-config-file',
+        {
+          params: { agent_id: 'agent-1', name: 'diagram.png' },
+          query: { draft_type: 'draft', version_id: undefined },
+        },
+      ],
+      { url: 'https://example.com/expired-diagram.png' },
+    )
 
     await user.click(screen.getByText('diagram.png').closest('button')!)
 
-    await waitFor(() => {
-      expect(mocks.previewQueryOptions).toHaveBeenCalledWith(
-        expect.objectContaining({
-          input: expect.objectContaining({
-            params: {
-              agent_id: 'agent-1',
-              name: 'diagram.png',
-            },
-          }),
-        }),
-      )
+    await waitFor(() => expect(downloadQueryFn).toHaveBeenCalledOnce())
+    expect(screen.queryByRole('img', { name: 'diagram.png' })).not.toBeInTheDocument()
+
+    await act(async () => {
+      resolveDownload({ url: 'https://example.com/current-diagram.png' })
     })
 
-    await waitFor(() => {
-      expect(mocks.downloadQueryOptions).toHaveBeenCalledWith(
-        expect.objectContaining({
-          input: expect.objectContaining({
-            params: {
-              agent_id: 'agent-1',
-              name: 'diagram.png',
-            },
-          }),
-        }),
-      )
-    })
+    expect(await screen.findByRole('img', { name: 'diagram.png' })).toHaveAttribute(
+      'src',
+      'https://example.com/current-diagram.png',
+    )
   })
 
   it('should download configured files from the row action by config name', async () => {
     const user = userEvent.setup()
-    renderAgentFiles()
+    const { queryClient } = renderAgentFiles()
+    queryClient.setQueryData(
+      [
+        'download-config-file',
+        {
+          params: { agent_id: 'agent-1', name: 'diagram.png' },
+          query: { draft_type: 'draft', version_id: undefined },
+        },
+      ],
+      { url: 'https://example.com/stale-diagram.png' },
+    )
 
     await user.click(
       screen.getByRole('button', {
@@ -632,11 +738,19 @@ describe('AgentFiles', () => {
     expect(snapshot.config_note).toBe('')
   })
 
-  it('should keep flat config files visible without drive-prefix filtering and disable add in read-only mode', () => {
-    renderAgentFiles({ readOnly: true })
+  it('should keep flat config files visible without drive-prefix filtering and disable add when viewing a version', () => {
+    renderAgentFiles({ readOnly: true, viewingVersion: true })
 
     expect(screen.getByText('diagram.png')).toBeInTheDocument()
     expect(screen.getByText('brief.md')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /agentV2\.agentDetail\.configure\.files\.add/i }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('should hide the add action while a build draft is read-only', () => {
+    renderAgentFiles({ readOnly: true })
+
     expect(
       screen.queryByRole('button', { name: /agentV2\.agentDetail\.configure\.files\.add/i }),
     ).not.toBeInTheDocument()

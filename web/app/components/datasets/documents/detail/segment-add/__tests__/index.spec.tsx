@@ -1,25 +1,37 @@
+import type { CloudPlan } from '@dify/contracts/api/console/features/types.gen'
+import type { ReactElement } from 'react'
 import type { SegmentImportStatus } from '@/types/dataset'
-import { fireEvent, render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Plan } from '@/app/components/billing/type'
+import { fireEvent, screen } from '@testing-library/react'
+import { NuqsTestingAdapter } from 'nuqs/adapters/testing'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { createConsoleQueryWrapper } from '@/test/console/query-data'
+import { render as renderWithConsoleState } from '@/test/console/render'
 import { segmentImportStatus } from '@/types/dataset'
 import { SegmentAdd } from '../index'
 
 // Mock provider context
-let mockPlan = { type: Plan.professional }
-let mockEnableBilling = true
-vi.mock('@/context/provider-context', () => ({
-  useProviderContext: () => ({
-    plan: mockPlan,
-    enableBilling: mockEnableBilling,
-  }),
-}))
+let mockPlan: { type: CloudPlan } = { type: 'professional' }
+let deploymentEdition: 'CLOUD' | 'COMMUNITY' = 'CLOUD'
+
+function render(ui: ReactElement) {
+  const { wrapper: QueryWrapper } = createConsoleQueryWrapper({
+    systemFeatures: { deployment_edition: deploymentEdition },
+    features: { billing: { subscription: { plan: mockPlan.type } } },
+  })
+  return renderWithConsoleState(ui, {
+    wrapper: ({ children }) => (
+      <NuqsTestingAdapter>
+        <QueryWrapper>{children}</QueryWrapper>
+      </NuqsTestingAdapter>
+    ),
+  })
+}
 
 describe('SegmentAdd', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockPlan = { type: Plan.professional }
-    mockEnableBilling = true
+    mockPlan = { type: 'professional' }
+    deploymentEdition = 'CLOUD'
   })
 
   const defaultProps = {
@@ -140,7 +152,7 @@ describe('SegmentAdd', () => {
     })
 
     it('should show plan upgrade modal instead of batch modal for sandbox users', async () => {
-      mockPlan = { type: Plan.sandbox }
+      mockPlan = { type: 'sandbox' }
       const mockShowBatchModal = vi.fn()
       render(<SegmentAdd {...defaultProps} showBatchModal={mockShowBatchModal} />)
 
@@ -171,7 +183,7 @@ describe('SegmentAdd', () => {
   // Plan upgrade modal
   describe('Plan Upgrade Modal', () => {
     it('should show plan upgrade modal when sandbox user tries to add', () => {
-      mockPlan = { type: Plan.sandbox }
+      mockPlan = { type: 'sandbox' }
       render(<SegmentAdd {...defaultProps} />)
 
       fireEvent.click(screen.getByText(/list\.action\.addButton/i))
@@ -180,7 +192,7 @@ describe('SegmentAdd', () => {
     })
 
     it('should not call showNewSegmentModal for sandbox users', () => {
-      mockPlan = { type: Plan.sandbox }
+      mockPlan = { type: 'sandbox' }
       const mockShowNewSegmentModal = vi.fn()
       render(<SegmentAdd {...defaultProps} showNewSegmentModal={mockShowNewSegmentModal} />)
 
@@ -190,8 +202,8 @@ describe('SegmentAdd', () => {
     })
 
     it('should allow add when billing is disabled regardless of plan', () => {
-      mockPlan = { type: Plan.sandbox }
-      mockEnableBilling = false
+      mockPlan = { type: 'sandbox' }
+      deploymentEdition = 'COMMUNITY'
       const mockShowNewSegmentModal = vi.fn()
       render(<SegmentAdd {...defaultProps} showNewSegmentModal={mockShowNewSegmentModal} />)
 
@@ -201,7 +213,7 @@ describe('SegmentAdd', () => {
     })
 
     it('should close plan upgrade modal when close button is clicked', () => {
-      mockPlan = { type: Plan.sandbox }
+      mockPlan = { type: 'sandbox' }
       render(<SegmentAdd {...defaultProps} />)
 
       // Show modal

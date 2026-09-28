@@ -1,5 +1,8 @@
 import type { AppData, AppMeta } from '@/models/share'
+import type { WebAppAddress } from '@/service/webapp-address'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { webAppLogout } from '@/service/webapp-auth'
 import AuthenticatedLayout from '../authenticated-layout'
 
 type QueryState<TData> = {
@@ -17,6 +20,8 @@ const updateAppInfo = vi.fn()
 const updateAppParams = vi.fn()
 const updateWebAppMeta = vi.fn()
 const updateUserCanAccessApp = vi.fn()
+const replace = vi.fn()
+const webAppAddress: WebAppAddress = { kind: 'default', code: 'share-code' }
 
 const mockWebAppState = {
   shareCode: 'share-code',
@@ -71,12 +76,10 @@ vi.mock('@/context/web-app-context', () => ({
     selector(mockWebAppState),
 }))
 
-const routerReplace = vi.fn()
-
 vi.mock('@/next/navigation', () => ({
   usePathname: () => '/workflow/share-code',
   useRouter: () => ({
-    replace: routerReplace,
+    replace,
   }),
   useSearchParams: () => new URLSearchParams(),
 }))
@@ -91,12 +94,12 @@ vi.mock('@/service/access-control/use-app-access-control', () => ({
   useGetUserCanAccessApp: () => userCanAccessAppQueryState,
 }))
 
-// extend: WebApp 复用 Console 登录态 + per-app 认证开关 —— 默认视为已登录且开关开启
-const checkWebAppConsoleAuthStatus = vi.fn()
-
 vi.mock('@/service/webapp-auth', () => ({
   webAppLogout: vi.fn(),
-  checkWebAppConsoleAuthStatus: (shareCode: string) => checkWebAppConsoleAuthStatus(shareCode),
+}))
+
+vi.mock('@/service/webapp-address', () => ({
+  resolveWebAppAddress: () => webAppAddress,
 }))
 
 const resetQueryStates = () => {
@@ -144,58 +147,17 @@ describe('AuthenticatedLayout', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     resetQueryStates()
-    checkWebAppConsoleAuthStatus.mockResolvedValue({
-      consoleLoggedIn: true,
-      webAppAuthEnabled: true,
-    })
-  })
-
-  // extend: per-app WebApp 认证开关
-  describe('WebApp Auth Switch', () => {
-    it('should redirect to console signin when auth is enabled and console is not logged in', async () => {
-      checkWebAppConsoleAuthStatus.mockResolvedValue({
-        consoleLoggedIn: false,
-        webAppAuthEnabled: true,
-      })
-
-      renderLayout()
-
-      await vi.waitFor(() => {
-        expect(routerReplace).toHaveBeenCalledWith('/signin')
-      })
-      expect(checkWebAppConsoleAuthStatus).toHaveBeenCalledWith('share-code')
-    })
-
-    it('should allow anonymous access without redirect when auth is disabled', async () => {
-      checkWebAppConsoleAuthStatus.mockResolvedValue({
-        consoleLoggedIn: false,
-        webAppAuthEnabled: false,
-      })
-
-      renderLayout()
-
-      expect(await screen.findByText('Workflow form content')).toBeInTheDocument()
-      expect(routerReplace).not.toHaveBeenCalled()
-    })
-
-    it('should render content without redirect when console is logged in', async () => {
-      renderLayout()
-
-      expect(await screen.findByText('Workflow form content')).toBeInTheDocument()
-      expect(routerReplace).not.toHaveBeenCalled()
-    })
   })
 
   describe('Loading State', () => {
-    it('should keep children mounted when existing app config is background refetching', async () => {
+    it('should keep children mounted when existing app config is background refetching', () => {
       appInfoQueryState.isFetching = true
       appParamsQueryState.isFetching = true
       appMetaQueryState.isFetching = true
 
       renderLayout()
 
-      // extend: 登录态检查（isCheckingAuth）异步完成后子内容才渲染
-      expect(await screen.findByText('Workflow form content')).toBeInTheDocument()
+      expect(screen.getByText('Workflow form content')).toBeInTheDocument()
     })
 
     it('should hide children while initial app config is loading', () => {
@@ -207,5 +169,17 @@ describe('AuthenticatedLayout', () => {
 
       expect(screen.queryByText('Workflow form content')).not.toBeInTheDocument()
     })
+  })
+
+  it('should expose the unauthorized logout action as a button', async () => {
+    const user = userEvent.setup()
+    userCanAccessAppQueryState.data = { result: false }
+
+    renderLayout()
+
+    await user.click(screen.getByRole('button', { name: 'common.userProfile.logout' }))
+
+    expect(webAppLogout).toHaveBeenCalledWith(webAppAddress)
+    expect(replace).toHaveBeenCalledWith('/webapp-signin?redirect_url=%2Fworkflow%2Fshare-code')
   })
 })

@@ -11,12 +11,16 @@ from core.app.apps.base_app_queue_manager import AppQueueManager
 from core.app.apps.workflow.command_channels import (
     CelerySignalCommandChannel,
     CombinedCommandChannel,
+    StopFlagCommandChannel,
 )
+from core.app.apps.workflow.stop_aware_ready_queue import attach_stop_aware_ready_queue
 from core.app.apps.workflow_app_runner import WorkflowBasedAppRunner
 from core.app.entities.app_invoke_entities import (
     AdvancedChatAppGenerateEntity,
     AppGenerateEntity,
+    DifyRunContext,
     InvokeFrom,
+    get_credit_usage_app_type,
 )
 from core.app.entities.queue_entities import (
     QueueAnnotationReplyEvent,
@@ -31,7 +35,7 @@ from core.moderation.base import ModerationError
 from core.moderation.input_moderation import InputModeration
 from core.repositories.factory import WorkflowExecutionRepository, WorkflowNodeExecutionRepository
 from core.workflow.node_factory import get_default_root_node_id
-from core.workflow.nodes.agent_v2.session_cleanup_layer import build_workflow_agent_session_cleanup_layer
+from core.workflow.nodes.agent_v2.workspace_retirement_layer import build_workflow_agent_workspace_retirement_layer
 from core.workflow.system_variables import (
     build_bootstrap_variables,
     build_system_variables,
@@ -138,6 +142,7 @@ class AdvancedChatAppRunner(WorkflowBasedAppRunner):
                 user_id=self.application_generate_entity.user_id,
                 invoke_from=invoke_from,
                 user_from=user_from,
+                app_type=get_credit_usage_app_type(app_config.app_mode),
                 trace_session_id=self.application_generate_entity.extras.get("trace_session_id"),
             )
         elif self.application_generate_entity.single_iteration_run or self.application_generate_entity.single_loop_run:
@@ -147,6 +152,7 @@ class AdvancedChatAppRunner(WorkflowBasedAppRunner):
                 single_iteration_run=self.application_generate_entity.single_iteration_run,
                 single_loop_run=self.application_generate_entity.single_loop_run,
                 user_id=self.application_generate_entity.user_id,
+                app_type=get_credit_usage_app_type(app_config.app_mode),
                 trace_session_id=self.application_generate_entity.extras.get("trace_session_id"),
             )
         else:
@@ -217,6 +223,7 @@ class AdvancedChatAppRunner(WorkflowBasedAppRunner):
                 user_from=user_from,
                 invoke_from=invoke_from,
                 root_node_id=root_node_id,
+                app_type=get_credit_usage_app_type(app_config.app_mode),
                 trace_session_id=self.application_generate_entity.extras.get("trace_session_id"),
             )
 
@@ -228,9 +235,11 @@ class AdvancedChatAppRunner(WorkflowBasedAppRunner):
             shutdown_state_getter=celery_warm_shutdown_started,
             abort_reason=WORKFLOW_WARM_SHUTDOWN_ABORT_REASON,
         )
+        attach_stop_aware_ready_queue(graph_runtime_state, task_id=task_id)
         command_channel = CombinedCommandChannel(
             (
                 RedisChannel(redis_client, channel_key),
+                StopFlagCommandChannel(task_id=task_id),
                 celery_signal_channel,
             )
         )
@@ -268,7 +277,19 @@ class AdvancedChatAppRunner(WorkflowBasedAppRunner):
         )
 
         workflow_entry.graph_engine.layer(persistence_layer)
-        workflow_entry.graph_engine.layer(build_workflow_agent_session_cleanup_layer())
+        workflow_entry.graph_engine.layer(
+            build_workflow_agent_workspace_retirement_layer(
+                dify_run_context=DifyRunContext(
+                    tenant_id=self._workflow.tenant_id,
+                    app_id=self._workflow.app_id,
+                    user_id=self.application_generate_entity.user_id,
+                    user_from=user_from,
+                    invoke_from=invoke_from,
+                    app_type=get_credit_usage_app_type(app_config.app_mode),
+                    trace_session_id=self.application_generate_entity.extras.get("trace_session_id"),
+                )
+            )
+        )
         conversation_variable_layer = ConversationVariablePersistenceLayer(
             ConversationVariableUpdater(session_factory.get_session_maker())
         )

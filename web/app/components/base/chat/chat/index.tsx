@@ -1,7 +1,8 @@
 import type { FC, ReactNode } from 'react'
-import type { ThemeBuilder } from '../embedded-chatbot/theme/theme-context'
-import type { ChatConfig, ChatItem, Feedback, OnRegenerate, OnSend } from '../types'
+import type { Theme } from '../embedded-chatbot/theme/theme'
+import type { ChatConfig, ChatItem, OnFeedback, OnRegenerate, OnSend } from '../types'
 import type { HumanInputFormSubmitData } from './answer/human-input-content/type'
+import type { AnswerActionPosition } from './answer/operation'
 import type { InputForm } from './type'
 import type { SpeechToTextTarget } from '@/app/components/base/voice-input/types'
 import type { HumanInputNodeType } from '@/app/components/workflow/nodes/human-input/types'
@@ -9,27 +10,20 @@ import type { Node } from '@/app/components/workflow/types'
 import type { AppData, ToolIcon } from '@/models/share'
 import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
-// extend: start messages context handling
-import { Fragment, memo, useEffect, useState } from 'react'
-// extend: stop messages context handling
+import { memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore as useAppStore } from '@/app/components/app/store'
-// Extend: start messages context handling
-import { useChatWithHistoryContext } from '@/app/components/base/chat/chat-with-history/context'
-import { CSRF_COOKIE_NAME } from '@/config'
-import { deleteMessageContext, messageContextList } from '@/service/apps'
 import Answer from './answer'
 import ChatInputArea from './chat-input-area'
 import ChatLogModals from './chat-log-modals'
 import { ChatContextProvider } from './context-provider'
 import Question from './question'
-import s from './style.module.css'
 import TryToAsk from './try-to-ask'
 import { useChatLayout } from './use-chat-layout'
-// Extend: stop messages context handling
 
 export type ChatProps = {
+  answerActionPosition?: AnswerActionPosition
   isTryApp?: boolean
   readonly?: boolean
   appData?: AppData
@@ -39,6 +33,7 @@ export type ChatProps = {
   noStopResponding?: boolean
   onStopResponding?: () => void
   noChatInput?: boolean
+  showRegenerate?: boolean
   onSend?: OnSend
   inputs?: Record<string, unknown>
   inputsForm?: InputForm[]
@@ -63,11 +58,11 @@ export type ChatProps = {
   onAnnotationRemoved?: (index: number) => void
   chatNode?: ReactNode
   disableFeedback?: boolean
-  onFeedback?: (messageId: string, feedback: Feedback) => void
+  onFeedback?: OnFeedback
   chatAnswerContainerInner?: string
   hideProcessDetail?: boolean
   hideLogModal?: boolean
-  themeBuilder?: ThemeBuilder
+  theme?: Theme
   switchSibling?: (siblingMessageId: string) => void
   showFeatureBar?: boolean
   showFileUpload?: boolean
@@ -96,6 +91,7 @@ export type ChatProps = {
 }
 
 const Chat: FC<ChatProps> = ({
+  answerActionPosition,
   isTryApp,
   readonly = false,
   appData,
@@ -109,6 +105,7 @@ const Chat: FC<ChatProps> = ({
   noStopResponding,
   onStopResponding,
   noChatInput,
+  showRegenerate,
   chatContainerClassName,
   chatContainerInnerClassName,
   chatFooterClassName,
@@ -126,7 +123,7 @@ const Chat: FC<ChatProps> = ({
   chatAnswerContainerInner,
   hideProcessDetail,
   hideLogModal,
-  themeBuilder,
+  theme,
   switchSibling,
   showFeatureBar,
   showFileUpload,
@@ -150,39 +147,6 @@ const Chat: FC<ChatProps> = ({
   getHumanInputNodeData,
 }) => {
   const { t } = useTranslation()
-  // Extend: start add Message Context List
-  let currentConversationId = ''
-  try {
-    const context = useChatWithHistoryContext()
-    currentConversationId = context?.currentConversationId || ''
-  } catch {
-    // Context not available, skip
-  }
-  const [contextList, setContextList] = useState<string[]>([])
-  // 记忆上下文接口是 Console API（/console/api/message/context）。匿名访问 WebApp
-  // （per-app 认证开关关闭）时没有 Console 会话，调用会 401 并触发全局登录重定向，
-  // 因此以 csrf_token cookie 是否存在作为 Console 会话探测，无会话时跳过该扩展功能。
-  const hasConsoleSession = () =>
-    typeof document !== 'undefined' && document.cookie.includes(`${CSRF_COOKIE_NAME()}=`)
-  const handleResponding = async () => {
-    // 请求当前conversation_id分割
-    if (currentConversationId && hasConsoleSession()) {
-      try {
-        const historyList = await messageContextList({ conversation_id: currentConversationId })
-        setContextList(Array.isArray(historyList) ? historyList : [])
-      } catch (error) {
-        // Handle error silently
-        console.error('Failed to fetch message context list:', error)
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (isResponding) return
-    handleResponding().then()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isResponding, currentConversationId])
-  // Extend: stop add Message Context List
   const {
     currentLogItem,
     setCurrentLogItem,
@@ -220,6 +184,7 @@ const Chat: FC<ChatProps> = ({
       answerIcon={answerIcon}
       onSend={onSend}
       onRegenerate={onRegenerate}
+      showRegenerate={showRegenerate}
       onAnnotationAdded={onAnnotationAdded}
       onAnnotationEdited={onAnnotationEdited}
       onAnnotationRemoved={onAnnotationRemoved}
@@ -250,55 +215,26 @@ const Chat: FC<ChatProps> = ({
             {chatList.map((item, index) => {
               if (item.isAnswer) {
                 const isLast = item.id === chatList.at(-1)?.id
-                // Extend: start messages context handling
-                const clearContext = async (message_id: string) => {
-                  if (currentConversationId && hasConsoleSession()) {
-                    await deleteMessageContext({
-                      conversation_id: currentConversationId,
-                      message_id,
-                    })
-                    handleResponding().then()
-                  }
-                }
-                // Extend: stop messages context handling
                 return (
-                  <Fragment key={item.id}>
-                    <Answer
-                      appData={appData}
-                      item={item}
-                      question={chatList[index - 1]?.content ?? ''}
-                      index={index}
-                      config={config}
-                      answerIcon={answerIcon}
-                      responding={isLast && isResponding}
-                      showPromptLog={showPromptLog}
-                      chatAnswerContainerInner={chatAnswerContainerInner}
-                      hideProcessDetail={hideProcessDetail}
-                      noChatInput={noChatInput}
-                      switchSibling={switchSibling}
-                      hideAvatar={hideAvatar}
-                      renderAgentContent={renderAgentContent}
-                      onHumanInputFormSubmit={onHumanInputFormSubmit}
-                    />
-                    {/* Extend: start messages context handling */}
-                    {contextList.includes(item.id) && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          clearContext(item.id).then()
-                        }}
-                        className={cn(s.contextTag)}
-                      >
-                        <span className={cn(s.isCenter)}>
-                          {t(($) => $['configuration.clearContext'], { ns: 'extend' })}
-                        </span>
-                        <span className={cn(s.recover)}>
-                          {t(($) => $['configuration.restoreContext'], { ns: 'extend' })}
-                        </span>
-                      </button>
-                    )}
-                    {/* Extend: stop messages context handling */}
-                  </Fragment>
+                  <Answer
+                    answerActionPosition={answerActionPosition}
+                    appData={appData}
+                    key={item.id}
+                    item={item}
+                    question={chatList[index - 1]?.content ?? ''}
+                    index={index}
+                    config={config}
+                    answerIcon={answerIcon}
+                    responding={isLast && isResponding}
+                    showPromptLog={showPromptLog}
+                    chatAnswerContainerInner={chatAnswerContainerInner}
+                    hideProcessDetail={hideProcessDetail}
+                    noChatInput={noChatInput}
+                    switchSibling={switchSibling}
+                    hideAvatar={hideAvatar}
+                    renderAgentContent={renderAgentContent}
+                    onHumanInputFormSubmit={onHumanInputFormSubmit}
+                  />
                 )
               }
               return (
@@ -306,7 +242,7 @@ const Chat: FC<ChatProps> = ({
                   key={item.id}
                   item={item}
                   questionIcon={questionIcon}
-                  theme={themeBuilder?.theme}
+                  theme={theme}
                   enableEdit={config?.questionEditEnable}
                   switchSibling={switchSibling}
                   hideAvatar={hideAvatar}
@@ -334,10 +270,10 @@ const Chat: FC<ChatProps> = ({
             {!noStopResponding && isResponding && (
               <div data-testid="stop-responding-container" className="mb-2 flex justify-center">
                 <Button
-                  className="pointer-events-auto border-components-panel-border bg-components-panel-bg text-components-button-secondary-text"
+                  className="pointer-events-auto bg-components-panel-bg text-components-button-secondary-text inset-ring-components-panel-border"
                   onClick={onStopResponding}
                 >
-                  <div className="mr-[5px] i-custom-vender-solid-mediaAndDevices-stop-circle h-3.5 w-3.5" />
+                  <div className="i-custom-vender-solid-mediaAndDevices-stop-circle h-3.5 w-3.5" />
                   <span className="text-xs font-normal">
                     {t(($) => $['operation.stopResponding'], { ns: 'appDebug' })}
                   </span>
@@ -362,7 +298,7 @@ const Chat: FC<ChatProps> = ({
                 onSend={onSend}
                 inputs={inputs}
                 inputsForm={inputsForm}
-                theme={themeBuilder?.theme}
+                theme={theme}
                 isResponding={isResponding}
                 readonly={readonly}
                 sendButtonLabel={sendButtonLabel}

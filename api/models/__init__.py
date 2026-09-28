@@ -15,21 +15,20 @@ from .agent import (
     AgentConfigRevision,
     AgentConfigRevisionOperation,
     AgentConfigSnapshot,
+    AgentConfigVersionKind,
     AgentDebugConversation,
-    AgentDriveFile,
-    AgentDriveFileKind,
+    AgentHomeSnapshot,
     AgentIconType,
     AgentKind,
-    AgentRuntimeSession,
-    AgentRuntimeSessionOwnerType,
-    AgentRuntimeSessionStatus,
     AgentScope,
     AgentSource,
     AgentStatus,
+    AgentWorkingResourceStatus,
+    AgentWorkspace,
+    AgentWorkspaceBinding,
+    AgentWorkspaceOwnerType,
     WorkflowAgentBindingType,
     WorkflowAgentNodeBinding,
-    WorkflowAgentRuntimeSession,
-    WorkflowAgentRuntimeSessionStatus,
 )
 from .api_based_extension import APIBasedExtension, APIBasedExtensionPoint
 from .comment import (
@@ -56,9 +55,6 @@ from .dataset import (
     TidbAuthBinding,
     Whitelist,
 )
-
-# extend: db
-from .engine import db
 from .enums import (
     AppTriggerStatus,
     AppTriggerType,
@@ -81,6 +77,7 @@ from .model import (
     AppModelConfig,
     AppStar,
     Conversation,
+    DatasetApiTokenBinding,
     DatasetRetrieverResource,
     DifySetup,
     EndUser,
@@ -104,6 +101,7 @@ from .model import (
     UploadFile,
 )
 from .oauth import DatasourceOauthParamConfig, DatasourceProvider, OAuthAccessToken
+from .onboarding import AccountStepByStepTourState
 from .provider import (
     LoadBalancingModelConfig,
     Provider,
@@ -115,9 +113,9 @@ from .provider import (
     TenantDefaultModel,
     TenantPreferredModelProvider,
 )
+from .skill import AgentSkillBinding, Skill, SkillDraftFile, SkillFileKind, SkillFileStorage, SkillVersion
 from .snippet import CustomizedSnippet, SnippetType
 from .source import DataSourceApiKeyAuthBinding, DataSourceOauthBinding
-from .system_extend import SystemIntegrationExtend  # Extend System Integration
 from .task import CeleryTask, CeleryTaskSet
 from .tools import (
     ApiToolProvider,
@@ -150,6 +148,7 @@ from .workflow import (
     WorkflowRun,
     WorkflowRunArchiveBundle,
     WorkflowType,
+    WorkflowVersionCounter,
     resolve_workflow_kind,
 )
 
@@ -159,6 +158,7 @@ __all__ = [
     "Account",
     "AccountIntegrate",
     "AccountStatus",
+    "AccountStepByStepTourState",
     "AccountTrialAppRecord",
     "Agent",
     "AgentConfigDraft",
@@ -166,17 +166,19 @@ __all__ = [
     "AgentConfigRevision",
     "AgentConfigRevisionOperation",
     "AgentConfigSnapshot",
+    "AgentConfigVersionKind",
     "AgentDebugConversation",
-    "AgentDriveFile",
-    "AgentDriveFileKind",
+    "AgentHomeSnapshot",
     "AgentIconType",
     "AgentKind",
-    "AgentRuntimeSession",
-    "AgentRuntimeSessionOwnerType",
-    "AgentRuntimeSessionStatus",
     "AgentScope",
+    "AgentSkillBinding",
     "AgentSource",
     "AgentStatus",
+    "AgentWorkingResourceStatus",
+    "AgentWorkspace",
+    "AgentWorkspaceBinding",
+    "AgentWorkspaceOwnerType",
     "ApiRequest",
     "ApiToken",
     "ApiToolProvider",
@@ -203,6 +205,7 @@ __all__ = [
     "DataSourceApiKeyAuthBinding",
     "DataSourceOauthBinding",
     "Dataset",
+    "DatasetApiTokenBinding",
     "DatasetCollectionBinding",
     "DatasetKeywordTable",
     "DatasetPermission",
@@ -248,8 +251,12 @@ __all__ = [
     "RecommendedApp",
     "SavedMessage",
     "Site",
+    "Skill",
+    "SkillDraftFile",
+    "SkillFileKind",
+    "SkillFileStorage",
+    "SkillVersion",
     "SnippetType",
-    "SystemIntegrationExtend",  # Extend System Integration
     "Tag",
     "TagBinding",
     "Tenant",
@@ -274,8 +281,6 @@ __all__ = [
     "Workflow",
     "WorkflowAgentBindingType",
     "WorkflowAgentNodeBinding",
-    "WorkflowAgentRuntimeSession",
-    "WorkflowAgentRuntimeSessionStatus",
     "WorkflowAppLog",
     "WorkflowAppLogCreatedFrom",
     "WorkflowArchiveLog",
@@ -294,6 +299,6 @@ __all__ = [
     "WorkflowToolProvider",
     "WorkflowTriggerStatus",
     "WorkflowType",
-    "db",  # extend: db
+    "WorkflowVersionCounter",
     "resolve_workflow_kind",
 ]

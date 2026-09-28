@@ -11,18 +11,16 @@ import { Collapsible, CollapsiblePanel } from '@langgenius/dify-ui/collapsible'
 import { Kbd, KbdGroup } from '@langgenius/dify-ui/kbd'
 import { StatusDot } from '@langgenius/dify-ui/status-dot'
 import { toast } from '@langgenius/dify-ui/toast'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@langgenius/dify-ui/tooltip'
 import { formatForDisplay, useHotkey } from '@tanstack/react-hotkeys'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
-import { useRef, useState } from 'react'
+import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  hasAgentComposerUnpublishedChangesAtom,
-  isAgentComposerDirtyAtom,
-} from '@/features/agent-v2/agent-composer/store'
+import { isAgentComposerDirtyAtom } from '@/features/agent-v2/agent-composer/store'
 import { useFormatTimeFromNow } from '@/hooks/use-format-time-from-now'
 import useTimestamp from '@/hooks/use-timestamp'
-import { consoleQuery } from '@/service/client'
+import { consoleQuery } from '@/service/console'
 import { AgentPublishImpactDetails } from './publish-impact-details'
 
 const PUBLISH_AGENT_HOTKEY = 'Mod+Shift+P' satisfies Hotkey
@@ -35,13 +33,9 @@ type PublishBarMode =
 
 type AgentConfigurePublishBarProps = {
   agentId: string
-  activeConfigIsPublished?: boolean
-  activeConfigSnapshot?: AgentConfigSnapshotSummaryResponse | null
   agentName?: string | null
-  draftSavedAt?: number
   isPublishing?: boolean
   selectedVersionSnapshot?: AgentConfigSnapshotSummaryResponse | null
-  workflowReferencesEnabled?: boolean
   onPublish?: () => void | Promise<void>
   onExitVersions?: () => void
   onOpenVersions?: () => void
@@ -52,13 +46,11 @@ function getPublishState({
   activeConfigIsPublished,
   activeConfigSnapshot,
   hasLocalChanges,
-  hasUnpublishedChanges,
   isPublishing,
 }: {
   activeConfigIsPublished?: boolean
   activeConfigSnapshot?: AgentConfigSnapshotSummaryResponse | null
   hasLocalChanges: boolean
-  hasUnpublishedChanges: boolean
   isPublishing: boolean
 }): AgentConfigurePublishState {
   if (isPublishing) return 'publishing'
@@ -67,13 +59,9 @@ function getPublishState({
 
   if (activeConfigIsPublished) return 'published'
 
-  if (hasUnpublishedChanges) return 'unpublished'
-
   if (!activeConfigSnapshot) return 'draft'
 
-  if (!activeConfigIsPublished) return 'unpublished'
-
-  return 'published'
+  return 'unpublished'
 }
 
 function PublishShortcut() {
@@ -90,13 +78,9 @@ function PublishShortcut() {
 
 export function AgentConfigurePublishBar({
   agentId,
-  activeConfigIsPublished,
-  activeConfigSnapshot,
   agentName,
-  draftSavedAt,
   isPublishing = false,
   selectedVersionSnapshot,
-  workflowReferencesEnabled = true,
   onPublish,
   onExitVersions,
   onOpenVersions,
@@ -107,29 +91,35 @@ export function AgentConfigurePublishBar({
   const { formatTimeFromNow } = useFormatTimeFromNow()
   const queryClient = useQueryClient()
   const [publishBarMode, setPublishBarMode] = useState<PublishBarMode>({ status: 'compact' })
-  const lastKnownPublishedRef = useRef(false)
-  if (activeConfigIsPublished === true) lastKnownPublishedRef.current = true
-  if (activeConfigIsPublished === false) lastKnownPublishedRef.current = false
-  const stableActiveConfigIsPublished =
-    activeConfigIsPublished ?? (lastKnownPublishedRef.current ? true : undefined)
-  const hasUnpublishedChanges = useAtomValue(hasAgentComposerUnpublishedChangesAtom)
+  const composerQuery = useQuery(
+    consoleQuery.agent.byAgentId.composer.get.queryOptions({
+      input: {
+        params: {
+          agent_id: agentId,
+        },
+      },
+    }),
+  )
+  const activeConfigIsPublished = composerQuery.data?.active_config_is_published
+  const activeConfigSnapshot = composerQuery.data?.active_config_snapshot
+  const draftSavedAt = composerQuery.data?.draft?.updated_at
+    ? composerQuery.data.draft.updated_at * 1000
+    : undefined
   const hasLocalChanges = useAtomValue(isAgentComposerDirtyAtom)
   const publishableState = getPublishState({
-    activeConfigIsPublished: stableActiveConfigIsPublished,
+    activeConfigIsPublished,
     activeConfigSnapshot,
     hasLocalChanges,
-    hasUnpublishedChanges,
     isPublishing: false,
   })
   const publishState = getPublishState({
-    activeConfigIsPublished: stableActiveConfigIsPublished,
+    activeConfigIsPublished,
     activeConfigSnapshot,
     hasLocalChanges,
-    hasUnpublishedChanges,
     isPublishing,
   })
   const publishIsAvailable =
-    !isPublishing && (publishableState === 'draft' || publishableState === 'unpublished')
+    composerQuery.isSuccess && (publishableState === 'draft' || publishableState === 'unpublished')
   const workflowReferencesQueryOptions =
     consoleQuery.agent.byAgentId.referencingWorkflows.get.queryOptions({
       input: {
@@ -137,13 +127,16 @@ export function AgentConfigurePublishBar({
           agent_id: agentId,
         },
       },
-      enabled: workflowReferencesEnabled && publishIsAvailable && !selectedVersionSnapshot,
+      context: {
+        silent: true,
+      },
+      enabled: publishIsAvailable && !isPublishing && !selectedVersionSnapshot,
     })
-  const workflowReferencesQuery = useQuery(workflowReferencesQueryOptions)
+  useQuery(workflowReferencesQueryOptions)
   const restoreVersionMutation = useMutation(
     consoleQuery.agent.byAgentId.versions.byVersionId.restore.post.mutationOptions(),
   )
-  const canPublish = publishIsAvailable
+  const canPublish = publishIsAvailable && !isPublishing
 
   const handleRestoreVersion = (versionId: string) => {
     if (restoreVersionMutation.isPending) return
@@ -206,16 +199,17 @@ export function AgentConfigurePublishBar({
       return
     }
 
-    const cachedReferences = queryClient.getQueryData<AgentReferencingWorkflowsResponse>(
-      workflowReferencesQueryOptions.queryKey,
-    )
-    const references = workflowReferencesEnabled
-      ? ((
-          cachedReferences ??
-          workflowReferencesQuery.data ??
-          (await queryClient.ensureQueryData(workflowReferencesQueryOptions))
-        )?.data ?? [])
-      : []
+    let referencesResponse: AgentReferencingWorkflowsResponse | undefined
+    try {
+      referencesResponse = await queryClient.query({
+        ...workflowReferencesQueryOptions,
+        staleTime: 0,
+      })
+    } catch {
+      toast.error(tCommon(($) => $['api.actionFailed']))
+      return
+    }
+    const references = referencesResponse?.data ?? []
 
     if (references.length > 0) {
       setPublishBarMode({ status: 'confirmingImpact', references })
@@ -225,11 +219,15 @@ export function AgentConfigurePublishBar({
     await handlePublish()
   }
 
+  const requestPublish = () => {
+    void handlePublishRequest().catch(() => undefined)
+  }
+
   useHotkey(
     PUBLISH_AGENT_HOTKEY,
     (event) => {
       event.preventDefault()
-      void handlePublishRequest()
+      requestPublish()
     },
     {
       enabled: canPublish && !selectedVersionSnapshot,
@@ -328,10 +326,10 @@ export function AgentConfigurePublishBar({
         metaLabel={currentStateMeta.metaLabel}
         showShortcut={currentStateMeta.showShortcut}
         statusLabel={currentStateMeta.statusLabel}
-        canPublish={canPublish}
+        publishIsAvailable={publishIsAvailable}
         onCancelImpact={() => setPublishBarMode({ status: 'compact' })}
         onOpenVersions={() => onOpenVersions?.()}
-        onPublishRequest={handlePublishRequest}
+        onPublishRequest={requestPublish}
       />
     </Collapsible>
   )
@@ -345,7 +343,7 @@ function PublishBarActions({
   metaLabel,
   showShortcut,
   statusLabel,
-  canPublish,
+  publishIsAvailable,
   onCancelImpact,
   onOpenVersions,
   onPublishRequest,
@@ -357,12 +355,13 @@ function PublishBarActions({
   metaLabel: string
   showShortcut: boolean
   statusLabel: string
-  canPublish: boolean
+  publishIsAvailable: boolean
   onCancelImpact: () => void
   onOpenVersions: () => void
-  onPublishRequest: () => void | Promise<void>
+  onPublishRequest: () => void
 }) {
   const { t } = useTranslation('agentV2')
+  const publishButtonLabelId = useId()
 
   return (
     <div className="flex w-full min-w-0 items-center justify-between gap-2 p-2 group-data-open/publish-bar:justify-end group-data-open/publish-bar:px-4 group-data-open/publish-bar:pt-2 group-data-open/publish-bar:pb-4">
@@ -378,7 +377,10 @@ function PublishBarActions({
         <span aria-hidden className="shrink-0">
           ·
         </span>
-        <span className="min-w-0 truncate">{metaLabel}</span>
+        <Tooltip>
+          <TooltipTrigger render={<span className="min-w-0 truncate">{metaLabel}</span>} />
+          <TooltipContent>{metaLabel}</TooltipContent>
+        </Tooltip>
       </div>
       <button
         type="button"
@@ -399,15 +401,16 @@ function PublishBarActions({
       <Button
         type="button"
         variant="primary"
-        disabled={!canPublish}
+        disabled={!publishIsAvailable}
         loading={isPublishing}
+        aria-labelledby={publishButtonLabelId}
         className="h-8 gap-1 rounded-lg px-3"
-        onClick={() => {
-          void onPublishRequest()
-        }}
+        onClick={onPublishRequest}
       >
         {actionIcon && <span aria-hidden className={`${actionIcon} size-4 shrink-0`} />}
-        <span className="shrink-0">{actionLabel}</span>
+        <span id={publishButtonLabelId} className="shrink-0">
+          {actionLabel}
+        </span>
         {showShortcut && <PublishShortcut />}
       </Button>
     </div>
@@ -468,7 +471,7 @@ function AgentVersionRestoreBar({
       <Button
         type="button"
         variant="secondary"
-        className="h-8 gap-1 rounded-lg px-3 text-text-accent"
+        className="h-8 shrink-0 rounded-lg px-3 text-text-accent"
         onClick={onExitVersions}
       >
         <span aria-hidden className="i-ri-arrow-go-back-line size-4 shrink-0" />

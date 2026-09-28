@@ -1,4 +1,3 @@
-/* oxlint-disable typescript/no-explicit-any */
 import { act, renderHook } from '@testing-library/react'
 import { useChat } from '../../hooks'
 
@@ -44,8 +43,11 @@ vi.mock('reactflow', () => ({
   }),
 }))
 
-vi.mock('../../../../hooks', () => ({
+vi.mock('../../../../hooks/use-workflow-run', () => ({
   useWorkflowRun: () => ({ handleRun: mockHandleRun }),
+}))
+
+vi.mock('../../../../hooks/use-set-workflow-vars-with-value', () => ({
   useSetWorkflowVarsWithValue: () => ({ fetchInspectVars: mockFetchInspectVars }),
 }))
 

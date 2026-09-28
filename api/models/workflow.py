@@ -1,7 +1,6 @@
 import copy
 import json
 import logging
-import uuid
 from collections.abc import Generator, Mapping, Sequence
 from datetime import datetime
 from enum import StrEnum
@@ -26,6 +25,7 @@ from typing_extensions import deprecated
 
 from core.trigger.constants import TRIGGER_PLUGIN_NODE_TYPE
 from core.workflow.human_input_adapter import adapt_node_config_for_graph
+from core.workflow.llm_environment_variable import LLMEnvironmentVariable, dump_environment_variable
 from core.workflow.nodes.human_input.pause_reason import (
     HumanInputRequired,
 )
@@ -211,6 +211,13 @@ class Workflow(Base):  # bug
     __table_args__ = (
         sa.PrimaryKeyConstraint("id", name="workflow_pkey"),
         sa.Index("workflow_version_idx", "tenant_id", "app_id", "version"),
+        sa.Index(
+            "workflow_app_version_number_idx",
+            "app_id",
+            "version_number",
+            unique=True,
+            postgresql_where=sa.text("version_number IS NOT NULL"),
+        ),
     )
 
     id: Mapped[str] = mapped_column(StringUUID, default=lambda: str(uuid4()))
@@ -224,6 +231,9 @@ class Workflow(Base):  # bug
         server_default=sa.text("'standard'"),
     )
     version: Mapped[str] = mapped_column(String(255), nullable=False)
+    # User-facing version number, unique and monotonically increasing within an app, displayed as `#N`.
+    # NULL for draft workflows and for versions published before numbering was introduced.
+    version_number: Mapped[int | None] = mapped_column(sa.Integer, nullable=True, default=None)
     marked_name: Mapped[str] = mapped_column(String(255), default="", server_default="")
     marked_comment: Mapped[str] = mapped_column(String(255), default="", server_default="")
     graph: Mapped[str] = mapped_column(LongText)
@@ -265,6 +275,7 @@ class Workflow(Base):  # bug
         marked_name: str = "",
         marked_comment: str = "",
         kind: str | None = WorkflowKind.STANDARD.value,
+        version_number: int | None = None,
     ) -> "Workflow":
         workflow = Workflow()
         workflow.id = str(uuid4())
@@ -273,6 +284,7 @@ class Workflow(Base):  # bug
         workflow.type = WorkflowType(type)
         workflow.kind = resolve_workflow_kind(kind)
         workflow.version = version
+        workflow.version_number = version_number
         workflow.graph = graph
         workflow.features = features
         workflow.created_by = created_by
@@ -285,18 +297,16 @@ class Workflow(Base):  # bug
         workflow.updated_at = workflow.created_at
         return workflow
 
-    @property
-    def created_by_account(self) -> Account | None:
-        return self.get_created_by_account(session=db.session())
+    def created_by_account(self, session: orm.Session) -> Account | None:
+        return self.get_created_by_account(session=session)
 
-    def get_created_by_account(self, *, session: orm.Session) -> Account | None:
+    def get_created_by_account(self, session: orm.Session) -> Account | None:
         return session.get(Account, self.created_by)
 
-    @property
-    def updated_by_account(self) -> Account | None:
-        return self.get_updated_by_account(session=db.session())
+    def updated_by_account(self, session: orm.Session) -> Account | None:
+        return self.get_updated_by_account(session=session)
 
-    def get_updated_by_account(self, *, session: orm.Session) -> Account | None:
+    def get_updated_by_account(self, session: orm.Session) -> Account | None:
         return session.get(Account, self.updated_by) if self.updated_by else None
 
     @property
@@ -552,18 +562,17 @@ class Workflow(Base):  # bug
 
         return helper.generate_text_hash(json.dumps(entity, sort_keys=True))
 
-    @property
     @deprecated(
-        "This property is not accurate for determining if a workflow is published as a tool."
+        "This method is not accurate for determining if a workflow is published as a tool."
         "It only checks if there's a WorkflowToolProvider for the app, "
         "not if this specific workflow version is the one being used by the tool."
     )
-    def tool_published(self) -> bool:
-        return self.get_tool_published(session=db.session())
+    def tool_published(self, session: orm.Session) -> bool:
+        return self.get_tool_published(session=session)
 
-    def get_tool_published(self, *, session: orm.Session) -> bool:
+    def get_tool_published(self, session: orm.Session) -> bool:
         """
-        DEPRECATED: This property is not accurate for determining if a workflow is published as a tool.
+        DEPRECATED: This method is not accurate for determining if a workflow is published as a tool.
         It only checks if there's a WorkflowToolProvider for the app, not if this specific workflow version
         is the one being used by the tool.
 
@@ -582,7 +591,7 @@ class Workflow(Base):  # bug
     @property
     def environment_variables(
         self,
-    ) -> Sequence[StringVariable | IntegerVariable | FloatVariable | SecretVariable]:
+    ) -> Sequence[StringVariable | IntegerVariable | FloatVariable | SecretVariable | LLMEnvironmentVariable]:
         # Use workflow.tenant_id to avoid relying on request user in background threads
         tenant_id = self.tenant_id
 
@@ -597,21 +606,21 @@ class Workflow(Base):  # bug
         # decrypt secret variables value
         def decrypt_func(
             var: VariableBase,
-        ) -> StringVariable | IntegerVariable | FloatVariable | SecretVariable:
+        ) -> StringVariable | IntegerVariable | FloatVariable | SecretVariable | LLMEnvironmentVariable:
             match var:
                 case SecretVariable():
                     return var.model_copy(
                         update={"value": encrypter.decrypt_token(tenant_id=tenant_id, token=var.value)}
                     )
-                case StringVariable() | IntegerVariable() | FloatVariable():
+                case StringVariable() | IntegerVariable() | FloatVariable() | LLMEnvironmentVariable():
                     return var
                 case _:
                     # Other variable types are not supported for environment variables
                     raise AssertionError(f"Unexpected variable type for environment variable: {type(var)}")
 
-        decrypted_results: list[SecretVariable | StringVariable | IntegerVariable | FloatVariable] = [
-            decrypt_func(var) for var in results
-        ]
+        decrypted_results: list[
+            SecretVariable | StringVariable | IntegerVariable | FloatVariable | LLMEnvironmentVariable
+        ] = [decrypt_func(var) for var in results]
         return decrypted_results
 
     @environment_variables.setter
@@ -632,11 +641,13 @@ class Workflow(Base):  # bug
             raise ValueError("environment variable require a unique id")
 
         # Compare inputs and origin variables,
-        # if the value is HIDDEN_VALUE, use the origin variable value (only update `name`).
+        # if the value is HIDDEN_VALUE, use the origin variable value.
         origin_variables_dictionary = {var.id: var for var in self.environment_variables}
         for i, variable in enumerate(value):
             if variable.id in origin_variables_dictionary and variable.value == HIDDEN_VALUE:
-                value[i] = origin_variables_dictionary[variable.id].model_copy(update={"name": variable.name})
+                value[i] = origin_variables_dictionary[variable.id].model_copy(
+                    update={"name": variable.name, "description": variable.description}
+                )
 
         # encrypt secret variables value
         def encrypt_func(var: VariableBase) -> VariableBase:
@@ -647,7 +658,7 @@ class Workflow(Base):  # bug
 
         encrypted_vars = list(map(encrypt_func, value))
         environment_variables_json = json.dumps(
-            {var.name: var.model_dump() for var in encrypted_vars},
+            {var.name: dump_environment_variable(var) for var in encrypted_vars},
             ensure_ascii=False,
         )
         self._environment_variables = environment_variables_json
@@ -687,7 +698,7 @@ class Workflow(Base):  # bug
         result: WorkflowContentDict = {
             "graph": self.graph_dict,
             "features": self.features_dict,
-            "environment_variables": [var.model_dump(mode="json") for var in environment_variables],
+            "environment_variables": [dump_environment_variable(var, mode="json") for var in environment_variables],
             "conversation_variables": [var.model_dump(mode="json") for var in self.conversation_variables],
             "rag_pipeline_variables": self.rag_pipeline_variables,
         }
@@ -733,6 +744,24 @@ class Workflow(Base):  # bug
     @staticmethod
     def version_from_datetime(d: datetime) -> str:
         return str(d)
+
+
+class WorkflowVersionCounter(Base):
+    """Monotonic per-app allocator for `Workflow.version_number`.
+
+    One row per app, holding the highest number handed out so far. Numbers are never
+    reused, so deleting a published version does not free its number.
+
+    `app_id` mirrors `Workflow.app_id`, which is polymorphic: it holds an app id, a
+    pipeline id or a snippet id depending on the workflow kind. UUID uniqueness across
+    those tables is why no owner-type column is needed here.
+    """
+
+    __tablename__ = "workflow_version_counters"
+    __table_args__ = (sa.PrimaryKeyConstraint("app_id", name="workflow_version_counter_pkey"),)
+
+    app_id: Mapped[str] = mapped_column(StringUUID)
+    last_version_number: Mapped[int] = mapped_column(sa.Integer, nullable=False, default=0)
 
 
 class WorkflowRunDict(TypedDict):
@@ -1032,6 +1061,7 @@ class WorkflowNodeExecutionModel(Base):  # This model is expected to have `offlo
     node_id: Mapped[str] = mapped_column(String(255))
     node_type: Mapped[str] = mapped_column(String(255))
     title: Mapped[str] = mapped_column(String(255))
+    agent_workspace_binding_id: Mapped[str | None] = mapped_column(StringUUID, nullable=True)
     inputs: Mapped[str | None] = mapped_column(LongText)
     process_data: Mapped[str | None] = mapped_column(LongText)
     outputs: Mapped[str | None] = mapped_column(LongText)
@@ -1070,22 +1100,20 @@ class WorkflowNodeExecutionModel(Base):  # This model is expected to have `offlo
             )
         )
 
-    @property
-    def created_by_account(self):
+    def created_by_account(self, session: orm.Session) -> Account | None:
         created_by_role = CreatorUserRole(self.created_by_role)
         if created_by_role == CreatorUserRole.ACCOUNT:
             stmt = select(Account).where(Account.id == self.created_by)
-            return db.session.scalar(stmt)
+            return session.scalar(stmt)
         return None
 
-    @property
-    def created_by_end_user(self):
+    def created_by_end_user(self, session: orm.Session):
         from .model import EndUser
 
         created_by_role = CreatorUserRole(self.created_by_role)
         if created_by_role == CreatorUserRole.END_USER:
             stmt = select(EndUser).where(EndUser.id == self.created_by)
-            return db.session.scalar(stmt)
+            return session.scalar(stmt)
         return None
 
     @property
@@ -1360,72 +1388,15 @@ class WorkflowAppLog(TypeBase):
 
         return None
 
-    @property
-    def created_by_account(self):
+    def created_by_account(self, session: orm.Session) -> Account | None:
         created_by_role = CreatorUserRole(self.created_by_role)
-        return db.session.get(Account, self.created_by) if created_by_role == CreatorUserRole.ACCOUNT else None
+        return session.get(Account, self.created_by) if created_by_role == CreatorUserRole.ACCOUNT else None
 
-    @property
-    def created_by_end_user(self):
-        # Extend: start /apps/<uuid:app_id>/workflow-app-logs update end_user to account
-        from models.model_extend import EndUserAccountJoinsExtend
+    def created_by_end_user(self, session: orm.Session):
+        from .model import EndUser
 
         created_by_role = CreatorUserRole(self.created_by_role)
-        if created_by_role == CreatorUserRole.END_USER:
-            end_user = (
-                db.session.query(EndUserAccountJoinsExtend)
-                .filter(EndUserAccountJoinsExtend.end_user_id == self.created_by)
-                .first()
-            )
-            # associated username
-            if end_user is not None and (
-                end_user.account_id is None or (end_user.account_id is not None and len(end_user.account_id) == 0)
-            ):
-                return self.created_by
-            elif end_user is not None:
-                user = db.session.query(Account).filter(Account.id == end_user.account_id).first()
-                if user:
-                    return {
-                        "id": user.id,
-                        "type": user.status,
-                        "is_anonymous": "true",
-                        "session_id": user.name,
-                    }
-            else:
-                from models.model import EndUser
-
-                end_user = db.session.query(EndUser).filter(EndUser.id == self.created_by).first()
-                if (
-                    end_user is not None
-                    and end_user.external_user_id is not None
-                    and len(end_user.external_user_id) > 0
-                ):
-                    # 验证 external_user_id 是否为有效的 UUID
-                    try:
-                        uuid.UUID(end_user.external_user_id)
-                        user = db.session.query(Account).filter(Account.id == end_user.external_user_id).first()
-                        if user:
-                            return {
-                                "id": user.id,
-                                "type": user.status,
-                                "is_anonymous": "true",
-                                "session_id": user.name,
-                            }
-                    except (ValueError, TypeError):
-                        # 如果不是有效的 UUID，跳过查询
-                        pass
-            return end_user
-        elif len(self.created_by) > 0:
-            user = db.session.query(Account).filter(Account.id == self.created_by).first()
-            if user:
-                return {
-                    "id": user.id,
-                    "type": user.status,
-                    "is_anonymous": "true",
-                    "session_id": user.name,
-                }
-        return None
-        # Extend: stop /apps/<uuid:app_id>/workflow-app-logs update end_user to account
+        return session.get(EndUser, self.created_by) if created_by_role == CreatorUserRole.END_USER else None
 
     def to_dict(self) -> WorkflowAppLogDict:
         result: WorkflowAppLogDict = {
@@ -1532,6 +1503,8 @@ class WorkflowRunArchiveBundle(DefaultFieldsDCMixin, TypeBase):
             name="workflow_run_archive_bundle_identity_uq",
         ),
         sa.Index("workflow_run_archive_bundle_tenant_month_idx", "tenant_id", "year", "month"),
+        sa.Index("workflow_run_archive_bundle_month_id_idx", "year", "month", "id"),
+        sa.Index("workflow_run_archive_bundle_month_shard_id_idx", "year", "month", "shard", "id"),
     )
 
     tenant_id: Mapped[str] = mapped_column(StringUUID, nullable=False)
@@ -1587,11 +1560,6 @@ class WorkflowDraftVariable(Base):
 
     Instead, use the factory methods (`new_conversation_variable`, `new_sys_variable`,
     `new_node_variable`) defined below to ensure all invariants are properly maintained.
-
-    Draft variables are scoped by both app and user. The database uniqueness contract is
-    `(app_id, user_id, node_id, name)`, so every read/write path that operates on draft
-    variables during debugging must thread the current user through to avoid collisions
-    across editors of the same app.
     """
 
     @staticmethod
@@ -1602,12 +1570,6 @@ class WorkflowDraftVariable(Base):
             "node_id",
             "name",
         ]
-
-    @staticmethod
-    def unique_app_id_node_id_name() -> list[str]:
-        """Backward-compatible alias for the current user-scoped unique key."""
-
-        return WorkflowDraftVariable.unique_app_id_user_id_node_id_name()
 
     __tablename__ = "workflow_draft_variables"
     __table_args__ = (
@@ -1637,9 +1599,10 @@ class WorkflowDraftVariable(Base):
 
     # "`app_id` maps to the `id` field in the `model.App` model."
     app_id: Mapped[str] = mapped_column(StringUUID, nullable=False)
-    # Draft variables are isolated per editor. `user_id` references `Account.id` for
-    # console debugging flows and remains nullable for legacy rows created before the
-    # user-scoped migration.
+    # Owner of this draft variable.
+    #
+    # This field is nullable during migration and will be migrated to NOT NULL
+    # in a follow-up release.
     user_id: Mapped[str | None] = mapped_column(StringUUID, nullable=True, default=None)
 
     # `last_edited_at` records when the value of a given draft variable

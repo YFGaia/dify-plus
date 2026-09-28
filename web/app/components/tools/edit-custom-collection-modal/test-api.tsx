@@ -170,7 +170,6 @@ const TestApi: FC<Props> = ({ positionCenter, customCollection, tool, onHide }) 
                     variant="primary"
                     className="mt-4 h-10 w-full"
                     loading={testing}
-                    disabled={testing}
                     onClick={handleTest}
                   >
                     {t(($) => $['test.title'], { ns: 'tools' })}
@@ -182,7 +181,7 @@ const TestApi: FC<Props> = ({ positionCenter, customCollection, tool, onHide }) 
                       </div>
                       <div className="bg-[rgb(243, 244, 246)] h-px w-0 grow"></div>
                     </div>
-                    <div className="mt-2 h-[200px] overflow-x-hidden overflow-y-auto rounded-lg bg-components-input-bg-normal px-3 py-2 system-xs-regular text-text-secondary">
+                    <div className="mt-2 h-50 overflow-x-hidden overflow-y-auto rounded-lg bg-components-input-bg-normal px-3 py-2 system-xs-regular text-text-secondary">
                       {result || (
                         <span className="text-text-quaternary">
                           {t(($) => $['test.testResultPlaceholder'], { ns: 'tools' })}

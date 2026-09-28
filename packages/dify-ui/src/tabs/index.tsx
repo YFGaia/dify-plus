@@ -4,23 +4,22 @@ import type { Tabs as BaseTabsNS } from '@base-ui/react/tabs'
 import { Tabs as BaseTabs } from '@base-ui/react/tabs'
 import { cn } from '../cn'
 
-export type TabsProps = BaseTabsNS.Root.Props
+type TabsProps = BaseTabsNS.Root.Props
+const Tabs = BaseTabs.Root
 
-export const Tabs = BaseTabs.Root
-
-export type TabsListProps = Omit<BaseTabsNS.List.Props, 'className'> & {
+type TabsListProps = Omit<BaseTabsNS.List.Props, 'className'> & {
   className?: string
 }
 
-export function TabsList({ className, ...props }: TabsListProps) {
+function TabsList({ className, ...props }: TabsListProps) {
   return <BaseTabs.List className={cn('flex gap-4', className)} {...props} />
 }
 
-export type TabsTabProps = Omit<BaseTabsNS.Tab.Props, 'className'> & {
+type TabsTabProps = Omit<BaseTabsNS.Tab.Props, 'className'> & {
   className?: string
 }
 
-export function TabsTab({ className, ...props }: TabsTabProps) {
+function TabsTab({ className, ...props }: TabsTabProps) {
   return (
     <BaseTabs.Tab
       className={cn(
@@ -32,12 +31,25 @@ export function TabsTab({ className, ...props }: TabsTabProps) {
   )
 }
 
-export type TabsPanelProps = Omit<BaseTabsNS.Panel.Props, 'className'> & {
+type TabsPanelProps = Omit<BaseTabsNS.Panel.Props, 'className'> & {
   className?: string
 }
 
-export function TabsPanel({ className, ...props }: TabsPanelProps) {
-  return <BaseTabs.Panel className={className} {...props} />
+function TabsPanel({ className, ...props }: TabsPanelProps) {
+  return (
+    <BaseTabs.Panel
+      className={cn(
+        'outline-hidden focus-visible:inset-ring-2 focus-visible:inset-ring-state-accent-solid',
+        className,
+      )}
+      {...props}
+    />
+  )
 }
 
-export const TabsIndicator = BaseTabs.Indicator
+const TabsIndicator = BaseTabs.Indicator
+type TabsIndicatorProps = BaseTabsNS.Indicator.Props
+
+export { Tabs, TabsIndicator, TabsList, TabsPanel, TabsTab }
+
+export type { TabsIndicatorProps, TabsListProps, TabsPanelProps, TabsProps, TabsTabProps }

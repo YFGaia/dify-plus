@@ -8,6 +8,7 @@ import services
 from controllers.common.controller_schemas import TextToAudioPayload
 from controllers.common.fields import AudioBinaryResponse, AudioTranscriptResponse
 from controllers.common.schema import register_response_schema_models, register_schema_model
+from controllers.console.wraps import model_validate
 from controllers.service_api import service_api_ns
 from controllers.service_api.app.error import (
     AppUnavailableError,
@@ -23,11 +24,12 @@ from controllers.service_api.app.error import (
 )
 from controllers.service_api.schema import binary_response, expect_with_user, multipart_file_params
 from controllers.service_api.wraps import FetchUserArg, WhereisUserArg, validate_app_token
+from core.base.tts.audio_mime import SUPPORTED_TTS_AUDIO_MIME_TYPES
 from core.errors.error import ModelCurrentlyNotSupportError, ProviderTokenNotInitError, QuotaExceededError
 from extensions.ext_database import db
 from graphon.model_runtime.errors.invoke import InvokeError
 from libs.helper import dump_response
-from models.model import ApiToken, App, EndUser  # extend: 二开部分 密钥额度限制，新增api_token
+from models.model import App, EndUser
 from services.app_ref_service import AppRefService
 from services.audio_service import AudioService
 from services.errors.audio import (
@@ -49,7 +51,7 @@ class AudioApi(Resource):
         summary="Convert Audio to Text",
         description=(
             "Convert audio file to text. Supported MIME types: `audio/mp3`, `audio/mpga`, `audio/m4a`, "
-            "`audio/wav`, and `audio/amr`. File size limit is `30 MB`."
+            "`audio/x-m4a`, `audio/wav`, and `audio/amr`. File size limit is `30 MB`."
         ),
         tags=["TTS"],
         responses={
@@ -76,7 +78,7 @@ class AudioApi(Resource):
             include_user=True,
             file_description=(
                 "Audio file to transcribe. Supported MIME types: `audio/mp3`, `audio/mpga`, `audio/m4a`, "
-                "`audio/wav`, and `audio/amr`. File size limit is `30 MB`."
+                "`audio/x-m4a`, `audio/wav`, and `audio/amr`. File size limit is `30 MB`."
             ),
         ),
     )
@@ -96,13 +98,12 @@ class AudioApi(Resource):
         service_api_ns.models[AudioTranscriptResponse.__name__],
     )
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))
-    # 二开部分End - 密钥额度限制，新增api_token,否则上传文件会报错
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken | None = None):
+    def post(self, app_model: App, end_user: EndUser):
         """Convert audio to text using speech-to-text.
 
         Accepts an audio file upload and returns the transcribed text.
         """
-        file = request.files["file"]
+        file = request.files.get("file")
 
         try:
             response = AudioService.transcript_asr(
@@ -152,8 +153,9 @@ class TextApi(Resource):
         tags=["TTS"],
         responses={
             200: (
-                "Returns the generated audio. Generator responses are streamed by the service as `audio/mpeg`; "
-                "otherwise the provider output is returned directly."
+                "Returns the generated audio. The `Content-Type` header reflects the provider audio container, "
+                "verified from the response bytes when recognizable. The binary response can be AAC, FLAC, MP4, "
+                "MP3, Ogg, WAV, or WebM."
             ),
             400: (
                 "- `app_unavailable` : App unavailable or misconfigured.\n"
@@ -166,7 +168,7 @@ class TextApi(Resource):
         },
     )
     @expect_with_user(service_api_ns, TextToAudioPayload)
-    @binary_response(service_api_ns, "audio/mpeg")
+    @binary_response(service_api_ns, SUPPORTED_TTS_AUDIO_MIME_TYPES)
     @service_api_ns.doc("text_to_audio")
     @service_api_ns.doc(description="Convert text to audio using text-to-speech")
     @service_api_ns.doc(
@@ -180,15 +182,13 @@ class TextApi(Resource):
     # TTS returns provider audio bytes, so the success response is intentionally schema-less.
     @service_api_ns.response(200, "Text successfully converted to audio")
     @validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))
-    # extend 二开部分End - 密钥额度限制，新增api_token
-    def post(self, app_model: App, end_user: EndUser, api_token: ApiToken | None = None):
+    @model_validate(TextToAudioPayload)
+    def post(self, payload: TextToAudioPayload, app_model: App, end_user: EndUser):
         """Convert text to audio using text-to-speech.
 
         Converts the provided text to audio using the specified voice.
         """
         try:
-            payload = TextToAudioPayload.model_validate(service_api_ns.payload or {})
-
             message_id = payload.message_id
             text = payload.text
             voice = payload.voice

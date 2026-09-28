@@ -9,35 +9,27 @@ from werkzeug.exceptions import Conflict, NotFound
 from controllers.common.fields import RedirectResponse
 from controllers.common.schema import register_response_schema_models, register_schema_models
 from controllers.console import console_ns
+from controllers.console.flask_admission import console_account_admission
 from controllers.console.wraps import (
-    RBACPermission,
-    RBACResourceScope,
-    account_initialization_required,
-    cloud_edition_billing_enabled,
     cloud_edition_billing_paid_plan_required,
-    is_admin_or_owner_required,
-    only_edition_cloud,
-    rbac_permission_required,
-    setup_required,
+    model_validate,
 )
-from extensions.ext_database import db
+from enums import DeploymentEdition
+from extensions.ext_application_services import application_services
 from fields.base import ResponseModel
-from libs.archive_storage import get_export_storage
 from libs.helper import dump_response
-from libs.login import current_account_with_tenant, login_required
-from services.retention.workflow_run.archive_download_preparation import ARCHIVE_DOWNLOAD_MIME_TYPE
-from services.retention.workflow_run.archive_download_task_cache import (
+from machinery.context import RequestContext
+from models.account import TenantAccountRole
+from services.retention.workflow_run.archive_download_task import (
     WorkflowRunArchiveDownloadStatus,
 )
 from services.retention.workflow_run.archive_log_service import (
     WorkflowRunArchiveDownloadNotReadyError,
     WorkflowRunArchiveDownloadTaskNotFoundError,
     WorkflowRunArchiveNotFoundError,
-    create_workflow_run_archive_download_task,
-    get_ready_workflow_run_archive_download_task,
-    get_workflow_run_archive_download_task,
-    list_workflow_run_archives,
 )
+
+_WORKFLOW_RUN_ARCHIVE_ALLOWED_ROLES = frozenset({TenantAccountRole.OWNER, TenantAccountRole.ADMIN})
 
 
 class WorkflowRunArchiveDownloadPayload(BaseModel):
@@ -98,39 +90,19 @@ register_response_schema_models(
 )
 
 
-def _current_ids() -> tuple[str, str]:
-    """Return current `(tenant_id, account_id)` or raise when no workspace is selected."""
-    current_user, current_tenant_id = current_account_with_tenant()
-    if not current_tenant_id:
-        raise NotFound("Current workspace not found")
-    return current_tenant_id, current_user.id
-
-
-def _presigned_url_expires_in(expires_at: datetime.datetime) -> int:
-    """Keep the storage URL no longer-lived than the Redis task and cap it for browser downloads."""
-    expires_at_utc = expires_at if expires_at.tzinfo else expires_at.replace(tzinfo=datetime.UTC)
-    remaining_seconds = int((expires_at_utc - datetime.datetime.now(datetime.UTC)).total_seconds())
-    return max(1, min(3600, remaining_seconds))
-
-
 @console_ns.route("/workflow-run-archives")
 class WorkflowRunArchivesApi(Resource):
     @console_ns.doc("list_workflow_run_archives")
     @console_ns.doc(description="List monthly workflow-run archive metadata for the current workspace")
     @console_ns.response(200, "Success", console_ns.models[WorkflowRunArchiveListResponse.__name__])
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @only_edition_cloud
-    @cloud_edition_billing_enabled
-    @cloud_edition_billing_paid_plan_required
-    @is_admin_or_owner_required
-    @rbac_permission_required(
-        RBACResourceScope.WORKSPACE, RBACPermission.WORKSPACE_ROLE_MANAGE, resource_required=False
+    @console_account_admission(
+        editions=frozenset({DeploymentEdition.CLOUD}),
+        allowed_roles=_WORKFLOW_RUN_ARCHIVE_ALLOWED_ROLES,
     )
-    def get(self):
-        tenant_id, _ = _current_ids()
-        return dump_response(WorkflowRunArchiveListResponse, list_workflow_run_archives(db.session(), tenant_id))
+    @cloud_edition_billing_paid_plan_required
+    def get(self, request_context: RequestContext):
+        archives = application_services().workflow_run_archives.list_archives(request_context)
+        return dump_response(WorkflowRunArchiveListResponse, archives)
 
 
 @console_ns.route("/workflow-run-archives/downloads")
@@ -143,26 +115,18 @@ class WorkflowRunArchiveDownloadsApi(Resource):
         "Download task accepted",
         console_ns.models[WorkflowRunArchiveDownloadTaskResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @only_edition_cloud
-    @cloud_edition_billing_enabled
-    @cloud_edition_billing_paid_plan_required
-    @is_admin_or_owner_required
-    @rbac_permission_required(
-        RBACResourceScope.WORKSPACE, RBACPermission.WORKSPACE_ROLE_MANAGE, resource_required=False
+    @console_account_admission(
+        editions=frozenset({DeploymentEdition.CLOUD}),
+        allowed_roles=_WORKFLOW_RUN_ARCHIVE_ALLOWED_ROLES,
     )
-    def post(self):
-        tenant_id, account_id = _current_ids()
-        payload = WorkflowRunArchiveDownloadPayload.model_validate(console_ns.payload or {})
+    @cloud_edition_billing_paid_plan_required
+    @model_validate(WorkflowRunArchiveDownloadPayload)
+    def post(self, req_data: WorkflowRunArchiveDownloadPayload, request_context: RequestContext):
         try:
-            task = create_workflow_run_archive_download_task(
-                db.session(),
-                tenant_id=tenant_id,
-                requested_by=account_id,
-                year=payload.year,
-                month=payload.month,
+            task = application_services().workflow_run_archives.create_download(
+                request_context,
+                year=req_data.year,
+                month=req_data.month,
             )
         except WorkflowRunArchiveNotFoundError as exc:
             raise NotFound(str(exc)) from exc
@@ -174,20 +138,17 @@ class WorkflowRunArchiveDownloadApi(Resource):
     @console_ns.doc("get_workflow_run_archive_download")
     @console_ns.doc(description="Get a temporary workflow-run archive download task")
     @console_ns.response(200, "Success", console_ns.models[WorkflowRunArchiveDownloadTaskResponse.__name__])
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @only_edition_cloud
-    @cloud_edition_billing_enabled
-    @cloud_edition_billing_paid_plan_required
-    @is_admin_or_owner_required
-    @rbac_permission_required(
-        RBACResourceScope.WORKSPACE, RBACPermission.WORKSPACE_ROLE_MANAGE, resource_required=False
+    @console_account_admission(
+        editions=frozenset({DeploymentEdition.CLOUD}),
+        allowed_roles=_WORKFLOW_RUN_ARCHIVE_ALLOWED_ROLES,
     )
-    def get(self, download_id: str):
-        tenant_id, _ = _current_ids()
+    @cloud_edition_billing_paid_plan_required
+    def get(self, request_context: RequestContext, download_id: str):
         try:
-            task = get_workflow_run_archive_download_task(tenant_id=tenant_id, download_id=download_id)
+            task = application_services().workflow_run_archives.get_download(
+                request_context,
+                download_id=download_id,
+            )
         except WorkflowRunArchiveDownloadTaskNotFoundError as exc:
             raise NotFound(str(exc)) from exc
         return dump_response(WorkflowRunArchiveDownloadTaskResponse, task)
@@ -203,34 +164,19 @@ class WorkflowRunArchiveDownloadFileApi(Resource):
         console_ns.models[RedirectResponse.__name__],
     )
     @console_ns.response(409, "Download task is not ready")
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @only_edition_cloud
-    @cloud_edition_billing_enabled
-    @cloud_edition_billing_paid_plan_required
-    @is_admin_or_owner_required
-    @rbac_permission_required(
-        RBACResourceScope.WORKSPACE, RBACPermission.WORKSPACE_ROLE_MANAGE, resource_required=False
+    @console_account_admission(
+        editions=frozenset({DeploymentEdition.CLOUD}),
+        allowed_roles=_WORKFLOW_RUN_ARCHIVE_ALLOWED_ROLES,
     )
-    def get(self, download_id: str):
-        tenant_id, _ = _current_ids()
+    @cloud_edition_billing_paid_plan_required
+    def get(self, request_context: RequestContext, download_id: str):
         try:
-            task = get_ready_workflow_run_archive_download_task(tenant_id=tenant_id, download_id=download_id)
+            presigned_url = application_services().workflow_run_archives.get_download_url(
+                request_context,
+                download_id=download_id,
+            )
         except WorkflowRunArchiveDownloadTaskNotFoundError as exc:
             raise NotFound(str(exc)) from exc
         except WorkflowRunArchiveDownloadNotReadyError as exc:
             raise Conflict(str(exc)) from exc
-
-        storage_key = task.storage_key
-        if storage_key is None:
-            raise Conflict(f"Workflow run archive download is not ready: {download_id}")
-
-        storage = get_export_storage()
-        presigned_url = storage.generate_presigned_url(
-            storage_key,
-            expires_in=_presigned_url_expires_in(task.expires_at),
-            filename=task.file_name,
-            content_type=ARCHIVE_DOWNLOAD_MIME_TYPE,
-        )
         return redirect(presigned_url, code=HTTPStatus.FOUND)

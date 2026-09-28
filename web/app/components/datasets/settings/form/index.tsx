@@ -69,7 +69,7 @@ const Form = () => {
   const readonly = !canEditSettings
 
   return (
-    <div className="flex w-full flex-col gap-y-4 px-20 py-8 sm:w-[960px]">
+    <div className="flex w-full flex-col gap-y-4 px-20 py-8 sm:w-240">
       <BasicInfoSection
         currentDataset={currentDataset}
         name={name}
@@ -121,13 +121,13 @@ const Form = () => {
 
       {/* Save Button */}
       <div className="flex gap-x-1">
-        <div className="flex h-7 w-[180px] shrink-0 items-center pt-1" />
+        <div className="flex h-7 w-45 shrink-0 items-center pt-1" />
         <div className="grow">
           <Button
             className="min-w-24"
             variant="primary"
             loading={loading}
-            disabled={loading || readonly}
+            disabled={readonly}
             onClick={handleSave}
           >
             {t(($) => $['form.save'], { ns: 'datasetSettings' })}

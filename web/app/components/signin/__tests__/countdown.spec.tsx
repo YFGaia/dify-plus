@@ -12,6 +12,7 @@ describe('Countdown', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
   it('shows the stored remaining time', () => {
@@ -25,17 +26,27 @@ describe('Countdown', () => {
     localStorage.setItem(COUNT_DOWN_KEY, '30000')
     const container = document.createElement('div')
     container.innerHTML = renderToString(<Countdown />)
-    const root = hydrateRoot(container, <Countdown />)
+    expect(container).toHaveTextContent('login.checkCode.didNotReceiveCode')
+    expect(container).not.toHaveTextContent('30s')
+    expect(container.querySelector('button')).toBeNull()
 
-    await waitFor(() => expect(container).toHaveTextContent('30s'))
-    act(() => root.unmount())
+    const onRecoverableError = vi.fn()
+    const root = hydrateRoot(container, <Countdown />, { onRecoverableError })
+
+    try {
+      await waitFor(() => expect(container).toHaveTextContent('30s'))
+      expect(onRecoverableError).not.toHaveBeenCalled()
+    } finally {
+      act(() => root.unmount())
+    }
   })
 
   it('removes the stored time when the countdown ends', () => {
+    const removeItemSpy = vi.spyOn(Storage.prototype, 'removeItem')
     localStorage.setItem(COUNT_DOWN_KEY, '1000')
     render(<Countdown />)
     act(() => vi.advanceTimersByTime(2000))
-    expect(localStorage.removeItem).toHaveBeenCalledWith(COUNT_DOWN_KEY)
+    expect(removeItemSpy).toHaveBeenCalledWith(COUNT_DOWN_KEY)
   })
 
   it('resets the countdown and invokes the callback when resent', () => {
@@ -45,7 +56,29 @@ describe('Countdown', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'login.checkCode.resend' }))
 
-    expect(localStorage.setItem).toHaveBeenCalledWith(COUNT_DOWN_KEY, String(COUNT_DOWN_TIME_MS))
+    expect(localStorage.getItem(COUNT_DOWN_KEY)).toBe(String(COUNT_DOWN_TIME_MS))
+    expect(onResend).toHaveBeenCalledOnce()
+  })
+
+  it('does not restart the countdown while resend is disabled', () => {
+    localStorage.setItem(COUNT_DOWN_KEY, '0')
+    const onResend = vi.fn()
+    render(<Countdown onResend={onResend} resendDisabled />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'login.checkCode.resend' }))
+
+    expect(localStorage.getItem(COUNT_DOWN_KEY)).toBe('0')
+    expect(onResend).not.toHaveBeenCalled()
+  })
+
+  it('lets the caller defer restarting the countdown until resend succeeds', () => {
+    localStorage.setItem(COUNT_DOWN_KEY, '0')
+    const onResend = vi.fn()
+    render(<Countdown onResend={onResend} restartOnResend={false} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'login.checkCode.resend' }))
+
+    expect(localStorage.getItem(COUNT_DOWN_KEY)).toBe('0')
     expect(onResend).toHaveBeenCalledOnce()
   })
 })

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useState } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { createRef, useState } from 'react'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import SearchBox from '../index'
 
 vi.mock('../tags-filter', () => ({
@@ -28,12 +28,18 @@ describe('SearchBox', () => {
     const user = userEvent.setup()
     render(<SearchHarness usedInMarketplace={mode} />)
 
-    const input = screen.getByPlaceholderText('Search plugins')
+    const input = screen.getByRole('searchbox', { name: 'Search plugins' })
     await user.type(input, 'agent')
     expect(input).toHaveValue('agent')
 
-    await user.click(screen.getByRole('button'))
+    await user.tab()
+    const clearButton = screen.getByRole('button', {
+      name: /^plugin\.clearSearch/,
+    })
+    expect(clearButton).toHaveFocus()
+    await user.keyboard('{Enter}')
     expect(input).toHaveValue('')
+    expect(input).toHaveFocus()
   })
 
   it('opens the custom tool flow from the add button', async () => {
@@ -52,7 +58,27 @@ describe('SearchBox', () => {
       />,
     )
 
-    await user.click(screen.getByRole('button'))
+    const addButton = screen.getByRole('button', { name: 'tools.addToolModal.custom.tip' })
+    addButton.focus()
+    await user.keyboard('{Enter}')
     expect(onShowAddCustomCollectionModal).toHaveBeenCalledOnce()
+  })
+
+  it('exposes the input element through its ref', () => {
+    const ref = createRef<HTMLInputElement>()
+
+    render(
+      <SearchBox
+        ref={ref}
+        search=""
+        onSearchChange={vi.fn()}
+        tags={[]}
+        onTagsChange={vi.fn()}
+        placeholder="Search plugins"
+        showTags={false}
+      />,
+    )
+
+    expect(ref.current).toBe(screen.getByRole('searchbox', { name: 'Search plugins' }))
   })
 })

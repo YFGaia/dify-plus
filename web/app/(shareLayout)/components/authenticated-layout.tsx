@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppUnavailable from '@/app/components/base/app-unavailable'
 import Loading from '@/app/components/base/loading'
@@ -9,11 +9,11 @@ import { useWebAppStore } from '@/context/web-app-context'
 import { usePathname, useRouter, useSearchParams } from '@/next/navigation'
 import { useGetUserCanAccessApp } from '@/service/access-control/use-app-access-control'
 import { useGetWebAppInfo, useGetWebAppMeta, useGetWebAppParams } from '@/service/use-share'
-import { checkWebAppConsoleAuthStatus, webAppLogout } from '@/service/webapp-auth'
+import { resolveWebAppAddress } from '@/service/webapp-address'
+import { webAppLogout } from '@/service/webapp-auth'
 
 const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const { t } = useTranslation()
-  const shareCode = useWebAppStore((s) => s.shareCode)
   const updateAppInfo = useWebAppStore((s) => s.updateAppInfo)
   const updateAppParams = useWebAppStore((s) => s.updateAppParams)
   const updateWebAppMeta = useWebAppStore((s) => s.updateWebAppMeta)
@@ -29,8 +29,6 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
     appId: appInfo?.app_id,
     isInstalledApp: false,
   })
-  // extend: WebApp 复用 Console 登录态的鉴权检查
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   useEffect(() => {
     if (appInfo) updateAppInfo(appInfo)
@@ -51,25 +49,6 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-
-  // 检查 Console 用户登录状态（per-app 认证开关关闭时允许匿名访问，不再强制跳转）
-  useEffect(() => {
-    // shareCode 由 (shareLayout) 的 WebAppStoreProvider 从路径解析注入，就绪前保持 Loading
-    if (!shareCode) return
-
-    const checkConsoleAuth = async () => {
-      setIsCheckingAuth(true)
-      const { consoleLoggedIn, webAppAuthEnabled } = await checkWebAppConsoleAuthStatus(shareCode)
-      if (webAppAuthEnabled && !consoleLoggedIn) {
-        // 需认证且未登录，保存当前 URL 到 localStorage，然后跳转到 Console 登录页面
-        localStorage.setItem('redirect_url', pathname)
-        router.replace('/signin')
-      }
-      setIsCheckingAuth(false)
-    }
-
-    checkConsoleAuth()
-  }, [pathname, router, shareCode])
   const getSigninUrl = useCallback(() => {
     const params = new URLSearchParams(searchParams)
     params.delete('message')
@@ -80,10 +59,10 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
   }, [searchParams, pathname])
 
   const backToHome = useCallback(async () => {
-    await webAppLogout(shareCode!)
+    await webAppLogout(resolveWebAppAddress())
     const url = getSigninUrl()
     router.replace(url)
-  }, [getSigninUrl, router, shareCode])
+  }, [getSigninUrl, router])
 
   if (appInfoError) {
     return (
@@ -117,15 +96,17 @@ const AuthenticatedLayout = ({ children }: { children: React.ReactNode }) => {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-y-2">
         <AppUnavailable className="size-auto" code={403} unknownReason="no permission." />
-        <span className="cursor-pointer system-sm-regular text-text-tertiary" onClick={backToHome}>
+        <button
+          type="button"
+          className="cursor-pointer appearance-none system-sm-regular text-text-tertiary focus-visible:ring-2 focus-visible:ring-state-accent-solid focus-visible:outline-hidden"
+          onClick={backToHome}
+        >
           {t(($) => $['userProfile.logout'], { ns: 'common' })}
-        </span>
+        </button>
       </div>
     )
   }
-  // extend: isCheckingAuth — WebApp 复用 Console 登录态的鉴权检查
   if (
-    isCheckingAuth ||
     isLoadingAppInfo ||
     isLoadingAppParams ||
     isLoadingAppMeta ||

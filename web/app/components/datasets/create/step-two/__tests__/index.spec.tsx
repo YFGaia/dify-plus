@@ -1,4 +1,8 @@
-import type { Model } from '@/app/components/header/account-setting/model-provider-page/declarations'
+import type {
+  GetWorkspacesCurrentModelsModelTypesByModelTypeData,
+  ProviderWithModelsResponse,
+} from '@dify/contracts/api/console/workspaces/types.gen'
+import type { OperationKey } from '@orpc/tanstack-query'
 import type { DataSourceProvider, NotionPage } from '@/models/common'
 import type {
   CrawlOptions,
@@ -10,7 +14,7 @@ import type {
   Rules,
 } from '@/models/datasets'
 import type { RetrievalConfig } from '@/types/app'
-import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, renderHook, screen } from '@testing-library/react'
 import {
   ConfigurationMethodEnum,
   ModelStatusEnum,
@@ -18,6 +22,7 @@ import {
 } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import { ChunkingMode, DataSourceType, ProcessMode } from '@/models/datasets'
 import { expectLoadingButton } from '@/test/button'
+import { renderWithConsoleQuery as render } from '@/test/console/query-data'
 import { RETRIEVE_METHOD } from '@/types/app'
 import { PreviewPanel } from '../components/preview-panel'
 import { StepTwoFooter } from '../components/step-two-footer'
@@ -74,8 +79,9 @@ const mockDefaultEmbeddingModel = {
   model: 'text-embedding-ada-002',
 }
 // Model[] type structure for rerank model list (simplified mock)
-const mockRerankModelList: Model[] = [
+const mockRerankModelList: ProviderWithModelsResponse[] = [
   {
+    tenant_id: 'test-workspace',
     provider: 'cohere',
     icon_small: { en_US: 'cohere-icon', zh_Hans: 'cohere-icon' },
     label: { en_US: 'Cohere', zh_Hans: 'Cohere' },
@@ -103,7 +109,7 @@ vi.mock('@/app/components/header/account-setting/model-provider-page/hooks', () 
     defaultModel: mockRerankDefaultModel,
     currentModel: mockIsRerankDefaultModelValid,
   }),
-  useModelList: () => ({ data: mockEmbeddingModelList }),
+
   useDefaultModel: () => ({ data: mockDefaultEmbeddingModel }),
 }))
 
@@ -196,12 +202,6 @@ vi.mock('@/app/components/base/amplitude', () => ({
   trackEvent: vi.fn(),
 }))
 
-// Enable IS_CE_EDITION to show QA checkbox in tests
-vi.mock('@/config', async () => {
-  const actual = await vi.importActual('@/config')
-  return { ...actual, IS_CE_EDITION: true }
-})
-
 // Mock PreviewDocumentPicker to allow testing handlePickerChange
 vi.mock('@/app/components/datasets/common/document-picker/preview-document-picker', () => ({
   /* oxlint-disable typescript/no-explicit-any */
@@ -232,15 +232,17 @@ vi.mock('@/app/components/datasets/settings/utils', () => ({
 
 // Mock complex child components to avoid deep dependency chains when rendering StepTwo
 vi.mock('@/app/components/header/account-setting/model-provider-page/model-selector', () => ({
-  default: ({
-    onSelect,
-    readonly,
+  ModelSelector: ({
+    onValueChange,
+    disabled,
   }: {
-    onSelect?: (val: Record<string, string>) => void
-    readonly?: boolean
+    onValueChange?: (val: Record<string, string>) => void
+    disabled?: boolean
   }) => (
-    <div data-testid="model-selector" data-readonly={readonly}>
-      <button onClick={() => onSelect?.({ provider: 'openai', model: 'text-embedding-3-small' })}>
+    <div data-testid="model-selector" data-disabled={disabled}>
+      <button
+        onClick={() => onValueChange?.({ provider: 'openai', model: 'text-embedding-3-small' })}
+      >
         Select Model
       </button>
     </div>
@@ -2531,7 +2533,7 @@ describe('StepTwo Component', () => {
       render(<StepTwo {...defaultStepTwoProps} datasetId="test-id" />)
       // isModelAndRetrievalConfigDisabled should be true
       const modelSelector = screen.getByTestId('model-selector')
-      expect(modelSelector)!.toHaveAttribute('data-readonly', 'true')
+      expect(modelSelector)!.toHaveAttribute('data-disabled', 'true')
     })
   })
 
@@ -2622,4 +2624,20 @@ describe('StepTwo Component', () => {
       document.body.removeAttribute('data-public-indexing-max-segmentation-tokens-length')
     })
   })
+})
+
+vi.mock('@tanstack/react-query', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@tanstack/react-query')>()
+  return {
+    ...actual,
+    useQuery: (options: {
+      queryKey: OperationKey<
+        'query',
+        { params: GetWorkspacesCurrentModelsModelTypesByModelTypeData['path'] }
+      >
+    }) => {
+      if (!options.queryKey[0].includes('modelTypes')) return actual.useQuery(options)
+      return { data: mockEmbeddingModelList }
+    },
+  }
 })

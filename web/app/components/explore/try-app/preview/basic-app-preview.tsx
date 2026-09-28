@@ -1,4 +1,3 @@
-/* oxlint-disable typescript/no-explicit-any */
 'use client'
 import type { FC } from 'react'
 import type { Features as FeaturesData, FileUpload } from '@/app/components/base/features/types'
@@ -531,7 +530,6 @@ const BasicAppPreview: FC<Props> = ({ appId }) => {
   const value = {
     readonly: true,
     appId,
-    isAPIKeySet: true,
     isTrailFinished: false,
     mode,
     modelModeType: '',
@@ -608,7 +606,7 @@ const BasicAppPreview: FC<Props> = ({ appId }) => {
     <ConfigContext.Provider value={value as any}>
       <FeaturesProvider features={featuresData}>
         <div className="flex size-full flex-col bg-components-panel-on-panel-item-bg">
-          <div className="relative flex h-[200px] grow">
+          <div className="relative flex h-50 grow">
             <div className="flex size-full shrink-0 flex-col sm:w-1/2">
               <Config />
             </div>
@@ -619,7 +617,7 @@ const BasicAppPreview: FC<Props> = ({ appId }) => {
               >
                 <div className="flex grow flex-col rounded-tl-2xl border-t-[0.5px] border-l-[0.5px] border-components-panel-border bg-chatbot-bg">
                   <Debug
-                    isAPIKeySet
+                    isPreview
                     onSetting={noop}
                     inputs={inputs}
                     modelParameterParams={{

@@ -12,11 +12,11 @@ import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import ImageInput from '@/app/components/base/app-icon-picker/ImageInput'
-import getCroppedImg from '@/app/components/base/app-icon-picker/utils'
 import Divider from '@/app/components/base/divider'
 import { useLocalFileUploader } from '@/app/components/base/image-uploader/hooks'
 import { DISABLE_UPLOAD_IMAGE_AS_ICON } from '@/config'
 import { updateUserProfile } from '@/service/common'
+import { createAvatarImageFile, createCroppedAvatarImage } from './avatar-image'
 
 type InputImageInfo =
   | { file: File }
@@ -106,12 +106,12 @@ const AvatarWithEdit = ({ onSave, ...props }: AvatarWithEditProps) => {
       handleLocalFileUpload(inputImageInfo.file)
       return
     }
-    const blob = await getCroppedImg(
+    const blob = await createCroppedAvatarImage(
       inputImageInfo.tempUrl,
       inputImageInfo.croppedAreaPixels,
       inputImageInfo.fileName,
     )
-    const file = new File([blob], inputImageInfo.fileName, { type: blob.type })
+    const file = createAvatarImageFile(blob, inputImageInfo.fileName)
     handleLocalFileUpload(file)
   }, [handleLocalFileUpload, inputImageInfo])
 
@@ -140,7 +140,7 @@ const AvatarWithEdit = ({ onSave, ...props }: AvatarWithEditProps) => {
         open={isShowAvatarPicker}
         onOpenChange={(open) => !open && setIsShowAvatarPicker(false)}
       >
-        <DialogContent className="w-[362px]! p-0!">
+        <DialogContent className="w-90.5! p-0!">
           <ImageInput onImageInput={handleImageInput} cropShape="round" />
           <Divider className="m-0" />
 
@@ -157,7 +157,7 @@ const AvatarWithEdit = ({ onSave, ...props }: AvatarWithEditProps) => {
             <Button
               variant="primary"
               className="min-w-0 flex-1"
-              disabled={uploading || !inputImageInfo}
+              disabled={!inputImageInfo}
               loading={uploading}
               onClick={handleSelect}
             >
@@ -171,7 +171,7 @@ const AvatarWithEdit = ({ onSave, ...props }: AvatarWithEditProps) => {
         open={isShowDeleteConfirm}
         onOpenChange={(open) => !open && setIsShowDeleteConfirm(false)}
       >
-        <DialogContent className="w-[362px]! p-6!">
+        <DialogContent className="w-90.5! p-6!">
           <div className="mb-3 title-2xl-semi-bold text-text-primary">
             {t(($) => $['avatar.deleteTitle'], { ns: 'common' })}
           </div>

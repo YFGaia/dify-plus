@@ -31,8 +31,9 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppIcon from '@/app/components/base/app-icon'
 import { AgentSelectorContent } from '@/app/components/workflow/block-selector/agent-selector'
-import { getAgentDetailPath } from '@/features/agent-v2/agent-detail/routes'
-import Link from '@/next/link'
+import { getAgentACLCapabilities } from '@/features/agent-v2/acl'
+import { useCanCreateAgents } from '@/features/agent-v2/permissions'
+import { EditInConsoleLink } from './edit-in-console-link'
 
 const i18nPrefix = 'nodes.agent'
 type AgentRosterDrawerMode = 'setup' | 'detail'
@@ -44,6 +45,7 @@ type AgentRosterDisplayData = {
   icon_type?: string | null
   id: string
   name: string
+  permission_keys?: string[]
   role?: string | null
 }
 
@@ -122,6 +124,7 @@ function AgentRosterDrawer({
   onClose: () => void
 }) {
   const { t } = useTranslation()
+  const canCreateAgents = useCanCreateAgents()
   const isSetup = mode === 'setup'
   const title = isInlineSetup
     ? t(($) => $[`${i18nPrefix}.roster.inlineSetup.name`], { ns: 'workflow' })
@@ -129,7 +132,8 @@ function AgentRosterDrawer({
   const description = isSetup
     ? t(($) => $[`${i18nPrefix}.roster.inlineSetup.description`], { ns: 'workflow' })
     : agent.role
-  const showInlineActions = isInlineSetup && !!onSaveInlineToRoster
+  const canConfigureAgent = getAgentACLCapabilities(agent.permission_keys).canConfigure
+  const showInlineActions = isInlineSetup && !!onSaveInlineToRoster && canCreateAgents
 
   return (
     <Drawer
@@ -157,7 +161,7 @@ function AgentRosterDrawer({
                   isSetup
                     ? 'h-16 px-4 py-3'
                     : showDetailActions
-                      ? 'h-[108px] gap-3 py-3 pr-4 pl-3'
+                      ? 'h-27 gap-3 py-3 pr-4 pl-3'
                       : 'py-3 pr-4 pl-3',
                 )}
               >
@@ -223,7 +227,7 @@ function AgentRosterDrawer({
                           <DropdownMenuContent
                             placement="bottom-end"
                             sideOffset={4}
-                            popupClassName="min-w-44 w-max"
+                            className="w-max min-w-44"
                           >
                             <DropdownMenuItem
                               className="gap-2 whitespace-nowrap"
@@ -250,23 +254,13 @@ function AgentRosterDrawer({
                 </div>
                 {!isSetup && showDetailActions && (
                   <div className="flex h-8 gap-2 pl-1">
-                    {showConsoleLink && (
-                      <Link
-                        href={getAgentDetailPath(agent.id, 'configure')}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex h-8 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg px-3 text-[13px] leading-4 font-medium whitespace-nowrap text-components-button-secondary-text shadow-xs outline-hidden backdrop-blur-[5px] hover:border-components-button-secondary-border-hover hover:bg-components-button-secondary-bg-hover focus-visible:ring-2 focus-visible:ring-state-accent-solid"
-                      >
-                        <span aria-hidden className="i-ri-external-link-line size-4 shrink-0" />
-                        <span className="truncate">
-                          {t(($) => $[`${i18nPrefix}.roster.editInConsole`], { ns: 'workflow' })}
-                        </span>
-                      </Link>
+                    {showConsoleLink && canConfigureAgent && (
+                      <EditInConsoleLink agentId={agent.id} />
                     )}
                     <Button
                       variant="secondary"
                       size="medium"
-                      className="min-w-0 flex-1 gap-1.5 px-3"
+                      className="min-w-0 flex-1 px-3"
                       loading={isCopyPending}
                       onClick={onMakeCopy}
                     >
@@ -446,7 +440,7 @@ export function AgentRosterField({
           <PopoverContent
             placement="bottom-end"
             sideOffset={4}
-            popupClassName="border-none bg-transparent p-0 shadow-none backdrop-blur-none"
+            className="border-none bg-transparent p-0 shadow-none backdrop-blur-none"
           >
             <PopoverTitle className="sr-only">
               {t(($) => $['roster.nodeSelector.dialogLabel'], { ns: 'agentV2' })}

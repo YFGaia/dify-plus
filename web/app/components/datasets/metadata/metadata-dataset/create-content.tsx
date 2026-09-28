@@ -1,10 +1,10 @@
 'use client'
 import type { BuiltInMetadataItem } from '../types'
 import { Button } from '@langgenius/dify-ui/button'
+import { Input } from '@langgenius/dify-ui/input'
 import { noop } from 'es-toolkit/function'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Input from '@/app/components/base/input'
 import OptionCard from '../../../workflow/nodes/_base/components/option-card'
 import { DataType } from '../types'
 import Field from './field'
@@ -29,12 +29,6 @@ export function CreateContent({ onClose = noop, hasBack, onBack, onSave }: Props
     [setType],
   )
   const [name, setName] = useState('')
-  const handleNameChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setName(e.target.value)
-    },
-    [setName],
-  )
 
   const handleSave = useCallback(() => {
     onSave({
@@ -48,7 +42,7 @@ export function CreateContent({ onClose = noop, hasBack, onBack, onSave }: Props
       {hasBack && (
         <button
           type="button"
-          className="relative left-[-4px] mb-1 flex cursor-pointer items-center space-x-1 border-none bg-transparent px-0 py-1 text-left text-text-accent"
+          className="relative -left-1 mb-1 flex cursor-pointer items-center space-x-1 border-none bg-transparent px-0 py-1 text-left text-text-accent"
           onClick={onBack}
         >
           <span className="i-ri-arrow-left-line size-4" aria-hidden="true" />
@@ -97,7 +91,7 @@ export function CreateContent({ onClose = noop, hasBack, onBack, onSave }: Props
             <Input
               aria-label={t(($) => $[`${i18nPrefix}.name`], { ns: 'dataset' })}
               value={name}
-              onChange={handleNameChange}
+              onValueChange={setName}
               placeholder={t(($) => $[`${i18nPrefix}.namePlaceholder`], { ns: 'dataset' })}
             />
           </Field>

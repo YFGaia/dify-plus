@@ -1,16 +1,12 @@
+import { zLicenseStatus } from '@dify/contracts/api/console/system-features/zod.gen'
 import { cn } from '@langgenius/dify-ui/cn'
 import { toast } from '@langgenius/dify-ui/toast'
 import { RiContractLine, RiDoorLockLine, RiErrorWarningFill } from '@remixicon/react'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import DingTalkAuth from '@/app/signin/components/dingtalk-auth' // extend: ding_talk login
-import OAuth2 from '@/app/signin/components/oauth2' // extend: add oauth2
-import { CSRF_COOKIE_NAME, IS_CE_EDITION } from '@/config'
 import { isLegacyBase401, userProfileQueryOptions } from '@/features/account-profile/client'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
-import { LicenseStatus } from '@/features/system-features/constants'
-import { asSystemFeaturesExtend } from '@/features/system-features/extend' // extend: 二开系统特性字段
 import Link from '@/next/link'
 import { useRouter, useSearchParams } from '@/next/navigation'
 import { invitationCheck } from '@/service/common'
@@ -22,29 +18,8 @@ import MailAndPasswordAuth from './components/mail-and-password-auth'
 import SocialAuth from './components/social-auth'
 import SSOAuth from './components/sso-auth'
 import Split from './split'
+import { isInvitationForAccount } from './utils/invitation-account'
 import { resolvePostLoginRedirect } from './utils/post-login-redirect'
-
-// Extend: start Ding Talk types
-type DingTalkAuthCode = {
-  code: string
-}
-
-type DingTalkClient = {
-  getAuthCode: (options: {
-    corpId: string
-    success: (res: DingTalkAuthCode) => void
-    fail: () => void
-  }) => Promise<void> | void
-  runtime?: {
-    permission?: {
-      requestAuthCode: (options: {
-        corpId: string
-        onSuccess: (result: DingTalkAuthCode) => void
-      }) => void
-    }
-  }
-}
-// Extend: end
 
 type AuthType = 'code' | 'password'
 
@@ -70,6 +45,9 @@ function NormalForm() {
   const message = decodeURIComponent(searchParams.get('message') || '')
   const inviteToken = decodeURIComponent(searchParams.get('invite_token') || '')
   const { data: systemFeatures } = useSuspenseQuery(systemFeaturesQueryOptions())
+  const isNonCloudEdition =
+    systemFeatures.deployment_edition === 'COMMUNITY' ||
+    systemFeatures.deployment_edition === 'ENTERPRISE'
   const [selectedAuthType, setSelectedAuthType] = useState<AuthType | null>(null)
 
   const isInviteLink = Boolean(inviteToken && inviteToken !== 'null')
@@ -92,15 +70,16 @@ function NormalForm() {
   })
 
   const workspaceName = invitationCheckResp?.data?.workspace_name || ''
-  // extend: 二开系统特性字段（钉钉/OAuth2）
-  const systemFeaturesExtend = asSystemFeaturesExtend(systemFeatures)
+  const isInvitationForCurrentAccount = isInvitationForAccount(
+    invitationCheckResp?.data?.email,
+    userResp?.profile.email,
+  )
   const hasSocialLogin = systemFeatures.enable_social_oauth_login
-  const hasSsoLogin = Boolean(systemFeatures.sso_enforced_for_signin)
+  const ssoProtocol = systemFeatures.sso_enforced_for_signin_protocol
+  const hasSsoLogin = systemFeatures.sso_enforced_for_signin && ssoProtocol !== null
   const hasEmailCodeLogin = systemFeatures.enable_email_code_login
   const hasEmailPasswordLogin = systemFeatures.enable_email_password_login
   const hasEmailLogin = hasEmailCodeLogin || hasEmailPasswordLogin
-  const hasDingTalkLogin = Boolean(systemFeaturesExtend.ding_talk) // extend: ding_talk
-  const hasOAuth2Login = Boolean(systemFeaturesExtend.is_custom_auth2) // extend: oauth2
   const defaultAuthType: AuthType = hasEmailPasswordLogin ? 'password' : 'code'
   const authType =
     selectedAuthType === 'password' && hasEmailPasswordLogin
@@ -108,102 +87,25 @@ function NormalForm() {
       : selectedAuthType === 'code' && hasEmailCodeLogin
         ? 'code'
         : defaultAuthType
-  // extend: ding_talk / oauth2
-  const showORLine =
-    (hasSocialLogin || hasSsoLogin || hasDingTalkLogin || hasOAuth2Login) && hasEmailLogin
+  const showORLine = (hasSocialLogin || hasSsoLogin) && hasEmailLogin
   const noLoginMethodsConfigured =
-    !hasSocialLogin &&
-    !hasEmailCodeLogin &&
-    !hasEmailPasswordLogin &&
-    !hasSsoLogin &&
-    !hasDingTalkLogin &&
-    !hasOAuth2Login
+    !hasSocialLogin && !hasEmailCodeLogin && !hasEmailPasswordLogin && !hasSsoLogin
   const allMethodsAreDisabled = noLoginMethodsConfigured || isInviteCheckError
-  const isLoading = isCheckLoading || isLoggedIn || (isInviteLink && isInviteCheckLoading)
-
-  // Extend: start Ding Talk Auto Login Logic
-  const dingTalkCorpId = systemFeaturesExtend.ding_talk_corp_id
-  useEffect(() => {
-    // 确保只在客户端环境执行
-    if (typeof window === 'undefined') return
-
-    const dingTalkLogin = async () => {
-      const tokenKey = CSRF_COOKIE_NAME()
-      let consoleToken: string | null | undefined = decodeURIComponent(
-        searchParams.get('console_token') || '',
-      )
-      const consoleTokenFromLocalStorage = localStorage?.getItem(tokenKey)
-      const jumpsNumber = Number(localStorage?.getItem('jumps_number'))
-      if (consoleToken || consoleTokenFromLocalStorage) {
-        if (!consoleToken) consoleToken = consoleTokenFromLocalStorage
-        if (consoleToken) {
-          if (jumpsNumber) {
-            // token无效
-            localStorage.removeItem(tokenKey)
-            window.location.href = '/explore/apps-center-extend'
-            return
-          }
-          localStorage.setItem(tokenKey, consoleToken)
-          localStorage?.setItem('jumps_number', (jumpsNumber + 1).toString())
-          window.location.href = `/explore/apps-center-extend?console_token=${consoleToken}`
-          return
-        } else {
-          window.location.href = '/explore/apps-center-extend'
-          return
-        }
-      }
-      const userAgent = navigator.userAgent.toLowerCase()
-      const host = process.env.NEXT_PUBLIC_API_PREFIX
-      const corpId = dingTalkCorpId
-      if (userAgent.includes('dingtalk') && corpId && host) {
-        // Extend Start DingTalk login compatible
-        localStorage?.removeItem('redirect_url')
-        // Extend Stop DingTalk login compatible
-
-        try {
-          const ddModule = await import('dingtalk-jsapi')
-          const dingTalkClient = (ddModule.default ?? ddModule) as unknown as DingTalkClient
-
-          await dingTalkClient.getAuthCode({
-            corpId,
-            // 获取临时授权ID
-            success: (res: DingTalkAuthCode) => {
-              // 在这里可以将免登授权码发送给后台服务器进行验证和获取用户信息等操作
-              window.location.href = `${host}/ding-talk/login?code=${res.code}`
-            },
-            fail() {
-              if (dingTalkClient.runtime?.permission) {
-                dingTalkClient.runtime.permission.requestAuthCode({
-                  corpId,
-                  onSuccess(result: DingTalkAuthCode) {
-                    // 在这里可以将免登授权码发送给后台服务器进行验证和获取用户信息等操作
-                    window.location.href = `${host}/ding-talk/login?code=${result.code}`
-                  },
-                })
-              }
-            },
-          })
-        } catch (error) {
-          console.error('DingTalk auth error:', error)
-        }
-      }
-    }
-
-    void dingTalkLogin()
-  }, [dingTalkCorpId, searchParams])
-  // Extend: end Ding Talk Auto Login Logic
+  const shouldRedirectLoggedInUser = isLoggedIn && (!isInviteLink || isInvitationForCurrentAccount)
+  const isLoading =
+    isCheckLoading || shouldRedirectLoggedInUser || (isInviteLink && isInviteCheckLoading)
 
   useEffect(() => {
     if (!isLoggedIn) return
 
     if (isInviteLink) {
+      if (!isInvitationForCurrentAccount) return
       router.replace(`/signin/invite-settings?${searchParams.toString()}`)
       return
     }
 
-    // extend: 默认跳转应用中心（fallback 见 utils/login-redirect.ts 的 getClientLoginFallback）
     replaceLoginRedirect(resolvePostLoginRedirect(searchParams), router.replace, basePath)
-  }, [isInviteLink, isLoggedIn, router, searchParams])
+  }, [isInvitationForCurrentAccount, isInviteLink, isLoggedIn, router, searchParams])
 
   useEffect(() => {
     if (message) toast.error(message)
@@ -212,17 +114,13 @@ function NormalForm() {
   if (isLoading) {
     return (
       <div
-        className={cn(
-          'flex w-full grow flex-col items-center justify-center',
-          'px-6',
-          'md:px-[108px]',
-        )}
+        className={cn('flex w-full grow flex-col items-center justify-center', 'px-6', 'md:px-27')}
       >
         <Loading type="area" />
       </div>
     )
   }
-  if (systemFeatures.license?.status === LicenseStatus.LOST) {
+  if (systemFeatures.license?.status === zLicenseStatus.enum.lost) {
     return (
       <div className="mx-auto mt-8 w-full">
         <div className="relative">
@@ -242,7 +140,7 @@ function NormalForm() {
       </div>
     )
   }
-  if (systemFeatures.license?.status === LicenseStatus.EXPIRED) {
+  if (systemFeatures.license?.status === zLicenseStatus.enum.expired) {
     return (
       <div className="mx-auto mt-8 w-full">
         <div className="relative">
@@ -262,7 +160,7 @@ function NormalForm() {
       </div>
     )
   }
-  if (systemFeatures.license?.status === LicenseStatus.INACTIVE) {
+  if (systemFeatures.license?.status === zLicenseStatus.enum.inactive) {
     return (
       <div className="mx-auto mt-8 w-full">
         <div className="relative">
@@ -288,10 +186,10 @@ function NormalForm() {
       <div className="mx-auto mt-8 w-full">
         {isInviteLink ? (
           <div className="mx-auto w-full">
-            <h2 className="title-4xl-semi-bold text-text-primary">
+            <h1 className="title-4xl-semi-bold text-text-primary">
               {t(($) => $.join, { ns: 'login' })}
               {workspaceName}
-            </h2>
+            </h1>
             {!systemFeatures.branding.enabled && (
               <p className="mt-2 body-md-regular text-text-tertiary">
                 {t(($) => $.joinTipStart, { ns: 'login' })}
@@ -302,11 +200,11 @@ function NormalForm() {
           </div>
         ) : (
           <div className="mx-auto w-full">
-            <h2 className="title-4xl-semi-bold text-text-primary">
+            <h1 className="title-4xl-semi-bold text-text-primary">
               {systemFeatures.branding.enabled
                 ? t(($) => $.pageTitleForE, { ns: 'login' })
                 : t(($) => $.pageTitle, { ns: 'login' })}
-            </h2>
+            </h1>
             <p className="mt-2 body-md-regular text-text-tertiary">
               {t(($) => $.welcome, { ns: 'login' })}
             </p>
@@ -317,17 +215,9 @@ function NormalForm() {
             {hasSocialLogin && <SocialAuth />}
             {hasSsoLogin && (
               <div className="w-full">
-                <SSOAuth protocol={systemFeatures.sso_enforced_for_signin_protocol} />
+                <SSOAuth protocol={ssoProtocol} />
               </div>
             )}
-            {/* Extend: start ding_talk login */}
-            {hasDingTalkLogin && (
-              <DingTalkAuth clientId={systemFeaturesExtend.ding_talk_client_id}></DingTalkAuth>
-            )}
-            {hasOAuth2Login && (
-              <OAuth2 title={systemFeaturesExtend.is_custom_auth2_button}></OAuth2>
-            )}
-            {/* Extend: end oauth2 login */}
           </div>
 
           {showORLine && (
@@ -437,8 +327,8 @@ function NormalForm() {
                   {t(($) => $.pp, { ns: 'login' })}
                 </Link>
               </div>
-              {IS_CE_EDITION && (
-                <div className="w-hull mt-2 block system-xs-regular text-text-tertiary">
+              {isNonCloudEdition && (
+                <div className="mt-2 block w-full system-xs-regular text-text-tertiary">
                   {t(($) => $.goToInit, { ns: 'login' })}
                   &nbsp;
                   <Link

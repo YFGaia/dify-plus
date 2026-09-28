@@ -1,4 +1,3 @@
-/* oxlint-disable typescript/no-explicit-any */
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AppSourceType } from '@/service/share'
@@ -18,7 +17,7 @@ const mockContextValue = {
   appSourceType: AppSourceType.webApp,
   isMobile: false,
   currentConversationId: null,
-  themeBuilder: null,
+  theme: undefined,
   handleStartChat: vi.fn(),
   allInputsHidden: false,
   inputsForms: [{ variable: 'test' }],
@@ -98,10 +97,8 @@ describe('InputsFormNode', () => {
   it('should apply theme primary color to start chat button', () => {
     vi.mocked(useEmbeddedChatbotContext).mockReturnValue({
       ...mockContextValue,
-      themeBuilder: {
-        theme: {
-          primaryColor: '#ff0000',
-        },
+      theme: {
+        primaryColor: '#ff0000',
       },
     } as unknown as any)
     render(<InputsFormNode collapsed={false} setCollapsed={setCollapsed} />)

@@ -5,6 +5,7 @@ import type {
 } from '@langgenius/dify-ui/number-field'
 import type { FC, PropsWithChildren, ReactNode } from 'react'
 import type { InputProps } from '@/app/components/base/input'
+import { cn } from '@langgenius/dify-ui/cn'
 import {
   NumberField,
   NumberFieldControls,
@@ -14,24 +15,21 @@ import {
   NumberFieldInput,
   NumberFieldUnit,
 } from '@langgenius/dify-ui/number-field'
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Infotip } from '@/app/components/base/infotip'
 import Input from '@/app/components/base/input'
 import { env } from '@/env'
 
-const TextLabel: FC<PropsWithChildren> = (props) => {
-  return (
-    <label className="text-xs leading-none font-semibold text-text-secondary">
-      {props.children}
-    </label>
-  )
-}
-
 const FormField: FC<PropsWithChildren<{ label: ReactNode }>> = (props) => {
   return (
-    <div className="flex-1 space-y-2">
-      <TextLabel>{props.label}</TextLabel>
+    // Reflow on the container (a @container/chunkfields ancestor), not the
+    // viewport. Below 552px the fields stack one per row, each capped at
+    // max-w-[288px] so the input reads as a form field, not a full-bleed bar.
+    // At/above 552px this restores flex-1 with no cap, so three columns resolve
+    // to (container - gaps)/3 — pixel-identical to the stock flex-1 layout.
+    <div className="max-w-[288px] space-y-2 @min-[552px]/chunkfields:max-w-none @min-[552px]/chunkfields:flex-1">
+      <div className="text-xs leading-none font-semibold text-text-secondary">{props.label}</div>
       {props.children}
     </div>
   )
@@ -44,6 +42,8 @@ export const DelimiterInput: FC<InputProps & { tooltip?: string }> = ({
   ...rest
 }) => {
   const { t } = useTranslation()
+  const generatedInputId = useId()
+  const inputId = rest.id ?? generatedInputId
   const isComposing = useRef(false)
   const [compositionValue, setCompositionValue] = useState('')
 
@@ -51,9 +51,9 @@ export const DelimiterInput: FC<InputProps & { tooltip?: string }> = ({
     <FormField
       label={
         <div className="mb-1 flex items-center">
-          <span className="mr-0.5 system-sm-semibold">
+          <label htmlFor={inputId} className="mr-0.5 system-sm-semibold">
             {t(($) => $['stepTwo.separator'], { ns: 'datasetCreation' })}
-          </span>
+          </label>
           <Infotip
             aria-label={tooltip || t(($) => $['stepTwo.separatorTip'], { ns: 'datasetCreation' })}
             popupClassName="max-w-[200px]"
@@ -64,6 +64,7 @@ export const DelimiterInput: FC<InputProps & { tooltip?: string }> = ({
       }
     >
       <Input
+        id={inputId}
         type="text"
         className="h-9"
         placeholder={t(($) => $['stepTwo.separatorPlaceholder'], { ns: 'datasetCreation' })!}
@@ -142,7 +143,10 @@ function CompoundNumberInput({
           {...inputProps}
           aria-label={label}
           size={size}
-          className={className}
+          // min-w-[64px] overrides the component's default min-w-0 so the input
+          // can never collapse to an unusable sliver, even in an unforeseen
+          // container; belt to the row's flex-wrap braces.
+          className={cn('min-w-16', className)}
           onBlur={onBlur}
         />
         {Boolean(unit) && <NumberFieldUnit size={size}>{unit}</NumberFieldUnit>}

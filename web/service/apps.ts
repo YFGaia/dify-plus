@@ -1,13 +1,11 @@
 import type { TracingProvider } from '@/app/(commonLayout)/app/(appDetailLayout)/[appId]/overview/tracing/type'
 import type {
   AppDetailResponse,
-  CreateApiKeyResponse,
   DSLImportMode,
   DSLImportResponse,
   TracingConfig,
   TracingStatus,
   UpdateAppModelConfigResponse,
-  UpdateAppSiteCodeResponse,
   WebhookTriggerResponse,
 } from '@/models/app'
 import type { CommonResponse } from '@/models/common'
@@ -87,38 +85,6 @@ export const updateAppInfo = ({
   return put<AppDetailResponse>(`apps/${appID}`, { body })
 }
 
-export const copyApp = ({
-  appID,
-  name,
-  icon_type,
-  icon,
-  icon_background,
-  mode,
-  description,
-}: {
-  appID: string
-  name: string
-  icon_type: AppIconType
-  icon: string
-  icon_background?: string | null
-  mode: AppModeEnum
-  description?: string
-}): Promise<AppDetailResponse> => {
-  return post<AppDetailResponse>(`apps/${appID}/copy`, {
-    body: { name, icon_type, icon, icon_background, mode, description },
-  })
-}
-
-// extend: start sync app
-export const syncApp = ({ appID }: { appID: string }): Promise<AppDetailResponse> => {
-  return put<AppDetailResponse>(`apps/${appID}/sync`)
-}
-
-export const syncCancelApp = ({ appID }: { appID: string }): Promise<CommonResponse> => {
-  return del<CommonResponse>(`apps/${appID}/sync`)
-}
-// extend: stop sync app
-
 export const exportAppConfig = ({
   appID,
   include = false,
@@ -179,45 +145,8 @@ export const importDSLConfirm = ({
   return post<DSLImportResponse>(`apps/imports/${import_id}/confirm`, { body: {} })
 }
 
-export const switchApp = ({
-  appID,
-  name,
-  icon_type,
-  icon,
-  icon_background,
-}: {
-  appID: string
-  name: string
-  icon_type: AppIconType
-  icon: string
-  icon_background?: string | null
-}): Promise<{ new_app_id: string; permission_keys: string[] }> => {
-  return post<{ new_app_id: string; permission_keys: string[] }>(
-    `apps/${appID}/convert-to-workflow`,
-    { body: { name, icon_type, icon, icon_background } },
-  )
-}
-
 export const deleteApp = (appID: string): Promise<CommonResponse> => {
   return del<CommonResponse>(`apps/${appID}`)
-}
-
-export const updateAppSiteStatus = ({
-  url,
-  body,
-}: {
-  url: string
-  body: Record<string, any>
-}): Promise<AppDetailResponse> => {
-  return post<AppDetailResponse>(url, { body })
-}
-
-export const updateAppSiteAccessToken = ({
-  url,
-}: {
-  url: string
-}): Promise<UpdateAppSiteCodeResponse> => {
-  return post<UpdateAppSiteCodeResponse>(url)
 }
 
 export const updateAppSiteConfig = ({
@@ -239,40 +168,6 @@ export const updateAppModelConfig = ({
 }): Promise<UpdateAppModelConfigResponse> => {
   return post<UpdateAppModelConfigResponse>(url, { body })
 }
-
-export const delApikey = ({
-  url,
-  params,
-}: {
-  url: string
-  params: Record<string, any>
-}): Promise<CommonResponse> => {
-  return del<CommonResponse>(url, params)
-}
-
-// 二开部分 Begin - 密钥额度限制编辑
-
-export const createApikey = ({
-  url,
-  body,
-}: {
-  url: string
-  body: Record<string, any>
-}): Promise<CreateApiKeyResponse> => {
-  // 二开部分 - 密钥额度限制，body加上{}（把额度参数作为 JSON 请求体发送）
-  return post<CreateApiKeyResponse>(url, { body })
-}
-
-export const editApikey = ({
-  url,
-  body,
-}: {
-  url: string
-  body: Record<string, unknown>
-}): Promise<CreateApiKeyResponse> => {
-  return put<CreateApiKeyResponse>(url, { body })
-}
-// 二开部分 End - 密钥额度限制编辑
 
 // Tracing
 export const fetchTracingStatus = ({ appId }: { appId: string }): Promise<TracingStatus> => {
@@ -361,25 +256,3 @@ export const publishToCreatorsPlatform = ({
     body: {},
   })
 }
-
-// Extend: start messages context handling
-export const messageContextList = ({
-  conversation_id,
-}: {
-  conversation_id: string
-}): Promise<string[]> => {
-  return get<string[]>(`/message/context?conversation_id=${conversation_id}`)
-}
-
-export const deleteMessageContext = ({
-  conversation_id,
-  message_id,
-}: {
-  conversation_id: string
-  message_id: string
-}): Promise<string[]> => {
-  return del<string[]>(
-    `/message/context?conversation_id=${conversation_id}&message_id=${message_id}`,
-  )
-}
-// Extend: stop messages context handling

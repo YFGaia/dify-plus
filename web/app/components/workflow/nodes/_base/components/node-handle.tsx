@@ -6,12 +6,9 @@ import { memo, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Handle, Position } from 'reactflow'
 import BlockSelector from '../../../block-selector'
-import {
-  useAvailableBlocks,
-  useIsChatMode,
-  useNodesInteractions,
-  useNodesReadOnly,
-} from '../../../hooks'
+import { useAvailableBlocks } from '../../../hooks/use-available-blocks'
+import { useNodesInteractions } from '../../../hooks/use-nodes-interactions'
+import { useIsChatMode, useNodesReadOnly } from '../../../hooks/use-workflow'
 import { useStore, useWorkflowStore } from '../../../store'
 import { BlockEnum, NodeRunningStatus } from '../../../types'
 import { getNodeCatalogType } from '../../../utils'
@@ -82,6 +79,7 @@ export const NodeTargetHandle = memo(
             'z-1 size-4! rounded-none! border-none! bg-transparent! outline-hidden!',
             'after:absolute after:top-1 after:left-1.5 after:h-2 after:w-0.5 after:bg-workflow-link-line-handle',
             'transition-all hover:scale-125',
+            open && 'scale-125',
             data._runningStatus === NodeRunningStatus.Succeeded &&
               'after:bg-workflow-link-line-success-handle',
             data._runningStatus === NodeRunningStatus.Failed &&
@@ -109,12 +107,13 @@ export const NodeTargetHandle = memo(
                 nextNodeTargetHandle: handleId,
               }}
               placement="left"
-              triggerClassName={(open) => `
+              showStartTab
+              triggerClassName={`
                 absolute left-0 top-0 opacity-0 pointer-events-none transition-opacity duration-150
                 ${nodeSelectorClassName}
                 group-hover:opacity-100
                 ${data.selected && 'opacity-100'}
-                ${open && 'opacity-100'}
+                data-popup-open:opacity-100
               `}
               availableBlocksTypes={availablePrevBlocks}
             />
@@ -209,6 +208,7 @@ export const NodeSourceHandle = memo(
           'group/handle z-1 size-4! rounded-none! border-none! bg-transparent! outline-hidden!',
           'after:absolute after:top-1 after:right-1.5 after:h-2 after:w-0.5 after:bg-workflow-link-line-handle',
           'transition-all hover:scale-125',
+          open && 'scale-125',
           data._runningStatus === NodeRunningStatus.Succeeded &&
             'after:bg-workflow-link-line-success-handle',
           data._runningStatus === NodeRunningStatus.Failed &&
@@ -247,14 +247,15 @@ export const NodeSourceHandle = memo(
               prevNodeId: id,
               prevNodeSourceHandle: handleId,
             }}
-            triggerClassName={(open) => `
+            triggerClassName={`
               absolute top-0 left-0 opacity-0 pointer-events-none transition-opacity duration-150
               ${nodeSelectorClassName}
               group-hover:opacity-100
               ${data.selected && 'opacity-100'}
-              ${open && 'opacity-100'}
+              data-popup-open:opacity-100
             `}
             availableBlocksTypes={availableNextBlocks}
+            showStartTab
           />
         )}
       </Handle>

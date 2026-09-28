@@ -23,6 +23,7 @@ import {
   DrawerTitle,
   DrawerViewport,
 } from '@langgenius/dify-ui/drawer'
+import { Input } from '@langgenius/dify-ui/input'
 import { Switch } from '@langgenius/dify-ui/switch'
 import { toast } from '@langgenius/dify-ui/toast'
 import { RiAddLine, RiDeleteBinLine, RiEditLine } from '@remixicon/react'
@@ -31,7 +32,6 @@ import * as React from 'react'
 import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Infotip } from '@/app/components/base/infotip'
-import Input from '@/app/components/base/input'
 import { CreateMetadataModal } from '@/app/components/datasets/metadata/metadata-dataset/create-metadata-modal'
 import { getIconClassName } from '../utils/get-icon'
 import Field from './field'
@@ -90,7 +90,7 @@ const Item: FC<ItemProps> = ({ readonly, disabled, payload, onRename, onDelete }
       >
         <div className="flex h-full items-center space-x-1 text-text-tertiary">
           <span className={cn(iconClassName, 'size-4 shrink-0')} aria-hidden="true" />
-          <div className="max-w-[250px] truncate system-sm-medium text-text-primary">
+          <div className="max-w-62.5 truncate system-sm-medium text-text-primary">
             {payload.name}
           </div>
           <div className="shrink-0 system-xs-regular">{payload.type}</div>
@@ -221,7 +221,7 @@ const DatasetMetadataDrawer: FC<Props> = ({
       <DrawerPortal>
         <DrawerBackdrop />
         <DrawerViewport>
-          <DrawerPopup className="data-[swipe-direction=right]:top-2 data-[swipe-direction=right]:bottom-2 data-[swipe-direction=right]:h-[calc(100dvh-16px)] data-[swipe-direction=right]:w-full data-[swipe-direction=right]:max-w-[420px]">
+          <DrawerPopup className="data-[swipe-direction=right]:top-2 data-[swipe-direction=right]:bottom-2 data-[swipe-direction=right]:h-[calc(100dvh-16px)] data-[swipe-direction=right]:w-full data-[swipe-direction=right]:max-w-105">
             <DrawerContent className="flex min-h-0 flex-1 flex-col p-0 pb-0">
               <div className="flex shrink-0 justify-between px-4 pt-6 pb-4">
                 <DrawerTitle className="text-lg/6 font-medium text-text-primary">
@@ -241,7 +241,7 @@ const DatasetMetadataDrawer: FC<Props> = ({
                   setOpen={setOpen}
                   trigger={
                     <Button variant="primary" className="mt-3">
-                      <RiAddLine className="mr-1" />
+                      <RiAddLine />
                       {t(($) => $[`${i18nPrefix}.addMetaData`], { ns: 'dataset' })}
                     </Button>
                   }
@@ -303,7 +303,7 @@ const DatasetMetadataDrawer: FC<Props> = ({
                         <Input
                           aria-label={t(($) => $[`${i18nPrefix}.name`], { ns: 'dataset' })}
                           value={templeName}
-                          onChange={(e) => setTempleName(e.target.value)}
+                          onValueChange={setTempleName}
                           placeholder={t(($) => $[`${i18nPrefix}.namePlaceholder`], {
                             ns: 'dataset',
                           })}

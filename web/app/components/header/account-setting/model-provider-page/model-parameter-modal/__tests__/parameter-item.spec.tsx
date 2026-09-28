@@ -1,19 +1,12 @@
 import type { ModelParameterRule } from '../../declarations'
 import type { Node, NodeOutPutVar } from '@/app/components/workflow/types'
 import { fireEvent, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { BlockEnum } from '@/app/components/workflow/types'
 import ParameterItem from '../parameter-item'
 
 vi.mock('../../hooks', () => ({
   useLanguage: () => 'en_US',
-}))
-
-vi.mock('@langgenius/dify-ui/slider', () => ({
-  Slider: ({ onValueChange }: { onValueChange: (v: number) => void }) => (
-    <button onClick={() => onValueChange(2)} data-testid="slider-btn">
-      Slide 2
-    </button>
-  ),
 }))
 
 vi.mock('@/app/components/base/tag-input', () => ({
@@ -83,7 +76,7 @@ describe('ParameterItem', () => {
     const input = screen.getByRole('spinbutton')
     fireEvent.change(input, { target: { value: '1.4' } })
     expect(onChange).toHaveBeenCalledWith(1)
-    expect(screen.getByTestId('slider-btn'))!.toBeInTheDocument()
+    expect(screen.getByRole('slider'))!.toBeInTheDocument()
   })
 
   it('should clamp float numeric input to min', () => {
@@ -137,20 +130,6 @@ describe('ParameterItem', () => {
     render(<ParameterItem parameterRule={createRule({ type: 'int', min: 0 })} value={5} />)
     expect(screen.queryByRole('slider')).not.toBeInTheDocument()
     expect(screen.getByRole('spinbutton'))!.toHaveAttribute('step', '0')
-  })
-
-  it('should handle slide change and clamp values', () => {
-    const onChange = vi.fn()
-    render(
-      <ParameterItem
-        parameterRule={createRule({ type: 'float', min: 0, max: 10 })}
-        value={0.7}
-        onChange={onChange}
-      />,
-    )
-
-    fireEvent.click(screen.getByTestId('slider-btn'))
-    expect(onChange).toHaveBeenCalledWith(2)
   })
 
   it('should render exact string input and propagate text changes', () => {
@@ -221,10 +200,11 @@ describe('ParameterItem', () => {
     expect(onChange).toHaveBeenCalledWith(false)
   })
 
-  it('should call onSwitch with current value when optional switch is toggled off', () => {
+  it('should name the optional switch after its parameter and toggle it off', async () => {
+    const user = userEvent.setup()
     const onSwitch = vi.fn()
     render(<ParameterItem parameterRule={createRule()} value={0.7} onSwitch={onSwitch} />)
-    fireEvent.click(screen.getByRole('switch'))
+    await user.click(screen.getByRole('switch', { name: 'Temperature' }))
     expect(onSwitch).toHaveBeenCalledWith(false, 0.7)
   })
 

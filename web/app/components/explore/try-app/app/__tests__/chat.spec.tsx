@@ -1,6 +1,6 @@
 import type { TryAppInfo } from '@/service/try-app'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import TryApp from '../chat'
 
 const mockRemoveConversationIdInfo = vi.fn()
@@ -17,12 +17,6 @@ vi.mock('@/hooks/use-breakpoints', () => ({
     mobile: 'mobile',
     pc: 'pc',
   },
-}))
-
-vi.mock('../../../../base/chat/embedded-chatbot/theme/theme-context', () => ({
-  useThemeContext: () => ({
-    primaryColor: '#1890ff',
-  }),
 }))
 
 vi.mock('@/app/components/base/chat/embedded-chatbot/chat-wrapper', () => ({
@@ -160,7 +154,7 @@ describe('TryApp (chat.tsx)', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'share.chat.resetChat' }))
 
-      expect(mockRemoveConversationIdInfo).toHaveBeenCalledWith('test-app-id')
+      expect(mockRemoveConversationIdInfo).toHaveBeenCalledWith()
       expect(mockHandleNewConversation).toHaveBeenCalled()
     })
   })
@@ -244,7 +238,7 @@ describe('TryApp (chat.tsx)', () => {
 
       render(<TryApp appId="my-app-id" appDetail={appDetail} className="test-class" />)
 
-      expect(mockRemoveConversationIdInfo).toHaveBeenCalledWith('my-app-id')
+      expect(mockRemoveConversationIdInfo).toHaveBeenCalledWith()
     })
   })
 })

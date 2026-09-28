@@ -37,7 +37,7 @@ class DatasetMetadataBuiltInFieldsResponse(ResponseModel):
 
 
 class DatasetMetadataActionResponse(ResponseModel):
-    result: str
+    result: str = Field(description="Operation result.")
 
 
 class DatasetRerankingModelResponse(ResponseModel):
@@ -57,8 +57,14 @@ class DatasetVectorSettingResponse(ResponseModel):
 
 class DatasetWeightedScoreResponse(ResponseModel):
     weight_type: str | None = None
-    keyword_setting: DatasetKeywordSettingResponse = Field(default_factory=DatasetKeywordSettingResponse)
-    vector_setting: DatasetVectorSettingResponse = Field(default_factory=DatasetVectorSettingResponse)
+    keyword_setting: DatasetKeywordSettingResponse = Field(
+        default_factory=DatasetKeywordSettingResponse,
+        description="Keyword search weight settings.",
+    )
+    vector_setting: DatasetVectorSettingResponse = Field(
+        default_factory=DatasetVectorSettingResponse,
+        description="Semantic search weight settings.",
+    )
 
     @field_validator("keyword_setting", "vector_setting", mode="before")
     @classmethod
@@ -70,7 +76,10 @@ class DatasetRetrievalModelResponse(ResponseModel):
     search_method: str
     reranking_enable: bool
     reranking_mode: str | None = None
-    reranking_model: DatasetRerankingModelResponse = Field(default_factory=DatasetRerankingModelResponse)
+    reranking_model: DatasetRerankingModelResponse = Field(
+        default_factory=DatasetRerankingModelResponse,
+        description="Reranking model configuration.",
+    )
     weights: DatasetWeightedScoreResponse | None = None
     top_k: int
     score_threshold_enabled: bool
@@ -140,14 +149,21 @@ class DatasetDetailResponse(ResponseModel):
     embedding_model: str | None
     embedding_model_provider: str | None
     embedding_available: bool | None = None
-    retrieval_model_dict: DatasetRetrievalModelResponse
+    retrieval_model_dict: DatasetRetrievalModelResponse = Field(
+        description="Retrieval configuration for the knowledge base."
+    )
     summary_index_setting: DatasetSummaryIndexSettingResponse = Field(
-        default_factory=DatasetSummaryIndexSettingResponse
+        default_factory=DatasetSummaryIndexSettingResponse,
+        description="Summary index configuration.",
     )
     tags: list[DatasetTagResponse]
     doc_form: str | None
     external_knowledge_info: DatasetExternalKnowledgeInfoResponse = Field(
-        default_factory=DatasetExternalKnowledgeInfoResponse
+        default_factory=DatasetExternalKnowledgeInfoResponse,
+        description=(
+            "Connection details for external knowledge bases. Populated when `provider` is `external`; otherwise "
+            "its properties are `null`."
+        ),
     )
     external_retrieval_model: DatasetExternalRetrievalModelResponse | None
     doc_metadata: list[DatasetDocMetadataResponse]
@@ -155,7 +171,10 @@ class DatasetDetailResponse(ResponseModel):
     pipeline_id: str | None
     runtime_mode: str | None
     chunk_structure: str | None
-    icon_info: DatasetIconInfoResponse = Field(default_factory=DatasetIconInfoResponse)
+    icon_info: DatasetIconInfoResponse = Field(
+        default_factory=DatasetIconInfoResponse,
+        description="Icon display configuration for the knowledge base.",
+    )
     is_published: bool
     total_documents: int
     total_available_documents: int
@@ -227,7 +246,7 @@ class DatasetDetailResponseSource:
         return self.dataset.get_total_available_documents(session=self.session)
 
     def __getattr__(self, name: str) -> Any:
-        return getattr(self.dataset, name)  # noqa: no-new-getattr response adapter delegates model fields
+        return getattr(self.dataset, name)  # guard-ignore: no-new-getattr -- delegates model fields
 
 
 def dataset_detail_response_source(dataset: Any, *, session: Session) -> DatasetDetailResponseSource:

@@ -1,37 +1,28 @@
+from datetime import datetime
 from decimal import Decimal
 
-import sqlalchemy as sa
-from flask import abort, request
 from flask_restx import Resource
 from pydantic import BaseModel, Field, field_validator
+from werkzeug.exceptions import BadRequest
 
+from controllers.common.rbac import PlainApp, RBACCheck
 from controllers.common.schema import query_params_from_model, register_response_schema_models, register_schema_models
 from controllers.console import console_ns
 from controllers.console.app.wraps import get_app_model
-from controllers.console.wraps import (
-    RBACPermission,
-    RBACResourceScope,
-    account_initialization_required,
-    rbac_permission_required,
-    setup_required,
-    with_current_user,
-)
-from core.app.entities.app_invoke_entities import InvokeFrom
-from extensions.ext_database import db
+from controllers.console.flask_admission import console_account_admission
+from controllers.console.wraps import RBACPermission, model_validate
+from extensions.ext_application_services import application_services
 from fields.base import ResponseModel
 from libs.datetime_utils import parse_time_range
-from libs.helper import convert_datetime_to_date, dump_response
-from libs.login import login_required
-from models import AppMode
-from models.account import Account
-from models.model import App
+from libs.helper import dump_response
+from libs.login import current_account_with_tenant
+from machinery.context import RequestContext
+from models.model import App, AppMode
 
 
 class StatisticTimeRangeQuery(BaseModel):
     start: str | None = Field(default=None, description="Start date (YYYY-MM-DD HH:MM)")
     end: str | None = Field(default=None, description="End date (YYYY-MM-DD HH:MM)")
-    # Extend: 个人消耗页按当前账号过滤
-    account: bool | None = Field(default=None, description="Extend: filter by current account")
 
     @field_validator("start", "end", mode="before")
     @classmethod
@@ -143,6 +134,20 @@ register_response_schema_models(
 )
 
 
+def _resolve_statistic_time_range(
+    req_data: StatisticTimeRangeQuery,
+) -> tuple[datetime | None, datetime | None, str]:
+    timezone = current_account_with_tenant().account.timezone
+    assert timezone is not None
+
+    try:
+        start_date, end_date = parse_time_range(req_data.start, req_data.end, timezone)
+    except ValueError as error:
+        raise BadRequest(str(error)) from error
+
+    return start_date, end_date, timezone
+
+
 @console_ns.route("/apps/<uuid:app_id>/statistics/daily-messages")
 class DailyMessageStatistic(Resource):
     @console_ns.doc("get_daily_message_statistics")
@@ -153,52 +158,19 @@ class DailyMessageStatistic(Resource):
         "Daily message statistics retrieved successfully",
         console_ns.models[DailyMessageStatisticResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @with_current_user
-    @rbac_permission_required(RBACResourceScope.APP, RBACPermission.APP_MONITOR)
+    @console_account_admission(
+        rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
+    )
     @get_app_model
-    def get(self, account: Account, app_model: App):
-        args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))
-
-        converted_created_at = convert_datetime_to_date("created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    COUNT(*) AS message_count
-FROM
-    messages
-WHERE
-    app_id = :app_id
-    AND invoke_from != :invoke_from"""
-        assert account.timezone is not None
-        arg_dict: dict[str, object] = {
-            "tz": account.timezone,
-            "app_id": app_model.id,
-            "invoke_from": InvokeFrom.DEBUGGER,
-        }
-
-        try:
-            start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
-        except ValueError as e:
-            abort(400, description=str(e))
-
-        if start_datetime_utc:
-            sql_query += " AND created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
-
-        if end_datetime_utc:
-            sql_query += " AND created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += " GROUP BY date ORDER BY date"
-
-        response_data = []
-
-        with db.engine.begin() as conn:
-            rs = conn.execute(sa.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append({"date": str(i.date), "message_count": i.message_count})
+    @model_validate(StatisticTimeRangeQuery)
+    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+        start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
+        response_data = application_services().app_statistics.get_daily_messages(
+            app_id=app_model.id,
+            start_date=start_date,
+            end_date=end_date,
+            timezone=timezone,
+        )
 
         return dump_response(DailyMessageStatisticResponse, {"data": response_data})
 
@@ -213,80 +185,19 @@ class DailyConversationStatistic(Resource):
         "Daily conversation statistics retrieved successfully",
         console_ns.models[DailyConversationStatisticResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @with_current_user
-    @rbac_permission_required(RBACResourceScope.APP, RBACPermission.APP_MONITOR)
+    @console_account_admission(
+        rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
+    )
     @get_app_model
-    def get(self, account: Account, app_model: App):
-        args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))
-
-        converted_created_at = convert_datetime_to_date("created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    COUNT(DISTINCT conversation_id) AS conversation_count
-FROM
-    messages
-WHERE
-    app_id = :app_id
-    AND invoke_from != :invoke_from"""
-        assert account.timezone is not None
-        arg_dict: dict[str, object] = {
-            "tz": account.timezone,
-            "app_id": app_model.id,
-            "invoke_from": InvokeFrom.DEBUGGER,
-        }
-
-        try:
-            start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
-        except ValueError as e:
-            abort(400, description=str(e))
-
-        if args.account is not None and args.account:
-            sql_query += ""
-        #             stmt = (
-        #                 select(
-        #                     func.date(
-        #                         func.date_trunc("day", text("created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz"))
-        #                     ).label("date"),
-        #                     func.count(distinct(Message.conversation_id)).label("conversation_count")
-        #                 )
-        #                 .select_from(Message)
-        #                 .where(
-        #                     Message.app_id == app_model.id,
-        #                     or_(
-        #                         Message.from_account_id == account.id,
-        #                         Message.from_end_user_id.in_(
-        #                             select(EndUser.id)
-        #                             .where(EndUser.external_user_id == account.id)
-        #                             .distinct()
-        #                         )
-        #                     )
-        #                 )
-        #                 .group_by(
-        #                     func.date(
-        #                         func.date_trunc("day", text("created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz"))
-        #                     )
-        #                 )
-        #                 .params(tz=account.timezone)  # 绑定参数
-        #             )
-
-        if start_datetime_utc:
-            sql_query += " AND created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
-
-        if end_datetime_utc:
-            sql_query += " AND created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += " GROUP BY date ORDER BY date"
-
-        response_data = []
-        with db.engine.begin() as conn:
-            rs = conn.execute(sa.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append({"date": str(i.date), "conversation_count": i.conversation_count})
+    @model_validate(StatisticTimeRangeQuery)
+    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+        start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
+        response_data = application_services().app_statistics.get_daily_conversations(
+            app_id=app_model.id,
+            start_date=start_date,
+            end_date=end_date,
+            timezone=timezone,
+        )
 
         return dump_response(DailyConversationStatisticResponse, {"data": response_data})
 
@@ -301,52 +212,19 @@ class DailyTerminalsStatistic(Resource):
         "Daily terminal statistics retrieved successfully",
         console_ns.models[DailyTerminalStatisticResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @with_current_user
-    @rbac_permission_required(RBACResourceScope.APP, RBACPermission.APP_MONITOR)
+    @console_account_admission(
+        rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
+    )
     @get_app_model
-    def get(self, account: Account, app_model: App):
-        args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))
-
-        converted_created_at = convert_datetime_to_date("created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    COUNT(DISTINCT messages.from_end_user_id) AS terminal_count
-FROM
-    messages
-WHERE
-    app_id = :app_id
-    AND invoke_from != :invoke_from"""
-        assert account.timezone is not None
-        arg_dict: dict[str, object] = {
-            "tz": account.timezone,
-            "app_id": app_model.id,
-            "invoke_from": InvokeFrom.DEBUGGER,
-        }
-
-        try:
-            start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
-        except ValueError as e:
-            abort(400, description=str(e))
-
-        if start_datetime_utc:
-            sql_query += " AND created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
-
-        if end_datetime_utc:
-            sql_query += " AND created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += " GROUP BY date ORDER BY date"
-
-        response_data = []
-
-        with db.engine.begin() as conn:
-            rs = conn.execute(sa.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append({"date": str(i.date), "terminal_count": i.terminal_count})
+    @model_validate(StatisticTimeRangeQuery)
+    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+        start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
+        response_data = application_services().app_statistics.get_daily_terminals(
+            app_id=app_model.id,
+            start_date=start_date,
+            end_date=end_date,
+            timezone=timezone,
+        )
 
         return dump_response(DailyTerminalStatisticResponse, {"data": response_data})
 
@@ -361,70 +239,19 @@ class DailyTokenCostStatistic(Resource):
         "Daily token cost statistics retrieved successfully",
         console_ns.models[DailyTokenCostStatisticResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @with_current_user
-    @rbac_permission_required(RBACResourceScope.APP, RBACPermission.APP_MONITOR)
+    @console_account_admission(
+        rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
+    )
     @get_app_model
-    def get(self, account: Account, app_model: App):
-        args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))
-
-        converted_created_at = convert_datetime_to_date("created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    (SUM(messages.message_tokens) + SUM(messages.answer_tokens)) AS token_count,
-    SUM(total_price) AS total_price
-FROM
-    messages
-WHERE
-    app_id = :app_id
-    AND invoke_from != :invoke_from"""
-        assert account.timezone is not None
-        arg_dict: dict[str, object] = {
-            "tz": account.timezone,
-            "app_id": app_model.id,
-            "invoke_from": InvokeFrom.DEBUGGER,
-        }
-        # Extend Start: added a new app personal expenses page
-        if args.account is not None and args.account:
-            sql_query = """SELECT
-            DATE(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date,
-            (SUM(messages.message_tokens) + SUM(messages.answer_tokens)) AS token_count,
-            SUM(total_price) AS total_price
-            FROM
-                messages
-            where
-                app_id = :app_id
-            AND (from_account_id = :user_id OR from_end_user_id IN (
-                SELECT DISTINCT(id) FROM end_users WHERE external_user_id = :user_id))
-            """
-            arg_dict = {"tz": account.timezone, "app_id": app_model.id, "user_id": account.id}
-        # Extend Stop: added a new app personal expenses page
-
-        try:
-            start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
-        except ValueError as e:
-            abort(400, description=str(e))
-
-        if start_datetime_utc:
-            sql_query += " AND created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
-
-        if end_datetime_utc:
-            sql_query += " AND created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += " GROUP BY date ORDER BY date"
-
-        response_data = []
-
-        with db.engine.begin() as conn:
-            rs = conn.execute(sa.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append(
-                    {"date": str(i.date), "token_count": i.token_count, "total_price": i.total_price, "currency": "USD"}
-                )
+    @model_validate(StatisticTimeRangeQuery)
+    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+        start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
+        response_data = application_services().app_statistics.get_daily_token_costs(
+            app_id=app_model.id,
+            start_date=start_date,
+            end_date=end_date,
+            timezone=timezone,
+        )
 
         return dump_response(DailyTokenCostStatisticResponse, {"data": response_data})
 
@@ -439,81 +266,19 @@ class AverageSessionInteractionStatistic(Resource):
         "Average session interaction statistics retrieved successfully",
         console_ns.models[AverageSessionInteractionStatisticResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @with_current_user
-    @rbac_permission_required(RBACResourceScope.APP, RBACPermission.APP_MONITOR)
+    @console_account_admission(
+        rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
+    )
     @get_app_model(mode=[AppMode.CHAT, AppMode.AGENT_CHAT, AppMode.ADVANCED_CHAT, AppMode.AGENT])
-    def get(self, account: Account, app_model: App):
-        args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))
-
-        converted_created_at = convert_datetime_to_date("c.created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    AVG(subquery.message_count) AS interactions
-FROM
-    (
-        SELECT
-            m.conversation_id,
-            COUNT(m.id) AS message_count
-        FROM
-            conversations c
-        JOIN
-            messages m
-            ON c.id = m.conversation_id
-        WHERE
-            c.app_id = :app_id
-            AND m.invoke_from != :invoke_from"""
-        assert account.timezone is not None
-        arg_dict: dict[str, object] = {
-            "tz": account.timezone,
-            "app_id": app_model.id,
-            "invoke_from": InvokeFrom.DEBUGGER,
-        }
-
-        # Extend Start: added a new app personal expenses page
-        if args.account is not None and args.account:
-            sql_query = """SELECT date(DATE_TRUNC('day', c.created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date,
-            AVG(subquery.message_count) AS interactions FROM (SELECT m.conversation_id, COUNT(m.id) AS message_count
-            FROM conversations c JOIN messages m ON c.id = m.conversation_id
-            WHERE c.override_model_configs IS NULL AND c.app_id = :app_id AND (c.from_account_id = :user_id OR
-            c.from_end_user_id IN (SELECT DISTINCT(id) FROM end_users WHERE external_user_id = :user_id))"""
-            arg_dict = {"tz": account.timezone, "app_id": app_model.id, "user_id": account.id}
-        # Extend Stop: added a new app personal expenses page
-
-        try:
-            start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
-        except ValueError as e:
-            abort(400, description=str(e))
-
-        if start_datetime_utc:
-            sql_query += " AND c.created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
-
-        if end_datetime_utc:
-            sql_query += " AND c.created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += """
-        GROUP BY m.conversation_id
-    ) subquery
-LEFT JOIN
-    conversations c
-    ON c.id = subquery.conversation_id
-GROUP BY
-    date
-ORDER BY
-    date"""
-
-        response_data = []
-
-        with db.engine.begin() as conn:
-            rs = conn.execute(sa.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append(
-                    {"date": str(i.date), "interactions": float(i.interactions.quantize(Decimal("0.01")))}
-                )
+    @model_validate(StatisticTimeRangeQuery)
+    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+        start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
+        response_data = application_services().app_statistics.get_average_session_interactions(
+            app_id=app_model.id,
+            start_date=start_date,
+            end_date=end_date,
+            timezone=timezone,
+        )
 
         return dump_response(AverageSessionInteractionStatisticResponse, {"data": response_data})
 
@@ -528,61 +293,19 @@ class UserSatisfactionRateStatistic(Resource):
         "User satisfaction rate statistics retrieved successfully",
         console_ns.models[UserSatisfactionRateStatisticResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @with_current_user
-    @rbac_permission_required(RBACResourceScope.APP, RBACPermission.APP_MONITOR)
+    @console_account_admission(
+        rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
+    )
     @get_app_model
-    def get(self, account: Account, app_model: App):
-        args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))
-
-        converted_created_at = convert_datetime_to_date("m.created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    COUNT(m.id) AS message_count,
-    COUNT(mf.id) AS feedback_count
-FROM
-    messages m
-LEFT JOIN
-    message_feedbacks mf
-    ON mf.message_id=m.id AND mf.rating='like'
-WHERE
-    m.app_id = :app_id
-    AND m.invoke_from != :invoke_from"""
-        assert account.timezone is not None
-        arg_dict: dict[str, object] = {
-            "tz": account.timezone,
-            "app_id": app_model.id,
-            "invoke_from": InvokeFrom.DEBUGGER,
-        }
-
-        try:
-            start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
-        except ValueError as e:
-            abort(400, description=str(e))
-
-        if start_datetime_utc:
-            sql_query += " AND m.created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
-
-        if end_datetime_utc:
-            sql_query += " AND m.created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += " GROUP BY date ORDER BY date"
-
-        response_data = []
-
-        with db.engine.begin() as conn:
-            rs = conn.execute(sa.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append(
-                    {
-                        "date": str(i.date),
-                        "rate": round((i.feedback_count * 1000 / i.message_count) if i.message_count > 0 else 0, 2),
-                    }
-                )
+    @model_validate(StatisticTimeRangeQuery)
+    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+        start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
+        response_data = application_services().app_statistics.get_user_satisfaction_rates(
+            app_id=app_model.id,
+            start_date=start_date,
+            end_date=end_date,
+            timezone=timezone,
+        )
 
         return dump_response(UserSatisfactionRateStatisticResponse, {"data": response_data})
 
@@ -597,63 +320,19 @@ class AverageResponseTimeStatistic(Resource):
         "Average response time statistics retrieved successfully",
         console_ns.models[AverageResponseTimeStatisticResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @with_current_user
-    @rbac_permission_required(RBACResourceScope.APP, RBACPermission.APP_MONITOR)
+    @console_account_admission(
+        rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
+    )
     @get_app_model(mode=AppMode.COMPLETION)
-    def get(self, account: Account, app_model: App):
-        args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))
-
-        converted_created_at = convert_datetime_to_date("created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    AVG(provider_response_latency) AS latency
-FROM
-    messages
-WHERE
-    app_id = :app_id
-    AND invoke_from != :invoke_from"""
-        assert account.timezone is not None
-        arg_dict: dict[str, object] = {
-            "tz": account.timezone,
-            "app_id": app_model.id,
-            "invoke_from": InvokeFrom.DEBUGGER,
-        }
-
-        # Extend Start: added a new app personal expenses page
-        if args.account is not None and args.account:
-            sql_query = """
-            SELECT date(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC' AT TIME ZONE :tz )) AS date,
-            AVG(provider_response_latency) as latency FROM messages
-            WHERE app_id = :app_id AND (from_account_id = :user_id OR from_end_user_id IN (
-            SELECT DISTINCT(id) FROM end_users WHERE external_user_id = :user_id))
-            """
-            arg_dict = {"tz": account.timezone, "app_id": app_model.id, "user_id": account.id}
-        # Extend Stop: added a new app personal expenses page
-
-        try:
-            start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
-        except ValueError as e:
-            abort(400, description=str(e))
-
-        if start_datetime_utc:
-            sql_query += " AND created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
-
-        if end_datetime_utc:
-            sql_query += " AND created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += " GROUP BY date ORDER BY date"
-
-        response_data = []
-
-        with db.engine.begin() as conn:
-            rs = conn.execute(sa.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append({"date": str(i.date), "latency": round(i.latency * 1000, 4)})
+    @model_validate(StatisticTimeRangeQuery)
+    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+        start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
+        response_data = application_services().app_statistics.get_average_response_times(
+            app_id=app_model.id,
+            start_date=start_date,
+            end_date=end_date,
+            timezone=timezone,
+        )
 
         return dump_response(AverageResponseTimeStatisticResponse, {"data": response_data})
 
@@ -668,54 +347,18 @@ class TokensPerSecondStatistic(Resource):
         "Tokens per second statistics retrieved successfully",
         console_ns.models[TokensPerSecondStatisticResponse.__name__],
     )
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @with_current_user
-    @rbac_permission_required(RBACResourceScope.APP, RBACPermission.APP_MONITOR)
+    @console_account_admission(
+        rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
+    )
     @get_app_model
-    def get(self, account: Account, app_model: App):
-        args = StatisticTimeRangeQuery.model_validate(request.args.to_dict(flat=True))
-
-        converted_created_at = convert_datetime_to_date("created_at")
-        sql_query = f"""SELECT
-    {converted_created_at} AS date,
-    CASE
-        WHEN SUM(provider_response_latency) = 0 THEN 0
-        ELSE (SUM(answer_tokens) / SUM(provider_response_latency))
-    END as tokens_per_second
-FROM
-    messages
-WHERE
-    app_id = :app_id
-    AND invoke_from != :invoke_from"""
-        assert account.timezone is not None
-        arg_dict: dict[str, object] = {
-            "tz": account.timezone,
-            "app_id": app_model.id,
-            "invoke_from": InvokeFrom.DEBUGGER,
-        }
-
-        try:
-            start_datetime_utc, end_datetime_utc = parse_time_range(args.start, args.end, account.timezone)
-        except ValueError as e:
-            abort(400, description=str(e))
-
-        if start_datetime_utc:
-            sql_query += " AND created_at >= :start"
-            arg_dict["start"] = start_datetime_utc
-
-        if end_datetime_utc:
-            sql_query += " AND created_at < :end"
-            arg_dict["end"] = end_datetime_utc
-
-        sql_query += " GROUP BY date ORDER BY date"
-
-        response_data = []
-
-        with db.engine.begin() as conn:
-            rs = conn.execute(sa.text(sql_query), arg_dict)
-            for i in rs:
-                response_data.append({"date": str(i.date), "tps": round(i.tokens_per_second, 4)})
+    @model_validate(StatisticTimeRangeQuery)
+    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+        start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
+        response_data = application_services().app_statistics.get_tokens_per_second(
+            app_id=app_model.id,
+            start_date=start_date,
+            end_date=end_date,
+            timezone=timezone,
+        )
 
         return dump_response(TokensPerSecondStatisticResponse, {"data": response_data})
