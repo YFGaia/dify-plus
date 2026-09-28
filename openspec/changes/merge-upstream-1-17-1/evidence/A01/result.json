@@ -1,0 +1,222 @@
+{
+  "node": "A01",
+  "status": "passed",
+  "observed_at_utc": "2026-09-28T15:24:43Z",
+  "source_binding": {
+    "repository": "/Users/liuxingwang/go/src/dify-plus",
+    "original_head": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+    "original_tree": "b3f037755ed16eb99e61c699df99b8a6d7e186f3",
+    "original_branch": "1.16.0",
+    "original_branch_ref": "refs/heads/1.16.0",
+    "original_branch_ref_current_value": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+    "created_branch": "codex/merge-upstream-1.17.1",
+    "branch_created_from": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+    "recovery_anchor": {
+      "branch": "refs/heads/1.16.0",
+      "commit": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+      "also_tag_points_at_head": "1.16.1-beta.2"
+    },
+    "upstream_url": "https://github.com/langgenius/dify.git",
+    "upstream_base_tag_commit": "5c6372d2f76d240265b92fd27c16bc772ffcb107",
+    "fork_merged_1_16_0_tag_commit": "b10f8f9f0b76e14faf2bd8be12e30f4e6b7fd0b6",
+    "target_tag": "1.17.1",
+    "target_tag_present_locally": false,
+    "planned_target_commit_from_inventory": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+    "target_commit_verified_locally": false
+  },
+  "collision_audit": {
+    "source_file": "research/upstream-files.tsv",
+    "upstream_rows": 8120,
+    "rows_with_two_path_columns": 49,
+    "upstream_paths_including_rename_sources_and_destinations": 8169,
+    "untracked_file_count_before_commits_excluding_ignored_logs": 7759,
+    "exact_collisions": [],
+    "file_directory_collisions": [],
+    "collision_count": 0,
+    "planning_path_count": 20,
+    "planning_paths_missing": [],
+    "planning_paths_already_tracked": [],
+    "planning_upstream_collisions": [],
+    "A00_path_count": 5,
+    "A00_paths_missing": [],
+    "A00_paths_already_tracked": [],
+    "A00_upstream_collisions": [],
+    "planning_area_untracked_extras": [],
+    "tracked_modifications_before_branch": [],
+    "staged_paths_before_branch": [],
+    "remaining_untracked_count_after_protection": 7735,
+    "remaining_untracked_top_levels": {
+      ".agents": 4,
+      ".claude": 8,
+      ".cursor": 10,
+      ".gemini": 8,
+      ".github": 8,
+      ".tmp": 7697
+    },
+    "remaining_untracked_scope": "all unrelated pre-existing paths retained",
+    "all_untracked_file_count_at_final_audit_including_ignored_and_new_A01_evidence": 263120,
+    "ignored_file_count_at_final_audit": 255384,
+    "nonignored_file_count_at_final_audit": 7736,
+    "all_untracked_exact_collisions": [],
+    "all_untracked_file_directory_collisions": [],
+    "full_audit_note": "Final audit includes ignored files via git ls-files --others; earlier 7759 pre-branch count excluded ignored files. Previously committed planning/A00 paths were separately checked against upstream list before branch creation."
+  },
+  "commits": {
+    "A00_authorization": {
+      "sha": "2b0dd17b1772fd7ec2e79abf34981776c3127e6f",
+      "path_count": 5,
+      "staged_path_check": "exact match, exit 0",
+      "post_commit_index_empty": true
+    },
+    "planning_materials": {
+      "sha": "ea2a18f06f4bc7fc88d1a03a5cdf2ca61ac42496",
+      "path_count": 20,
+      "staged_path_check": "exact match, exit 0",
+      "post_commit_index_empty": true
+    }
+  },
+  "step_results": [
+    {
+      "task": "2.1",
+      "result": "passed",
+      "input": "original HEAD, branch, upstream URL, local tags, full untracked path set, research/upstream-files.tsv",
+      "output": "HEAD matches inventory; target tag absent locally; 7759 untracked files versus 8169 upstream paths, zero exact or file/directory collisions."
+    },
+    {
+      "task": "2.2",
+      "result": "passed",
+      "input": "20 explicit planning paths and five A00 authorization paths; unrelated untracked paths",
+      "output": "A00 evidence committed as 2b0dd17b1772fd7ec2e79abf34981776c3127e6f; 20 planning paths committed independently as ea2a18f06f4bc7fc88d1a03a5cdf2ca61ac42496; 7735 unrelated untracked files retained."
+    },
+    {
+      "task": "2.3",
+      "result": "passed",
+      "input": "explicit user branch authorization in A00 and absent target branch ref",
+      "output": "created codex/merge-upstream-1.17.1 from 1c3368ed1584c4e9b6387a28334552d10c946ab4; original 1.16.0 branch remains the recovery anchor."
+    },
+    {
+      "task": "2.4",
+      "result": "passed",
+      "input": "preflight collision and modified-file checks, exact staged path checks, saved commits",
+      "output": "original SHA matches analysis, affected user paths saved without collision, A01 passed and A02 ready; A03 remains blocked."
+    }
+  ],
+  "checks": [
+    {
+      "command": "git rev-parse HEAD (before branch)",
+      "exit_code": 0,
+      "key_output": "1c3368ed1584c4e9b6387a28334552d10c946ab4"
+    },
+    {
+      "command": "git branch --show-current (before branch)",
+      "exit_code": 0,
+      "key_output": "1.16.0"
+    },
+    {
+      "command": "git remote get-url upstream",
+      "exit_code": 0,
+      "key_output": "https://github.com/langgenius/dify.git"
+    },
+    {
+      "command": "git tag --points-at HEAD",
+      "exit_code": 0,
+      "key_output": "1.16.1-beta.2"
+    },
+    {
+      "command": "git tag -l 1.17.1",
+      "exit_code": 0,
+      "key_output": "(empty; target tag absent locally)"
+    },
+    {
+      "command": "git show-ref --verify --quiet refs/heads/codex/merge-upstream-1.17.1 (before branch)",
+      "exit_code": 1,
+      "key_output": "(absent; expected)"
+    },
+    {
+      "command": "git ls-files --others --exclude-standard -z and TSV collision audit",
+      "exit_code": 0,
+      "key_output": "7759 untracked; 8120 rows/8169 paths; zero collisions"
+    },
+    {
+      "command": "git switch -c codex/merge-upstream-1.17.1 (sandbox default)",
+      "exit_code": 128,
+      "key_output": "cannot lock ref: Operation not permitted"
+    },
+    {
+      "command": "git switch -c codex/merge-upstream-1.17.1 (approved escalation)",
+      "exit_code": 0,
+      "key_output": "Switched to a new branch"
+    },
+    {
+      "command": "git add (four explicit A00 paths); git add -f (ignored A00 execution.log)",
+      "exit_code": 0,
+      "key_output": "five staged paths, exact allowlist"
+    },
+    {
+      "command": "git diff --cached --check (A00)",
+      "exit_code": 0,
+      "key_output": "no whitespace errors"
+    },
+    {
+      "command": "git commit -m docs: record upstream merge authorization",
+      "exit_code": 0,
+      "key_output": "2b0dd17b1772fd7ec2e79abf34981776c3127e6f"
+    },
+    {
+      "command": "git add (20 explicit planning paths)",
+      "exit_code": 0,
+      "key_output": "20 staged paths, exact allowlist"
+    },
+    {
+      "command": "git diff --cached --check (planning)",
+      "exit_code": 0,
+      "key_output": "no whitespace errors"
+    },
+    {
+      "command": "git commit -m docs: preserve upstream merge planning materials",
+      "exit_code": 0,
+      "key_output": "ea2a18f06f4bc7fc88d1a03a5cdf2ca61ac42496"
+    },
+    {
+      "command": "git rev-parse refs/heads/1.16.0",
+      "exit_code": 0,
+      "key_output": "1c3368ed1584c4e9b6387a28334552d10c946ab4"
+    },
+    {
+      "command": "git diff --cached --name-only and git diff --name-only (after planning)",
+      "exit_code": 0,
+      "key_output": "both empty"
+    },
+    {
+      "command": "git ls-files --others -z and git ls-files --others --exclude-standard -z; optimized set/ancestor collision audit",
+      "exit_code": 0,
+      "key_output": "263120 currently untracked including 255384 ignored; 8169 upstream paths; zero exact and file/directory collisions"
+    },
+    {
+      "command": "initial all-untracked collision script with quadratic prefix comparison",
+      "exit_code": 130,
+      "key_output": "manually interrupted for performance; optimized audit completed with exit 0"
+    },
+    {
+      "command": "python3 -m json.tool and A01 graph/task/evidence assertions",
+      "exit_code": 0,
+      "key_output": "valid JSON; assertions passed"
+    },
+    {
+      "command": "openspec validate merge-upstream-1-17-1 --strict",
+      "exit_code": 0,
+      "key_output": "Change 'merge-upstream-1-17-1' is valid"
+    },
+    {
+      "command": "git diff --check (A01 working tree)",
+      "exit_code": 0,
+      "key_output": "no whitespace errors"
+    }
+  ],
+  "known_limits": [
+    "Local 1.17.1 tag is absent; A02 must fetch and verify the fixed target commit. A01 did not fetch or merge.",
+    "A03 remains blocked until real environment read-only access is authorized.",
+    "No dependency installation, functional test, deployment or production action performed.",
+    "The A01 evidence commit SHA is assigned only after this result file is committed; Git history and final handoff identify it."
+  ]
+}

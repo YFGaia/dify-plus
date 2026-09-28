@@ -1,0 +1,31 @@
+2026-09-28T15:24:43Z A01 baseline/workspace protection execution log.
+READ: AGENTS.md; execution-graph.json/.md; tasks.md; evidence/A00/result.json and execution.log; research/source-inventory.json and upstream-files.tsv. Exit 0.
+git status --short --branch before branch -> branch 1.16.0; only untracked paths; no tracked modifications or staged changes. Exit 0.
+git rev-parse HEAD -> 1c3368ed1584c4e9b6387a28334552d10c946ab4. Exit 0.
+git rev-parse HEAD^{tree} -> b3f037755ed16eb99e61c699df99b8a6d7e186f3. Exit 0.
+git branch --show-current -> 1.16.0. Exit 0.
+git remote get-url upstream -> https://github.com/langgenius/dify.git. Exit 0.
+git tag --points-at HEAD -> 1.16.1-beta.2. Exit 0.
+git rev-parse refs/tags/1.16.0^{commit} -> 5c6372d2f76d240265b92fd27c16bc772ffcb107. Exit 0.
+git rev-parse refs/tags/fork-merged-1.16.0^{commit} -> b10f8f9f0b76e14faf2bd8be12e30f4e6b7fd0b6. Exit 0.
+git tag -l 1.17.1 -> empty. Exit 0; A02 owns fetch and target SHA verification.
+git show-ref --verify --quiet refs/heads/codex/merge-upstream-1.17.1 -> absent. Exit 1 expected.
+git ls-files --others --exclude-standard -z -> 7759 untracked files (ignored logs excluded). Exit 0.
+Python TSV/path audit -> 8120 rows, 49 rename rows with two paths, 8169 total paths; exact intersection 0; file/directory ancestor collisions 0; planning scope 20/20 present, A00 scope 5/5 present; no path already tracked, no planning-area extras. Exit 0.
+No tracked user changes or staged entries existed before branch creation. All planning/A00 paths were untracked and preserved by explicit commits.
+git switch -c codex/merge-upstream-1.17.1 in default sandbox -> cannot lock ref, Operation not permitted. Exit 128. No ref created.
+git switch -c codex/merge-upstream-1.17.1 with approved sandbox escalation -> switched to new branch from 1c3368ed1584c4e9b6387a28334552d10c946ab4. Exit 0.
+git add four explicit A00 paths -> exit 0; git add -f only evidence/A00/execution.log (ignored by *.log) -> exit 0.
+Exact staged-path assertion -> five A00 paths only. Exit 0. git diff --cached --check -> exit 0.
+git commit -m 'docs: record upstream merge authorization' -> 2b0dd17b1772fd7ec2e79abf34981776c3127e6f; five files. Exit 0.
+Post-A00 git show --name-only confirms same five paths; index empty. Exit 0.
+git add 20 explicit planning paths -> exit 0. Exact staged-path assertion -> all 20 and no others. Exit 0. git diff --cached --check -> exit 0.
+git commit -m 'docs: preserve upstream merge planning materials' -> ea2a18f06f4bc7fc88d1a03a5cdf2ca61ac42496; 20 files. Exit 0.
+Post-planning git rev-parse HEAD -> ea2a18f06f4bc7fc88d1a03a5cdf2ca61ac42496; HEAD^ -> 2b0dd17b1772fd7ec2e79abf34981776c3127e6f; HEAD^^ -> 1c3368ed1584c4e9b6387a28334552d10c946ab4. Exit 0.
+git rev-parse refs/heads/1.16.0 -> 1c3368ed1584c4e9b6387a28334552d10c946ab4; recovery anchor intact. Exit 0.
+git diff --cached --name-only and git diff --name-only -> both empty. Exit 0.
+git ls-files --others --exclude-standard -z -> 7735 remaining unrelated untracked files: .tmp 7697, .agents 4, .claude 8, .cursor 10, .gemini 8, .github 8. Exit 0.
+A01 records now set passed, A02 ready, A03 remains blocked. No fetch, merge, dependency install, functional test, environment access or deployment.
+Post-documentation audit: initial all-untracked prefix script was manually interrupted (exit 130) because it compared each of 263k files against 8169 paths; no repository mutation. Optimized set/ancestor audit completed (exit 0).
+git ls-files --others -z includes ignored paths: 263120 currently untracked, of which 255384 ignored and 7736 nonignored (includes new A01 result). Against 8169 upstream source/destination paths: exact collision 0, file/directory ancestor collision 0. Previously committed A00/planning paths were separately checked before branch creation.
+python3 -m json.tool and A01 graph/task/evidence assertions -> passed (exit 0). openspec validate merge-upstream-1-17-1 --strict -> Change is valid (exit 0). git diff --check -> no whitespace errors (exit 0).
