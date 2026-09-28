@@ -787,6 +787,7 @@
           "evidence": "evidence/M05/pre-analysis.md"
         },
         "design_decisions": [
+          "Generated Console contracts are the sole runtime/type owner of login_config_bootstrap and login_config; fork-only router retains the handwritten codeExecutionControl contract under systemManage.",
           "Public system-features snapshot and fork login_config use separate DTOs and cache identity boundaries.",
           "Validate public response shape before cache or hydration; preserve SSR optional soft-failure and hard-failure semantics.",
           "Regenerate workspace summary contract for admin_extend and tenant_extend; do not hand-edit generated files.",
@@ -799,7 +800,7 @@
         "current_subtask": {
           "id": "11.1",
           "status": "in_progress",
-          "reason": "Isolated reproducer identified OPTIONS /extend/{path} as the oRPC failure; the handwritten systemManage owner decision is settled. Register the generator configuration and all formatted output paths, then implement filters and full generation in the main checkout.",
+          "reason": "Isolated reproducer identified OPTIONS /extend/{path} as the oRPC failure; the handwritten systemManage owner decision and all 30 generator/output path registrations are committed. Implement the filters and full generation in the main checkout.",
           "evidence": "evidence/M05/codegen-analysis.md"
         },
         "codegen_diagnosis": {
