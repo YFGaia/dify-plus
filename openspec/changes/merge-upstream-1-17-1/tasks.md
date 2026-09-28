@@ -105,7 +105,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 13.1 [M07] 人工移植上游 Compose 契约到 fork 综合 Compose，保留独立 worker/sandbox-full/私有镜像；核验：`evidence/M07/result.json` 记录 1.17.1 源文件、39 项环境键/默认值对照、私有 tag 与 worker 结构断言，以及默认/全 profile Compose 检查。
 - [x] 13.2 [M07] 单执行者双迁移；发布业务容器关闭自动迁移；核验：`evidence/M07/result.json` 记录自动迁移固定关闭、单次私有镜像迁移服务的主链/扩展链顺序、成功和失败位置断言；默认/全 profile Compose 解析通过。单执行者的跨 project 并发防护仍是操作约束。
 - [x] 13.3 [M07] 更新 Agent token/网络/SSRF/卷、plugin版本/队列、Web Next/Vinext 与 ingress；核验：`evidence/M07/result.json` 记录 token 双端、专用 SSRF/隔离网/持久卷、plugin 0.6.10-local、Vinext 和未改动的上游同版 ingress/entrypoint；83 项静态断言、默认/全 profile Compose 解析通过。
-- [ ] 13.4 [M07] 900 行 env 逐变量审计和原 52 项断言已通过；Sol 对根样例当前 244 个变量逐项核对后确认仅 `COMPOSE_PROFILES`、`DIFY_AGENT_SERVER_SECRET_KEY` 属严格启动样例范围；另有四项需先迁移 Compose fallback 以保留当前有效值，并需修正误导性的 `SECRET_KEY` 默认值。现由独立 Astra 按最小范围修正并重跑本项，随后重新做 Luna 验收。
+- [ ] 13.4 [M07] 已更新 906 行 env 逐变量审计；Sol 确认根样例当前 244 个变量中仅 `COMPOSE_PROFILES`、`DIFY_AGENT_SERVER_SECRET_KEY` 属严格启动样例范围，并修正五项 Compose fallback、嵌套 PostgreSQL 默认值及空值持久化 `SECRET_KEY`。独立 Luna 阻断：`api_websocket` 与 `worker_beat` 继承密钥但未挂共享 storage，需新增共享卷（api_websocket 同步上游 `init_permissions` 依赖）并重跑 Compose/静态断言后再次验收。结果见 `evidence/M07/result.json#/subtasks/13.4`。
 - [x] 13.5 [M07] GitHub build validate 与 GitLab 私有镜像供货分开记账；两份 GitHub workflow 与上游相同且不为 fork 推送；GitLab manifest/artifact 静态风险见 `evidence/M07/ci-analysis.md`。
 - [ ] 13.6 [M07] 节点验收：配置/镜像矩阵可审查；无误用官方 api/web 镜像替代 fork；fork Compose 不因无文本冲突被漏审；保存绑定版本的证据并更新节点状态。
 

@@ -1,21 +1,21 @@
 {
   "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
   "fork_baseline": "fork-merged-1.16.0",
-  "row_count": 900,
+  "row_count": 906,
   "files": {
     "docker/.env.example": {
       "vs_fork": {
-        "保留": 235,
-        "删除": 12,
-        "新增": 7,
-        "改值": 2
+        "删除": 247,
+        "保留": 2,
+        "不存在": 7
       },
       "vs_upstream": {
-        "保留": 240,
+        "删除": 242,
         "不存在": 12,
-        "改值": 4
+        "保留": 1,
+        "改值": 1
       },
-      "effective_variables": 244
+      "effective_variables": 2
     },
     "docker/envs/core-services/api.env.example": {
       "vs_fork": {
@@ -72,30 +72,32 @@
     "docker/envs/core-services/shared.env.example": {
       "vs_fork": {
         "保留": 466,
-        "新增": 34,
+        "新增": 38,
         "改值": 5,
         "删除": 1
       },
       "vs_upstream": {
         "保留": 504,
+        "新增": 4,
         "改值": 1,
         "不存在": 1
       },
-      "effective_variables": 505
+      "effective_variables": 509
     },
     "docker/envs/core-services/web.env.example": {
       "vs_fork": {
         "保留": 26,
-        "新增": 6,
+        "新增": 8,
         "删除": 1,
         "改值": 1
       },
       "vs_upstream": {
         "保留": 32,
         "不存在": 1,
+        "新增": 2,
         "改值": 1
       },
-      "effective_variables": 33
+      "effective_variables": 35
     },
     "docker/envs/core-services/worker-beat.env.example": {
       "vs_fork": {

@@ -1040,7 +1040,7 @@
         ],
         "current_subtask": {
           "id": "13.4",
-          "status": "in_progress",
+          "status": "repair_required",
           "evidence": "evidence/M07/result.json#/subtasks/13.4"
         },
         "next_subtask": "13.4"

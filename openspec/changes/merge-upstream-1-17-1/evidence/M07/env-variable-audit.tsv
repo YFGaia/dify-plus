@@ -1,259 +1,259 @@
 path	variable	action_vs_fork_1_16_0	action_vs_upstream_1_17_1	basis
-docker/.env.example	AGENT_BACKEND_BASE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	AGENT_BACKEND_BASE_URL	删除	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
 docker/.env.example	AGENT_BACKEND_RUN_TIMEOUT_SECONDS	删除	不存在	DIFY_AGENT_RUN_TIMEOUT_SECONDS; upstream 1.17.1 backend-loop deadline, plus APP/WORKFLOW outer limits
 docker/.env.example	AGENT_BACKEND_STREAM_MAX_RECONNECTS	删除	不存在	moved/retained in docker/envs/core-services/shared.env.example
 docker/.env.example	AGENT_BACKEND_STREAM_READ_TIMEOUT_SECONDS	删除	不存在	moved/retained in docker/envs/core-services/shared.env.example
-docker/.env.example	ALLOW_EMBED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	ALLOW_UNSAFE_DATA_SCHEME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	AMPLITUDE_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	API_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	API_SENTRY_PROFILES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	API_SENTRY_TRACES_SAMPLE_RATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	API_WEBSOCKET_GUNICORN_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	API_WEBSOCKET_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	API_WEBSOCKET_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	API_WEBSOCKET_WORKER_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	APP_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	APP_WEB_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	BROKER_USE_SSL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CELERY_AUTO_SCALE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CELERY_BACKEND	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CELERY_BROKER_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CELERY_MAX_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CELERY_MIN_WORKERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CELERY_TASK_ANNOTATIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CELERY_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CELERY_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CHECK_UPDATE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_CONNECT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_POOL_KEEPALIVE_EXPIRY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_POOL_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_POOL_MAX_KEEPALIVE_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_READ_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_SSL_VERIFY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CODE_EXECUTION_WRITE_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	ALLOW_EMBED	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	ALLOW_UNSAFE_DATA_SCHEME	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	AMPLITUDE_API_KEY	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	API_SENTRY_DSN	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	API_SENTRY_PROFILES_SAMPLE_RATE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	API_SENTRY_TRACES_SAMPLE_RATE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	API_WEBSOCKET_GUNICORN_TIMEOUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	API_WEBSOCKET_WORKER_AMOUNT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	API_WEBSOCKET_WORKER_CLASS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	API_WEBSOCKET_WORKER_CONNECTIONS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	APP_API_URL	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	APP_WEB_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	BROKER_USE_SSL	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	CELERY_AUTO_SCALE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CELERY_BACKEND	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CELERY_BROKER_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CELERY_MAX_WORKERS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CELERY_MIN_WORKERS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CELERY_TASK_ANNOTATIONS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CELERY_WORKER_AMOUNT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CELERY_WORKER_CLASS	删除	删除	moved/retained in docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	CHECK_UPDATE_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_API_KEY	删除	删除	moved/retained in docker/envs/security.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_CONNECT_TIMEOUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_ENDPOINT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_POOL_KEEPALIVE_EXPIRY	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_POOL_MAX_CONNECTIONS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_POOL_MAX_KEEPALIVE_CONNECTIONS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_READ_TIMEOUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_SSL_VERIFY	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CODE_EXECUTION_WRITE_TIMEOUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
 docker/.env.example	COMPOSE_PROFILES	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_DISABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CONSOLE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CONSOLE_CORS_ALLOW_ORIGINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CONSOLE_WEB_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	COOKIE_DOMAIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	CSP_WHITELIST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DB_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DB_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DB_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DB_PLUGIN_DATABASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DB_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DB_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DB_USERNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DEBUG	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DEPLOY_ENV	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DIFY_AGENT_API_TOKEN	新增	改值	upstream 1.17.1 control-plane contract; fork Compose maps one blank-by-default token to API/worker and Agent backend
-docker/.env.example	DIFY_AGENT_INNER_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DIFY_AGENT_INNER_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
-docker/.env.example	DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
-docker/.env.example	DIFY_AGENT_PLUGIN_DAEMON_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DIFY_AGENT_PLUGIN_DAEMON_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_DISABLED	删除	删除	moved/retained in docker/envs/core-services/worker-beat.env.example, docker/envs/core-services/worker.env.example
+docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_INTERVAL	删除	删除	moved/retained in docker/envs/core-services/worker-beat.env.example, docker/envs/core-services/worker.env.example
+docker/.env.example	COMPOSE_WORKER_HEALTHCHECK_TIMEOUT	删除	删除	moved/retained in docker/envs/core-services/worker-beat.env.example, docker/envs/core-services/worker.env.example
+docker/.env.example	CONSOLE_API_URL	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	CONSOLE_CORS_ALLOW_ORIGINS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CONSOLE_WEB_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	COOKIE_DOMAIN	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	CSP_WHITELIST	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	DB_DATABASE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	DB_HOST	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	DB_PASSWORD	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	DB_PLUGIN_DATABASE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	DB_PORT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	DB_TYPE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	DB_USERNAME	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	DEBUG	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	DEPLOY_ENV	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	DIFY_AGENT_API_TOKEN	不存在	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_INNER_API_KEY	删除	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_INNER_API_URL	删除	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN	不存在	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT	不存在	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_PLUGIN_DAEMON_API_KEY	删除	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_PLUGIN_DAEMON_URL	删除	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
 docker/.env.example	DIFY_AGENT_REDIS_PREFIX	删除	不存在	moved/retained in docker/envs/core-services/dify-agent.env.example
-docker/.env.example	DIFY_AGENT_REDIS_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DIFY_AGENT_RUNTIME_BACKEND	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
+docker/.env.example	DIFY_AGENT_REDIS_URL	删除	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_AGENT_RUNTIME_BACKEND	不存在	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
 docker/.env.example	DIFY_AGENT_RUN_RETENTION_SECONDS	删除	不存在	moved/retained in docker/envs/core-services/dify-agent.env.example
-docker/.env.example	DIFY_AGENT_SANDBOX_FILES_BASE_URL	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
+docker/.env.example	DIFY_AGENT_SANDBOX_FILES_BASE_URL	不存在	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
 docker/.env.example	DIFY_AGENT_SERVER_SECRET_KEY	保留	改值	fork Compose has no public secret; Agent ServerSettings requires secret with Stub URL; configure separate strong random key
 docker/.env.example	DIFY_AGENT_SHELLCTL_AUTH_TOKEN	删除	不存在	DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN; legacy fallback retained by fork Compose and Agent Settings AliasChoices
 docker/.env.example	DIFY_AGENT_SHELLCTL_ENTRYPOINT	删除	不存在	DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT; legacy fallback retained by fork Compose and Agent Settings AliasChoices
 docker/.env.example	DIFY_AGENT_SHUTDOWN_GRACE_SECONDS	删除	不存在	moved/retained in docker/envs/core-services/dify-agent.env.example
-docker/.env.example	DIFY_AGENT_STUB_API_BASE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DIFY_BIND_ADDRESS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	DIFY_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	ENABLE_COLLABORATION_MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	DIFY_AGENT_STUB_API_BASE_URL	删除	删除	moved/retained in docker/envs/core-services/dify-agent.env.example
+docker/.env.example	DIFY_BIND_ADDRESS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	DIFY_PORT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	ENABLE_COLLABORATION_MODE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
 docker/.env.example	ENABLE_LEARN_APP	删除	不存在	moved/retained in docker/envs/core-services/shared.env.example
-docker/.env.example	ENABLE_REQUEST_LOGGING	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	ENABLE_WEBSITE_FIRECRAWL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	ENABLE_WEBSITE_JINAREADER	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	ENABLE_WEBSITE_WATERCRAWL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	ENDPOINT_URL_TEMPLATE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EVENT_BUS_REDIS_CHANNEL_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EVENT_BUS_REDIS_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EVENT_BUS_REDIS_USE_CLUSTERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EXPERIMENTAL_ENABLE_VINEXT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EXPOSE_NGINX_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EXPOSE_NGINX_SSL_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EXPOSE_PLUGIN_DAEMON_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EXPOSE_PLUGIN_DEBUGGING_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	EXPOSE_PLUGIN_DEBUGGING_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	FILES_ACCESS_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	FILES_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	FLASK_DEBUG	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	FORCE_VERIFYING_SIGNATURE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	GUNICORN_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	INIT_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	INTERNAL_FILES_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LANG	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LC_ALL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LOG_DATEFORMAT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LOG_FILE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LOG_FILE_BACKUP_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LOG_FILE_MAX_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LOG_LEVEL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LOG_OUTPUT_FORMAT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LOG_TZ	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	LOOP_NODE_MAX_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	MARKETPLACE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	MARKETPLACE_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	MARKETPLACE_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	MAX_ITERATIONS_NUM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	MAX_PARALLEL_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	MAX_TOOLS_NUM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	MAX_TREE_DEPTH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	MIGRATION_ENABLED	改值	改值	M07 13.2 fork business containers hard-code false; explicit migration profile upgrades both chains
-docker/.env.example	NEXT_PUBLIC_BATCH_CONCURRENCY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NEXT_PUBLIC_COOKIE_DOMAIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NEXT_PUBLIC_ENABLE_AGENT_V2	改值	改值	fork Compose API/Web fallback=false; enable only after Agent credential/runtime acceptance
+docker/.env.example	ENABLE_REQUEST_LOGGING	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	ENABLE_WEBSITE_FIRECRAWL	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	ENABLE_WEBSITE_JINAREADER	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	ENABLE_WEBSITE_WATERCRAWL	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	ENDPOINT_URL_TEMPLATE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	EVENT_BUS_REDIS_CHANNEL_TYPE	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	EVENT_BUS_REDIS_URL	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	EVENT_BUS_REDIS_USE_CLUSTERS	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	EXPERIMENTAL_ENABLE_VINEXT	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	EXPOSE_NGINX_PORT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	EXPOSE_NGINX_SSL_PORT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	EXPOSE_PLUGIN_DAEMON_PORT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	EXPOSE_PLUGIN_DEBUGGING_HOST	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	EXPOSE_PLUGIN_DEBUGGING_PORT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	FILES_ACCESS_TIMEOUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	FILES_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	FLASK_DEBUG	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	FORCE_VERIFYING_SIGNATURE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	GUNICORN_TIMEOUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	INIT_PASSWORD	删除	删除	moved/retained in docker/envs/security.env.example
+docker/.env.example	INTERNAL_FILES_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LANG	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LC_ALL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LOG_DATEFORMAT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LOG_FILE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LOG_FILE_BACKUP_COUNT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LOG_FILE_MAX_SIZE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LOG_LEVEL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LOG_OUTPUT_FORMAT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LOG_TZ	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	LOOP_NODE_MAX_COUNT	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	MARKETPLACE_API_URL	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/web.env.example
+docker/.env.example	MARKETPLACE_ENABLED	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	MARKETPLACE_URL	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	MAX_ITERATIONS_NUM	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	MAX_PARALLEL_LIMIT	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	MAX_TOOLS_NUM	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	MAX_TREE_DEPTH	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	MIGRATION_ENABLED	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	NEXT_PUBLIC_BATCH_CONCURRENCY	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	NEXT_PUBLIC_COOKIE_DOMAIN	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	NEXT_PUBLIC_ENABLE_AGENT_V2	删除	删除	moved/retained in docker/envs/core-services/web.env.example
 docker/.env.example	NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW	删除	不存在	moved/retained in docker/envs/core-services/web.env.example
-docker/.env.example	NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NEXT_PUBLIC_SOCKET_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_CLIENT_MAX_BODY_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_ENABLE_CERTBOT_CHALLENGE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_HTTPS_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_KEEPALIVE_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_PROXY_READ_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_PROXY_SEND_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_SERVER_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_SOCKET_IO_UPSTREAM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_SSL_CERT_FILENAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_SSL_CERT_KEY_FILENAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_SSL_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_SSL_PROTOCOLS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	NGINX_WORKER_PROCESSES	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	OPENAI_API_BASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	OPENDAL_FS_ROOT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	OPENDAL_SCHEME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PGDATA	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PIP_MIRROR_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_DAEMON_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_DAEMON_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_DAEMON_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_DEBUGGING_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_DEBUGGING_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_DIFY_INNER_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_DIFY_INNER_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_INSTALLED_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_MAX_EXECUTION_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_MAX_FILE_SIZE	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
-docker/.env.example	PLUGIN_MAX_PACKAGE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_MEDIA_CACHE_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_MODEL_SCHEMA_CACHE_TTL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_PACKAGE_CACHE_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_PPROF_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_PYTHON_ENV_INIT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_SENTRY_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_STDIO_BUFFER_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_STDIO_MAX_BUFFER_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_STORAGE_LOCAL_ROOT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_STORAGE_OSS_BUCKET	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_STORAGE_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PLUGIN_WORKING_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	POSTGRES_EFFECTIVE_CACHE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	POSTGRES_MAINTENANCE_WORK_MEM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	POSTGRES_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	POSTGRES_SHARED_BUFFERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	POSTGRES_STATEMENT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	POSTGRES_WORK_MEM	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	PYTHONIOENCODING	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_DB	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_HEALTH_CHECK_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_KEEPALIVE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_KEEPALIVE_COUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_KEEPALIVE_IDLE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_KEEPALIVE_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_KEY_PREFIX	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_PASSWORD	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_RETRY_BACKOFF_BASE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_RETRY_BACKOFF_CAP	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_RETRY_RETRIES	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_SOCKET_CONNECT_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_SOCKET_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_SSL_CA_CERTS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_SSL_CERTFILE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_SSL_CERT_REQS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_SSL_KEYFILE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_USERNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	REDIS_USE_SSL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SANDBOX_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SANDBOX_ENABLE_NETWORK	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SANDBOX_GIN_MODE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SANDBOX_HTTPS_PROXY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SANDBOX_HTTP_PROXY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SANDBOX_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SANDBOX_WORKER_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SERVER_CONSOLE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SERVER_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SERVER_WORKER_CLASS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SERVER_WORKER_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SERVICE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SQLALCHEMY_ECHO	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SQLALCHEMY_MAX_OVERFLOW	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SQLALCHEMY_POOL_PRE_PING	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SQLALCHEMY_POOL_RECYCLE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SQLALCHEMY_POOL_RESET_ON_RETURN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SQLALCHEMY_POOL_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SQLALCHEMY_POOL_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SQLALCHEMY_POOL_USE_LIFO	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_COREDUMP_DIR	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_DEFAULT_CONNECT_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_DEFAULT_READ_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_DEFAULT_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_DEFAULT_WRITE_TIME_OUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_HTTP_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_POOL_KEEPALIVE_EXPIRY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_POOL_MAX_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_POOL_MAX_KEEPALIVE_CONNECTIONS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	NEXT_PUBLIC_SOCKET_URL	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	NGINX_CLIENT_MAX_BODY_SIZE	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_ENABLE_CERTBOT_CHALLENGE	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_HTTPS_ENABLED	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_KEEPALIVE_TIMEOUT	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_PORT	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_PROXY_READ_TIMEOUT	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_PROXY_SEND_TIMEOUT	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_SERVER_NAME	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_SOCKET_IO_UPSTREAM	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_SSL_CERT_FILENAME	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_SSL_CERT_KEY_FILENAME	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_SSL_PORT	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_SSL_PROTOCOLS	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	NGINX_WORKER_PROCESSES	删除	删除	moved/retained in docker/envs/infrastructure/nginx.env.example
+docker/.env.example	OPENAI_API_BASE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	OPENDAL_FS_ROOT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	OPENDAL_SCHEME	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	PGDATA	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	PIP_MIRROR_URL	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/sandbox.env.example
+docker/.env.example	PLUGIN_DAEMON_KEY	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_DAEMON_PORT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_DAEMON_URL	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_DEBUGGING_HOST	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_DEBUGGING_PORT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_DIFY_INNER_API_KEY	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_DIFY_INNER_API_URL	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_INSTALLED_PATH	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	PLUGIN_MAX_EXECUTION_TIMEOUT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_MAX_FILE_SIZE	不存在	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	PLUGIN_MAX_PACKAGE_SIZE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example, docker/envs/core-services/api.env.example, docker/envs/core-services/worker.env.example
+docker/.env.example	PLUGIN_MEDIA_CACHE_PATH	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	PLUGIN_MODEL_SCHEMA_CACHE_TTL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	PLUGIN_PACKAGE_CACHE_PATH	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	PLUGIN_PPROF_ENABLED	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_PYTHON_ENV_INIT_TIMEOUT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_SENTRY_DSN	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	PLUGIN_SENTRY_ENABLED	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	PLUGIN_STDIO_BUFFER_SIZE	删除	删除	moved/retained in docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_STDIO_MAX_BUFFER_SIZE	删除	删除	moved/retained in docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_STORAGE_LOCAL_ROOT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_STORAGE_OSS_BUCKET	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_STORAGE_TYPE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	PLUGIN_WORKING_PATH	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/plugin-daemon.env.example
+docker/.env.example	POSTGRES_EFFECTIVE_CACHE_SIZE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	POSTGRES_MAINTENANCE_WORK_MEM	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	POSTGRES_MAX_CONNECTIONS	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	POSTGRES_SHARED_BUFFERS	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	POSTGRES_STATEMENT_TIMEOUT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	POSTGRES_WORK_MEM	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/db-postgres.env.example
+docker/.env.example	PYTHONIOENCODING	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	REDIS_DB	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_HEALTH_CHECK_INTERVAL	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_HOST	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_KEEPALIVE	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_KEEPALIVE_COUNT	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_KEEPALIVE_IDLE	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_KEEPALIVE_INTERVAL	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_KEY_PREFIX	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_MAX_CONNECTIONS	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_PASSWORD	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_PORT	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_RETRY_BACKOFF_BASE	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_RETRY_BACKOFF_CAP	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_RETRY_RETRIES	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_SOCKET_CONNECT_TIMEOUT	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_SOCKET_TIMEOUT	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_SSL_CA_CERTS	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_SSL_CERTFILE	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_SSL_CERT_REQS	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_SSL_KEYFILE	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_USERNAME	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	REDIS_USE_SSL	删除	删除	moved/retained in docker/envs/databases/redis.env.example
+docker/.env.example	SANDBOX_API_KEY	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/sandbox.env.example
+docker/.env.example	SANDBOX_ENABLE_NETWORK	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/sandbox.env.example
+docker/.env.example	SANDBOX_GIN_MODE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/sandbox.env.example
+docker/.env.example	SANDBOX_HTTPS_PROXY	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/sandbox.env.example
+docker/.env.example	SANDBOX_HTTP_PROXY	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/sandbox.env.example
+docker/.env.example	SANDBOX_PORT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/sandbox.env.example
+docker/.env.example	SANDBOX_WORKER_TIMEOUT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/sandbox.env.example
+docker/.env.example	SECRET_KEY	删除	删除	moved/retained in docker/envs/security.env.example, docker/envs/core-services/shared.env.example
+docker/.env.example	SERVER_CONSOLE_API_URL	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	SERVER_WORKER_AMOUNT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	SERVER_WORKER_CLASS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	SERVER_WORKER_CONNECTIONS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	SERVICE_API_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	SQLALCHEMY_ECHO	删除	删除	moved/retained in docker/envs/databases/db-postgres.env.example
+docker/.env.example	SQLALCHEMY_MAX_OVERFLOW	删除	删除	moved/retained in docker/envs/databases/db-postgres.env.example
+docker/.env.example	SQLALCHEMY_POOL_PRE_PING	删除	删除	moved/retained in docker/envs/databases/db-postgres.env.example
+docker/.env.example	SQLALCHEMY_POOL_RECYCLE	删除	删除	moved/retained in docker/envs/databases/db-postgres.env.example
+docker/.env.example	SQLALCHEMY_POOL_RESET_ON_RETURN	删除	删除	moved/retained in docker/envs/databases/db-postgres.env.example
+docker/.env.example	SQLALCHEMY_POOL_SIZE	删除	删除	moved/retained in docker/envs/databases/db-postgres.env.example
+docker/.env.example	SQLALCHEMY_POOL_TIMEOUT	删除	删除	moved/retained in docker/envs/databases/db-postgres.env.example
+docker/.env.example	SQLALCHEMY_POOL_USE_LIFO	删除	删除	moved/retained in docker/envs/databases/db-postgres.env.example
+docker/.env.example	SSRF_COREDUMP_DIR	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_DEFAULT_CONNECT_TIME_OUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_DEFAULT_READ_TIME_OUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_DEFAULT_TIME_OUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_DEFAULT_WRITE_TIME_OUT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_HTTP_PORT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_POOL_KEEPALIVE_EXPIRY	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_POOL_MAX_CONNECTIONS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_POOL_MAX_KEEPALIVE_CONNECTIONS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
 docker/.env.example	SSRF_PROXY_ALLOW_PRIVATE_DOMAINS	删除	不存在	moved/retained in docker/envs/middleware.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
-docker/.env.example	SSRF_PROXY_ALLOW_PRIVATE_IPS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_PROXY_HTTPS_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	SSRF_PROXY_HTTP_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	STORAGE_TYPE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	TEXT_GENERATION_TIMEOUT_MS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	TOP_K_MAX_VALUE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	TRIGGER_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	TURNSTILE_SITE_KEY	新增	保留	exact upstream 1.17.1 sample docker/.env.example; new upstream variable
-docker/.env.example	UV_CACHE_DIR	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	VECTOR_INDEX_NAME_PREFIX	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	VECTOR_STORE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_ALLOWED_KEYS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_USERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_AUTHORIZATION_ADMINLIST_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_AUTHORIZATION_ADMINLIST_USERS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_CLUSTER_HOSTNAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_DEFAULT_VECTORIZER_MODULE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_DISABLE_TELEMETRY	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_GSE	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_KAGOME_JA	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_KAGOME_KR	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_GRPC_ENDPOINT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_PERSISTENCE_DATA_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_QUERY_DEFAULTS_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEAVIATE_TOKENIZATION	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEB_API_CORS_ALLOW_ORIGINS	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
-docker/.env.example	WEB_SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/.env.example
+docker/.env.example	SSRF_PROXY_ALLOW_PRIVATE_IPS	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_PROXY_HTTPS_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	SSRF_PROXY_HTTP_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example, docker/envs/infrastructure/ssrf-proxy.env.example
+docker/.env.example	STORAGE_TYPE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	TEXT_GENERATION_TIMEOUT_MS	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	TOP_K_MAX_VALUE	删除	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	TRIGGER_URL	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	TURNSTILE_SITE_KEY	不存在	删除	moved/retained in docker/envs/core-services/web.env.example
+docker/.env.example	UV_CACHE_DIR	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	VECTOR_INDEX_NAME_PREFIX	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	VECTOR_STORE	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	WEAVIATE_API_KEY	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_ALLOWED_KEYS	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_ENABLED	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_AUTHENTICATION_APIKEY_USERS	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_AUTHORIZATION_ADMINLIST_ENABLED	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_AUTHORIZATION_ADMINLIST_USERS	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_CLUSTER_HOSTNAME	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_DEFAULT_VECTORIZER_MODULE	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_DISABLE_TELEMETRY	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_GSE	删除	删除	moved/retained in docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_KAGOME_JA	删除	删除	moved/retained in docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_ENABLE_TOKENIZER_KAGOME_KR	删除	删除	moved/retained in docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_ENDPOINT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	WEAVIATE_GRPC_ENDPOINT	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	WEAVIATE_PERSISTENCE_DATA_PATH	删除	删除	moved/retained in docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_QUERY_DEFAULTS_LIMIT	删除	删除	moved/retained in docker/envs/middleware.env.example, docker/envs/vectorstores/weaviate.env.example
+docker/.env.example	WEAVIATE_TOKENIZATION	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	WEB_API_CORS_ALLOW_ORIGINS	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
+docker/.env.example	WEB_SENTRY_DSN	删除	删除	moved/retained in docker/envs/core-services/shared.env.example
 docker/.env.example	WORKFLOW_GENERATION_TIMEOUT_MS	删除	不存在	moved/retained in docker/envs/core-services/web.env.example
 docker/envs/core-services/api.env.example	AGENT_BACKEND_BINDING_FILE_DOWNLOAD_TIMEOUT_SECONDS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/api.env.example; new upstream variable
 docker/envs/core-services/api.env.example	INNER_API_KEY_FOR_PLUGIN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/api.env.example
@@ -543,6 +543,7 @@ docker/envs/core-services/shared.env.example	EXPOSE_PLUGIN_DAEMON_PORT	保留	�
 docker/envs/core-services/shared.env.example	EXPOSE_PLUGIN_DEBUGGING_HOST	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	EXPOSE_PLUGIN_DEBUGGING_PORT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	FILES_ACCESS_TIMEOUT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	FILES_URL	新增	新增	fork sample policy alignment
 docker/envs/core-services/shared.env.example	FLASK_DEBUG	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	GOOGLE_STORAGE_BUCKET_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	GOOGLE_STORAGE_SERVICE_ACCOUNT_JSON_BASE64	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
@@ -578,6 +579,7 @@ docker/envs/core-services/shared.env.example	HUAWEI_OBS_SECRET_KEY	保留	保留
 docker/envs/core-services/shared.env.example	HUAWEI_OBS_SERVER	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	HUMAN_INPUT_TIMEOUT_TASK_INTERVAL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	IMAGE_FILE_BATCH_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	INTERNAL_FILES_URL	新增	新增	fork sample policy alignment
 docker/envs/core-services/shared.env.example	INVITE_EXPIRY_HOURS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	KEY_PROVIDER_TYPE	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
 docker/envs/core-services/shared.env.example	KNOWLEDGE_UPLOAD_FILE_SIZE_LIMIT_FOR_PAID_PLAN	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
@@ -678,6 +680,7 @@ docker/envs/core-services/shared.env.example	PLUGIN_AZURE_BLOB_STORAGE_CONNECTIO
 docker/envs/core-services/shared.env.example	PLUGIN_AZURE_BLOB_STORAGE_CONTAINER_NAME	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	PLUGIN_BASED_TOKEN_COUNTING_ENABLED	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	PLUGIN_INSTALLED_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	PLUGIN_MAX_FILE_SIZE	新增	新增	fork sample policy alignment
 docker/envs/core-services/shared.env.example	PLUGIN_MAX_PACKAGE_SIZE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	PLUGIN_MEDIA_CACHE_PATH	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	PLUGIN_MODEL_PROVIDERS_CACHE_ENABLED	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/shared.env.example; new upstream variable
@@ -732,6 +735,7 @@ docker/envs/core-services/shared.env.example	S3_REGION	保留	保留	unchanged f
 docker/envs/core-services/shared.env.example	S3_SECRET_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	S3_USE_AWS_MANAGED_IAM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	SCARF_NO_ANALYTICS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
+docker/envs/core-services/shared.env.example	SECRET_KEY	新增	新增	fork sample policy alignment
 docker/envs/core-services/shared.env.example	SEEKDB_MEMORY_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	SENDGRID_API_KEY	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
 docker/envs/core-services/shared.env.example	SERVER_WORKER_AMOUNT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/shared.env.example
@@ -869,7 +873,8 @@ docker/envs/core-services/web.env.example	LOOP_NODE_MAX_COUNT	保留	保留	unch
 docker/envs/core-services/web.env.example	MARKDOWN_FORM_FIELD_NAME_EXTRA_CHARS	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable
 docker/envs/core-services/web.env.example	MARKDOWN_FORM_FIELD_NAME_MAX_LENGTH	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable
 docker/envs/core-services/web.env.example	MARKETPLACE_API_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
-docker/envs/core-services/web.env.example	MARKETPLACE_ENABLED	删除	不存在	moved/retained in docker/.env.example, docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/envs/core-services/web.env.example	MARKETPLACE_ENABLED	删除	不存在	moved/retained in docker/envs/middleware.env.example, docker/envs/core-services/shared.env.example
+docker/envs/core-services/web.env.example	MARKETPLACE_URL	新增	新增	fork sample policy alignment
 docker/envs/core-services/web.env.example	MAX_ITERATIONS_NUM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
 docker/envs/core-services/web.env.example	MAX_PARALLEL_LIMIT	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
 docker/envs/core-services/web.env.example	MAX_TOOLS_NUM	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
@@ -882,6 +887,7 @@ docker/envs/core-services/web.env.example	NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW	保
 docker/envs/core-services/web.env.example	NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
 docker/envs/core-services/web.env.example	NEXT_PUBLIC_SOCKET_URL	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
 docker/envs/core-services/web.env.example	SENTRY_DSN	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
+docker/envs/core-services/web.env.example	SERVER_CONSOLE_API_URL	新增	新增	fork sample policy alignment
 docker/envs/core-services/web.env.example	TEXT_GENERATION_TIMEOUT_MS	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
 docker/envs/core-services/web.env.example	TOP_K_MAX_VALUE	保留	保留	unchanged from fork baseline and exact upstream sample docker/envs/core-services/web.env.example
 docker/envs/core-services/web.env.example	TURNSTILE_SITE_KEY	新增	保留	exact upstream 1.17.1 sample docker/envs/core-services/web.env.example; new upstream variable

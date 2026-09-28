@@ -182,10 +182,11 @@
       ]
     },
     "13.4": {
-      "status": "in_progress",
+      "status": "repair_required",
       "model": "gpt-6-astra",
       "agent": "/root/m07_13_4_env_examples",
       "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
+      "implementation_commit": "4048e97aeb00a05cc5c6c6ccfce21036092d357d",
       "changed_paths": [
         "docker/.env.example",
         "docker/envs/core-services/dify-agent.env.example",
@@ -193,7 +194,7 @@
         "docker/envs/core-services/web.env.example"
       ],
       "summary": [
-        "Compared all ten root/core service samples against fork-merged-1.16.0 and upstream 1.17.1; retained an item-by-item 900-row TSV with each disposition and basis.",
+        "Compared all ten root/core service samples against fork-merged-1.16.0 and upstream 1.17.1; regenerated an item-by-item 906-row TSV with each disposition and basis.",
         "Kept optional Agent retention in the Agent service sample at the fork policy of 259200 seconds; root sample points operators to that optional setting.",
         "Set Agent v2 sample defaults false; blanked the sample control-plane token and Agent Stub JWE secret and documented required configuration and matching API/backend token.",
         "Documented that fork Compose uses explicit environment mappings instead of service env_file; unmapped provider options require an explicit service environment override.",
@@ -204,7 +205,7 @@
       "variable_audit": {
         "path": "evidence/M07/env-variable-audit.tsv",
         "summary_path": "evidence/M07/env-variable-audit-summary.json",
-        "rows": 900,
+        "rows": 906,
         "classification_columns": [
           "action_vs_fork_1_16_0",
           "action_vs_upstream_1_17_1",
@@ -220,6 +221,16 @@
         "docker/envs/core-services/worker.env.example"
       ],
       "checks": [
+        {
+          "command": "python3 /private/tmp/m07-env-scope-check.py",
+          "exit_code": 0,
+          "assertions": "Default and all-profile Compose render (19/43 services), startup scope, prior-value fallbacks, nested database defaults, and optional environment overrides passed; only expected unset sample certificate warnings remain."
+        },
+        {
+          "command": "python3 /private/tmp/m07-13-4-env-audit.py",
+          "exit_code": 0,
+          "assertions": "Regenerated all ten sample comparisons: 906 rows; shared.env has one pre-existing UV_CACHE_DIR duplicate."
+        },
         {
           "command": "python3 /private/tmp/m07-13-4-check.py",
           "exit_code": 0,
@@ -266,12 +277,14 @@
           ]
         },
         "preserve_effective_fork_defaults_before_removing_root_assignments": {
-          "CELERY_WORKER_AMOUNT": "4 (current Compose fallback is empty)",
-          "POSTGRES_MAX_CONNECTIONS": "200 (current Compose fallback is 100)",
-          "WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED": "true (current Compose fallback is false)",
-          "NGINX_SOCKET_IO_UPSTREAM": "api_websocket:5001 (current Compose fallback is api:5001)"
+          "CELERY_WORKER_AMOUNT": "4",
+          "POSTGRES_MAX_CONNECTIONS": "200",
+          "WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED": "true",
+          "NGINX_SOCKET_IO_UPSTREAM": "api_websocket:5001",
+          "VECTOR_STORE": "weaviate",
+          "nested PostgreSQL connection": "user=postgres, password=difyai123456, database=dify"
         },
-        "secret_key_finding": "Root sample says blank SECRET_KEY auto-generates a persistent value, but fork Compose supplies a hard-coded development key for blank input. Change Compose fallback to empty to activate api/configs/secret_key.py storage-backed generation; remove SECRET_KEY from root startup sample.",
+        "secret_key_finding": "Root sample no longer lists optional SECRET_KEY. Fork Compose uses an empty fallback to activate api/configs/secret_key.py storage-backed generation. Every API-mode or worker process inheriting SECRET_KEY must mount the same app storage; api_websocket and worker_beat currently do not, so their Compose volumes require repair before accepting this policy.",
         "compose_loading": "Fork Compose has no env_file entries; it interpolates docker/.env through explicit environment mappings. Copying a core service sample alone does not configure fork services. Upstream Compose loads service env_file plus ./.env, though explicit environment mappings can override sample values.",
         "runtime_destination_mapping": {
           "SERVER_CONSOLE_API_URL": "docker/envs/core-services/web.env.example",
@@ -283,6 +296,22 @@
         "limits": [
           "Source/config analysis only; no actual credentials, containers, private images, or live deployment were used."
         ]
+      },
+      "independent_review": {
+        "status": "blocked_repair_required",
+        "model": "gpt-6-luna",
+        "agent": "/root/m07_secret_key_audit",
+        "reviewed_source_commit": "4048e97aeb00a05cc5c6c6ccfce21036092d357d",
+        "findings": [
+          "Root sample policy, the two retained strict-startup variables, all five optional sample destinations, the 906-row audit, and the corrected Compose defaults passed static review.",
+          "api_websocket inherits SECRET_KEY and runs in API mode but lacks ./volumes/app/storage:/app/api/storage. Exact upstream 1.17.1 mounts this volume and includes init_permissions; restore both so empty-key persistence is shared and writable.",
+          "worker_beat inherits SECRET_KEY and initializes the common app factory, but has no shared storage volume. With the new blank-key generation behavior it can create a separate ephemeral key; mount the same app storage before accepting the policy.",
+          "API, worker, worker-gaia, and worker-dataset already mount the same app storage. plugin_daemon uses a separate storage root and its own SERVER_KEY; no Dify SECRET_KEY use was found, but remove unnecessary propagation if the code owner confirms it is safe."
+        ],
+        "checks_run_by_reviewer": [
+          "Static inspection of Compose, app_factory, entrypoint, secret-key persistence helper, and exact upstream 1.17.1 Compose. No containers, tests, or docker compose config were run."
+        ],
+        "next_action": "A fresh Astra task restores shared app storage on api_websocket and worker_beat, adds upstream init_permissions dependency to api_websocket, then reruns default/all-profile Compose assertions and diff checks before a fresh Luna acceptance."
       }
     },
     "13.5": {
