@@ -1088,7 +1088,7 @@
         ],
         "current_subtask": {
           "id": "13.4",
-          "status": "implementation_complete_pending_independent_review",
+          "status": "independent_review_in_progress",
           "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation",
           "implementation_commit": "1b1ddf4eb3"
         },

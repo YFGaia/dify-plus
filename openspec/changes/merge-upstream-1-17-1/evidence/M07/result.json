@@ -467,8 +467,20 @@
           "Compose dependency gate does not cover --no-deps, direct container runs, or concurrent Compose projects; operators must initialize and serialize these paths.",
           "No distributed compare-and-set was added; general cross-project concurrency would require a storage-level atomicity change."
         ],
-        "next_action": "Fresh Luna read-only review of exact Compose implementation, then accept or repair before checking 13.4 and proceeding to 13.6.",
+        "next_action": "Fresh Luna review task has been created for exact implementation commit 1b1ddf4eb3; await provisioning and review findings before acceptance.",
         "implementation_commit": "1b1ddf4eb3"
+      },
+      "post_implementation_review": {
+        "status": "provisioning",
+        "model": "gpt-6-luna",
+        "client_thread_id": "client-new-thread:f80411cc-c502-499a-82f0-80c89ebf03ac",
+        "target_commit": "1b1ddf4eb3",
+        "scope": "Read-only review of docker/docker-compose.dify-plus.yaml implementation against the existing storage key helper and exact upstream/fork contracts.",
+        "limits": [
+          "No containers or image pulls",
+          "No private env or real storage access",
+          "No file modifications or commits"
+        ]
       }
     },
     "13.5": {
