@@ -43,6 +43,15 @@ docker/.env.example	M07	M08	content	pending	deployment environment or reverse pr
 docker/envs/core-services/web.env.example	M07	M08	content	pending	deployment environment or reverse proxy configuration
 docker/nginx/conf.d/default.conf.template	M07	M08	content	pending	deployment environment or reverse proxy configuration
 oxlint-suppressions.json	M01	M08	content	pending	toolchain, package, lockfile or build configuration
+packages/contracts/console.ts	M05	V02	content	pending	Console generated contract aggregation
+packages/contracts/generated/api/console/login-config-bootstrap/orpc.gen.ts	M05	V02	generated	pending	generated fork login bootstrap route contract
+packages/contracts/generated/api/console/login-config-bootstrap/types.gen.ts	M05	V02	generated	pending	generated fork login bootstrap DTO
+packages/contracts/generated/api/console/login-config-bootstrap/zod.gen.ts	M05	V02	generated	pending	generated fork login bootstrap schema
+packages/contracts/generated/api/console/login-config/orpc.gen.ts	M05	V02	generated	pending	generated fork login configuration route contract
+packages/contracts/generated/api/console/login-config/types.gen.ts	M05	V02	generated	pending	generated fork login configuration DTO
+packages/contracts/generated/api/console/login-config/zod.gen.ts	M05	V02	generated	pending	generated fork login configuration schema
+packages/contracts/generated/api/console/orpc.gen.ts	M05	V02	generated	pending	generated Console segment loader refresh
+packages/contracts/generated/api/console/router.gen.ts	M05	V02	generated	pending	generated Console router refresh for M02 login configuration operations
 pnpm-lock.yaml	M01	M08	content	pending	toolchain, package, lockfile or build configuration
 pnpm-workspace.yaml	M01	M08	content	pending	toolchain, package, lockfile or build configuration
 web/app/(shareLayout)/components/__tests__/authenticated-layout.spec.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
@@ -75,6 +84,8 @@ web/app/components/main-nav/index.tsx	M06	V02	content	pending	frontend business 
 web/app/components/main-nav/routes.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/app/signin/normal-form.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/context/app-context-normalizers.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
+web/contract/console/system.ts	M05	V02	modify/delete	pending	remove handwritten DTOs now owned by generated Console contracts
+web/contract/router-extend.ts	M05	V02	content	pending	fork-only Console contract aggregation without duplicate generated endpoints
 web/features/home/template-card.tsx	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/features/system-features/__tests__/system-features.spec.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
 web/features/system-features/client.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
@@ -87,6 +98,9 @@ web/package.json	M01	V02	content	pending	toolchain, package, lockfile or build c
 web/service/apps.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/client.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
 web/service/console-router-loader.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
+web/service/console/browser.ts	M05	V02	content	pending	browser dual-phase login configuration transport
+web/service/console/client.spec.ts	M05	V02	content	pending	Console transport behavior regressions
+web/service/console/contract-loader.ts	M05	V02	content	pending	dynamic generated segments and fork systemManage loader
 web/service/explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/use-explore.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/service/webapp-auth.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization

@@ -718,13 +718,27 @@
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
+        "packages/contracts/console.ts",
+        "packages/contracts/generated/api/console/login-config-bootstrap/orpc.gen.ts",
+        "packages/contracts/generated/api/console/login-config-bootstrap/types.gen.ts",
+        "packages/contracts/generated/api/console/login-config-bootstrap/zod.gen.ts",
+        "packages/contracts/generated/api/console/login-config/orpc.gen.ts",
+        "packages/contracts/generated/api/console/login-config/types.gen.ts",
+        "packages/contracts/generated/api/console/login-config/zod.gen.ts",
+        "packages/contracts/generated/api/console/orpc.gen.ts",
+        "packages/contracts/generated/api/console/router.gen.ts",
         "web/context/app-context-normalizers.ts",
+        "web/contract/console/system.ts",
+        "web/contract/router-extend.ts",
         "web/features/system-features/__tests__/system-features.spec.ts",
         "web/features/system-features/client.ts",
         "web/features/system-features/server.ts",
         "web/models/common.ts",
         "web/service/client.ts",
-        "web/service/console-router-loader.ts"
+        "web/service/console-router-loader.ts",
+        "web/service/console/browser.ts",
+        "web/service/console/client.spec.ts",
+        "web/service/console/contract-loader.ts"
       ],
       "outputs": [
         "evidence/M05/result.json",
@@ -745,8 +759,25 @@
           "A04 C03 is_custom_auth2_button is absent from M02 schema; record as contract gap and do not fabricate the field."
         ],
         "tasks_complete": [],
-        "next_subtask": "11.1"
-      }
+        "next_subtask": "11.1",
+        "subtask_11_1_scope_registered": true
+      },
+      "registered_additional_paths": [
+        "packages/contracts/console.ts",
+        "packages/contracts/generated/api/console/router.gen.ts",
+        "packages/contracts/generated/api/console/orpc.gen.ts",
+        "packages/contracts/generated/api/console/login-config-bootstrap/orpc.gen.ts",
+        "packages/contracts/generated/api/console/login-config-bootstrap/types.gen.ts",
+        "packages/contracts/generated/api/console/login-config-bootstrap/zod.gen.ts",
+        "packages/contracts/generated/api/console/login-config/orpc.gen.ts",
+        "packages/contracts/generated/api/console/login-config/types.gen.ts",
+        "packages/contracts/generated/api/console/login-config/zod.gen.ts",
+        "web/contract/router-extend.ts",
+        "web/contract/console/system.ts",
+        "web/service/console/browser.ts",
+        "web/service/console/contract-loader.ts",
+        "web/service/console/client.spec.ts"
+      ]
     },
     {
       "id": "M06",

@@ -7,3 +7,7 @@ Finding: M02 is_custom_auth2 is boolean; A04 mentions is_custom_auth2_button but
 Finding: generated CurrentWorkspaceSummaryResponse lacks backend admin_extend/tenant_extend fields; regenerate contracts through standard pipeline.
 Other SSR shape, query identity, ownership, path, and test recommendations: pre-analysis.md.
 Execution graph remains M05=ready; analysis marked complete; implementation subtasks 11.1-11.4 and acceptance 11.5 remain pending.
+
+Subtask 11.1 write-scope registration completed before implementation.
+New paths assigned owner=M05, verifier=V02 in conflict-ownership.tsv and execution-graph.json: packages/contracts/console.ts, packages/contracts/generated/api/console/router.gen.ts, packages/contracts/generated/api/console/orpc.gen.ts, packages/contracts/generated/api/console/login-config-bootstrap/orpc.gen.ts, packages/contracts/generated/api/console/login-config-bootstrap/types.gen.ts, packages/contracts/generated/api/console/login-config-bootstrap/zod.gen.ts, packages/contracts/generated/api/console/login-config/orpc.gen.ts, packages/contracts/generated/api/console/login-config/types.gen.ts, packages/contracts/generated/api/console/login-config/zod.gen.ts, web/contract/router-extend.ts, web/contract/console/system.ts, web/service/console/browser.ts, web/service/console/contract-loader.ts, web/service/console/client.spec.ts.
+No source or generated files changed in this registration step.
