@@ -147,6 +147,13 @@
       "client_thread_id": "client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947",
       "scope": "Read-only analysis of API-key scope/balance display, configured login_config exchange-rate data flow, generated contracts, exact implementation/test paths, and acceptance cases.",
       "created_from_commit": "a950289e5d"
+    },
+    "12.4_analysis": {
+      "status": "conversation_provisioning",
+      "model": "gpt-6-sol",
+      "client_thread_id": "client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c",
+      "scope": "Read-only trace of the three system-management route families and code-execution-control host, route reachability, permission preservation, exact paths, ownership registration, and focused checks.",
+      "created_from_commit": "6f828304a8"
     }
   },
   "next_subtask": "12.1b_after_M02_8.6_and_M05_11.6"

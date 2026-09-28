@@ -1048,6 +1048,12 @@
           "model": "gpt-6-luna",
           "client_thread_id": "client-new-thread:633765b7-88e4-446d-96f5-e50a6e62e064",
           "scope": "Independent focused test verification of the committed WebApp auth switch and recovery of the declared locked dependency inside its isolated worktree."
+        },
+        "12.4_analysis": {
+          "status": "conversation_provisioning",
+          "model": "gpt-6-sol",
+          "client_thread_id": "client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c",
+          "scope": "Read-only route-host and permission analysis for M06 12.4."
         }
       }
     },
