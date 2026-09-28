@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；现因 message/context 安全交接重开 8.6–8.7，四个源码/测试路径已登记，8.6 已完成实现与 36 项测试，待独立 Luna 复核；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 原 11.1–11.5 源码验收通过（仍不可部署）；现重开 11.6，仅对已登记 message generated 三文件按 M02 修复结果重新生成；M06 已实施 12.1a 应用级 WebApp 认证开关，卡片聚焦测试因缺失已锁 cn@0.2.4 暂缓收集；12.2 Sol 分析对话正在 worktree provisioning；context caller 等待 M02/M05 安全契约。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，新建 gpt-6-luna 独立只读复核对话，worktree provisioning 中；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；曾因 message/context 安全交接重开 8.6–8.7；四个源码/测试路径已登记，36 项测试、Swagger schema 及独立 Luna 复核均通过，M02 已恢复 passed；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 原 11.1–11.5 源码验收通过（仍不可部署）；现重开且已解锁 11.6，可对已登记 message generated 三文件执行标准重新生成；M06 已实施 12.1a 应用级 WebApp 认证开关，卡片聚焦测试因缺失已锁 cn@0.2.4 暂缓收集；12.2 Sol 分析对话正在 worktree provisioning；context caller 等待 M02/M05 安全契约。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，新建 gpt-6-luna 独立只读复核对话，worktree provisioning 中；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 已通过，8.6 已实现且 36 项定向测试通过、待独立 Luna 复核，8.7 待节点收束；M04 已通过；M05 原 11.1–11.5 已通过，11.6 等待 M02；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a 实现与独立 Luna 审查完成但测试环境阻断，context caller 等待 M02/M05，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 原 11.1–11.5 已通过，11.6 已解锁并待标准生成；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a 实现与独立 Luna 审查完成但测试环境阻断，context caller 等待 M05 generated contract，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -348,7 +348,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：preflight 已完成；12.1a 代码已由 `ea853611dc` 提交且独立 Luna 未发现阻断，但卡片测试因 cn@0.2.4 缺失而阻断；context caller 等待 M02/M05 follow-up。前置节点 M04、M05 原源码验收已通过。12.1 的 WebApp 开关/地址迁移可独立推进；message/context caller 暂缓：先重开并登记 M02 后端路由/服务/测试，服务端从 conversation 解析 app/tenant，跨租户 404、同租户无权限 403、缺参保持 400，Agent 绑定应用也执行 Agent 权限；再重开 M05 并通过标准生成得到必填 query 与 `string[]`/`"ok"` 响应，之后 M06 才接入无 Console CSRF cookie 时跳过的 caller。无需改路由或客户端传 app_id。额度徽章必须接入 login_config 配置汇率；应用中心响应需运行时校验；24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。分析证据见 `evidence/M06/result.json#/preflight` 与 `execution.log`。
+- 状态：preflight 已完成；12.1a 代码已由 `ea853611dc` 提交且独立 Luna 未发现阻断，但卡片测试因 cn@0.2.4 缺失而阻断；context caller 等待 M05 11.6 standard generation。前置节点 M04、M05 原源码验收已通过；M02 8.6 安全后端 follow-up 已通过。12.1 的 WebApp 开关/地址迁移可独立推进；message/context caller 暂缓至 M05 生成必填 query 与 `string[]`/`"ok"` 响应，之后 M06 才接入无 Console CSRF cookie 时跳过的 caller。无需改路由或客户端传 app_id。额度徽章必须接入 login_config 配置汇率；应用中心响应需运行时校验；24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。分析证据见 `evidence/M06/result.json#/preflight` 与 `execution.log`。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。

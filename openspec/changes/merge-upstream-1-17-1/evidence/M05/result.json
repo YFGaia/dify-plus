@@ -439,7 +439,7 @@
   ],
   "next_subtask": "complete",
   "followup_context_contract": {
-    "status": "registered_blocked_on_M02",
+    "status": "ready",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
     "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
     "subtask": "11.6",
@@ -452,6 +452,8 @@
       "GET /message/context": "required query conversation_id:string; response string[]",
       "DELETE /message/context": "required query conversation_id:string and message_id:string; response string ok"
     },
-    "reason": "Generated message contracts are already registered and M05-owned. Standard generation must wait for the M02 backend schema/security repair; generated files must not be hand-edited."
+    "reason": "Generated message contracts are already registered and M05-owned. Standard generation must wait for the M02 backend schema/security repair; generated files must not be hand-edited.",
+    "unblocked_by_commit": "30410b8fff",
+    "next_action": "Use the standard generation workflow against the M02 route schemas; edit only the already registered message contract trio and record exact generated diff."
   }
 }

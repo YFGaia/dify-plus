@@ -351,7 +351,7 @@
     "openspec/changes/merge-upstream-1-17-1/tasks.md"
   ],
   "followup_context_contract": {
-    "status": "independent_review_in_progress",
+    "status": "passed",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
     "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
     "subtasks": [
@@ -411,16 +411,34 @@
       "No backend integration tests or live database were run.",
       "LiteLLM remote price-table access failed during test setup and used its local backup; it did not affect the 36 focused tests or schema checks."
     ],
-    "next_action": "Fresh gpt-6-luna review is in progress against the committed source and generated Swagger export; preserve original 8.1-8.5 acceptance evidence.",
+    "next_action": "M02 follow-up 8.6 and closure 8.7 passed; M05 11.6 is now unblocked to regenerate the registered message contract trio.",
     "implementation_commit": "30410b8fff",
     "independent_review": {
-      "status": "in_progress",
+      "status": "passed_no_findings",
       "model": "gpt-6-luna",
       "agent": "/root/m02_context_luna_review",
       "reviewed_commit": "30410b8fff",
       "scope": "read-only authorization, route uniqueness, required query and exact response schema review",
       "focused_tests_requested": "36 context controller/service tests",
-      "swagger_artifact": "/private/tmp/dify-m02-context-openapi/console-openapi.json"
+      "swagger_artifact": "/private/tmp/dify-m02-context-openapi/console-openapi.json",
+      "reviewed_by": "/root/m02_context_luna_review",
+      "findings": [],
+      "verification": [
+        {
+          "command": "/private/tmp/dify-m02-python-complete/bin/python -m pytest api/tests/unit_tests/controllers/console/app/test_app_extend.py api/tests/unit_tests/services/test_recommended_app_service_extend.py -q --no-cov",
+          "exit_code": 0,
+          "passed": 36
+        },
+        {
+          "command": "Inspect /private/tmp/dify-m02-context-openapi/console-openapi.json",
+          "exit_code": 0,
+          "result": "One /message/context path; GET/DELETE required query parameters and array(string)/string schemas match."
+        }
+      ],
+      "limitations": [
+        "No live authenticated requests against a running service or database were exercised.",
+        "uv could not access its cache in the reviewer environment; the prepared isolated Python interpreter ran the same 36 focused tests successfully."
+      ]
     }
   }
 }
