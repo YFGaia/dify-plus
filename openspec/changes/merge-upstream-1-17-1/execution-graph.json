@@ -1149,14 +1149,12 @@
           "12.6f_logstore_actor_index_reconciliation"
         ],
         "current_subtask": {
-          "id": "12.6f_workflow_account_statistics",
-          "status": "implementation_in_progress",
+          "id": "12.6f_statistics_integration_recovery",
+          "status": "ready",
           "owner": "M04",
           "model": "gpt-6-astra",
-          "base_commit": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8",
-          "branch_head": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8",
+          "base_commit": "cb761050c287dd8de5bb0d1b9cd09f949779375d",
           "dispatch_channel": "codex_project_local",
-          "implementation_thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
           "registered_paths": [
             "api/controllers/console/app/workflow_statistic.py",
             "api/services/workflow_statistic_query_service.py",
@@ -1169,15 +1167,13 @@
             "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
             "evidence/M06/12.6f-verification.md"
           ],
-          "dependencies": [
-            "12.6e_review_followup:passed",
-            "12.6f_workflow_statistics_analysis:passed",
-            "12.6f_logstore_actor_index:passed",
-            "12.6f_logstore_actor_index_reconciliation:passed"
-          ],
-          "scope": "Add authenticated account=true filtering to three workflow charts. SQLAlchemy uses the ownership association scoped by workflow/tenant/app/account; Logstore filters the trusted from_account_id event field. Exclude missing/NULL ownership and preserve app-wide default and daily-terminals semantics."
+          "scope": "Single-writer integration of the two stopped 12.6f shared-checkout attempts. Deduplicate controller/service/repository parameters and Logstore predicates; review and reconcile the existing diff; add missing controller and Logstore tests; run the full registered focused suite and scoped checks; write evidence and commit exact registered paths. No other writer may touch these paths.",
+          "stopped_threads": [
+            "01a0ebbd-d178-7982-9141-834a93649224",
+            "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
+          ]
         },
-        "next_subtask": "12.6f_workflow_account_statistics",
+        "next_subtask": "12.6f_statistics_integration_recovery",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1871,7 +1867,7 @@
           },
           {
             "id": "12.6f_workflow_account_statistics",
-            "status": "implementation_in_progress",
+            "status": "implementation_interrupted_duplicate_writers",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1905,7 +1901,23 @@
             ],
             "blocked_by": null,
             "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
-            "base_commit": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8"
+            "base_commit": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8",
+            "implementation_thread_ids": [
+              "01a0ebbd-d178-7982-9141-834a93649224",
+              "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
+            ],
+            "validation_status": "not_run_root_reconciliation_required",
+            "uncommitted_scope": [
+              "api/controllers/console/app/workflow_statistic.py",
+              "api/services/workflow_statistic_query_service.py",
+              "api/repositories/api_workflow_run_repository.py",
+              "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+              "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+              "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+              "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+              "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+            ]
           },
           {
             "id": "12.6g_user_overview_ui_contract",
@@ -2115,6 +2127,31 @@
             "diff_check": "passed",
             "evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md",
             "base_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5"
+          },
+          {
+            "id": "12.6f_statistics_integration_recovery",
+            "status": "ready",
+            "owner": "M04",
+            "model": "gpt-6-astra",
+            "dependencies": [
+              "12.6f_workflow_statistics_analysis:passed",
+              "12.6e_review_followup:passed",
+              "12.6f_logstore_actor_index:passed",
+              "12.6f_logstore_actor_index_reconciliation:passed"
+            ],
+            "registered_paths": [
+              "api/controllers/console/app/workflow_statistic.py",
+              "api/services/workflow_statistic_query_service.py",
+              "api/repositories/api_workflow_run_repository.py",
+              "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+              "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+              "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+              "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+              "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+              "evidence/M06/12.6f-verification.md"
+            ],
+            "scope": "Single-writer integration of the two stopped 12.6f shared-checkout attempts. Deduplicate controller/service/repository parameters and Logstore predicates; review and reconcile the existing diff; add missing controller and Logstore tests; run the full registered focused suite and scoped checks; write evidence and commit exact registered paths. No other writer may touch these paths."
           }
         ],
         "completed_analyses": [
@@ -3780,5 +3817,5 @@
       ]
     }
   ],
-  "next_subtask": "12.6f_workflow_account_statistics"
+  "next_subtask": "12.6f_statistics_integration_recovery"
 }

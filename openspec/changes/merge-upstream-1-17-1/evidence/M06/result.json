@@ -1324,7 +1324,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "implementation_in_progress",
+      "status": "implementation_interrupted_duplicate_writers",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1341,13 +1341,13 @@
         "evidence/M06/12.6f-verification.md"
       ],
       "scope": "Add optional account=true to three workflow charts. SQLAlchemy joins workflow_run_account_extend on workflow_run_id+tenant_id+app_id+from_account_id; Logstore applies the trusted per-run from_account_id field. Exclude missing/NULL ownership; preserve app-wide defaults and daily-terminals.",
-      "implementation_base_commit": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8",
+      "implementation_base_commit": "cb761050c287dd8de5bb0d1b9cd09f949779375d",
       "dispatch_channel": "codex_project_local",
       "implementation_model": "gpt-6-astra",
       "latest_attempt_note": "12.6e and both Logstore actor-index prerequisites are root-verified and passed; fresh Astra implementation conversation is active.",
       "implementation_thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
       "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
-      "blocked_reason": null,
+      "blocked_reason": "Two independent conversations edited the same shared paths; both were stopped before validation/commit. A single-writer recovery task must consolidate the diff.",
       "index_prerequisite": "12.6f_logstore_actor_index_reconciliation:passed",
       "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
       "index_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
@@ -1357,7 +1357,12 @@
         "12.6f_logstore_actor_index_reconciliation:passed",
         "12.6f_workflow_statistics_analysis:passed"
       ],
-      "analysis_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8"
+      "analysis_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
+      "implementation_thread_ids": [
+        "01a0ebbd-d178-7982-9141-834a93649224",
+        "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
+      ],
+      "validation_status": "not_run_root_reconciliation_required"
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
@@ -1492,7 +1497,36 @@
       "test_result": "10 passed; independent Luna and root",
       "review_result": "No P1/P2/P3",
       "static_checks": "Ruff check/format and diff-check passed"
+    },
+    "12.6f_statistics_integration_recovery": {
+      "status": "ready",
+      "model": "gpt-6-astra",
+      "owner": "M04",
+      "base_commit": "cb761050c287dd8de5bb0d1b9cd09f949779375d",
+      "dependencies": [
+        "12.6f_workflow_statistics_analysis:passed",
+        "12.6e_review_followup:passed",
+        "12.6f_logstore_actor_index:passed",
+        "12.6f_logstore_actor_index_reconciliation:passed"
+      ],
+      "registered_paths": [
+        "api/controllers/console/app/workflow_statistic.py",
+        "api/services/workflow_statistic_query_service.py",
+        "api/repositories/api_workflow_run_repository.py",
+        "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+        "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+        "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+        "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+        "evidence/M06/12.6f-verification.md"
+      ],
+      "scope": "Single-writer integration of the two stopped 12.6f shared-checkout attempts. Deduplicate controller/service/repository parameters and Logstore predicates; review and reconcile the existing diff; add missing controller and Logstore tests; run the full registered focused suite and scoped checks; write evidence and commit exact registered paths. No other writer may touch these paths.",
+      "stopped_threads": [
+        "01a0ebbd-d178-7982-9141-834a93649224",
+        "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
+      ]
     }
   },
-  "next_subtask": "12.6f_workflow_account_statistics"
+  "next_subtask": "12.6f_statistics_integration_recovery"
 }
