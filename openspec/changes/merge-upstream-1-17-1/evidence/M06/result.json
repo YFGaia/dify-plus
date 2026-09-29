@@ -910,6 +910,38 @@
       "analysis_evidence": "evidence/M06/12.3-analysis.md",
       "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted.",
       "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
+    },
+    "12.3_implementation": {
+      "status": "independent_verification_in_progress",
+      "model": "gpt-6-astra",
+      "implementation_commit": "12160c8b2b406dd92d9bb08dc440d6685749ec51",
+      "registered_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/api-key-table.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "web/app/components/main-nav/components/account-money-extend.tsx",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "summary": [
+        "App API keys now create with supported description/day/month quota body, edit through supported PUT and invalidate the per-app list on success.",
+        "Table shows accumulated, daily and monthly usage only for app scope; dataset/environment request and display remain unchanged.",
+        "Account balance is parsed before successful cache data and isolated by account/workspace; login_config is the sole rate source, no public fallback; identity/403/invalid-data states hide converted balance."
+      ],
+      "static_review": {
+        "reviewer": "/root/m06_12_3_luna_verification",
+        "status": "accepted_no_P1_P2_P3_findings",
+        "scope": "Read-only six-file review; tests and scoped checks were not run."
+      },
+      "verification_task": {
+        "agent": "/root/m06_12_3_direct_node_tests",
+        "status": "in_progress",
+        "plan": "Run two registered Vitest specs through direct Node 24.20 without pnpm; overlay/restore six target files in eafe with hash verification."
+      },
+      "limits": [
+        "First isolated pnpm test attempt auto-attempted node@24.20 installation and was stopped (exit 129); no tests passed from that attempt.",
+        "Zero/negative exchange rate hides conversion as conservative UI behavior; no product rule defines those values."
+      ]
     }
   },
   "next_subtask": "12.3_app_api_key_quota_and_balance"
