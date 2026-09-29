@@ -1082,17 +1082,48 @@
       "evidence": "evidence/M06/12.6-analysis.md"
     },
     "12.6a_home_navigation": {
-      "status": "implementation_present_verification_pending",
+      "status": "passed",
       "model": "gpt-6-astra",
+      "thread_id": "01a0eb56-3ff2-7443-b0ac-81c605b54338",
       "registered_paths": [
         "web/app/components/main-nav/routes.ts",
         "web/app/components/main-nav/index.tsx",
         "web/app/components/main-nav/__tests__/index.spec.tsx"
       ],
-      "implementation_commit": "6061766c11",
-      "summary": "Added an independent fork app-center route and active state while keeping upstream Home at /. Focused Vitest could not start because pnpm 12.3.4 signature verification could not fetch registry signatures in this environment.",
-      "evidence": "evidence/M06/12.6-analysis.md"
+      "implementation_commit": "6061766c11348e9179cc3eb03b1d747bd3f19726",
+      "summary": "Independent fork app-center nav entry; upstream Home unchanged. MainNav 92/92 tests passed; scoped check 0 errors, one preexisting warning; diff check passed.",
+      "evidence": "evidence/M06/12.6a-verification.md"
+    },
+    "12.6b_system_integration_host_test": {
+      "status": "thread_provisioning",
+      "model": "gpt-6-astra",
+      "client_thread_id": "client-new-thread:90eed99a-8d10-4a26-8b03-a6d447de36ba",
+      "registered_paths": [
+        "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
+      ]
+    },
+    "12.6a_home_navigation_luna_review": {
+      "status": "thread_provisioning",
+      "model": "gpt-6-luna",
+      "client_thread_id": "client-new-thread:cf667e29-8771-4de8-935e-f67447c17154",
+      "registered_paths": [
+        "web/app/components/main-nav/routes.ts",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ]
+    },
+    "12.6d_app_account_statistics": {
+      "status": "thread_provisioning",
+      "model": "gpt-6-astra",
+      "client_thread_id": "client-new-thread:cfa97c71-5353-4ee5-8c44-9d760b1d0221",
+      "registered_paths": [
+        "api/controllers/console/app/statistic.py",
+        "api/services/app_statistic_query.py",
+        "api/repositories/app_statistic_query_repository.py",
+        "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
+        "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
+      ]
     }
   },
-  "next_subtask": "12.6a_home_navigation_verification"
+  "next_subtask": "12.6b_system_integration_host_test"
 }

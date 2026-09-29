@@ -1137,25 +1137,25 @@
           "preflight",
           "12.3_final_runtime_verification",
           "12.4_implementation",
-        "12.4_final_runtime_verification",
-        "12.1b_path_analysis",
-        "12.5e_final_locale_parity",
-        "12.6c_user_overview_backend_contract"
+          "12.4_final_runtime_verification",
+          "12.1b_path_analysis",
+          "12.5e_final_locale_parity",
+          "12.6c_user_overview_backend_contract",
+          "12.6a_home_navigation"
         ],
         "current_subtask": {
-          "id": "12.6a_home_navigation",
-          "status": "implementation_present_verification_pending",
+          "id": "12.6b_system_integration_host_test",
+          "status": "thread_provisioning",
           "owner": "M06",
           "model": "gpt-6-astra",
-          "thread_id": "01a0eb56-3ff2-7443-b0ac-81c605b54338",
+          "client_thread_id": "client-new-thread:90eed99a-8d10-4a26-8b03-a6d447de36ba",
+          "branch_head": "a813050cc5",
           "registered_paths": [
-            "web/app/components/main-nav/routes.ts",
-            "web/app/components/main-nav/index.tsx",
-            "web/app/components/main-nav/__tests__/index.spec.tsx"
+            "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
           ],
-          "scope": "Restore fork app-center reachability as an independent MainNav route at /explore/apps-center-extend with separate active matching; preserve upstream Home at /. Verify the rendered link, role visibility, and active route."
+          "scope": "Add focused host behavior tests for system-integration tab/content switching at the exact registered test path."
         },
-        "next_subtask": "12.6a_home_navigation",
+        "next_subtask": "12.6b_system_integration_host_test",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1695,14 +1695,16 @@
           },
           {
             "id": "12.6b_system_integration_host_test",
-            "status": "registered_ready",
-          "owner": "M06",
-          "model": "gpt-6-astra",
-          "implementation_commit": "6061766c11",
-          "registered_paths": [
+            "status": "thread_provisioning",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "implementation_commit": "6061766c11",
+            "registered_paths": [
               "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
             ],
-            "scope": "Add behavior tests for the owner-linked system integration page tabs at the actual host."
+            "scope": "Add behavior tests for the owner-linked system integration page tabs at the actual host.",
+            "client_thread_id": "client-new-thread:90eed99a-8d10-4a26-8b03-a6d447de36ba",
+            "branch_head": "a813050cc5"
           },
           {
             "id": "12.6c_user_overview_backend_contract",
@@ -1715,7 +1717,7 @@
           },
           {
             "id": "12.6d_app_account_statistics",
-            "status": "registered_ready",
+            "status": "thread_provisioning",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1725,7 +1727,9 @@
               "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
               "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
             ],
-            "scope": "Add optional account-scoped behavior to the three chart-backed app statistics endpoints using authenticated RequestContext.account_id and trusted from_account_id. Preserve default app-wide behavior and existing debugger/type filters."
+            "scope": "Add optional account-scoped behavior to the three chart-backed app statistics endpoints using authenticated RequestContext.account_id and trusted from_account_id. Preserve default app-wide behavior and existing debugger/type filters.",
+            "client_thread_id": "client-new-thread:cfa97c71-5353-4ee5-8c44-9d760b1d0221",
+            "branch_head": "a813050cc5"
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
@@ -1782,6 +1786,34 @@
               "packages/contracts/generated/api/console/apps/orpc.gen.ts"
             ],
             "scope": "Regenerate and review only after both backend endpoint contracts agree; generated contract files remain under M05/M08 ownership."
+          },
+          {
+            "id": "12.6i_api_key_interaction_regressions",
+            "status": "registered_ready",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "registered_paths": [
+              "web/app/components/api-key/__tests__/api-key-modal.spec.tsx"
+            ],
+            "dependencies": [
+              "12.3_implementation:passed"
+            ],
+            "scope": "Add focused assertions for copying the created API key and canManage=false edit/delete behavior with no mutation calls. Preserve existing key visibility and secret-copy product semantics; do not change source components."
+          },
+          {
+            "id": "12.6a_home_navigation_luna_review",
+            "status": "thread_provisioning",
+            "owner": "M06",
+            "model": "gpt-6-luna",
+            "client_thread_id": "client-new-thread:cf667e29-8771-4de8-935e-f67447c17154",
+            "branch_head": "a813050cc5",
+            "registered_paths": [
+              "web/app/components/main-nav/routes.ts",
+              "web/app/components/main-nav/index.tsx",
+              "web/app/components/main-nav/__tests__/index.spec.tsx"
+            ],
+            "implementation_commit": "6061766c11348e9179cc3eb03b1d747bd3f19726",
+            "scope": "Independent read-only review and focused test attempt; never bypass pnpm signature verification or alter the lockfile."
           }
         ],
         "completed_analyses": [
