@@ -1219,7 +1219,7 @@
           },
           {
             "id": "12.5b_locale_group_b",
-            "status": "ready_for_implementation",
+            "status": "conversation_provisioning",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -1233,11 +1233,15 @@
               "web/i18n/pt-BR/extend.json",
               "web/i18n/ro-RO/extend.json",
               "web/i18n/ru-RU/extend.json"
-            ]
+            ],
+            "client_thread_id": "client-new-thread:c5e5befd-ba66-431e-bb13-f29f9ba0670b",
+            "base_commit": "d867181b50",
+            "created_from_commit": "d867181b50",
+            "dispatch_channel": "codex_project_worktree"
           },
           {
             "id": "12.5c_locale_group_c",
-            "status": "ready_for_implementation",
+            "status": "conversation_provisioning",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -1250,7 +1254,11 @@
               "web/i18n/uk-UA/extend.json",
               "web/i18n/vi-VN/extend.json",
               "web/i18n/zh-Hant/extend.json"
-            ]
+            ],
+            "client_thread_id": "client-new-thread:d35f1f2d-5fdc-4787-b247-aa69907254fb",
+            "base_commit": "d867181b50",
+            "created_from_commit": "d867181b50",
+            "dispatch_channel": "codex_project_worktree"
           },
           {
             "id": "12.5d_obsolete_secret_key_quota_modal",
@@ -1418,6 +1426,41 @@
             "web/i18n/id-ID/extend.json",
             "web/i18n/it-IT/extend.json",
             "web/i18n/lo-LA/extend.json"
+          ]
+        },
+        "12.5b_locale_group_b": {
+          "status": "conversation_provisioning",
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "client_thread_id": "client-new-thread:c5e5befd-ba66-431e-bb13-f29f9ba0670b",
+          "base_commit": "d867181b50",
+          "created_from_commit": "d867181b50",
+          "dispatch_channel": "codex_project_worktree",
+          "registered_paths": [
+            "web/i18n/ja-JP/extend.json",
+            "web/i18n/ko-KR/extend.json",
+            "web/i18n/nl-NL/extend.json",
+            "web/i18n/pl-PL/extend.json",
+            "web/i18n/pt-BR/extend.json",
+            "web/i18n/ro-RO/extend.json",
+            "web/i18n/ru-RU/extend.json"
+          ]
+        },
+        "12.5c_locale_group_c": {
+          "status": "conversation_provisioning",
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "client_thread_id": "client-new-thread:d35f1f2d-5fdc-4787-b247-aa69907254fb",
+          "base_commit": "d867181b50",
+          "created_from_commit": "d867181b50",
+          "dispatch_channel": "codex_project_worktree",
+          "registered_paths": [
+            "web/i18n/sl-SI/extend.json",
+            "web/i18n/th-TH/extend.json",
+            "web/i18n/tr-TR/extend.json",
+            "web/i18n/uk-UA/extend.json",
+            "web/i18n/vi-VN/extend.json",
+            "web/i18n/zh-Hant/extend.json"
           ]
         }
       }

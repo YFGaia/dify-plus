@@ -460,7 +460,7 @@
       "agent": "/root/m06_12_5a_locale_a"
     },
     "12.5b_locale_group_b": {
-      "status": "ready_for_implementation",
+      "status": "conversation_provisioning",
       "owner": "M06",
       "model": "gpt-6-astra",
       "dependencies": [
@@ -475,10 +475,14 @@
         "web/i18n/ro-RO/extend.json",
         "web/i18n/ru-RU/extend.json"
       ],
-      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity."
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity.",
+      "client_thread_id": "client-new-thread:c5e5befd-ba66-431e-bb13-f29f9ba0670b",
+      "base_commit": "d867181b50",
+      "created_from_commit": "d867181b50",
+      "dispatch_channel": "codex_project_worktree"
     },
     "12.5c_locale_group_c": {
-      "status": "ready_for_implementation",
+      "status": "conversation_provisioning",
       "owner": "M06",
       "model": "gpt-6-astra",
       "dependencies": [
@@ -492,7 +496,11 @@
         "web/i18n/vi-VN/extend.json",
         "web/i18n/zh-Hant/extend.json"
       ],
-      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity."
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity.",
+      "client_thread_id": "client-new-thread:d35f1f2d-5fdc-4787-b247-aa69907254fb",
+      "base_commit": "d867181b50",
+      "created_from_commit": "d867181b50",
+      "dispatch_channel": "codex_project_worktree"
     },
     "12.5d_obsolete_secret_key_quota_modal": {
       "status": "blocked_by_dependency",
