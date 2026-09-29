@@ -31,6 +31,8 @@ const EMPTY_ONLINE_USERS: WorkflowOnlineUser[] = []
 
 type AppCardProps = {
   app: AppPartial
+  // Missing page status must not be treated as an unsynced app.
+  isSynced?: boolean
   onlineUsers?: WorkflowOnlineUser[]
   onOpenTagManagement?: () => void
   stepByStepTourActionMenuOpen?: boolean
@@ -42,6 +44,7 @@ type AppCardProps = {
 export const AppCard = memo(
   ({
     app,
+    isSynced,
     onlineUsers = EMPTY_ONLINE_USERS,
     onOpenTagManagement,
     stepByStepTourActionMenuOpen = false,
@@ -207,6 +210,7 @@ export const AppCard = memo(
         ) : (
           <AppCardInteractions
             app={app}
+            isSynced={isSynced}
             stepByStepTourActionMenuOpen={stepByStepTourActionMenuOpen}
             stepByStepTourActionMenuHighlightPart={stepByStepTourActionMenuHighlightPart}
           >

@@ -102,6 +102,15 @@ function AppListCatalogContent({
   const { t } = useTranslation()
 
   const apps = useMemo(() => appListPages.flatMap(({ data: pageApps }) => pageApps), [appListPages])
+  const syncStatusByAppId = useMemo(() => {
+    const statuses = new Map<string, boolean>()
+    for (const page of appListPages) {
+      if (page.recommended_apps === undefined) continue
+      const recommendedAppIds = new Set(page.recommended_apps)
+      for (const app of page.data) statuses.set(app.id, recommendedAppIds.has(app.id))
+    }
+    return statuses
+  }, [appListPages])
   const workflowOnlineUserAppIds = useMemo(() => {
     const appIds = new Set<string>()
     apps.forEach((app) => {
@@ -196,6 +205,7 @@ function AppListCatalogContent({
                   <AppCard
                     key={app.id}
                     app={app}
+                    isSynced={syncStatusByAppId.get(app.id)}
                     onlineUsers={workflowOnlineUsersMap[app.id]}
                     onOpenTagManagement={onOpenTagManagement}
                     stepByStepTourActionMenuOpen={

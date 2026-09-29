@@ -429,7 +429,7 @@
       }
     },
     "12.2c_studio_sync_menu": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
       "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
@@ -456,7 +456,46 @@
         "web/app/components/apps/__tests__/app-card.spec.tsx",
         "web/app/components/apps/__tests__/list.spec.tsx"
       ],
-      "observation": "All five registered source/test paths contain uncommitted implementation edits in the isolated worktree; no completion commit observed yet."
+      "observation": "The five registered paths were integrated from the Astra source worktree. App-card sync permissions, confirmation, pending protection, per-page status, success invalidation, and error behavior are covered. The source worktree remains preserved.",
+      "verification_evidence": "evidence/M06/12.2c-verification.md",
+      "verified_snapshot_commit": "24d940104341798297d59493accfdb0001e36bbc",
+      "verification": {
+        "evidence": "evidence/M06/12.2c-verification.md",
+        "runtime": "Node 24.20.0; official pnpm 12.3.4",
+        "unit_tests": {
+          "command": "pnpm exec vp test run --project unit app/components/apps/__tests__/app-card.spec.tsx app/components/apps/__tests__/list.spec.tsx",
+          "exit_code": 0,
+          "files_passed": 2,
+          "tests_passed": 137
+        },
+        "scoped_check": {
+          "command": "pnpm --config.verify-deps-before-run=false exec vp check <five registered paths>",
+          "exit_code": 0,
+          "files_formatted": 5,
+          "lint_errors": 0,
+          "type_errors": 0,
+          "warnings": 2
+        },
+        "baseline_warnings": {
+          "exit_code": 0,
+          "count": 2,
+          "rule": "dify(require-title-for-truncated-text)",
+          "assertion": "The restored baseline produced the same two warnings on the unchanged app mode and edit time truncation elements."
+        },
+        "diff_check_exit_code": 0,
+        "test_worktree": {
+          "path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+          "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+          "target_paths_restored": true,
+          "preexisting_changes_preserved": true
+        },
+        "source_worktree": {
+          "path": "/Users/liuxingwang/.codex/worktrees/171d/dify-plus",
+          "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
+          "registered_paths_only": true,
+          "status": "preserved after integration"
+        }
+      }
     },
     "12.5_analysis": {
       "status": "passed",
@@ -718,5 +757,5 @@
       "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics."
     }
   },
-  "next_subtask": "12.2c_studio_sync_menu"
+  "next_subtask": "12.3_analysis"
 }

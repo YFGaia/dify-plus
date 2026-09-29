@@ -1,3 +1,4 @@
+import type { AppPagination } from '@dify/contracts/api/console/apps/types.gen'
 import type { GetSystemFeaturesResponse } from '@dify/contracts/api/console/system-features/types.gen'
 import type { StepByStepTourSessionState } from '@/app/components/step-by-step-tour/types'
 import type { App } from '@/models/explore'
@@ -219,7 +220,9 @@ const defaultAppData = {
     },
   ],
 }
-let mockAppData = defaultAppData
+let mockAppData: {
+  pages: Array<(typeof defaultAppData.pages)[number] & Pick<AppPagination, 'recommended_apps'>>
+} = defaultAppData
 
 type MockStarredAppData = {
   data: Array<Record<string, unknown>>
@@ -374,12 +377,14 @@ vi.mock('@/next/dynamic', () => ({
 vi.mock('../app-card', () => ({
   AppCard: ({
     app,
+    isSynced,
     stepByStepTourActionMenuOpen,
     stepByStepTourActionMenuHighlightPart,
     stepByStepTourCardTarget,
     stepByStepTourCardHighlightPart,
   }: {
     app: { id: string; name: string }
+    isSynced?: boolean
     stepByStepTourActionMenuOpen?: boolean
     stepByStepTourActionMenuHighlightPart?: string
     stepByStepTourCardTarget?: string
@@ -393,6 +398,11 @@ vi.mock('../app-card', () => ({
         'data-step-by-step-tour-highlight-part': stepByStepTourCardHighlightPart,
       },
       app.name,
+      React.createElement(
+        'span',
+        null,
+        isSynced === undefined ? 'Sync status unknown' : isSynced ? 'Synced' : 'Not synced',
+      ),
       React.createElement('button', {
         'data-testid': `app-card-action-bar-${app.id}`,
         'data-step-by-step-tour-highlight-part': stepByStepTourActionMenuHighlightPart,
@@ -505,7 +515,7 @@ const renderList = (searchParams = '', options: RenderListOptions = {}) => {
   const store = createStore()
   seedRegisteredConsoleStateFixture(store)
   store.set(stepByStepTourSessionAtom, stepByStepTourSessionState)
-  const rendered = renderWithNuqs(
+  const renderContent = () => (
     <ConsoleQueryWrapper>
       <JotaiProvider store={store}>
         <List
@@ -513,10 +523,10 @@ const renderList = (searchParams = '', options: RenderListOptions = {}) => {
           onTryLearnDify={options.onTryLearnDify}
         />
       </JotaiProvider>
-    </ConsoleQueryWrapper>,
-    { searchParams },
+    </ConsoleQueryWrapper>
   )
-  return rendered
+  const rendered = renderWithNuqs(renderContent(), { searchParams })
+  return { ...rendered, rerenderList: () => rendered.rerender(renderContent()) }
 }
 
 type AppListInfiniteOptions = {
@@ -590,6 +600,43 @@ describe('List', () => {
     }
     mockUseWorkflowOnlineUsers.mockClear()
     intersectionCallbacks.length = 0
+  })
+
+  it('uses each loaded page status and replaces it when the list refreshes', () => {
+    const [firstApp, secondApp] = defaultAppData.pages[0]!.data
+    mockAppData = {
+      pages: [
+        { data: [firstApp!], total: 2, recommended_apps: [firstApp!.id] },
+        { data: [secondApp!], total: 2, recommended_apps: [] },
+      ],
+    }
+    const { rerenderList } = renderList()
+    expect(within(screen.getByTestId('app-card-app-1')).getByText('Synced')).toBeInTheDocument()
+    expect(within(screen.getByTestId('app-card-app-2')).getByText('Not synced')).toBeInTheDocument()
+    mockAppData = {
+      pages: [
+        { data: [firstApp!], total: 2, recommended_apps: [] },
+        { data: [secondApp!], total: 2, recommended_apps: [secondApp!.id] },
+      ],
+    }
+    rerenderList()
+    expect(within(screen.getByTestId('app-card-app-1')).getByText('Not synced')).toBeInTheDocument()
+    expect(within(screen.getByTestId('app-card-app-2')).getByText('Synced')).toBeInTheDocument()
+  })
+
+  it('keeps missing page status unknown and ignores IDs outside their page', () => {
+    const [firstApp, secondApp] = defaultAppData.pages[0]!.data
+    mockAppData = {
+      pages: [
+        { data: [firstApp!], total: 2, recommended_apps: [secondApp!.id] },
+        { data: [secondApp!], total: 2 },
+      ],
+    }
+    renderList()
+    expect(within(screen.getByTestId('app-card-app-1')).getByText('Not synced')).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('app-card-app-2')).getByText('Sync status unknown'),
+    ).toBeInTheDocument()
   })
 
   describe('Rendering', () => {

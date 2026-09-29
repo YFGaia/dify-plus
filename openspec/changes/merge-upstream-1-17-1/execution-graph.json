@@ -1125,40 +1125,17 @@
           "12.1b",
           "12.2_analysis",
           "12.5_analysis",
-          "12.2a_app_center_repair"
+          "12.2a_app_center_repair",
+          "12.2c_studio_sync_menu"
         ],
         "current_subtask": {
-          "status": "implementation_in_progress",
-          "owner": "M06",
-          "model": "gpt-6-astra",
-          "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
-          "registered_paths": [
-            "web/app/components/apps/app-card/index.tsx",
-            "web/app/components/apps/app-card/interactions.tsx",
-            "web/app/components/apps/app-list-catalog.tsx",
-            "web/app/components/apps/__tests__/app-card.spec.tsx",
-            "web/app/components/apps/__tests__/list.spec.tsx"
-          ],
-          "dependencies": [
-            "9.6_recommended_apps_page_status:passed"
-          ],
-          "dependency_evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status",
-          "client_thread_id": "client-new-thread:0ceed222-0cfe-483a-a7b1-b61587486cf7",
-          "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
-          "created_from_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
-          "dispatch_channel": "codex_project_worktree",
-          "worktree_path": "/Users/liuxingwang/.codex/worktrees/171d/dify-plus",
-          "observed_modified_paths": [
-            "web/app/components/apps/app-card/index.tsx",
-            "web/app/components/apps/app-card/interactions.tsx",
-            "web/app/components/apps/app-list-catalog.tsx",
-            "web/app/components/apps/__tests__/app-card.spec.tsx",
-            "web/app/components/apps/__tests__/list.spec.tsx"
-          ],
-          "observation": "All five registered source/test paths contain uncommitted implementation edits in the isolated worktree; no completion commit observed yet.",
-          "evidence": "evidence/M06/result.json#/subtasks/12.2c_studio_sync_menu"
+          "status": "conversation_provisioning",
+          "model": "gpt-6-sol",
+          "client_thread_id": "client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947",
+          "scope": "Read-only API-key scope/balance display and login_config exchange-rate data-flow analysis.",
+          "evidence": "evidence/M06/result.json#/subtasks/12.3_analysis"
         },
-        "next_subtask": "12.2c_studio_sync_menu",
+        "next_subtask": "12.3_analysis",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1260,7 +1237,7 @@
           },
           {
             "id": "12.2c_studio_sync_menu",
-            "status": "implementation_in_progress",
+            "status": "passed",
             "model": "gpt-6-astra",
             "owner": "M06",
             "dependency": "9.6_recommended_apps_page_status:passed",
@@ -1277,7 +1254,45 @@
               "web/app/components/apps/__tests__/app-card.spec.tsx",
               "web/app/components/apps/__tests__/list.spec.tsx"
             ],
-            "observation": "All five registered source/test paths contain uncommitted implementation edits in the isolated worktree; no completion commit observed yet."
+            "observation": "The five registered paths are integrated; 137 focused tests and scoped checks passed with only the two baseline warnings.",
+            "verification_evidence": "evidence/M06/12.2c-verification.md",
+            "verification": {
+              "evidence": "evidence/M06/12.2c-verification.md",
+              "runtime": "Node 24.20.0; official pnpm 12.3.4",
+              "unit_tests": {
+                "command": "pnpm exec vp test run --project unit app/components/apps/__tests__/app-card.spec.tsx app/components/apps/__tests__/list.spec.tsx",
+                "exit_code": 0,
+                "files_passed": 2,
+                "tests_passed": 137
+              },
+              "scoped_check": {
+                "command": "pnpm --config.verify-deps-before-run=false exec vp check <five registered paths>",
+                "exit_code": 0,
+                "files_formatted": 5,
+                "lint_errors": 0,
+                "type_errors": 0,
+                "warnings": 2
+              },
+              "baseline_warnings": {
+                "exit_code": 0,
+                "count": 2,
+                "rule": "dify(require-title-for-truncated-text)",
+                "assertion": "The restored baseline produced the same two warnings on the unchanged app mode and edit time truncation elements."
+              },
+              "diff_check_exit_code": 0,
+              "test_worktree": {
+                "path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+                "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+                "target_paths_restored": true,
+                "preexisting_changes_preserved": true
+              },
+              "source_worktree": {
+                "path": "/Users/liuxingwang/.codex/worktrees/171d/dify-plus",
+                "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
+                "registered_paths_only": true,
+                "status": "preserved after integration"
+              }
+            }
           },
           {
             "id": "12.5a_locale_group_a",
@@ -1632,7 +1647,7 @@
           "integration_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b"
         },
         "12.2c_studio_sync_menu": {
-          "status": "implementation_in_progress",
+          "status": "passed",
           "owner": "M06",
           "model": "gpt-6-astra",
           "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
@@ -1659,7 +1674,45 @@
             "web/app/components/apps/__tests__/app-card.spec.tsx",
             "web/app/components/apps/__tests__/list.spec.tsx"
           ],
-          "observation": "All five registered source/test paths contain uncommitted implementation edits in the isolated worktree; no completion commit observed yet."
+          "observation": "The five registered paths are integrated in the root branch; 137 focused tests and scoped checks passed with no errors. The two lint warnings were reproduced unchanged on the baseline.",
+          "verification_evidence": "evidence/M06/12.2c-verification.md",
+          "verification": {
+            "evidence": "evidence/M06/12.2c-verification.md",
+            "runtime": "Node 24.20.0; official pnpm 12.3.4",
+            "unit_tests": {
+              "command": "pnpm exec vp test run --project unit app/components/apps/__tests__/app-card.spec.tsx app/components/apps/__tests__/list.spec.tsx",
+              "exit_code": 0,
+              "files_passed": 2,
+              "tests_passed": 137
+            },
+            "scoped_check": {
+              "command": "pnpm --config.verify-deps-before-run=false exec vp check <five registered paths>",
+              "exit_code": 0,
+              "files_formatted": 5,
+              "lint_errors": 0,
+              "type_errors": 0,
+              "warnings": 2
+            },
+            "baseline_warnings": {
+              "exit_code": 0,
+              "count": 2,
+              "rule": "dify(require-title-for-truncated-text)",
+              "assertion": "The restored baseline produced the same two warnings on the unchanged app mode and edit time truncation elements."
+            },
+            "diff_check_exit_code": 0,
+            "test_worktree": {
+              "path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+              "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+              "target_paths_restored": true,
+              "preexisting_changes_preserved": true
+            },
+            "source_worktree": {
+              "path": "/Users/liuxingwang/.codex/worktrees/171d/dify-plus",
+              "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
+              "registered_paths_only": true,
+              "status": "preserved after integration"
+            }
+          }
         },
         "12.5a_locale_group_a": {
           "status": "independent_review_provisioning",

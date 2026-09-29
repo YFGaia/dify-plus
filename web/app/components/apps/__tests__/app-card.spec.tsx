@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import * as React from 'react'
 import { STEP_BY_STEP_TOUR_TARGETS } from '@/app/components/step-by-step-tour/target-registry'
 import { AccessMode } from '@/models/access-control'
+import { consoleQuery } from '@/service/console'
 import * as exploreService from '@/service/explore'
 import { renderWithConsoleQuery } from '@/test/console/query-data'
 import { AppModeEnum } from '@/types/app'
@@ -48,13 +49,23 @@ const mockUnstarAppMutation = vi.hoisted(() =>
   vi.fn((_variables: unknown): Promise<unknown> => Promise.resolve()),
 )
 
+const mockSyncAppMutation = vi.hoisted(() =>
+  vi.fn((_variables: unknown): Promise<unknown> => Promise.resolve({})),
+)
+const mockUnsyncAppMutation = vi.hoisted(() =>
+  vi.fn((_variables: unknown): Promise<unknown> => Promise.resolve({})),
+)
+
 vi.mock('@/service/console', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/service/console')>()
   const withMutation = (operation: object, mutationFn: typeof mockCopyApp) =>
     new Proxy(operation, {
       get(target, property, receiver) {
         if (property === 'mutationOptions')
-          return () => ({ mutationFn: (variables: unknown) => mutationFn(variables) })
+          return (options: object = {}) => ({
+            ...options,
+            mutationFn: (variables: unknown) => mutationFn(variables),
+          })
         return Reflect.get(target, property, receiver)
       },
     })
@@ -71,8 +82,16 @@ vi.mock('@/service/console', async (importOriginal) => {
       return Reflect.get(target, property, receiver)
     },
   })
+  const sync = new Proxy(actual.consoleQuery.apps.byAppId.sync, {
+    get(target, property, receiver) {
+      if (property === 'put') return withMutation(target.put, mockSyncAppMutation)
+      if (property === 'delete') return withMutation(target.delete, mockUnsyncAppMutation)
+      return Reflect.get(target, property, receiver)
+    },
+  })
   const byAppId = new Proxy(actual.consoleQuery.apps.byAppId, {
     get(target, property, receiver) {
+      if (property === 'sync') return sync
       if (property === 'copy') return copy
       if (property === 'put') return withMutation(target.put, mockUpdateAppMutation)
       if (property === 'delete') return withMutation(target.delete, mockDeleteAppMutation)
@@ -160,6 +179,8 @@ vi.mock('use-context-selector', () => ({
 
 const mockConsoleState = vi.hoisted(() => ({
   userProfile: { id: 'user-1' },
+  currentWorkspace: { admin_extend: false, tenant_extend: false },
+  isCurrentWorkspaceManager: false,
   workspacePermissionKeys: ['app.create_and_management'] as string[],
 }))
 
@@ -446,7 +467,166 @@ describe('AppCard', () => {
     mockWorkflowAppDslExport.isExporting = false
     mockWorkflowAppDslExport.exportWorkflowAppDsl.mockResolvedValue({ status: 'downloaded' })
     mockConsoleState.userProfile = { id: 'user-1' }
+    mockConsoleState.currentWorkspace = { admin_extend: false, tenant_extend: false }
+    mockConsoleState.isCurrentWorkspaceManager = false
+    mockSyncAppMutation.mockReset().mockResolvedValue({})
+    mockUnsyncAppMutation.mockReset().mockResolvedValue({})
     mockConsoleState.workspacePermissionKeys = ['app.create_and_management']
+  })
+
+  describe('template sync', () => {
+    const syncLabel = 'extend.app.syncToAppTemplate'
+    const unsyncLabel = 'extend.app.cancelSyncToAppTemplate'
+
+    beforeEach(() => {
+      mockConsoleState.isCurrentWorkspaceManager = true
+      mockConsoleState.currentWorkspace = { admin_extend: true, tenant_extend: true }
+    })
+
+    it.each([
+      [false, true, true],
+      [true, false, true],
+      [true, true, false],
+    ])('hides sync without all permission gates (%s, %s, %s)', async (manager, admin, tenant) => {
+      mockConsoleState.isCurrentWorkspaceManager = manager
+      mockConsoleState.currentWorkspace = { admin_extend: admin, tenant_extend: tenant }
+      const user = userEvent.setup()
+      render(<AppCard app={mockApp} isSynced={false} />)
+      await user.click(getOperationsTrigger())
+      expect(screen.queryByRole('menuitem', { name: syncLabel })).not.toBeInTheDocument()
+      expect(screen.queryByRole('menuitem', { name: unsyncLabel })).not.toBeInTheDocument()
+    })
+
+    it('keeps sync available when other operations are not permitted', async () => {
+      mockConsoleState.workspacePermissionKeys = []
+      const user = userEvent.setup()
+      render(
+        <AppCard
+          app={createMockApp({ permission_keys: [AppACLPermission.ViewLayout] })}
+          isSynced={false}
+        />,
+      )
+      await user.click(getOperationsTrigger())
+      expect(screen.getByRole('menuitem', { name: syncLabel })).toBeInTheDocument()
+      expect(screen.queryByRole('menuitem', { name: 'app.editApp' })).not.toBeInTheDocument()
+    })
+
+    it('preserves the preview-only card boundary even with sync permissions', () => {
+      render(
+        <AppCard
+          app={createMockApp({ permission_keys: [AppACLPermission.Preview] })}
+          isSynced={false}
+        />,
+      )
+      expect(
+        screen.queryByRole('button', { name: /common\.operation\.moreActionsFor/ }),
+      ).not.toBeInTheDocument()
+      expect(mockSyncAppMutation).not.toHaveBeenCalled()
+    })
+
+    it('hides sync when the card has no authoritative page status', async () => {
+      const user = userEvent.setup()
+      render(<AppCard app={mockApp} />)
+      await user.click(getOperationsTrigger())
+      expect(screen.queryByRole('menuitem', { name: syncLabel })).not.toBeInTheDocument()
+      expect(screen.queryByRole('menuitem', { name: unsyncLabel })).not.toBeInTheDocument()
+    })
+
+    it.each([false, true])(
+      'requires confirmation and allows cancellation (synced: %s)',
+      async (isSynced) => {
+        const user = userEvent.setup()
+        render(<AppCard app={mockApp} isSynced={isSynced} />)
+        await user.click(getOperationsTrigger())
+        await user.click(screen.getByRole('menuitem', { name: isSynced ? unsyncLabel : syncLabel }))
+        const dialog = await screen.findByRole('alertdialog')
+        expect(
+          within(dialog).getByText(
+            isSynced
+              ? 'extend.app.cloneCancelSyncToAppTemplate'
+              : 'extend.app.confirmSyncAppContent',
+          ),
+        ).toBeInTheDocument()
+        expect(mockSyncAppMutation).not.toHaveBeenCalled()
+        expect(mockUnsyncAppMutation).not.toHaveBeenCalled()
+        await user.click(within(dialog).getByRole('button', { name: 'common.operation.cancel' }))
+        await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument())
+        expect(mockSyncAppMutation).not.toHaveBeenCalled()
+        expect(mockUnsyncAppMutation).not.toHaveBeenCalled()
+      },
+    )
+
+    it.each([false, true])(
+      'invalidates every apps list only after confirmed success (synced: %s)',
+      async (isSynced) => {
+        const user = userEvent.setup()
+        let resolveMutation!: (value: object) => void
+        const mutation = isSynced ? mockUnsyncAppMutation : mockSyncAppMutation
+        mutation.mockReturnValueOnce(
+          new Promise((resolve) => {
+            resolveMutation = resolve
+          }),
+        )
+        const { queryClient } = render(<AppCard app={mockApp} isSynced={isSynced} />)
+        const listKeys = [1, 2].map((page) =>
+          consoleQuery.apps.get.infiniteKey({
+            input: () => ({ query: { page } }),
+            initialPageParam: page,
+          }),
+        )
+        for (const key of listKeys) queryClient.setQueryData(key, { pages: [], pageParams: [] })
+        await user.click(getOperationsTrigger())
+        await user.click(screen.getByRole('menuitem', { name: isSynced ? unsyncLabel : syncLabel }))
+        const dialog = await screen.findByRole('alertdialog')
+        const confirm = within(dialog).getByRole('button', { name: 'common.operation.confirm' })
+        await user.click(confirm)
+        expect(mutation).toHaveBeenCalledExactlyOnceWith({ params: { app_id: mockApp.id } })
+        expect(confirm).toHaveAttribute('aria-disabled', 'true')
+        await user.click(confirm)
+        expect(mutation).toHaveBeenCalledTimes(1)
+        expect(
+          within(dialog).getByRole('button', { name: 'common.operation.cancel' }),
+        ).toBeDisabled()
+        for (const key of listKeys)
+          expect(queryClient.getQueryState(key)?.isInvalidated).toBe(false)
+        resolveMutation({})
+        await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument())
+        for (const key of listKeys) expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)
+        expect(toastMocks.api.success).toHaveBeenCalledWith('extend.app.syncAppOk')
+        expect(isSynced ? mockSyncAppMutation : mockUnsyncAppMutation).not.toHaveBeenCalled()
+      },
+    )
+
+    it.each([false, true])(
+      'keeps cached status and reports a failed mutation (synced: %s)',
+      async (isSynced) => {
+        const user = userEvent.setup()
+        const mutation = isSynced ? mockUnsyncAppMutation : mockSyncAppMutation
+        mutation.mockRejectedValueOnce(new Error('Permission denied'))
+        const { queryClient } = render(<AppCard app={mockApp} isSynced={isSynced} />)
+        const key = consoleQuery.apps.get.infiniteKey({
+          input: () => ({ query: { page: 1 } }),
+          initialPageParam: 1,
+        })
+        queryClient.setQueryData(key, { pages: [], pageParams: [] })
+        await user.click(getOperationsTrigger())
+        await user.click(screen.getByRole('menuitem', { name: isSynced ? unsyncLabel : syncLabel }))
+        const dialog = await screen.findByRole('alertdialog')
+        await user.click(within(dialog).getByRole('button', { name: 'common.operation.confirm' }))
+        await waitFor(() => expect(toastMocks.api.error).toHaveBeenCalledWith('Permission denied'))
+        expect(queryClient.getQueryState(key)?.isInvalidated).toBe(false)
+        expect(toastMocks.api.success).not.toHaveBeenCalled()
+        expect(dialog).toBeInTheDocument()
+      },
+    )
+
+    it('offers unsync through the shared context menu', async () => {
+      const user = userEvent.setup()
+      render(<AppCard app={mockApp} isSynced />)
+      fireEvent.contextMenu(screen.getByRole('link', { name: mockApp.name }))
+      await user.click(await screen.findByRole('menuitem', { name: unsyncLabel }))
+      expect(await screen.findByRole('alertdialog')).toHaveAccessibleName(unsyncLabel)
+    })
   })
 
   describe('Rendering', () => {

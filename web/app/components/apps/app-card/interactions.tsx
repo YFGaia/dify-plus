@@ -39,7 +39,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@langgenius/dify-u
 import { toast } from '@langgenius/dify-ui/toast'
 import { Toggle } from '@langgenius/dify-ui/toggle'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@langgenius/dify-ui/tooltip'
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
 import { useCallback, useMemo, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
@@ -50,7 +50,9 @@ import {
   getStepByStepTourDropdownMenuContentProps,
   useStepByStepTourControlledDropdown,
 } from '@/app/components/step-by-step-tour/dropdown-menu'
+import { useExtendPermissions } from '@/context/app-context-extend'
 import { workspacePermissionKeysAtom } from '@/context/permission-state'
+import { isCurrentWorkspaceManagerAtom } from '@/context/workspace-state'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { useAsyncWindowOpen } from '@/hooks/use-async-window-open'
@@ -100,6 +102,8 @@ type AppCardOperationsMenuItemsProps = {
   shouldShowSwitchOption: boolean
   shouldShowAccessConfigOption: boolean
   shouldShowDeleteOption: boolean
+  syncOption: 'sync' | 'unsync' | null
+  onSync: () => void
   isExporting: boolean
   onEdit: () => void
   onDuplicate: () => void
@@ -118,6 +122,8 @@ function AppCardOperationsMenuItems({
   shouldShowSwitchOption,
   shouldShowAccessConfigOption,
   shouldShowDeleteOption,
+  syncOption,
+  onSync,
   isExporting,
   onEdit,
   onDuplicate,
@@ -250,12 +256,29 @@ function AppCardOperationsMenuItems({
           </span>
         </MenuItem>
       )}
+      {syncOption && (
+        <>
+          {(hasEditGroup ||
+            hasCreateExportGroup ||
+            hasSwitchOrExploreGroup ||
+            hasAccessDeleteGroup) && <MenuSeparator />}
+          <MenuItem className="gap-2 px-3" onClick={(event) => handleMenuAction(event, onSync)}>
+            <span className="system-sm-regular text-text-secondary">
+              {syncOption === 'sync'
+                ? t(($) => $['app.syncToAppTemplate'], { ns: 'extend' })
+                : t(($) => $['app.cancelSyncToAppTemplate'], { ns: 'extend' })}
+            </span>
+          </MenuItem>
+        </>
+      )}
     </>
   )
 }
 
 type AppCardInteractionsProps = {
   app: AppPartial
+  // Missing page status must not be treated as an unsynced app.
+  isSynced?: boolean
   children: ReactElement
   stepByStepTourActionMenuOpen?: boolean
   stepByStepTourActionMenuHighlightPart?: string
@@ -263,6 +286,7 @@ type AppCardInteractionsProps = {
 
 export function AppCardInteractions({
   app,
+  isSynced,
   children,
   stepByStepTourActionMenuOpen = false,
   stepByStepTourActionMenuHighlightPart,
@@ -276,6 +300,34 @@ export function AppCardInteractions({
   const workspacePermissionKeys = useAtomValue(workspacePermissionKeysAtom)
   const isRbacEnabled = systemFeatures.rbac_enabled
   const { push } = useRouter()
+  const queryClient = useQueryClient()
+  const isWorkspaceManager = useAtomValue(isCurrentWorkspaceManagerAtom)
+  const { adminExtend, tenantExtend } = useExtendPermissions()
+  const canSyncApp = isWorkspaceManager && adminExtend && tenantExtend && isSynced !== undefined
+  const [activeDialog, setActiveDialog] = useState<
+    'delete' | 'duplicate' | 'edit' | 'switch' | 'sync' | 'unsync' | null
+  >(null)
+  const onSyncSuccess = async () => {
+    await queryClient.invalidateQueries({ queryKey: consoleQuery.apps.get.key() })
+    toast.success(t(($) => $['app.syncAppOk'], { ns: 'extend' }))
+    setActiveDialog(null)
+  }
+  const onSyncError = (error: Error) => {
+    toast.error(error.message || t(($) => $['api.actionFailed'], { ns: 'common' }))
+  }
+  const { mutate: syncApp, isPending: isSyncing } = useMutation(
+    consoleQuery.apps.byAppId.sync.put.mutationOptions({
+      onSuccess: onSyncSuccess,
+      onError: onSyncError,
+    }),
+  )
+  const { mutate: unsyncApp, isPending: isUnsyncing } = useMutation(
+    consoleQuery.apps.byAppId.sync.delete.mutationOptions({
+      onSuccess: onSyncSuccess,
+      onError: onSyncError,
+    }),
+  )
+  const isSyncPending = isSyncing || isUnsyncing
   const { mutate: copyApp } = useMutation(consoleQuery.apps.byAppId.copy.post.mutationOptions())
   const { mutateAsync: updateApp } = useMutation(consoleQuery.apps.byAppId.put.mutationOptions())
   const { mutate: deleteApp, isPending: isDeleting } = useMutation(
@@ -288,9 +340,6 @@ export function AppCardInteractions({
     consoleQuery.apps.byAppId.star.delete.mutationOptions(),
   )
 
-  const [activeDialog, setActiveDialog] = useState<
-    'delete' | 'duplicate' | 'edit' | 'switch' | null
-  >(null)
   const [confirmDeleteInput, setConfirmDeleteInput] = useState('')
   const operationsMenu = useStepByStepTourControlledDropdown({
     allowTriggerCloseWhileControlled: false,
@@ -394,6 +443,19 @@ export function AppCardInteractions({
       setActiveDialog('delete')
     })
   }, [setIsOperationsMenuOpen])
+
+  const handleShowSyncConfirm = () => {
+    if (!canSyncApp || isSyncPending) return
+    setIsOperationsMenuOpen(false)
+    queueMicrotask(() => setActiveDialog(isSynced ? 'unsync' : 'sync'))
+  }
+
+  const onSyncDialogSubmit: FormEventHandler<HTMLFormElement> = (event) => {
+    event.preventDefault()
+    if (!canSyncApp || isSyncPending) return
+    if (activeDialog === 'sync') syncApp({ params: { app_id: app.id } })
+    if (activeDialog === 'unsync') unsyncApp({ params: { app_id: app.id } })
+  }
 
   const handleOpenAccessConfig = useCallback(() => {
     setIsOperationsMenuOpen(false)
@@ -530,7 +592,8 @@ export function AppCardInteractions({
     shouldShowExportOption ||
     shouldShowSwitchOption ||
     shouldShowAccessConfigOption ||
-    shouldShowDeleteOption
+    shouldShowDeleteOption ||
+    canSyncApp
   const starToggleLabel = t(($) => $['studio.starApp'], { ns: 'app' })
   const starToggleAccessibleLabel = `${starToggleLabel}: ${app.name}`
   const operationsMenuItemsProps = {
@@ -541,6 +604,8 @@ export function AppCardInteractions({
     shouldShowSwitchOption,
     shouldShowAccessConfigOption,
     shouldShowDeleteOption,
+    syncOption: canSyncApp ? (isSynced ? ('unsync' as const) : ('sync' as const)) : null,
+    onSync: handleShowSyncConfirm,
     isExporting,
     onEdit: handleShowEditModal,
     onDuplicate: handleShowDuplicateModal,
@@ -682,6 +747,41 @@ export function AppCardInteractions({
       {activeDialog === 'switch' && (
         <SwitchAppModal show appDetail={app} onClose={() => setActiveDialog(null)} />
       )}
+      <AlertDialog
+        open={activeDialog === 'sync' || activeDialog === 'unsync'}
+        onOpenChange={(open) => {
+          if (!open && !isSyncPending) setActiveDialog(null)
+        }}
+      >
+        <AlertDialogContent>
+          <form className="flex flex-col" onSubmit={onSyncDialogSubmit}>
+            <div className="flex flex-col gap-2 px-6 pt-6 pb-4">
+              <AlertDialogTitle className="title-2xl-semi-bold text-text-primary">
+                {activeDialog === 'unsync'
+                  ? t(($) => $['app.cancelSyncToAppTemplate'], { ns: 'extend' })
+                  : t(($) => $['app.confirmSyncApp'], { ns: 'extend' })}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="w-full system-md-regular wrap-break-word whitespace-pre-wrap text-text-tertiary">
+                {activeDialog === 'unsync'
+                  ? t(($) => $['app.cloneCancelSyncToAppTemplate'], { ns: 'extend' })
+                  : t(($) => $['app.confirmSyncAppContent'], { ns: 'extend' })}
+              </AlertDialogDescription>
+            </div>
+            <AlertDialogActions>
+              <AlertDialogCancelButton type="button" disabled={isSyncPending}>
+                {t(($) => $['operation.cancel'], { ns: 'common' })}
+              </AlertDialogCancelButton>
+              <AlertDialogConfirmButton
+                type="submit"
+                loading={isSyncPending}
+                disabled={!canSyncApp}
+              >
+                {t(($) => $['operation.confirm'], { ns: 'common' })}
+              </AlertDialogConfirmButton>
+            </AlertDialogActions>
+          </form>
+        </AlertDialogContent>
+      </AlertDialog>
       <AlertDialog open={activeDialog === 'delete'} onOpenChange={onDeleteDialogOpenChange}>
         <AlertDialogContent>
           <form className="flex flex-col" onSubmit={onDeleteDialogSubmit}>
