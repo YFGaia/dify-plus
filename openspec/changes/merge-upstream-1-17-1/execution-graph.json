@@ -1618,7 +1618,7 @@
           },
           {
             "id": "12.5e_post_fix_i18n_parity",
-            "status": "verification_in_progress",
+            "status": "passed_static_with_cli_limit",
             "owner": "M06",
             "model": "gpt-6-luna",
             "thread_id": "01a0eb3e-ade0-7380-a27b-b548332ce0c8",
@@ -1633,7 +1633,9 @@
               "pnpm-lock.yaml"
             ],
             "scope": "Read-only independent verification of id-ID/pl-PL post-fix locale key parity, order, existing values and interpolation tokens; safely rerun scoped i18n parity with auto-install disabled and report exact commands/results.",
-            "evidence": "evidence/M06/result.json#/subtasks/12.5_language_corrections/post_fix_parity_revalidation"
+            "evidence": "evidence/M06/12.5e-post-fix-parity.md",
+            "review_target_commit": "4526fd02f2039f568ea605012329f4da2a1bc514",
+            "result": "24-locale static key/order/placeholder parity passed; project pnpm checker not run because local pnpm 11.9.0 auto-management hung and tsx is missing."
           },
           {
             "id": "12.4_implementation",
