@@ -2415,16 +2415,22 @@
           "13.5"
         ],
         "current_subtask": {
-          "id": "13.6_gitlab_manifest_artifact_transfer",
-          "status": "ready",
-          "owner": "M07",
-          "model": "gpt-6-astra",
+          "id": "13.6_manifest_artifact_fix_independent_review",
+          "status": "review_in_progress",
+          "model": "gpt-6-luna",
+          "thread_id": "01a0eb51-38be-7641-ad06-5c98228b034b",
+          "title": "M07 13.6 Luna 复核 GitLab manifest 修复",
+          "base_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+          "dispatch_channel": "codex_shared_local",
           "registered_paths": [
             ".gitlab-ci.yml"
           ],
-          "scope": "Fix unique architecture manifest filenames and explicit GitLab artifact export/download between build and manifest jobs; validate YAML and static transfer contract. Do not claim actual image push or pipeline success."
+          "scope": "Read-only review that GitLab API/Web manifest jobs use the exact architecture tags pushed by their build jobs and that cross-job txt/artifacts dependency is fully removed.",
+          "implementation_thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
+          "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+          "evidence": "evidence/M07/result.json#/subtasks/13.6/artifact_follow_up_review"
         },
-        "next_subtask": "13.6_gitlab_manifest_artifact_transfer",
+        "next_subtask": "13.6_final_acceptance_revalidation",
         "completed_review": {
           "id": "13.6_source_acceptance_revalidation",
           "status": "review_complete_p2_remediation_pending",
@@ -2486,6 +2492,19 @@
               "P2 final result metadata must be reconciled before acceptance",
               "P3 required JWE deployment secret remains unverified"
             ]
+          }
+        ],
+        "completed_subtasks": [
+          {
+            "id": "13.6_gitlab_manifest_artifact_fix",
+            "status": "implementation_complete",
+            "model": "gpt-6-astra",
+            "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
+            "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+            "registered_paths": [
+              ".gitlab-ci.yml"
+            ],
+            "evidence": "evidence/M07/result.json#/subtasks/13.6/artifact_fix"
           }
         ]
       },
