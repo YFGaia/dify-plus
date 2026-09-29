@@ -1149,10 +1149,10 @@
         ],
         "current_subtask": {
           "id": "12.6f_logstore_actor_index_config_preservation",
-          "status": "registered",
+          "status": "implementation_in_progress",
           "owner": "M04",
           "model": "gpt-6-astra",
-          "base_commit": "187abce8f4143985344507c969ff23685f7f2126",
+          "base_commit": "5514c6df0f",
           "dependencies": [
             "12.6f_logstore_actor_index:implementation_complete",
             "12.6f_logstore_actor_index_reconciliation:reopened_by_P2"
@@ -1165,7 +1165,10 @@
           "scope": "Preserve the complete existing Aliyun SLS IndexConfig during update_index while adding/fixing workflow_execution.from_account_id; retain ttl, all_keys_config, log_reduce, docvalue_max_text_len, reduce white/black lists, line_config, scan_index, all custom keys, and compatible actor text options such as token_list/case_sensitive. Add regression coverage for overwrite semantics and only force required actor type/doc_value where incompatible.",
           "finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
           "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
-          "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md"
+          "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
+          "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
+          "implementation_thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
+          "dispatch_channel": "codex_project_local"
         },
         "next_subtask": "12.6f_logstore_actor_index_config_preservation",
         "parallel_subtasks": [
@@ -2152,10 +2155,10 @@
           },
           {
             "id": "12.6f_logstore_actor_index_config_preservation",
-            "status": "registered",
+            "status": "implementation_in_progress",
             "owner": "M04",
             "model": "gpt-6-astra",
-            "base_commit": "187abce8f4143985344507c969ff23685f7f2126",
+            "base_commit": "5514c6df0f",
             "dependencies": [
               "12.6f_logstore_actor_index:implementation_complete",
               "12.6f_logstore_actor_index_reconciliation:reopened_by_P2"
@@ -2168,7 +2171,9 @@
             "scope": "Preserve the complete existing Aliyun SLS IndexConfig during update_index while adding/fixing workflow_execution.from_account_id; retain ttl, all_keys_config, log_reduce, docvalue_max_text_len, reduce white/black lists, line_config, scan_index, all custom keys, and compatible actor text options such as token_list/case_sensitive. Add regression coverage for overwrite semantics and only force required actor type/doc_value where incompatible.",
             "finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
             "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
-            "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md"
+            "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
+            "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
+            "implementation_thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e"
           }
         ],
         "completed_analyses": [
@@ -2985,10 +2990,10 @@
         },
         "12.6f_logstore_actor_index_config_preservation": {
           "id": "12.6f_logstore_actor_index_config_preservation",
-          "status": "registered",
+          "status": "implementation_in_progress",
           "owner": "M04",
           "model": "gpt-6-astra",
-          "base_commit": "187abce8f4143985344507c969ff23685f7f2126",
+          "base_commit": "5514c6df0f",
           "dependencies": [
             "12.6f_logstore_actor_index:implementation_complete",
             "12.6f_logstore_actor_index_reconciliation:reopened_by_P2"
@@ -3001,7 +3006,8 @@
           "scope": "Preserve the complete existing Aliyun SLS IndexConfig during update_index while adding/fixing workflow_execution.from_account_id; retain ttl, all_keys_config, log_reduce, docvalue_max_text_len, reduce white/black lists, line_config, scan_index, all custom keys, and compatible actor text options such as token_list/case_sensitive. Add regression coverage for overwrite semantics and only force required actor type/doc_value where incompatible.",
           "finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
           "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
-          "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md"
+          "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
+          "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e"
         }
       },
       "next_subtask": "12.6f_logstore_actor_index_config_preservation",
