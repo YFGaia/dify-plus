@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "node_id": "V02",
+  "task_id": "16.5_final_candidate_clean_snapshot_frontend_gates",
+  "candidate_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+  "candidate_tree": "d94e6e1a034175165598bafe859d3f605b80beee",
+  "status": "blocked",
+  "summary": "The clean-snapshot pnpm check exited 1 before vp check ran. A pnpm dependency lifecycle attempted to verify the pinned package-manager release and failed because registry signature fetches were unavailable. Later gates were stopped.",
+  "snapshot": {
+    "path": "/private/tmp/dify-v02-16.5.CZU9MM",
+    "creation": "git archive --format=tar 97f94625d2d51fe1780f69aaecce5a56d3073db4 | tar -xf - -C /private/tmp/dify-v02-16.5.CZU9MM",
+    "archive_invocation_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+    "expected_and_verified_tree": "d94e6e1a034175165598bafe859d3f605b80beee",
+    "git_metadata_present": false,
+    "node_modules_symlink": "/Users/liuxingwang/go/src/dify-plus/node_modules",
+    "web_node_modules_symlink": "/Users/liuxingwang/go/src/dify-plus/web/node_modules",
+    "disposable_snapshot_only": true
+  },
+  "environment": {
+    "node": "v24.20.0",
+    "node_path": "/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin/node",
+    "node_sha256": "9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a",
+    "pnpm": "12.3.4",
+    "pnpm_path": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm",
+    "pnpm_sha256": "99ccfa6b57e73c693ec2c9760a978f063b001df8f462e89fce3a30be3d641f3",
+    "vp_skip_install": "1",
+    "network_install_requested": false,
+    "dependency_sync_completed": false
+  },
+  "input_hashes": {
+    "package.json": "1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f",
+    "pnpm-lock.yaml": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+    "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx": "93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120"
+  },
+  "reused_evidence": {
+    "frozen_lockfile_consistency": {
+      "source": "V02 attempt 1 and M01",
+      "package_hash_unchanged": "1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f",
+      "lock_hash_unchanged": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+      "status": "reused_without_install"
+    },
+    "browser_quota_spec": {
+      "file": "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+      "inventory_count_in_scope": 1,
+      "sha256": "93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120",
+      "matches_m08_14_7_hash": true,
+      "prior_result": "1 browser file, 2 tests collected, 2 passed in Chromium",
+      "status": "reused_without_rerun"
+    }
+  },
+  "gates": [
+    {
+      "name": "pnpm_check",
+      "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm check",
+      "cwd": "/private/tmp/dify-v02-16.5.CZU9MM",
+      "exit_code": 1,
+      "status": "blocked_before_vp_check",
+      "cause": "PnPM entered a dependency lifecycle despite VP_SKIP_INSTALL=1; registry signature fetches failed for pnpm@12.3.4, so vp check never ran.",
+      "source_path_failures_reported": []
+    }
+  ],
+  "exact_output": [
+    "Scope: all 13 workspace projects",
+    "✓ Lockfile passes supply-chain policies (verified 11h ago)",
+    "Lockfile is up to date, resolution step is skipped",
+    "Already up to date",
+    "packages/dev-proxy prepare$ pnpm run build",
+    ". prepare$ vp config",
+    ". prepare: .git can't be found",
+    ". prepare: Done",
+    "packages/dev-proxy prepare: [ERROR] Refusing to run pnpm@12.3.4: its npm registry signature could not be verified (@pnpm/exe.darwin-arm64@12.3.4: fetch failed; @pnpm/exe@12.3.4: fetch failed; pnpm@12.3.4: fetch failed). The bytes selected by this project's lockfile/registry do not match a published, signed pnpm release.",
+    "packages/dev-proxy prepare: This can indicate a tampered lockfile or a malicious/unreachable registry. Set pmOnFail to ignore to skip the version switch if this is unexpected.",
+    "packages/dev-proxy prepare: Failed",
+    "Error: ERR_PNPM_EXECUTOR_LIFECYCLE_SCRIPT_FAILED",
+    "× installing dependencies",
+    "╰─▶ /private/tmp/dify-v02-16.5.CZU9MM/packages/dev-proxy prepare: pnpm run build exited with exit status: 1"
+  ],
+  "skipped_gates": [
+    "pnpm --dir web lint:tss",
+    "pnpm --dir web i18n:check",
+    "registered unit suite",
+    "registered browser suite (M08 14.7 exact-hash 2/2 result reused)",
+    "pnpm --dir web build",
+    "pnpm --dir web build:vinext"
+  ],
+  "stop_reason": {
+    "type": "pnpm_dependency_lifecycle_signature_verification_blocker",
+    "first_failed_gate": "pnpm check",
+    "next_action_owner": "environment/package-manager bootstrap owner",
+    "note": "No tracked candidate formatter or source/test failure was emitted because vp check did not begin."
+  },
+  "scope": {
+    "source_test_files_modified": false,
+    "graph_or_tasks_modified": false,
+    "staged_or_committed": false
+  }
+}

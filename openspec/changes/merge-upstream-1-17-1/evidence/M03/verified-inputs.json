@@ -8,9 +8,7 @@
   "exit_code": 0,
   "passed": 349,
   "warnings": 2,
-  "pytest_summary_lines": [
-    "349 passed, 2 warnings in 7.07s"
-  ],
+  "pytest_summary_lines": ["349 passed, 2 warnings in 7.07s"],
   "elapsed_seconds": 13.353,
   "source_paths_file": "/private/tmp/dify-m03-python-paths.txt",
   "source_path_count": 27,

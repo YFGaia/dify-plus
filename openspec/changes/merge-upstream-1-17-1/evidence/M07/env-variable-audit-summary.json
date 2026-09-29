@@ -119,8 +119,6 @@
     }
   },
   "preserved_upstream_duplicates": {
-    "docker/envs/core-services/shared.env.example": [
-      "UV_CACHE_DIR"
-    ]
+    "docker/envs/core-services/shared.env.example": ["UV_CACHE_DIR"]
   }
 }

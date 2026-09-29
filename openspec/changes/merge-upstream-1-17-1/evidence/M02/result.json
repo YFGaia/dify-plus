@@ -201,15 +201,7 @@
     }
   ],
   "summary": {
-    "fields": [
-      "id",
-      "name",
-      "role",
-      "plan",
-      "credits",
-      "admin_extend",
-      "tenant_extend"
-    ],
+    "fields": ["id", "name", "role", "plan", "credits", "admin_extend", "tenant_extend"],
     "verification": "Actual persisted Account/Tenant/membership rows. owner/admin/editor/normal × first/non-first Account, each switched between first/other Tenant. Real admission and summary service; roles remain unchanged. Existing archived409 test passes."
   },
   "session_audit": {
@@ -278,18 +270,8 @@
     }
   ],
   "downstream_status_propagation": {
-    "ready": [
-      "M03"
-    ],
-    "remain_blocked": [
-      "M04",
-      "M05",
-      "M06",
-      "M08",
-      "V01",
-      "V02",
-      "R01"
-    ],
+    "ready": ["M03"],
+    "remain_blocked": ["M04", "M05", "M06", "M08", "V01", "V02", "R01"],
     "unchanged": [
       "M07",
       "A03",
@@ -354,10 +336,7 @@
     "status": "passed",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
     "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
-    "subtasks": [
-      "8.6",
-      "8.7"
-    ],
+    "subtasks": ["8.6", "8.7"],
     "registered_paths": [
       "api/controllers/console/app/app_extend.py",
       "api/services/recommended_app_service_extend.py",

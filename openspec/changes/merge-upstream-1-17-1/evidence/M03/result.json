@@ -17,10 +17,7 @@
         "DingTalk auto_create_user supplies actual Session and creates quota",
         "late setup failure cleans only its newly created quota"
       ],
-      "tests": [
-        "test_account_quota_service_extend.py",
-        "test_account_service.py"
-      ]
+      "tests": ["test_account_quota_service_extend.py", "test_account_service.py"]
     },
     "9.2": {
       "status": "passed",
@@ -216,9 +213,7 @@
           "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
           "exit_code": 0,
           "passed": 29,
-          "warnings": [
-            "1 pre-existing cgi deprecation warning"
-          ]
+          "warnings": ["1 pre-existing cgi deprecation warning"]
         },
         "ruff_format_check_exit_code": 0,
         "ruff_check_exit_code": 0,

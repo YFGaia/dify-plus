@@ -3,9 +3,7 @@
     "baseline_issues": 0,
     "current_issues": 0,
     "new_issues": 0,
-    "changed_functions_or_classes": [
-      "is_end_login"
-    ],
+    "changed_functions_or_classes": ["is_end_login"],
     "billing_ast_unchanged": true
   },
   "api/services/ding_talk_extend.py": {

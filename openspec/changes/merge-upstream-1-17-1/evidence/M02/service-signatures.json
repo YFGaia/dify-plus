@@ -155,9 +155,7 @@
     "caller": "api/services/ding_talk_extend.py",
     "line": 402,
     "callee": "services.account_service.AccountService.login",
-    "required_keywords": [
-      "session"
-    ],
+    "required_keywords": ["session"],
     "missing": [],
     "kwargs_unpack": false
   },
@@ -165,12 +163,8 @@
     "caller": "api/services/ding_talk_extend.py",
     "line": 381,
     "callee": "services.account_service.RegisterService.register",
-    "required_keywords": [
-      "session"
-    ],
-    "missing": [
-      "session"
-    ],
+    "required_keywords": ["session"],
+    "missing": ["session"],
     "kwargs_unpack": false
   },
   {
@@ -185,9 +179,7 @@
     "caller": "api/services/ding_talk_extend.py",
     "line": 400,
     "callee": "services.account_service.TenantService.switch_tenant",
-    "required_keywords": [
-      "session"
-    ],
+    "required_keywords": ["session"],
     "missing": [],
     "kwargs_unpack": false
   },
@@ -291,9 +283,7 @@
     "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
     "line": 80,
     "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.set_webapp_auth_enabled",
-    "required_keywords": [
-      "session"
-    ],
+    "required_keywords": ["session"],
     "missing": [],
     "kwargs_unpack": false
   },
@@ -301,9 +291,7 @@
     "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
     "line": 93,
     "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.set_webapp_auth_enabled",
-    "required_keywords": [
-      "session"
-    ],
+    "required_keywords": ["session"],
     "missing": [],
     "kwargs_unpack": false
   },
@@ -311,9 +299,7 @@
     "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
     "line": 104,
     "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.set_webapp_auth_enabled",
-    "required_keywords": [
-      "session"
-    ],
+    "required_keywords": ["session"],
     "missing": [],
     "kwargs_unpack": false
   },

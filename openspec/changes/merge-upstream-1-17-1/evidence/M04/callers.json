@@ -3,12 +3,7 @@
     "path": "api/controllers/service_api/app/annotation.py",
     "callable": "AnnotationReplyActionApi.post",
     "line": 109,
-    "parameters": [
-      "self",
-      "payload",
-      "app_model",
-      "action"
-    ],
+    "parameters": ["self", "payload", "app_model", "action"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -17,12 +12,7 @@
     "path": "api/controllers/service_api/app/annotation.py",
     "callable": "AnnotationReplyActionStatusApi.get",
     "line": 161,
-    "parameters": [
-      "self",
-      "app_model",
-      "job_id",
-      "action"
-    ],
+    "parameters": ["self", "app_model", "job_id", "action"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -31,12 +21,7 @@
     "path": "api/controllers/service_api/app/annotation.py",
     "callable": "AnnotationListApi.get",
     "line": 209,
-    "parameters": [
-      "self",
-      "query",
-      "session",
-      "app_model"
-    ],
+    "parameters": ["self", "query", "session", "app_model"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -45,12 +30,7 @@
     "path": "api/controllers/service_api/app/annotation.py",
     "callable": "AnnotationListApi.post",
     "line": 252,
-    "parameters": [
-      "self",
-      "payload",
-      "session",
-      "app_model"
-    ],
+    "parameters": ["self", "payload", "session", "app_model"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -59,13 +39,7 @@
     "path": "api/controllers/service_api/app/annotation.py",
     "callable": "AnnotationUpdateDeleteApi.put",
     "line": 292,
-    "parameters": [
-      "self",
-      "payload",
-      "session",
-      "app_model",
-      "annotation_id"
-    ],
+    "parameters": ["self", "payload", "session", "app_model", "annotation_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -74,12 +48,7 @@
     "path": "api/controllers/service_api/app/annotation.py",
     "callable": "AnnotationUpdateDeleteApi.delete",
     "line": 324,
-    "parameters": [
-      "self",
-      "session",
-      "app_model",
-      "annotation_id"
-    ],
+    "parameters": ["self", "session", "app_model", "annotation_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -88,10 +57,7 @@
     "path": "api/controllers/service_api/app/app.py",
     "callable": "AppParameterApi.get",
     "line": 67,
-    "parameters": [
-      "self",
-      "app_model"
-    ],
+    "parameters": ["self", "app_model"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -100,10 +66,7 @@
     "path": "api/controllers/service_api/app/app.py",
     "callable": "AppMetaApi.get",
     "line": 103,
-    "parameters": [
-      "self",
-      "app_model"
-    ],
+    "parameters": ["self", "app_model"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -112,10 +75,7 @@
     "path": "api/controllers/service_api/app/app.py",
     "callable": "AppInfoApi.get",
     "line": 141,
-    "parameters": [
-      "self",
-      "app_model"
-    ],
+    "parameters": ["self", "app_model"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -124,11 +84,7 @@
     "path": "api/controllers/service_api/app/audio.py",
     "callable": "AudioApi.post",
     "line": 101,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user"
-    ],
+    "parameters": ["self", "app_model", "end_user"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))",
     "owner": "M04"
@@ -137,12 +93,7 @@
     "path": "api/controllers/service_api/app/audio.py",
     "callable": "TextApi.post",
     "line": 186,
-    "parameters": [
-      "self",
-      "payload",
-      "app_model",
-      "end_user"
-    ],
+    "parameters": ["self", "payload", "app_model", "end_user"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))",
     "owner": "M04"
@@ -151,13 +102,7 @@
     "path": "api/controllers/service_api/app/completion.py",
     "callable": "CompletionApi.post",
     "line": 223,
-    "parameters": [
-      "self",
-      "session",
-      "app_model",
-      "end_user",
-      "api_token"
-    ],
+    "parameters": ["self", "session", "app_model", "end_user", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -166,13 +111,7 @@
     "path": "api/controllers/service_api/app/completion.py",
     "callable": "CompletionStopApi.post",
     "line": 316,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user",
-      "task_id",
-      "api_token"
-    ],
+    "parameters": ["self", "app_model", "end_user", "task_id", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -181,13 +120,7 @@
     "path": "api/controllers/service_api/app/completion.py",
     "callable": "ChatApi.post",
     "line": 391,
-    "parameters": [
-      "self",
-      "session",
-      "app_model",
-      "end_user",
-      "api_token"
-    ],
+    "parameters": ["self", "session", "app_model", "end_user", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -196,13 +129,7 @@
     "path": "api/controllers/service_api/app/completion.py",
     "callable": "ChatStopApi.post",
     "line": 515,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user",
-      "task_id",
-      "api_token"
-    ],
+    "parameters": ["self", "app_model", "end_user", "task_id", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -211,12 +138,7 @@
     "path": "api/controllers/service_api/app/conversation.py",
     "callable": "ConversationApi.get",
     "line": 188,
-    "parameters": [
-      "self",
-      "query_args",
-      "app_model",
-      "end_user"
-    ],
+    "parameters": ["self", "query_args", "app_model", "end_user"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))",
     "owner": "M04"
@@ -225,12 +147,7 @@
     "path": "api/controllers/service_api/app/conversation.py",
     "callable": "ConversationDetailApi.delete",
     "line": 249,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user",
-      "conversation_id"
-    ],
+    "parameters": ["self", "app_model", "end_user", "conversation_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))",
     "owner": "M04"
@@ -239,13 +156,7 @@
     "path": "api/controllers/service_api/app/conversation.py",
     "callable": "ConversationRenameApi.post",
     "line": 297,
-    "parameters": [
-      "self",
-      "payload",
-      "app_model",
-      "end_user",
-      "conversation_id"
-    ],
+    "parameters": ["self", "payload", "app_model", "end_user", "conversation_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))",
     "owner": "M04"
@@ -254,13 +165,7 @@
     "path": "api/controllers/service_api/app/conversation.py",
     "callable": "ConversationVariablesApi.get",
     "line": 346,
-    "parameters": [
-      "self",
-      "query_args",
-      "app_model",
-      "end_user",
-      "conversation_id"
-    ],
+    "parameters": ["self", "query_args", "app_model", "end_user", "conversation_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))",
     "owner": "M04"
@@ -269,14 +174,7 @@
     "path": "api/controllers/service_api/app/conversation.py",
     "callable": "ConversationVariableDetailApi.put",
     "line": 411,
-    "parameters": [
-      "self",
-      "payload",
-      "app_model",
-      "end_user",
-      "conversation_id",
-      "variable_id"
-    ],
+    "parameters": ["self", "payload", "app_model", "end_user", "conversation_id", "variable_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON))",
     "owner": "M04"
@@ -285,11 +183,7 @@
     "path": "api/controllers/service_api/app/file.py",
     "callable": "FileApi.post",
     "line": 61,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user"
-    ],
+    "parameters": ["self", "app_model", "end_user"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.FORM))",
     "owner": "M04"
@@ -298,13 +192,7 @@
     "path": "api/controllers/service_api/app/file_preview.py",
     "callable": "FilePreviewApi.get",
     "line": 105,
-    "parameters": [
-      "self",
-      "args",
-      "app_model",
-      "end_user",
-      "file_id"
-    ],
+    "parameters": ["self", "args", "app_model", "end_user", "file_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))",
     "owner": "M04"
@@ -313,11 +201,7 @@
     "path": "api/controllers/service_api/app/human_input_form.py",
     "callable": "WorkflowHumanInputFormApi.get",
     "line": 114,
-    "parameters": [
-      "self",
-      "app_model",
-      "form_token"
-    ],
+    "parameters": ["self", "app_model", "form_token"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -326,13 +210,7 @@
     "path": "api/controllers/service_api/app/human_input_form.py",
     "callable": "WorkflowHumanInputFormApi.post",
     "line": 168,
-    "parameters": [
-      "self",
-      "payload",
-      "app_model",
-      "end_user",
-      "form_token"
-    ],
+    "parameters": ["self", "payload", "app_model", "end_user", "form_token"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -341,12 +219,7 @@
     "path": "api/controllers/service_api/app/message.py",
     "callable": "MessageListApi.get",
     "line": 105,
-    "parameters": [
-      "self",
-      "query_args",
-      "app_model",
-      "end_user"
-    ],
+    "parameters": ["self", "query_args", "app_model", "end_user"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY))",
     "owner": "M04"
@@ -355,13 +228,7 @@
     "path": "api/controllers/service_api/app/message.py",
     "callable": "MessageFeedbackApi.post",
     "line": 164,
-    "parameters": [
-      "self",
-      "payload",
-      "app_model",
-      "end_user",
-      "message_id"
-    ],
+    "parameters": ["self", "payload", "app_model", "end_user", "message_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -370,11 +237,7 @@
     "path": "api/controllers/service_api/app/message.py",
     "callable": "AppGetFeedbacksApi.get",
     "line": 215,
-    "parameters": [
-      "self",
-      "query_args",
-      "app_model"
-    ],
+    "parameters": ["self", "query_args", "app_model"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -383,12 +246,7 @@
     "path": "api/controllers/service_api/app/message.py",
     "callable": "MessageSuggestedApi.get",
     "line": 260,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user",
-      "message_id"
-    ],
+    "parameters": ["self", "app_model", "end_user", "message_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY, required=True))",
     "owner": "M04"
@@ -397,10 +255,7 @@
     "path": "api/controllers/service_api/app/site.py",
     "callable": "AppSiteApi.get",
     "line": 47,
-    "parameters": [
-      "self",
-      "app_model"
-    ],
+    "parameters": ["self", "app_model"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -409,12 +264,7 @@
     "path": "api/controllers/service_api/app/workflow.py",
     "callable": "WorkflowRunDetailApi.get",
     "line": 265,
-    "parameters": [
-      "self",
-      "app_model",
-      "workflow_run_id",
-      "api_token"
-    ],
+    "parameters": ["self", "app_model", "workflow_run_id", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -423,13 +273,7 @@
     "path": "api/controllers/service_api/app/workflow.py",
     "callable": "WorkflowRunApi.post",
     "line": 345,
-    "parameters": [
-      "self",
-      "session",
-      "app_model",
-      "end_user",
-      "api_token"
-    ],
+    "parameters": ["self", "session", "app_model", "end_user", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -438,14 +282,7 @@
     "path": "api/controllers/service_api/app/workflow.py",
     "callable": "WorkflowRunByIdApi.post",
     "line": 474,
-    "parameters": [
-      "self",
-      "session",
-      "app_model",
-      "end_user",
-      "workflow_id",
-      "api_token"
-    ],
+    "parameters": ["self", "session", "app_model", "end_user", "workflow_id", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -454,13 +291,7 @@
     "path": "api/controllers/service_api/app/workflow.py",
     "callable": "WorkflowTaskStopApi.post",
     "line": 577,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user",
-      "task_id",
-      "api_token"
-    ],
+    "parameters": ["self", "app_model", "end_user", "task_id", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.JSON, required=True))",
     "owner": "M04"
@@ -469,11 +300,7 @@
     "path": "api/controllers/service_api/app/workflow.py",
     "callable": "WorkflowAppLogApi.get",
     "line": 619,
-    "parameters": [
-      "self",
-      "app_model",
-      "api_token"
-    ],
+    "parameters": ["self", "app_model", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token",
     "owner": "M04"
@@ -482,12 +309,7 @@
     "path": "api/controllers/service_api/app/workflow_events.py",
     "callable": "WorkflowEventsApi.get",
     "line": 95,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user",
-      "workflow_run_id"
-    ],
+    "parameters": ["self", "app_model", "end_user", "workflow_run_id"],
     "api_token_injected": false,
     "fetch_user": "validate_app_token(fetch_user_arg=FetchUserArg(fetch_from=WhereisUserArg.QUERY, required=True))",
     "owner": "M04"
@@ -496,12 +318,7 @@
     "path": "api/controllers/service_api/end_user/end_user.py",
     "callable": "EndUserApi.get",
     "line": 45,
-    "parameters": [
-      "self",
-      "app_model",
-      "end_user_id",
-      "api_token"
-    ],
+    "parameters": ["self", "app_model", "end_user_id", "api_token"],
     "api_token_injected": true,
     "fetch_user": "validate_app_token",
     "owner": "M04"

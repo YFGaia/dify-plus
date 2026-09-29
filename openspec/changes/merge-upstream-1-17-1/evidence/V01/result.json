@@ -56,5 +56,12 @@
     "broad_m02_m03_m04_suites_rerun": false,
     "historical_suite_results_claimed_as_candidate_results": false
   },
-  "verdict": "passed"
+  "verdict": "passed",
+  "applicable_candidate": {
+    "commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+    "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+    "original_tested_candidate": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "api_tree_unchanged": true,
+    "reason": "The only non-metadata source changes after the V01-tested candidate are formatting in an OpenAPI TypeScript config and a Web browser test; API subtree is byte-identical."
+  }
 }

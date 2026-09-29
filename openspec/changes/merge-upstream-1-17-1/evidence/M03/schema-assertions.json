@@ -16,8 +16,5 @@
     "web-openapi.json": "713b0d02d975b1f4192ecdde6dbf9527781c9241a893c50d2eaec4031cddcc1c"
   },
   "output_dir": "/private/tmp/dify-m03-openapi-final",
-  "passport_schema_names": [
-    "PassportAccessTokenResponse",
-    "PassportQuery"
-  ]
+  "passport_schema_names": ["PassportAccessTokenResponse", "PassportQuery"]
 }

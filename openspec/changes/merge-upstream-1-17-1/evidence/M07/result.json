@@ -11,9 +11,7 @@
       "status": "passed",
       "model": "gpt-6-astra",
       "agent": "/root/m07_13_1_core_compose",
-      "changed_paths": [
-        "docker/docker-compose.dify-plus.yaml"
-      ],
+      "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
       "summary": [
         "Updated all six fork API service image references and the fork Web image tag to 1.17.1 while retaining private image names.",
         "Added 36 upstream core environment entries and aligned three existing execution/scaling defaults.",
@@ -65,9 +63,7 @@
       "model": "gpt-6-astra",
       "agent": "/root/m07_13_2_migration",
       "source_commit_before_subtask": "4f16d29b011bca49b46ee59d810de98eb26b6ada",
-      "changed_paths": [
-        "docker/docker-compose.dify-plus.yaml"
-      ],
+      "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
       "summary": [
         "Forced MIGRATION_ENABLED=false in the shared API/worker environment so a legacy .env value cannot re-enable automatic migrations in business containers.",
         "Added an explicit migration profile with one replica and restart=no, using the private API 1.17.1 image.",
@@ -113,9 +109,7 @@
       "model": "gpt-6-astra",
       "agent": "/root/m07_13_3_agent_plugin_ingress",
       "source_commit_before_subtask": "21bdeec37cacaac22f9f9c3308de381041ceab9b",
-      "changed_paths": [
-        "docker/docker-compose.dify-plus.yaml"
-      ],
+      "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
       "summary": [
         "Moved API/worker and Agent backend onto the shared DIFY_AGENT_API_TOKEN contract; preserved the old shellctl variable as a lower-priority fallback.",
         "Updated Agent backend/local sandbox to 1.17.1; added dedicated Agent SSRF proxy, isolated networks, common Squid template mount, and persistent home/workspace volumes.",
@@ -206,11 +200,7 @@
         "path": "evidence/M07/env-variable-audit.tsv",
         "summary_path": "evidence/M07/env-variable-audit-summary.json",
         "rows": 906,
-        "classification_columns": [
-          "action_vs_fork_1_16_0",
-          "action_vs_upstream_1_17_1",
-          "basis"
-        ]
+        "classification_columns": ["action_vs_fork_1_16_0", "action_vs_upstream_1_17_1", "basis"]
       },
       "sample_files_unchanged_from_upstream": [
         "docker/envs/core-services/api.env.example",
@@ -262,10 +252,7 @@
         "source_commit": "abe3b9ae33d21fcb3ebc6abfaeef1946591fd456",
         "root_sample_variable_count": 244,
         "root_sample_disposition": {
-          "keep_for_default_startup": [
-            "COMPOSE_PROFILES",
-            "DIFY_AGENT_SERVER_SECRET_KEY"
-          ],
+          "keep_for_default_startup": ["COMPOSE_PROFILES", "DIFY_AGENT_SERVER_SECRET_KEY"],
           "move_or_remove_as_optional": 242,
           "optional_already_in_core_service_samples": 237,
           "optional_without_service_sample_destination": [
@@ -319,9 +306,7 @@
         "agent": "/root/m07_shared_secret_storage_repair",
         "source_commit_before_repair": "f4ef2f546394a432b7a3f40e5c38befe0a74b897",
         "source_commit_after_repair": "122e7529c26ac9e79126382a94e0da5602f4ef68",
-        "changed_paths": [
-          "docker/docker-compose.dify-plus.yaml"
-        ],
+        "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
         "summary": [
           "api_websocket now waits for init_permissions to complete successfully and mounts ./volumes/app/storage:/app/api/storage, matching upstream 1.17.1.",
           "worker_beat now mounts the same app storage as API and worker services so the blank-key persistence helper sees the shared .dify_secret_key."
@@ -419,9 +404,7 @@
         "model": "gpt-6-astra",
         "agent": "/root/m07_seed_key_gate",
         "source_commit_before_subtask": "58ae912797e82c09f22b7497481e45f30f425877",
-        "changed_paths": [
-          "docker/docker-compose.dify-plus.yaml"
-        ],
+        "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
         "source_sha256": "089311a9810bd98e84e495b49cb061a3b586eec38264503e3c4be45bfd35a072",
         "summary": [
           "Added one-shot private API init_secret_key service that initializes the configured shared storage adapter and invokes resolve_secret_key once without emitting the key.",
@@ -688,9 +671,7 @@
         "title": "M07 13.6 Astra 修复 GitLab manifest 传递",
         "base_commit": "845324c66d",
         "dispatch_channel": "codex_shared_local",
-        "registered_paths": [
-          ".gitlab-ci.yml"
-        ],
+        "registered_paths": [".gitlab-ci.yml"],
         "scope": "Fix only .gitlab-ci.yml so the API/Web manifest jobs consume already-pushed explicit amd64/arm64 tags instead of missing/colliding cross-job manifest text artifacts; static-only verification.",
         "review_evidence": "evidence/M07/13.6-independent-review.md",
         "evidence": "evidence/M07/result.json#/subtasks/13.6/artifact_fix",
@@ -700,10 +681,7 @@
           "independent_luna": "passed, no P1/P2/P3; target .gitlab-ci.yml byte-identical to c707b8fcdc58b30bb45785426cc586ec848f05af",
           "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
         },
-        "limits": [
-          "No GitLab pipeline execution",
-          "No network or private registry access"
-        ],
+        "limits": ["No GitLab pipeline execution", "No network or private registry access"],
         "observation": "Manifest jobs now explicitly consume the already-pushed per-architecture tags; no GitLab pipeline execution was claimed."
       },
       "artifact_follow_up_review": {
@@ -713,9 +691,7 @@
         "title": "M07 13.6 Luna 复核 GitLab manifest 修复",
         "base_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
         "dispatch_channel": "codex_shared_local",
-        "registered_paths": [
-          ".gitlab-ci.yml"
-        ],
+        "registered_paths": [".gitlab-ci.yml"],
         "scope": "Independent read-only review of manifest tags vs build tags, API/Web job wiring, and removal of txt/artifacts dependency.",
         "implementation_thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
         "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
@@ -737,14 +713,7 @@
       "acceptance_boundary": "Source/static acceptance passed; not deployment evidence."
     }
   },
-  "tasks_complete": [
-    "13.1",
-    "13.2",
-    "13.3",
-    "13.4",
-    "13.5",
-    "13.6"
-  ],
+  "tasks_complete": ["13.1", "13.2", "13.3", "13.4", "13.5", "13.6"],
   "next_subtask": "complete",
   "known_limits": [
     "No private image pull, tag/digest or deployment-host verification has been performed; GitHub build validation is not private fork image supply evidence.",

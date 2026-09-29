@@ -10,7 +10,22 @@
   "matrix": {
     "path": "research/contract-matrix.md",
     "contract_count": 14,
-    "ids": ["C01", "C02", "C03", "C04", "C05", "C06", "C07", "C08", "C09", "C10", "C11", "C12", "C13", "C14"],
+    "ids": [
+      "C01",
+      "C02",
+      "C03",
+      "C04",
+      "C05",
+      "C06",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C12",
+      "C13",
+      "C14"
+    ],
     "unique_owner_per_row": true,
     "basis": [
       "design.md#D3-D5",
@@ -56,11 +71,31 @@
     "Target environment key DTO has no fork quota contract; M06 hides unsupported inputs."
   ],
   "checks": [
-    {"command": "A04 matrix structural and source-path assertions", "exit_code": 0, "output": "14 rows; all required fields and one owner per row; referenced fork and target paths found"},
-    {"command": "JSON and graph dependency/status assertions", "exit_code": 0, "output": "A04 passed; M00 ready; A03 blocked; target SHA and input tree match"},
-    {"command": "git diff --check and git diff --cached --check", "exit_code": 0, "output": "no whitespace errors"},
-    {"command": "openspec validate merge-upstream-1-17-1 --strict", "exit_code": 0, "output": "Change 'merge-upstream-1-17-1' is valid"},
-    {"command": "git diff --cached --name-only -z exact allowlist assertion", "exit_code": 0, "output": "7 A04-owned staged paths; no other staged paths"}
+    {
+      "command": "A04 matrix structural and source-path assertions",
+      "exit_code": 0,
+      "output": "14 rows; all required fields and one owner per row; referenced fork and target paths found"
+    },
+    {
+      "command": "JSON and graph dependency/status assertions",
+      "exit_code": 0,
+      "output": "A04 passed; M00 ready; A03 blocked; target SHA and input tree match"
+    },
+    {
+      "command": "git diff --check and git diff --cached --check",
+      "exit_code": 0,
+      "output": "no whitespace errors"
+    },
+    {
+      "command": "openspec validate merge-upstream-1-17-1 --strict",
+      "exit_code": 0,
+      "output": "Change 'merge-upstream-1-17-1' is valid"
+    },
+    {
+      "command": "git diff --cached --name-only -z exact allowlist assertion",
+      "exit_code": 0,
+      "output": "7 A04-owned staged paths; no other staged paths"
+    }
   ],
   "known_limits": [
     "A04 is a planning/contract freeze; no formal merge, business code change, functional test or runtime acceptance occurred.",

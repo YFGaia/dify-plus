@@ -20,41 +20,24 @@
       "status": "passed",
       "condition": "always",
       "authorization": "explicit_user_implementation_and_branch",
-      "inputs": [
-        "research/source-inventory.json",
-        "design.md#decisions"
-      ],
-      "write_scope": [
-        "授权记录"
-      ],
-      "resources": [
-        "集成负责人"
-      ],
+      "inputs": ["research/source-inventory.json", "design.md#decisions"],
+      "write_scope": ["授权记录"],
+      "resources": ["集成负责人"],
       "steps": [
         "确认用户已授权本地代码实施、校验及创建指定执行分支 codex/merge-upstream-1.17.1；授权来源与边界见 evidence/A00/result.json",
         "用户选择指定执行分支；当前分支实施的替代决定不适用，分支创建留待 A01"
       ],
       "commands": [],
-      "acceptance": [
-        "授权记录明确涵盖动作、分支名称及环境边界"
-      ],
-      "evidence": [
-        "evidence/A00/result.json",
-        "evidence/A00/execution.log"
-      ],
+      "acceptance": ["授权记录明确涵盖动作、分支名称及环境边界"],
+      "evidence": ["evidence/A00/result.json", "evidence/A00/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A00/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A00/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "A01",
       "title": "冻结基线与保护共享工作区",
-      "dependencies": [
-        "A00"
-      ],
+      "dependencies": ["A00"],
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -66,12 +49,8 @@
         "design.md#decisions",
         "evidence/A00/result.json"
       ],
-      "write_scope": [
-        "Git refs 与本次规划材料"
-      ],
-      "resources": [
-        "git_index"
-      ],
+      "write_scope": ["Git refs 与本次规划材料"],
+      "resources": ["git_index"],
       "steps": [
         "检查当前 HEAD、工作区、upstream URL、tag；核对未跟踪路径与目标路径碰撞",
         "本次规划文件显式列出后独立提交或备份；其他未跟踪文件保留，禁止全量 stash/clean/reset",
@@ -88,23 +67,15 @@
         "完整 SHA 与本分析一致，变化则 A02 重新评估",
         "无未保存的受影响用户修改；未跟踪路径碰撞已逐项处置"
       ],
-      "evidence": [
-        "evidence/A01/result.json",
-        "evidence/A01/execution.log"
-      ],
+      "evidence": ["evidence/A01/result.json", "evidence/A01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A01/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "A02",
       "title": "刷新差异与冲突所有权",
-      "dependencies": [
-        "A01"
-      ],
+      "dependencies": ["A01"],
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -116,12 +87,8 @@
         "design.md#decisions",
         "evidence/A01/result.json"
       ],
-      "write_scope": [
-        "research/ 与 ownership 台账"
-      ],
-      "resources": [
-        "git_index"
-      ],
+      "write_scope": ["research/ 与 ownership 台账"],
+      "resources": ["git_index"],
       "steps": [
         "通过 upstream 取固定 tag 并核对 full SHA，不自动追 main",
         "刷新 merge-base、提交/文件差异和冲突预测；检查四个 fork 后续提交全部入账",
@@ -136,16 +103,10 @@
         "目标确为 8387590ace4a094de812b7847fc6a4c3a27cd52b",
         "所有冲突唯一归属；所有文件改写需求有 owner"
       ],
-      "evidence": [
-        "evidence/A02/result.json",
-        "evidence/A02/execution.log"
-      ],
+      "evidence": ["evidence/A02/result.json", "evidence/A02/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A02/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "A03",
@@ -158,43 +119,25 @@
       "blocked_reason": "缺少用户对真实部署和业务数据的只读访问授权；本地源码实施与验证授权不覆盖 A03 环境盘点。",
       "condition": "always",
       "authorization": "authorized_read_only_environment_access",
-      "inputs": [
-        "research/source-inventory.json",
-        "design.md#decisions"
-      ],
-      "write_scope": [
-        "脱敏环境清单"
-      ],
-      "resources": [
-        "运维负责人"
-      ],
+      "inputs": ["research/source-inventory.json", "design.md#decisions"],
+      "write_scope": ["脱敏环境清单"],
+      "resources": ["运维负责人"],
       "steps": [
         "填 runbook 环境表，查询实际服务镜像/版本/两个 DB head/数据卷/备份/队列",
         "盘点真实 Agent、SSO、模型和向量库；记录历史 backfill 完成状态",
         "确认副本访问与业务验收负责人，准备环境操作草案与备份恢复命令；不得输出凭据或完整含密钥 Compose"
       ],
       "commands": [],
-      "acceptance": [
-        "环境清单必填项完成，缺失项标 blocked",
-        "具备可恢复副本与隔离环境方案"
-      ],
-      "evidence": [
-        "evidence/A03/result.json",
-        "evidence/A03/execution.log"
-      ],
+      "acceptance": ["环境清单必填项完成，缺失项标 blocked", "具备可恢复副本与隔离环境方案"],
+      "evidence": ["evidence/A03/result.json", "evidence/A03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A03/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A03/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "A04",
       "title": "冻结跨层行为与接口契约",
-      "dependencies": [
-        "A02"
-      ],
+      "dependencies": ["A02"],
       "owner_role": "架构负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -206,12 +149,8 @@
         "design.md#decisions",
         "evidence/A02/result.json"
       ],
-      "write_scope": [
-        "contract-matrix 记录"
-      ],
-      "resources": [
-        "架构负责人"
-      ],
+      "write_scope": ["contract-matrix 记录"],
+      "resources": ["架构负责人"],
       "steps": [
         "按 design D3 逐条写请求/响应/错误/权限/缓存契约",
         "确定 public snapshot 与 fork login_config 合成；workspace summary 权限源",
@@ -219,27 +158,16 @@
         "记录匿名计费及 P4 已知债务，不因未答复改变付款人"
       ],
       "commands": [],
-      "acceptance": [
-        "身份/前端/额度负责人认可同一契约",
-        "不得以旧文件路径代替行为验收"
-      ],
-      "evidence": [
-        "evidence/A04/result.json",
-        "evidence/A04/execution.log"
-      ],
+      "acceptance": ["身份/前端/额度负责人认可同一契约", "不得以旧文件路径代替行为验收"],
+      "evidence": ["evidence/A04/result.json", "evidence/A04/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A04/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "M00",
       "title": "形成非部署 merge 基线提交",
-      "dependencies": [
-        "A04"
-      ],
+      "dependencies": ["A04"],
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -251,12 +179,8 @@
         "design.md#decisions",
         "evidence/A04/result.json"
       ],
-      "write_scope": [
-        "Git merge state"
-      ],
-      "resources": [
-        "git_index"
-      ],
+      "write_scope": ["Git merge state"],
+      "resources": ["git_index"],
       "steps": [
         "确认 A01 所有保护措施完成",
         "在授权分支执行正式 merge；冲突退出码不等于失败，核对 MERGE_HEAD 与固定 target",
@@ -275,16 +199,10 @@
         "91 个预测冲突与实际冲突逐项核对并有唯一 owner；冲突树采用 upstream 版本或删除，fork 原始内容可从第一父与 A02 台账追溯",
         "基线明确不可部署，后续适配、M08 候选和验证门槛未被提前判通过"
       ],
-      "evidence": [
-        "evidence/M00/result.json",
-        "evidence/M00/execution.log"
-      ],
+      "evidence": ["evidence/M00/result.json", "evidence/M00/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/M00/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M00/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "completion": {
         "merge_commit": "948fefb69ae87abefa7e91a13968213696b3e310",
         "merge_tree": "56d356a4eb2cacbea577b5fd885bd19637b1203f",
@@ -297,9 +215,7 @@
     {
       "id": "M01",
       "title": "工具链、依赖与生成物",
-      "dependencies": [
-        "M00"
-      ],
+      "dependencies": ["M00"],
       "owner_role": "构建负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -323,9 +239,7 @@
         "api/providers/**/pyproject.toml",
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记"
       ],
-      "resources": [
-        "构建负责人"
-      ],
+      "resources": ["构建负责人"],
       "steps": [
         "对齐 Node24.20.0/pnpm12.3.4/Python3.12，保留 fork 专属依赖；本节点同步目标版本字段，避免演练后才改变镜像版本标识",
         "先处理声明/锁文件冲突；其余 owner 通过需求单申请新增依赖",
@@ -336,10 +250,7 @@
         "依赖变化可解释；无抹除钉钉/pypinyin 等 fork 依赖",
         "生成物来源明确，工具链版本可复现"
       ],
-      "evidence": [
-        "evidence/M01/result.json",
-        "evidence/M01/execution.log"
-      ],
+      "evidence": ["evidence/M01/result.json", "evidence/M01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
         "oxlint-suppressions.json",
@@ -348,10 +259,7 @@
         "web/next.config.ts",
         "web/package.json"
       ],
-      "outputs": [
-        "evidence/M01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "execution": {
         "pre_commit_head": "8e47d6c059e530d61a8955a1a28861a9815409a6",
         "source_changes": [
@@ -360,10 +268,7 @@
           "web/next.config.ts",
           "oxlint-suppressions.json"
         ],
-        "new_file_registration": [
-          "evidence/M01/result.json",
-          "evidence/M01/execution.log"
-        ],
+        "new_file_registration": ["evidence/M01/result.json", "evidence/M01/execution.log"],
         "steps": {
           "7.1": "passed_declarations_only",
           "7.2": "passed_initial_repo_lock_verification",
@@ -387,9 +292,7 @@
     {
       "id": "M02",
       "title": "后端基础与共同契约适配",
-      "dependencies": [
-        "M01"
-      ],
+      "dependencies": ["M01"],
       "owner_role": "后端基础负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -415,9 +318,7 @@
         "api/tests/unit_tests/controllers/console/app/test_app_extend.py",
         "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
       ],
-      "resources": [
-        "backend_core"
-      ],
+      "resources": ["backend_core"],
       "steps": [
         "采用新 application service/admission/session 模型与 fork 导出",
         "实现 A04 的 public/login_config/license 与 workspace summary 共同契约",
@@ -425,10 +326,7 @@
         "路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
       "commands": [],
-      "acceptance": [
-        "public/license 分级无泄露",
-        "summary 权限字段真实可读；无旧签名/双重路由"
-      ],
+      "acceptance": ["public/license 分级无泄露", "summary 权限字段真实可读；无旧签名/双重路由"],
       "evidence": [
         "evidence/M02/result.json",
         "evidence/M02/execution.log",
@@ -471,27 +369,20 @@
       "followup_progress": {
         "prior_acceptance": "passed for original 8.1-8.5; independent review remains valid for those paths",
         "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
-        "completed_subtasks": [
-          "8.6",
-          "8.7"
-        ],
+        "completed_subtasks": ["8.6", "8.7"],
         "current_subtask": {
           "id": "8.7",
           "status": "passed",
           "evidence": "evidence/M02/result.json#/followup_context_contract"
         },
         "next_subtask": "complete",
-        "implemented_subtasks": [
-          "8.6"
-        ]
+        "implemented_subtasks": ["8.6"]
       }
     },
     {
       "id": "M03",
       "title": "账号、OAuth 与 WebApp 后端",
-      "dependencies": [
-        "M02"
-      ],
+      "dependencies": ["M02"],
       "owner_role": "身份负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -514,9 +405,7 @@
         "api/controllers/console/app/app.py（9.6：AppPagination.recommended_apps 当前页同步状态）",
         "api/tests/unit_tests/controllers/console/app/test_app_response_models.py（9.6 回归）"
       ],
-      "resources": [
-        "身份负责人"
-      ],
+      "resources": ["身份负责人"],
       "steps": [
         "所有实际账号创建入口同事务幂等建额度；不重置已有账号",
         "将 OaOAuth/Casdoor 注册到新 gateway，适配 token 类型、state 与同源回跳，保留钉钉",
@@ -528,10 +417,7 @@
         "setup/邮箱/OAuth/邀请均有一条正确额度",
         "公开矩阵与新环境认证契约清晰，禁止复活旧 controller"
       ],
-      "evidence": [
-        "evidence/M03/result.json",
-        "evidence/M03/execution.log"
-      ],
+      "evidence": ["evidence/M03/result.json", "evidence/M03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
         "api/controllers/console/app/site.py",
@@ -542,10 +428,7 @@
         "api/controllers/console/app/app.py",
         "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
       ],
-      "outputs": [
-        "evidence/M03/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M03/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "execution": {
         "pre_commit_head": "acf866871a50316ea514d35a9d04092bd3e32b20",
         "thread_id": "01a0e943-cafc-79a0-bf18-d9264fa3d5d7",
@@ -569,9 +452,7 @@
               "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
               "exit_code": 0,
               "passed": 29,
-              "warnings": [
-                "1 pre-existing cgi deprecation warning"
-              ]
+              "warnings": ["1 pre-existing cgi deprecation warning"]
             },
             "ruff_format_check_exit_code": 0,
             "ruff_check_exit_code": 0,
@@ -580,14 +461,7 @@
         }
       },
       "implementation_progress": {
-        "completed_tasks": [
-          "9.1",
-          "9.2",
-          "9.3",
-          "9.4",
-          "9.5",
-          "9.6"
-        ],
+        "completed_tasks": ["9.1", "9.2", "9.3", "9.4", "9.5", "9.6"],
         "reopened_by": "M06 12.2 analysis found AppPagination.recommended_apps is always empty although the generated field and Studio sync feature already exist.",
         "current_subtask": {
           "id": "9.6_recommended_apps_page_status",
@@ -599,9 +473,7 @@
               "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
               "exit_code": 0,
               "passed": 29,
-              "warnings": [
-                "1 pre-existing cgi deprecation warning"
-              ]
+              "warnings": ["1 pre-existing cgi deprecation warning"]
             },
             "ruff_format_check_exit_code": 0,
             "ruff_check_exit_code": 0,
@@ -615,9 +487,7 @@
     {
       "id": "M04",
       "title": "计费、Service API 与记忆挂点",
-      "dependencies": [
-        "M03"
-      ],
+      "dependencies": ["M03"],
       "owner_role": "计费负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -644,9 +514,7 @@
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
         "本节点行为对应的配套测试源码，跨 owner 文件先登记移交"
       ],
-      "resources": [
-        "计费负责人"
-      ],
+      "resources": ["计费负责人"],
       "steps": [
         "建立十项挂点完整证据：M04 实施/复核九项计费与记忆挂点；OAuth 引用 M03 已通过证据，避免重复实现",
         "保留 token kwargs/请求线程 extras/初始执行 join；恢复路径不新增派发",
@@ -712,10 +580,7 @@
         "api/tests/unit_tests/controllers/service_api/test_wraps.py",
         "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
       ],
-      "outputs": [
-        "evidence/M04/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M04/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "registered_additional_paths": [
         "api/tests/unit_tests/controllers/service_api/test_billing_extend.py",
         "api/tests/unit_tests/core/app/test_billing_hooks_extend.py",
@@ -723,13 +588,7 @@
         "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
       ],
       "implementation_progress": {
-        "tasks_complete": [
-          "10.1",
-          "10.2",
-          "10.3",
-          "10.4",
-          "10.5"
-        ],
+        "tasks_complete": ["10.1", "10.2", "10.3", "10.4", "10.5"],
         "source_commits": [
           "521eb98761517347f28a18dcdfdcf646c389ddb8",
           "a65840a41a85de545811b8b879891a9f5d5ad278",
@@ -749,9 +608,7 @@
     {
       "id": "M05",
       "title": "Console transport 与前端契约",
-      "dependencies": [
-        "M03"
-      ],
+      "dependencies": ["M03"],
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -777,9 +634,7 @@
         "packages/contracts/openapi-ts.api.config.ts",
         "packages/contracts/generated/api/** (only exact M05 paths registered in conflict-ownership.tsv)"
       ],
-      "resources": [
-        "前端契约负责人"
-      ],
+      "resources": ["前端契约负责人"],
       "steps": [
         "在目标 Console 架构注册 fork segment，迁移双阶段 Header/Cookie 协议",
         "SSR optional/hard 调用守卫形状，public snapshot 与 fork 配置按 A04 合成",
@@ -860,20 +715,9 @@
         "web/service/console/contract-loader.ts",
         "web/service/console/index.ts"
       ],
-      "outputs": [
-        "evidence/M05/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M05/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "tasks_complete": [
-          "11.1",
-          "11.2",
-          "11.3",
-          "11.4",
-          "11.5",
-          "11.6",
-          "11.7"
-        ],
+        "tasks_complete": ["11.1", "11.2", "11.3", "11.4", "11.5", "11.6", "11.7"],
         "current_subtask": {
           "id": "11.7_openapi_ts_config_format_followup",
           "status": "passed",
@@ -978,9 +822,7 @@
         "prior_acceptance": "passed for 11.1-11.5; existing registered message contract trio regenerated and verified in 11.6",
         "blocked_on": null,
         "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
-        "completed_subtasks": [
-          "11.6"
-        ],
+        "completed_subtasks": ["11.6"],
         "current_subtask": {
           "id": "11.6",
           "status": "passed",
@@ -1000,14 +842,7 @@
       "completion": {
         "source_node": "passed",
         "deployable": false,
-        "completed_subtasks": [
-          "11.1",
-          "11.2",
-          "11.3",
-          "11.4",
-          "11.5",
-          "11.6"
-        ],
+        "completed_subtasks": ["11.1", "11.2", "11.3", "11.4", "11.5", "11.6"],
         "11.6": {
           "source_commit_before_generation": "0858f09cbdc2c0f5d052179b3afa2351d2ad0fe3",
           "standard_command_exit_code": 0,
@@ -1033,10 +868,7 @@
     {
       "id": "M06",
       "title": "前端业务挂载与国际化",
-      "dependencies": [
-        "M04",
-        "M05"
-      ],
+      "dependencies": ["M04", "M05"],
       "owner_role": "前端业务负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -1067,9 +899,7 @@
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
         "本节点行为对应的配套测试源码，跨 owner 文件先登记移交"
       ],
-      "resources": [
-        "前端业务负责人"
-      ],
+      "resources": ["前端业务负责人"],
       "steps": [
         "迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard",
         "迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单",
@@ -1153,10 +983,7 @@
         "web/i18n/zh-Hant/extend.json",
         "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
       ],
-      "outputs": [
-        "evidence/M06/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M06/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "preflight_status": "completed",
       "implementation_progress": {
         "completed_subtasks": [
@@ -1285,9 +1112,7 @@
                 "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
                 "exit_code": 0,
                 "passed": 29,
-                "warnings": [
-                  "1 pre-existing cgi deprecation warning"
-                ]
+                "warnings": ["1 pre-existing cgi deprecation warning"]
               },
               "ruff_format_check_exit_code": 0,
               "ruff_check_exit_code": 0,
@@ -1360,9 +1185,7 @@
             "status": "passed_after_follow_up",
             "owner": "M06",
             "model": "gpt-6-astra",
-            "dependencies": [
-              "12.5_analysis:passed"
-            ],
+            "dependencies": ["12.5_analysis:passed"],
             "registered_paths": [
               "web/i18n/ar-TN/extend.json",
               "web/i18n/de-DE/extend.json",
@@ -1417,10 +1240,7 @@
                 {
                   "priority": "P3",
                   "locale": "id-ID",
-                  "keys": [
-                    "systemManage.quota.action.edit",
-                    "systemManage.quota.editDialog.title"
-                  ],
+                  "keys": ["systemManage.quota.action.edit", "systemManage.quota.editDialog.title"],
                   "finding": "The English label \"Edit\" remains in both values.",
                   "recommendation": "Use natural Indonesian \"Ubah\" (for example, \"Ubah Kuota\" and \"Ubah kuota untuk {{name}}\")."
                 }
@@ -1437,9 +1257,7 @@
             "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
-            "dependencies": [
-              "12.5_analysis:passed"
-            ],
+            "dependencies": ["12.5_analysis:passed"],
             "registered_paths": [
               "web/i18n/ja-JP/extend.json",
               "web/i18n/ko-KR/extend.json",
@@ -1485,9 +1303,7 @@
             "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
-            "dependencies": [
-              "12.5_analysis:passed"
-            ],
+            "dependencies": ["12.5_analysis:passed"],
             "registered_paths": [
               "web/i18n/sl-SI/extend.json",
               "web/i18n/th-TH/extend.json",
@@ -1594,10 +1410,7 @@
             "id": "12.5_language_corrections",
             "status": "passed",
             "model": "gpt-6-astra",
-            "registered_paths": [
-              "web/i18n/id-ID/extend.json",
-              "web/i18n/pl-PL/extend.json"
-            ],
+            "registered_paths": ["web/i18n/id-ID/extend.json", "web/i18n/pl-PL/extend.json"],
             "source_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
             "dependencies": [
               "12.5a_locale_group_a",
@@ -1800,10 +1613,7 @@
               "implementation_paths_equal_exit_code": 0,
               "runtime": "Python 3.12 existing environment; uv --no-sync; uv cache and venv redirected to /private/tmp; no dependency sync/install"
             },
-            "evidence": [
-              "evidence/M06/12.6d-verification.md",
-              "evidence/M06/12.6d-review.md"
-            ],
+            "evidence": ["evidence/M06/12.6d-verification.md", "evidence/M06/12.6d-review.md"],
             "verification_status": "passed"
           },
           {
@@ -2014,12 +1824,8 @@
             "model": "gpt-6-astra",
             "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
             "dispatch_channel": "codex_project_local",
-            "registered_paths": [
-              "web/app/components/api-key/__tests__/api-key-modal.spec.tsx"
-            ],
-            "dependencies": [
-              "12.3_implementation:passed"
-            ],
+            "registered_paths": ["web/app/components/api-key/__tests__/api-key-modal.spec.tsx"],
+            "dependencies": ["12.3_implementation:passed"],
             "scope": "Add focused assertions for copying the created API key and canManage=false edit/delete behavior with no mutation calls. Preserve existing key visibility and secret-copy product semantics; do not change source components.",
             "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
             "implementation_commit": "a602bb8a585b348df2626f21c68c644814ce5367",
@@ -2137,9 +1943,7 @@
             "scope": "Register the trusted from_account_id field as a workflow_execution Logstore index key required by account-scoped charts; add focused configuration coverage. Preserve upstream WorkflowRun and all existing custom index behavior. This is a separate prerequisite task; no edits until this registration is committed.",
             "dependency": "12.6f_analysis:analysis_complete_paths_registered",
             "base_commit": "2b0612367b276154c59137f9de27bb9ddbfe26c9",
-            "dependencies": [
-              "12.6e_review_followup:passed"
-            ],
+            "dependencies": ["12.6e_review_followup:passed"],
             "analysis_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
             "source_finding": "aliyun_logstore.py derives workflow_execution indexes from upstream WorkflowRun plus error_message/started_at; from_account_id is written by the fork but is not registered/indexed for SQL aggregation queries.",
             "evidence": "evidence/M06/12.6f-logstore-index-verification.md",
@@ -2409,10 +2213,7 @@
             "web/service/explore.spec.ts",
             "web/service/__tests__/use-explore.spec.tsx"
           ],
-          "dependencies": [
-            "12.2_analysis:passed",
-            "M05 11.6 generated contract:passed"
-          ],
+          "dependencies": ["12.2_analysis:passed", "M05 11.6 generated contract:passed"],
           "base_commit": "f2424be348",
           "client_thread_id": "client-new-thread:d21212b0-d4ba-41d6-9395-345a2a3602eb",
           "created_from_commit": "f2424be348",
@@ -2489,9 +2290,7 @@
             "web/app/components/apps/__tests__/app-card.spec.tsx",
             "web/app/components/apps/__tests__/list.spec.tsx"
           ],
-          "dependencies": [
-            "9.6_recommended_apps_page_status:passed"
-          ],
+          "dependencies": ["9.6_recommended_apps_page_status:passed"],
           "dependency_evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status",
           "client_thread_id": "client-new-thread:0ceed222-0cfe-483a-a7b1-b61587486cf7",
           "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
@@ -2602,10 +2401,7 @@
               {
                 "priority": "P3",
                 "locale": "id-ID",
-                "keys": [
-                  "systemManage.quota.action.edit",
-                  "systemManage.quota.editDialog.title"
-                ],
+                "keys": ["systemManage.quota.action.edit", "systemManage.quota.editDialog.title"],
                 "finding": "The English label \"Edit\" remains in both values.",
                 "recommendation": "Use natural Indonesian \"Ubah\" (for example, \"Ubah Kuota\" and \"Ubah kuota untuk {{name}}\")."
               }
@@ -2806,10 +2602,7 @@
           "status": "passed",
           "model": "gpt-6-astra",
           "agent": "/root/m06_12_5_language_corrections",
-          "registered_paths": [
-            "web/i18n/id-ID/extend.json",
-            "web/i18n/pl-PL/extend.json"
-          ],
+          "registered_paths": ["web/i18n/id-ID/extend.json", "web/i18n/pl-PL/extend.json"],
           "source_commits": {
             "id-ID": "0b360565b4c733660225faecfd337538a0d635c3",
             "pl-PL": "84805a93186032f84245c01bdbc3ec620c325d63"
@@ -3124,9 +2917,7 @@
           "owner": "M06",
           "model": "gpt-6-astra",
           "base_commit": "d2fbe18cd1a621d4704fd29c73fa4c294aa1d770",
-          "registered_paths": [
-            "evidence/M06/12.6j-dependency-recovery.md"
-          ],
+          "registered_paths": ["evidence/M06/12.6j-dependency-recovery.md"],
           "scope": "Restore ignored node_modules with exact Node 24.20.0/pnpm 12.3.4 and frozen existing lockfiles; do not modify manifests/locks, other checkouts or create worktrees. Runtime tests remain separate subtasks.",
           "dependencies": [],
           "analysis_agent": "/root/frontend_dependency_diagnosis",
@@ -3172,9 +2963,7 @@
           "model": "gpt-6-luna",
           "agent": "/root/m06_final_aggregate",
           "read_only_source": true,
-          "registered_paths": [
-            "evidence/M06/12.6-final-aggregate.md"
-          ],
+          "registered_paths": ["evidence/M06/12.6-final-aggregate.md"],
           "scope": "One bounded integrated frontend regression, 24-locale extend checker and existing generated-schema verification; no full builds, backend reruns, code edits or dispatch.",
           "verification": "16 files / 399 tests passed; 24-locale extend, six-endpoint contract parsing, OpenSpec strict and diff-check passed",
           "snapshot_commit": "c474b9c42bfc46325540a8a27c4de28b6a538eee",
@@ -3190,9 +2979,7 @@
     {
       "id": "M07",
       "title": "综合部署和 CI 对齐",
-      "dependencies": [
-        "M01"
-      ],
+      "dependencies": ["M01"],
       "owner_role": "部署负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -3214,9 +3001,7 @@
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
         ".gitlab-ci.yml (registered 13.6 manifest-artifact follow-up only)"
       ],
-      "resources": [
-        "部署负责人"
-      ],
+      "resources": ["部署负责人"],
       "steps": [
         "人工移植上游 Compose 契约到 fork 综合 Compose，保留独立 worker/sandbox-full/私有镜像",
         "单执行者双迁移；发布业务容器关闭自动迁移",
@@ -3247,19 +3032,9 @@
         "docker/envs/core-services/web.env.example",
         "docker/nginx/conf.d/default.conf.template"
       ],
-      "outputs": [
-        "evidence/M07/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M07/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "tasks_complete": [
-          "13.1",
-          "13.2",
-          "13.3",
-          "13.4",
-          "13.5",
-          "13.6"
-        ],
+        "tasks_complete": ["13.1", "13.2", "13.3", "13.4", "13.5", "13.6"],
         "current_subtask": {
           "id": "complete",
           "status": "passed",
@@ -3278,9 +3053,7 @@
           "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
           "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
           "findings_remaining": [],
-          "limits": [
-            "No GitLab pipeline or private image publication/pull was executed."
-          ],
+          "limits": ["No GitLab pipeline or private image publication/pull was executed."],
           "review_status": "initial_review_p2_resolved",
           "resolved_by_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
           "follow_up_review": "evidence/M07/13.6-manifest-fix-followup-review.md"
@@ -3314,9 +3087,7 @@
             "model": "gpt-6-astra",
             "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
             "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
-            "registered_paths": [
-              ".gitlab-ci.yml"
-            ],
+            "registered_paths": [".gitlab-ci.yml"],
             "verification_evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
             "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
           },
@@ -3338,9 +3109,7 @@
             "model": "gpt-6-astra",
             "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
             "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
-            "registered_paths": [
-              ".gitlab-ci.yml"
-            ],
+            "registered_paths": [".gitlab-ci.yml"],
             "verification": "Ruby Psych YAML parse; six sh -n; static tag/config assertions; diff check passed."
           },
           {
@@ -3411,14 +3180,7 @@
     {
       "id": "M08",
       "title": "集成审查与候选源码提交",
-      "dependencies": [
-        "M02",
-        "M03",
-        "M04",
-        "M05",
-        "M06",
-        "M07"
-      ],
+      "dependencies": ["M02", "M03", "M04", "M05", "M06", "M07"],
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -3442,10 +3204,7 @@
         "本次合并元数据",
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记"
       ],
-      "resources": [
-        "git_index",
-        "lockfiles"
-      ],
+      "resources": ["git_index", "lockfiles"],
       "steps": [
         "核对 M01–M07 各自已提交代码、配套测试、证据与状态；由各 owner 交付冲突处理与自动合并语义清单",
         "M01 将锁文件写入权显式移交集成负责人，由 M08 统一刷新最终锁文件/契约生成物；扫描 orphan、旧 import、安全包装、四个后续提交",
@@ -3463,17 +3222,16 @@
       ],
       "evidence": [
         "evidence/M08/result.json",
-        "evidence/M08/execution.log"
+        "evidence/M08/execution.log",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
-      "owned_conflict_paths": [
-        "AGENTS.md",
-        "README.md"
-      ],
-      "outputs": [
-        "evidence/M08/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "owned_conflict_paths": ["AGENTS.md", "README.md"],
+      "outputs": ["evidence/M08/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "preflight_analysis": {
         "status": "completed_read_only",
         "agent": "/root/integration_preflight_analysis",
@@ -3499,45 +3257,199 @@
           "14.3_candidate_source_commit",
           "14.5_m08_structural_acceptance",
           "14.6_format_candidate_quota_browser_spec",
-          "14.7_luna_review_formatted_quota_browser_spec"
+          "14.7_luna_review_formatted_quota_browser_spec",
+          "14.8_recandidate_and_structural_acceptance",
+          "14.9a_astra_upstream_formatter_paths",
+          "14.9b_coordinator_evidence_formatter_paths",
+          "14.9_v02_formatter_debt_candidate_followup"
         ],
         "current_subtask": {
-          "id": "14.8_recandidate_and_structural_acceptance",
-          "status": "registered",
-          "owner": "M08/coordinator",
-          "model": "gpt-6-astra",
+          "id": "14.10_final_candidate_and_structural_acceptance",
+          "status": "in_progress",
+          "owner": "M08",
+          "model": "gpt-6-sol",
           "reasoning_effort": "high",
-          "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+          "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
           "registered_paths": [
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
             "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
             "openspec/changes/merge-upstream-1-17-1/tasks.md"
           ],
-          "scope": "After M05 11.7 is committed and M08 14.6/14.7 pass, create the new scoped M08 candidate commit containing only registered M08 source/evidence/state plus coordinator status files, with M05 follow-up commit as ancestor. Exclude all unrelated untracked user paths. Re-run the cheap structural acceptance on the resulting candidate: no unmerged index or conflict markers; M00 merge ancestry and all M01-M07 commits remain reachable; all 91 mapped paths exist; old account wrapper refs remain absent; personal account quota and API-key daily/monthly fields/enforcement remain; the 10 billing/OAuth anchors remain. Record exact commit/tree/hashes and stage allowlist. Do not rerun V01/V02 here; V01 API subtree applicability and V02 candidate-only verification are separate gates.",
+          "scope": "Freeze a new M08 source candidate from 97f94625d2d51fe1780f69aaecce5a56d3073db4 using only the exact `commit_allowlist` recorded on this subtask, including 68 formatted/evidence paths and three ignored logs that require explicit force-add. Verify the Git staged path set equals the registered list before commit; exclude every unrelated untracked user-owned path. Create one candidate commit, then run the M08 structural acceptance against its exact commit/tree: no unmerged index/conflict markers; M00 merge and all M01-M07 commits are ancestors; 91-path ownership mapping resolves; 10 billing/OAuth anchors, personal total_quota/used_quota boundary, account/money host, and API-key daily/monthly config/enforcement remain. Compare API subtree SHA against V01-applicable 895c0be99faafa5314806ddb2c0553c6062c7f67 and reuse its 160/160 evidence only if identical. Record candidate SHA/tree and structural evidence. Do not run V02 here; bind V02 to the new candidate after structural pass. No branch/worktree creation.",
+          "commit_allowlist": [
+            ".github/workflows/deploy-rag-dev.yml",
+            "openspec/changes/merge-upstream-1-17-1/design.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+            "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+            "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/runbook.md",
+            "openspec/changes/merge-upstream-1-17-1/tasks.md",
+            "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+            "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+            "packages/dify-ui/src/dialog/index.stories.tsx"
+          ],
+          "force_add_ignored_logs": [
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log"
+          ],
           "dependencies": [
-            "M05/11.7:passed",
-            "M08/14.6:passed",
-            "M08/14.7:passed"
+            "M08/14.9:passed; 68 exact formatter paths verified",
+            "V01:passed; API tree applicability must be reconfirmed by hash"
           ],
           "acceptance": [
-            "Candidate commit is a descendant of M05 follow-up commit and does not create another upstream merge commit.",
-            "Only exact registered M08 source/state/evidence paths are staged; unrelated untracked dirs remain untouched.",
-            "Structural acceptance passes on the exact new commit.",
-            "Report records new candidate SHA/tree and identifies V01/V02 status without claiming them passed."
+            "Only the exact 73-path commit allowlist is staged/committed; all unrelated user-owned untracked paths remain untouched.",
+            "Candidate commit is a descendant of 97f94625d2d51fe1780f69aaecce5a56d3073db4; M00 ancestry, M01-M07 ancestry, no conflict state/markers, and all 91 ownership rows are verified.",
+            "Personal account quota and API Key daily/monthly limits remain separate from upstream Cloud quota; 10 billing/OAuth anchors remain present.",
+            "API subtree hash either matches V01 evidence exactly or V01 reruns; exact new candidate/tree and the new structural report are recorded."
           ],
           "implementation_agent": "/root",
           "thread_id": null,
           "host_id": "local",
           "editable_paths": [
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            ".github/workflows/deploy-rag-dev.yml",
+            "openspec/changes/merge-upstream-1-17-1/design.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
             "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-            "openspec/changes/merge-upstream-1-17-1/tasks.md"
+            "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+            "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/runbook.md",
+            "openspec/changes/merge-upstream-1-17-1/tasks.md",
+            "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+            "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+            "packages/dify-ui/src/dialog/index.stories.tsx"
           ],
-          "dispatch_status": "registered"
+          "dispatch_status": "in_progress"
         },
         "parallel_subtasks": [
           {
@@ -3626,9 +3538,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md"
             ],
             "scope": "Read-only owner disposition for the 14 deleted M00 conflict paths listed unresolved in evidence/M08/14.1-analysis.md, plus verify the active web/features/home/template-card.tsx host and proposed overlap registration. For each deleted path, compare fork/base/upstream history and current host/tests; identify migrated equivalent, intentional upstream removal, or unresolved owner decision with exact source and evidence. Do not edit code, tests, ownership tables, graph/tasks/result, run tests, stage, or commit; write only the registered report.",
-            "dependencies": [
-              "M08/14.2:completed_read_only"
-            ],
+            "dependencies": ["M08/14.2:completed_read_only"],
             "acceptance": [
               "Account for exactly the 14 deleted conflict paths from 14.1, once each.",
               "Tie every disposition to exact current source/test or upstream history; retain unresolved status when evidence is insufficient.",
@@ -3653,10 +3563,7 @@
               "docs/dify-plus/README.md"
             ],
             "scope": "Read-only compare fork-parent and 1.17.1-selected AGENTS.md/README.md with current candidate and surviving docs. Identify Dify-Plus-specific operating guidance, custom feature/deployment/upgrade information removed by M00, what is stale, and exact current source/docs for a concise integration. Preserve current upstream README content and avoid unsupported quota claims. Write only the registered analysis report. Coordinator may edit only registered AGENTS.md, README.md and docs/dify-plus/README.md after review; you do not edit any docs, source, tests, graph/result/tasks/ownership tables, run tests, stage or commit.",
-            "dependencies": [
-              "M08/14.1:completed_read_only",
-              "M08/14.2:completed_read_only"
-            ],
+            "dependencies": ["M08/14.1:completed_read_only", "M08/14.2:completed_read_only"],
             "acceptance": [
               "Enumerate material fork-only AGENTS and README content removed by M00.",
               "Verify target docs/images exist and current version/migration facts before recommending links or claims.",
@@ -3666,11 +3573,7 @@
             "implementation_agent": "/root/m08_project_documentation_disposition",
             "thread_id": null,
             "host_id": "local",
-            "editable_paths": [
-              "AGENTS.md",
-              "README.md",
-              "docs/dify-plus/README.md"
-            ],
+            "editable_paths": ["AGENTS.md", "README.md", "docs/dify-plus/README.md"],
             "report_sha256": "96f09d381a1dfd6095774e0f3624a6fd891f3d509f4496344bdd1cab419e6472",
             "result": "Root README/AGENTS fork guidance and docs index disposition completed. Coordinator integration edits remain separately scoped."
           },
@@ -3689,9 +3592,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md"
             ],
             "scope": "Integrate the reviewed Dify-Plus documentation disposition into the upstream 1.17.1 candidate. Preserve the current upstream README and add a concise fork section; restore stable fork operating guidance in AGENTS.md; update the docs index so 1.16 documents and the old deployment guide are explicitly historical and the active source graph/runbook/Plus Compose entry are linked; correct account/API-key quota semantics; label the 1.17.1 planning file as a historical snapshot and link live execution status. Exact editable paths are registered_paths only. Do not claim production deployment or API-key lifetime quota cap.",
-            "dependencies": [
-              "M08/14.2c:completed_read_only"
-            ],
+            "dependencies": ["M08/14.2c:completed_read_only"],
             "acceptance": [
               "README retains upstream text and adds only evidence-backed Plus feature and migration entry points.",
               "AGENTS documents stable fork module map and current migration chain without a pinned stale baseline.",
@@ -3769,9 +3670,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md"
             ],
             "scope": "Resolve the old Home catalog TagFilter disposition using source-level evidence only. Compare the fork implementation at the registered base with the TagFilter value contract, current RecommendedAppResponse category schema, current Home category/search behavior, and installed-app tag filter. Determine whether a working user-visible tag filter was lost or the removed control had mismatched values. Do not edit code, tests, ownership tables, graph/result/tasks, stage, commit, or run tests; write only the registered report.",
-            "dependencies": [
-              "M08/14.2b:completed_read_only"
-            ],
+            "dependencies": ["M08/14.2b:completed_read_only"],
             "acceptance": [
               "Quote exact source paths/expressions showing tag values and catalog category values.",
               "Distinguish Home recommended catalog from installed fork apps.",
@@ -3795,9 +3694,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md"
             ],
             "scope": "Independently verify Astra implementation of the workspace-manager-only App API Key boundary. Read only the two registered component/spec paths and implementation report, then run only `app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx` under the Web unit project using the existing Node 24.20/Vitest runtime with install skipped. Do not rerun quota modal or main-nav suites, install dependencies, edit source/tests, modify graph/result/tasks/ownership, stage, or commit. Write only the registered verification report.",
-            "dependencies": [
-              "M08/14.2e:implementation_complete"
-            ],
+            "dependencies": ["M08/14.2e:implementation_complete"],
             "acceptance": [
               "All tests in the single focused spec pass.",
               "Confirm manager and ACL positive/negative behavior, query suppression, and permission-revocation cleanup from the test assertions and source diff.",
@@ -3820,9 +3717,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md"
             ],
             "scope": "Correct only the registered API-secret-key-button test fixture so current-workspace role snapshots satisfy the generated schema required by workspace-state. Include required admin_extend and tenant_extend fields for manager positive cases and workspace-role revocation. Do not change component source, alter expected product behavior, install dependencies, stage, commit, or run tests. Then document the exact fixture defect and correction in the registered report.",
-            "dependencies": [
-              "M08/14.2e_luna_verification:failed"
-            ],
+            "dependencies": ["M08/14.2e_luna_verification:failed"],
             "acceptance": [
               "Manager tests seed a valid CurrentWorkspaceSummaryResponse and observe manager roles rather than the fallback normal role.",
               "Role revocation seeds a schema-valid editor summary.",
@@ -3848,9 +3743,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md"
             ],
             "scope": "Rerun Luna independent validation of the same API-secret-key-button spec after the required workspace summary fixture correction. Inspect the registered test diff/report and run only the exact single unit spec from web with the existing Node 24.20/Vitest 4.1.11 runtime and VP_SKIP_INSTALL=1. Do not rerun other suites, install dependencies, modify source/tests/graph/result/tasks/ownership, stage, or commit; write only the registered report.",
-            "dependencies": [
-              "M08/14.2g:passed"
-            ],
+            "dependencies": ["M08/14.2g:passed"],
             "acceptance": [
               "Focused spec passes all cases; report records exact command and counts.",
               "Confirm role fixtures reach manager positive and role-revocation cases.",
@@ -3875,9 +3768,7 @@
               "evidence/M08/14.2i-quota-modal-layout.md"
             ],
             "scope": "Restore the fork's responsive App API Key modal width in the new shared modal host and prove the quota-table layout in Chromium. The fork parent used 90vw with a 1200px maximum; the candidate currently fixes the modal at w-200 (50rem), while quota-table columns have a much wider combined width. Update only the modal width and the registered browser spec. Render the actual ApiKeyModal app scope with one quota-bearing row at desktop 1440x900 and narrow 390x844 viewports. Keep any horizontal overflow inside the table's scroll container, make the rightmost row actions reachable, and prevent document/dialog viewport overflow. Do not change quota data or limits, permissions, API behavior, translations, lockfiles, or other tests. Run only the registered browser spec using the installed Node 24.20/Vitest runtime with installation skipped; write only the registered report in addition to the two code paths. Do not edit graph/result/tasks/ownership, stage, or commit.",
-            "dependencies": [
-              "M08/14.2e_preserve_manager_only_api_key_management:passed"
-            ],
+            "dependencies": ["M08/14.2e_preserve_manager_only_api_key_management:passed"],
             "acceptance": [
               "The app API Key modal restores the responsive fork width contract: approximately 90vw capped at 1200px on desktop and bounded by the viewport on narrow screens.",
               "A browser-mode test renders the actual ApiKeyModal and quota row at 1440x900 and 390x844; dialog stays within the viewport with no document-level horizontal overflow.",
@@ -3910,13 +3801,9 @@
             "model": "gpt-6-luna",
             "reasoning_effort": "low",
             "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
-            "registered_paths": [
-              "evidence/M08/14.2j-luna-verification.md"
-            ],
+            "registered_paths": ["evidence/M08/14.2j-luna-verification.md"],
             "scope": "Independently inspect the registered 14.2i modal source, browser spec and evidence report against their recorded SHA-256 identities, then rerun only web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx in the existing Node 24.20/Vitest 4.1.11 Chromium Browser Mode runtime with VP_SKIP_INSTALL=1. Reuse the existing chromium_headless_shell-1208 executable at /Users/liuxingwang/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell via the documented Vitest startVitest + vite-plus/test/browser-playwright invocation. Validate both 1440x900 and 390x844 cases, table-only horizontal scrolling, and reachable delete action. Do not install anything, run other suites, edit source/tests/graph/tasks/ownership, stage or commit; write only evidence/M08/14.2j-luna-verification.md. If the documented browser runtime is unavailable, report the exact blocker without broadening scope.",
-            "dependencies": [
-              "M08/14.2i_responsive_quota_modal_layout_browser_acceptance:passed"
-            ],
+            "dependencies": ["M08/14.2i_responsive_quota_modal_layout_browser_acceptance:passed"],
             "acceptance": [
               "Recorded source, spec and implementation-report hashes match the inspected snapshot.",
               "Only the registered Chromium browser spec runs; both viewport cases pass and the exact command, counts, runtime and measured assertions are reported.",
@@ -3926,9 +3813,7 @@
             "review_agent": "/root/m08_quota_modal_layout_luna_review",
             "thread_id": null,
             "host_id": "local",
-            "editable_paths": [
-              "evidence/M08/14.2j-luna-verification.md"
-            ],
+            "editable_paths": ["evidence/M08/14.2j-luna-verification.md"],
             "input_hashes": {
               "web/app/components/api-key/api-key-modal.tsx": "68f1d7553884ffe99a926340d0452f1d4944293a148f99f7253129e022d15218",
               "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx": "600070bed0a71e7ecba9c0dcfa06fe729f456b82b6ba39f3f0bf9658386fb31a",
@@ -4187,9 +4072,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md"
             ],
             "scope": "Independently review M08/14.6 report and exact formatted API-key quota browser spec. Verify its current SHA-256 equals 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120; confirm only the quotaKey fixture formatting hunk changed from 14.2i and all test assertions/data remain present. Rerun only that one Chromium browser spec with the documented installed Chromium 1208 override; require one file, two tests collected and passed. Do not edit any source/test, graph/tasks/results/ownership, install dependencies, run other checks, stage, or commit; write only the registered independent report.",
-            "dependencies": [
-              "M08/14.6_format_candidate_quota_browser_spec:passed"
-            ],
+            "dependencies": ["M08/14.6_format_candidate_quota_browser_spec:passed"],
             "acceptance": [
               "Exact input spec hash and report hash are recorded.",
               "Independent single-spec Chromium run collects 2 and passes 2; no other test suite is run.",
@@ -4207,7 +4090,7 @@
           },
           {
             "id": "14.8_recandidate_and_structural_acceptance",
-            "status": "registered",
+            "status": "passed",
             "owner": "M08/coordinator",
             "model": "gpt-6-astra",
             "reasoning_effort": "high",
@@ -4220,11 +4103,7 @@
               "openspec/changes/merge-upstream-1-17-1/tasks.md"
             ],
             "scope": "After M05 11.7 is committed and M08 14.6/14.7 pass, create the new scoped M08 candidate commit containing only registered M08 source/evidence/state plus coordinator status files, with M05 follow-up commit as ancestor. Exclude all unrelated untracked user paths. Re-run the cheap structural acceptance on the resulting candidate: no unmerged index or conflict markers; M00 merge ancestry and all M01-M07 commits remain reachable; all 91 mapped paths exist; old account wrapper refs remain absent; personal account quota and API-key daily/monthly fields/enforcement remain; the 10 billing/OAuth anchors remain. Record exact commit/tree/hashes and stage allowlist. Do not rerun V01/V02 here; V01 API subtree applicability and V02 candidate-only verification are separate gates.",
-            "dependencies": [
-              "M05/11.7:passed",
-              "M08/14.6:passed",
-              "M08/14.7:passed"
-            ],
+            "dependencies": ["M05/11.7:passed", "M08/14.6:passed", "M08/14.7:passed"],
             "acceptance": [
               "Candidate commit is a descendant of M05 follow-up commit and does not create another upstream merge commit.",
               "Only exact registered M08 source/state/evidence paths are staged; unrelated untracked dirs remain untouched.",
@@ -4241,68 +4120,806 @@
               "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
               "openspec/changes/merge-upstream-1-17-1/tasks.md"
             ],
-            "dispatch_status": "registered"
+            "dispatch_status": "completed",
+            "verdict": "passed",
+            "candidate_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+            "tree": "d94e6e1a034175165598bafe859d3f605b80beee",
+            "report_sha256": "cfc3d2e13007f3bd5ab11506d218cce0e3b1d2a8e4e7d02dfc462511a75ad95d"
+          },
+          {
+            "id": "14.9a_astra_upstream_formatter_paths",
+            "status": "passed",
+            "owner": "M08",
+            "model": "gpt-6-astra",
+            "reasoning_effort": "high",
+            "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+            "registered_paths": [
+              ".github/workflows/deploy-rag-dev.yml",
+              "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+              "packages/dify-ui/src/dialog/index.stories.tsx"
+            ],
+            "scope": "Apply only the pinned repository formatter to these three failing upstream source paths from V02/16.6: .github/workflows/deploy-rag-dev.yml, packages/dify-ui/src/dialog/__tests__/index.spec.tsx, packages/dify-ui/src/dialog/index.stories.tsx. Do not edit behavior, assertions, workflow steps, dependencies, or any report/graph/tasks path. No tests, installs, staging or commits. Report before/after SHA-256 and confirm whitespace-only source diffs.",
+            "dependencies": [
+              "M08/14.9_v02_formatter_debt_candidate_followup:registered; coordinator has sole ownership of graph/result metadata"
+            ],
+            "acceptance": [
+              "Only the three exact source paths are changed.",
+              "`vp fmt --check` passes on all three paths.",
+              "Whitespace-insensitive diff has no content changes; preserve all UI/test behavior and workflow job semantics."
+            ],
+            "implementation_agent": "/root/m05_format_config_astra",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              ".github/workflows/deploy-rag-dev.yml",
+              "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+              "packages/dify-ui/src/dialog/index.stories.tsx"
+            ],
+            "dispatch_status": "completed",
+            "verdict": "exact_formatter_passed",
+            "source_results": {
+              ".github/workflows/deploy-rag-dev.yml": {
+                "before_sha256": "81c028560ceeedad48f9851188b816b691b05b2610aa29bdb16916453b63fe40",
+                "after_sha256": "1e75040c12bcab73804bfd34c8824734c5fe2a760216dc83b0a985a7be4e92e8",
+                "yaml_semantic_equality": true
+              },
+              "packages/dify-ui/src/dialog/__tests__/index.spec.tsx": {
+                "before_sha256": "4cf2802234cb856a5344a4eb9b24db5ffee74a2e6612b2c25a783375c11e8b24",
+                "after_sha256": "4cf2802234cb856a5344a4eb9b24db5ffee74a2e6612b2c25a783375c11e8b24",
+                "byte_identical": true
+              },
+              "packages/dify-ui/src/dialog/index.stories.tsx": {
+                "before_sha256": "7b8199eca1356dc5147e4574f2a5029678818cbb17b31d8a20cb9c57dd132dfa",
+                "after_sha256": "7b8199eca1356dc5147e4574f2a5029678818cbb17b31d8a20cb9c57dd132dfa",
+                "byte_identical": true
+              }
+            },
+            "commands": {
+              "formatter_exit_code": 0,
+              "exact_path_check_exit_code": 0,
+              "diff_check_exit_code": 0,
+              "yaml_semantic_parser": "js-yaml 5.4.1; deep equality true"
+            }
+          },
+          {
+            "id": "14.9b_coordinator_evidence_formatter_paths",
+            "status": "passed",
+            "owner": "M08",
+            "model": "gpt-6-sol",
+            "reasoning_effort": "high",
+            "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/design.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/runbook.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log"
+            ],
+            "scope": "Coordinator formats only the exact registered OpenSpec/report paths remaining from V02/16.6 plus current execution graph/tasks and new V02/M08 evidence JSON/Markdown paths. Do not edit the three Astra-owned source paths. Preserve JSON values and Markdown wording. No tests/install/stage/commit.",
+            "dependencies": ["M08/14.9_v02_formatter_debt_candidate_followup:registered"],
+            "acceptance": [
+              "All exact coordinator paths pass vp fmt --check.",
+              "JSON values and Markdown token sequences are unchanged."
+            ],
+            "implementation_agent": "/root",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/design.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/runbook.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log"
+            ],
+            "dispatch_status": "completed",
+            "verdict": "exact_format_scope_and_semantics_passed",
+            "report_sha256": "7f68d19e842adbfb2374f4d4787274e1892a2ef0184e3e9c53e56a09d3f86da5",
+            "path_manifest_sha256": "10d42504f076c13adc8cbde3e92ce2a0af9392ceec993c3afd47899cc1a8981d",
+            "m08_result_sha256": "c07e76faa75fc046480c755300cb49df649e8eb64727abc228b777eec0837370"
+          },
+          {
+            "id": "14.10_final_candidate_and_structural_acceptance",
+            "status": "in_progress",
+            "owner": "M08",
+            "model": "gpt-6-sol",
+            "reasoning_effort": "high",
+            "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md"
+            ],
+            "scope": "Freeze a new M08 source candidate from 97f94625d2d51fe1780f69aaecce5a56d3073db4 using only the exact `commit_allowlist` recorded on this subtask, including 68 formatted/evidence paths and three ignored logs that require explicit force-add. Verify the Git staged path set equals the registered list before commit; exclude every unrelated untracked user-owned path. Create one candidate commit, then run the M08 structural acceptance against its exact commit/tree: no unmerged index/conflict markers; M00 merge and all M01-M07 commits are ancestors; 91-path ownership mapping resolves; 10 billing/OAuth anchors, personal total_quota/used_quota boundary, account/money host, and API-key daily/monthly config/enforcement remain. Compare API subtree SHA against V01-applicable 895c0be99faafa5314806ddb2c0553c6062c7f67 and reuse its 160/160 evidence only if identical. Record candidate SHA/tree and structural evidence. Do not run V02 here; bind V02 to the new candidate after structural pass. No branch/worktree creation.",
+            "commit_allowlist": [
+              ".github/workflows/deploy-rag-dev.yml",
+              "openspec/changes/merge-upstream-1-17-1/design.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/runbook.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+              "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+              "packages/dify-ui/src/dialog/index.stories.tsx"
+            ],
+            "force_add_ignored_logs": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log"
+            ],
+            "dependencies": [
+              "M08/14.9:passed; 68 exact formatter paths verified",
+              "V01:passed; API tree applicability must be reconfirmed by hash"
+            ],
+            "acceptance": [
+              "Only the exact 73-path commit allowlist is staged/committed; all unrelated user-owned untracked paths remain untouched.",
+              "Candidate commit is a descendant of 97f94625d2d51fe1780f69aaecce5a56d3073db4; M00 ancestry, M01-M07 ancestry, no conflict state/markers, and all 91 ownership rows are verified.",
+              "Personal account quota and API Key daily/monthly limits remain separate from upstream Cloud quota; 10 billing/OAuth anchors remain present.",
+              "API subtree hash either matches V01 evidence exactly or V01 reruns; exact new candidate/tree and the new structural report are recorded."
+            ],
+            "implementation_agent": "/root",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              ".github/workflows/deploy-rag-dev.yml",
+              "openspec/changes/merge-upstream-1-17-1/design.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/runbook.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+              "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+              "packages/dify-ui/src/dialog/index.stories.tsx"
+            ],
+            "dispatch_status": "in_progress"
           }
         ],
-        "next_subtask": "14.8_recandidate_and_structural_acceptance",
-        "dispatch_status": "M08_browser_spec_independent_review_passed_recandidate_pending",
-        "active_subtasks": {}
+        "next_subtask": "14.10_final_candidate_and_structural_acceptance",
+        "dispatch_status": "formatter_followup_passed_ready_for_candidate_freeze",
+        "active_subtasks": {
+          "14.10_final_candidate_and_structural_acceptance": {
+            "id": "14.10_final_candidate_and_structural_acceptance",
+            "status": "in_progress",
+            "owner": "M08",
+            "model": "gpt-6-sol",
+            "reasoning_effort": "high",
+            "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md"
+            ],
+            "scope": "Freeze a new M08 source candidate from 97f94625d2d51fe1780f69aaecce5a56d3073db4 using only the exact `commit_allowlist` recorded on this subtask, including 68 formatted/evidence paths and three ignored logs that require explicit force-add. Verify the Git staged path set equals the registered list before commit; exclude every unrelated untracked user-owned path. Create one candidate commit, then run the M08 structural acceptance against its exact commit/tree: no unmerged index/conflict markers; M00 merge and all M01-M07 commits are ancestors; 91-path ownership mapping resolves; 10 billing/OAuth anchors, personal total_quota/used_quota boundary, account/money host, and API-key daily/monthly config/enforcement remain. Compare API subtree SHA against V01-applicable 895c0be99faafa5314806ddb2c0553c6062c7f67 and reuse its 160/160 evidence only if identical. Record candidate SHA/tree and structural evidence. Do not run V02 here; bind V02 to the new candidate after structural pass. No branch/worktree creation.",
+            "commit_allowlist": [
+              ".github/workflows/deploy-rag-dev.yml",
+              "openspec/changes/merge-upstream-1-17-1/design.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/runbook.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+              "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+              "packages/dify-ui/src/dialog/index.stories.tsx"
+            ],
+            "force_add_ignored_logs": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log"
+            ],
+            "dependencies": [
+              "M08/14.9:passed; 68 exact formatter paths verified",
+              "V01:passed; API tree applicability must be reconfirmed by hash"
+            ],
+            "acceptance": [
+              "Only the exact 73-path commit allowlist is staged/committed; all unrelated user-owned untracked paths remain untouched.",
+              "Candidate commit is a descendant of 97f94625d2d51fe1780f69aaecce5a56d3073db4; M00 ancestry, M01-M07 ancestry, no conflict state/markers, and all 91 ownership rows are verified.",
+              "Personal account quota and API Key daily/monthly limits remain separate from upstream Cloud quota; 10 billing/OAuth anchors remain present.",
+              "API subtree hash either matches V01 evidence exactly or V01 reruns; exact new candidate/tree and the new structural report are recorded."
+            ],
+            "implementation_agent": "/root",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              ".github/workflows/deploy-rag-dev.yml",
+              "openspec/changes/merge-upstream-1-17-1/design.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+              "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+              "openspec/changes/merge-upstream-1-17-1/runbook.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+              "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+              "packages/dify-ui/src/dialog/index.stories.tsx"
+            ],
+            "dispatch_status": "in_progress"
+          }
+        }
       },
       "active_subtasks": {
-        "14.2e_luna_verification": {
-          "id": "14.2e_luna_verification",
+        "14.10_final_candidate_and_structural_acceptance": {
+          "id": "14.10_final_candidate_and_structural_acceptance",
           "status": "in_progress",
           "owner": "M08",
-          "model": "gpt-6-luna",
-          "reasoning_effort": "low",
-          "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+          "model": "gpt-6-sol",
+          "reasoning_effort": "high",
+          "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
           "registered_paths": [
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md"
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+            "openspec/changes/merge-upstream-1-17-1/tasks.md"
           ],
-          "scope": "Independently verify Astra implementation of the workspace-manager-only App API Key boundary. Read only the two registered component/spec paths and implementation report, then run only `app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx` under the Web unit project using the existing Node 24.20/Vitest runtime with install skipped. Do not rerun quota modal or main-nav suites, install dependencies, edit source/tests, modify graph/result/tasks/ownership, stage, or commit. Write only the registered verification report.",
+          "scope": "Freeze a new M08 source candidate from 97f94625d2d51fe1780f69aaecce5a56d3073db4 using only the exact `commit_allowlist` recorded on this subtask, including 68 formatted/evidence paths and three ignored logs that require explicit force-add. Verify the Git staged path set equals the registered list before commit; exclude every unrelated untracked user-owned path. Create one candidate commit, then run the M08 structural acceptance against its exact commit/tree: no unmerged index/conflict markers; M00 merge and all M01-M07 commits are ancestors; 91-path ownership mapping resolves; 10 billing/OAuth anchors, personal total_quota/used_quota boundary, account/money host, and API-key daily/monthly config/enforcement remain. Compare API subtree SHA against V01-applicable 895c0be99faafa5314806ddb2c0553c6062c7f67 and reuse its 160/160 evidence only if identical. Record candidate SHA/tree and structural evidence. Do not run V02 here; bind V02 to the new candidate after structural pass. No branch/worktree creation.",
+          "commit_allowlist": [
+            ".github/workflows/deploy-rag-dev.yml",
+            "openspec/changes/merge-upstream-1-17-1/design.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+            "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+            "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/runbook.md",
+            "openspec/changes/merge-upstream-1-17-1/tasks.md",
+            "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+            "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+            "packages/dify-ui/src/dialog/index.stories.tsx"
+          ],
+          "force_add_ignored_logs": [
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log"
+          ],
           "dependencies": [
-            "M08/14.2e:implementation_complete"
+            "M08/14.9:passed; 68 exact formatter paths verified",
+            "V01:passed; API tree applicability must be reconfirmed by hash"
           ],
           "acceptance": [
-            "All tests in the single focused spec pass.",
-            "Confirm manager and ACL positive/negative behavior, query suppression, and permission-revocation cleanup from the test assertions and source diff.",
-            "State exactly what the unit test does not prove, including visual layout/backend/deployment."
+            "Only the exact 73-path commit allowlist is staged/committed; all unrelated user-owned untracked paths remain untouched.",
+            "Candidate commit is a descendant of 97f94625d2d51fe1780f69aaecce5a56d3073db4; M00 ancestry, M01-M07 ancestry, no conflict state/markers, and all 91 ownership rows are verified.",
+            "Personal account quota and API Key daily/monthly limits remain separate from upstream Cloud quota; 10 billing/OAuth anchors remain present.",
+            "API subtree hash either matches V01 evidence exactly or V01 reruns; exact new candidate/tree and the new structural report are recorded."
           ],
-          "implementation_agent": "/root/m08_api_key_boundary_luna",
+          "implementation_agent": "/root",
           "thread_id": null,
-          "host_id": "local"
-        },
-        "14.2h_luna_verification_after_fixture_fix": {
-          "id": "14.2h_luna_verification_after_fixture_fix",
-          "status": "in_progress",
-          "owner": "M08",
-          "model": "gpt-6-luna",
-          "reasoning_effort": "low",
-          "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
-          "registered_paths": [
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md"
+          "host_id": "local",
+          "editable_paths": [
+            ".github/workflows/deploy-rag-dev.yml",
+            "openspec/changes/merge-upstream-1-17-1/design.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+            "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+            "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+            "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+            "openspec/changes/merge-upstream-1-17-1/runbook.md",
+            "openspec/changes/merge-upstream-1-17-1/tasks.md",
+            "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+            "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+            "packages/dify-ui/src/dialog/index.stories.tsx"
           ],
-          "scope": "Rerun Luna independent validation of the same API-secret-key-button spec after the required workspace summary fixture correction. Inspect the registered test diff/report and run only the exact single unit spec from web with the existing Node 24.20/Vitest 4.1.11 runtime and VP_SKIP_INSTALL=1. Do not rerun other suites, install dependencies, modify source/tests/graph/result/tasks/ownership, stage, or commit; write only the registered report.",
-          "dependencies": [
-            "M08/14.2g:passed"
-          ],
-          "acceptance": [
-            "Focused spec passes all cases; report records exact command and counts.",
-            "Confirm role fixtures reach manager positive and role-revocation cases.",
-            "Describe unit-only limitations; no backend, visual, DB, or deploy claim."
-          ],
-          "implementation_agent": "/root/m08_api_key_boundary_luna_rerun",
-          "thread_id": null,
-          "host_id": "local"
+          "dispatch_status": "in_progress"
         }
       }
     },
     {
       "id": "V01",
       "title": "后端静态与定向回归",
-      "dependencies": [
-        "M08"
-      ],
+      "dependencies": ["M08"],
       "owner_role": "后端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4314,12 +4931,8 @@
         "design.md#decisions",
         "evidence/M08/result.json"
       ],
-      "write_scope": [
-        "受控测试/静态检查输出；不修改候选源码"
-      ],
-      "resources": [
-        "heavy_compute"
-      ],
+      "write_scope": ["受控测试/静态检查输出；不修改候选源码"],
+      "resources": ["heavy_compute"],
       "steps": [
         "读取 api/AGENTS.md；按合并后工具配置运行静态/导入和定向测试",
         "执行已随候选提交冻结的新注册/gateway/site/service_api/key/message/workflow/session/beat/retention 用例；需要修改源码或用例则退回对应 M 节点，更新候选后重验",
@@ -4334,20 +4947,12 @@
         "单测报告明确用例、commit、结果",
         "已有债务与新增回归分开；无运行权限或依赖不可用记 blocked"
       ],
-      "evidence": [
-        "evidence/V01/result.json",
-        "evidence/V01/execution.log"
-      ],
+      "evidence": ["evidence/V01/result.json", "evidence/V01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/V01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "completed_subtasks": [
-          "15.1_15.2_candidate_backend_luna_regression"
-        ],
+        "completed_subtasks": ["15.1_15.2_candidate_backend_luna_regression"],
         "current_subtask": null,
         "parallel_subtasks": [
           {
@@ -4362,9 +4967,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/V01/execution.log"
             ],
             "scope": "Read api/AGENTS.md and execute V01 steps 15.1/15.2 on the exact candidate commit ba33fe26dc21ae3a308f14a61999009fc2849779. Use the already provisioned /private/tmp/dify-m02-python-complete environment with uv run --project api --no-sync (do not install or sync dependencies). Run the V01 graph commands: compileall -q api; import app_factory; and the three focused unit test files test_apikey.py, test_account_service.py, test_persistence_layer.py. Record actual collection and results. Do not rerun the previous broad M02/M03/M04 suites; note their historical evidence separately without claiming it validates this candidate. Do not edit product source/tests, graph/tasks/ownership, stage or commit. Write only the registered V01 result and execution log. If the preprovisioned environment is unavailable, record the exact blocker and stop without installing.",
-            "dependencies": [
-              "M08:passed"
-            ],
+            "dependencies": ["M08:passed"],
             "acceptance": [
               "The input commit is the exact M08 candidate; API working files are unchanged from that commit during execution.",
               "Static compile and app_factory import have exact exit codes.",
@@ -4384,15 +4987,18 @@
         ],
         "next_subtask": "V02/16.1_16.2_16.3_candidate_frontend_luna_verification",
         "dispatch_status": "passed_candidate_backend_regression",
-        "active_subtasks": {}
+        "active_subtasks": {},
+        "applicable_candidate": {
+          "commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+          "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+          "basis": "candidate delta since tested commit changes only packages/contracts/openapi-ts.api.config.ts formatting and the M08 browser test formatting; API subtree byte-identical, so focused API checks remain applicable without rerun."
+        }
       }
     },
     {
       "id": "V02",
       "title": "前端检查、定向测试与双构建",
-      "dependencies": [
-        "M08"
-      ],
+      "dependencies": ["M08"],
       "owner_role": "前端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4404,12 +5010,8 @@
         "design.md#decisions",
         "evidence/M08/result.json"
       ],
-      "write_scope": [
-        "受控构建/测试输出"
-      ],
-      "resources": [
-        "heavy_compute"
-      ],
+      "write_scope": ["受控构建/测试输出"],
+      "resources": ["heavy_compute"],
       "steps": [
         "在固定候选提交执行认证/新 access-point/api-key/应用中心用例；先核对实际收集到 browser 场景，零用例或路径失效不得记通过；若需改测试源码，退回 M05/M06 并经 M08 冻结新候选",
         "执行 frozen 安装、check/tss/i18n、unit/browser 和双构建",
@@ -4429,21 +5031,46 @@
         "Node/pnpm 与锁文件一致，检查与双构建成功",
         "定向认证与角色矩阵通过；24份extend可加载"
       ],
-      "evidence": [
-        "evidence/V02/result.json",
-        "evidence/V02/execution.log"
-      ],
+      "evidence": ["evidence/V02/result.json", "evidence/V02/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/V02/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "completed_subtasks": [
-          "16.1_16.2_16.3_candidate_frontend_luna_verification"
-        ],
-        "current_subtask": null,
+        "completed_subtasks": ["16.1_16.2_16.3_candidate_frontend_luna_verification"],
+        "current_subtask": {
+          "id": "16.6_candidate_snapshot_v02_retry_without_auto_verify",
+          "status": "blocked",
+          "owner": "V02",
+          "model": "gpt-6-luna",
+          "reasoning_effort": "high",
+          "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+          "registered_paths": [
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log"
+          ],
+          "scope": "Retry V02 on exact candidate 97f94625d2d51fe1780f69aaecce5a56d3073db4 in a new disposable `git archive` snapshot under /private/tmp, without creating a branch or worktree. Verify candidate tree, package.json/pnpm-lock hashes and pinned Node 24.20.0/pnpm 12.3.4; reuse unchanged frozen-lock consistency and M08/14.7 exact-hash Chromium 2/2 evidence. Run `pnpm --config.verify-deps-before-run=false check` with VP_SKIP_INSTALL=1 to prevent the pnpm automatic dependency verification lifecycle that blocked 16.5. Do not install/sync dependencies or use network. Stop at the first failed gate. If check passes, run web lint:tss, web i18n:check, the registered unit suite, then both web builds sequentially; keep browser evidence reused. Record exact commands, inputs, exit codes, counts, outputs and warnings. Write only the two registered 16.6 evidence paths; do not change source/tests, graph/tasks/ownership, stage, or commit.",
+          "dependencies": [
+            "M08:passed",
+            "V01:passed and API tree applicability checked",
+            "16.5:blocked before vp check; retain its evidence"
+          ],
+          "acceptance": [
+            "Snapshot contains exactly the candidate tracked tree and resolves to the registered commit/tree; pinned Node/pnpm and unchanged package/lock hashes recorded.",
+            "No dependency install, network sync, or candidate source/test mutation occurs.",
+            "pnpm check, lint:tss, i18n:check, nonzero collected unit suite, and both web builds pass with exact codes/counts/hashes/warnings; stop and record the first failure otherwise.",
+            "Browser path inventory has no unverified additional specs; reuse the exact-hash M08/14.7 2/2 result without duplicating its run."
+          ],
+          "implementation_agent": "/root/m08_v01_candidate_backend_luna",
+          "thread_id": null,
+          "host_id": "local",
+          "editable_paths": [
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log"
+          ],
+          "dispatch_status": "completed_blocked",
+          "verdict": "blocked_63_formatter_paths",
+          "report_sha256": "09eef2b100176239cabf35820d99075d015bef93d1a65a0edde4b310f36b82f5"
+        },
         "parallel_subtasks": [
           {
             "id": "16.1_16.2_16.3_candidate_frontend_luna_verification",
@@ -4457,9 +5084,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/V02/execution.log"
             ],
             "scope": "On exact candidate ba33fe26dc21ae3a308f14a61999009fc2849779, use pinned Node 24.20.0 and pnpm 12.3.4. Verify frozen install/lock consistency, then run V02 graph checks in sequence: pnpm check; web lint:tss; web i18n:check; registered unit and browser suites for system-features, console, access-point and api-key; web build and build:vinext. First inspect browser test collection and confirm nonzero relevant scenarios. Reuse exact-hash M08 evidence for the 14.2e manager/ACL unit spec (9/9) and 14.2j responsive modal Chromium coverage (2/2) when the identical files are included; do not separately rerun those custom checks. Capture command exit codes, collected counts, source/test/environment hashes, and known warnings. No product source/test edits, dependency changes, graph edits, staging, or commits; if a source/test defect appears, stop and return it to its owner for a new candidate.",
-            "dependencies": [
-              "M08:passed"
-            ],
+            "dependencies": ["M08:passed"],
             "acceptance": [
               "Candidate commit and relevant web source/test inputs match the fixed candidate; no source or test path changes during verification.",
               "Node and pnpm versions match M01; frozen install validates the unchanged lock without modifying tracked manifests or lockfiles.",
@@ -4477,21 +5102,82 @@
             "dispatch_status": "completed_blocked",
             "verdict": "blocked_at_pnpm_check",
             "report_sha256": "5a7ddc26107ed4264b1fdbf4527670c5486d52334b2d69b59b4eef033f8a1ca3"
+          },
+          {
+            "id": "16.5_final_candidate_clean_snapshot_frontend_gates",
+            "status": "blocked",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log"
+            ],
+            "scope": "Run remaining V02 gates against exact candidate 97f94625d2d51fe1780f69aaecce5a56d3073db4 in a disposable source snapshot created from `git archive` under /private/tmp; symlink the already provisioned root and web node_modules into the snapshot so repo-owned untracked directories and local metadata dirt cannot pollute whole-repo checks. Do not create a Git branch or worktree. Reuse frozen lock consistency because package.json and pnpm-lock.yaml hashes are unchanged from the passing first V02 attempt/M01; verify exact hashes and pinned Node 24.20.0/pnpm 12.3.4. Run pnpm check first and stop subsequent gates at the first failure, attributing any tracked candidate issue to owner. If it passes, run web lint:tss, web i18n:check, the registered unit path suite, then both web builds sequentially. Browser scope contains only the quota modal spec; reuse exact-hash M08 14.7 independent Chromium evidence (2/2) and do not rerun it. The API Secret Key Button 9-test prior report lacks an input hash, so keep the spec within the broader V02 unit run rather than claiming a hash-bound reuse. Write only the two registered attempt files; do not edit source/tests/graph/tasks/ownership, stage or commit. Preserve V02 attempt-1 failure evidence.",
+            "dependencies": ["M08:passed", "V01:passed and API tree applicability checked"],
+            "acceptance": [
+              "Source snapshot resolves to exact candidate commit and contains no untracked user-owned directories.",
+              "Pinned Node/pnpm and unchanged package/lock hashes recorded; no dependency install or network sync.",
+              "pnpm check, lint:tss, i18n:check, nonzero collected unit suite, both web builds all pass, exact codes/counts/hashes/warnings recorded.",
+              "Browser path inventory has no browser specs beyond the 14.7 exact-hash file; reuse its 2/2 result without a duplicate run.",
+              "If any gate fails, stop following gates and record the precise first failure; no source or test changes."
+            ],
+            "implementation_agent": "/root/m08_v01_candidate_backend_luna",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log"
+            ],
+            "dispatch_status": "completed_blocked",
+            "verdict": "blocked_before_vp_check_pnpm_signature_fetch",
+            "report_sha256": "3f0ba8f3d89585967c5ced0ab705a333bf56e45c7a23589449b74ea185782792"
+          },
+          {
+            "id": "16.6_candidate_snapshot_v02_retry_without_auto_verify",
+            "status": "blocked",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log"
+            ],
+            "scope": "Retry V02 on exact candidate 97f94625d2d51fe1780f69aaecce5a56d3073db4 in a new disposable `git archive` snapshot under /private/tmp, without creating a branch or worktree. Verify candidate tree, package.json/pnpm-lock hashes and pinned Node 24.20.0/pnpm 12.3.4; reuse unchanged frozen-lock consistency and M08/14.7 exact-hash Chromium 2/2 evidence. Run `pnpm --config.verify-deps-before-run=false check` with VP_SKIP_INSTALL=1 to prevent the pnpm automatic dependency verification lifecycle that blocked 16.5. Do not install/sync dependencies or use network. Stop at the first failed gate. If check passes, run web lint:tss, web i18n:check, the registered unit suite, then both web builds sequentially; keep browser evidence reused. Record exact commands, inputs, exit codes, counts, outputs and warnings. Write only the two registered 16.6 evidence paths; do not change source/tests, graph/tasks/ownership, stage, or commit.",
+            "dependencies": [
+              "M08:passed",
+              "V01:passed and API tree applicability checked",
+              "16.5:blocked before vp check; retain its evidence"
+            ],
+            "acceptance": [
+              "Snapshot contains exactly the candidate tracked tree and resolves to the registered commit/tree; pinned Node/pnpm and unchanged package/lock hashes recorded.",
+              "No dependency install, network sync, or candidate source/test mutation occurs.",
+              "pnpm check, lint:tss, i18n:check, nonzero collected unit suite, and both web builds pass with exact codes/counts/hashes/warnings; stop and record the first failure otherwise.",
+              "Browser path inventory has no unverified additional specs; reuse the exact-hash M08/14.7 2/2 result without duplicating its run."
+            ],
+            "implementation_agent": "/root/m08_v01_candidate_backend_luna",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate.log"
+            ],
+            "dispatch_status": "completed_blocked",
+            "verdict": "blocked_63_formatter_paths",
+            "report_sha256": "09eef2b100176239cabf35820d99075d015bef93d1a65a0edde4b310f36b82f5"
           }
         ],
-        "next_subtask": "M05/11.7_openapi_ts_config_format_followup_and_M08/14.6_candidate_browser_spec_format",
-        "dispatch_status": "blocked_pnpm_check_candidate_format_issue",
+        "next_subtask": "M08/14.10_final_candidate_and_structural_acceptance",
+        "dispatch_status": "waiting_for_m08_final_candidate",
         "active_subtasks": {}
-      },
-      "blocked_reason": "首轮候选 ba33fe26dc21ae3a308f14a61999009fc2849779 的 pnpm check 失败，后续门槛已停。M05 11.7 格式修复与 M08 14.6/14.7 格式复核均通过；等待 M05 独立提交、M08 新候选与结构复验后重跑 V02。"
+      }
     },
     {
       "id": "R01",
       "title": "源码合并候选验收",
-      "dependencies": [
-        "V01",
-        "V02"
-      ],
+      "dependencies": ["V01", "V02"],
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4504,40 +5190,24 @@
         "evidence/V01/result.json",
         "evidence/V02/result.json"
       ],
-      "write_scope": [
-        "源码候选记录"
-      ],
-      "resources": [
-        "集成负责人"
-      ],
+      "write_scope": ["源码候选记录"],
+      "resources": ["集成负责人"],
       "steps": [
         "汇总全部冲突/语义/静态测试记录",
         "记录候选 commit 与待环境验证项；不得此时声称已上线"
       ],
       "commands": [],
-      "acceptance": [
-        "源码候选可构建，阻断级新增回归清零",
-        "状态明确为 code-ready，仍须环境链"
-      ],
-      "evidence": [
-        "evidence/R01/result.json",
-        "evidence/R01/execution.log"
-      ],
+      "acceptance": ["源码候选可构建，阻断级新增回归清零", "状态明确为 code-ready，仍须环境链"],
+      "evidence": ["evidence/R01/result.json", "evidence/R01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/R01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/R01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "blocked_reason": "前置节点 V01, V02 尚未通过；未执行本节点。"
     },
     {
       "id": "V03",
       "title": "目标镜像、空库与存量双链演练",
-      "dependencies": [
-        "R01",
-        "A03"
-      ],
+      "dependencies": ["R01", "A03"],
       "owner_role": "数据与容器验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4550,13 +5220,8 @@
         "evidence/R01/result.json",
         "evidence/A03/result.json"
       ],
-      "write_scope": [
-        "隔离镜像/副本/迁移记录"
-      ],
-      "resources": [
-        "heavy_compute",
-        "test_database"
-      ],
+      "write_scope": ["隔离镜像/副本/迁移记录"],
+      "resources": ["heavy_compute", "test_database"],
       "steps": [
         "先准备环境专属 override/备份恢复命令草案；构建固定候选 fork 镜像并核对 digest、平台与供货，把实际 digest 固定到隔离 override，复核无生产存储/队列连接后才开始演练",
         "空库从零两链；实际旧库副本主链再extend，记录17迁移与两head",
@@ -4568,23 +5233,15 @@
         "双head为 c3f1a9b2e6d4 / 020_workflow_run_account",
         "数据差异符合预审、破坏性数据有处置决定、耗时记录"
       ],
-      "evidence": [
-        "evidence/V03/result.json",
-        "evidence/V03/execution.log"
-      ],
+      "evidence": ["evidence/V03/result.json", "evidence/V03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V03/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/V03/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "V04",
       "title": "向量库副本演练",
-      "dependencies": [
-        "V03"
-      ],
+      "dependencies": ["V03"],
       "owner_role": "向量验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4596,12 +5253,8 @@
         "design.md#decisions",
         "evidence/V03/result.json"
       ],
-      "write_scope": [
-        "隔离向量数据副本"
-      ],
-      "resources": [
-        "vector_clone"
-      ],
+      "write_scope": ["隔离向量数据副本"],
+      "resources": ["vector_clone"],
       "steps": [
         "Weaviate 按真实版本逐minor演练至目标；低于1.27先专项方案",
         "每站验证schema/对象/向量/检索/备份恢复；必要时逻辑导出重建",
@@ -4613,24 +5266,15 @@
         "实际数据可写可检索，和基线查询集可比",
         "恢复路径与耗时有证据；其他向量库分支也必须通过"
       ],
-      "evidence": [
-        "evidence/V04/result.json",
-        "evidence/V04/execution.log"
-      ],
+      "evidence": ["evidence/V04/result.json", "evidence/V04/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V04/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/V04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "V05",
       "title": "真实业务与权限验收",
-      "dependencies": [
-        "V03",
-        "V04"
-      ],
+      "dependencies": ["V03", "V04"],
       "owner_role": "业务验收负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4643,12 +5287,8 @@
         "evidence/V03/result.json",
         "evidence/V04/result.json"
       ],
-      "write_scope": [
-        "隔离部署及verification-matrix证据"
-      ],
-      "resources": [
-        "test_environment"
-      ],
+      "write_scope": ["隔离部署及verification-matrix证据"],
+      "resources": ["test_environment"],
       "steps": [
         "使用目标 fork 镜像，按 verification-matrix 全部必测场景验收",
         "验证真实模型返回/计费、SSO、WebApp、知识库、系统管理、worker/beat/插件",
@@ -4660,23 +5300,15 @@
         "矩阵每项有请求/结果/数据库对账证据",
         "缺真实账号或凭据记blocked，不宣称生产就绪"
       ],
-      "evidence": [
-        "evidence/V05/result.json",
-        "evidence/V05/execution.log"
-      ],
+      "evidence": ["evidence/V05/result.json", "evidence/V05/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V05/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/V05/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "V06",
       "title": "整套恢复演练",
-      "dependencies": [
-        "V05"
-      ],
+      "dependencies": ["V05"],
       "owner_role": "运维验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4688,12 +5320,8 @@
         "design.md#decisions",
         "evidence/V05/result.json"
       ],
-      "write_scope": [
-        "隔离回滚快照与恢复日志"
-      ],
-      "resources": [
-        "test_environment"
-      ],
+      "write_scope": ["隔离回滚快照与恢复日志"],
+      "resources": ["test_environment"],
       "steps": [
         "新版本先产生样本写入；停止所有写入者再恢复同一旧静止点数据与旧镜像",
         "验证旧双head、解密、文件/向量、登录/工作流/计费",
@@ -4701,27 +5329,16 @@
         "记录RTO与操作负责人；禁止image-only downgrade"
       ],
       "commands": [],
-      "acceptance": [
-        "旧版可真实运行，数据来自同一恢复点",
-        "RTO/RPO可接受且无不受控任务重放"
-      ],
-      "evidence": [
-        "evidence/V06/result.json",
-        "evidence/V06/execution.log"
-      ],
+      "acceptance": ["旧版可真实运行，数据来自同一恢复点", "RTO/RPO可接受且无不受控任务重放"],
+      "evidence": ["evidence/V06/result.json", "evidence/V06/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V06/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/V06/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "R02",
       "title": "版本文档与环境上线操作包",
-      "dependencies": [
-        "V06"
-      ],
+      "dependencies": ["V06"],
       "owner_role": "发布负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4733,13 +5350,8 @@
         "design.md#decisions",
         "evidence/V06/result.json"
       ],
-      "write_scope": [
-        "docs/dify-plus/** 本轮升级文档",
-        "受控发布清单"
-      ],
-      "resources": [
-        "git_index"
-      ],
+      "write_scope": ["docs/dify-plus/** 本轮升级文档", "受控发布清单"],
+      "resources": ["git_index"],
       "steps": [
         "核验 M01 已对齐的版本字段，更新十挂点新坐标、运行手册、AGENTS baseline 与所有验证证据",
         "修订旧强制WebApp登录/旧migration018/旧前端路径；P4/P6仅标后续重定基线",
@@ -4752,23 +5364,15 @@
         "可执行环境包无占位符，演练证据完整",
         "tag对应已验证代码，明确不代表生产已上线"
       ],
-      "evidence": [
-        "evidence/R02/result.json",
-        "evidence/R02/execution.log"
-      ],
+      "evidence": ["evidence/R02/result.json", "evidence/R02/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/R02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/R02/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D00",
       "title": "生产变更授权与放行",
-      "dependencies": [
-        "R02"
-      ],
+      "dependencies": ["R02"],
       "owner_role": "发布负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4780,37 +5384,23 @@
         "design.md#decisions",
         "evidence/R02/result.json"
       ],
-      "write_scope": [
-        "生产审批记录"
-      ],
-      "resources": [
-        "发布负责人"
-      ],
+      "write_scope": ["生产审批记录"],
+      "resources": ["发布负责人"],
       "steps": [
         "提交精确版本、停机窗口、数据删除影响、备份恢复点、RPO/RTO给用户确认",
         "确认所需镜像已可拉取、备份容量与责任人在线；超阈值则延期"
       ],
       "commands": [],
-      "acceptance": [
-        "取得明确生产执行授权且全部前置通过"
-      ],
-      "evidence": [
-        "evidence/D00/result.json",
-        "evidence/D00/execution.log"
-      ],
+      "acceptance": ["取得明确生产执行授权且全部前置通过"],
+      "evidence": ["evidence/D00/result.json", "evidence/D00/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D00/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D00/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D01",
       "title": "封入口、停写与一致快照",
-      "dependencies": [
-        "D00"
-      ],
+      "dependencies": ["D00"],
       "owner_role": "运维负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4822,39 +5412,24 @@
         "design.md#decisions",
         "evidence/D00/result.json"
       ],
-      "write_scope": [
-        "生产入口/调度/队列/全套备份"
-      ],
-      "resources": [
-        "production_window"
-      ],
+      "write_scope": ["生产入口/调度/队列/全套备份"],
+      "resources": ["production_window"],
       "steps": [
         "按runbook停新请求、触发器/beat，按截止时间排空或冻结在途任务，再停worker/API/Agent/plugin等写入者",
         "核实无外部写入者，记录DB/向量/文件/Redis同一静止点",
         "备份并验证可读取恢复，记录所有版本与密钥受控引用"
       ],
       "commands": [],
-      "acceptance": [
-        "写入静止，备份完整可恢复",
-        "在途任务和恢复后重投策略已记录"
-      ],
-      "evidence": [
-        "evidence/D01/result.json",
-        "evidence/D01/execution.log"
-      ],
+      "acceptance": ["写入静止，备份完整可恢复", "在途任务和恢复后重投策略已记录"],
+      "evidence": ["evidence/D01/result.json", "evidence/D01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D01/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D02",
       "title": "执行环境向量路径",
-      "dependencies": [
-        "D01"
-      ],
+      "dependencies": ["D01"],
       "owner_role": "向量负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4866,38 +5441,24 @@
         "design.md#decisions",
         "evidence/D01/result.json"
       ],
-      "write_scope": [
-        "生产向量引擎"
-      ],
-      "resources": [
-        "production_window"
-      ],
+      "write_scope": ["生产向量引擎"],
+      "resources": ["production_window"],
       "steps": [
         "仅执行V04已演练同版本同拓扑路径，逐站验证后推进",
         "其他向量库分支执行健康/兼容确认，不更换无关镜像",
         "任一步异常停止；恢复当前站配对快照，后续不得启动"
       ],
       "commands": [],
-      "acceptance": [
-        "实际版本/schema/检索与演练一致"
-      ],
-      "evidence": [
-        "evidence/D02/result.json",
-        "evidence/D02/execution.log"
-      ],
+      "acceptance": ["实际版本/schema/检索与演练一致"],
+      "evidence": ["evidence/D02/result.json", "evidence/D02/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D02/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D03",
       "title": "执行单一双链迁移",
-      "dependencies": [
-        "D02"
-      ],
+      "dependencies": ["D02"],
       "owner_role": "数据库负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4909,12 +5470,8 @@
         "design.md#decisions",
         "evidence/D02/result.json"
       ],
-      "write_scope": [
-        "生产DB主链与extend链"
-      ],
-      "resources": [
-        "production_window"
-      ],
+      "write_scope": ["生产DB主链与extend链"],
+      "resources": ["production_window"],
       "steps": [
         "仅启动必要中间件，用目标 fork API 单job先db upgrade再extend_db upgrade",
         "核对两head与破坏性迁移审计，不盲目stamp或重试",
@@ -4925,23 +5482,15 @@
         "双head、数据对账、模型凭据读回满足目标",
         "所有业务容器自动迁移关闭后才允许启动"
       ],
-      "evidence": [
-        "evidence/D03/result.json",
-        "evidence/D03/execution.log"
-      ],
+      "evidence": ["evidence/D03/result.json", "evidence/D03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D03/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D03/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D04",
       "title": "启动、业务放行与观察",
-      "dependencies": [
-        "D03"
-      ],
+      "dependencies": ["D03"],
       "owner_role": "发布与业务负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4953,12 +5502,8 @@
         "design.md#decisions",
         "evidence/D03/result.json"
       ],
-      "write_scope": [
-        "生产服务/入口/观察记录"
-      ],
-      "resources": [
-        "production_window"
-      ],
+      "write_scope": ["生产服务/入口/观察记录"],
+      "resources": ["production_window"],
       "steps": [
         "用配对 digest 启动 API/Web/必要中间件及受控 worker/必要队列，beat/trigger 继续暂停；在封闭入口完成登录/模型/异步工作流/真实扣费/知识库 smoke",
         "必测通过后逐步开放入口，按既定策略开放其余任务消费并恢复 beat/trigger 调度",
@@ -4970,19 +5515,13 @@
         "真实业务负责人签收与观察通过，才标 deployed",
         "任何恢复后的新写入损失按RPO记录，绝不自动删除旧快照"
       ],
-      "evidence": [
-        "evidence/D04/result.json",
-        "evidence/D04/execution.log"
-      ],
+      "evidence": ["evidence/D04/result.json", "evidence/D04/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D04/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     }
   ],
-  "next_subtask": "M08/14.8_recandidate_and_structural_acceptance",
+  "next_subtask": "M08/14.10_final_candidate_and_structural_acceptance",
   "execution_control": {
     "coordinator_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
     "updated_at": "2026-09-29",
@@ -5026,10 +5565,9 @@
     ],
     "current_dispatches": [],
     "next_critical_path": [
-      "M05 11.7 scoped commit",
-      "M08 14.8 updated candidate commit and structural acceptance",
-      "V01 API tree applicability on updated candidate",
-      "V02 full gate in clean candidate snapshot",
+      "M08/14.10 freeze exact candidate and repeat structural acceptance",
+      "V01 API tree applicability by hash; reuse 160/160 only if identical",
+      "V02 clean-snapshot final candidate checks/tests/builds",
       "R01 source candidate acceptance"
     ],
     "quality_gates_unchanged": true,

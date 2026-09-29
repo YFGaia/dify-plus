@@ -8,12 +8,12 @@
 
 隔离副本：`/private/tmp/dify-m05-extend-diagnostic/packages/contracts`。在该目录运行 `pnpm --config.verify-deps-before-run=false exec openapi-ts -f openapi-ts.api.config.ts` 的结果：
 
-| 输入 | 结果 | 临时日志 |
-|---|---:|---|
-| 原始 `extend` segment（含 OPTIONS） | exit 1 | `/private/tmp/dify-m05-extend-all.log` |
-| 仅 OPTIONS | exit 1 | `/private/tmp/dify-m05-extend-options-only.log` |
-| 五业务方法且删去 OPTIONS | exit 0 | `/private/tmp/dify-m05-extend-all-no-options.log` |
-| 各业务方法单独保留且删去 OPTIONS | 五项全部 exit 0 | `/private/tmp/dify-m05-extend-{delete,get,patch,post,put}-no-options.log` |
+| 输入                                |            结果 | 临时日志                                                                  |
+| ----------------------------------- | --------------: | ------------------------------------------------------------------------- |
+| 原始 `extend` segment（含 OPTIONS） |          exit 1 | `/private/tmp/dify-m05-extend-all.log`                                    |
+| 仅 OPTIONS                          |          exit 1 | `/private/tmp/dify-m05-extend-options-only.log`                           |
+| 五业务方法且删去 OPTIONS            |          exit 0 | `/private/tmp/dify-m05-extend-all-no-options.log`                         |
+| 各业务方法单独保留且删去 OPTIONS    | 五项全部 exit 0 | `/private/tmp/dify-m05-extend-{delete,get,patch,post,put}-no-options.log` |
 
 插件隔离显示 TypeScript 与 Zod 单独生成成功，oRPC 插件触发失败。修改响应 schema、operationId、路径参数和嵌套名称仍不能修复保留 OPTIONS 的生成。五份 API spec 中，`OPTIONS /extend/{path}` 只出现在 Console spec。
 

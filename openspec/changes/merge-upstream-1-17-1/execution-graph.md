@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> 当前状态以 execution-graph.json 为准：M00–M08 已通过源码候选门槛；固定候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 上，V01 已通过 compileall、app_factory 导入及 160/160 后端定向测试。V02 首轮在 frozen lock 检查通过后因 `pnpm check` 格式门槛阻断，定向测试和双构建尚未运行；已将候选新增 browser spec 退回 M08、继承的契约配置格式债务退回 M05。个人额度与 API Key 日/月额度保持独立功能。M05 配置格式修复已通过；M08 spec 已由 Astra 格式化，Astra 与独立 Luna 各自单文件 Chromium 2/2；正在形成新候选并重做结构验收，之后重跑 V02，R01 继续等待，环境与生产节点仍受各自验收和授权约束。
+> 当前状态以 execution-graph.json 为准：候选 `97f94625d2d51fe1780f69aaecce5a56d3073db4` 的 M08 结构验收和 V01 后端 160/160 已通过，个人额度与 API Key 日/月额度仍保持独立。V02/16.6 已在干净快照实际运行 `vp check`，发现 63 条格式问题后按首失败规则停止；其中 15 条是该候选相对首父提交新增的证据/执行图路径，48 条为既有基线（含两个 Dify UI 文件和一个上游 workflow），未发现本轮应用源码或测试路径失败。M08/14.9 对 68 条精确路径的纯格式修复已通过；14.10 正在冻结新候选并重做结构验收，随后重跑 V02；R01 等待 V02。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01 已通过；M03 9.1–9.6 已通过（9.6 追加 29 项定向测试并保持 schema 不变）；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；11.7 修复继承的 OpenAPI 配置格式债务，精确格式检查通过，独立提交 `c304fe188e949733fa4ac1697004e3b99d9db95d`；M07 13.1–13.6 源码验收已通过（13.4 有 P3 操作边界；13.6 GitLab manifest 修复经 Luna 复核），真实 pipeline/镜像供货仍待部署证据；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 Sol 分析已完成，12.2a 已完成并通过测试及 scoped check，提交 82227748fcbe7b727da1d4aed67306f44ef00a4b；12.2c 的精确路径与前置已登记；12.2c 已完成，137 项测试通过，五文件 scoped check 零错误；两条基线 warning 已核实，提交 78c099003f06b06a4820bb5c62999a7c0c65e0e8；12.3/12.4 Sol 分析已完成并登记精确路径；12.3 限定 app key 支持的额度和 login_config 汇率；12.4 恢复现有 owner 导航组件挂载且保留权限；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对已完成，四条登记路径完整；M08 与 V01 的首候选验收已通过；V02 首轮因格式检查失败阻断，M05/M08 正处理对应 owner 路径，R01 等待修复候选验证。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01 已通过；M03 9.1–9.6 已通过（9.6 追加 29 项定向测试并保持 schema 不变）；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；11.7 修复继承的 OpenAPI 配置格式债务，精确格式检查通过，独立提交 `c304fe188e949733fa4ac1697004e3b99d9db95d`；M07 13.1–13.6 源码验收已通过（13.4 有 P3 操作边界；13.6 GitLab manifest 修复经 Luna 复核），真实 pipeline/镜像供货仍待部署证据；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 Sol 分析已完成，12.2a 已完成并通过测试及 scoped check，提交 82227748fcbe7b727da1d4aed67306f44ef00a4b；12.2c 的精确路径与前置已登记；12.2c 已完成，137 项测试通过，五文件 scoped check 零错误；两条基线 warning 已核实，提交 78c099003f06b06a4820bb5c62999a7c0c65e0e8；12.3/12.4 Sol 分析已完成并登记精确路径；12.3 限定 app key 支持的额度和 login_config 汇率；12.4 恢复现有 owner 导航组件挂载且保留权限；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对已完成，四条登记路径完整；M08 与 V01 的首候选验收已通过；V02 首轮因格式检查失败阻断，M05/M08 的格式问题已按 owner 修复，新候选结构通过；V02/16.5 因 pnpm 生命周期签名验证阻断且未运行 vp check；已登记 16.6 使用 verify-deps-before-run=false 重试，R01 等待 V02。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M06 最新子任务进度：12.3、12.4 均已通过；独立 Luna 在最终组合快照验证 API key/MainNav 两个 spec 共 97 项通过，六个目标路径与实现提交一致且 eafe 文件安全恢复，证据见 `evidence/M06/12.3-12.4-final-verification.md`。12.4 owner-only 系统管理导航恢复提交 `a7b7ddeeda`；12.3 后续修订提交 `4526fd02f2`。12.1b Sol 独立路径交叉核对无遗漏，四条登记路径充足。12.5 locale 最终 24 语言命令检查通过，零引用旧 quota modal 已删除并提交 `5bb83572ca`。12.6a 独立应用中心 MainNav 入口已通过 92 项 MainNav 测试并提交 `6061766c11`，保留 upstream Home `/`；12.6b system-integration 宿主测试已启动，个人统计由 M04/M03 做 account-scoped API 与生成契约分析，API-key 交互回归新增登记为 12.6i。M06 父节点保持未通过。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
@@ -256,7 +256,7 @@ git show --no-patch --format=%P HEAD
 
 - 前置：M01；负责人：后端基础负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`backend_core`。
-- 写入范围：api/models/**；api/controllers/console/__init__.py；api/controllers/console/feature.py；api/services/feature_service.py；api/services/workspace_service.py；workspace summary 与 session 相关宿主；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
+- 写入范围：api/models/**；`api/controllers/console/__init__.py`；api/controllers/console/feature.py；api/services/feature_service.py；api/services/workspace_service.py；workspace summary 与 session 相关宿主；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
 
 执行：
 
@@ -304,7 +304,7 @@ M03 原子项 9.1–9.6 全部通过。9.6 修复 M06 12.2 发现的 AppPaginati
 
 - 前置：M03；负责人：计费负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`计费负责人`。
-- 写入范围：api/controllers/service_api/**；api/controllers/console/apikey.py；api/controllers/console/explore/**；api/controllers/console/app/statistic.py；api/controllers/console/app/workflow.py；api/controllers/console/tag/tags.py；api/core/** 的 fork 计费记忆挂点；api/events/**extend*；api/tasks/extend/**；api/extensions/ext_celery.py；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
+- 写入范围：api/controllers/service_api/**；api/controllers/console/apikey.py；api/controllers/console/explore/**；api/controllers/console/app/statistic.py；api/controllers/console/app/workflow.py；api/controllers/console/tag/tags.py；api/core/** 的 fork 计费记忆挂点；`api/events/**extend*`；api/tasks/extend/**；api/extensions/ext_celery.py；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
 
 执行：
 

@@ -20,9 +20,7 @@
             "description": "Missing or invalid login_config token"
           }
         },
-        "tags": [
-          "console"
-        ]
+        "tags": ["console"]
       }
     },
     "/login_config_bootstrap": {
@@ -40,9 +38,7 @@
             "description": "Success"
           }
         },
-        "tags": [
-          "console"
-        ]
+        "tags": ["console"]
       }
     },
     "/system-features": {
@@ -62,9 +58,7 @@
           }
         },
         "summary": "Get the non-sensitive bootstrap snapshot exposed before authentication",
-        "tags": [
-          "console"
-        ]
+        "tags": ["console"]
       }
     },
     "/system-features/license": {
@@ -84,9 +78,7 @@
           }
         },
         "summary": "Get full license detail (status, expiry, workspace/seat usage)",
-        "tags": [
-          "console"
-        ]
+        "tags": ["console"]
       }
     },
     "/workspaces/current/summary": {
@@ -107,9 +99,7 @@
             "description": "Current workspace is archived"
           }
         },
-        "tags": [
-          "console"
-        ]
+        "tags": ["console"]
       }
     }
   },
@@ -312,10 +302,7 @@
           "type": "string"
         }
       },
-      "required": [
-        "ok",
-        "token"
-      ],
+      "required": ["ok", "token"],
       "title": "LoginConfigBootstrapResponse",
       "type": "object"
     },
@@ -503,13 +490,7 @@
           }
         }
       },
-      "required": [
-        "expired_at",
-        "license_expiry_notice_enabled",
-        "seats",
-        "status",
-        "workspaces"
-      ],
+      "required": ["expired_at", "license_expiry_notice_enabled", "seats", "status", "workspaces"],
       "title": "LicenseModel",
       "type": "object"
     },
@@ -557,15 +538,7 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "admin_extend",
-        "credits",
-        "id",
-        "name",
-        "plan",
-        "role",
-        "tenant_extend"
-      ],
+      "required": ["admin_extend", "credits", "id", "name", "plan", "role", "tenant_extend"],
       "title": "CurrentWorkspaceSummaryResponse",
       "type": "object"
     },
@@ -576,9 +549,7 @@
           "default": "none"
         }
       },
-      "required": [
-        "status"
-      ],
+      "required": ["status"],
       "title": "LicenseStatusModel",
       "type": "object"
     }

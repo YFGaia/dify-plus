@@ -26,11 +26,7 @@
     ".github/workflows/docker-build.yml",
     ".gitlab-ci.yml"
   ],
-  "excluded_until_registered": [
-    "api/Dockerfile",
-    "web/Dockerfile",
-    "web/docker/entrypoint.sh"
-  ],
+  "excluded_until_registered": ["api/Dockerfile", "web/Dockerfile", "web/docker/entrypoint.sh"],
   "scope_note": "The preexisting M07 scope remains. The current 13.6 follow-up registers only .gitlab-ci.yml before implementation; no other path is added.",
   "registered_followup_paths": [
     {

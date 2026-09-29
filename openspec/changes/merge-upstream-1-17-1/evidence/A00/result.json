@@ -35,10 +35,7 @@
       "对本地实施结果进行验证",
       "在 A01 保护检查通过后创建 codex/merge-upstream-1.17.1 分支"
     ],
-    "not_authorized": [
-      "读取真实部署或业务数据",
-      "生产环境变更或发布"
-    ],
+    "not_authorized": ["读取真实部署或业务数据", "生产环境变更或发布"],
     "boundary_basis": "用户要求按源码执行图实施并明确选择指定分支；原文没有授予真实环境访问或生产操作权限。本地实施和环境/生产授权依 execution-graph.json 分别判定。"
   },
   "step_results": [

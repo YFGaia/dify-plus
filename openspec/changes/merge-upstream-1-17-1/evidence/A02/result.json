@@ -31,9 +31,7 @@
     "unique_owner_count": 91,
     "unowned_paths": [],
     "duplicate_paths": [],
-    "rename_related_not_in_same_path_overlap": [
-      "web/features/home/template-card.tsx"
-    ]
+    "rename_related_not_in_same_path_overlap": ["web/features/home/template-card.tsx"]
   },
   "hosts": {
     "count": 20,
@@ -205,9 +203,7 @@
       "summary": "chore(build): exclude .venv from docker build context",
       "changed_file_count": 1,
       "ancestry_in_original_baseline": true,
-      "paths": [
-        ".dockerignore"
-      ]
+      "paths": [".dockerignore"]
     }
   ],
   "checks": [

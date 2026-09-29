@@ -359,10 +359,7 @@
         "web/service/explore.spec.ts",
         "web/service/__tests__/use-explore.spec.tsx"
       ],
-      "dependencies": [
-        "12.2_analysis:passed",
-        "M05 11.6 generated contract:passed"
-      ],
+      "dependencies": ["12.2_analysis:passed", "M05 11.6 generated contract:passed"],
       "base_commit": "f2424be348",
       "client_thread_id": "client-new-thread:d21212b0-d4ba-41d6-9395-345a2a3602eb",
       "created_from_commit": "f2424be348",
@@ -436,9 +433,7 @@
         "api/controllers/console/app/app.py",
         "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
       ],
-      "dependencies": [
-        "12.2_analysis:passed"
-      ],
+      "dependencies": ["12.2_analysis:passed"],
       "contract_change": false,
       "downstream_impact": "M04/M05 schema evidence remains valid; the existing generated optional string[] field is unchanged. M06 12.2c is unblocked.",
       "agent": "/root/m03_9_6_sync_status",
@@ -449,9 +444,7 @@
           "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
           "exit_code": 0,
           "passed": 29,
-          "warnings": [
-            "1 pre-existing cgi deprecation warning"
-          ]
+          "warnings": ["1 pre-existing cgi deprecation warning"]
         },
         "ruff_format_check_exit_code": 0,
         "ruff_check_exit_code": 0,
@@ -470,9 +463,7 @@
         "web/app/components/apps/__tests__/app-card.spec.tsx",
         "web/app/components/apps/__tests__/list.spec.tsx"
       ],
-      "dependencies": [
-        "9.6_recommended_apps_page_status:passed"
-      ],
+      "dependencies": ["9.6_recommended_apps_page_status:passed"],
       "dependency_evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status",
       "client_thread_id": "client-new-thread:0ceed222-0cfe-483a-a7b1-b61587486cf7",
       "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
@@ -577,9 +568,7 @@
       "status": "passed_after_follow_up",
       "owner": "M06",
       "model": "gpt-6-astra",
-      "dependencies": [
-        "12.5_analysis:passed"
-      ],
+      "dependencies": ["12.5_analysis:passed"],
       "registered_paths": [
         "web/i18n/ar-TN/extend.json",
         "web/i18n/de-DE/extend.json",
@@ -636,10 +625,7 @@
           {
             "priority": "P3",
             "locale": "id-ID",
-            "keys": [
-              "systemManage.quota.action.edit",
-              "systemManage.quota.editDialog.title"
-            ],
+            "keys": ["systemManage.quota.action.edit", "systemManage.quota.editDialog.title"],
             "issue": "English Edit remains in values",
             "recommendation": "Use natural Indonesian Ubah, e.g. Ubah Kuota / Ubah kuota untuk {{name}}"
           }
@@ -653,9 +639,7 @@
       "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
-      "dependencies": [
-        "12.5_analysis:passed"
-      ],
+      "dependencies": ["12.5_analysis:passed"],
       "registered_paths": [
         "web/i18n/ja-JP/extend.json",
         "web/i18n/ko-KR/extend.json",
@@ -701,9 +685,7 @@
       "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
-      "dependencies": [
-        "12.5_analysis:passed"
-      ],
+      "dependencies": ["12.5_analysis:passed"],
       "registered_paths": [
         "web/i18n/sl-SI/extend.json",
         "web/i18n/th-TH/extend.json",
@@ -747,9 +729,7 @@
       "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
-      "dependencies": [
-        "12.3:passed"
-      ],
+      "dependencies": ["12.3:passed"],
       "registered_paths": [
         "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
       ],
@@ -880,10 +860,7 @@
       "status": "passed",
       "model": "gpt-6-astra",
       "agent": "/root/m06_12_5_language_corrections",
-      "registered_paths": [
-        "web/i18n/id-ID/extend.json",
-        "web/i18n/pl-PL/extend.json"
-      ],
+      "registered_paths": ["web/i18n/id-ID/extend.json", "web/i18n/pl-PL/extend.json"],
       "source_commits": {
         "id-ID": "0b360565b4c733660225faecfd337538a0d635c3",
         "pl-PL": "84805a93186032f84245c01bdbc3ec620c325d63"
@@ -1009,9 +986,7 @@
       },
       "followup_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
       "review_status": "passed",
-      "followup_commits": [
-        "4526fd02f2039f568ea605012329f4da2a1bc514"
-      ]
+      "followup_commits": ["4526fd02f2039f568ea605012329f4da2a1bc514"]
     },
     "12.4_implementation": {
       "status": "passed",
@@ -1049,10 +1024,7 @@
     "12.6_analysis": {
       "status": "gaps_found_followups_registered",
       "model": "gpt-6-sol",
-      "reviewers": [
-        "/root/m06_12_6_sol_acceptance_gap",
-        "/root/m06_12_6_user_overview_intent"
-      ],
+      "reviewers": ["/root/m06_12_6_sol_acceptance_gap", "/root/m06_12_6_user_overview_intent"],
       "review_target_commit": "e40296f41ec507c267c7ef624ba8b27d749fa4dc",
       "findings": [
         "MainNav lost the explicitly planned fork app-center entry; restore it as a distinct route and preserve upstream Home at /.",
@@ -1161,10 +1133,7 @@
         "implementation_paths_equal_exit_code": 0,
         "runtime": "Python 3.12 existing environment; uv --no-sync; uv cache and venv redirected to /private/tmp; no dependency sync/install"
       },
-      "evidence": [
-        "evidence/M06/12.6d-verification.md",
-        "evidence/M06/12.6d-review.md"
-      ],
+      "evidence": ["evidence/M06/12.6d-verification.md", "evidence/M06/12.6d-review.md"],
       "verification_status": "passed",
       "review_status": "passed_no_p1_p2_p3"
     },
@@ -1303,9 +1272,7 @@
       "status": "passed",
       "model": "gpt-6-astra",
       "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
-      "registered_paths": [
-        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx"
-      ],
+      "registered_paths": ["web/app/components/api-key/__tests__/api-key-modal.spec.tsx"],
       "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
       "superseded_duplicate_client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae",
       "implementation_commit": "a602bb8a585b348df2626f21c68c644814ce5367",
@@ -1440,9 +1407,7 @@
         "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
         "evidence/M06/12.6f-logstore-index-verification.md"
       ],
-      "dependencies": [
-        "12.6e_review_followup:passed"
-      ],
+      "dependencies": ["12.6e_review_followup:passed"],
       "scope": "Register trusted workflow-run from_account_id as a Logstore index field for SQL aggregation queries, and verify create/reconcile while preserving custom indexes.",
       "implementation_tests": "3 initial tests passed; strict existing-key doc_value/type follow-up is open",
       "implementation_static_checks": "Ruff check/format and diff-check passed",
@@ -1584,9 +1549,7 @@
       "owner": "M06",
       "model": "gpt-6-astra",
       "base_commit": "d2fbe18cd1a621d4704fd29c73fa4c294aa1d770",
-      "registered_paths": [
-        "evidence/M06/12.6j-dependency-recovery.md"
-      ],
+      "registered_paths": ["evidence/M06/12.6j-dependency-recovery.md"],
       "scope": "Restore ignored node_modules with exact Node 24.20.0/pnpm 12.3.4 and frozen existing lockfiles; do not modify manifests/locks, other checkouts or create worktrees. Runtime tests remain separate subtasks.",
       "dependencies": [],
       "analysis_agent": "/root/frontend_dependency_diagnosis",
@@ -1682,9 +1645,7 @@
       "model": "gpt-6-luna",
       "agent": "/root/m06_final_aggregate",
       "read_only_source": true,
-      "registered_paths": [
-        "evidence/M06/12.6-final-aggregate.md"
-      ],
+      "registered_paths": ["evidence/M06/12.6-final-aggregate.md"],
       "scope": "One bounded integrated frontend regression, 24-locale extend checker and existing generated-schema verification; no full builds, backend reruns, code edits or dispatch.",
       "verification": "16 files / 399 tests passed; 24-locale extend, six-endpoint contract parsing, OpenSpec strict and diff-check passed",
       "snapshot_commit": "c474b9c42bfc46325540a8a27c4de28b6a538eee",

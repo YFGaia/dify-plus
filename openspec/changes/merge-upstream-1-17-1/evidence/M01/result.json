@@ -467,10 +467,7 @@
       "api": "~=3.12.0",
       "lock": "==3.12.*"
     },
-    "fork_added_declarations": [
-      "alibabacloud_dingtalk>=2.1.99",
-      "pypinyin~=0.53.0"
-    ],
+    "fork_added_declarations": ["alibabacloud_dingtalk>=2.1.99", "pypinyin~=0.53.0"],
     "provider_count": 38,
     "providers": [
       {
@@ -803,11 +800,7 @@
     {
       "owner": "M08",
       "kind": "conditional_final_write_ownership",
-      "paths": [
-        "pnpm-lock.yaml",
-        "api/uv.lock",
-        "packages/contracts/generated/**"
-      ],
+      "paths": ["pnpm-lock.yaml", "api/uv.lock", "packages/contracts/generated/**"],
       "action": "After all M02–M07 prerequisites pass, serialize final lock generation from final manifests and regenerate contracts. M01 initial lock now passed; final refresh remains M08."
     },
     {
@@ -825,11 +818,7 @@
     {
       "owner": "M07",
       "kind": "version_field_review",
-      "paths": [
-        ".github/workflows/autofix.yml",
-        "api/Dockerfile",
-        "web/Dockerfile"
-      ],
+      "paths": [".github/workflows/autofix.yml", "api/Dockerfile", "web/Dockerfile"],
       "action": "Docker Node24.20.0/Python3.12 already match. Review autofix setup-python3.11 bootstrap versus uv project3.12 selection; retain ownership of Docker/CI fields, including uv0.8.9 image pin. M01 changed no M07 files. M07 is ready after this M01 retry; implementation is outside this task."
     }
   ],
@@ -1245,20 +1234,8 @@
   "downstream_status_propagation": {
     "explicit_main_agent_instruction": true,
     "from": "blocked",
-    "ready": [
-      "M02",
-      "M07"
-    ],
-    "pending": [
-      "M03",
-      "M04",
-      "M05",
-      "M06",
-      "M08",
-      "V01",
-      "V02",
-      "R01"
-    ],
+    "ready": ["M02", "M07"],
+    "pending": ["M03", "M04", "M05", "M06", "M08", "V01", "V02", "R01"],
     "scope": "Only M01 source-chain blockers removed; all other nodes and authorizations unchanged."
   },
   "validation_summary": {
@@ -1330,18 +1307,7 @@
     "verification": {
       "result": "passed",
       "graph_node_count": 27,
-      "propagated_blocked": [
-        "M02",
-        "M03",
-        "M04",
-        "M05",
-        "M06",
-        "M07",
-        "M08",
-        "V01",
-        "V02",
-        "R01"
-      ],
+      "propagated_blocked": ["M02", "M03", "M04", "M05", "M06", "M07", "M08", "V01", "V02", "R01"],
       "M00_ancestry_and_conflict_origins": true,
       "other_node_states_and_all_authorizations_unchanged": true,
       "locks_unchanged": true,
@@ -1358,18 +1324,7 @@
       "explicit_main_agent_instruction": true,
       "from": "pending",
       "to": "blocked",
-      "nodes": [
-        "M02",
-        "M03",
-        "M04",
-        "M05",
-        "M06",
-        "M07",
-        "M08",
-        "V01",
-        "V02",
-        "R01"
-      ],
+      "nodes": ["M02", "M03", "M04", "M05", "M06", "M07", "M08", "V01", "V02", "R01"],
       "scope": "Only specified source-chain descendants; A03/environment/production statuses unchanged."
     }
   },
@@ -1695,20 +1650,8 @@
   "verification": {
     "result": "passed",
     "graph_node_count": 27,
-    "ready": [
-      "M02",
-      "M07"
-    ],
-    "pending": [
-      "M03",
-      "M04",
-      "M05",
-      "M06",
-      "M08",
-      "V01",
-      "V02",
-      "R01"
-    ],
+    "ready": ["M02", "M07"],
+    "pending": ["M03", "M04", "M05", "M06", "M08", "V01", "V02", "R01"],
     "other_node_states_and_all_authorizations_unchanged": true,
     "M00_ancestry_verified": true,
     "pnpm_lock": "578 added lines; zero removals; generated only",

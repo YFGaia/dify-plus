@@ -15,39 +15,24 @@
   "steps": {
     "10.1": {
       "implementation_complete": true,
-      "evidence": [
-        "handoff.md",
-        "callers.json"
-      ]
+      "evidence": ["handoff.md", "callers.json"]
     },
     "10.2": {
       "implementation_complete": true,
-      "evidence": [
-        "focused-tests.log",
-        "verified-inputs.json"
-      ]
+      "evidence": ["focused-tests.log", "verified-inputs.json"]
     },
     "10.3": {
       "implementation_complete": true,
-      "evidence": [
-        "static-scope.json",
-        "schema-assertions.json",
-        "focused-tests.log"
-      ]
+      "evidence": ["static-scope.json", "schema-assertions.json", "focused-tests.log"]
     },
     "10.4": {
       "implementation_complete": true,
-      "evidence": [
-        "handoff.md",
-        "focused-tests.log"
-      ]
+      "evidence": ["handoff.md", "focused-tests.log"]
     },
     "10.5": {
       "status": "passed",
       "tested_head": "615efae14dcff1d02ea51d5c4b61e403df76ec5b",
-      "evidence": [
-        "independent-review.json"
-      ]
+      "evidence": ["independent-review.json"]
     }
   },
   "verification": {

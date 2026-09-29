@@ -28,16 +28,16 @@
 
 共同契约节点 A04 固定下列决定：
 
-| 契约 | 本轮确定的行为 | 目标挂点 |
-|---|---|---|
-| 登录配置 | 保留 bootstrap JWT、IP 绑定与 Header/Cookie 兼容；预登录只交付允许公开的 fork 配置，完整 license 受登录保护 | 新 Console browser/server transport、contract-loader、accounts admission |
-| system-features | 采用上游公开快照语义，与 fork 双阶段配置合成；不把旧 `{ping:true}` 当完整配置，不通过兼容回退泄露 license | `packages/contracts/console.ts`、`web/features/system-features/*`、后端 feature service |
-| WebApp | built-in `NULL/true` 需 Console 登录，false 允许匿名；缺失/非法 app_code 和配置读取失败拒绝匿名放行；环境 WebApp 遵循上游 environment passport | AppSiteService、WebPassportService、新 access-point 卡片、address/auth 服务 |
-| Site 写入 | fork 字段从上游 payload 转换隔离；站点和扩展配置一致提交、成功后失效缓存；失败不出现 UI 假成功 | 新 service/repository 事务；禁止额外字段误入上游 Changes 类型 |
-| Workspace | `admin_extend/tenant_extend` 在新 summary 契约与实际响应共同提供；现有角色权限保持 | summary normalizer 与 workspace API；模板同步状态从实际列表契约取值 |
-| API Key | 保留现有 app key 额度；dataset scope 保留上游绑定、租户隔离和遮罩，已有可用额度能力才显示；environment 未有 fork 计费契约时隐藏/禁用额度输入 | 新统一 api-key modal/table、后端 RBAC 与额度联表；无绑定 dataset key 保持租户全库语义 |
-| 账号建档 | 每个实际新账号同事务创建一次额度记录，已有账号不重置；覆盖 setup/邮箱/OAuth/邀请 | 共用账号创建边界，旧入口消除重复写入 |
-| 匿名计费 | 以当前 fork 行为作回归对照，显式记录已知付款人/限额缺口，另立修复；不擅自选择应用 owner 作为付款人 | 风险台账与未来独立 change |
+| 契约            | 本轮确定的行为                                                                                                                                 | 目标挂点                                                                                |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| 登录配置        | 保留 bootstrap JWT、IP 绑定与 Header/Cookie 兼容；预登录只交付允许公开的 fork 配置，完整 license 受登录保护                                    | 新 Console browser/server transport、contract-loader、accounts admission                |
+| system-features | 采用上游公开快照语义，与 fork 双阶段配置合成；不把旧 `{ping:true}` 当完整配置，不通过兼容回退泄露 license                                      | `packages/contracts/console.ts`、`web/features/system-features/*`、后端 feature service |
+| WebApp          | built-in `NULL/true` 需 Console 登录，false 允许匿名；缺失/非法 app_code 和配置读取失败拒绝匿名放行；环境 WebApp 遵循上游 environment passport | AppSiteService、WebPassportService、新 access-point 卡片、address/auth 服务             |
+| Site 写入       | fork 字段从上游 payload 转换隔离；站点和扩展配置一致提交、成功后失效缓存；失败不出现 UI 假成功                                                 | 新 service/repository 事务；禁止额外字段误入上游 Changes 类型                           |
+| Workspace       | `admin_extend/tenant_extend` 在新 summary 契约与实际响应共同提供；现有角色权限保持                                                             | summary normalizer 与 workspace API；模板同步状态从实际列表契约取值                     |
+| API Key         | 保留现有 app key 额度；dataset scope 保留上游绑定、租户隔离和遮罩，已有可用额度能力才显示；environment 未有 fork 计费契约时隐藏/禁用额度输入   | 新统一 api-key modal/table、后端 RBAC 与额度联表；无绑定 dataset key 保持租户全库语义   |
+| 账号建档        | 每个实际新账号同事务创建一次额度记录，已有账号不重置；覆盖 setup/邮箱/OAuth/邀请                                                               | 共用账号创建边界，旧入口消除重复写入                                                    |
+| 匿名计费        | 以当前 fork 行为作回归对照，显式记录已知付款人/限额缺口，另立修复；不擅自选择应用 owner 作为付款人                                             | 风险台账与未来独立 change                                                               |
 
 重建已删除旧 controller、旧 Console client 或旧卡片会形成双源并绕过上游账户锁/权限，因此采用新宿主承接 fork 行为。实现阶段如新证据要求改变上述行为，应先修改契约与受影响图节点。
 
@@ -67,17 +67,17 @@ Agent runtime/drive 表删除、JSON 删除、preset outputs 清理和模型凭�
 
 ## Risks / Trade-offs
 
-| 风险 | 控制和阻断点 |
-|---|---|
-| 91 个文本冲突掩盖自动合并断链 | M08 按十挂点与新宿主做语义复核，V05 用真实业务验证 |
-| 大规模工具链变化拉长排障 | M01 先锁定工具链；重型检查共用 heavy_compute 锁，先定向后全量 |
-| 新注册无额度、OAuth 失效 | A04 共同契约、M03 同事务初始化、V01/V05 多入口对账 |
-| WebApp 公开行为、旧清单强制登录冲突 | 更新矩阵，保留四个 tag 后提交；匿名计费债务单列 |
-| Agent 旧数据迁移没有完整回填 | V03 记录丢失范围并取得业务数据处置决定；不能只看 migration exit code |
-| 模型归一删凭据/邮箱别名碰撞 | V03 在副本列冲突组与选中结果；异常先阻断，再确定处置 |
-| 升级时间、真实版本未知 | A03/R02 填环境参数和演练耗时，超窗口不放行 D00 |
-| 快照恢复会丢切换后写入 | D01 设静止点，D04 观察窗口与 RPO；V06 证明整套恢复 |
-| P4/P6 并发改同宿主 | 暂停共享文件实施，先完成本轮，再重新规划 P4/P6 |
+| 风险                                | 控制和阻断点                                                         |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| 91 个文本冲突掩盖自动合并断链       | M08 按十挂点与新宿主做语义复核，V05 用真实业务验证                   |
+| 大规模工具链变化拉长排障            | M01 先锁定工具链；重型检查共用 heavy_compute 锁，先定向后全量        |
+| 新注册无额度、OAuth 失效            | A04 共同契约、M03 同事务初始化、V01/V05 多入口对账                   |
+| WebApp 公开行为、旧清单强制登录冲突 | 更新矩阵，保留四个 tag 后提交；匿名计费债务单列                      |
+| Agent 旧数据迁移没有完整回填        | V03 记录丢失范围并取得业务数据处置决定；不能只看 migration exit code |
+| 模型归一删凭据/邮箱别名碰撞         | V03 在副本列冲突组与选中结果；异常先阻断，再确定处置                 |
+| 升级时间、真实版本未知              | A03/R02 填环境参数和演练耗时，超窗口不放行 D00                       |
+| 快照恢复会丢切换后写入              | D01 设静止点，D04 观察窗口与 RPO；V06 证明整套恢复                   |
+| P4/P6 并发改同宿主                  | 暂停共享文件实施，先完成本轮，再重新规划 P4/P6                       |
 
 ## Migration Plan
 

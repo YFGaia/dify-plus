@@ -46,13 +46,8 @@
       }
     ],
     "worktree_examples_from_checker_output": {
-      "tracked_modified": [
-        "openspec/changes/merge-upstream-1-17-1/execution-graph.json"
-      ],
-      "untracked": [
-        ".claude/commands/opsx/apply.md",
-        ".tmp/phase5/lock-upstream.yaml"
-      ]
+      "tracked_modified": ["openspec/changes/merge-upstream-1-17-1/execution-graph.json"],
+      "untracked": [".claude/commands/opsx/apply.md", ".tmp/phase5/lock-upstream.yaml"]
     }
   },
   "reused_m08": [

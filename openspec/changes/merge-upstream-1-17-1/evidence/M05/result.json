@@ -171,10 +171,7 @@
       "model": "gpt-6-astra",
       "agent": "/root/m05_11_3_workspace_atoms",
       "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
-      "registered_scope_commits": [
-        "396f8aff2add33879b44de1f01eed8a4bfd689fe",
-        "cc0eb704da"
-      ],
+      "registered_scope_commits": ["396f8aff2add33879b44de1f01eed8a4bfd689fe", "cc0eb704da"],
       "changed_paths": [
         "web/context/app-context-defaults.ts",
         "web/context/app-context-extend.ts",
@@ -430,14 +427,7 @@
   "codegen_investigation": "evidence/M05/codegen-investigation.json",
   "codegen_analysis": "evidence/M05/codegen-analysis.md",
   "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
-  "tasks_complete": [
-    "11.1",
-    "11.2",
-    "11.3",
-    "11.4",
-    "11.5",
-    "11.6"
-  ],
+  "tasks_complete": ["11.1", "11.2", "11.3", "11.4", "11.5", "11.6"],
   "next_subtask": "complete",
   "followup_context_contract": {
     "status": "passed",

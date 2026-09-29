@@ -165,7 +165,11 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 - [x] 14.7 [M08/Luna] 对 14.6 格式化后的精确 spec 哈希 `93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120` 独立复核，只重跑该 Chromium 文件并核实 2/2；写 `evidence/M08/14.7-luna-verification.md`。
 
-- [ ] 14.8 [M08] 基于 M05 follow-up 与 14.6/14.7 完成状态，按显式路径提交 M05/M08 修复为新候选；在新候选复验结构（M00–M07 祖先、91 路径、10 个挂点、额度边界、无冲突/旧 wrapper），并记录候选 SHA/tree。V02 必须绑定新候选重跑。
+- [x] 14.8 [M08] 基于 M05 follow-up 与 14.6/14.7 完成状态，按显式路径提交 M05/M08 修复为新候选；在新候选复验结构（M00–M07 祖先、91 路径、10 个挂点、额度边界、无冲突/旧 wrapper），并记录候选 SHA/tree。V02 必须绑定新候选重跑。
+
+- [x] 14.9 [M08/Astra+协调者] 根据 V02/16.6 已归档的 63 条精确格式路径（结果 JSON SHA-256 `09eef2b100176239cabf35820d99075d015bef93d1a65a0edde4b310f36b82f5`）运行仓库格式器；Astra 仅改 `.github/workflows/deploy-rag-dev.yml` 与两个 `packages/dify-ui/src/dialog` 路径，协调者负责其余 60 条及当前图/tasks/V01、16.5/16.6、14.8 证据。证明 JSON/YAML 数据和 Markdown 文义不变、源码差异仅格式；精确路径格式检查与 diff-check 通过。不得跑其他门禁、改功能/测试语义、安装、暂存或提交；完成后冻结新候选并重新做结构验收。 结果：通过，检查 68 条精确路径；报告 `evidence/M08/14.9-v02-formatter-debt-remediation.md`，逐文件哈希见 `evidence/M08/14.9-v02-formatter-path-manifest.json`。
+
+- [ ] 14.10 [M08/协调者] 按执行图注册的 73 条精确暂存清单冻结新候选；先证明暂存路径集合完全匹配 allowlist，再单独提交，排除所有用户未跟踪目录。提交后核验 M00/M01–M07 祖先、91 路径映射、无冲突/旧 wrapper、10 个计费/OAuth 挂点、个人额度与 API Key 日/月限制；比较 API 子树哈希，若与 V01 相同则复用 160/160。记录精确 candidate/tree 与结构报告，V02 必须绑定新候选。
 
 ## 15. V01 后端静态与定向回归（前置：M08）
 
@@ -180,6 +184,10 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [ ] 16.2 [V02] 执行 frozen 安装、check/tss/i18n、unit/browser 和双构建；核验：在 `evidence/V02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 16.3 [V02] 新增场景必须实际进入新宿主，不能仅保留无人调用旧组件用例；核验：在 `evidence/V02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 16.4 [V02] 节点验收：Node/pnpm 与锁文件一致，检查与双构建成功；定向认证与角色矩阵通过；24份extend可加载；保存绑定版本的证据并更新节点状态。
+
+- [ ] 16.5 [V02/Luna] 在 `/private/tmp` 使用 `git archive` 建立仅含候选跟踪文件的临时源码快照，复用已安装依赖 symlink；锁与 Node/pnpm 哈希不变则引用首次 frozen-lock 结果。逐项跑全局 check、tss/i18n、unit、双构建；浏览器范围唯一 spec 复用 M08/14.7 精确哈希 2/2，不重复执行。首次失败即停，证据写到 `evidence/V02/16.5-final-candidate-result.json` 与日志。
+
+- [ ] 16.6 [V02/Luna] 针对 16.5 在 pnpm 自动依赖验证生命周期内未能启动 `vp check` 的环境阻塞，新建候选 `97f94625d2d51fe1780f69aaecce5a56d3073db4` 的干净源码快照；固定 Node/pnpm 与锁哈希，使用 `pnpm --config.verify-deps-before-run=false check` 且不安装/同步依赖。若通过，继续 tss/i18n、登记的 unit 和双构建；首个失败即停，复用 M08/14.7 精确哈希浏览器结果。只写 `evidence/V02/16.6-final-candidate-result.json` 与日志，不改源码/测试、图或 tasks，不暂存/提交。 结果：首个 `vp check` 门禁执行成功启动，但 63 条 formatter 路径失败（15 条相对首父提交变更，48 条基线不变）；未运行后续 V02 门禁，证据见 `evidence/V02/16.6-final-candidate-result.json` 与日志。
 
 ## 17. R01 源码合并候选验收（前置：V01, V02）
 

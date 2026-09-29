@@ -14,16 +14,16 @@ M07 可在本地完成配置和 CI 对齐，但不等于镜像已供货、旧库
 
 ## 部署契约审查
 
-| 区域 | 已确认的实施依据 | 保留或验收边界 |
-|---|---|---|
-| 镜像与工作进程 | 当前 Compose 使用 fork 私有 API 镜像，并有 `worker-gaia`、`worker-dataset` 与 `sandbox-full` | 目标 API/Web 镜像必须从 fork 构建并保持同一发布版本；私有镜像供应和 digest 尚未验证 |
-| Agent 认证 | 1.17.1 在 API 与 Agent backend 两侧使用匹配的 API token；当前 Compose 沿用旧 shellctl token 配置 | 增加新变量时不记录真实密钥；样例密钥应留空或明确是占位；后续须验证两端相同且 Agent 关闭开关仍可启动 |
-| Agent 网络和文件 | 上游新增隔离网络、专用 SSRF proxy、local sandbox home/workspace 卷，以及 `/files` 和 agent-stub 代理规则 | 逐项对齐 Compose、Squid 模板和 env 样例；不扩大通用私网白名单，也不声称 sandbox 完全隔离 |
-| Agent 策略 | fork Compose retention 为 259200 秒，两个 env 样例当前有 Agent v2 开关开启 | 保留 fork retention 与 Agent v2 关闭策略；使 Compose 与样例一致，不让容器存在被误解为功能已启用 |
-| Plugin daemon | fork 使用私有 `0.6.3-local` 镜像并挂载持久存储；上游声明更新到 `0.6.10-local` | 不假设私有新镜像已发布；保留持久卷并补齐目标版本需要的网络、队列和配置 |
-| Web/Ingress | fork 已有内部 Console API 地址、Socket.IO 路由；Web Dockerfile 已包含 Node 24.20.0 和 Next/Vinext 构建路径 | 保留登录回跳、fork 管理路由和 websocket；只移植有依据的 nginx/env 变化，不机械重写已对齐的 Dockerfile |
-| 其他环境 | fork Weaviate 声明为 1.19.0；1.17.1 上游声明 1.39.2；fork 客户端和数据迁移不能由 tag 修改代替 | M07 不宣称完成向量库升级；真实版本、数据路径、逐站副本演练留给 A03/V04 |
-| CI 与供货 | fork 的 `build-push.yml` 和 `docker-build.yml` 均以 `push: false` 执行构建验证 | 将 CI build validate 与私有镜像发布分开记账；不以绿色 build 证明镜像可拉取 |
+| 区域             | 已确认的实施依据                                                                                           | 保留或验收边界                                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 镜像与工作进程   | 当前 Compose 使用 fork 私有 API 镜像，并有 `worker-gaia`、`worker-dataset` 与 `sandbox-full`               | 目标 API/Web 镜像必须从 fork 构建并保持同一发布版本；私有镜像供应和 digest 尚未验证                   |
+| Agent 认证       | 1.17.1 在 API 与 Agent backend 两侧使用匹配的 API token；当前 Compose 沿用旧 shellctl token 配置           | 增加新变量时不记录真实密钥；样例密钥应留空或明确是占位；后续须验证两端相同且 Agent 关闭开关仍可启动   |
+| Agent 网络和文件 | 上游新增隔离网络、专用 SSRF proxy、local sandbox home/workspace 卷，以及 `/files` 和 agent-stub 代理规则   | 逐项对齐 Compose、Squid 模板和 env 样例；不扩大通用私网白名单，也不声称 sandbox 完全隔离              |
+| Agent 策略       | fork Compose retention 为 259200 秒，两个 env 样例当前有 Agent v2 开关开启                                 | 保留 fork retention 与 Agent v2 关闭策略；使 Compose 与样例一致，不让容器存在被误解为功能已启用       |
+| Plugin daemon    | fork 使用私有 `0.6.3-local` 镜像并挂载持久存储；上游声明更新到 `0.6.10-local`                              | 不假设私有新镜像已发布；保留持久卷并补齐目标版本需要的网络、队列和配置                                |
+| Web/Ingress      | fork 已有内部 Console API 地址、Socket.IO 路由；Web Dockerfile 已包含 Node 24.20.0 和 Next/Vinext 构建路径 | 保留登录回跳、fork 管理路由和 websocket；只移植有依据的 nginx/env 变化，不机械重写已对齐的 Dockerfile |
+| 其他环境         | fork Weaviate 声明为 1.19.0；1.17.1 上游声明 1.39.2；fork 客户端和数据迁移不能由 tag 修改代替              | M07 不宣称完成向量库升级；真实版本、数据路径、逐站副本演练留给 A03/V04                                |
+| CI 与供货        | fork 的 `build-push.yml` 和 `docker-build.yml` 均以 `push: false` 执行构建验证                             | 将 CI build validate 与私有镜像发布分开记账；不以绿色 build 证明镜像可拉取                            |
 
 ## 实施路径登记
 

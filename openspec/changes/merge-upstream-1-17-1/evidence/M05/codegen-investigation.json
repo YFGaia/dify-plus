@@ -20,10 +20,7 @@
     "main_checkout_generated_files_copied": false
   },
   "new_console_segments_reported": {
-    "dingTalk": [
-      "GET /ding-talk/login",
-      "GET /ding-talk/third-party/login"
-    ],
+    "dingTalk": ["GET /ding-talk/login", "GET /ding-talk/third-party/login"],
     "extend": [
       "DELETE /extend/{path}",
       "GET /extend/{path}",
@@ -31,19 +28,10 @@
       "POST /extend/{path}",
       "PUT /extend/{path}"
     ],
-    "installed": [
-      "GET /installed/apps"
-    ],
-    "loginConfig": [
-      "GET /login_config"
-    ],
-    "loginConfigBootstrap": [
-      "GET /login_config_bootstrap"
-    ],
-    "message": [
-      "DELETE /message/context",
-      "GET /message/context"
-    ],
+    "installed": ["GET /installed/apps"],
+    "loginConfig": ["GET /login_config"],
+    "loginConfigBootstrap": ["GET /login_config_bootstrap"],
+    "message": ["DELETE /message/context", "GET /message/context"],
     "systemManageExtend": [
       "GET /system-manage-extend/code-execution-control",
       "POST /system-manage-extend/code-execution-control",
@@ -128,11 +116,7 @@
     "baseline_generation_failure_proven": false,
     "system_manage_duplicate_owner": {
       "confirmed": true,
-      "overlapping_methods": [
-        "GET",
-        "POST",
-        "DELETE"
-      ],
+      "overlapping_methods": ["GET", "POST", "DELETE"],
       "manual_segment": "systemManage",
       "generated_segment": "systemManageExtend",
       "post_status_mismatch": "actual 201; Swagger currently says 200",
