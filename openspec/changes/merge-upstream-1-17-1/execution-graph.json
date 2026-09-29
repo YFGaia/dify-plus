@@ -1147,7 +1147,7 @@
         ],
         "current_subtask": {
           "id": "12.6e_workflow_account_ownership_persistence",
-          "status": "ready",
+          "status": "implementation_in_progress",
           "owner": "M02",
           "model": "gpt-6-astra",
           "branch_head": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
@@ -1179,7 +1179,8 @@
           "analysis_evidence": "evidence/M06/12.6e-analysis.md",
           "migration_revision": "ec4aa03225de",
           "migration_down_revision": "c3f1a9b2e6d4",
-          "implementation_gate": "Use only the registered paths; migration HEAD, actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation are acceptance gates."
+          "implementation_gate": "Use only the registered paths; migration HEAD, actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation are acceptance gates.",
+          "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f"
         },
         "next_subtask": "12.6e_workflow_account_ownership_persistence",
         "parallel_subtasks": [
@@ -1786,7 +1787,7 @@
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "ready",
+            "status": "implementation_in_progress",
             "owner": "M02/M03",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1893,7 +1894,17 @@
               "scoped_check_exit_code": 1,
               "scoped_check_error": "MODULE_NOT_FOUND: node_modules/vite-plus/bin/vp",
               "diff_check_exit_code": 0,
-              "test_sha256": "5b6dbe75aba281d32070cf9db3d10eeccb955eef94224dc36dcc1d3aae41c79c"
+              "test_sha256": "5b6dbe75aba281d32070cf9db3d10eeccb955eef94224dc36dcc1d3aae41c79c",
+              "independent_retry": {
+                "status": "blocked_dependency_missing",
+                "test_exit_code": 1,
+                "tests_collected": 0,
+                "test_error": "Existing /private/tmp/m06-12.2c-verify copy has dangling web/node_modules/vitest symlink into removed worktree",
+                "scoped_check_exit_code": 1,
+                "scoped_check_error": "Vite Plus executable unavailable",
+                "dependency_copy_hashes_unchanged": true,
+                "dependency_install_performed": false
+              }
             },
             "superseded_duplicate_provisioning": {
               "status": "superseded_duplicate_worktree_attempt",
