@@ -1,5 +1,6 @@
 import type { App } from '@/types/app'
 import { act, screen, waitFor } from '@testing-library/react'
+import { useEffect } from 'react'
 import { useStore } from '@/app/components/app/store'
 import { fetchAppDetailDirect } from '@/service/apps'
 import { renderWithConsoleQuery } from '@/test/console/query-data'
@@ -357,6 +358,78 @@ describe('AppDetailLayout', () => {
     })
     expect(screen.queryByText('App page content')).not.toBeInTheDocument()
     expect(useStore.getState().appDetail).toBeUndefined()
+  })
+
+  describe('Personal overview admission', () => {
+    const mounted = vi.fn()
+    const Child = () => {
+      useEffect(() => {
+        mounted()
+      }, [])
+      return <div>Personal charts</div>
+    }
+    const content = (appId = 'app-1') => (
+      <AppDetailLayout appId={appId}>
+        <Child />
+      </AppDetailLayout>
+    )
+
+    it.each([false, true])(
+      'blocks denied monitor permission before children mount (cached: %s)',
+      async (cached) => {
+        mockPathname = '/app/app-1/user_overview_extend'
+        const detail = createAppDetail({ permission_keys: [AppACLPermission.ViewLayout] })
+        if (cached) useStore.getState().setAppDetail(detail)
+        else mockFetchAppDetailDirect.mockResolvedValue(detail)
+        render(content())
+        await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/app/app-1/workflow'))
+        expect(mounted).not.toHaveBeenCalled()
+        expect(screen.queryByText('Personal charts')).not.toBeInTheDocument()
+      },
+    )
+
+    it.each(['workspace', 'permissions'])(
+      'waits for %s loading even with cached app detail',
+      async (loading) => {
+        mockPathname = '/app/app-1/user_overview_extend'
+        useStore.getState().setAppDetail(createAppDetail())
+        mockConsoleState.isLoadingCurrentWorkspace = loading === 'workspace'
+        mockConsoleState.isLoadingWorkspacePermissionKeys = loading === 'permissions'
+        const { rerender } = render(content())
+        expect(mounted).not.toHaveBeenCalled()
+        expect(mockReplace).not.toHaveBeenCalled()
+        mockConsoleState.isLoadingCurrentWorkspace = false
+        mockConsoleState.isLoadingWorkspacePermissionKeys = false
+        rerender(content())
+        await screen.findByText('Personal charts')
+        expect(mockReplace).not.toHaveBeenCalled()
+      },
+    )
+
+    it('removes children immediately when monitor permission is revoked', async () => {
+      mockPathname = '/app/app-1/user_overview_extend'
+      useStore.getState().setAppDetail(createAppDetail())
+      render(content())
+      await screen.findByText('Personal charts')
+      act(() =>
+        useStore
+          .getState()
+          .setAppDetail(createAppDetail({ permission_keys: [AppACLPermission.ViewLayout] })),
+      )
+      expect(screen.queryByText('Personal charts')).not.toBeInTheDocument()
+      await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/app/app-1/workflow'))
+    })
+
+    it('does not mount children for another app using cached monitor permission', async () => {
+      mockPathname = '/app/app-2/user_overview_extend'
+      useStore.getState().setAppDetail(createAppDetail())
+      mockFetchAppDetailDirect.mockResolvedValue(
+        createAppDetail({ id: 'app-2', permission_keys: [AppACLPermission.ViewLayout] }),
+      )
+      render(content('app-2'))
+      await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/app/app-2/workflow'))
+      expect(mounted).not.toHaveBeenCalled()
+    })
   })
 
   it('should redirect overview pages when monitor access is missing', async () => {

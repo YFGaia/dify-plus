@@ -25,8 +25,8 @@ import {
 export type PeriodParams = {
   name: string
   query?: {
-    start: string
-    end: string
+    start?: string
+    end?: string
     /** Extend: 个人用量总览（user_overview_extend）按当前账号过滤 */
     account?: boolean
   }
@@ -213,7 +213,8 @@ const createBizChartComponent = <TData extends ChartResponse>({
       : undefined
     const fallbackData = {
       data: getDefaultChartData({
-        ...(period.query ?? defaultPeriod),
+        start: period.query?.start ?? defaultPeriod.start,
+        end: period.query?.end ?? defaultPeriod.end,
         ...(fallbackKey ? { key: fallbackKey } : {}),
       }),
     }

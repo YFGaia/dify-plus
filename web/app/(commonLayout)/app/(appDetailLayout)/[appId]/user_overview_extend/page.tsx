@@ -9,9 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@langgenius/dify-ui/select'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import React, { useState } from 'react'
+import { useAtomValue } from 'jotai'
+import React, { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TIME_PERIOD_MAPPING } from '@/app/components/app/log/filter'
 import {
@@ -23,6 +25,13 @@ import {
   WorkflowMessagesChart,
 } from '@/app/components/app/overview/app-chart'
 import { useStore as useAppStore } from '@/app/components/app/store'
+import {
+  workspacePermissionKeysAtom,
+  workspacePermissionKeysLoadingAtom,
+} from '@/context/permission-state'
+import { currentWorkspaceAtom, currentWorkspaceLoadingAtom } from '@/context/workspace-state'
+import { userProfileQueryOptions } from '@/features/account-profile/client'
+import { getAppACLCapabilities } from '@/utils/permission'
 
 dayjs.extend(quarterOfYear)
 
@@ -31,27 +40,41 @@ const today = dayjs()
 const queryDateFormat = 'YYYY-MM-DD HH:mm'
 
 export type UserOverViewProps = {
-  params: { appId: string }
+  params: Promise<{ appId: string }>
 }
 
-const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
+const UserOverView = ({ params }: UserOverViewProps) => {
+  const { appId } = use(params)
   const { t } = useTranslation()
   const appDetail = useAppStore((state) => state.appDetail)
+  const { data: currentUserId } = useSuspenseQuery({
+    ...userProfileQueryOptions(),
+    select: (data) => data.profile.id,
+  })
+  const workspacePermissionKeys = useAtomValue(workspacePermissionKeysAtom)
+  const isLoadingWorkspacePermissionKeys = useAtomValue(workspacePermissionKeysLoadingAtom)
+  const currentWorkspace = useAtomValue(currentWorkspaceAtom)
+  const isLoadingCurrentWorkspace = useAtomValue(currentWorkspaceLoadingAtom)
+  const { canMonitor } = getAppACLCapabilities(appDetail?.permission_keys, {
+    currentUserId,
+    resourceMaintainer: appDetail?.maintainer,
+    workspacePermissionKeys,
+  })
   const model = appDetail?.mode
   const isChatApp = model !== 'completion' && model !== 'workflow'
-  const [period, setPeriod] = useState<PeriodParams>({
+  const [period, setPeriod] = useState<PeriodParams>(() => ({
     name: t(($) => $['filter.period.last7days'], { ns: 'appLog' }),
     query: {
       start: today.subtract(7, 'day').startOf('day').format(queryDateFormat),
       end: today.format(queryDateFormat),
       account: true,
     },
-  })
+  }))
 
   const onSelect = (item: { value: number; name: string }) => {
     if (item.value === -1) {
       // allTime
-      setPeriod({ name: item.name, query: undefined })
+      setPeriod({ name: item.name, query: { account: true } })
     } else if (item.value === 0) {
       const startOfToday = today.startOf('day').format(queryDateFormat)
       const endOfToday = today.endOf('day').format(queryDateFormat)
@@ -68,12 +91,19 @@ const UserOverView = ({ params: { appId } }: UserOverViewProps) => {
     }
   }
 
-  if (!appDetail) return null
+  if (
+    appDetail?.id !== appId ||
+    !currentWorkspace.id ||
+    isLoadingCurrentWorkspace ||
+    isLoadingWorkspacePermissionKeys ||
+    !canMonitor
+  )
+    return null
 
   return (
     <div>
       <div className="mt-8 mb-4 flex flex-row items-center text-base text-gray-900">
-        <span className="mr-3">{t(($) => $['analysis.title'], { ns: 'appOverview' })}</span>
+        <span className="mr-3">{t(($) => $['appMenus.overview'], { ns: 'common' })}</span>
         <Select
           defaultValue="2"
           onValueChange={(k) => {

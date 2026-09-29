@@ -95,6 +95,20 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       : false
   const shouldBlockAccessPointAccess = pathname.endsWith('/access-point') && !canViewAccessPoint
 
+  const shouldBlockUserOverviewAccess =
+    pathname.endsWith('/user_overview_extend') &&
+    (!routeAppDetail ||
+      !currentWorkspace.id ||
+      isLoadingCurrentWorkspace ||
+      isLoadingWorkspacePermissionKeys ||
+      isLoadingAppDetail ||
+      !getAppACLCapabilities(routeAppDetail.permission_keys, {
+        currentUserId,
+        resourceMaintainer: routeAppDetail.maintainer,
+        workspacePermissionKeys,
+        isRbacEnabled,
+      }).canMonitor)
+
   useDocumentTitle(`${pageTitle} · ${appName || t(($) => $['menus.appDetail'], { ns: 'common' })}`)
 
   useEffect(() => {
@@ -153,7 +167,8 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     const isLayoutPath = pathname.endsWith('configuration') || pathname.endsWith('workflow')
     const isLogsPath = pathname.endsWith('logs')
     const isAnnotationsPath = pathname.endsWith('annotations')
-    const isOverviewPath = pathname.endsWith('overview')
+    const isOverviewPath =
+      pathname.endsWith('/overview') || pathname.endsWith('/user_overview_extend')
     const isAccessConfigPath = pathname.endsWith('access-config')
     const isAccessPointPath = pathname.endsWith('access-point')
     const isDeployPath = pathname.endsWith('deploy')
@@ -216,7 +231,10 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
 
   const isWorkflowPage = pathname.endsWith('/workflow')
   const content =
-    !appDetail || shouldBlockAgentResourceAccess || shouldBlockAccessPointAccess ? (
+    !appDetail ||
+    shouldBlockAgentResourceAccess ||
+    shouldBlockAccessPointAccess ||
+    shouldBlockUserOverviewAccess ? (
       <div className="flex min-w-0 grow items-center justify-center bg-background-body">
         <Loading />
       </div>

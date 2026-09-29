@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import Chart, { MessagesChart } from '../app-chart'
+import { defaultPeriod, getDefaultChartData } from '../app-chart-utils'
 
 const reactEChartsMock = vi.fn()
 vi.mock('echarts-for-react', () => ({
@@ -49,6 +50,19 @@ describe('app-chart', () => {
   })
 
   describe('MessagesChart', () => {
+    it('uses default dates for empty account-only all-time results', () => {
+      mockUseAppDailyMessages.mockReturnValue({ data: { data: [] }, isLoading: false })
+      render(<MessagesChart id="app-1" period={{ name: 'All time', query: { account: true } }} />)
+      expect(screen.getByRole('img', { name: 'Chart' })).toBeInTheDocument()
+      const chartProps = reactEChartsMock.mock.calls[0]![0] as {
+        option: { dataset: { source: Array<Record<string, unknown>> } }
+      }
+      expect(chartProps.option.dataset.source).toEqual(
+        getDefaultChartData({ ...defaultPeriod, key: 'message_count' }),
+      )
+      expect(chartProps.option.dataset.source.length).toBeGreaterThan(0)
+    })
+
     it('should render fallback chart data when the API returns no rows', () => {
       mockUseAppDailyMessages.mockReturnValue({
         data: { data: [] },

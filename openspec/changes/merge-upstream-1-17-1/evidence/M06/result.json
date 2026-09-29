@@ -1596,7 +1596,7 @@
     },
     "12.6g_user_overview_ui_contract": {
       "id": "12.6g_user_overview_ui_contract",
-      "status": "in_progress",
+      "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
       "registered_paths": [
@@ -1614,7 +1614,11 @@
         "12.6d_app_account_statistics:passed",
         "12.6f_workflow_account_statistics:passed"
       ],
-      "implementation_agent": "/root/overview_ui_implementation"
+      "implementation_agent": "/root/overview_ui_implementation",
+      "review_agent": "/root/overview_ui_review",
+      "review_result": "No P1/P2/P3; six final file blob hashes matched",
+      "verification": "Node 24.20.0, VP_SKIP_INSTALL=1; 62 tests in three specs passed; six-path format/lint/type and scoped diff checks passed",
+      "verification_evidence": "evidence/M06/12.6g-verification.md"
     },
     "12.6h_contract_generation": {
       "id": "12.6h_contract_generation",
@@ -1638,7 +1642,8 @@
       "review_agent": "/root/account_contract_review",
       "review_result": "No P1/P2/P3; independent AST/Zod/oRPC verification passed; hashes match",
       "verification": "Standard generator 64 jobs and formatting 191 files passed; six optional account booleans verified; 196 unrelated output hashes unchanged",
-      "verification_evidence": "evidence/M06/12.6h-verification.md"
+      "verification_evidence": "evidence/M06/12.6h-verification.md",
+      "implementation_commit": "d86c131597"
     },
     "12.6i_fixture_typing": {
       "id": "12.6i_fixture_typing",
@@ -1653,5 +1658,5 @@
       "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess."
     }
   },
-  "next_subtask": "12.6g_user_overview_ui_contract"
+  "next_subtask": "12.6i_fixture_typing"
 }

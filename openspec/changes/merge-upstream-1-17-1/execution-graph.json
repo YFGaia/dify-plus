@@ -1153,28 +1153,18 @@
           "12.6b_system_integration_host_test"
         ],
         "current_subtask": {
-          "id": "12.6g_user_overview_ui_contract",
-          "status": "in_progress",
+          "id": "12.6i_fixture_typing",
+          "status": "ready",
           "owner": "M06",
           "model": "gpt-6-astra",
           "registered_paths": [
-            "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/page.tsx",
-            "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/layout-main.tsx",
-            "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/__tests__/page.spec.tsx",
-            "web/app/components/app/overview/app-chart.tsx",
-            "web/app/components/app/overview/__tests__/app-chart.spec.tsx",
-            "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/__tests__/layout-main.spec.tsx",
-            "evidence/M06/12.6g-verification.md"
+            "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+            "evidence/M06/12.6i-validation.md"
           ],
-          "scope": "Promise route params; retain account=true for all periods; canMonitor blocks chart rendering and direct-route admission; keep direct-only navigation; preserve empty-data date fallback.",
-          "analysis_agent": "/root/overview_ui_analysis",
-          "dependencies": [
-            "12.6d_app_account_statistics:passed",
-            "12.6f_workflow_account_statistics:passed"
-          ],
-          "implementation_agent": "/root/overview_ui_implementation"
+          "scope": "Fix two actual scoped TypeScript failures in existing API key test fixture without weakening coverage, suppression, casts or production changes; rerun 23 focused tests and scoped check.",
+          "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess."
         },
-        "next_subtask": "12.6g_user_overview_ui_contract",
+        "next_subtask": "12.6i_fixture_typing",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1937,7 +1927,7 @@
           },
           {
             "id": "12.6g_user_overview_ui_contract",
-            "status": "in_progress",
+            "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1955,7 +1945,11 @@
               "12.6d_app_account_statistics:passed",
               "12.6f_workflow_account_statistics:passed"
             ],
-            "implementation_agent": "/root/overview_ui_implementation"
+            "implementation_agent": "/root/overview_ui_implementation",
+            "review_agent": "/root/overview_ui_review",
+            "review_result": "No P1/P2/P3; six final file blob hashes matched",
+            "verification": "Node 24.20.0, VP_SKIP_INSTALL=1; 62 tests in three specs passed; six-path format/lint/type and scoped diff checks passed",
+            "verification_evidence": "evidence/M06/12.6g-verification.md"
           },
           {
             "id": "12.6h_contract_generation",
@@ -1979,7 +1973,8 @@
             "review_agent": "/root/account_contract_review",
             "review_result": "No P1/P2/P3; independent AST/Zod/oRPC verification passed; hashes match",
             "verification": "Standard generator 64 jobs and formatting 191 files passed; six optional account booleans verified; 196 unrelated output hashes unchanged",
-            "verification_evidence": "evidence/M06/12.6h-verification.md"
+            "verification_evidence": "evidence/M06/12.6h-verification.md",
+            "implementation_commit": "d86c131597"
           },
           {
             "id": "12.6i_api_key_interaction_regressions",
@@ -3098,28 +3093,18 @@
           "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess."
         }
       },
-      "next_subtask": "12.6g_user_overview_ui_contract",
+      "next_subtask": "12.6i_fixture_typing",
       "current_subtask": {
-        "id": "12.6g_user_overview_ui_contract",
-        "status": "in_progress",
+        "id": "12.6i_fixture_typing",
+        "status": "ready",
         "owner": "M06",
         "model": "gpt-6-astra",
         "registered_paths": [
-          "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/page.tsx",
-          "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/layout-main.tsx",
-          "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/__tests__/page.spec.tsx",
-          "web/app/components/app/overview/app-chart.tsx",
-          "web/app/components/app/overview/__tests__/app-chart.spec.tsx",
-          "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/__tests__/layout-main.spec.tsx",
-          "evidence/M06/12.6g-verification.md"
+          "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+          "evidence/M06/12.6i-validation.md"
         ],
-        "scope": "Promise route params; retain account=true for all periods; canMonitor blocks chart rendering and direct-route admission; keep direct-only navigation; preserve empty-data date fallback.",
-        "analysis_agent": "/root/overview_ui_analysis",
-        "dependencies": [
-          "12.6d_app_account_statistics:passed",
-          "12.6f_workflow_account_statistics:passed"
-        ],
-        "implementation_agent": "/root/overview_ui_implementation"
+        "scope": "Fix two actual scoped TypeScript failures in existing API key test fixture without weakening coverage, suppression, casts or production changes; rerun 23 focused tests and scoped check.",
+        "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess."
       }
     },
     {
@@ -4017,5 +4002,5 @@
       ]
     }
   ],
-  "next_subtask": "12.6g_user_overview_ui_contract"
+  "next_subtask": "12.6i_fixture_typing"
 }
