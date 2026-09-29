@@ -1103,17 +1103,12 @@
       ]
     },
     "12.6a_home_navigation_luna_review": {
-      "status": "passed_no_findings",
+      "status": "passed",
       "model": "gpt-6-luna",
       "thread_id": "01a0eb61-ea9a-73c1-ba83-09edbf105c90",
-      "registered_paths": [
-        "web/app/components/main-nav/routes.ts",
-        "web/app/components/main-nav/index.tsx",
-        "web/app/components/main-nav/__tests__/index.spec.tsx"
-      ],
-      "evidence": "evidence/M06/12.6a-review.md",
+      "review_target_commit": "6061766c11348e9179cc3eb03b1d747bd3f19726",
       "findings": [],
-      "superseded_duplicate_client_thread_id": "client-new-thread:cf667e29-8771-4de8-935e-f67447c17154"
+      "evidence": "evidence/M06/12.6a-review.md"
     },
     "12.6d_app_account_statistics": {
       "status": "thread_provisioning",

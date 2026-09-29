@@ -1806,7 +1806,7 @@
           },
           {
             "id": "12.6a_home_navigation_luna_review",
-            "status": "passed_no_findings",
+            "status": "passed",
             "owner": "M06",
             "model": "gpt-6-luna",
             "thread_id": "01a0eb61-ea9a-73c1-ba83-09edbf105c90",
@@ -1825,7 +1825,9 @@
             "superseded_duplicate_provisioning": {
               "status": "superseded_duplicate",
               "client_thread_id": "client-new-thread:cf667e29-8771-4de8-935e-f67447c17154"
-            }
+            },
+            "review_target_commit": "6061766c11348e9179cc3eb03b1d747bd3f19726",
+            "review_result": "No P1/P2/P3; static route, label, visibility, active-boundary, and owner-gate review passed."
           }
         ],
         "completed_analyses": [
