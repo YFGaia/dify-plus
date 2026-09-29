@@ -119,7 +119,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
   - [x] 12.6e [M03/M02/Sol→Astra] 已在提交 `e9359f9bfe688f24212112cdc3e5f2ac6560c910` 落实可信 WebApp actor 的 SQLAlchemy/Logstore/Celery 写入与恢复。使用 fork-only `workflow_run_account_extend` 关联表和扩展迁移 `020_workflow_run_account`（前置 `019_webapp_auth_switch`），未改上游 `workflow_runs`；匿名/旧 run 不推断归属，`created_by` 继续代表 EndUser。首轮七文件回归 **202 项通过**；21 路径 Ruff/格式通过，业务源 Pyrefly 零诊断，测试严格类型检查为 120 条既存基线诊断且无新增。首轮独立 Luna 发现两个 P2，已由 follow-up 提交 `2ca9e0d7cbb3b1cc79148d44659129cf84f98451` 修复。追加七文件回归 **208 项通过**、两文件定向测试 **60 项通过**、四路径 Ruff/格式与 diff-check 通过；独立 Luna 对 follow-up 静态复核无 P1/P2。主迁移 head 保持 `c3f1a9b2e6d4`。未做真实 PostgreSQL/MySQL 升级、Aliyun Logstore 或跨进程可见性验证；同名但列定义错误的索引可能留下性能退化，不影响查询正确性。证据：`evidence/M06/12.6e-analysis.md`、`evidence/M06/12.6e-verification.md`、`evidence/M06/12.6e-review.md`。
   - [x] 12.6e_review_followup [M02/Astra；前置 12.6e Luna review] 修复双写 scope 校验吞异常后仍写 Logstore、以及迁移表存在时未补建 scope index 两个 P2。提交 `2ca9e0d7cbb3b1cc79148d44659129cf84f98451`；两文件定向测试 **60 项通过**，原七文件回归 **208 项通过**，Ruff/format/diff-check 均通过；独立 Luna 静态复核无 P1/P2。已解除 12.6f 的 12.6e 前置。性能边界和未验证的数据库方言见 `evidence/M06/12.6e-review.md`。
   - [x] 12.6f_logstore_actor_index [M04/Astra] 在提交 `17a755d104` 为 workflow_execution 注册 fork-owned `from_account_id` text/doc_value 索引；follow-up `af2dadff5e` 修复既有同名键的 text/doc_value 校验，并保持其他字段原有 JSON/text 兼容和自定义索引。根代理重跑登记测试 **10/10 通过**；Ruff check/format 与 diff-check 通过。未连接 Aliyun，历史记录索引重建/可见性留给部署验收。证据：`evidence/M06/12.6f-logstore-index-verification.md`。
-  - [ ] 12.6f_logstore_actor_index_reconciliation [M04/Astra follow-up；重新打开] 首轮修复 `from_account_id` 的 text/doc_value 合并后，新的独立 Luna 复审发现更新索引会丢弃完整 `IndexConfig` 中既有 TTL、全文索引、文本分析和 reduce 设置；仅修正 actor `doc_value` 时也可能覆盖用户 text options。此前状态与复核证据失效，见 config-preservation 子任务。
+  - [x] 12.6f_logstore_actor_index_reconciliation [M04] 原验证因完整配置丢失 P2 失效；后续 preservation 修复 8466ad5ff7 经 46 项测试及独立 Luna 复核恢复通过。证据 `evidence/M06/12.6f-logstore-index-config-preservation.md`。
   - [x] 12.6f_logstore_actor_index_config_preservation [M04/Astra→独立 Luna] 修复 Aliyun `update_index` 覆盖写会丢失现有完整 `IndexConfig` 顶层字段及 actor 自定义 text options 的 P2；精确保留 TTL、all_keys、log_reduce、docvalue_max_text_len、reduce lists、line/scan/custom keys，再只修正必要 actor 设置。路径与验收已登记于 execution-graph.json，证据：`evidence/M06/12.6f-logstore-index-config-preservation.md`。 提交 `8466ad5ff7`；46 项测试、Ruff/格式检查及独立 Luna 复核通过，无 P1/P2/P3；未连接 Aliyun。
   - [x] 12.6f [M04] SQLAlchemy/Logstore 三个统计端点支持可信 account=true，保留默认全应用与 daily-terminals。40 项聚焦测试、63 项 Schema 测试、九文件 Ruff/格式、源码/测试 Pyrefly 通过；独立 Luna 无 P1/P2/P3。证据 `evidence/M06/12.6f-verification.md`。
   - [x] 12.6f_statistics_integration_recovery [M04/Astra] 已将共享 diff 收敛为九路径实现和测试；原 writer 均停止，最终文件哈希与独立审阅相符，索引前置 8466ad5ff7 已通过。
@@ -172,7 +172,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [ ] 18.2 [V03] 空库从零两链；实际旧库副本主链再extend，记录17迁移与两head；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 18.3 [V03] 审计Agent删表/JSON、normalized email、模型去重/凭据引用与可解密；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 18.4 [V03] 实际生产DB引擎必测；声称同时支持PG/MySQL则两者均测；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 18.5 [V03] 节点验收：双head为 c3f1a9b2e6d4 / 019_webapp_auth_switch；数据差异符合预审、破坏性数据有处置决定、耗时记录；保存绑定版本的证据并更新节点状态。
+- [ ] 18.5 [V03] 节点验收：双head为 c3f1a9b2e6d4 / 020_workflow_run_account；数据差异符合预审、破坏性数据有处置决定、耗时记录；保存绑定版本的证据并更新节点状态。
 
 ## 19. V04 向量库副本演练（前置：V03）
 

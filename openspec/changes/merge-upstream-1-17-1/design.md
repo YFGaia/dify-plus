@@ -55,7 +55,7 @@ Node 24.20.0、pnpm 12.3.4、Python 3.12 与目标依赖一致；保留钉钉/py
 
 ### D6. 双迁移单一执行者，数据恢复使用匹配快照
 
-完整跨版本增量是 17 个迁移，不是 release notes 只列出的最近 3 个。目标主链 `c3f1a9b2e6d4`，扩展链 `019_webapp_auth_switch`。仅依赖多容器 `MIGRATION_ENABLED=true` 不会执行 extend 链。由一名执行者先主链再扩展链，业务容器恢复时全部关闭自动迁移。不额外运行已由目标迁移覆盖的 legacy-model-types 手工命令。历史 plugin auto-upgrade backfill 按源库版本与已完成证据判断，不把 1.15 历史序列机械重跑。
+完整跨版本增量是 17 个迁移，不是 release notes 只列出的最近 3 个。目标主链 `c3f1a9b2e6d4`，扩展链 `020_workflow_run_account`（沿 `019_webapp_auth_switch` 增加可信工作流账号归属表，不回填历史归属）。仅依赖多容器 `MIGRATION_ENABLED=true` 不会执行 extend 链。由一名执行者先主链再扩展链，业务容器恢复时全部关闭自动迁移。不额外运行已由目标迁移覆盖的 legacy-model-types 手工命令。历史 plugin auto-upgrade backfill 按源库版本与已完成证据判断，不把 1.15 历史序列机械重跑。
 
 Agent runtime/drive 表删除、JSON 删除、preset outputs 清理和模型凭据去重均审计前后数据；PostgreSQL 并发索引带 autocommit，不能假设整个升级可事务回滚。快照须覆盖关系库、向量库、Redis/任务状态、文件/对象、插件存储、旧镜像/config 和解密所需密钥的受控引用。回滚先停所有写入者，再恢复同一静止点数据；新版本期间的数据损失范围按 RPO 明确，绝不承诺镜像回切即可无损。
 

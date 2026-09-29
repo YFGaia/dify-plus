@@ -18,7 +18,7 @@
 
 ### Requirement: 双 Alembic 迁移链并存可升级
 
-上游与 fork 独立迁移链 SHALL 均可从支持的来源版本及空库升级且互不干扰。1.16.0 到 1.17.1 的主链 MUST 覆盖全部 17 项新增迁移并到达 `c3f1a9b2e6d4`，扩展链 MUST 到达 `019_webapp_auth_switch`。数据删除、归一与引用改写 SHALL 有前后审计及恢复证据。
+上游与 fork 独立迁移链 SHALL 均可从支持的来源版本及空库升级且互不干扰。1.16.0 到 1.17.1 的主链 MUST 覆盖全部 17 项新增迁移并到达 `c3f1a9b2e6d4`，扩展链 MUST 到达 `020_workflow_run_account`。数据删除、归一与引用改写 SHALL 有前后审计及恢复证据。
 
 #### Scenario: 上游迁移执行
 
@@ -33,7 +33,7 @@
 #### Scenario: fork 扩展迁移链完好
 
 - **WHEN** 主链完成后运行 fork 扩展迁移
-- **THEN** 独立版本表到达 019_webapp_auth_switch，已有最新库为无操作，全部扩展结构和数据仍满足当前业务
+- **THEN** 独立版本表到达 020_workflow_run_account，已有最新库为无操作，全部扩展结构和数据仍满足当前业务
 
 ### Requirement: Python 与依赖对齐上游且保留 fork 专属依赖
 

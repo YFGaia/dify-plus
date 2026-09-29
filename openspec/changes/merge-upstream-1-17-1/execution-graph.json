@@ -1152,7 +1152,7 @@
         ],
         "current_subtask": {
           "id": "12.6g_user_overview_ui_contract",
-          "status": "ready",
+          "status": "in_progress",
           "owner": "M06",
           "model": "gpt-6-astra",
           "registered_paths": [
@@ -1169,7 +1169,8 @@
           "dependencies": [
             "12.6d_app_account_statistics:passed",
             "12.6f_workflow_account_statistics:passed"
-          ]
+          ],
+          "implementation_agent": "/root/overview_ui_implementation"
         },
         "next_subtask": "12.6g_user_overview_ui_contract",
         "parallel_subtasks": [
@@ -1920,11 +1921,12 @@
             "verification_evidence": "evidence/M06/12.6f-verification.md",
             "review_agent": "/root/workflow_statistics_review",
             "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
-            "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed"
+            "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed",
+            "implementation_commit": "7593d52222"
           },
           {
             "id": "12.6g_user_overview_ui_contract",
-            "status": "ready",
+            "status": "in_progress",
             "owner": "M06",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1941,11 +1943,12 @@
             "dependencies": [
               "12.6d_app_account_statistics:passed",
               "12.6f_workflow_account_statistics:passed"
-            ]
+            ],
+            "implementation_agent": "/root/overview_ui_implementation"
           },
           {
             "id": "12.6h_contract_generation",
-            "status": "ready",
+            "status": "in_progress",
             "owner": "M05/M08",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1960,7 +1963,8 @@
             "dependencies": [
               "12.6d_app_account_statistics:passed",
               "12.6f_workflow_account_statistics:passed"
-            ]
+            ],
+            "implementation_agent": "/root/account_contract_generation"
           },
           {
             "id": "12.6i_api_key_interaction_regressions",
@@ -2179,7 +2183,8 @@
             "review_agent": "/root/workflow_statistics_review",
             "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
             "validation_status": "passed",
-            "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed"
+            "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed",
+            "implementation_commit": "7593d52222"
           },
           {
             "id": "12.6f_logstore_actor_index_config_preservation",
@@ -3012,7 +3017,8 @@
           "review_agent": "/root/workflow_statistics_review",
           "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
           "validation_status": "passed",
-          "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed"
+          "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed",
+          "implementation_commit": "7593d52222"
         },
         "12.6f_logstore_actor_index_reconciliation": {
           "id": "12.6f_logstore_actor_index_reconciliation",
@@ -3057,7 +3063,7 @@
         },
         "12.6j_frontend_dependency_recovery": {
           "id": "12.6j_frontend_dependency_recovery",
-          "status": "ready",
+          "status": "in_progress",
           "owner": "M06",
           "model": "gpt-6-astra",
           "base_commit": "d2fbe18cd1a621d4704fd29c73fa4c294aa1d770",
@@ -3073,7 +3079,7 @@
       "next_subtask": "12.6g_user_overview_ui_contract",
       "current_subtask": {
         "id": "12.6g_user_overview_ui_contract",
-        "status": "ready",
+        "status": "in_progress",
         "owner": "M06",
         "model": "gpt-6-astra",
         "registered_paths": [
@@ -3090,7 +3096,8 @@
         "dependencies": [
           "12.6d_app_account_statistics:passed",
           "12.6f_workflow_account_statistics:passed"
-        ]
+        ],
+        "implementation_agent": "/root/overview_ui_implementation"
       }
     },
     {
@@ -3380,7 +3387,13 @@
         "evidence/M08/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M06 尚未完成；其余 M02–M07 前置已通过。"
+      "blocked_reason": "M06 尚未完成；其余 M02–M07 前置已通过。",
+      "preflight_analysis": {
+        "status": "completed_read_only",
+        "agent": "/root/integration_preflight_analysis",
+        "evidence": "evidence/M08/preflight-analysis.md",
+        "does_not_satisfy_M08_acceptance": true
+      }
     },
     {
       "id": "V01",
@@ -3565,7 +3578,7 @@
       ],
       "commands": [],
       "acceptance": [
-        "双head为 c3f1a9b2e6d4 / 019_webapp_auth_switch",
+        "双head为 c3f1a9b2e6d4 / 020_workflow_run_account",
         "数据差异符合预审、破坏性数据有处置决定、耗时记录"
       ],
       "evidence": [

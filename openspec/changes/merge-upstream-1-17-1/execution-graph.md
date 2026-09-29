@@ -523,7 +523,7 @@ pnpm --dir web build:vinext
 
 验收：
 
-- 双head为 c3f1a9b2e6d4 / 019_webapp_auth_switch
+- 双head为 c3f1a9b2e6d4 / 020_workflow_run_account
 - 数据差异符合预审、破坏性数据有处置决定、耗时记录
 
 证据：`evidence/V03/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。

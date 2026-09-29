@@ -1,7 +1,7 @@
 {
   "node": "M07",
-  "status": "in_progress",
-  "implementation": "partial",
+  "status": "passed",
+  "implementation": "source_static_acceptance_passed",
   "deployable": false,
   "branch": "codex/merge-upstream-1.17.1",
   "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
@@ -741,6 +741,7 @@
     "13.1",
     "13.2",
     "13.3",
+    "13.4",
     "13.5",
     "13.6"
   ],
@@ -749,5 +750,6 @@
     "No private image pull, tag/digest or deployment-host verification has been performed; GitHub build validation is not private fork image supply evidence.",
     "agent_backend requires a configured JWE server secret while its Agent Stub URL is set, including with Agent v2 disabled.",
     "No GitLab pipeline execution, private image digest/pull, deployment secret, container start, database migration, or Agent runtime evidence; source acceptance does not imply deployability."
-  ]
+  ],
+  "reconciliation_note": "Root reconciled completed child statuses with graph after independent Sol preflight; no pipeline/runtime validation added."
 }

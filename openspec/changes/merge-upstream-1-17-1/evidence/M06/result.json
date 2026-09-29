@@ -1367,7 +1367,8 @@
       "verification_evidence": "evidence/M06/12.6f-verification.md",
       "review_agent": "/root/workflow_statistics_review",
       "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
-      "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed"
+      "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed",
+      "implementation_commit": "7593d52222"
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
@@ -1542,7 +1543,8 @@
       "review_agent": "/root/workflow_statistics_review",
       "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
       "validation_status": "passed",
-      "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed"
+      "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed",
+      "implementation_commit": "7593d52222"
     },
     "12.6f_logstore_actor_index_config_preservation": {
       "id": "12.6f_logstore_actor_index_config_preservation",
@@ -1574,7 +1576,7 @@
     },
     "12.6j_frontend_dependency_recovery": {
       "id": "12.6j_frontend_dependency_recovery",
-      "status": "ready",
+      "status": "in_progress",
       "owner": "M06",
       "model": "gpt-6-astra",
       "base_commit": "d2fbe18cd1a621d4704fd29c73fa4c294aa1d770",
@@ -1588,7 +1590,7 @@
     },
     "12.6g_user_overview_ui_contract": {
       "id": "12.6g_user_overview_ui_contract",
-      "status": "ready",
+      "status": "in_progress",
       "owner": "M06",
       "model": "gpt-6-astra",
       "registered_paths": [
@@ -1605,11 +1607,12 @@
       "dependencies": [
         "12.6d_app_account_statistics:passed",
         "12.6f_workflow_account_statistics:passed"
-      ]
+      ],
+      "implementation_agent": "/root/overview_ui_implementation"
     },
     "12.6h_contract_generation": {
       "id": "12.6h_contract_generation",
-      "status": "ready",
+      "status": "in_progress",
       "owner": "M05/M08",
       "model": "gpt-6-astra",
       "registered_paths": [
@@ -1624,7 +1627,8 @@
       "dependencies": [
         "12.6d_app_account_statistics:passed",
         "12.6f_workflow_account_statistics:passed"
-      ]
+      ],
+      "implementation_agent": "/root/account_contract_generation"
     }
   },
   "next_subtask": "12.6g_user_overview_ui_contract"

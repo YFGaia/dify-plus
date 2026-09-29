@@ -86,7 +86,7 @@ dc=(docker compose --env-file "$DIFY_ENV_FILE" -p "$DIFY_PROJECT" -f "$DIFY_COMP
 "${dc[@]}" run --rm --no-deps -e MODE=job -e MIGRATION_ENABLED=false api extend_db current
 ```
 
-目标结果：`alembic_version=c3f1a9b2e6d4`，`alembic_version_extend=019_webapp_auth_switch`，并完成表/索引/引用/业务读回。空库需全链；已有库按其实际 head 推进。`MODE=job` 的目标入口执行 `flask "$@"`；这里关闭自动迁移，显式分步执行两条链，避免重复主链。任何其他迁移执行者必须停止。
+目标结果：`alembic_version=c3f1a9b2e6d4`，`alembic_version_extend=020_workflow_run_account`，并完成表/索引/引用/业务读回。空库需全链；已有库按其实际 head 推进。`MODE=job` 的目标入口执行 `flask "$@"`；这里关闭自动迁移，显式分步执行两条链，避免重复主链。任何其他迁移执行者必须停止。
 
 不追加 `flask data-migrate legacy-model-types`，该目标已包含相应迁移。历史 `backfill-plugin-auto-upgrade` 仅在源库事实证明从未完成且目标仍要求时制定补救步骤；不能删除历史要求，也不盲目复跑。
 
