@@ -1138,22 +1138,17 @@
           "12.3_final_runtime_verification",
           "12.4_implementation",
           "12.4_final_runtime_verification",
-          "12.1b_path_analysis"
+          "12.1b_path_analysis",
+          "12.5e_final_locale_parity"
         ],
         "current_subtask": {
-          "id": "12.5d_obsolete_secret_key_quota_modal",
-          "status": "ready",
+          "id": "12.6_node_acceptance",
+          "status": "ready_for_analysis",
           "owner": "M06",
-          "model": "gpt-6-astra",
-          "dependencies": [
-            "12.3:passed"
-          ],
-          "registered_paths": [
-            "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
-          ],
-          "scope": "Delete the zero-reference legacy quota modal after 12.3 acceptance; retain live category/template-card/app-card-utils modules; run the registered focused and extend i18n checks with install disabled."
+          "model": "gpt-6-sol",
+          "scope": "Review current source and evidence against M06 parent acceptance gates: fork routes on new hosts, independent WebApp switches, 24 locale resources, old tests at real host, and version-bound evidence. Identify any gaps and exact next implementation/verification paths."
         },
-        "next_subtask": "12.5d_obsolete_secret_key_quota_modal",
+        "next_subtask": "12.6_node_acceptance",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1487,13 +1482,15 @@
           },
           {
             "id": "12.5d_obsolete_secret_key_quota_modal",
-            "status": "blocked_by_dependency",
+            "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependency": "12.3:passed",
             "registered_paths": [
               "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
-            ]
+            ],
+            "verification_evidence": "evidence/M06/12.5-final-verification.md",
+            "observation": "Deleted zero-reference modal; 24-locale checker passed via direct Node/tsx; reference recheck and strict OpenSpec passed."
           },
           {
             "id": "12.5bc_independent_luna_review",
@@ -1652,6 +1649,30 @@
             "evidence": "evidence/M06/result.json#/subtasks/12.4_implementation",
             "observation": "Both registered focused specs passed 97 tests at the final source snapshot; exact path identity and restore verified.",
             "verification_evidence": "evidence/M06/12.3-12.4-final-verification.md"
+          },
+          {
+            "id": "12.5d_obsolete_secret_key_quota_modal",
+            "status": "passed",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "agent": "/root/m06_12_5d_astra_delete_orphan",
+            "implementation_commit": "5bb83572ca",
+            "registered_paths": [
+              "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
+            ],
+            "evidence": "evidence/M06/result.json#/subtasks/12.5d_obsolete_secret_key_quota_modal",
+            "observation": "Deleted zero-reference modal; 24-locale checker passed via direct Node/tsx; reference recheck and strict OpenSpec passed.",
+            "verification_evidence": "evidence/M06/12.5-final-verification.md"
+          },
+          {
+            "id": "12.5e_final_locale_parity",
+            "status": "passed",
+            "owner": "M06",
+            "model": "gpt-6-luna",
+            "agent": "/root/m06_12_5_locale_final_luna",
+            "review_target_commit": "5bb83572cad2253f129ec308d32770e0392710de",
+            "evidence": "evidence/M06/12.5-final-verification.md",
+            "observation": "Official checker passed for all 24 locales; id-ID/pl-PL values/placeholders preserved; 909 JSON hashes unchanged."
           }
         ],
         "completed_analyses": [
