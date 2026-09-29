@@ -340,7 +340,7 @@ describe('ApiKeyModal', () => {
     await user.click(screen.getByText('appApi.apiKeyModal.createNewSecretKey'))
     const create = screen.getByRole('button', { name: 'common.operation.create' })
     await user.click(create)
-    await waitFor(() => expect(create).toBeDisabled())
+    await waitFor(() => expect(create).toHaveAttribute('aria-disabled', 'true'))
     await user.click(create)
     await user.keyboard('{Escape}')
     expect(screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })).toBeDisabled()
