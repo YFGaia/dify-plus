@@ -1160,7 +1160,8 @@
             "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
             "evidence/M06/12.6f-logstore-index-verification.md"
           ],
-          "scope": "Register trusted from_account_id in the workflow_execution Logstore index as text/doc_value; cover creation and existing-index ensure while preserving user custom indexes."
+          "scope": "Register trusted from_account_id in the workflow_execution Logstore index as text/doc_value; cover creation and existing-index ensure while preserving user custom indexes.",
+          "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8"
         },
         "next_subtask": "12.6f_logstore_actor_index",
         "parallel_subtasks": [
@@ -1848,7 +1849,7 @@
             ],
             "review_followup_subtask": "12.6e-review-followup:passed",
             "review_evidence": "evidence/M06/12.6e-review.md",
-            "review_followup_commit": "2ca9e0d7cbb3b1cc79148d44659129cf84f98451",
+            "review_followup_commit": "2ca9e0d7cb",
             "review_followup_tests": "two files: 60 passed; original seven files: 208 passed",
             "followup_review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
             "followup_diff_only_review_thread_id": "01a0ebaf-7f96-7112-815c-33ef98a6a395",
@@ -1883,11 +1884,11 @@
             "implementation_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
             "dispatch_channel": "codex_project_local",
             "dependencies": [
-              "12.6e_review_followup:passed",
+              "12.6e-review-followup:passed",
               "12.6f_logstore_actor_index:passed",
-              "12.6f_workflow_statistics_analysis:passed"
+              "12.6f_workflow_statistics_analysis:analysis_complete_paths_registered"
             ],
-            "blocked_reason": "Account-filtered Logstore statistics require from_account_id in the workflow_execution text index; 12.6f0 must pass first."
+            "blocked_reason": "Account-scoped Logstore statistics require from_account_id in the workflow_execution index; 12.6f_logstore_actor_index must pass first."
           },
           {
             "id": "12.6g_user_overview_ui_contract",
@@ -1997,7 +1998,7 @@
               "P2: migration returns for existing table without ensuring its scope index"
             ],
             "followup_review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
-            "followup_review_result": "Repo-context Luna: no P1/P2/P3; diff-only review noted only theoretical performance index drift.",
+            "followup_review_result": "No P1/P2/P3",
             "followup_commit": "2ca9e0d7cb",
             "review_evidence": "evidence/M06/12.6e-review.md",
             "review_thread_id": "01a0eba3-ec07-7cb2-9e20-c14247500c60",
@@ -2019,11 +2020,11 @@
             ],
             "scope": "Close two independent Luna P2 findings: fail closed when SQL ownership scope validation raises any exception; make extension table/index upgrade and downgrade independently idempotent. Focused tests, static checks, then root review/commit.",
             "review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
-            "implementation_commit": "2ca9e0d7cbb3b1cc79148d44659129cf84f98451",
+            "implementation_commit": "2ca9e0d7cb",
             "implementation_thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
-            "focused_tests": "60 passed on two files; 208 passed on original seven-file regression set",
+            "focused_tests": "60 passed in two files; original seven files 208 passed",
             "static_checks": "four registered paths Ruff check/format/diff-check passed",
-            "review_result": "Repo-context Luna: no P1/P2/P3. Diff-only Luna: no P1/P2; theoretical performance-only same-name index drift noted.",
+            "review_result": "No P1/P2/P3",
             "evidence": "evidence/M06/12.6e-review.md",
             "dependencies": [
               "12.6e_workflow_account_ownership_persistence:implementation_passed",
@@ -2747,11 +2748,11 @@
           ],
           "scope": "Close two independent Luna P2 findings: fail closed when SQL ownership scope validation raises any exception; make extension table/index upgrade and downgrade independently idempotent. Focused tests, static checks, then root review/commit.",
           "review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
-          "implementation_commit": "2ca9e0d7cbb3b1cc79148d44659129cf84f98451",
+          "implementation_commit": "2ca9e0d7cb",
           "implementation_thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
-          "focused_tests": "60 focused; 208 seven-file regression",
+          "focused_tests": "60 passed in two files; original seven files 208 passed",
           "static_checks": "four registered paths Ruff check/format/diff-check passed",
-          "review_result": "Repo-context Luna: no P1/P2/P3. Diff-only Luna: no P1/P2; theoretical performance-only same-name index drift noted.",
+          "review_result": "No P1/P2/P3",
           "evidence": "evidence/M06/12.6e-review.md",
           "verification": {
             "focused_tests": "60 passed",
@@ -2768,7 +2769,8 @@
           "model": "gpt-6-astra",
           "registered_paths": [
             "api/extensions/logstore/aliyun_logstore.py",
-            "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py"
+            "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
+            "evidence/M06/12.6f-logstore-index-verification.md"
           ],
           "scope": "Register the trusted from_account_id field as a workflow_execution Logstore index key required by account-scoped charts; add focused configuration coverage. Preserve upstream WorkflowRun and all existing custom index behavior. This is a separate prerequisite task; no edits until this registration is committed.",
           "dependency": "12.6f_analysis:analysis_complete_paths_registered",
@@ -2776,7 +2778,27 @@
           "base_commit": "895831abea"
         }
       },
-      "next_subtask": "12.6f_logstore_actor_index"
+      "next_subtask": "12.6f_logstore_actor_index",
+      "current_subtask": {
+        "id": "12.6f_logstore_actor_index",
+        "status": "implementation_in_progress",
+        "owner": "M04",
+        "model": "gpt-6-astra",
+        "branch_head": "895831abea",
+        "base_commit": "895831abea",
+        "implementation_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+        "dispatch_channel": "codex_project_local",
+        "registered_paths": [
+          "api/extensions/logstore/aliyun_logstore.py",
+          "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
+          "evidence/M06/12.6f-logstore-index-verification.md"
+        ],
+        "scope": "Register trusted workflow-run from_account_id as a Logstore text field with doc_value=True; verify creation and existing-index reconciliation while preserving custom indexes; do not alter upstream WorkflowRun or main migration chain.",
+        "dependencies": [
+          "12.6e-review-followup:passed",
+          "12.6f_workflow_statistics_analysis:analysis_complete_paths_registered"
+        ]
+      }
     },
     {
       "id": "M07",

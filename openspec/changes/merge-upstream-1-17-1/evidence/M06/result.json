@@ -1281,7 +1281,7 @@
         "review_evidence": "evidence/M06/12.6e-review.md"
       },
       "implementation_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
-      "independent_review_status": "findings_resolved_by_followup",
+      "independent_review_status": "passed_after_follow_up",
       "independent_review_thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
       "independent_review_scope_note": "Separate review conversation remains active; root code review and test rerun are recorded independently.",
       "independent_review_findings": [
@@ -1290,12 +1290,13 @@
       ],
       "followup_thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
       "independent_review_findings_resolved_by": "2ca9e0d7cb",
-      "followup_commit": "2ca9e0d7cbb3b1cc79148d44659129cf84f98451",
-      "followup_tests": "60 focused; 208 across seven registered files",
+      "followup_commit": "2ca9e0d7cb",
+      "followup_tests": "two files: 60 passed; original seven files: 208 passed",
       "followup_review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
       "followup_review_result": "No P1/P2/P3",
       "review_evidence": "evidence/M06/12.6e-review.md",
-      "followup_evidence": "evidence/M06/12.6e-review.md"
+      "followup_evidence": "evidence/M06/12.6e-review.md",
+      "followup_diff_only_review_thread_id": "01a0ebaf-7f96-7112-815c-33ef98a6a395"
     },
     "12.6i_api_key_interaction_regressions": {
       "status": "implementation_review_passed_verification_blocked_dependency_missing",
@@ -1346,7 +1347,7 @@
       "latest_attempt_note": "12.6e passed and committed; 12.6f implementation has started from its registered analysis and nine paths. SQLAlchemy account filtering uses the fork association; Logstore requires confirming the event index/query contract before coding.",
       "implementation_thread_id": null,
       "thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
-      "blocked_reason": "The Logstore workflow_execution index does not yet register from_account_id for SQL aggregation; wait for the separately registered index task to pass.",
+      "blocked_reason": "from_account_id must first be registered in the Logstore workflow_execution index by 12.6f_logstore_actor_index.",
       "index_prerequisite": "12.6f_logstore_actor_index",
       "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8"
     },
@@ -1421,6 +1422,17 @@
         "12.6e_review_followup:passed"
       ],
       "scope": "Register trusted workflow-run from_account_id as a Logstore index field for SQL aggregation queries, and verify create/reconcile while preserving custom indexes."
+    },
+    "12.6e-review-followup": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
+      "commit": "2ca9e0d7cb",
+      "focused_tests": "60 passed; full seven-file 12.6e regression 208 passed",
+      "static_checks": "four registered paths Ruff check/format/diff-check passed",
+      "review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
+      "review_result": "No P1/P2/P3",
+      "evidence": "evidence/M06/12.6e-review.md"
     }
   },
   "next_subtask": "12.6f_logstore_actor_index"
