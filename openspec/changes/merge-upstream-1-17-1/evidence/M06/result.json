@@ -1095,7 +1095,7 @@
       "evidence": "evidence/M06/12.6a-verification.md"
     },
     "12.6b_system_integration_host_test": {
-      "status": "implementation_present_validation_blocked_dependency_missing",
+      "status": "implementation_present_review_passed_validation_blocked_dependency_missing",
       "model": "gpt-6-astra",
       "thread_id": "01a0eb6c-c197-7360-9e37-2258755300cf",
       "title": "M06 12.6b 系统集成页宿主测试",
@@ -1118,8 +1118,10 @@
         "diff_check_exit_code": 0,
         "test_sha256": "4088c14548fc66871dba2ba9fa2c63ea52cae3bcc3653c2546290eddb54a1b4d"
       },
-      "review_status": "pending_independent_luna",
-      "review_thread_id": "01a0eb7c-53c5-7600-af3b-1dccba308181"
+      "review_status": "passed_no_p1_p2_p3",
+      "review_thread_id": "01a0eb7c-53c5-7600-af3b-1dccba308181",
+      "review_evidence": "evidence/M06/12.6b-review.md",
+      "superseded_competing_commit": "45180f1b6a"
     },
     "12.6a_home_navigation_luna_review": {
       "status": "passed",
@@ -1130,7 +1132,7 @@
       "evidence": "evidence/M06/12.6a-review.md"
     },
     "12.6d_app_account_statistics": {
-      "status": "implementation_integrated_review_passed_tests_blocked",
+      "status": "passed",
       "model": "gpt-6-astra",
       "registered_paths": [
         "api/controllers/console/app/statistic.py",
@@ -1139,19 +1141,36 @@
         "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
         "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
       ],
-      "implementation_commit": "fcc0b0e7a5",
-      "worktree_path": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
-      "verification_status": "blocked_pytest_missing",
+      "implementation_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
       "source_implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
-      "review_thread_id": "01a0eb76-9ccc-7072-8187-f9e0b790040a",
-      "review_status": "passed_no_p1_p2_p3",
-      "unit_test_command": "UV_OFFLINE=1 uv run --frozen --no-sync --project api python -m pytest api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
-      "unit_test_exit_code": 1,
-      "unit_test_error": "No module named pytest",
-      "evidence": [
-        "evidence/M06/12.6d-verification.md",
-        "evidence/M06/12.6d-review.md"
-      ]
+      "verification_worktree": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
+      "review": {
+        "status": "passed_no_p1_p2_p3",
+        "thread_id": "01a0eb76-9ccc-7072-8187-f9e0b790040a",
+        "evidence": "evidence/M06/12.6d-review.md"
+      },
+      "verification": {
+        "status": "passed",
+        "test_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-12-6d-uv-cache LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONDONTWRITEBYTECODE=1 uv run --project api --no-sync pytest -q -o addopts= -p no:cacheprovider api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
+        "test_exit_code": 0,
+        "tests_passed": 22,
+        "warnings": 56,
+        "duration_seconds": 2.11,
+        "verification_worktree": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
+        "verification_worktree_head": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+        "verified_paths_match_integrated_commit": true,
+        "worktree_clean_after_verification": true,
+        "ruff_check_exit_code": 0,
+        "ruff_format_check_exit_code": 0,
+        "diff_check_exit_code": 0,
+        "notes": [
+          "Coverage output was disabled for this focused run to avoid the read-only worktree permission failure from the first attempt.",
+          "Existing temporary Python 3.12 environment and temporary uv cache were used with --no-sync; no dependencies, lockfiles, source files, index, or commits were changed by verification.",
+          "LiteLLM remote model cost lookup was disabled with LITELLM_LOCAL_MODEL_COST_MAP=True.",
+          "Warnings are existing cgi, Pydantic class-config, and sqlite3 datetime adapter deprecations plus 56 SQLAlchemy/SQLite adapter warnings."
+        ]
+      },
+      "evidence": "evidence/M06/12.6d-verification.md"
     },
     "12.6e_workflow_actor_analysis": {
       "status": "analysis_in_progress",
