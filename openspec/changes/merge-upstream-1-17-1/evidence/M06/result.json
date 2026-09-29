@@ -169,8 +169,14 @@
     "12.2_analysis": {
       "status": "conversation_provisioning",
       "model": "gpt-6-sol",
-      "client_thread_id": "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
-      "scope": "App-center categories/filtering, installed-app navigation, recommended app rows/runtime validation, and Studio sync menu; read-only handoff."
+      "client_thread_id": "client-new-thread:2ec33e10-44d1-412b-8769-6f91983560c2",
+      "created_from_commit": "3123d628f75e847c9e134eb49d03119040be7f13",
+      "superseded_provisioning_attempt": {
+        "client_thread_id": "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
+        "status": "provisioning_not_readable"
+      },
+      "scope": "Read-only app-center categories/filtering, installed-app navigation, recommended app rows/runtime validation, Studio sync menu, exact source/test path ownership, and Astra implementation handoff.",
+      "next_action": "Wait for the standalone Sol analysis result, then register its verified exact paths before creating a fresh Astra implementation task."
     },
     "12.3_analysis": {
       "status": "conversation_provisioning",
