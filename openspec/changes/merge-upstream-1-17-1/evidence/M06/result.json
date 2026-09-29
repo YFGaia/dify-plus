@@ -567,7 +567,7 @@
       }
     },
     "12.5a_locale_group_a": {
-      "status": "review_passed_with_nonblocking_p3",
+      "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
       "dependencies": [
@@ -615,7 +615,7 @@
       "superseded_review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
       "review_thread_id": "01a0eb23-5525-7453-b3ca-7a750f637ca6",
       "review_title": "M06 12.5a systemManage 多语言独立复核",
-      "review_status": "completed_no_blockers_one_p3",
+      "review_status": "passed_after_follow_up",
       "dispatch_channel": "codex_fork_same_directory",
       "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
       "observation": "Independent Luna review completed; no blocker, one P3 Indonesian wording refinement is registered for follow-up.",
@@ -637,7 +637,9 @@
             "recommendation": "Use natural Indonesian Ubah, e.g. Ubah Kuota / Ubah kuota untuk {{name}}"
           }
         ]
-      }
+      },
+      "follow_up_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+      "follow_up_review": "evidence/M06/12.5-follow-up-review.md"
     },
     "12.5b_locale_group_b": {
       "status": "passed",
@@ -784,7 +786,7 @@
     },
     "12.5bc_independent_luna_review": {
       "id": "12.5bc_independent_luna_review",
-      "status": "follow_up_required",
+      "status": "passed",
       "owner": "M06",
       "model": "gpt-6-luna",
       "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
@@ -806,27 +808,12 @@
       "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics.",
       "superseded_review_client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
       "review_thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
-      "review_status": "follow_up_required",
+      "review_status": "passed_after_follow_up",
       "dispatch_channel": "codex_fork_same_directory",
       "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
-      "observation": "Fresh independent Luna conversation is active; the unreadable provisioning client-thread request is superseded.",
+      "observation": "Re-reviewed after locale corrections: Indonesian Edit labels use Ubah; Polish tenant wording is clear and preserves sandbox-full to standard sandbox behavior. 13 locales still have 85 keys each with zero missing/extra keys and zero placeholder mismatches. No P1/P2/P3 findings remain.",
       "completed_at": "2026-09-29",
-      "finding_count": 1,
-      "blockers": [
-        {
-          "priority": "P2",
-          "locale": "pl-PL",
-          "keys": [
-            "systemManage.codeExecutionControl.deleteConfirmContent",
-            "systemManage.codeExecutionControl.description"
-          ],
-          "issue": "Polish dzierżawa implies a lease/tenancy and ambiguously describes the SaaS tenant in elevated sandbox allowlist controls.",
-          "recommendation": {
-            "systemManage.codeExecutionControl.deleteConfirmContent": "Usunąć {{email}} z listy dozwolonych adresów? Węzły kodu w tenantach tego użytkownika powrócą do standardowej piaskownicy.",
-            "systemManage.codeExecutionControl.description": "Dozwolone adresy e-mail na tej liście należą do właścicieli tenantów. Węzły kodu w ich tenantach będą uruchamiane w pełnej piaskownicy (sandbox-full). Gdy lista jest pusta, wszystkie tenanty korzystają ze standardowej piaskownicy."
-          }
-        }
-      ],
+      "finding_count": 0,
       "review_checks": {
         "system_manage_keys_per_locale": 85,
         "missing_or_extra_keys": 0,
@@ -843,7 +830,28 @@
       "key_count_per_locale": 85,
       "missing_extra_keys": 0,
       "placeholder_mismatches": 0,
-      "evidence": "evidence/M06/12.5-luna-review.md"
+      "evidence": "evidence/M06/12.5-luna-review.md",
+      "resolved_findings": [
+        {
+          "priority": "P2",
+          "locale": "pl-PL",
+          "keys": [
+            "systemManage.codeExecutionControl.deleteConfirmContent",
+            "systemManage.codeExecutionControl.description"
+          ],
+          "issue": "Polish dzierżawa implies a lease/tenancy and ambiguously describes the SaaS tenant in elevated sandbox allowlist controls.",
+          "recommendation": {
+            "systemManage.codeExecutionControl.deleteConfirmContent": "Usunąć {{email}} z listy dozwolonych adresów? Węzły kodu w tenantach tego użytkownika powrócą do standardowej piaskownicy.",
+            "systemManage.codeExecutionControl.description": "Dozwolone adresy e-mail na tej liście należą do właścicieli tenantów. Węzły kodu w ich tenantach będą uruchamiane w pełnej piaskownicy (sandbox-full). Gdy lista jest pusta, wszystkie tenanty korzystają ze standardowej piaskownicy."
+          }
+        }
+      ],
+      "follow_up_commits": {
+        "id_ID": "0b360565b4c733660225faecfd337538a0d635c3",
+        "pl_PL": "84805a93186032f84245c01bdbc3ec620c325d63"
+      },
+      "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
+      "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3"
     },
     "12.5_language_corrections": {
       "status": "passed",

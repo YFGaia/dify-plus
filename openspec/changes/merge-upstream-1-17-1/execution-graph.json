@@ -1310,7 +1310,7 @@
           },
           {
             "id": "12.5a_locale_group_a",
-            "status": "review_passed_with_nonblocking_p3",
+            "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -1361,7 +1361,7 @@
             "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
             "observation": "The original independent Luna review passed with one localized P3 Indonesian wording follow-up; a later duplicate review fork was stopped and superseded.",
             "superseded_duplicate_review_thread_id": "01a0eb21-61a6-7ad1-b2aa-b74eb261c9c2",
-            "review_status": "completed_no_blockers_one_p3",
+            "review_status": "passed_after_follow_up",
             "review_result": {
               "status": "completed_no_blockers_one_p3",
               "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
@@ -1380,7 +1380,9 @@
               ],
               "scope": "Read-only review of all nine registered locale files; 135-key parity/order, interpolation tokens, unchanged prior values, and operational copy checked.",
               "checks": "No P1/P2 issue and no misleading operational translation found. No tests or edits were performed by the reviewer."
-            }
+            },
+            "follow_up_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+            "follow_up_review": "evidence/M06/12.5-follow-up-review.md"
           },
           {
             "id": "12.5b_locale_group_b",
@@ -1488,7 +1490,7 @@
           },
           {
             "id": "12.5bc_independent_luna_review",
-            "status": "follow_up_required",
+            "status": "passed",
             "owner": "M06",
             "model": "gpt-6-luna",
             "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
@@ -1513,16 +1515,22 @@
             "superseded_review_client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
             "review_thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
             "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
-            "observation": "13 locales reviewed. All 85 keys per locale present; placeholders match; sandbox/cache warning semantics preserved. Exact-English residuals are established protocol/UI terms. Polish tenant terminology requires follow-up.",
-            "review_status": "follow_up_required",
-            "finding_count": 1,
-            "blocker": "P2: Polish tenant terminology uses dzierżawa (lease), obscuring which tenant/code nodes revert to standard sandbox; fix and re-review before passing M06 locale review.",
+            "observation": "Re-reviewed after locale corrections: Indonesian Edit labels use Ubah; Polish tenant wording is clear and preserves sandbox-full to standard sandbox behavior. 13 locales still have 85 keys each with zero missing/extra keys and zero placeholder mismatches. No P1/P2/P3 findings remain.",
+            "review_status": "passed_after_follow_up",
+            "finding_count": 0,
             "superseded_client_thread_id": null,
-            "thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12"
+            "thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
+            "resolved_findings": [],
+            "follow_up_commits": {
+              "id_ID": "0b360565b4c733660225faecfd337538a0d635c3",
+              "pl_PL": "84805a93186032f84245c01bdbc3ec620c325d63"
+            },
+            "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
+            "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3"
           },
           {
             "id": "12.5_language_corrections",
-            "status": "ready",
+            "status": "passed",
             "model": "gpt-6-astra",
             "registered_paths": [
               "web/i18n/id-ID/extend.json",
@@ -1535,7 +1543,8 @@
               "12.5c_locale_group_c",
               "12.5_luna_review"
             ],
-            "scope": "Correct one P3 Indonesian label issue and one P2 Polish tenant/sandbox safety translation issue reported by independent Luna; preserve key order, placeholders, and unrelated existing values."
+            "scope": "Correct one P3 Indonesian label issue and one P2 Polish tenant/sandbox safety translation issue reported by independent Luna; preserve key order, placeholders, and unrelated existing values.",
+            "review_status": "passed"
           }
         ],
         "completed_analyses": [
@@ -1817,7 +1826,7 @@
           "integration_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8"
         },
         "12.5a_locale_group_a": {
-          "status": "review_passed_with_nonblocking_p3",
+          "status": "passed",
           "owner": "M06",
           "model": "gpt-6-astra",
           "agent": "/root/m06_12_5a_locale_a",
@@ -1861,7 +1870,7 @@
           "superseded_review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
           "review_thread_id": "01a0eb23-5525-7453-b3ca-7a750f637ca6",
           "superseded_duplicate_review_thread_id": "01a0eb21-61a6-7ad1-b2aa-b74eb261c9c2",
-          "review_status": "completed_no_blockers_one_p3",
+          "review_status": "passed_after_follow_up",
           "review_result": {
             "status": "completed_no_blockers_one_p3",
             "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
@@ -1881,7 +1890,9 @@
             "scope": "Read-only review of all nine registered locale files; 135-key parity/order, interpolation tokens, unchanged prior values, and operational copy checked.",
             "checks": "No P1/P2 issue and no misleading operational translation found. No tests or edits were performed by the reviewer."
           },
-          "observation": "Luna review found no blocking issue; one P3 Indonesian wording refinement remains for a scoped follow-up."
+          "observation": "Luna review found no blocking issue; one P3 Indonesian wording refinement remains for a scoped follow-up.",
+          "follow_up_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+          "follow_up_review": "evidence/M06/12.5-follow-up-review.md"
         },
         "12.5b_locale_group_b": {
           "status": "passed",
@@ -2008,7 +2019,7 @@
         },
         "12.5bc_independent_luna_review": {
           "id": "12.5bc_independent_luna_review",
-          "status": "follow_up_required",
+          "status": "passed",
           "owner": "M06",
           "model": "gpt-6-luna",
           "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
@@ -2028,10 +2039,9 @@
             "web/i18n/zh-Hant/extend.json"
           ],
           "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics.",
-          "review_status": "follow_up_required",
-          "finding_count": 1,
-          "blocker": "P2: Polish tenant terminology uses dzierżawa (lease), obscuring which tenant/code nodes revert to standard sandbox; fix and re-review before passing M06 locale review.",
-          "observation": "13 locales reviewed. All 85 keys per locale present; placeholders match; sandbox/cache warning semantics preserved. Exact-English residuals are established protocol/UI terms. Polish tenant terminology requires follow-up.",
+          "review_status": "passed_after_follow_up",
+          "finding_count": 0,
+          "observation": "Re-reviewed after locale corrections: Indonesian Edit labels use Ubah; Polish tenant wording is clear and preserves sandbox-full to standard sandbox behavior. 13 locales still have 85 keys each with zero missing/extra keys and zero placeholder mismatches. No P1/P2/P3 findings remain.",
           "superseded_client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
           "thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
           "dispatch_channel": "codex_fork_same_directory",
@@ -2042,7 +2052,7 @@
           "key_count_per_locale": 85,
           "missing_extra_keys": 0,
           "placeholder_mismatches": 0,
-          "blockers": [
+          "resolved_findings": [
             {
               "priority": "P2",
               "locale": "pl-PL",
@@ -2056,7 +2066,13 @@
                 "systemManage.codeExecutionControl.description": "Dozwolone adresy e-mail na tej liście należą do właścicieli tenantów. Węzły kodu w ich tenantach będą uruchamiane w pełnej piaskownicy (sandbox-full). Gdy lista jest pusta, wszystkie tenanty korzystają ze standardowej piaskownicy."
               }
             }
-          ]
+          ],
+          "follow_up_commits": {
+            "id_ID": "0b360565b4c733660225faecfd337538a0d635c3",
+            "pl_PL": "84805a93186032f84245c01bdbc3ec620c325d63"
+          },
+          "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
+          "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3"
         },
         "12.5_language_corrections": {
           "status": "passed",
