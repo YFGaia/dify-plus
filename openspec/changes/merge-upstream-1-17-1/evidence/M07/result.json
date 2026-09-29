@@ -546,7 +546,7 @@
       ]
     },
     "13.6": {
-      "status": "review_pending_13_4_follow_up",
+      "status": "revalidation_in_progress",
       "initial_review": {
         "model": "gpt-6-luna",
         "agent": "/root/m07_13_6_luna_acceptance",
@@ -584,6 +584,39 @@
           }
         ],
         "deployment_boundary": "Source node review does not establish deployability; no private image pull/digest, real credentials, containers, database migration, proxy, or Agent runtime was tested."
+      },
+      "follow_up_revalidation": {
+        "status": "conversation_provisioning",
+        "model": "gpt-6-sol",
+        "client_thread_id": "client-new-thread:c343887d-4f89-4fe7-8872-0a2e0db7c8bb",
+        "title": "M07 13.6 Compose 与镜像矩阵验收分析",
+        "base_commit": "8d39ba7c1ed9779285c66c3c10d2245c4257179f",
+        "dispatch_channel": "codex_project_worktree",
+        "registered_paths": [
+          "docker/docker-compose.dify-plus.yaml",
+          "api/docker/entrypoint.sh",
+          "docker/envs/core-services/api.env.example",
+          "docker/envs/core-services/dify-agent.env.example",
+          "docker/envs/core-services/local-sandbox.env.example",
+          "docker/envs/core-services/plugin-daemon.env.example",
+          "docker/envs/core-services/sandbox.env.example",
+          "docker/envs/core-services/shared.env.example",
+          "docker/envs/core-services/worker-beat.env.example",
+          "docker/envs/core-services/worker.env.example",
+          "docker/ssrf_proxy/squid-agent.conf.template",
+          "docker/ssrf_proxy/squid-common.conf.template",
+          "docker/ssrf_proxy/squid.conf.template",
+          ".github/workflows/build-push.yml",
+          ".github/workflows/docker-build.yml",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/ci-analysis.md",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit.tsv",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md"
+        ],
+        "scope": "Read-only current-commit revalidation of M07 13.6 acceptance, including prior finding freshness after 13.4 source/docs changes; audit Compose/image matrix, fork-private API/Web tags, unmerged/no-conflict Compose paths, CI supply separation, and evidence limits.",
+        "evidence": "evidence/M07/result.json#/subtasks/13.6/follow_up_revalidation"
       }
     }
   },
