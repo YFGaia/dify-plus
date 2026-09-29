@@ -393,7 +393,9 @@
           "path": "/Users/liuxingwang/.codex/worktrees/7155/dify-plus",
           "status": "preserved; no longer used as integration target after root validation"
         }
-      }
+      },
+      "source_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b",
+      "integration_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b"
     },
     "9.6_recommended_apps_page_status": {
       "status": "passed",
