@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a 实现与独立 Luna 代码审查完成，聚焦测试由新 Luna worktree 验证；12.2、12.3 与 12.4 的独立 Sol 分析任务正在 worktree provisioning，context caller 已由 M05 11.6 generated contract 解锁，12.1b 的独立 Sol 路径分析正在进行，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a 实现与独立 Luna 代码审查完成，聚焦测试由新 Luna worktree 验证；12.2、12.3 与 12.4 的独立 Sol 分析任务正在 worktree provisioning，context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对仍在进行，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -348,7 +348,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：preflight 已完成；12.1a 代码已由 `ea853611dc` 提交且独立 Luna 未发现阻断，但卡片测试因 cn@0.2.4 缺失而阻断；M05 11.6 standard generation 已通过，12.1b 的 Chat 宿主、fork 专用 context service 和两条聚焦测试路径已登记；独立 Sol 交叉核对仍在进行。前置节点 M04、M05 原源码验收已通过；M02 8.6 安全后端 follow-up 已通过。12.1 的 WebApp 开关/地址迁移可独立推进；message/context caller 的必填 query 与 `string[]`/`"ok"` 响应已由 M05 11.6 标准生成确认；12.1b 四条实现/测试路径已登记；独立 Astra 实施任务 `client-new-thread:a0ea804b-bf7d-4329-8d7b-c496befbfbb2` 正在 worktree `eafe` 实施，Sol 只读交叉核对继续进行。无需改路由或客户端传 app_id。12.2 应用中心和 12.3 API key scope/汇率现由两个独立 Sol 分析对话按只读范围调查，其中 12.3 对话 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning；12.3 必须让 API key 额度徽章读取 login_config 配置汇率，余额保留独立显示。应用中心响应需运行时校验；24 语言 lo-LA 扩展和 1.17.1 新宿主落点按已登记路径实施；V02 仍负责真实浏览器身份边界验证。分析证据见 `evidence/M06/result.json#/preflight` 与 `execution.log`。
+- 状态：preflight 已完成；12.1b 已由 Astra 实现并提交 `9ee0119ca1ae501008db1913777ac4582af17205`，20 项聚焦测试、四文件 scoped check 通过，独立 Luna 无阻断。12.1a 实现已由 `ea853611dc` 提交且代码审查通过；其卡片套件仍待独立 Luna 在可用的 frozen-dependency worktree 验证，主工作区缺少已锁定的 `cn@0.2.4`。12.1b 的 Sol 只读路径交叉核对仍在 provisioning。M04、M05 原源码验收及 M02 8.6 安全后端 follow-up 均已通过。下一步先完成 12.1a 测试，再推进 12.2–12.4 分析交接和其余 M06 实现。12.2 应用中心需运行时校验响应；12.3 API key 额度按 scope 显示并读取 login_config 汇率、余额独立显示；12.4 保持系统管理路由权限且不实施 P6。24 语言 lo-LA 扩展、旧引用清理及 V02 真实浏览器身份边界仍待完成。详情见 `evidence/M06/result.json`。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。

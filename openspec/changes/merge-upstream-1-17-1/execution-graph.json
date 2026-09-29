@@ -1044,18 +1044,18 @@
       "preflight_status": "completed",
       "implementation_progress": {
         "completed_subtasks": [
-          "preflight"
+          "preflight",
+          "12.1b"
         ],
         "current_subtask": {
-          "id": "12.1b",
-          "status": "implementation_active",
-          "evidence": "evidence/M06/result.json#/subtasks/12.1b",
+          "id": "12.1a_test_verification",
+          "status": "verification_provisioning",
+          "evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_test_verification",
           "dependencies": {
-            "M02_8.6": "30410b8fff",
-            "M05_11.6": "5177f98e1589117341ac152890d53d6abb3707ff"
+            "12.1a_implementation": "ea853611dc"
           }
         },
-        "next_subtask": "12.1b_implementation",
+        "next_subtask": "12.1a_test_verification",
         "parallel_subtasks": [
           {
             "id": "12.2_analysis",
@@ -1108,10 +1108,11 @@
           "registration_decision": "root source audit registered the four exact paths; Sol cross-check remains pending and cannot expand scope without re-registration"
         },
         "12.1b_implementation": {
-          "status": "implementation_active",
+          "status": "passed",
           "model": "gpt-6-astra",
           "client_thread_id": "client-new-thread:a0ea804b-bf7d-4329-8d7b-c496befbfbb2",
           "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+          "source_commit": "9ee0119ca1ae501008db1913777ac4582af17205",
           "registered_paths": [
             "web/app/components/base/chat/chat/index.tsx",
             "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
@@ -1121,6 +1122,9 @@
           "scope": "Restore current-conversation context list/delete behavior; anonymous cookie guard; 401 without redirect.",
           "worktree_path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
           "worktree_base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+          "verification_evidence": "evidence/M06/result.json#/subtasks/12.1b/implementation/verification",
+          "verification_status": "2 focused test files and all 20 tests passed; scoped four-file format, lint, and type checks passed; independent Luna review passed with no blockers",
+          "independent_review_status": "passed_no_blocking_defects",
           "observed_paths": [
             "web/app/components/base/chat/chat/index.tsx",
             "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",

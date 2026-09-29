@@ -156,7 +156,7 @@
       "created_from_commit": "6f828304a8"
     },
     "12.1b": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "model": "gpt-6-astra",
       "dependencies": {
         "M02_8.6": "passed; commit 30410b8fff",
@@ -174,7 +174,7 @@
         "anonymous WebApp does not call the Console context endpoint"
       ],
       "required_frontend_behavior": "Skip the Console context call when no Console CSRF cookie is available; a 401 must not trigger login redirect; use current conversation/message identifiers and never send app_id.",
-      "next_action": "Create one fresh Astra implementation task from the latest branch commit, restricted to the four registered paths.",
+      "next_action": "Continue 12.1a frozen-dependency test verification; reopen 12.1b only if the pending Sol path cross-check finds a missing required path or behavior.",
       "path_analysis": {
         "status": "conversation_provisioning",
         "model": "gpt-6-sol",
@@ -202,7 +202,7 @@
         "independent_sol_cross_check": "conversation_provisioning; must report any required scope change before Astra edits it"
       },
       "implementation": {
-        "status": "active",
+        "status": "committed",
         "model": "gpt-6-astra",
         "client_thread_id": "client-new-thread:a0ea804b-bf7d-4329-8d7b-c496befbfbb2",
         "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
@@ -213,7 +213,9 @@
           "web/service/message-context-extend.spec.ts"
         ],
         "scope": "Restore message context list and clear interaction with generated M05 types; skip without Console CSRF cookie and do not redirect on 401.",
-        "next_action": "Review the isolated task diff and actual focused verification output when its independent task completes.",
+        "next_action": "Complete; source commit is 9ee0119ca1ae501008db1913777ac4582af17205.",
+        "source_commit": "9ee0119ca1ae501008db1913777ac4582af17205",
+        "closeout_owner": "integrator",
         "worktree_path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
         "worktree_base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
         "observed_paths": [
@@ -221,9 +223,49 @@
           "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
           "web/service/message-context-extend.ts",
           "web/service/message-context-extend.spec.ts"
-        ]
+        ],
+        "verification": {
+          "status": "passed_and_independently_reviewed",
+          "performed_by": "integrator",
+          "source_commit": "9ee0119ca1ae501008db1913777ac4582af17205",
+          "tested_worktree_files_byte_identical_to_commit": true,
+          "toolchain": {
+            "node": "24.20.0",
+            "pnpm": "12.3.4",
+            "pnpm_executable": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm"
+          },
+          "runtime_environment": {
+            "TMPDIR": "/private/tmp",
+            "XDG_CACHE_HOME": "/private/tmp/dify-m06-cache",
+            "pnpm_config_store_dir": "/private/tmp/dify-m06-pnpm-store",
+            "pnpm_config_pm_on_fail": "ignore",
+            "pnpm_config_verify_deps_before_run": "false"
+          },
+          "unit_tests": {
+            "command": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm exec vp test run --project unit --configLoader native --no-cache --attachmentsDir /private/tmp/dify-m06-attachments-pnpm12 service/message-context-extend.spec.ts app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+            "result": "2 files passed; 20 tests passed",
+            "exit_code": 0
+          },
+          "scoped_check": {
+            "command": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm exec vp check web/service/message-context-extend.ts web/service/message-context-extend.spec.ts web/app/components/base/chat/chat/index.tsx web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+            "result": "4 files formatted; no warnings, lint errors, or scoped type errors",
+            "exit_code": 0
+          },
+          "environment_note": "pnpm's default store probe attempts a temporary write in the isolated worktree and fails under the sandbox; an explicit /private/tmp store fixes pnpm startup, and scoped vp check passed with authorized escalation for its .vite-temp write.",
+          "root_checkout_replay": {
+            "status": "dependency_setup_blocked",
+            "exit_code": 1,
+            "result": "The root checkout has no installed cn@0.2.4 package: the service test file passed all 10 tests, while the component suite failed during import resolution before collecting tests. The four committed files are byte-identical to the isolated worktree where both files passed; no dependency or lockfile was changed."
+          }
+        },
+        "independent_review": {
+          "status": "passed_no_blocking_defects",
+          "model": "gpt-6-luna",
+          "scope": "Old fork behavior, generated contract, backend handler, cookie/401 handling, conversation query-key isolation, late requests, and test coverage.",
+          "result": "No blocking issues found. The old delete-and-reload behavior is retained through cache removal and query invalidation; no app_id is sent."
+        }
       }
     }
   },
-  "next_subtask": "12.1b_implementation"
+  "next_subtask": "12.1a_test_verification"
 }
