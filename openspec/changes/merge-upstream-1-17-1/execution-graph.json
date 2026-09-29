@@ -1126,13 +1126,15 @@
           "12.2a_app_center_repair",
           "12.2c_studio_sync_menu",
           "12.3_analysis",
+          "12.3_implementation",
+          "12.3_independent_runtime_verification",
           "12.4_analysis",
           "12.5_analysis",
           "12.5_language_corrections",
-          "12.5a_locale_review",
-          "preflight",
           "12.5a_locale_group_a",
-          "12.5bc_independent_luna_review"
+          "12.5a_locale_review",
+          "12.5bc_independent_luna_review",
+          "preflight"
         ],
         "current_subtask": {
           "id": "12.3_app_api_key_quota_and_balance",
@@ -1168,7 +1170,7 @@
           "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted.",
           "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
         },
-        "next_subtask": "12.3_independent_runtime_verification",
+        "next_subtask": "12.4_implementation",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -2231,7 +2233,7 @@
           "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted."
         },
         "12.3_implementation": {
-          "status": "independent_verification_in_progress",
+          "status": "passed",
           "model": "gpt-6-astra",
           "implementation_commit": "12160c8b2b406dd92d9bb08dc440d6685749ec51",
           "registered_paths": [
@@ -2260,7 +2262,35 @@
           "limits": [
             "First isolated pnpm test attempt auto-attempted node@24.20 installation and was stopped (exit 129); no tests passed from that attempt.",
             "Zero/negative exchange rate hides conversion as conservative UI behavior; no product rule defines those values."
-          ]
+          ],
+          "verification": {
+            "status": "passed",
+            "review_target_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
+            "command": "node node_modules/vitest/vitest.mjs run app/components/api-key/__tests__/api-key-modal.spec.tsx app/components/main-nav/__tests__/index.spec.tsx",
+            "working_directory": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus/web",
+            "runtime": "Node 24.20.0 direct invocation; no pnpm/package manager",
+            "exit_code": 0,
+            "result": "2 test files, 90 tests passed",
+            "restore": "All six registered eafe target files were restored from /private/tmp/m06-12-3-vitest-backup/; git diff --exit-code on six targets returned 0 and restored SHA256 hashes matched initial eafe hashes. Existing message-context changes remained untouched."
+          },
+          "followup_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
+          "review_status": "passed"
+        },
+        "12.3_independent_runtime_verification": {
+          "status": "passed",
+          "model": "gpt-6-luna",
+          "agent": "/root/m06_12_3_direct_node_tests",
+          "evidence": "evidence/M06/12.3-verification.md",
+          "verification": {
+            "status": "passed",
+            "review_target_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
+            "command": "node node_modules/vitest/vitest.mjs run app/components/api-key/__tests__/api-key-modal.spec.tsx app/components/main-nav/__tests__/index.spec.tsx",
+            "working_directory": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus/web",
+            "runtime": "Node 24.20.0 direct invocation; no pnpm/package manager",
+            "exit_code": 0,
+            "result": "2 test files, 90 tests passed",
+            "restore": "All six registered eafe target files were restored from /private/tmp/m06-12-3-vitest-backup/; git diff --exit-code on six targets returned 0 and restored SHA256 hashes matched initial eafe hashes. Existing message-context changes remained untouched."
+          }
         }
       }
     },

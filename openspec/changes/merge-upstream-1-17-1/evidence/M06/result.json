@@ -912,7 +912,7 @@
       "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
     },
     "12.3_implementation": {
-      "status": "independent_verification_in_progress",
+      "status": "passed",
       "model": "gpt-6-astra",
       "implementation_commit": "12160c8b2b406dd92d9bb08dc440d6685749ec51",
       "registered_paths": [
@@ -935,13 +935,25 @@
       },
       "verification_task": {
         "agent": "/root/m06_12_3_direct_node_tests",
-        "status": "in_progress",
+        "status": "passed",
         "plan": "Run two registered Vitest specs through direct Node 24.20 without pnpm; overlay/restore six target files in eafe with hash verification."
       },
       "limits": [
         "First isolated pnpm test attempt auto-attempted node@24.20 installation and was stopped (exit 129); no tests passed from that attempt.",
         "Zero/negative exchange rate hides conversion as conservative UI behavior; no product rule defines those values."
-      ]
+      ],
+      "verification": {
+        "status": "passed",
+        "review_target_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
+        "command": "node node_modules/vitest/vitest.mjs run app/components/api-key/__tests__/api-key-modal.spec.tsx app/components/main-nav/__tests__/index.spec.tsx",
+        "working_directory": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus/web",
+        "runtime": "Node 24.20.0 direct invocation; no pnpm/package manager",
+        "exit_code": 0,
+        "result": "2 test files, 90 tests passed",
+        "restore": "All six registered eafe target files were restored from /private/tmp/m06-12-3-vitest-backup/; git diff --exit-code on six targets returned 0 and restored SHA256 hashes matched initial eafe hashes. Existing message-context changes remained untouched."
+      },
+      "followup_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
+      "review_status": "passed"
     }
   },
   "next_subtask": "12.3_app_api_key_quota_and_balance"
