@@ -1147,74 +1147,26 @@
           "12.6e_workflow_account_ownership_persistence"
         ],
         "current_subtask": {
-          "id": "12.6e_workflow_account_ownership_persistence",
-          "status": "passed",
-          "owner": "M02/M03",
+          "id": "12.6f_workflow_account_statistics",
+          "status": "in_progress",
+          "owner": "M04",
           "model": "gpt-6-astra",
-          "branch_head": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
-          "base_commit": "3dcf375c920d9a471512a6ab94a1c09344d9a9e2",
+          "branch_head": "5ebd4a9ace80d319edb682e7b3eb0bfd95d5bd96",
+          "base_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
           "dispatch_channel": "codex_project_local",
           "registered_paths": [
-            "api/controllers/web/workflow.py",
-            "api/services/webapp_console_identity_extend.py",
-            "api/services/workflow_run_account_extend.py",
-            "api/models/workflow_account_extend.py",
-            "api/models/__init__.py",
-            "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
-            "api/core/app/apps/workflow/app_generator.py",
-            "api/core/repositories/factory.py",
-            "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
-            "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
-            "api/core/repositories/celery_workflow_execution_repository.py",
-            "api/tasks/app_generate/workflow_execute_task.py",
-            "api/tasks/async_workflow_tasks.py",
-            "api/tasks/workflow_execution_tasks.py",
-            "api/tests/unit_tests/controllers/web/test_workflow.py",
-            "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
-            "api/tests/unit_tests/models/test_workflow.py",
-            "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
-            "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
-            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
-            "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
+            "api/controllers/console/app/workflow_statistic.py",
+            "api/services/workflow_statistic_query_service.py",
+            "api/repositories/api_workflow_run_repository.py",
+            "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+            "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+            "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+            "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+            "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
           ],
-          "scope": "Persist authenticated WebApp Console account ownership in a Dify Plus workflow_run_account_extend association table without altering upstream workflow_runs; propagate the actor through normal and async execution/recovery in SQLAlchemy and Logstore while preserving created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
-          "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
-          "analysis_evidence": "evidence/M06/12.6e-analysis.md",
-          "migration_revision": "020_workflow_run_account",
-          "migration_down_revision": "019_webapp_auth_switch",
-          "implementation_gate": "Use validated Console cookie actor only; create one idempotent association row in the same SQL transaction; preserve NULL first-write for anonymous/unknown runs; reject tenant/app mismatches on recovery and dual-write; no historical inference.",
-          "migration_chain": "Dify Plus extension chain; association table only; upstream workflow_runs unchanged",
-          "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-          "implementation_restart_reason": "Migration README forbids changing original system tables from migrations_extend; use an extension association table and restart implementation.",
-          "implementation_thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
-          "previous_implementation_thread_ids": [
-            "01a0eb8d-da62-7520-993c-6c1f8e7eed95",
-            "01a0eb97-fbb0-7650-8fa5-2fec800481ce"
-          ],
-          "superseded_implementation_thread_ids": [
-            "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-            "01a0eb8d-da62-7520-993c-6c1f8e7eed95"
-          ],
-          "reported_focused_tests": "173 passed (reported by active task; pending final independently recorded validation)",
-          "implementation_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
-          "verification_status": "passed_root_rechecked",
-          "verification_evidence": "evidence/M06/12.6e-verification.md",
-          "verification_snapshot_head": "ac4d5b1127c1c69ad774f0df8f13fba2745c47e5",
-          "review_status": "passed_root_code_review",
-          "focused_tests": "202 passed; rerun by root after Astra stopped",
-          "ruff_and_format": "passed_21_registered_paths",
-          "source_pyrefly": "0 diagnostics",
-          "tests_pyrefly": "120 baseline diagnostics; zero new diagnostics",
-          "migration_heads": {
-            "main": "c3f1a9b2e6d4",
-            "extension": "020_workflow_run_account after 019_webapp_auth_switch"
-          },
-          "external_validation_limits": [
-            "No live PostgreSQL/MySQL migration",
-            "No live Aliyun Logstore verification",
-            "No cross-process concurrency or index-visibility test"
-          ],
-          "review_thread_id": null
+          "scope": "Add account=true to three workflow charts using authenticated RequestContext.account_id; SQLAlchemy association joins scoped by workflow/tenant/app/account; Logstore trusted per-run actor filtering; preserve app-wide default and daily-terminals. Test account isolation, NULL/history, tenant/app scope.",
+          "analysis_evidence": "evidence/M06/12.6f-analysis.md"
         },
         "next_subtask": "12.6f_workflow_account_statistics",
         "parallel_subtasks": [
@@ -1821,7 +1773,7 @@
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "passed",
+            "status": "review_findings_open_followup_in_progress",
             "owner": "M02/M03",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1872,7 +1824,7 @@
             "verification_status": "passed_root_rechecked",
             "verification_evidence": "evidence/M06/12.6e-verification.md",
             "verification_snapshot_head": "ac4d5b1127c1c69ad774f0df8f13fba2745c47e5",
-            "review_status": "passed_root_code_review",
+            "review_status": "findings_open_p2",
             "focused_tests": "202 passed; rerun by root after Astra stopped",
             "ruff_and_format": "passed_21_registered_paths",
             "source_pyrefly": "0 diagnostics",
@@ -1886,11 +1838,26 @@
               "No live Aliyun Logstore verification",
               "No cross-process concurrency or index-visibility test"
             ],
-            "review_thread_id": null
+            "review_thread_id": "01a0eba3-ec07-7cb2-9e20-c14247500c60",
+            "review_head": "5ebd4a9ace80d319edb682e7b3eb0bfd95d5bd96",
+            "review_findings": [
+              {
+                "severity": "P2",
+                "path": "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+                "summary": "When SQL validate_scope raises a non-ValueError under dual-write, the current code logs and still appends to Logstore; fail closed and test no append."
+              },
+              {
+                "severity": "P2",
+                "path": "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
+                "summary": "When the extension table exists but its named scope index is missing, upgrade returns early and marks revision complete; ensure the index and test partial completion."
+              }
+            ],
+            "review_followup_subtask": "12.6e_review_followup_fail_closed_and_index_idempotency",
+            "review_evidence": "evidence/M06/12.6e-review.md"
           },
           {
             "id": "12.6f_workflow_account_statistics",
-            "status": "ready",
+            "status": "in_progress",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [

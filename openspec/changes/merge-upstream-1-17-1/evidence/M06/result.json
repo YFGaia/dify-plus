@@ -1307,7 +1307,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "ready",
+      "status": "implementation_in_progress",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1322,7 +1322,11 @@
         "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
       ],
-      "scope": "Add optional account=true to three workflow charts. SQLAlchemy joins workflow_run_account_extend on workflow_run_id+tenant_id+app_id+from_account_id; Logstore applies the trusted per-run from_account_id field. Exclude missing/NULL ownership; preserve app-wide defaults and daily-terminals."
+      "scope": "Add optional account=true to three workflow charts. SQLAlchemy joins workflow_run_account_extend on workflow_run_id+tenant_id+app_id+from_account_id; Logstore applies the trusted per-run from_account_id field. Exclude missing/NULL ownership; preserve app-wide defaults and daily-terminals.",
+      "implementation_base_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+      "dispatch_channel": "codex_project_local",
+      "implementation_model": "gpt-6-astra",
+      "latest_attempt_note": "12.6e passed and committed; 12.6f implementation has started from its registered analysis and nine paths. SQLAlchemy account filtering uses the fork association; Logstore requires confirming the event index/query contract before coding."
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
