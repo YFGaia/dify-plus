@@ -3385,7 +3385,7 @@
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "ready",
+      "status": "in_progress",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -3443,7 +3443,66 @@
         "evidence": "evidence/M08/preflight-analysis.md",
         "does_not_satisfy_M08_acceptance": true
       },
-      "readiness_evidence": "M02-M07 passed, including M06 integrated 399-test snapshot c474b9c42b; M08 acceptance itself has not yet run."
+      "readiness_evidence": "M02-M07 passed, including M06 integrated 399-test snapshot c474b9c42b; M08 acceptance itself has not yet run.",
+      "implementation_progress": {
+        "completed_subtasks": [],
+        "current_subtask": {
+          "id": "14.1_conflict_path_reconciliation_analysis",
+          "status": "ready",
+          "owner": "M08",
+          "model": "gpt-6-sol",
+          "base_commit": "b680479655a21f5c535298bc0ea4ba3154242090",
+          "registered_paths": [
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md"
+          ],
+          "scope": "Read-only reconcile all 91 original M00 conflict paths against M01-M07 committed implementations, owner/host tables, evidence and current HEAD. Produce one exact-row mapping for final disposition, owning implementation commit, final host/new location, validating test/evidence, and unresolved uncertainty. Do not change source, ownership TSVs, graph/tasks, lockfiles or Git index; write only the registered analysis report.",
+          "dependencies": [
+            "M01:passed",
+            "M02:passed",
+            "M03:passed",
+            "M04:passed",
+            "M05:passed",
+            "M06:passed",
+            "M07:passed"
+          ],
+          "acceptance": [
+            "All 91 original M00 paths represented exactly once in the proposed mapping.",
+            "Cross-check each row against current tree and committed evidence; distinguish verified disposition from owner-table inference.",
+            "Explicitly enumerate unresolved path/host/evidence gaps; do not claim M08 acceptance or modify source."
+          ],
+          "implementation_agent": "/root/m08_conflict_reconciliation_analysis"
+        },
+        "parallel_subtasks": [],
+        "next_subtask": "14.1_conflict_path_reconciliation_analysis"
+      },
+      "active_subtasks": {
+        "14.1_conflict_path_reconciliation_analysis": {
+          "id": "14.1_conflict_path_reconciliation_analysis",
+          "status": "ready",
+          "owner": "M08",
+          "model": "gpt-6-sol",
+          "base_commit": "b680479655a21f5c535298bc0ea4ba3154242090",
+          "registered_paths": [
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md"
+          ],
+          "scope": "Read-only reconcile all 91 original M00 conflict paths against M01-M07 committed implementations, owner/host tables, evidence and current HEAD. Produce one exact-row mapping for final disposition, owning implementation commit, final host/new location, validating test/evidence, and unresolved uncertainty. Do not change source, ownership TSVs, graph/tasks, lockfiles or Git index; write only the registered analysis report.",
+          "dependencies": [
+            "M01:passed",
+            "M02:passed",
+            "M03:passed",
+            "M04:passed",
+            "M05:passed",
+            "M06:passed",
+            "M07:passed"
+          ],
+          "acceptance": [
+            "All 91 original M00 paths represented exactly once in the proposed mapping.",
+            "Cross-check each row against current tree and committed evidence; distinguish verified disposition from owner-table inference.",
+            "Explicitly enumerate unresolved path/host/evidence gaps; do not claim M08 acceptance or modify source."
+          ],
+          "implementation_agent": "/root/m08_conflict_reconciliation_analysis"
+        }
+      }
     },
     {
       "id": "V01",
@@ -4045,7 +4104,7 @@
       ]
     }
   ],
-  "next_subtask": "M08",
+  "next_subtask": "14.1_conflict_path_reconciliation_analysis",
   "execution_control": {
     "coordinator_thread_id": "01a0ebc5-51b2-7e50-8e0b-5aad1931eb16",
     "updated_at": "2026-09-29",
