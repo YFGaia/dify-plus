@@ -1148,12 +1148,12 @@
         ],
         "current_subtask": {
           "id": "12.6f_logstore_actor_index",
-          "status": "implementation_in_progress",
+          "status": "implementation_complete_independent_verification_in_progress",
           "owner": "M04",
           "model": "gpt-6-astra",
-          "branch_head": "cfb25f3bc4",
-          "base_commit": "895831abea",
-          "implementation_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+          "branch_head": "2b0612367b276154c59137f9de27bb9ddbfe26c9",
+          "base_commit": "2b0612367b276154c59137f9de27bb9ddbfe26c9",
+          "implementation_thread_id": "01a0ebb6-81d1-7533-aac6-02fb68ae01e9",
           "dispatch_channel": "codex_project_local",
           "registered_paths": [
             "api/extensions/logstore/aliyun_logstore.py",
@@ -1161,7 +1161,10 @@
             "evidence/M06/12.6f-logstore-index-verification.md"
           ],
           "scope": "Register trusted from_account_id in the workflow_execution Logstore index as text/doc_value; cover creation and existing-index ensure while preserving user custom indexes.",
-          "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8"
+          "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+          "independent_verification_thread_id": "01a0ebb4-d6a5-7073-ac10-7c1ffbe7016f",
+          "implementation_tests": "3 passed",
+          "implementation_static_checks": "Ruff check/format and diff-check passed"
         },
         "next_subtask": "12.6f_logstore_actor_index",
         "parallel_subtasks": [
@@ -2052,14 +2055,20 @@
             ],
             "scope": "Register the trusted from_account_id field as a workflow_execution Logstore index key required by account-scoped charts; add focused configuration coverage. Preserve upstream WorkflowRun and all existing custom index behavior. This is a separate prerequisite task; no edits until this registration is committed.",
             "dependency": "12.6f_analysis:analysis_complete_paths_registered",
-            "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
-            "base_commit": "895831abea",
+            "thread_id": "01a0ebb6-81d1-7533-aac6-02fb68ae01e9",
+            "base_commit": "2b0612367b276154c59137f9de27bb9ddbfe26c9",
             "dependencies": [
               "12.6e_review_followup:passed"
             ],
             "analysis_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
             "source_finding": "aliyun_logstore.py derives workflow_execution indexes from upstream WorkflowRun plus error_message/started_at; from_account_id is written by the fork but is not registered/indexed for SQL aggregation queries.",
-            "evidence": "evidence/M06/12.6f-logstore-index-verification.md"
+            "evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+            "implementation_tests": "3 passed",
+            "implementation_static_checks": "Ruff check/format and diff-check passed",
+            "independent_verification_thread_id": "01a0ebb4-d6a5-7073-ac10-7c1ffbe7016f",
+            "implementation_source_sha256": "4a98e3efab6c2988048998ca4b5050062a621749116682f3b315568213d46e12",
+            "implementation_test_sha256": "72d860975c0fb8f20f4e053ddd4235422d2ee36ff5a37a29e7afe271675e15e4",
+            "dispatch_channel": "codex_project_local"
           }
         ],
         "completed_analyses": [
@@ -2764,7 +2773,7 @@
         },
         "12.6f_logstore_actor_index": {
           "id": "12.6f_logstore_actor_index",
-          "status": "implementation_in_progress",
+          "status": "implementation_complete_independent_verification_in_progress",
           "owner": "M04",
           "model": "gpt-6-astra",
           "registered_paths": [
@@ -2775,7 +2784,12 @@
           "scope": "Register the trusted from_account_id field as a workflow_execution Logstore index key required by account-scoped charts; add focused configuration coverage. Preserve upstream WorkflowRun and all existing custom index behavior. This is a separate prerequisite task; no edits until this registration is committed.",
           "dependency": "12.6f_analysis:analysis_complete_paths_registered",
           "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
-          "base_commit": "895831abea"
+          "base_commit": "895831abea",
+          "implementation_tests": "3 passed",
+          "implementation_static_checks": "Ruff check/format and diff-check passed",
+          "independent_verification_thread_id": "01a0ebb4-d6a5-7073-ac10-7c1ffbe7016f",
+          "implementation_source_sha256": "4a98e3efab6c2988048998ca4b5050062a621749116682f3b315568213d46e12",
+          "implementation_test_sha256": "72d860975c0fb8f20f4e053ddd4235422d2ee36ff5a37a29e7afe271675e15e4"
         }
       },
       "next_subtask": "12.6f_logstore_actor_index",
