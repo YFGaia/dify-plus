@@ -1137,18 +1137,25 @@
           "preflight",
           "12.3_final_runtime_verification",
           "12.4_implementation",
-          "12.4_final_runtime_verification",
-          "12.1b_path_analysis",
-          "12.5e_final_locale_parity"
+        "12.4_final_runtime_verification",
+        "12.1b_path_analysis",
+        "12.5e_final_locale_parity",
+        "12.6c_user_overview_backend_contract"
         ],
         "current_subtask": {
-          "id": "12.6_node_acceptance",
-          "status": "ready_for_analysis",
+          "id": "12.6a_home_navigation",
+          "status": "implementation_present_verification_pending",
           "owner": "M06",
-          "model": "gpt-6-sol",
-          "scope": "Review current source and evidence against M06 parent acceptance gates: fork routes on new hosts, independent WebApp switches, 24 locale resources, old tests at real host, and version-bound evidence. Identify any gaps and exact next implementation/verification paths."
+          "model": "gpt-6-astra",
+          "thread_id": "01a0eb56-3ff2-7443-b0ac-81c605b54338",
+          "registered_paths": [
+            "web/app/components/main-nav/routes.ts",
+            "web/app/components/main-nav/index.tsx",
+            "web/app/components/main-nav/__tests__/index.spec.tsx"
+          ],
+          "scope": "Restore fork app-center reachability as an independent MainNav route at /explore/apps-center-extend with separate active matching; preserve upstream Home at /. Verify the rendered link, role visibility, and active route."
         },
-        "next_subtask": "12.6_node_acceptance",
+        "next_subtask": "12.6a_home_navigation",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1673,6 +1680,108 @@
             "review_target_commit": "5bb83572cad2253f129ec308d32770e0392710de",
             "evidence": "evidence/M06/12.5-final-verification.md",
             "observation": "Official checker passed for all 24 locales; id-ID/pl-PL values/placeholders preserved; 909 JSON hashes unchanged."
+          },
+          {
+            "id": "12.6_parent_acceptance_analysis",
+            "status": "completed_gaps_found",
+            "owner": "M06",
+            "model": "gpt-6-sol",
+            "reviewers": [
+              "/root/m06_12_6_sol_acceptance_gap",
+              "/root/m06_12_6_user_overview_intent"
+            ],
+            "review_target_commit": "e40296f41ec507c267c7ef624ba8b27d749fa4dc",
+            "evidence": "evidence/M06/12.6-analysis.md"
+          },
+          {
+            "id": "12.6b_system_integration_host_test",
+            "status": "registered_ready",
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "implementation_commit": "6061766c11",
+          "registered_paths": [
+              "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
+            ],
+            "scope": "Add behavior tests for the owner-linked system integration page tabs at the actual host."
+          },
+          {
+            "id": "12.6c_user_overview_backend_contract",
+            "status": "completed_handoff_registered",
+            "owner": "M04",
+            "model": "gpt-6-sol",
+            "agent": "/root/m04_user_overview_backend_contract",
+            "status_evidence": "evidence/M06/12.6-analysis.md",
+            "scope": "Read-only contract analysis complete. Six current charts require account=true semantics on three app and three workflow statistics endpoints. Ordinary filtering can use from_account_id; WebApp workflow requires a new trusted account actor persisted to SQLAlchemy and Logstore. Never infer identity from EndUser.external_user_id or backfill untrusted history."
+          },
+          {
+            "id": "12.6d_app_account_statistics",
+            "status": "registered_ready",
+            "owner": "M04",
+            "model": "gpt-6-astra",
+            "registered_paths": [
+              "api/controllers/console/app/statistic.py",
+              "api/services/app_statistic_query.py",
+              "api/repositories/app_statistic_query_repository.py",
+              "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
+              "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
+            ],
+            "scope": "Add optional account-scoped behavior to the three chart-backed app statistics endpoints using authenticated RequestContext.account_id and trusted from_account_id. Preserve default app-wide behavior and existing debugger/type filters."
+          },
+          {
+            "id": "12.6e_workflow_account_ownership_persistence",
+            "status": "registered_ready",
+            "owner": "M02",
+            "model": "gpt-6-astra",
+            "registered_paths": [
+              "api/models/workflow.py",
+              "api/core/app/apps/workflow/generate_task_pipeline.py",
+              "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
+              "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+              "api/repositories/api_workflow_run_repository.py",
+              "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+            ],
+            "scope": "Propagate a server-trusted Console account actor for WebApp workflow executions through SQLAlchemy and Logstore persistence/query boundaries; do not infer historical ownership. Refine exact migration and test paths during preflight before code."
+          },
+          {
+            "id": "12.6f_workflow_account_statistics",
+            "status": "registered_blocked_by_12.6e",
+            "owner": "M04",
+            "model": "gpt-6-astra",
+            "registered_paths": [
+              "api/controllers/console/app/workflow_statistic.py",
+              "api/services/workflow_statistic_query_service.py",
+              "api/repositories/api_workflow_run_repository.py",
+              "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+              "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py"
+            ],
+            "scope": "Add optional account scope to the three chart-backed workflow statistics endpoints, sourced from authenticated account context and the trusted persisted actor. Keep app-wide default and SQLAlchemy/Logstore parity."
+          },
+          {
+            "id": "12.6g_user_overview_ui_contract",
+            "status": "registered_blocked_by_12.6d_12.6f",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "registered_paths": [
+              "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/page.tsx",
+              "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/layout-main.tsx",
+              "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/__tests__/page.spec.tsx"
+            ],
+            "scope": "Await route params, retain account=true for every period including all time, and enforce the same canMonitor guard as overview. Add host behavior tests after endpoint contracts are implemented."
+          },
+          {
+            "id": "12.6h_contract_generation",
+            "status": "registered_blocked_by_12.6d_12.6f",
+            "owner": "M05/M08",
+            "model": "gpt-6-astra",
+            "registered_paths": [
+              "packages/contracts/openapi/console-openapi.json",
+              "api/openapi/markdown/console-openapi.md",
+              "packages/contracts/generated/api/console/apps/types.gen.ts",
+              "packages/contracts/generated/api/console/apps/zod.gen.ts",
+              "packages/contracts/generated/api/console/apps/orpc.gen.ts"
+            ],
+            "scope": "Regenerate and review only after both backend endpoint contracts agree; generated contract files remain under M05/M08 ownership."
           }
         ],
         "completed_analyses": [
@@ -1729,7 +1838,8 @@
         "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
         "web/app/components/main-nav/components/account-money-extend.tsx",
         "web/app/components/main-nav/index.tsx",
-        "web/app/components/main-nav/__tests__/index.spec.tsx"
+        "web/app/components/main-nav/__tests__/index.spec.tsx",
+        "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
       ],
       "active_subtasks": {
         "12.3_analysis": {
@@ -2351,7 +2461,7 @@
       "owner_role": "部署负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "in_progress",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -2412,76 +2522,38 @@
           "13.2",
           "13.3",
           "13.4",
-          "13.5"
+          "13.5",
+          "13.6"
         ],
         "current_subtask": {
-          "id": "13.6_manifest_artifact_fix_independent_review",
-          "status": "review_in_progress",
+          "id": "complete",
+          "status": "passed",
+          "owner": "M07",
           "model": "gpt-6-luna",
-          "thread_id": "01a0eb51-38be-7641-ad06-5c98228b034b",
-          "title": "M07 13.6 Luna 复核 GitLab manifest 修复",
-          "base_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
-          "dispatch_channel": "codex_shared_local",
-          "registered_paths": [
-            ".gitlab-ci.yml"
-          ],
-          "scope": "Read-only review that GitLab API/Web manifest jobs use the exact architecture tags pushed by their build jobs and that cross-job txt/artifacts dependency is fully removed.",
-          "implementation_thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
-          "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
-          "evidence": "evidence/M07/result.json#/subtasks/13.6/artifact_follow_up_review"
+          "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
+          "observation": "Static source acceptance passed after the GitLab manifest fix; pipeline/private image supply remains unverified."
         },
-        "next_subtask": "13.6_final_acceptance_revalidation",
+        "next_subtask": "complete",
         "completed_review": {
           "id": "13.6_source_acceptance_revalidation",
-          "status": "review_complete_p2_remediation_pending",
-          "model": "gpt-6-sol",
-          "title": "M07 13.6 Compose 与镜像矩阵验收",
-          "base_commit": "9b6937464d6cb845a10a3193230ee6683ca3eecb",
-          "dispatch_channel": "codex_shared_local",
-          "registered_paths": [
-            "docker/docker-compose.dify-plus.yaml",
-            "api/docker/entrypoint.sh",
-            "docker/envs/core-services/api.env.example",
-            "docker/envs/core-services/dify-agent.env.example",
-            "docker/envs/core-services/local-sandbox.env.example",
-            "docker/envs/core-services/plugin-daemon.env.example",
-            "docker/envs/core-services/sandbox.env.example",
-            "docker/envs/core-services/shared.env.example",
-            "docker/envs/core-services/worker-beat.env.example",
-            "docker/envs/core-services/worker.env.example",
-            "docker/ssrf_proxy/squid-agent.conf.template",
-            "docker/ssrf_proxy/squid-common.conf.template",
-            "docker/ssrf_proxy/squid.conf.template",
-            ".github/workflows/build-push.yml",
-            ".github/workflows/docker-build.yml",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M07/ci-analysis.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit.tsv",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md"
+          "status": "resolved_by_follow_up",
+          "model": "gpt-6-luna",
+          "reviewer": "/root/m07_13_6_luna_manifest_fix_review",
+          "review_target_commit": "7f96eefd6c758be81e25f3535f5bb43c9cc8d073",
+          "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+          "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
+          "findings_remaining": [],
+          "limits": [
+            "No GitLab pipeline or private image publication/pull was executed."
           ],
-          "scope": "One-shot, read-only local audit of M07 13.6 at current branch HEAD; revalidate prior findings against current Compose/env/CI source, fork image matrix, registration and evidence boundaries. No edits, commits, containers, private pulls, secrets, or network.",
-          "evidence": "evidence/M07/result.json#/subtasks/13.6/follow_up_revalidation",
-          "thread_id": "01a0eb47-c6b5-7c90-985a-e00b6d53bd6c",
-          "superseded_provisioning_attempt": {
-            "status": "superseded_unresolved_provisioning",
-            "model": "gpt-6-sol",
-            "client_thread_id": "client-new-thread:c343887d-4f89-4fe7-8872-0a2e0db7c8bb",
-            "title": "M07 13.6 Compose 与镜像矩阵验收",
-            "base_commit": "8d39ba7c1ed9779285c66c3c10d2245c4257179f",
-            "dispatch_channel": "codex_project_worktree",
-            "reason": "No resolvable threadId appeared in list_threads after provisioning; superseded by a one-shot local read-only Sol thread."
-          },
-          "review_target_commit": "8dbd5e6a03e6966446ee413e0eea9bf656c9fb7c",
-          "review_status": "findings_blocking",
-          "review_evidence": "evidence/M07/13.6-independent-review.md",
-          "next_subtask": "13.6_gitlab_manifest_artifact_fix"
+          "review_status": "initial_review_p2_resolved",
+          "resolved_by_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+          "follow_up_review": "evidence/M07/13.6-manifest-fix-followup-review.md"
         },
         "parallel_subtasks": [
           {
             "id": "13.6_current_review",
-            "status": "completed_with_P2_followup",
+            "status": "completed_with_followup_resolved",
             "owner": "M07",
             "model": "gpt-6-sol",
             "thread_id": "01a0eb47-c6b5-7c90-985a-e00b6d53bd6c",
@@ -2491,20 +2563,59 @@
               "P2 .gitlab-ci.yml manifest files have no artifact transfer and collide across architecture jobs",
               "P2 final result metadata must be reconciled before acceptance",
               "P3 required JWE deployment secret remains unverified"
-            ]
-          }
-        ],
-        "completed_subtasks": [
+            ],
+            "resolved_by_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+            "follow_up_review": "evidence/M07/13.6-manifest-fix-followup-review.md",
+            "resolved_findings": [
+              "P2 manifest text-file transfer resolved by direct architecture tag references",
+              "stale provisioning/result evidence corrected before final acceptance"
+            ],
+            "remaining_boundary": "GitLab pipeline and private image supply were not executed."
+          },
           {
             "id": "13.6_gitlab_manifest_artifact_fix",
-            "status": "implementation_complete",
+            "status": "passed",
+            "owner": "M07",
             "model": "gpt-6-astra",
             "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
             "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
             "registered_paths": [
               ".gitlab-ci.yml"
             ],
-            "evidence": "evidence/M07/result.json#/subtasks/13.6/artifact_fix"
+            "verification_evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
+            "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
+          },
+          {
+            "id": "13.6_gitlab_manifest_fix_luna_review",
+            "status": "passed",
+            "owner": "M07",
+            "model": "gpt-6-luna",
+            "agent": "/root/m07_13_6_luna_manifest_fix_review",
+            "review_target_commit": "7f96eefd6c758be81e25f3535f5bb43c9cc8d073",
+            "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
+            "verification_evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
+          }
+        ],
+        "completed_subtasks": [
+          {
+            "id": "13.6_gitlab_manifest_artifact_fix",
+            "status": "passed",
+            "model": "gpt-6-astra",
+            "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
+            "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+            "registered_paths": [
+              ".gitlab-ci.yml"
+            ],
+            "verification": "Ruby Psych YAML parse; six sh -n; static tag/config assertions; diff check passed."
+          },
+          {
+            "id": "13.6_manifest_artifact_fix_independent_review",
+            "status": "passed",
+            "model": "gpt-6-luna",
+            "thread_id": "01a0eb51-38be-7641-ad06-5c98228b034b",
+            "review_target_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+            "findings": [],
+            "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
           }
         ]
       },

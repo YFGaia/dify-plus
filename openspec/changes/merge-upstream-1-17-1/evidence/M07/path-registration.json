@@ -23,12 +23,21 @@
     "docker/ssrf_proxy/squid-common.conf.template",
     "docker/ssrf_proxy/squid.conf.template",
     ".github/workflows/build-push.yml",
-    ".github/workflows/docker-build.yml"
+    ".github/workflows/docker-build.yml",
+    ".gitlab-ci.yml"
   ],
   "excluded_until_registered": [
     "api/Dockerfile",
     "web/Dockerfile",
     "web/docker/entrypoint.sh"
   ],
-  "scope_note": "No implementation edits were made in this analysis subtask. New write paths discovered later must be registered before editing."
+  "scope_note": "The preexisting M07 scope remains. The current 13.6 follow-up registers only .gitlab-ci.yml before implementation; no other path is added.",
+  "registered_followup_paths": [
+    {
+      "path": ".gitlab-ci.yml",
+      "owner": "M07",
+      "subtask": "13.6 GitLab manifest artifact transfer",
+      "reason": "Sol 13.6 revalidation found P2: architecture jobs write manifests that downstream isolated jobs read without artifact transfer; exact one-path follow-up is now registered."
+    }
+  ]
 }

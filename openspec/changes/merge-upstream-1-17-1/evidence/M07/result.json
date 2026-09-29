@@ -546,7 +546,7 @@
       ]
     },
     "13.6": {
-      "status": "review_follow_up_p2_remediation_required",
+      "status": "passed_static_acceptance",
       "initial_review": {
         "model": "gpt-6-luna",
         "agent": "/root/m07_13_6_luna_acceptance",
@@ -586,7 +586,7 @@
         "deployment_boundary": "Source node review does not establish deployability; no private image pull/digest, real credentials, containers, database migration, proxy, or Agent runtime was tested."
       },
       "follow_up_revalidation": {
-        "status": "completed_findings_block_acceptance",
+        "status": "completed_with_p2_resolved",
         "model": "gpt-6-sol",
         "title": "M07 13.6 Compose 与镜像矩阵验收",
         "base_commit": "9b6937464d6cb845a10a3193230ee6683ca3eecb",
@@ -615,7 +615,7 @@
           "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md"
         ],
         "scope": "One-shot, read-only local audit of M07 13.6 at current branch HEAD; revalidate prior findings against current Compose/env/CI source, fork image matrix, registration and evidence boundaries. No edits, commits, containers, private pulls, secrets, or network.",
-        "evidence": "evidence/M07/13.6-current-review.md",
+        "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
         "thread_id": "01a0eb47-c6b5-7c90-985a-e00b6d53bd6c",
         "superseded_worktree_attempt": {
           "status": "superseded_unresolved_provisioning",
@@ -627,7 +627,7 @@
           "reason": "No resolvable threadId appeared in list_threads after provisioning; superseded by a one-shot local read-only Sol thread."
         },
         "reviewer_model": "gpt-6-sol",
-        "review_target_commit": "8dbd5e6a03e6966446ee413e0eea9bf656c9fb7c",
+        "review_target_commit": "7f96eefd6c758be81e25f3535f5bb43c9cc8d073",
         "findings": [
           {
             "priority": "P2",
@@ -659,39 +659,30 @@
         ],
         "next_action": "Implement and statically verify minimal .gitlab-ci.yml manifest creation fix; keep M07 13.6 open until follow-up review.",
         "review_result": {
-          "status": "blocked_pending_followup",
-          "review_target_commit": "8dbd5e6a03e6966446ee413e0eea9bf656c9fb7c",
-          "current_relevant_source_binding": "CI/Compose/env/workflow paths verified unchanged through e40296f41ec507c267c7ef624ba8b27d749fa4dc",
-          "findings": [
-            {
-              "priority": "P2",
-              "path": ".gitlab-ci.yml",
-              "issue": "Four architecture build jobs write manifest files but declare no artifact transfer; same-service architectures write colliding paths, so later manifest jobs may not receive inputs. Static risk only; no pipeline run.",
-              "next_action": "Register .gitlab-ci.yml and repair unique artifact paths/needs in a new Astra subtask."
-            },
-            {
-              "priority": "P2",
-              "path": "evidence/M07/result.json",
-              "issue": "Stale provisioning/completion metadata prevents final evidence from being version-bound and reconciled with tasks.md.",
-              "next_action": "Update evidence after CI repair and final review."
-            },
-            {
-              "priority": "P3",
-              "path": "docker/.env.example",
-              "issue": "Required JWE secret remains a deployment prerequisite; root example documents it, but real value is unverified.",
-              "next_action": "Keep as deployment boundary; no source blocker."
-            }
+          "status": "passed_with_nonblocking_deployment_limits",
+          "blocking_findings": [],
+          "previous_P2": "resolved by c707b8fcdc58b30bb45785426cc586ec848f05af; manifest jobs explicitly reference pushed amd64/arm64 tags",
+          "checks": [
+            "YAML parsed",
+            "four build jobs and two manifest jobs verified",
+            "architecture tag pushes and manifest inputs verified",
+            "needs edges preserved",
+            "no manifest txt references",
+            "registry/login/image variables unchanged"
           ],
-          "non_blocking_checks": [
-            "Private fork API/Web image matrix remains correct in source.",
-            "Default and all-profile Compose config checks passed.",
-            "GitHub workflows remain byte-identical to upstream and fork validation uses push:false."
+          "limits": [
+            "No GitLab pipeline run",
+            "No private image digest or host pull verification",
+            "No secrets or container/runtime validation"
           ],
-          "evidence": "evidence/M07/13.6-current-review.md"
-        }
+          "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
+        },
+        "reviewer": "/root/m07_13_6_luna_manifest_fix_review",
+        "resolved_by_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+        "follow_up_review": "evidence/M07/13.6-manifest-fix-followup-review.md"
       },
       "artifact_fix": {
-        "status": "implementation_complete",
+        "status": "passed",
         "model": "gpt-6-astra",
         "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
         "title": "M07 13.6 Astra 修复 GitLab manifest 传递",
@@ -705,19 +696,18 @@
         "evidence": "evidence/M07/result.json#/subtasks/13.6/artifact_fix",
         "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
         "verification": {
-          "yaml_parse": "passed",
-          "static_tag_and_config_assertions": "passed",
-          "shell_syntax": "6 job scripts passed sh -n",
-          "git_diff_check": "passed",
-          "scope": "commit contains only .gitlab-ci.yml"
+          "astra_static": "YAML parsed; exact scoped diff; all six shell scripts pass sh -n; git diff --check passed",
+          "independent_luna": "passed, no P1/P2/P3; target .gitlab-ci.yml byte-identical to c707b8fcdc58b30bb45785426cc586ec848f05af",
+          "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
         },
         "limits": [
           "No GitLab pipeline execution",
           "No network or private registry access"
-        ]
+        ],
+        "observation": "Manifest jobs now explicitly consume the already-pushed per-architecture tags; no GitLab pipeline execution was claimed."
       },
       "artifact_follow_up_review": {
-        "status": "review_in_progress",
+        "status": "passed",
         "model": "gpt-6-luna",
         "thread_id": "01a0eb51-38be-7641-ad06-5c98228b034b",
         "title": "M07 13.6 Luna 复核 GitLab manifest 修复",
@@ -728,20 +718,36 @@
         ],
         "scope": "Independent read-only review of manifest tags vs build tags, API/Web job wiring, and removal of txt/artifacts dependency.",
         "implementation_thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
-        "evidence": "evidence/M07/result.json#/subtasks/13.6/artifact_follow_up_review"
-      }
+        "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
+        "review_target_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+        "reviewer_model": "gpt-6-luna",
+        "findings": [],
+        "verification": {
+          "service_tag_mapping": "API/Web each reference the exact amd64 and arm64 tags pushed by matching build jobs",
+          "manifest_file_transport": "no manifest_api.txt or manifest_web.txt references remain",
+          "job_dependencies": "each manifest needs the two matching architecture jobs",
+          "workflow_and_registry": "tag-only rule, shared registry login, push/build behavior retained",
+          "checks": "YAML parse, shell syntax, target diff check passed"
+        },
+        "limits": [
+          "No GitLab pipeline or private registry operations",
+          "No image push/digest/manifest publication verification"
+        ]
+      },
+      "acceptance_boundary": "Source/static acceptance passed; not deployment evidence."
     }
   },
   "tasks_complete": [
     "13.1",
     "13.2",
     "13.3",
-    "13.5"
+    "13.5",
+    "13.6"
   ],
-  "next_subtask": "13.6_gitlab_manifest_artifact_transfer",
+  "next_subtask": "complete",
   "known_limits": [
     "No private image pull, tag/digest or deployment-host verification has been performed; GitHub build validation is not private fork image supply evidence.",
-    "The GitLab private-image manifest job statically appears to lack cross-job artifacts and uses colliding architecture manifest filenames; this unexecuted pipeline requires a registered repair task if selected.",
-    "agent_backend requires a configured JWE server secret while its Agent Stub URL is set, including with Agent v2 disabled."
+    "agent_backend requires a configured JWE server secret while its Agent Stub URL is set, including with Agent v2 disabled.",
+    "No GitLab pipeline execution, private image digest/pull, deployment secret, container start, database migration, or Agent runtime evidence; source acceptance does not imply deployability."
   ]
 }

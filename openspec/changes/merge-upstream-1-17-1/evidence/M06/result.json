@@ -1045,7 +1045,54 @@
       "agent": "/root/m06_12_5_locale_final_luna",
       "review_target_commit": "5bb83572cad2253f129ec308d32770e0392710de",
       "evidence": "evidence/M06/12.5-final-verification.md"
+    },
+    "12.6_analysis": {
+      "status": "gaps_found_followups_registered",
+      "model": "gpt-6-sol",
+      "reviewers": [
+        "/root/m06_12_6_sol_acceptance_gap",
+        "/root/m06_12_6_user_overview_intent"
+      ],
+      "review_target_commit": "e40296f41ec507c267c7ef624ba8b27d749fa4dc",
+      "findings": [
+        "MainNav lost the explicitly planned fork app-center entry; restore it as a distinct route and preserve upstream Home at /.",
+        "System integration has no host behavior test; exact new spec path registered.",
+        "user_overview_extend remains direct-only as before but personal-statistics account filter, Promise params, allTime behavior and canMonitor gate are not correct/verified; do not invent navigation.",
+        "Backend contract audit is needed because current statistics APIs and generated types do not accept account scope; identity must come from authenticated account."
+      ],
+      "evidence": "evidence/M06/12.6-analysis.md",
+      "next_subtask": "12.6a_home_navigation"
+    },
+    "12.6c_user_overview_backend_contract": {
+      "status": "completed_handoff_registered",
+      "model": "gpt-6-sol",
+      "agent": "/root/m04_user_overview_backend_contract",
+      "summary": [
+        "Six chart-backed endpoints need optional account scope: three app and three workflow statistics endpoints; preserve app-wide default behavior.",
+        "Resolve identity only from authenticated RequestContext.account_id; ordinary app filtering uses trusted from_account_id.",
+        "WebApp workflow executions lack trusted Console account ownership in both SQLAlchemy and Logstore. Persist a trusted actor before implementing workflow filters; do not infer or backfill historical ownership from external_user_id."
+      ],
+      "registered_followups": [
+        "12.6d_app_account_statistics",
+        "12.6e_workflow_account_ownership_persistence",
+        "12.6f_workflow_account_statistics",
+        "12.6g_user_overview_ui_contract",
+        "12.6h_contract_generation"
+      ],
+      "evidence": "evidence/M06/12.6-analysis.md"
+    },
+    "12.6a_home_navigation": {
+      "status": "implementation_present_verification_pending",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "web/app/components/main-nav/routes.ts",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "implementation_commit": "6061766c11",
+      "summary": "Added an independent fork app-center route and active state while keeping upstream Home at /. Focused Vitest could not start because pnpm 12.3.4 signature verification could not fetch registry signatures in this environment.",
+      "evidence": "evidence/M06/12.6-analysis.md"
     }
   },
-  "next_subtask": "12.6_node_acceptance"
+  "next_subtask": "12.6a_home_navigation_verification"
 }
