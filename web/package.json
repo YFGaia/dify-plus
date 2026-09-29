@@ -11,7 +11,7 @@
   },
   "scripts": {
     "analyze": "next experimental-analyze",
-    "build": "next build",
+    "build": "next build --webpack",
     "build:vinext": "vinext build",
     "dev": "next dev",
     "dev:inspect": "next dev --inspect",
