@@ -1145,29 +1145,39 @@
           "12.6d_app_account_statistics"
         ],
         "current_subtask": {
-          "id": "12.6e_workflow_actor_analysis",
-          "status": "analysis_in_progress",
-          "owner": "M02",
-          "model": "gpt-6-sol",
-          "branch_head": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
-          "thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
-          "title": "M06 12.6e trusted workflow actor analysis",
-          "base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
-          "dispatch_channel": "codex_projectless_readonly",
-          "read_only": true,
+          "id": "12.6e_workflow_account_ownership_persistence",
+          "status": "implementation_in_progress",
+          "owner": "M02/M03",
+          "model": "gpt-6-astra",
+          "branch_head": "ad74ac0f0f",
+          "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
+          "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
           "registered_paths": [
+            "api/controllers/web/workflow.py",
+            "api/services/webapp_console_identity_extend.py",
             "api/models/workflow.py",
-            "api/core/app/apps/workflow/generate_task_pipeline.py",
+            "api/migrations/versions/2026_09_29_1200-ec4aa03225de_add_workflow_run_from_account_id.py",
+            "api/core/app/apps/workflow/app_generator.py",
+            "api/core/repositories/factory.py",
             "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
             "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
-            "api/repositories/api_workflow_run_repository.py",
-            "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
-            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+            "api/core/repositories/celery_workflow_execution_repository.py",
+            "api/tasks/app_generate/workflow_execute_task.py",
+            "api/tasks/async_workflow_tasks.py",
+            "api/tasks/workflow_execution_tasks.py",
+            "api/tests/unit_tests/controllers/web/test_workflow.py",
+            "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
+            "api/tests/unit_tests/models/test_workflow.py",
+            "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
+            "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
+            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+            "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
           ],
-          "scope": "Read-only trace of authenticated WebApp Console account actor propagation into SQLAlchemy and Logstore workflow execution storage/query, identify exact migration and test paths; never infer historical ownership.",
-          "implementation_gate": "Wait for exact persistence, migration, and trusted actor paths before dispatching Astra implementation."
+          "migration_down_revision": "c3f1a9b2e6d4",
+          "scope": "Persist only a trusted Console account actor for WebApp WorkflowRun, preserve it through SQLAlchemy, Logstore, configured Celery and recovery. Unknown/history remains NULL; preserve created_by semantics.",
+          "evidence": "evidence/M06/12.6e-analysis.md"
         },
-        "next_subtask": "12.6e_workflow_actor_analysis",
+        "next_subtask": "12.6e_workflow_account_ownership_persistence",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1781,24 +1791,38 @@
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "analysis_in_progress",
-            "owner": "M02",
+            "status": "implementation_in_progress",
+            "owner": "M02/M03",
             "model": "gpt-6-astra",
             "registered_paths": [
+              "api/controllers/web/workflow.py",
+              "api/services/webapp_console_identity_extend.py",
               "api/models/workflow.py",
-              "api/core/app/apps/workflow/generate_task_pipeline.py",
+              "api/migrations/versions/2026_09_29_1200-ec4aa03225de_add_workflow_run_from_account_id.py",
+              "api/core/app/apps/workflow/app_generator.py",
+              "api/core/repositories/factory.py",
               "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
               "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
-              "api/repositories/api_workflow_run_repository.py",
-              "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
-              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+              "api/core/repositories/celery_workflow_execution_repository.py",
+              "api/tasks/app_generate/workflow_execute_task.py",
+              "api/tasks/async_workflow_tasks.py",
+              "api/tasks/workflow_execution_tasks.py",
+              "api/tests/unit_tests/controllers/web/test_workflow.py",
+              "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
+              "api/tests/unit_tests/models/test_workflow.py",
+              "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
+              "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
+              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+              "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
             ],
-            "scope": "Propagate a server-trusted Console account actor for WebApp workflow executions through SQLAlchemy and Logstore persistence/query boundaries; do not infer historical ownership. Refine exact migration and test paths during preflight before code.",
+            "scope": "Persist only a trusted Console account actor for WebApp WorkflowRun, preserve it through SQLAlchemy, Logstore, configured Celery and recovery. Unknown/history remains NULL; preserve created_by semantics.",
             "analysis_model": "gpt-6-sol",
-            "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
-            "implementation_gate": "Wait for exact persistence, migration, and trusted actor paths before dispatching Astra implementation.",
             "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
-            "analysis_read_only": true
+            "analysis_read_only": true,
+            "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
+            "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+            "migration_down_revision": "c3f1a9b2e6d4",
+            "evidence": "evidence/M06/12.6e-analysis.md"
           },
           {
             "id": "12.6f_workflow_account_statistics",
@@ -1809,10 +1833,15 @@
               "api/controllers/console/app/workflow_statistic.py",
               "api/services/workflow_statistic_query_service.py",
               "api/repositories/api_workflow_run_repository.py",
+              "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+              "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
               "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
-              "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py"
+              "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+              "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
             ],
-            "scope": "Add optional account scope to the three chart-backed workflow statistics endpoints, sourced from authenticated account context and the trusted persisted actor. Keep app-wide default and SQLAlchemy/Logstore parity."
+            "scope": "After trusted WorkflowRun.from_account_id persistence, add optional account=true to the three workflow chart endpoints using authenticated RequestContext.account_id; SQLAlchemy and Logstore filter tenant_id + app_id + triggered_from + from_account_id; NULL is excluded and app-wide defaults remain unchanged.",
+            "dependency": "12.6e_workflow_account_ownership_persistence:passed"
           },
           {
             "id": "12.6g_user_overview_ui_contract",

@@ -1173,34 +1173,42 @@
       "evidence": "evidence/M06/12.6d-verification.md"
     },
     "12.6e_workflow_actor_analysis": {
-      "status": "analysis_in_progress",
+      "status": "completed_handoff_registered",
       "model": "gpt-6-sol",
-      "thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
+      "thread_id": "01a0eb7c-080b-7b31-b722-b8edb28ab55b",
       "base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
       "read_only": true,
-      "registered_paths": [
-        "api/models/workflow.py",
-        "api/core/app/apps/workflow/generate_task_pipeline.py",
-        "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
-        "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
-        "api/repositories/api_workflow_run_repository.py",
-        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
-        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
-      ],
-      "implementation_gate": "Wait for exact persistence, migration, and trusted actor paths before dispatching Astra implementation."
+      "evidence": "evidence/M06/12.6e-analysis.md"
     },
     "12.6e_workflow_account_ownership_persistence": {
-      "status": "blocked_pending_analysis",
+      "status": "implementation_in_progress",
+      "model": "gpt-6-astra",
+      "owner": "M02/M03",
+      "thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+      "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
       "registered_paths": [
+        "api/controllers/web/workflow.py",
+        "api/services/webapp_console_identity_extend.py",
         "api/models/workflow.py",
-        "api/core/app/apps/workflow/generate_task_pipeline.py",
+        "api/migrations/versions/2026_09_29_1200-ec4aa03225de_add_workflow_run_from_account_id.py",
+        "api/core/app/apps/workflow/app_generator.py",
+        "api/core/repositories/factory.py",
         "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
         "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
-        "api/repositories/api_workflow_run_repository.py",
-        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
-        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+        "api/core/repositories/celery_workflow_execution_repository.py",
+        "api/tasks/app_generate/workflow_execute_task.py",
+        "api/tasks/async_workflow_tasks.py",
+        "api/tasks/workflow_execution_tasks.py",
+        "api/tests/unit_tests/controllers/web/test_workflow.py",
+        "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
+        "api/tests/unit_tests/models/test_workflow.py",
+        "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
+        "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+        "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
       ],
-      "note": "No code until exact migration and trusted actor propagation paths are confirmed."
+      "migration_down_revision": "c3f1a9b2e6d4",
+      "evidence": "evidence/M06/12.6e-analysis.md"
     },
     "12.6i_api_key_interaction_regressions": {
       "status": "implementation_review_passed_verification_blocked_dependency_missing",
@@ -1226,7 +1234,25 @@
       "review_thread_id": "01a0eb7c-6b41-7840-b661-5a3c9eb3b86c",
       "review_evidence": "evidence/M06/12.6i-review.md",
       "superseded_competing_commit": "777238cc"
+    },
+    "12.6f_workflow_account_statistics": {
+      "status": "registered_blocked_by_12.6e",
+      "model": "gpt-6-astra",
+      "owner": "M04",
+      "dependency": "12.6e_workflow_account_ownership_persistence:passed",
+      "registered_paths": [
+        "api/controllers/console/app/workflow_statistic.py",
+        "api/services/workflow_statistic_query_service.py",
+        "api/repositories/api_workflow_run_repository.py",
+        "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+        "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+        "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+        "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+      ],
+      "scope": "Add optional account=true to three workflow charts, authenticating account via RequestContext.account_id and filtering trusted persisted from_account_id consistently in SQLAlchemy/Logstore."
     }
   },
-  "next_subtask": "12.6e_workflow_actor_analysis"
+  "next_subtask": "12.6e_workflow_account_ownership_persistence"
 }
