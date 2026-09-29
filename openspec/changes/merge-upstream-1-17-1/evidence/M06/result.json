@@ -1095,12 +1095,26 @@
       "evidence": "evidence/M06/12.6a-verification.md"
     },
     "12.6b_system_integration_host_test": {
-      "status": "thread_provisioning",
+      "status": "implementation_in_progress",
       "model": "gpt-6-astra",
-      "client_thread_id": "client-new-thread:90eed99a-8d10-4a26-8b03-a6d447de36ba",
+      "thread_id": "01a0eb69-f087-7991-b686-d5a60914f2f1",
+      "title": "M06 12.6b Astra 补系统集成页行为测试",
+      "base_commit": "8d5257ee908e328718395ad860b7406f249b81de",
+      "dispatch_channel": "codex_shared_local",
       "registered_paths": [
         "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
-      ]
+      ],
+      "scope": "Add focused host behavior tests for system-integration tab/content switching at the exact registered test path.",
+      "superseded_provisioning_attempt": {
+        "status": "superseded_unresolved_provisioning",
+        "model": "gpt-6-astra",
+        "client_thread_id": "client-new-thread:90eed99a-8d10-4a26-8b03-a6d447de36ba",
+        "title": "M06 12.6b system integration host test",
+        "base_commit": "a813050cc5",
+        "dispatch_channel": "codex_project_worktree",
+        "reason": "No resolvable thread id appeared in list_threads; superseded by a one-shot local Astra task for the same registered test-only path."
+      },
+      "evidence": "evidence/M06/result.json#/subtasks/12.6b_system_integration_host_test"
     },
     "12.6a_home_navigation_luna_review": {
       "status": "passed",
@@ -1141,6 +1155,14 @@
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
       ],
       "note": "No code until exact migration and trusted actor propagation paths are confirmed."
+    },
+    "12.6i_api_key_interaction_regressions": {
+      "status": "thread_provisioning",
+      "model": "gpt-6-astra",
+      "client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae",
+      "registered_paths": [
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx"
+      ]
     }
   },
   "next_subtask": "12.6b_system_integration_host_test"
