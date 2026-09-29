@@ -1120,16 +1120,17 @@
       "preflight_status": "completed",
       "implementation_progress": {
         "completed_subtasks": [
-          "preflight",
           "12.1a",
           "12.1b",
           "12.2_analysis",
-          "12.5_analysis",
           "12.2a_app_center_repair",
           "12.2c_studio_sync_menu",
           "12.3_analysis",
           "12.4_analysis",
-          "12.5a_locale_review"
+          "12.5_analysis",
+          "12.5_language_corrections",
+          "12.5a_locale_review",
+          "preflight"
         ],
         "current_subtask": {
           "id": "12.5_language_corrections",
@@ -1146,7 +1147,7 @@
           "source_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
           "evidence": "evidence/M06/result.json#/subtasks/12.5_language_corrections"
         },
-        "next_subtask": "12.5_language_correction_review",
+        "next_subtask": "12.3_app_api_key_quota_and_balance",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -2058,7 +2059,7 @@
           ]
         },
         "12.5_language_corrections": {
-          "status": "implemented_pending_independent_review",
+          "status": "passed",
           "model": "gpt-6-astra",
           "agent": "/root/m06_12_5_language_corrections",
           "registered_paths": [
@@ -2070,13 +2071,29 @@
             "pl-PL": "84805a93186032f84245c01bdbc3ec620c325d63"
           },
           "review_task": "/root/m06_12_5_locale_followup_review",
-          "review_status": "in_progress",
+          "review_status": "passed",
           "scope": "Resolve one P3 Indonesian residual-English finding and one P2 Polish tenant/sandbox terminology finding; preserve placeholders, key order, and security semantics.",
           "verification": {
             "node": "24.20.0",
             "json_key_order_placeholders": "passed for both locales; 135 keys each and localized-values assertions passed",
             "git_diff_check": "passed",
             "pnpm_i18n_parity": "not run; pnpm unexpectedly attempted dependency auto-install and was stopped before installation; no manifest/lock changes"
+          },
+          "independent_review": {
+            "status": "passed",
+            "reviewer": "independent gpt-6-luna subtask /root/m06_12_5_locale_followup_review",
+            "review_target_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+            "prior_pl_fix_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
+            "findings_remaining": [],
+            "checked_keys": [
+              "id-ID systemManage.quota.action.edit",
+              "id-ID systemManage.quota.editDialog.title",
+              "pl-PL systemManage.codeExecutionControl.deleteConfirmContent",
+              "pl-PL systemManage.codeExecutionControl.description"
+            ],
+            "result": "Both original P3/P2 findings are resolved; placeholders and sandbox-full to standard-sandbox behavior remain accurate. No P1/P2/P3 findings remain.",
+            "scope": "Read-only focused translation review; no pnpm parity run, edits, or commits.",
+            "evidence": "evidence/M06/12.5-follow-up-review.md"
           }
         }
       }
