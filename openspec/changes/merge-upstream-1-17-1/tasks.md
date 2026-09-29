@@ -127,7 +127,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
   - [ ] 12.6h [M05/M08/Astra；前置 12.6d/f] 两类后端契约稳定后再生成并审查 Console OpenAPI 与 apps TS/Zod/oRPC 类型，生成物所有权仍归 M05/M08。
   - [ ] 12.6i [M06/Astra；前置 12.3] API-key 测试已在 `a602bb8a58` 提交：新建后点击复制并读回完整 secret；三个 scope 在 `canManage=false` 时不显示编辑/删除且 mutation 未调用。focused test 与 scoped check 因 Vitest/Vite Plus 依赖不完整未能启动（exit 1），diff-check 通过；独立 Luna 无 P1/P2/P3。Luna 独立重试复用了指向已删除 worktree 的 Vitest 悬空 symlink（0 tests），Vite Plus 仍缺失且依赖副本哈希未变；另一份重叠测试提交 `777238cc` 不合并。待依赖可用环境运行 focused spec 与 scoped check。证据：`evidence/M06/12.6i-validation.md`、`evidence/M06/12.6i-review.md`。
 
-  - [ ] 12.6j [M06/Astra] 使用精确 Node/pnpm 和 frozen lock 恢复当前 checkout 的前端依赖；仅写 ignored 依赖与专属证据，不改 manifest/lock，不创建 worktree。依赖缺失与源码验证分开记账。证据 `evidence/M06/12.6j-dependency-recovery.md`。
+  - [x] 12.6j [M06/Astra] 使用精确 Node/pnpm 和 frozen lock 恢复当前 checkout 的前端依赖；仅写 ignored 依赖与专属证据，不改 manifest/lock，不创建 worktree。根安装和 contracts/web workspace 入口均通过；21 失效链接、28 旧包装器已备份后恢复。依赖就绪与源码验证分开记账。证据 `evidence/M06/12.6j-dependency-recovery.md`。
 
 ## 13. M07 综合部署和 CI 对齐（前置：M01）
 
