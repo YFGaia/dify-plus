@@ -167,30 +167,29 @@
       }
     },
     "12.2_analysis": {
-      "status": "analysis_in_progress",
+      "status": "passed",
       "model": "gpt-6-sol",
-      "client_thread_id": "client-new-thread:de387753-bd0e-47c7-9710-c7a2cd63a43e",
-      "created_from_commit": "97cd9efb0f",
-      "superseded_provisioning_attempt": {
-        "client_thread_id": "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
+      "agent": "/root/m06_12_2_analysis",
+      "source_commit": "13a7b5c82e6cd9e4514ce2b6d98b2ca66e07dcb6",
+      "thread_request": {
+        "client_thread_id": "client-new-thread:de387753-bd0e-47c7-9710-c7a2cd63a43e",
         "status": "provisioning_not_readable"
       },
-      "scope": "Read-only app-center categories/filtering, installed-app navigation, recommended app rows/runtime validation, Studio sync menu, exact source/test path ownership, and Astra implementation handoff.",
-      "next_action": "Wait for the standalone Sol analysis result, then register its verified exact paths before creating a fresh Astra implementation task.",
-      "superseded_provisioning_attempts": [
-        {
-          "client_thread_id": "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
-          "status": "provisioning_not_readable"
-        },
-        {
-          "client_thread_id": "client-new-thread:2ec33e10-44d1-412b-8769-6f91983560c2",
-          "status": "provisioning_not_readable"
-        }
+      "report": "evidence/M06/12.2-analysis.md",
+      "tests_run": false,
+      "files_changed": false,
+      "handoffs": [
+        "12.2a M06 frontend app-center repair, exact paths registered before Astra implementation",
+        "9.6 M03 API producer follow-up populates AppPagination.recommended_apps for current page; exact paths registered before Astra implementation",
+        "12.2c M06 Studio sync menu waits for M03 9.6 and consumes existing generated field and sync routes"
       ],
-      "analysis_agent": "/root/m06_12_2_analysis",
-      "analysis_agent_status": "running",
-      "analysis_agent_base_commit": "a872f60ea7",
-      "thread_provisioning_status": "provisioning_not_readable"
+      "findings_summary": [
+        "The mounted fork app-center page calls removed useInstalledAppList and currently returns no data.",
+        "TagFilter returns tag IDs but /installed/apps rows expose tag names as category; map IDs to names before filtering and deduplicate by app_id.",
+        "Validate fork /installed/apps response locally with Zod before caching; its generated contract is record<string, unknown>, and upstream /installed-apps is a different endpoint/shape.",
+        "Build installed-app routes using buildInstalledAppPath, which returns /installed/:id.",
+        "The generated AppPagination.recommended_apps field is always emptied by api/controllers/console/app/app.py:702, so sync status needs an M03 page-scoped backend follow-up before restoring the Studio menu."
+      ]
     },
     "12.3_analysis": {
       "status": "conversation_provisioning",
@@ -316,7 +315,56 @@
           "result": "No blocking issues found. The old delete-and-reload behavior is retained through cache removal and query invalidation; no app_id is sent."
         }
       }
+    },
+    "12.2a_app_center_repair": {
+      "status": "paths_registered",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "scope": "Restore installed-app list fetch, validate response before cache, repair category/tag filtering and canonical navigation.",
+      "registered_paths": [
+        "web/app/components/explore/app-list-center-extend/index.tsx",
+        "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
+        "web/app/components/apps/app-list-catalog.tsx",
+        "web/app/components/apps/__tests__/list.spec.tsx",
+        "web/service/explore.spec.ts",
+        "web/service/__tests__/use-explore.spec.tsx"
+      ],
+      "dependencies": [
+        "12.2_analysis:passed",
+        "M05 11.6 generated contract:passed"
+      ]
+    },
+    "9.6_recommended_apps_page_status": {
+      "status": "paths_registered",
+      "owner": "M03",
+      "model": "gpt-6-astra",
+      "scope": "Populate the existing AppPagination.recommended_apps field from RecommendedApp rows intersecting only the current app page.",
+      "registered_paths": [
+        "api/controllers/console/app/app.py",
+        "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
+      ],
+      "dependencies": [
+        "12.2_analysis:passed"
+      ],
+      "contract_change": false,
+      "downstream_impact": "M04/M05 schema evidence remains applicable; the existing generated optional string[] field is unchanged. M06 12.2c waits for this follow-up."
+    },
+    "12.2c_studio_sync_menu": {
+      "status": "blocked_by_registered_owner_followup",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
+      "registered_paths": [
+        "web/app/components/apps/app-card/index.tsx",
+        "web/app/components/apps/app-card/interactions.tsx",
+        "web/app/components/apps/app-list-catalog.tsx",
+        "web/app/components/apps/__tests__/app-card.spec.tsx",
+        "web/app/components/apps/__tests__/list.spec.tsx"
+      ],
+      "dependencies": [
+        "9.6_recommended_apps_page_status:pending"
+      ]
     }
   },
-  "next_subtask": "12.2_analysis"
+  "next_subtask": "12.2a_app_center_repair"
 }

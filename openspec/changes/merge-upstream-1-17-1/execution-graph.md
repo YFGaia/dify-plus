@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；曾因 message/context 安全交接重开 8.6–8.7；四个源码/测试路径已登记，36 项测试、Swagger schema 及独立 Luna 复核均通过，M02 已恢复 passed；M03 passed（349 项定向测试、6 项Schema断言通过）；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.6 源码与标准 message contract 生成均已通过（仍不可部署）；11.6 由根工作区标准生成复跑、schema 断言和 Astra worktree 字节比对验收；M06 12.1a、12.1b 已完成并提交；独立 Luna 在隔离 worktree 验证 12.1a 卡片 22 项通过、12.1b context 20 项通过，限定检查及代码审查均通过；主工作区缺 cn@0.2.4，未改依赖或 lockfile；12.2 应用中心分析由独立 Sol 子代理 `/root/m06_12_2_analysis` 基于 `a872f60ea7` 执行只读调研；独立对话 client ID `client-new-thread:de387753-bd0e-47c7-9710-c7a2cd63a43e` 仍不可读取，且此前两次 client ID 已标记替换；12.3 API key/汇率、12.4 系统管理路由分析任务仍在 provisioning；context caller 已由 M05 11.6 契约解锁；12.1b Chat 宿主与 fork service 的四路径实现已由 `9ee0119ca1ae501008db1913777ac4582af17205` 提交；Sol 路径交叉核对仍在 provisioning。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，新建 gpt-6-luna 独立只读复核任务 `client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3` 正在 worktree provisioning，先前不可读请求已替换；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
+> A00 授权记录、A01 基线与共享工作区保护均已通过（passed）；指定分支 `codex/merge-upstream-1.17.1` 已创建，A02 差异与所有权刷新、A04 跨层契约冻结已通过（passed），M00 非部署双父基线已通过（passed）；M01 初始锁专项已通过（passed）；M02 原 8.1–8.5 已通过（146 项定向/Schema 测试及 29 项 HTTP 测试、独立 Luna 无 P1/P2）；曾因 message/context 安全交接重开 8.6–8.7；四个源码/测试路径已登记，36 项测试、Swagger schema 及独立 Luna 复核均通过，M02 已恢复 passed；M03 原 9.1–9.5 通过（349 项定向测试、6 项 Schema 断言），当前 9.6 sync-status follow-up in progress；M04 passed（370 项定向测试、独立 Luna 验收通过）；M05 11.1–11.6 源码与标准 message contract 生成均已通过（仍不可部署）；11.6 由根工作区标准生成复跑、schema 断言和 Astra worktree 字节比对验收；M06 12.1a、12.1b 已完成并提交；独立 Luna 在隔离 worktree 验证 12.1a 卡片 22 项通过、12.1b context 20 项通过，限定检查及代码审查均通过；主工作区缺 cn@0.2.4，未改依赖或 lockfile；12.2 应用中心只读分析已由 Sol 子代理 `/root/m06_12_2_analysis` 完成，证据 `evidence/M06/12.2-analysis.md`；12.2a 与 M03 9.6 精确路径已登记，12.2c 等待 9.6 current-page status producer；独立对话请求仍不可读取；12.3 API key/汇率、12.4 系统管理路由分析任务仍在 provisioning；context caller 已由 M05 11.6 契约解锁；12.1b Chat 宿主与 fork service 的四路径实现已由 `9ee0119ca1ae501008db1913777ac4582af17205` 提交；Sol 路径交叉核对仍在 provisioning。M07 13.1–13.3、13.5 已通过，13.4 的 init_secret_key 门、失败闭合与 migration 说明已在 `1b1ddf4eb3` 实现，新建 gpt-6-luna 独立只读复核任务 `client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3` 正在 worktree provisioning，先前不可读请求已替换；13.6 暂缓；M08/V01/V02/R01 仍待各自前置；A03 因缺少真实环境只读访问授权而阻塞（blocked）。其余节点依赖执行图推进。节点顺序、写入范围及权限以 JSON 为事实源。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 独立 Sol 对话从 `97cd9efb0f` 重建后仍不可读取；已启动只读 Sol 子代理 `/root/m06_12_2_analysis`（基于 `a872f60ea7`）继续分析，12.3 与 12.4 的独立 Sol 分析任务也在 provisioning，context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对仍在进行，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01 已通过；M03 原 9.1–9.5 已通过、9.6 follow-up in progress；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；M07 13.1–13.3、13.5 已通过，13.4 实现完成待 Luna 复核，13.6 暂缓；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 Sol 分析已完成，12.2a 与 12.2c 的精确路径和前置已登记，12.3 与 12.4 的独立 Sol 分析任务也在 provisioning，context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对仍在进行，M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
 - V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
@@ -293,7 +293,7 @@ git show --no-patch --format=%P HEAD
 
 证据：`evidence/M03/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
 
-M03 子项进度：9.1–9.5 全部通过，代码、测试、证据随本节点提交；M04/M05 已解锁。环境与生产门槛未通过，当前源码不可部署。
+M03 原子项 9.1–9.5 全部通过；M06 12.2 新发现 AppPagination.recommended_apps 被固定清空，已重新打开仅针对该列表字段的 M03 9.6 follow-up，精确路径与影响范围见 execution-graph.json/evidence/M03/result.json。M04/M05 的既有 schema 证据不受影响；环境与生产门槛未通过，当前源码不可部署。
 
 ## M04 · 计费、Service API 与记忆挂点
 
@@ -348,7 +348,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M06 · 前端业务挂载与国际化
 
-- 状态：preflight 已完成；12.1a 与 12.1b 均已完成。12.1a 的卡片套件 22 项、两文件 scoped check 通过，独立 Luna 审查无阻断；12.1b 的 context 套件 20 项、四文件 scoped check 通过，独立 Luna 审查无阻断。根工作区缺少锁定依赖 `cn@0.2.4`，未改依赖，两个子任务均在依赖齐全的隔离 worktree 验证；代码提交分别为 `ea853611dc` 与 `9ee0119ca1ae501008db1913777ac4582af17205`。12.1b 的 Sol 路径交叉核对仍在 provisioning。M04、M05 原源码验收及 M02 8.6 安全后端 follow-up 均已通过。下一步处理 12.2 应用中心分析交接，再推进 12.3/12.4 和其余 M06 实现。12.2 应用中心需运行时校验响应；12.3 API key 额度按 scope 显示并读取 login_config 汇率、余额独立显示；12.4 保持系统管理路由权限且不实施 P6。24 语言 lo-LA 扩展、旧引用清理及 V02 真实浏览器身份边界仍待完成。详情见 `evidence/M06/result.json`。
+- 状态：preflight 已完成；12.1a 与 12.1b 均已完成。12.1a 的卡片套件 22 项、两文件 scoped check 通过，独立 Luna 审查无阻断；12.1b 的 context 套件 20 项、四文件 scoped check 通过，独立 Luna 审查无阻断。根工作区缺少锁定依赖 `cn@0.2.4`，未改依赖，两个子任务均在依赖齐全的隔离 worktree 验证；代码提交分别为 `ea853611dc` 与 `9ee0119ca1ae501008db1913777ac4582af17205`。12.1b 的 Sol 路径交叉核对仍在 provisioning。M04、M05 原源码验收及 M02 8.6 安全后端 follow-up 均已通过。12.2 Sol 分析已完成，12.2a 应用中心与 M03 9.6 同步状态生产端已登记路径，12.2c 等待后端数据源；之后推进 12.3/12.4 和其余 M06 实现。12.2 应用中心需运行时校验响应；12.3 API key 额度按 scope 显示并读取 login_config 汇率、余额独立显示；12.4 保持系统管理路由权限且不实施 P6。24 语言 lo-LA 扩展、旧引用清理及 V02 真实浏览器身份边界仍待完成。详情见 `evidence/M06/result.json`。
 
 - 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`前端业务负责人`。

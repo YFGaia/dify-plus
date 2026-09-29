@@ -495,7 +495,7 @@
       "owner_role": "身份负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "passed",
+      "status": "in_progress",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -510,7 +510,9 @@
         "api/controllers/web/login.py",
         "account/OAuth/AppSite/WebPassport gateway 对应文件",
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
-        "本节点行为对应的配套测试源码，跨 owner 文件先登记移交"
+        "本节点行为对应的配套测试源码，跨 owner 文件先登记移交",
+        "api/controllers/console/app/app.py（9.6：AppPagination.recommended_apps 当前页同步状态）",
+        "api/tests/unit_tests/controllers/console/app/test_app_response_models.py（9.6 回归）"
       ],
       "resources": [
         "身份负责人"
@@ -536,7 +538,9 @@
         "api/controllers/console/auth/oauth.py",
         "api/controllers/web/login.py",
         "api/services/account_service.py",
-        "api/tests/unit_tests/services/test_account_service.py"
+        "api/tests/unit_tests/services/test_account_service.py",
+        "api/controllers/console/app/app.py",
+        "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
       ],
       "outputs": [
         "evidence/M03/result.json",
@@ -557,6 +561,44 @@
         "focused_tests_passed": 349,
         "schema_assertions_passed": 6,
         "source_fingerprints": "evidence/M03/verified-inputs.json"
+      },
+      "implementation_progress": {
+        "completed_tasks": [
+          "9.1",
+          "9.2",
+          "9.3",
+          "9.4",
+          "9.5"
+        ],
+        "reopened_by": "M06 12.2 analysis found AppPagination.recommended_apps is always empty although the generated field and Studio sync feature already exist.",
+        "current_subtask": {
+          "id": "9.6_recommended_apps_page_status",
+          "status": "paths_registered",
+          "evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status",
+          "registered_paths": [
+            "api/controllers/console/app/app.py",
+            "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
+          ]
+        },
+        "next_subtask": "9.6_recommended_apps_page_status",
+        "downstream_impact": "M04 and M05 evidence remains applicable because this follow-up keeps the existing response field and generated schema unchanged; M06 12.2c waits for 9.6."
+      },
+      "active_subtasks": {
+        "9.6_recommended_apps_page_status": {
+          "status": "paths_registered",
+          "owner": "M03",
+          "model": "gpt-6-astra",
+          "scope": "Populate the existing AppPagination.recommended_apps field from RecommendedApp rows intersecting only the current app page.",
+          "registered_paths": [
+            "api/controllers/console/app/app.py",
+            "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
+          ],
+          "dependencies": [
+            "12.2_analysis:passed"
+          ],
+          "contract_change": false,
+          "downstream_impact": "M04/M05 schema evidence remains applicable; the existing generated optional string[] field is unchanged. M06 12.2c waits for this follow-up."
+        }
       }
     },
     {
@@ -1046,29 +1088,50 @@
         "completed_subtasks": [
           "preflight",
           "12.1a",
-          "12.1b"
+          "12.1b",
+          "12.2_analysis"
         ],
         "current_subtask": {
-          "id": "12.2_analysis",
-          "status": "analysis_in_progress",
-          "evidence": "evidence/M06/result.json#/subtasks/12.2_analysis",
+          "id": "12.2a_app_center_repair",
+          "status": "paths_registered",
+          "evidence": "evidence/M06/result.json#/subtasks/12.2a_app_center_repair",
           "dependencies": {
-            "12.1": "passed; commits ea853611dc and 9ee0119ca1ae501008db1913777ac4582af17205"
+            "12.2_analysis": "passed; evidence/M06/12.2-analysis.md",
+            "M05 11.6": "passed; generated installed API boundary verified"
           }
         },
-        "next_subtask": "12.2_analysis",
+        "next_subtask": "12.2a_app_center_repair",
         "parallel_subtasks": [
           {
-            "id": "12.2_analysis",
-            "status": "conversation_provisioning",
-            "model": "gpt-6-sol",
-            "client_thread_id": "client-new-thread:de387753-bd0e-47c7-9710-c7a2cd63a43e",
-            "created_from_commit": "97cd9efb0f",
-            "superseded_client_thread_ids": [
-              "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
-              "client-new-thread:2ec33e10-44d1-412b-8769-6f91983560c2"
-            ],
-            "scope": "read-only app-center implementation handoff"
+            "id": "12.2a_app_center_repair",
+            "status": "paths_registered",
+            "model": "gpt-6-astra",
+            "owner": "M06",
+            "registered_paths": [
+              "web/app/components/explore/app-list-center-extend/index.tsx",
+              "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
+              "web/app/components/apps/app-list-catalog.tsx",
+              "web/app/components/apps/__tests__/list.spec.tsx",
+              "web/service/explore.spec.ts",
+              "web/service/__tests__/use-explore.spec.tsx"
+            ]
+          },
+          {
+            "id": "9.6_recommended_apps_page_status",
+            "status": "paths_registered",
+            "model": "gpt-6-astra",
+            "owner": "M03",
+            "registered_paths": [
+              "api/controllers/console/app/app.py",
+              "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
+            ]
+          },
+          {
+            "id": "12.2c_studio_sync_menu",
+            "status": "blocked_by_registered_owner_followup",
+            "model": "gpt-6-astra",
+            "owner": "M06",
+            "dependency": "9.6_recommended_apps_page_status"
           }
         ]
       },
@@ -1078,24 +1141,16 @@
         "web/app/components/base/chat/chat/index.tsx",
         "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
         "web/service/message-context-extend.ts",
-        "web/service/message-context-extend.spec.ts"
+        "web/service/message-context-extend.spec.ts",
+        "web/app/components/explore/app-list-center-extend/index.tsx",
+        "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
+        "web/app/components/apps/app-list-catalog.tsx",
+        "web/app/components/apps/__tests__/list.spec.tsx",
+        "web/service/explore.spec.ts",
+        "web/service/__tests__/use-explore.spec.tsx",
+        "web/app/components/apps/app-card/interactions.tsx"
       ],
       "active_subtasks": {
-        "12.2_analysis": {
-          "status": "analysis_in_progress",
-          "model": "gpt-6-sol",
-          "client_thread_id": "client-new-thread:de387753-bd0e-47c7-9710-c7a2cd63a43e",
-          "created_from_commit": "97cd9efb0f",
-          "superseded_client_thread_ids": [
-            "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
-            "client-new-thread:2ec33e10-44d1-412b-8769-6f91983560c2"
-          ],
-          "scope": "Read-only app-center categories/filtering, installed-app navigation, recommended-app runtime validation, and Studio sync-menu analysis.",
-          "analysis_agent": "/root/m06_12_2_analysis",
-          "analysis_agent_status": "running",
-          "analysis_agent_base_commit": "a872f60ea7",
-          "thread_provisioning_status": "provisioning_not_readable"
-        },
         "12.3_analysis": {
           "status": "conversation_provisioning",
           "model": "gpt-6-sol",
@@ -1147,6 +1202,40 @@
             "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
             "web/service/message-context-extend.ts",
             "web/service/message-context-extend.spec.ts"
+          ]
+        },
+        "12.2a_app_center_repair": {
+          "status": "paths_registered",
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "scope": "Restore installed-app list fetch, validate response before cache, repair category/tag filtering and canonical navigation.",
+          "registered_paths": [
+            "web/app/components/explore/app-list-center-extend/index.tsx",
+            "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
+            "web/app/components/apps/app-list-catalog.tsx",
+            "web/app/components/apps/__tests__/list.spec.tsx",
+            "web/service/explore.spec.ts",
+            "web/service/__tests__/use-explore.spec.tsx"
+          ],
+          "dependencies": [
+            "12.2_analysis:passed",
+            "M05 11.6 generated contract:passed"
+          ]
+        },
+        "12.2c_studio_sync_menu": {
+          "status": "blocked_by_registered_owner_followup",
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
+          "registered_paths": [
+            "web/app/components/apps/app-card/index.tsx",
+            "web/app/components/apps/app-card/interactions.tsx",
+            "web/app/components/apps/app-list-catalog.tsx",
+            "web/app/components/apps/__tests__/app-card.spec.tsx",
+            "web/app/components/apps/__tests__/list.spec.tsx"
+          ],
+          "dependencies": [
+            "9.6_recommended_apps_page_status:pending"
           ]
         }
       }

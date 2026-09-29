@@ -49,3 +49,4 @@ api/tests/unit_tests/controllers/web/conftest.py	M03	V01	M03 generation identity
 api/tests/unit_tests/services/test_account_oauth_service.py	M03	V01	contract-matrix.md C02	M03_test_host	OAuth2 token fallback and upstream claim locks
 api/tests/unit_tests/controllers/web/test_web_login.py	M03	V01	contract-matrix.md C05	M03_test_host	Existing status fixture and identity contract coverage
 api/controllers/console/auth/oauth_admission_extend.py	M03	V01	M03 OAuth2 SSO contract	M03_new_host	Keep custom integration admission separate from GitHub Google social switch
+web/app/components/apps/app-list-catalog.tsx	M06	V02	web/app/components/apps/list.tsx	exists_in_1.17.1	new catalog host aggregates paginated app cards and must preserve page-scoped sync state

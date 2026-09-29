@@ -1,6 +1,6 @@
 {
   "node": "M03",
-  "status": "passed",
+  "status": "in_progress",
   "pre_commit_head": "acf866871a50316ea514d35a9d04092bd3e32b20",
   "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
   "branch": "codex/merge-upstream-1.17.1",
@@ -188,5 +188,26 @@
     "generated TypeScript/Zod/docs refresh belongs to M05/M08",
     "A03 and environment/production authorization gates unchanged"
   ],
-  "commit_note": "Commit SHA verified after commit by parent; not self-embedded."
+  "commit_note": "Commit SHA verified after commit by parent; not self-embedded.",
+  "prior_passed_status": "9.1-9.5 passed before M06 12.2 cross-owner finding",
+  "followups": {
+    "9.6_recommended_apps_page_status": {
+      "status": "paths_registered",
+      "trigger": "M06 12.2 Sol analysis found AppPagination.recommended_apps is always set to an empty list.",
+      "owner": "M03",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "api/controllers/console/app/app.py",
+        "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
+      ],
+      "scope": "Populate only current-page app IDs having RecommendedApp rows; retain the already-generated optional string[] contract.",
+      "tests_required": [
+        "synced app on current page is returned",
+        "unsynced app is absent",
+        "synced app outside current page is absent"
+      ],
+      "downstream_impact": "M04 and M05 evidence remains valid because no response schema changes; M06 12.2c waits for this producer.",
+      "status_evidence": "evidence/M06/12.2-analysis.md"
+    }
+  }
 }

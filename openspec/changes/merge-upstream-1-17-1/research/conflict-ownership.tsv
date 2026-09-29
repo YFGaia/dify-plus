@@ -166,3 +166,12 @@ api/controllers/console/app/app_extend.py	M02	V01	content	pending	message contex
 api/services/recommended_app_service_extend.py	M02	V01	content	pending	message context endpoint tenant ownership and app/Agent permission follow-up from M06 security handoff
 api/tests/unit_tests/controllers/console/app/test_app_extend.py	M02	V01	test	pending	message context endpoint tenant ownership and app/Agent permission follow-up from M06 security handoff
 api/tests/unit_tests/services/test_recommended_app_service_extend.py	M02	V01	test	pending	message context endpoint tenant ownership and app/Agent permission follow-up from M06 security handoff
+api/controllers/console/app/app.py	M03	V01	content	pending	M03 9.6 M06 handoff: populate current-page RecommendedApp sync IDs in existing AppPagination field
+api/tests/unit_tests/controllers/console/app/test_app_response_models.py	M03	V01	test	pending	M03 9.6 current-page synced/unsynced RecommendedApp regression
+web/app/components/explore/app-list-center-extend/index.tsx	M06	V02	non-conflict-write	registered	M06 12.2a repair existing fork-only installed app center against 1.17.1 services
+web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx	M06	V02	non-conflict-write	registered	M06 12.2a fork app-center behavior tests for installed data/filter/navigation
+web/app/components/apps/app-list-catalog.tsx	M06	V02	non-conflict-write	registered	M06 12.2c new catalog host passes page-scoped sync state to cards
+web/app/components/apps/__tests__/list.spec.tsx	M06	V02	non-conflict-write	registered	M06 12.2 app list pagination/filter and sync status tests
+web/app/components/apps/app-card/interactions.tsx	M06	V02	non-conflict-write	registered	M06 12.2c sync/unsync menu migrated into 1.17.1 interaction host
+web/service/explore.spec.ts	M06	V02	non-conflict-write	registered	M06 12.2a fork installed API response validation tests
+web/service/__tests__/use-explore.spec.tsx	M06	V02	non-conflict-write	registered	M06 12.2a installed app query cache and malformed response tests
