@@ -573,19 +573,21 @@
         "reopened_by": "M06 12.2 analysis found AppPagination.recommended_apps is always empty although the generated field and Studio sync feature already exist.",
         "current_subtask": {
           "id": "9.6_recommended_apps_page_status",
-          "status": "paths_registered",
+          "status": "implementation_in_progress",
           "evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status",
           "registered_paths": [
             "api/controllers/console/app/app.py",
             "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
-          ]
+          ],
+          "agent": "/root/m03_9_6_sync_status",
+          "base_commit": "f2424be348"
         },
         "next_subtask": "9.6_recommended_apps_page_status",
         "downstream_impact": "M04 and M05 evidence remains applicable because this follow-up keeps the existing response field and generated schema unchanged; M06 12.2c waits for 9.6."
       },
       "active_subtasks": {
         "9.6_recommended_apps_page_status": {
-          "status": "paths_registered",
+          "status": "implementation_in_progress",
           "owner": "M03",
           "model": "gpt-6-astra",
           "scope": "Populate the existing AppPagination.recommended_apps field from RecommendedApp rows intersecting only the current app page.",
@@ -597,7 +599,9 @@
             "12.2_analysis:passed"
           ],
           "contract_change": false,
-          "downstream_impact": "M04/M05 schema evidence remains applicable; the existing generated optional string[] field is unchanged. M06 12.2c waits for this follow-up."
+          "downstream_impact": "M04/M05 schema evidence remains applicable; the existing generated optional string[] field is unchanged. M06 12.2c waits for this follow-up.",
+          "agent": "/root/m03_9_6_sync_status",
+          "base_commit": "f2424be348"
         }
       }
     },
@@ -1093,38 +1097,47 @@
         ],
         "current_subtask": {
           "id": "12.2a_app_center_repair",
-          "status": "paths_registered",
+          "status": "conversation_provisioning",
           "evidence": "evidence/M06/result.json#/subtasks/12.2a_app_center_repair",
           "dependencies": {
             "12.2_analysis": "passed; evidence/M06/12.2-analysis.md",
             "M05 11.6": "passed; generated installed API boundary verified"
-          }
+          },
+          "base_commit": "f2424be348",
+          "client_thread_id": "client-new-thread:d21212b0-d4ba-41d6-9395-345a2a3602eb",
+          "created_from_commit": "f2424be348"
         },
         "next_subtask": "12.2a_app_center_repair",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
-            "status": "paths_registered",
+            "status": "conversation_provisioning",
             "model": "gpt-6-astra",
             "owner": "M06",
             "registered_paths": [
               "web/app/components/explore/app-list-center-extend/index.tsx",
               "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
-              "web/app/components/apps/app-list-catalog.tsx",
-              "web/app/components/apps/__tests__/list.spec.tsx",
+              "web/service/explore.ts",
+              "web/service/use-explore.ts",
               "web/service/explore.spec.ts",
               "web/service/__tests__/use-explore.spec.tsx"
-            ]
+            ],
+            "base_commit": "f2424be348",
+            "client_thread_id": "client-new-thread:d21212b0-d4ba-41d6-9395-345a2a3602eb",
+            "created_from_commit": "f2424be348",
+            "dispatch_channel": "codex_project_worktree"
           },
           {
             "id": "9.6_recommended_apps_page_status",
-            "status": "paths_registered",
+            "status": "implementation_in_progress",
             "model": "gpt-6-astra",
             "owner": "M03",
             "registered_paths": [
               "api/controllers/console/app/app.py",
               "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
-            ]
+            ],
+            "agent": "/root/m03_9_6_sync_status",
+            "base_commit": "f2424be348"
           },
           {
             "id": "12.2c_studio_sync_menu",
@@ -1205,22 +1218,30 @@
           ]
         },
         "12.2a_app_center_repair": {
-          "status": "paths_registered",
+          "status": "conversation_provisioning",
           "owner": "M06",
           "model": "gpt-6-astra",
           "scope": "Restore installed-app list fetch, validate response before cache, repair category/tag filtering and canonical navigation.",
           "registered_paths": [
             "web/app/components/explore/app-list-center-extend/index.tsx",
             "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
-            "web/app/components/apps/app-list-catalog.tsx",
-            "web/app/components/apps/__tests__/list.spec.tsx",
+            "web/service/explore.ts",
+            "web/service/use-explore.ts",
             "web/service/explore.spec.ts",
             "web/service/__tests__/use-explore.spec.tsx"
           ],
           "dependencies": [
             "12.2_analysis:passed",
             "M05 11.6 generated contract:passed"
-          ]
+          ],
+          "base_commit": "f2424be348",
+          "client_thread_id": "client-new-thread:d21212b0-d4ba-41d6-9395-345a2a3602eb",
+          "created_from_commit": "f2424be348",
+          "dispatch_channel": "codex_project_worktree",
+          "prior_agent_attempt": {
+            "status": "failed",
+            "reason": "agent thread limit reached"
+          }
         },
         "12.2c_studio_sync_menu": {
           "status": "blocked_by_registered_owner_followup",
