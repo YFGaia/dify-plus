@@ -1324,7 +1324,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "implementation_interrupted_duplicate_writers",
+      "status": "implementation_in_progress_integration_blocked",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1344,17 +1344,17 @@
       "implementation_base_commit": "cb761050c287dd8de5bb0d1b9cd09f949779375d",
       "dispatch_channel": "codex_project_local",
       "implementation_model": "gpt-6-astra",
-      "latest_attempt_note": "12.6e and both Logstore actor-index prerequisites are root-verified and passed; fresh Astra implementation conversation is active.",
+      "latest_attempt_note": "Astra is completing the registered account-statistics implementation on disjoint paths. Integration acceptance is blocked until the SLS IndexConfig preservation P2 follow-up passes.",
       "implementation_thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
       "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
-      "blocked_reason": "Two independent conversations edited the same shared paths; both were stopped before validation/commit. A single-writer recovery task must consolidate the diff.",
+      "blocked_reason": "Index update may discard existing user-managed SLS index settings; statistics work may finish independently but is not acceptable until the registered config-preservation follow-up passes.",
       "index_prerequisite": "12.6f_logstore_actor_index_reconciliation:passed",
       "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
       "index_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
       "dependencies": [
         "12.6e_review_followup:passed",
         "12.6f_logstore_actor_index:passed",
-        "12.6f_logstore_actor_index_reconciliation:passed",
+        "12.6f_logstore_actor_index_config_preservation:passed",
         "12.6f_workflow_statistics_analysis:passed"
       ],
       "analysis_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
@@ -1362,7 +1362,8 @@
         "01a0ebbd-d178-7982-9141-834a93649224",
         "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
       ],
-      "validation_status": "not_run_root_reconciliation_required"
+      "validation_status": "not_run_root_reconciliation_required",
+      "blocked_by": "12.6f_logstore_actor_index_config_preservation"
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
@@ -1469,7 +1470,7 @@
       "evidence": "evidence/M06/12.6e-review.md"
     },
     "12.6f_logstore_actor_index_reconciliation": {
-      "status": "passed",
+      "status": "reopened_by_P2",
       "model": "gpt-6-astra",
       "owner": "M04",
       "base_commit": "17a755d104b6417e63b25dfe11a3156f34b37250",
@@ -1496,7 +1497,10 @@
       "verification_evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md",
       "test_result": "10 passed; independent Luna and root",
       "review_result": "No P1/P2/P3",
-      "static_checks": "Ruff check/format and diff-check passed"
+      "static_checks": "Ruff check/format and diff-check passed",
+      "reopened_finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
+      "verification_invalidated_by": "12.6f_logstore_actor_index_config_preservation",
+      "historical_implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5"
     },
     "12.6f_statistics_integration_recovery": {
       "status": "ready",
@@ -1526,7 +1530,27 @@
         "01a0ebbd-d178-7982-9141-834a93649224",
         "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
       ]
+    },
+    "12.6f_logstore_actor_index_config_preservation": {
+      "id": "12.6f_logstore_actor_index_config_preservation",
+      "status": "registered",
+      "owner": "M04",
+      "model": "gpt-6-astra",
+      "base_commit": "187abce8f4143985344507c969ff23685f7f2126",
+      "dependencies": [
+        "12.6f_logstore_actor_index:implementation_complete",
+        "12.6f_logstore_actor_index_reconciliation:reopened_by_P2"
+      ],
+      "registered_paths": [
+        "api/extensions/logstore/aliyun_logstore.py",
+        "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
+        "evidence/M06/12.6f-logstore-index-config-preservation.md"
+      ],
+      "scope": "Preserve the complete existing Aliyun SLS IndexConfig during update_index while adding/fixing workflow_execution.from_account_id; retain ttl, all_keys_config, log_reduce, docvalue_max_text_len, reduce white/black lists, line_config, scan_index, all custom keys, and compatible actor text options such as token_list/case_sensitive. Add regression coverage for overwrite semantics and only force required actor type/doc_value where incompatible.",
+      "finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
+      "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
+      "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md"
     }
   },
-  "next_subtask": "12.6f_statistics_integration_recovery"
+  "next_subtask": "12.6f_logstore_actor_index_config_preservation"
 }
