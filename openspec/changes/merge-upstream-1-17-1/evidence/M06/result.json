@@ -1157,12 +1157,14 @@
       "note": "No code until exact migration and trusted actor propagation paths are confirmed."
     },
     "12.6i_api_key_interaction_regressions": {
-      "status": "thread_provisioning",
+      "status": "implementation_in_progress",
       "model": "gpt-6-astra",
-      "client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae",
+      "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
       "registered_paths": [
         "web/app/components/api-key/__tests__/api-key-modal.spec.tsx"
-      ]
+      ],
+      "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
+      "superseded_duplicate_client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae"
     }
   },
   "next_subtask": "12.6b_system_integration_host_test"

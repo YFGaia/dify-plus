@@ -1805,9 +1805,11 @@
           },
           {
             "id": "12.6i_api_key_interaction_regressions",
-            "status": "thread_provisioning",
+            "status": "implementation_in_progress",
             "owner": "M06",
             "model": "gpt-6-astra",
+            "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
+            "dispatch_channel": "codex_project_local",
             "registered_paths": [
               "web/app/components/api-key/__tests__/api-key-modal.spec.tsx"
             ],
@@ -1815,8 +1817,11 @@
               "12.3_implementation:passed"
             ],
             "scope": "Add focused assertions for copying the created API key and canManage=false edit/delete behavior with no mutation calls. Preserve existing key visibility and secret-copy product semantics; do not change source components.",
-            "client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae",
-            "branch_head": "8d5257ee90"
+            "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
+            "superseded_duplicate_provisioning": {
+              "status": "superseded_duplicate_worktree_attempt",
+              "client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae"
+            }
           },
           {
             "id": "12.6a_home_navigation_luna_review",
