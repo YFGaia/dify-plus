@@ -98,7 +98,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 - [ ] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；M02 8.6 权限与 M05 11.6 类型契约均已通过；12.1b 已登记宿主和测试路径，独立 Sol 交叉核对中。详情见 `evidence/M06/result.json#/preflight/contract_handoff`。
   - [ ] 12.1a [M06] built-in WebApp 开关独立于站点启用及 environment/global auth；代码与 8 个参数化测试已写，独立 Luna 代码审查无阻断发现；卡片测试因 cn@0.2.4 未安装而未收集，独立 Luna frozen-dependency 验证任务正在 provisioning；15 项现有地址/认证测试通过。当前证据见 `evidence/M06/result.json#/subtasks/12.1a`。
-  - [ ] 12.1b [M06] 已由 M02 8.6 和 M05 11.6 解锁；已将 Chat 宿主、fork 专用 context service 与两条聚焦测试路径精确登记（`evidence/M06/12.1b-path-registration.md`）；独立 Sol 交叉核对仍在进行。接下来用新的 Astra 对话实施匿名 context guard：没有 Console CSRF cookie 时跳过，401 不触发登录重定向，调用参数来自当前 conversation。
+  - [ ] 12.1b [M06] 已由 M02 8.6 和 M05 11.6 解锁；已将 Chat 宿主、fork 专用 context service 与两条聚焦测试路径精确登记（`evidence/M06/12.1b-path-registration.md`）；Astra 实施任务 `client-new-thread:a0ea804b-bf7d-4329-8d7b-c496befbfbb2` 正在 provisioning，Sol 独立交叉核对仍在进行：没有 Console CSRF cookie 时跳过，401 不触发登录重定向，调用参数来自当前 conversation。
 - [ ] 12.2 [M06] 迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；Sol 只读分析任务 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning，实施路径与测试范围待分析交接后登记；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.4 [M06] 系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施；Sol 只读分析任务 `client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c` 正在 worktree provisioning；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。

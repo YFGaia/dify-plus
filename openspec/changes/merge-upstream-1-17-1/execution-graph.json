@@ -1048,7 +1048,7 @@
         ],
         "current_subtask": {
           "id": "12.1b",
-          "status": "registered_ready_for_implementation",
+          "status": "implementation_provisioning",
           "evidence": "evidence/M06/result.json#/subtasks/12.1b",
           "dependencies": {
             "M02_8.6": "30410b8fff",
@@ -1106,6 +1106,19 @@
           "base_commit": "659d8b9cda6df16292e8a1eb45cd7e98ccf6f1aa",
           "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and exact source/test path registration.",
           "registration_decision": "root source audit registered the four exact paths; Sol cross-check remains pending and cannot expand scope without re-registration"
+        },
+        "12.1b_implementation": {
+          "status": "conversation_provisioning",
+          "model": "gpt-6-astra",
+          "client_thread_id": "client-new-thread:a0ea804b-bf7d-4329-8d7b-c496befbfbb2",
+          "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+          "registered_paths": [
+            "web/app/components/base/chat/chat/index.tsx",
+            "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+            "web/service/message-context-extend.ts",
+            "web/service/message-context-extend.spec.ts"
+          ],
+          "scope": "Restore current-conversation context list/delete behavior; anonymous cookie guard; 401 without redirect."
         }
       }
     },

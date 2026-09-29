@@ -156,7 +156,7 @@
       "created_from_commit": "6f828304a8"
     },
     "12.1b": {
-      "status": "registered_ready_for_implementation",
+      "status": "implementation_in_progress",
       "model": "gpt-6-astra",
       "dependencies": {
         "M02_8.6": "passed; commit 30410b8fff",
@@ -200,6 +200,20 @@
         ],
         "decision": "Use a fork-specific service helper so no-console-CSRF and 401 behavior can be isolated without changing shared M05 Console transport or generic Apps service.",
         "independent_sol_cross_check": "conversation_provisioning; must report any required scope change before Astra edits it"
+      },
+      "implementation": {
+        "status": "conversation_provisioning",
+        "model": "gpt-6-astra",
+        "client_thread_id": "client-new-thread:a0ea804b-bf7d-4329-8d7b-c496befbfbb2",
+        "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+        "registered_paths": [
+          "web/app/components/base/chat/chat/index.tsx",
+          "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+          "web/service/message-context-extend.ts",
+          "web/service/message-context-extend.spec.ts"
+        ],
+        "scope": "Restore message context list and clear interaction with generated M05 types; skip without Console CSRF cookie and do not redirect on 401.",
+        "next_action": "Review the isolated task diff and actual focused verification output when its independent task completes."
       }
     }
   },
