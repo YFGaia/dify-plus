@@ -1124,35 +1124,45 @@
           "12.1a",
           "12.1b",
           "12.2_analysis",
-          "12.5_analysis"
+          "12.5_analysis",
+          "12.2a_app_center_repair"
         ],
         "current_subtask": {
-          "id": "12.2a_app_center_repair",
           "status": "implementation_in_progress",
-          "evidence": "evidence/M06/result.json#/subtasks/12.2a_app_center_repair",
-          "dependencies": {
-            "12.2_analysis": "passed; evidence/M06/12.2-analysis.md",
-            "M05 11.6": "passed; generated installed API boundary verified"
-          },
-          "base_commit": "f2424be348",
-          "client_thread_id": "client-new-thread:d21212b0-d4ba-41d6-9395-345a2a3602eb",
-          "created_from_commit": "f2424be348",
-          "worktree_path": "/Users/liuxingwang/.codex/worktrees/7155/dify-plus",
-          "observed_modified_paths": [
-            "web/app/components/explore/app-list-center-extend/index.tsx",
-            "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
-            "web/service/explore.ts",
-            "web/service/use-explore.ts",
-            "web/service/explore.spec.ts",
-            "web/service/__tests__/use-explore.spec.tsx"
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
+          "registered_paths": [
+            "web/app/components/apps/app-card/index.tsx",
+            "web/app/components/apps/app-card/interactions.tsx",
+            "web/app/components/apps/app-list-catalog.tsx",
+            "web/app/components/apps/__tests__/app-card.spec.tsx",
+            "web/app/components/apps/__tests__/list.spec.tsx"
           ],
-          "observation": "Expected source and test paths contain uncommitted implementation edits in the registered isolated worktree; no completion commit observed yet."
+          "dependencies": [
+            "9.6_recommended_apps_page_status:passed"
+          ],
+          "dependency_evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status",
+          "client_thread_id": "client-new-thread:0ceed222-0cfe-483a-a7b1-b61587486cf7",
+          "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
+          "created_from_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
+          "dispatch_channel": "codex_project_worktree",
+          "worktree_path": "/Users/liuxingwang/.codex/worktrees/171d/dify-plus",
+          "observed_modified_paths": [
+            "web/app/components/apps/app-card/index.tsx",
+            "web/app/components/apps/app-card/interactions.tsx",
+            "web/app/components/apps/app-list-catalog.tsx",
+            "web/app/components/apps/__tests__/app-card.spec.tsx",
+            "web/app/components/apps/__tests__/list.spec.tsx"
+          ],
+          "observation": "All five registered source/test paths contain uncommitted implementation edits in the isolated worktree; no completion commit observed yet.",
+          "evidence": "evidence/M06/result.json#/subtasks/12.2c_studio_sync_menu"
         },
-        "next_subtask": "12.2a_app_center_repair",
+        "next_subtask": "12.2c_studio_sync_menu",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
-            "status": "implementation_in_progress",
+            "status": "passed",
             "model": "gpt-6-astra",
             "owner": "M06",
             "registered_paths": [
@@ -1176,7 +1186,7 @@
               "web/service/explore.spec.ts",
               "web/service/__tests__/use-explore.spec.tsx"
             ],
-            "observation": "Expected source and test paths contain uncommitted implementation edits in the registered isolated worktree; no completion commit observed yet.",
+            "observation": "The registered implementation is integrated in the root branch; tests and six-file scoped checks passed. The source worktree remains preserved.",
             "duplicate_worktree_observation": {
               "worktree_path": "/Users/liuxingwang/.codex/worktrees/f7b7/dify-plus",
               "base_commit": "354b88becc769987b0c1a87de89c7661fd99a5e5",
@@ -1187,6 +1197,37 @@
                 "oxlint-suppressions.json removes the web/service/use-explore.ts @tanstack/query/prefer-query-options suppression count 2"
               ],
               "handling": "The registered 7155 worktree remains the canonical 12.2a implementation source. Preserve f7b7 without integrating it; do not include its unregistered suppression change."
+            },
+            "verification_evidence": "evidence/M06/12.2a-verification.md",
+            "verification": {
+              "evidence": "evidence/M06/12.2a-verification.md",
+              "runtime": "Node 24.20.0; official pnpm 12.3.4",
+              "dependency_diagnosis": "Root node_modules resolves @base-ui/react 1.6.0 while lock/catalog require 1.8.0; verification worktree resolves 1.8.0 and Combobox.createItems. No manifest or lockfile change.",
+              "unit_tests": {
+                "command": "pnpm exec vp test run --project unit app/components/explore/app-list-center-extend/__tests__/index.spec.tsx service/explore.spec.ts service/__tests__/use-explore.spec.tsx",
+                "exit_code": 0,
+                "files_passed": 3,
+                "tests_passed": 26
+              },
+              "scoped_check": {
+                "command": "pnpm --config.verify-deps-before-run=false exec vp check <six registered paths>",
+                "exit_code": 0,
+                "files_formatted": 6,
+                "lint_errors": 0,
+                "type_errors": 0,
+                "warnings": 0
+              },
+              "diff_check_exit_code": 0,
+              "test_worktree": {
+                "path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+                "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+                "target_paths_restored": true,
+                "preexisting_changes_preserved": true
+              },
+              "source_worktree": {
+                "path": "/Users/liuxingwang/.codex/worktrees/7155/dify-plus",
+                "status": "preserved; no longer used as integration target after root validation"
+              }
             }
           },
           {
@@ -1509,7 +1550,7 @@
           ]
         },
         "12.2a_app_center_repair": {
-          "status": "implementation_in_progress",
+          "status": "passed",
           "owner": "M06",
           "model": "gpt-6-astra",
           "scope": "Restore installed-app list fetch, validate response before cache, repair category/tag filtering and canonical navigation.",
@@ -1542,7 +1583,7 @@
             "web/service/explore.spec.ts",
             "web/service/__tests__/use-explore.spec.tsx"
           ],
-          "observation": "Expected source and test paths contain uncommitted implementation edits in the registered isolated worktree; no completion commit observed yet.",
+          "observation": "Six registered paths integrated from the Astra source worktree, tested with locked dependencies, and scoped checks passed. Source worktree preserved; no unregistered suppression or dependency change included.",
           "duplicate_worktree_observation": {
             "worktree_path": "/Users/liuxingwang/.codex/worktrees/f7b7/dify-plus",
             "base_commit": "354b88becc769987b0c1a87de89c7661fd99a5e5",
@@ -1553,6 +1594,37 @@
               "oxlint-suppressions.json removes the web/service/use-explore.ts @tanstack/query/prefer-query-options suppression count 2"
             ],
             "handling": "The registered 7155 worktree remains the canonical 12.2a implementation source. Preserve f7b7 without integrating it; do not include its unregistered suppression change."
+          },
+          "verification_evidence": "evidence/M06/12.2a-verification.md",
+          "verification": {
+            "evidence": "evidence/M06/12.2a-verification.md",
+            "runtime": "Node 24.20.0; official pnpm 12.3.4",
+            "dependency_diagnosis": "Root node_modules resolves @base-ui/react 1.6.0 while lock/catalog require 1.8.0; verification worktree resolves 1.8.0 and Combobox.createItems. No manifest or lockfile change.",
+            "unit_tests": {
+              "command": "pnpm exec vp test run --project unit app/components/explore/app-list-center-extend/__tests__/index.spec.tsx service/explore.spec.ts service/__tests__/use-explore.spec.tsx",
+              "exit_code": 0,
+              "files_passed": 3,
+              "tests_passed": 26
+            },
+            "scoped_check": {
+              "command": "pnpm --config.verify-deps-before-run=false exec vp check <six registered paths>",
+              "exit_code": 0,
+              "files_formatted": 6,
+              "lint_errors": 0,
+              "type_errors": 0,
+              "warnings": 0
+            },
+            "diff_check_exit_code": 0,
+            "test_worktree": {
+              "path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+              "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+              "target_paths_restored": true,
+              "preexisting_changes_preserved": true
+            },
+            "source_worktree": {
+              "path": "/Users/liuxingwang/.codex/worktrees/7155/dify-plus",
+              "status": "preserved; no longer used as integration target after root validation"
+            }
           }
         },
         "12.2c_studio_sync_menu": {

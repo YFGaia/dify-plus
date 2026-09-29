@@ -7,7 +7,69 @@ import type {
 } from '@dify/contracts/api/console/explore/types.gen'
 import type { App, AppCategory } from '@/models/explore'
 import type { AppIconType } from '@/types/app'
+import { z } from 'zod'
 import { consoleClient } from '@/service/console'
+
+// The generated fork response is only record<string, unknown>. Validate the
+// fields consumed by the app center before returning data to its query cache.
+const installedAppListSchema = z.object({
+  categories: z.array(z.string()),
+  recommended_apps: z.array(
+    z.object({
+      app_id: z.string().trim().min(1),
+      installed_id: z.string().trim().min(1),
+      category: z.string(),
+      description: z.string().nullable(),
+      app: z.object({
+        id: z.string().trim().min(1),
+        name: z.string(),
+        mode: z.string().min(1),
+        icon_type: z.enum(['emoji', 'image', 'link']).nullish(),
+        icon: z.string().nullish(),
+        icon_background: z.string().nullish(),
+        icon_url: z.string().nullish(),
+      }),
+      copyright: z.string().nullish(),
+      privacy_policy: z.string().nullish(),
+      custom_disclaimer: z.string().nullish(),
+      position: z.number().nullish(),
+      is_listed: z.boolean().nullish(),
+    }),
+  ),
+})
+
+export type InstalledApp = App & { installed_id: string; category: string }
+
+export const fetchOpenInstalledAppList = async () => {
+  const response = installedAppListSchema.parse(await consoleClient.installed.apps.get())
+  return {
+    categories: response.categories,
+    recommended_apps: response.recommended_apps.map((row): InstalledApp => ({
+      ...row,
+      app: {
+        ...row.app,
+        icon_type: row.app.icon_type ?? null,
+        icon: row.app.icon ?? '',
+        icon_background: row.app.icon_background ?? '',
+        icon_url: row.app.icon_url ?? '',
+        description: row.description ?? '',
+        use_icon_as_answer_icon: false,
+      },
+      description: row.description ?? '',
+      copyright: row.copyright ?? '',
+      privacy_policy: row.privacy_policy ?? null,
+      custom_disclaimer: row.custom_disclaimer ?? null,
+      categories: [row.category],
+      position: row.position ?? 0,
+      is_listed: row.is_listed ?? false,
+      install_count: 0,
+      installed: true,
+      editable: false,
+      is_agent: row.app.mode === 'agent-chat' || row.app.mode === 'agent',
+      can_trial: false,
+    })),
+  }
+}
 
 type ExploreAppsResponse = {
   categories: AppCategory[]

@@ -1,8 +1,8 @@
 'use client'
 
-import type { App } from '@/models/explore'
+import type { InstalledApp } from '@/service/explore'
 import { cn } from '@langgenius/dify-ui/cn'
-import { useDebounceFn } from 'ahooks'
+import { useQuery } from '@tanstack/react-query'
 import { useQueryState } from 'nuqs'
 import * as React from 'react'
 import { useCallback, useMemo, useState } from 'react'
@@ -12,12 +12,12 @@ import Loading from '@/app/components/base/loading'
 import { SearchInput } from '@/app/components/base/search-input'
 import AppCard from '@/app/components/explore/app-card-extend'
 import Category from '@/app/components/explore/category'
+import { buildInstalledAppPath } from '@/app/components/explore/installed-app/routes'
 import { TagFilter } from '@/features/tag-management/components/tag-filter'
 import { useRouter } from '@/next/navigation'
+import { consoleQuery } from '@/service/console'
 import { useInstalledAppList } from '@/service/use-explore'
 import s from './style.module.css'
-// extend: /installed/apps（recommended_app_service_extend）按 tag 每行输出单数 category
-type AppWithCategoryExtend = App & { category?: string }
 // Extend: stop Explore Add Search
 
 const Apps = () => {
@@ -33,22 +33,9 @@ const Apps = () => {
   const [keywordsValue, setKeywordsValue] = useState<string>('')
   // Extend: stop Explore Add Search
 
-  const { run: handleSearch } = useDebounceFn(
-    () => {
-      // Trigger search update
-    },
-    { wait: 500 },
+  const { data: tags = [], isError: isTagsError } = useQuery(
+    consoleQuery.tags.get.queryOptions({ input: { query: { type: 'app' } } }),
   )
-
-  const handleTagsChange = (value: string[]) => {
-    setTagFilterValue(value)
-    handleSearch()
-  }
-
-  const handleKeywordsChange = (value: string) => {
-    setKeywordsValue(value)
-    handleSearch()
-  }
 
   const [currCategory, setCurrCategory] = useQueryState('category', {
     defaultValue: allCategoriesEn,
@@ -58,7 +45,7 @@ const Apps = () => {
   const filteredListExtend = useMemo(() => {
     if (!data) return []
 
-    let result = data.allList as AppWithCategoryExtend[]
+    let result = data.allList
 
     // Apply category filter（后端 /installed/apps 每个 tag 输出一行，字段为单数 category）
     if (currCategory !== allCategoriesEn) {
@@ -67,9 +54,10 @@ const Apps = () => {
 
     // Apply tag filter
     if (tagFilterValue.length > 0) {
-      result = result.filter(
-        (item) => item.category !== undefined && tagFilterValue.includes(item.category),
+      const selectedNames = new Set(
+        tags.filter((tag) => tagFilterValue.includes(tag.id)).map((tag) => tag.name),
       )
+      result = result.filter((item) => selectedNames.has(item.category))
     }
 
     // Apply keyword search
@@ -84,7 +72,7 @@ const Apps = () => {
 
     // Deduplicate by app_id (same app may appear multiple times due to multiple tags)
     const seenAppIds = new Set<string>()
-    const deduplicatedResult: App[] = []
+    const deduplicatedResult: InstalledApp[] = []
     for (const item of result) {
       if (!seenAppIds.has(item.app_id)) {
         seenAppIds.add(item.app_id)
@@ -93,18 +81,14 @@ const Apps = () => {
     }
 
     return deduplicatedResult
-  }, [data, currCategory, allCategoriesEn, tagFilterValue, keywordsValue])
+  }, [data, currCategory, allCategoriesEn, tagFilterValue, keywordsValue, tags])
   // Extend: stop Filtered list with search and tag filter
 
   // Extend: start Create new conversation for installed app
   const { push } = useRouter()
   const handleCreateConversation = useCallback(
-    (app: App) => {
-      // Directly navigate to installed app conversation page
-      // Use installed_id which should be provided by backend
-      if (app.installed_id) {
-        push(`/explore/installed/${app.installed_id}`)
-      }
+    (app: InstalledApp) => {
+      push(buildInstalledAppPath(app.installed_id))
     },
     [push],
   )
@@ -118,7 +102,13 @@ const Apps = () => {
     )
   }
 
-  if (isError || !data) return null
+  if (isError || isTagsError || !data) {
+    return (
+      <div role="alert" className="flex h-full items-center justify-center text-text-secondary">
+        {t(($) => $['errorBoundary.title'], { ns: 'common' })}
+      </div>
+    )
+  }
 
   const { categories } = data
 
@@ -133,11 +123,11 @@ const Apps = () => {
         />
         {/* Extend: start Explore Add Search */}
         <div className="flex items-center gap-2">
-          <TagFilter type="app" value={tagFilterValue} onChange={handleTagsChange} />
+          <TagFilter type="app" value={tagFilterValue} onChange={setTagFilterValue} />
           <SearchInput
             className="w-[200px]"
             value={keywordsValue}
-            onValueChange={handleKeywordsChange}
+            onValueChange={setKeywordsValue}
           />
         </div>
         {/* Extend: stop Explore Add Search */}

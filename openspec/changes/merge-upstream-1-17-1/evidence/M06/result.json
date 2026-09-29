@@ -317,7 +317,7 @@
       }
     },
     "12.2a_app_center_repair": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
       "scope": "Restore installed-app list fetch, validate response before cache, repair category/tag filtering and canonical navigation.",
@@ -350,7 +350,7 @@
         "web/service/explore.spec.ts",
         "web/service/__tests__/use-explore.spec.tsx"
       ],
-      "observation": "Expected source and test paths contain uncommitted implementation edits in the registered isolated worktree; no completion commit observed yet.",
+      "observation": "The six registered paths were integrated into the root branch after the Astra worktree stopped advancing. The implementation was minimally adjusted to preserve unrelated existing hooks and the existing suppression baseline. The source worktree remains untouched.",
       "duplicate_worktree_observation": {
         "worktree_path": "/Users/liuxingwang/.codex/worktrees/f7b7/dify-plus",
         "base_commit": "354b88becc769987b0c1a87de89c7661fd99a5e5",
@@ -361,6 +361,38 @@
           "oxlint-suppressions.json removes the web/service/use-explore.ts @tanstack/query/prefer-query-options suppression count 2"
         ],
         "handling": "The registered 7155 worktree remains the canonical 12.2a implementation source. Preserve f7b7 without integrating it; do not include its unregistered suppression change."
+      },
+      "verification_evidence": "evidence/M06/12.2a-verification.md",
+      "verified_snapshot_commit": "fdc323930e88921e1df4eb5a9aed081ec76564a4",
+      "verification": {
+        "evidence": "evidence/M06/12.2a-verification.md",
+        "runtime": "Node 24.20.0; official pnpm 12.3.4",
+        "dependency_diagnosis": "Root node_modules resolves @base-ui/react 1.6.0 while lock/catalog require 1.8.0; verification worktree resolves 1.8.0 and Combobox.createItems. No manifest or lockfile change.",
+        "unit_tests": {
+          "command": "pnpm exec vp test run --project unit app/components/explore/app-list-center-extend/__tests__/index.spec.tsx service/explore.spec.ts service/__tests__/use-explore.spec.tsx",
+          "exit_code": 0,
+          "files_passed": 3,
+          "tests_passed": 26
+        },
+        "scoped_check": {
+          "command": "pnpm --config.verify-deps-before-run=false exec vp check <six registered paths>",
+          "exit_code": 0,
+          "files_formatted": 6,
+          "lint_errors": 0,
+          "type_errors": 0,
+          "warnings": 0
+        },
+        "diff_check_exit_code": 0,
+        "test_worktree": {
+          "path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+          "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+          "target_paths_restored": true,
+          "preexisting_changes_preserved": true
+        },
+        "source_worktree": {
+          "path": "/Users/liuxingwang/.codex/worktrees/7155/dify-plus",
+          "status": "preserved; no longer used as integration target after root validation"
+        }
       }
     },
     "9.6_recommended_apps_page_status": {
@@ -684,5 +716,5 @@
       "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics."
     }
   },
-  "next_subtask": "12.2a_app_center_repair"
+  "next_subtask": "12.2c_studio_sync_menu"
 }
