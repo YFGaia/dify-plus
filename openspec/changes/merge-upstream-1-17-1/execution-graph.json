@@ -1154,7 +1154,7 @@
         ],
         "current_subtask": {
           "id": "12.6i_fixture_typing",
-          "status": "ready",
+          "status": "passed",
           "owner": "M06",
           "model": "gpt-6-astra",
           "registered_paths": [
@@ -1162,7 +1162,18 @@
             "evidence/M06/12.6i-validation.md"
           ],
           "scope": "Fix two actual scoped TypeScript failures in existing API key test fixture without weakening coverage, suppression, casts or production changes; rerun 23 focused tests and scoped check.",
-          "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess."
+          "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess.",
+          "verification": {
+            "status": "passed",
+            "focused_tests": "23 passed; exit 0",
+            "scoped_check": "format/lint/types passed; exit 0",
+            "verified_test_sha256": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08",
+            "runtime": "Node 24.20.0; VP_SKIP_INSTALL=1",
+            "review_agent": "/root/api_key_final_snapshot_review",
+            "review_result": "No P1/P2/P3; hash stable before/after"
+          },
+          "review_status": "passed_no_p1_p2_p3",
+          "review_agent": "/root/api_key_final_snapshot_review"
         },
         "next_subtask": "12.6i_fixture_typing",
         "parallel_subtasks": [
@@ -1949,7 +1960,8 @@
             "review_agent": "/root/overview_ui_review",
             "review_result": "No P1/P2/P3; six final file blob hashes matched",
             "verification": "Node 24.20.0, VP_SKIP_INSTALL=1; 62 tests in three specs passed; six-path format/lint/type and scoped diff checks passed",
-            "verification_evidence": "evidence/M06/12.6g-verification.md"
+            "verification_evidence": "evidence/M06/12.6g-verification.md",
+            "implementation_commit": "3691f17a83"
           },
           {
             "id": "12.6h_contract_generation",
@@ -1978,7 +1990,7 @@
           },
           {
             "id": "12.6i_api_key_interaction_regressions",
-            "status": "focused_tests_passed_static_fix_required",
+            "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
             "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
@@ -1994,10 +2006,13 @@
             "implementation_commit": "a602bb8a585b348df2626f21c68c644814ce5367",
             "evidence": "evidence/M06/12.6i-validation.md",
             "verification": {
+              "status": "passed",
               "focused_tests": "23 passed; exit 0",
-              "scoped_check": "exit 1; queryKey needs argument at line46 and spread of optional appKeys[0] at line330",
-              "verified_test_sha256": "5b6dbe75aba281d32070cf9db3d10eeccb955eef94224dc36dcc1d3aae41c79c",
-              "thread_id": "01a0ebda-2332-7663-900f-3dd9ee08cd9f"
+              "scoped_check": "format/lint/types passed; exit 0",
+              "verified_test_sha256": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08",
+              "runtime": "Node 24.20.0; VP_SKIP_INSTALL=1",
+              "review_agent": "/root/api_key_final_snapshot_review",
+              "review_result": "No P1/P2/P3; hash stable before/after"
             },
             "superseded_duplicate_provisioning": {
               "status": "superseded_duplicate_worktree_attempt",
@@ -2008,7 +2023,8 @@
             "review_evidence": "evidence/M06/12.6i-review.md",
             "superseded_competing_commit": "777238cc",
             "verification_thread_id": "01a0ebda-2332-7663-900f-3dd9ee08cd9f",
-            "verification_model": "gpt-6-luna"
+            "verification_model": "gpt-6-luna",
+            "review_agent": "/root/api_key_final_snapshot_review"
           },
           {
             "id": "12.6a_home_navigation_luna_review",
@@ -3082,7 +3098,7 @@
         },
         "12.6i_fixture_typing": {
           "id": "12.6i_fixture_typing",
-          "status": "ready",
+          "status": "passed",
           "owner": "M06",
           "model": "gpt-6-astra",
           "registered_paths": [
@@ -3090,13 +3106,24 @@
             "evidence/M06/12.6i-validation.md"
           ],
           "scope": "Fix two actual scoped TypeScript failures in existing API key test fixture without weakening coverage, suppression, casts or production changes; rerun 23 focused tests and scoped check.",
-          "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess."
+          "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess.",
+          "verification": {
+            "status": "passed",
+            "focused_tests": "23 passed; exit 0",
+            "scoped_check": "format/lint/types passed; exit 0",
+            "verified_test_sha256": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08",
+            "runtime": "Node 24.20.0; VP_SKIP_INSTALL=1",
+            "review_agent": "/root/api_key_final_snapshot_review",
+            "review_result": "No P1/P2/P3; hash stable before/after"
+          },
+          "review_status": "passed_no_p1_p2_p3",
+          "review_agent": "/root/api_key_final_snapshot_review"
         }
       },
       "next_subtask": "12.6i_fixture_typing",
       "current_subtask": {
         "id": "12.6i_fixture_typing",
-        "status": "ready",
+        "status": "passed",
         "owner": "M06",
         "model": "gpt-6-astra",
         "registered_paths": [
@@ -3104,7 +3131,18 @@
           "evidence/M06/12.6i-validation.md"
         ],
         "scope": "Fix two actual scoped TypeScript failures in existing API key test fixture without weakening coverage, suppression, casts or production changes; rerun 23 focused tests and scoped check.",
-        "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess."
+        "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess.",
+        "verification": {
+          "status": "passed",
+          "focused_tests": "23 passed; exit 0",
+          "scoped_check": "format/lint/types passed; exit 0",
+          "verified_test_sha256": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08",
+          "runtime": "Node 24.20.0; VP_SKIP_INSTALL=1",
+          "review_agent": "/root/api_key_final_snapshot_review",
+          "review_result": "No P1/P2/P3; hash stable before/after"
+        },
+        "review_status": "passed_no_p1_p2_p3",
+        "review_agent": "/root/api_key_final_snapshot_review"
       }
     },
     {

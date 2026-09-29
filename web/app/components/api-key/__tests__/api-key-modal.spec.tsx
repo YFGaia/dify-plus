@@ -41,10 +41,7 @@ vi.mock('@/service/console', async (importOriginal) => {
               }: {
                 input: { params: { resource_id: string } } | typeof skipToken
               }) => ({
-                queryKey:
-                  input === skipToken
-                    ? appApiKeys.get.queryKey()
-                    : appApiKeys.get.queryKey({ input }),
+                queryKey: appApiKeys.get.queryKey({ input }),
                 queryFn:
                   input === skipToken
                     ? skipToken
@@ -307,9 +304,13 @@ describe('ApiKeyModal', () => {
   })
 
   it('edits legacy app keys using unlimited defaults and refreshes the list', async () => {
-    apiMocks.appKeys = [
-      { id: 'app-key-1', token: 'app-secret-token-123456789', type: 'app', created_at: 1 },
-    ]
+    const legacyAppKey: AppApiKeyList['data'][number] = {
+      id: 'app-key-1',
+      token: 'app-secret-token-123456789',
+      type: 'app',
+      created_at: 1,
+    }
+    apiMocks.appKeys = [legacyAppKey]
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     await renderModal(appScope)
     expect(await screen.findAllByText('0 / extend.apiKeyModal.noLimit')).toHaveLength(2)
@@ -327,8 +328,9 @@ describe('ApiKeyModal', () => {
       'Updated',
     )
     apiMocks.updateApp.mockImplementation(async () => {
-      apiMocks.appKeys = [{ ...apiMocks.appKeys[0], description: 'Updated' }]
-      return apiMocks.appKeys[0]
+      const updatedAppKey = { ...legacyAppKey, description: 'Updated' }
+      apiMocks.appKeys = [updatedAppKey]
+      return updatedAppKey
     })
     await user.click(screen.getByRole('button', { name: 'common.operation.save' }))
     await waitFor(() =>
