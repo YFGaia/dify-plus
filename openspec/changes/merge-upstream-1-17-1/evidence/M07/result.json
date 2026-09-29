@@ -473,14 +473,18 @@
       "post_implementation_review": {
         "status": "provisioning",
         "model": "gpt-6-luna",
-        "client_thread_id": "client-new-thread:f80411cc-c502-499a-82f0-80c89ebf03ac",
+        "client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
         "target_commit": "1b1ddf4eb3",
         "scope": "Read-only review of docker/docker-compose.dify-plus.yaml implementation against the existing storage key helper and exact upstream/fork contracts.",
         "limits": [
           "No containers or image pulls",
           "No private env or real storage access",
           "No file modifications or commits"
-        ]
+        ],
+        "superseded_client_thread_ids": [
+          "client-new-thread:f80411cc-c502-499a-82f0-80c89ebf03ac"
+        ],
+        "provisioning_note": "A previous Luna worktree request was not readable; this fresh independent review task replaces it."
       }
     },
     "13.5": {

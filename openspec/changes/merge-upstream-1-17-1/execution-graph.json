@@ -1224,7 +1224,13 @@
           "id": "13.4",
           "status": "independent_review_provisioning",
           "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation",
-          "implementation_commit": "1b1ddf4eb3"
+          "implementation_commit": "1b1ddf4eb3",
+          "review_status": "provisioning",
+          "review_client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
+          "review_target_commit": "1b1ddf4eb3",
+          "superseded_review_client_thread_ids": [
+            "client-new-thread:f80411cc-c502-499a-82f0-80c89ebf03ac"
+          ]
         },
         "next_subtask": "13.4_independent_luna_review"
       },
