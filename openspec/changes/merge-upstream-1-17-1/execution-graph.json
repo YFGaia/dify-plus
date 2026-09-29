@@ -1147,35 +1147,24 @@
           "12.6e_workflow_account_ownership_persistence"
         ],
         "current_subtask": {
-          "id": "12.6f_workflow_account_statistics",
-          "status": "blocked_dependency",
-          "owner": "M04",
+          "id": "12.6e-review-followup",
+          "status": "implementation_in_progress",
+          "owner": "M02",
           "model": "gpt-6-astra",
-          "branch_head": "5ebd4a9ace80d319edb682e7b3eb0bfd95d5bd96",
+          "branch_head": "66683c3cba7cd2a9e51cc1ef79c4c8ea7a8d83c1",
           "base_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+          "implementation_thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
           "dispatch_channel": "codex_project_local",
           "registered_paths": [
-            "api/controllers/console/app/workflow_statistic.py",
-            "api/services/workflow_statistic_query_service.py",
-            "api/repositories/api_workflow_run_repository.py",
-            "api/repositories/sqlalchemy_api_workflow_run_repository.py",
-            "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
-            "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
-            "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
-            "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
-            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-verification.md"
+            "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+            "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
+            "api/tests/unit_tests/models/test_workflow.py",
+            "evidence/M06/12.6e-review.md"
           ],
-          "scope": "Add account=true to three workflow charts using authenticated RequestContext.account_id; SQLAlchemy association joins scoped by workflow/tenant/app/account; Logstore trusted per-run actor filtering; preserve app-wide default and daily-terminals. Test account isolation, NULL/history, tenant/app scope.",
-          "analysis_evidence": "evidence/M06/12.6f-analysis.md",
-          "implementation_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
-          "blocker": {
-            "subtask": "12.6f_logstore_actor_index",
-            "reason": "Account-scoped Logstore aggregation filters from_account_id, but workflow_execution index keys are generated from upstream WorkflowRun and omit the fork-only field. The implementation conversation stopped before editing.",
-            "source_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8"
-          }
+          "scope": "Close two independent Luna P2 findings: fail closed before Logstore append when SQL scope validation errors; make fork migration reconcile a missing named index on an existing table and downgrade safely when the index is absent."
         },
-        "next_subtask": "12.6f_workflow_account_statistics",
+        "next_subtask": "12.6e-review-followup",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1780,7 +1769,7 @@
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "review_findings_open_followup_in_progress",
+            "status": "review_followup_in_progress",
             "owner": "M02/M03",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1864,7 +1853,7 @@
           },
           {
             "id": "12.6f_workflow_account_statistics",
-            "status": "implementation_in_progress",
+            "status": "blocked_by_12.6e_review_and_12.6f0_index",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1889,7 +1878,12 @@
             "registered_paths_confirmed": true,
             "path_overlap_with_12_6e": "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py and its test are sequentially owned by 12.6f; 12.6e does not edit them.",
             "implementation_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
-            "dispatch_channel": "codex_project_local"
+            "dispatch_channel": "codex_project_local",
+            "dependencies": [
+              "12.6e-review-followup:passed",
+              "12.6f0_logstore_actor_index:passed",
+              "12.6f_workflow_statistics_analysis:passed"
+            ]
           },
           {
             "id": "12.6g_user_overview_ui_contract",
@@ -1989,11 +1983,15 @@
           },
           {
             "id": "12.6e_independent_luna_verification",
-            "status": "review_in_progress",
+            "status": "findings_confirmed_followup_open",
             "model": "gpt-6-luna",
             "thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
             "base_commit": "f1771c90a1a5701cb4ac115d3393320897bc5347",
-            "scope": "Read-only independent review and focused verification of the stopped 12.6e source snapshot; no file changes."
+            "scope": "Read-only independent review and focused verification of the stopped 12.6e source snapshot; no file changes.",
+            "findings": [
+              "P2: Logstore dual-write proceeds after SQL scope validation exception",
+              "P2: migration returns for existing table without ensuring its scope index"
+            ]
           },
           {
             "id": "12.6e_review_followup",
@@ -2013,7 +2011,7 @@
           },
           {
             "id": "12.6f_logstore_actor_index",
-            "status": "registered_ready",
+            "status": "implementation_in_progress",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -2021,7 +2019,47 @@
               "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py"
             ],
             "scope": "Register the trusted from_account_id field as a workflow_execution Logstore index key required by account-scoped charts; add focused configuration coverage. Preserve upstream WorkflowRun and all existing custom index behavior. This is a separate prerequisite task; no edits until this registration is committed.",
-            "dependency": "12.6f_analysis:analysis_complete_paths_registered"
+            "dependency": "12.6f_analysis:analysis_complete_paths_registered",
+            "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+            "base_commit": "895831abea"
+          },
+          {
+            "id": "12.6e-review-followup",
+            "status": "implementation_in_progress",
+            "owner": "M02",
+            "model": "gpt-6-astra",
+            "thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
+            "dispatch_channel": "codex_project_local",
+            "dependencies": [
+              "12.6e_workflow_account_ownership_persistence:implementation_passed",
+              "12.6e_independent_luna_verification:two_P2_findings"
+            ],
+            "registered_paths": [
+              "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+              "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
+              "api/tests/unit_tests/models/test_workflow.py",
+              "evidence/M06/12.6e-review.md"
+            ],
+            "scope": "Close two Luna P2 findings: fail closed if SQL scope validation errors before Logstore write; reconcile missing migration index on an existing table and safely downgrade if index is absent.",
+            "latest_test_result": "Four regressions failed on original implementation; Astra applied fixes and reports two-file focused tests pass. Root verification pending."
+          },
+          {
+            "id": "12.6f0_logstore_actor_index",
+            "status": "blocked_by_12.6e_review_followup",
+            "owner": "M04",
+            "model": "gpt-6-astra",
+            "dependencies": [
+              "12.6e-review-followup:passed"
+            ],
+            "registered_paths": [
+              "api/extensions/logstore/aliyun_logstore.py",
+              "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore.py",
+              "evidence/M06/12.6f0-logstore-index-verification.md"
+            ],
+            "analysis_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
+            "scope": "Register trusted workflow-run from_account_id as a Logstore text field with doc_value=True; prove create and existing-index reconciliation while preserving custom indexes; keep upstream WorkflowRun and migration main chain unchanged.",
+            "source_finding": "Current workflow_execution index creation and ensure_index_config derive fields only from upstream WorkflowRun plus error_message/started_at, while Dify Plus writes from_account_id; actor filter is not queryable on newly-created or upgraded indexes until fixed."
           }
         ],
         "completed_analyses": [
@@ -2713,7 +2751,7 @@
         },
         "12.6f_logstore_actor_index": {
           "id": "12.6f_logstore_actor_index",
-          "status": "registered_ready",
+          "status": "implementation_in_progress",
           "owner": "M04",
           "model": "gpt-6-astra",
           "registered_paths": [
@@ -2721,7 +2759,9 @@
             "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py"
           ],
           "scope": "Register the trusted from_account_id field as a workflow_execution Logstore index key required by account-scoped charts; add focused configuration coverage. Preserve upstream WorkflowRun and all existing custom index behavior. This is a separate prerequisite task; no edits until this registration is committed.",
-          "dependency": "12.6f_analysis:analysis_complete_paths_registered"
+          "dependency": "12.6f_analysis:analysis_complete_paths_registered",
+          "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+          "base_commit": "895831abea"
         }
       }
     },
@@ -3614,5 +3654,5 @@
       ]
     }
   ],
-  "next_subtask": "12.6f_workflow_account_statistics"
+  "next_subtask": "12.6e-review-followup"
 }
