@@ -317,7 +317,7 @@
       }
     },
     "12.2a_app_center_repair": {
-      "status": "conversation_provisioning",
+      "status": "implementation_in_progress",
       "owner": "M06",
       "model": "gpt-6-astra",
       "scope": "Restore installed-app list fetch, validate response before cache, repair category/tag filtering and canonical navigation.",
@@ -340,7 +340,17 @@
       "prior_agent_attempt": {
         "status": "failed",
         "reason": "agent thread limit reached"
-      }
+      },
+      "worktree_path": "/Users/liuxingwang/.codex/worktrees/7155/dify-plus",
+      "observed_modified_paths": [
+        "web/app/components/explore/app-list-center-extend/index.tsx",
+        "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
+        "web/service/explore.ts",
+        "web/service/use-explore.ts",
+        "web/service/explore.spec.ts",
+        "web/service/__tests__/use-explore.spec.tsx"
+      ],
+      "observation": "Expected source and test paths contain uncommitted implementation edits in the registered isolated worktree; no completion commit observed yet."
     },
     "9.6_recommended_apps_page_status": {
       "status": "passed",
@@ -374,7 +384,7 @@
       }
     },
     "12.2c_studio_sync_menu": {
-      "status": "conversation_provisioning",
+      "status": "implementation_in_progress",
       "owner": "M06",
       "model": "gpt-6-astra",
       "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
@@ -392,7 +402,16 @@
       "client_thread_id": "client-new-thread:0ceed222-0cfe-483a-a7b1-b61587486cf7",
       "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
       "created_from_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
-      "dispatch_channel": "codex_project_worktree"
+      "dispatch_channel": "codex_project_worktree",
+      "worktree_path": "/Users/liuxingwang/.codex/worktrees/171d/dify-plus",
+      "observed_modified_paths": [
+        "web/app/components/apps/app-card/index.tsx",
+        "web/app/components/apps/app-card/interactions.tsx",
+        "web/app/components/apps/app-list-catalog.tsx",
+        "web/app/components/apps/__tests__/app-card.spec.tsx",
+        "web/app/components/apps/__tests__/list.spec.tsx"
+      ],
+      "observation": "All five registered source/test paths contain uncommitted implementation edits in the isolated worktree; no completion commit observed yet."
     },
     "12.5_analysis": {
       "status": "passed",
