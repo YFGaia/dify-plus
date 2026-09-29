@@ -1,6 +1,6 @@
 {
   "node": "M08",
-  "status": "in_progress",
+  "status": "passed",
   "subtasks": {
     "14.1_conflict_path_reconciliation_analysis": {
       "id": "14.1_conflict_path_reconciliation_analysis",
@@ -854,12 +854,12 @@
     },
     "14.19_final_candidate_after_M01_build_script_change": {
       "id": "14.19_final_candidate_after_M01_build_script_change",
-      "status": "in_progress",
+      "status": "passed",
       "owner": "M08/coordinator",
       "model": "coordinator",
       "reasoning_effort": "high",
       "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
-      "candidate_tree": "d3906ed2b06bd6ad43550968191c774c329ef396",
+      "candidate_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
       "registered_paths": [
         "evidence/M08/14.18-final-candidate-structural-acceptance.md",
         "evidence/M08/result.json",
@@ -908,19 +908,23 @@
         "All 91 conflict paths stay resolved with no conflict markers or unmerged index; strict OpenSpec and exact-path formatting pass, excluding raw tool logs to preserve source evidence.",
         "Report records candidate commit/tree, path allowlist and evidence hashes; no V02 default-build, R01, deployment or production pass is claimed."
       ],
-      "dispatch_status": "coordinator_working",
+      "dispatch_status": "completed",
       "independent_review": {
         "status": "passed",
         "model": "gpt-6-sol",
         "candidate_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
         "result": "Exact three-path M01 commit; only the build script source value changed. Upstream/M00 ancestry, api subtree, quota models and navigation route were verified.",
         "scope_limit": "Structural review only; V02 production builds remain outstanding."
-      }
+      },
+      "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+      "parent_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+      "report_sha256": "a90d5f3a852aa276fb1baf697882c6c8e589fae857e456c024bcd98eb21b16f2",
+      "result": "14/14 allowlist exact; upstream/M00 ancestry, unchanged 91-path ownership map, no unmerged index/conflict markers, exact API subtree and separate quota behavior verified. Strict OpenSpec and exact-path formatting passed. V02 remains outstanding."
     }
   },
   "updated_at": "2026-09-29",
-  "next_subtask": "14.19_final_candidate_after_M01_build_script_change",
-  "candidate_source_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+  "next_subtask": "A03/authorized_read_only_environment_inventory",
+  "candidate_source_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
   "candidate_source_commit_before_followup": {
     "sha": "ba33fe26dc21ae3a308f14a61999009fc2849779",
     "parent": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
@@ -941,5 +945,25 @@
     "structural_acceptance_report": "evidence/M08/14.10-final-candidate-structural-acceptance.md",
     "structural_acceptance_report_sha256": "5861a90abca83bba99072710a761ea92047d76660fb6e244cc81e83162c5fe95"
   },
-  "candidate_source_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0"
+  "candidate_source_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+  "downstream_status": {
+    "V02": {
+      "status": "passed",
+      "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+      "result": "evidence/V02/16.15-final-candidate-build-result.json",
+      "result_sha256": "1ee29a4ac6743ec768d8118737e12963269631c8e044a48305bbeded5a9aae80",
+      "log_sha256": "5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483"
+    },
+    "R01": {
+      "status": "passed",
+      "readiness_state": "code-ready",
+      "result": "evidence/R01/result.json",
+      "result_sha256": "b3f8ab320a2a79fa54c2312be11a2dda140e08ee29350ebb36af61bd5a1ebc01"
+    },
+    "A03": {
+      "status": "blocked",
+      "reason": "Actual deployment and business-data read-only access has not been authorized."
+    },
+    "production_claimed": false
+  }
 }
