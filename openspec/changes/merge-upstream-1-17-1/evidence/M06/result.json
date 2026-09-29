@@ -247,14 +247,21 @@
         "anonymous WebApp does not call the Console context endpoint"
       ],
       "required_frontend_behavior": "Skip the Console context call when no Console CSRF cookie is available; a 401 must not trigger login redirect; use current conversation/message identifiers and never send app_id.",
-      "next_action": "Continue the 12.2 app-center analysis handoff; reopen 12.1b only if the pending Sol path cross-check finds a missing required path or behavior.",
+      "next_action": "Continue M06; no 12.1b path reopening required.",
       "path_analysis": {
-        "status": "conversation_provisioning",
+        "status": "passed_no_required_path_changes",
         "model": "gpt-6-sol",
         "client_thread_id": "client-new-thread:3f8019c7-3df7-4c7c-b8e6-fa755aa6ef07",
-        "base_commit": "659d8b9cda6df16292e8a1eb45cd7e98ccf6f1aa",
+        "base_commit": "5381ccbaef63d8c31111e1f89743c91f94354e4f",
         "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and minimum exact host/test path registration.",
-        "next_action": "Complete; if the pending read-only cross-check finds a required missing path or behavior, register it before creating a fresh follow-up implementation task."
+        "next_action": "Complete; if the pending read-only cross-check finds a required missing path or behavior, register it before creating a fresh follow-up implementation task.",
+        "agent": "/root/m06_12_1b_sol_path_crosscheck",
+        "result": "The four registered implementation/test paths are complete. No additional required production consumer or test path; no scope reopening.",
+        "evidence": [
+          "execution-graph.json:1748-1779",
+          "evidence/M06/12.1b-path-registration.md",
+          "commit 9ee0119ca1ae501008db1913777ac4582af17205"
+        ]
       },
       "path_registration": {
         "status": "completed_by_integrator_source_audit",
@@ -272,7 +279,7 @@
           "401 redirect behavior in shared service wrapper"
         ],
         "decision": "Use a fork-specific service helper so no-console-CSRF and 401 behavior can be isolated without changing shared M05 Console transport or generic Apps service.",
-        "independent_sol_cross_check": "conversation_provisioning; must report any required scope change before Astra edits it"
+        "independent_sol_cross_check": "passed_no_required_path_changes; four registered paths remain sufficient"
       },
       "implementation": {
         "status": "committed",
@@ -910,7 +917,7 @@
     },
     "12.3_app_api_key_quota_and_balance": {
       "id": "12.3_app_api_key_quota_and_balance",
-      "status": "final_snapshot_verification_in_progress",
+      "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
       "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
@@ -939,7 +946,7 @@
       ],
       "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
       "analysis_evidence": "evidence/M06/12.3-analysis.md",
-      "observation": "Earlier direct-Node verification passed at b49d389. Registered-path updates in 4526fd02 and 12.4 implementation changed the final six-file snapshot; a fresh Luna task is rerunning both specs against a7b7ddeeda before this subtask can be marked passed.",
+      "observation": "Final combined 12.3+12.4 focused runtime verification passed at source snapshot 5381ccbaef; both registered specs passed 97 tests. Exact six-file byte identity to a7b7ddeeda and safe restore are documented in evidence/M06/12.3-12.4-final-verification.md.",
       "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
     },
     "12.3_implementation": {
@@ -966,7 +973,7 @@
       },
       "verification_task": {
         "agent": "/root/m06_12_3_12_4_final_luna",
-        "status": "in_progress",
+        "status": "passed",
         "plan": "Run both registered Vitest specs against final combined 12.3+12.4 snapshot using direct Node in the dependency-complete eafe worktree; overlay and hash-verify restoration of six target files."
       },
       "limits": [
@@ -974,14 +981,16 @@
         "Zero/negative exchange rate hides conversion as conservative UI behavior; no product rule defines those values."
       ],
       "verification": {
-        "status": "historical_pass_pending_final_snapshot_revalidation",
-        "review_target_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
-        "command": "node node_modules/vitest/vitest.mjs run app/components/api-key/__tests__/api-key-modal.spec.tsx app/components/main-nav/__tests__/index.spec.tsx",
+        "status": "passed",
+        "review_target_commit": "5381ccbaef63d8c31111e1f89743c91f94354e4f",
+        "command": "node .../node_modules/vitest/vitest.mjs run --project unit app/components/api-key/__tests__/api-key-modal.spec.tsx app/components/main-nav/__tests__/index.spec.tsx",
         "working_directory": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus/web",
-        "runtime": "Node 24.20.0 direct invocation; no pnpm/package manager",
+        "runtime": "Node 24.20.0 direct invocation of Vitest 4.1.11; no package manager or install",
         "exit_code": 0,
-        "result": "2 test files, 90 tests passed",
-        "restore": "All six registered eafe target files were restored from /private/tmp/m06-12-3-vitest-backup/; git diff --exit-code on six targets returned 0 and restored SHA256 hashes matched initial eafe hashes. Existing message-context changes remained untouched."
+        "result": "2 test files, 97 tests passed",
+        "source_identity": "Six registered implementation/spec paths are byte-identical to a7b7ddeedad8396870863c2fa7de56a42d508ca9.",
+        "restore": "All six eafe targets restored with matching original SHA-256; git diff --exit-code clean; full status preserved including pre-existing message-context changes.",
+        "evidence": "evidence/M06/12.3-12.4-final-verification.md"
       },
       "followup_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
       "review_status": "passed",
@@ -990,7 +999,7 @@
       ]
     },
     "12.4_implementation": {
-      "status": "implementation_complete_verification_in_progress",
+      "status": "passed",
       "model": "gpt-6-astra",
       "implementation_commit": "a7b7ddeeda",
       "registered_paths": [
@@ -1003,12 +1012,18 @@
       ],
       "verification_task": {
         "agent": "/root/m06_12_3_12_4_final_luna",
-        "status": "in_progress",
+        "status": "passed",
         "scope": "Combined focused specs for 12.3 and 12.4 at final snapshot."
       },
       "analysis_evidence": "evidence/M06/12.4-analysis.md",
-      "evidence": "evidence/M06/result.json#/subtasks/12.4_implementation"
+      "evidence": "evidence/M06/result.json#/subtasks/12.4_implementation",
+      "verification": {
+        "status": "passed",
+        "review_target_commit": "5381ccbaef63d8c31111e1f89743c91f94354e4f",
+        "test_result": "Both focused specs passed; 2 files / 97 tests. Six registered paths byte-identical to implementation commit a7b7ddeedad8396870863c2fa7de56a42d508ca9.",
+        "evidence": "evidence/M06/12.3-12.4-final-verification.md"
+      }
     }
   },
-  "next_subtask": "12.3_12.4_final_runtime_verification"
+  "next_subtask": "12.5d_obsolete_secret_key_quota_modal"
 }
