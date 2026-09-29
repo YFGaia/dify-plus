@@ -577,10 +577,12 @@ class AliyunLogStore:
         2. Adds missing Dify-required fields
         3. Updates fields where type doesn't match (with json/text compatibility)
         4. Corrects case mismatches (e.g., if Dify needs 'status' but logstore has 'Status')
+        5. Ensures workflow_execution.from_account_id is text with doc_value enabled for analytics
 
         Type compatibility rules:
         - json and text types are considered compatible (users can manually choose either)
         - All other type mismatches will be corrected to match Dify requirements
+        - workflow_execution.from_account_id requires text and doc_value=True
 
         Note: Logstore is case-sensitive and doesn't allow duplicate fields with different cases.
         Case mismatch means: existing field name differs from required name only in case.
@@ -633,6 +635,13 @@ class AliyunLogStore:
                 # Special case: json and text are interchangeable for JSON content fields
                 # Allow users to manually configure text instead of json (or vice versa) without forcing updates
                 is_compatible = existing_type == required_type or ({existing_type, required_type} == {"json", "text"})
+                if logstore_name == self.workflow_execution_logstore and required_name == "from_account_id":
+                    # Account filtering and grouping require a scalar text index with analytics enabled.
+                    is_compatible = existing_type == required_type
+                    if not existing_keys[required_name].doc_value:
+                        existing_keys[required_name] = required_config
+                        needs_update = True
+                        logger.info("Logstore %s: Enabling analytics for from_account_id", logstore_name)
 
                 if not is_compatible:
                     type_mismatches.append((required_name, existing_type, required_type))
@@ -694,7 +703,7 @@ class AliyunLogStore:
         2. If index exists:
            - Check if all Dify-required fields are present
            - Check if field types match requirements
-           - Only update if fields are missing or types are incorrect
+           - Update if fields are missing, types are incorrect, or account analytics are disabled
            - Preserve any additional custom index configurations
 
         This approach allows users to add their own custom indexes without being overwritten.
