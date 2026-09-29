@@ -620,6 +620,7 @@ class APIWorkflowRunRepository(Protocol):
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[DailyRunsStats]:
         """
         Get daily runs statistics.
@@ -634,6 +635,8 @@ class APIWorkflowRunRepository(Protocol):
             start_date: Optional start date filter
             end_date: Optional end date filter
             timezone: Timezone for date grouping (default: "UTC")
+            account_id: Trusted account identity; None preserves app-wide statistics.
+                Missing or NULL run ownership is excluded when an account is supplied.
 
         Returns:
             List of dictionaries containing date and runs count:
@@ -678,6 +681,7 @@ class APIWorkflowRunRepository(Protocol):
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[DailyTokenCostStats]:
         """
         Get daily token cost statistics.
@@ -692,6 +696,8 @@ class APIWorkflowRunRepository(Protocol):
             start_date: Optional start date filter
             end_date: Optional end date filter
             timezone: Timezone for date grouping (default: "UTC")
+            account_id: Trusted account identity; None preserves app-wide statistics.
+                Missing or NULL run ownership is excluded when an account is supplied.
 
         Returns:
             List of dictionaries containing date and token count:
@@ -707,6 +713,7 @@ class APIWorkflowRunRepository(Protocol):
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[AverageInteractionStats]:
         """
         Get average app interaction statistics.
@@ -721,6 +728,8 @@ class APIWorkflowRunRepository(Protocol):
             start_date: Optional start date filter
             end_date: Optional end date filter
             timezone: Timezone for date grouping (default: "UTC")
+            account_id: Trusted account identity; None preserves app-wide statistics.
+                Missing or NULL run ownership is excluded when an account is supplied.
 
         Returns:
             List of dictionaries containing date and average interactions:

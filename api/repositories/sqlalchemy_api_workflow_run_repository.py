@@ -1433,20 +1433,29 @@ class DifyAPISQLAlchemyWorkflowRunRepository(APIWorkflowRunRepository):
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[DailyRunsStats]:
         """
         Get daily runs statistics using raw SQL for optimal performance.
         """
-        converted_created_at = convert_datetime_to_date("created_at")
+        converted_created_at = convert_datetime_to_date("c.created_at")
+        account_join = ""
+        if account_id is not None:
+            account_join = """JOIN workflow_run_account_extend ownership
+                ON ownership.workflow_run_id = c.id
+                AND ownership.tenant_id = c.tenant_id
+                AND ownership.app_id = c.app_id
+                AND ownership.from_account_id = :account_id"""
         sql_query = f"""SELECT
     {converted_created_at} AS date,
-    COUNT(id) AS runs
+    COUNT(c.id) AS runs
 FROM
-    workflow_runs
+    workflow_runs c
+    {account_join}
 WHERE
-    tenant_id = :tenant_id
-    AND app_id = :app_id
-    AND triggered_from = :triggered_from"""
+    c.tenant_id = :tenant_id
+    AND c.app_id = :app_id
+    AND c.triggered_from = :triggered_from"""
 
         arg_dict: dict[str, Any] = {
             "tz": timezone,
@@ -1455,12 +1464,15 @@ WHERE
             "triggered_from": triggered_from,
         }
 
+        if account_id is not None:
+            arg_dict["account_id"] = account_id
+
         if start_date:
-            sql_query += " AND created_at >= :start_date"
+            sql_query += " AND c.created_at >= :start_date"
             arg_dict["start_date"] = start_date
 
         if end_date:
-            sql_query += " AND created_at < :end_date"
+            sql_query += " AND c.created_at < :end_date"
             arg_dict["end_date"] = end_date
 
         sql_query += " GROUP BY date ORDER BY date"
@@ -1531,20 +1543,29 @@ WHERE
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[DailyTokenCostStats]:
         """
         Get daily token cost statistics using raw SQL for optimal performance.
         """
-        converted_created_at = convert_datetime_to_date("created_at")
+        converted_created_at = convert_datetime_to_date("c.created_at")
+        account_join = ""
+        if account_id is not None:
+            account_join = """JOIN workflow_run_account_extend ownership
+                ON ownership.workflow_run_id = c.id
+                AND ownership.tenant_id = c.tenant_id
+                AND ownership.app_id = c.app_id
+                AND ownership.from_account_id = :account_id"""
         sql_query = f"""SELECT
     {converted_created_at} AS date,
-    SUM(total_tokens) AS token_count
+    SUM(c.total_tokens) AS token_count
 FROM
-    workflow_runs
+    workflow_runs c
+    {account_join}
 WHERE
-    tenant_id = :tenant_id
-    AND app_id = :app_id
-    AND triggered_from = :triggered_from"""
+    c.tenant_id = :tenant_id
+    AND c.app_id = :app_id
+    AND c.triggered_from = :triggered_from"""
 
         arg_dict: dict[str, Any] = {
             "tz": timezone,
@@ -1553,12 +1574,15 @@ WHERE
             "triggered_from": triggered_from,
         }
 
+        if account_id is not None:
+            arg_dict["account_id"] = account_id
+
         if start_date:
-            sql_query += " AND created_at >= :start_date"
+            sql_query += " AND c.created_at >= :start_date"
             arg_dict["start_date"] = start_date
 
         if end_date:
-            sql_query += " AND created_at < :end_date"
+            sql_query += " AND c.created_at < :end_date"
             arg_dict["end_date"] = end_date
 
         sql_query += " GROUP BY date ORDER BY date"
@@ -1585,11 +1609,19 @@ WHERE
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[AverageInteractionStats]:
         """
         Get average app interaction statistics using raw SQL for optimal performance.
         """
         converted_created_at = convert_datetime_to_date("c.created_at")
+        account_join = ""
+        if account_id is not None:
+            account_join = """JOIN workflow_run_account_extend ownership
+                ON ownership.workflow_run_id = c.id
+                AND ownership.tenant_id = c.tenant_id
+                AND ownership.app_id = c.app_id
+                AND ownership.from_account_id = :account_id"""
         sql_query = f"""SELECT
     AVG(sub.interactions) AS interactions,
     sub.date
@@ -1601,6 +1633,7 @@ FROM
             COUNT(c.id) AS interactions
         FROM
             workflow_runs c
+            {account_join}
         WHERE
             c.tenant_id = :tenant_id
             AND c.app_id = :app_id
@@ -1619,6 +1652,9 @@ GROUP BY
             "app_id": app_id,
             "triggered_from": triggered_from,
         }
+
+        if account_id is not None:
+            arg_dict["account_id"] = account_id
 
         if start_date:
             sql_query = sql_query.replace("{{start}}", " AND c.created_at >= :start_date")

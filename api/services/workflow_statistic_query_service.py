@@ -25,6 +25,7 @@ class WorkflowStatisticQueryService:
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account: bool = False,
     ) -> list[DailyRunsStats]:
         return self._workflow_runs.get_daily_runs_statistics(
             tenant_id=context.active_workspace_id,
@@ -33,6 +34,7 @@ class WorkflowStatisticQueryService:
             start_date=start_date,
             end_date=end_date,
             timezone=timezone,
+            account_id=context.account_id if account else None,
         )
 
     def get_daily_terminals(
@@ -61,6 +63,7 @@ class WorkflowStatisticQueryService:
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account: bool = False,
     ) -> list[DailyTokenCostStats]:
         return self._workflow_runs.get_daily_token_cost_statistics(
             tenant_id=context.active_workspace_id,
@@ -69,6 +72,7 @@ class WorkflowStatisticQueryService:
             start_date=start_date,
             end_date=end_date,
             timezone=timezone,
+            account_id=context.account_id if account else None,
         )
 
     def get_average_app_interactions(
@@ -79,6 +83,7 @@ class WorkflowStatisticQueryService:
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account: bool = False,
     ) -> list[AverageInteractionStats]:
         return self._workflow_runs.get_average_app_interaction_statistics(
             tenant_id=context.active_workspace_id,
@@ -87,4 +92,5 @@ class WorkflowStatisticQueryService:
             start_date=start_date,
             end_date=end_date,
             timezone=timezone,
+            account_id=context.account_id if account else None,
         )

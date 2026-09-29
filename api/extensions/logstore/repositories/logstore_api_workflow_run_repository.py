@@ -612,6 +612,7 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[DailyRunsStats]:
         """
         Get daily runs statistics using optimized query.
@@ -626,6 +627,11 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
         escaped_tenant_id = escape_identifier(tenant_id)
         escaped_app_id = escape_identifier(app_id)
         escaped_triggered_from = escape_sql_string(triggered_from)
+
+        # Ownership is persisted from the authenticated actor on each run event.
+        account_filter = ""
+        if account_id is not None:
+            account_filter = f" AND from_account_id='{escape_sql_string(account_id)}'"
 
         # Build time range filter (datetime.isoformat() is safe)
         time_filter = ""
@@ -642,6 +648,7 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
               AND app_id='{escaped_app_id}'
               AND triggered_from='{escaped_triggered_from}'
               AND finished_at IS NOT NULL
+              {account_filter}
               {time_filter}
             GROUP BY date
             ORDER BY date
@@ -732,6 +739,7 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[DailyTokenCostStats]:
         """
         Get daily token cost statistics using optimized query.
@@ -750,6 +758,11 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
         escaped_app_id = escape_identifier(app_id)
         escaped_triggered_from = escape_sql_string(triggered_from)
 
+        # Ownership is persisted from the authenticated actor on each run event.
+        account_filter = ""
+        if account_id is not None:
+            account_filter = f" AND from_account_id='{escape_sql_string(account_id)}'"
+
         # Build time range filter (datetime.isoformat() is safe)
         time_filter = ""
         if start_date:
@@ -764,6 +777,7 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
               AND app_id='{escaped_app_id}'
               AND triggered_from='{escaped_triggered_from}'
               AND finished_at IS NOT NULL
+              {account_filter}
               {time_filter}
             GROUP BY date
             ORDER BY date
@@ -793,6 +807,7 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         timezone: str = "UTC",
+        account_id: str | None = None,
     ) -> list[AverageInteractionStats]:
         """
         Get average app interaction statistics using optimized query.
@@ -810,6 +825,11 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
         escaped_tenant_id = escape_identifier(tenant_id)
         escaped_app_id = escape_identifier(app_id)
         escaped_triggered_from = escape_sql_string(triggered_from)
+
+        # Ownership is persisted from the authenticated actor on each run event.
+        account_filter = ""
+        if account_id is not None:
+            account_filter = f" AND from_account_id='{escape_sql_string(account_id)}'"
 
         # Build time range filter (datetime.isoformat() is safe)
         time_filter = ""
@@ -832,6 +852,7 @@ class LogstoreAPIWorkflowRunRepository(APIWorkflowRunRepository):
                   AND app_id='{escaped_app_id}'
                   AND triggered_from='{escaped_triggered_from}'
                   AND finished_at IS NOT NULL
+                  {account_filter}
                   {time_filter}
                 GROUP BY date, created_by
             ) sub

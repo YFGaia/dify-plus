@@ -1324,7 +1324,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1362,8 +1362,12 @@
         "01a0ebbd-d178-7982-9141-834a93649224",
         "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
       ],
-      "validation_status": "not_run_root_reconciliation_required",
-      "blocked_by": null
+      "validation_status": "passed",
+      "blocked_by": null,
+      "verification_evidence": "evidence/M06/12.6f-verification.md",
+      "review_agent": "/root/workflow_statistics_review",
+      "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
+      "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed"
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
@@ -1504,7 +1508,7 @@
       "followup": "12.6f_logstore_actor_index_config_preservation"
     },
     "12.6f_statistics_integration_recovery": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "model": "gpt-6-astra",
       "owner": "M04",
       "base_commit": "5514c6df0f88921fbf7029611bd95de216d20757",
@@ -1533,7 +1537,12 @@
         "01a0ebbd-d178-7982-9141-834a93649224",
         "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
       ],
-      "current_worktree_observation": "At dispatch, seven registered code/test paths had uncommitted changes; controller and Logstore behavior test files were not yet present. Unrelated untracked user paths remain untouched."
+      "current_worktree_observation": "At dispatch, seven registered code/test paths had uncommitted changes; controller and Logstore behavior test files were not yet present. Unrelated untracked user paths remain untouched.",
+      "verification_evidence": "evidence/M06/12.6f-verification.md",
+      "review_agent": "/root/workflow_statistics_review",
+      "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
+      "validation_status": "passed",
+      "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed"
     },
     "12.6f_logstore_actor_index_config_preservation": {
       "id": "12.6f_logstore_actor_index_config_preservation",
@@ -1560,7 +1569,8 @@
       "review_result": "No P1/P2/P3; independent Luna rerun 46 passed; Ruff check and format passed",
       "verification_evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
       "test_result": "46 passed; 36 regression cases failed before repair",
-      "verified_source_sha256": "22ad424ee36911206d42d3064d7613931eb26846ebbab5f6f187ecd20025da44"
+      "verified_source_sha256": "22ad424ee36911206d42d3064d7613931eb26846ebbab5f6f187ecd20025da44",
+      "implementation_commit": "8466ad5ff749271057d14df7d6e0589dad4b226f"
     },
     "12.6j_frontend_dependency_recovery": {
       "id": "12.6j_frontend_dependency_recovery",
@@ -1578,7 +1588,7 @@
     },
     "12.6g_user_overview_ui_contract": {
       "id": "12.6g_user_overview_ui_contract",
-      "status": "registered_blocked_by_12.6d_12.6f",
+      "status": "ready",
       "owner": "M06",
       "model": "gpt-6-astra",
       "registered_paths": [
@@ -1591,8 +1601,31 @@
         "evidence/M06/12.6g-verification.md"
       ],
       "scope": "Promise route params; retain account=true for all periods; canMonitor blocks chart rendering and direct-route admission; keep direct-only navigation; preserve empty-data date fallback.",
-      "analysis_agent": "/root/overview_ui_analysis"
+      "analysis_agent": "/root/overview_ui_analysis",
+      "dependencies": [
+        "12.6d_app_account_statistics:passed",
+        "12.6f_workflow_account_statistics:passed"
+      ]
+    },
+    "12.6h_contract_generation": {
+      "id": "12.6h_contract_generation",
+      "status": "ready",
+      "owner": "M05/M08",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "packages/contracts/openapi/console-openapi.json",
+        "api/openapi/markdown/console-openapi.md",
+        "packages/contracts/generated/api/console/apps/types.gen.ts",
+        "packages/contracts/generated/api/console/apps/zod.gen.ts",
+        "packages/contracts/generated/api/console/apps/orpc.gen.ts",
+        "evidence/M06/12.6h-verification.md"
+      ],
+      "scope": "Regenerate and review only after both backend endpoint contracts agree; generated contract files remain under M05/M08 ownership.",
+      "dependencies": [
+        "12.6d_app_account_statistics:passed",
+        "12.6f_workflow_account_statistics:passed"
+      ]
     }
   },
-  "next_subtask": "12.6f_statistics_integration_recovery"
+  "next_subtask": "12.6g_user_overview_ui_contract"
 }

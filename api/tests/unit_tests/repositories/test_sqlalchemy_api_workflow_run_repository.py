@@ -1,12 +1,17 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Generator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from decimal import Decimal
+from types import SimpleNamespace
+from typing import cast
 from unittest.mock import Mock, patch
 
 import pytest
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.sql.elements import TextClause
 
 from core.workflow.nodes.human_input.entities import FormDefinition, ParagraphInputConfig, UserActionConfig
 from core.workflow.nodes.human_input.enums import FormInputType
@@ -16,7 +21,10 @@ from graphon.enums import WorkflowExecutionStatus, WorkflowType
 from models import Message
 from models.enums import ConversationFromSource, CreatorUserRole, WorkflowRunTriggeredFrom
 from models.human_input import HumanInputForm, HumanInputFormRecipient, RecipientType
+from models.model import App, AppMode
 from models.workflow import WorkflowPause, WorkflowPauseReason, WorkflowRun
+from models.workflow_account_extend import WorkflowRunAccountExtend
+from repositories import sqlalchemy_api_workflow_run_repository as statistic_repository_module
 from repositories.sqlalchemy_api_workflow_run_repository import (
     DifyAPISQLAlchemyWorkflowRunRepository,
     WorkflowRunMessageRef,
@@ -318,3 +326,141 @@ def test_delete_pause_model_deletes_record_when_state_object_delete_fails(
     assert "workflow_run_id=run-1" in caplog.text
     assert "object_key=workflow-state.json" in caplog.text
     assert caplog.records[-1].exc_info is not None
+
+
+def seed_workflow_account_statistics(session_factory: sessionmaker[Session]) -> None:
+    """Include legacy/unowned runs and intentionally mismatched ownership scopes."""
+    with session_factory() as session:
+        session.add_all(
+            [
+                App(
+                    id="app-1",
+                    tenant_id="tenant-1",
+                    name="Workflow statistics",
+                    mode=AppMode.WORKFLOW,
+                    enable_site=True,
+                    enable_api=True,
+                ),
+                App(
+                    id="app-2",
+                    tenant_id="tenant-2",
+                    name="Other workspace",
+                    mode=AppMode.WORKFLOW,
+                    enable_site=True,
+                    enable_api=True,
+                ),
+            ]
+        )
+        cases = [
+            # id, actor, terminal, tokens, run tenant/app, owner tenant/app, day, source
+            ("a1", "account-1", "shared-user", 10, "tenant-1", "app-1", "tenant-1", "app-1", 2, "app-run"),
+            ("a2", "account-1", "shared-user", 10, "tenant-1", "app-1", "tenant-1", "app-1", 2, "app-run"),
+            ("b", "account-2", "shared-user", 30, "tenant-1", "app-1", "tenant-1", "app-1", 2, "app-run"),
+            ("missing", None, "legacy", 40, "tenant-1", "app-1", "tenant-1", "app-1", 2, "app-run"),
+            ("null", None, "anonymous", 50, "tenant-1", "app-1", "tenant-1", "app-1", 2, "app-run"),
+            ("bad-tenant", "account-1", "wrong-tenant", 60, "tenant-1", "app-1", "tenant-2", "app-1", 2, "app-run"),
+            ("bad-app", "account-1", "wrong-app", 70, "tenant-1", "app-1", "tenant-1", "app-2", 2, "app-run"),
+            ("other-tenant", "account-1", "other", 80, "tenant-2", "app-1", "tenant-2", "app-1", 2, "app-run"),
+            ("other-app", "account-1", "other", 90, "tenant-1", "app-2", "tenant-1", "app-2", 2, "app-run"),
+            ("debug", "account-1", "debug", 100, "tenant-1", "app-1", "tenant-1", "app-1", 2, "debugging"),
+            ("before", "account-1", "shared-user", 110, "tenant-1", "app-1", "tenant-1", "app-1", 1, "app-run"),
+            ("end", "account-1", "shared-user", 120, "tenant-1", "app-1", "tenant-1", "app-1", 3, "app-run"),
+        ]
+        for run_id, actor, terminal, tokens, tenant, app_id, owner_tenant, owner_app, day, source in cases:
+            run = _workflow_run(run_id=run_id, tenant_id=tenant, status=WorkflowExecutionStatus.SUCCEEDED)
+            run.app_id = app_id
+            run.created_by_role = CreatorUserRole.END_USER
+            run.created_by = terminal
+            run.created_at = datetime(2024, 1, day)
+            run.finished_at = None if run_id == "a2" else datetime(2024, 1, day, 1)
+            run.total_tokens = tokens
+            run.triggered_from = WorkflowRunTriggeredFrom(source)
+            session.add(run)
+            if run_id != "missing":
+                session.add(
+                    WorkflowRunAccountExtend(
+                        workflow_run_id=run_id, tenant_id=owner_tenant, app_id=owner_app, from_account_id=actor
+                    )
+                )
+        session.commit()
+
+
+def sqlite_workflow_statistic_repository(
+    session_factory: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch
+) -> DifyAPISQLAlchemyWorkflowRunRepository:
+    """Adapt only SQLite date/AVG result types; execute production filtering SQL."""
+    monkeypatch.setattr(statistic_repository_module, "convert_datetime_to_date", lambda field: f"DATE({field})")
+
+    @contextmanager
+    def statistic_session() -> Generator[SimpleNamespace, None, None]:
+        with session_factory() as session:
+
+            def execute(statement: TextClause, parameters: dict[str, object]) -> list[SimpleNamespace]:
+                result = session.execute(statement, parameters)
+                if "AVG(sub.interactions)" in str(statement):
+                    return [
+                        SimpleNamespace(date=row.date, interactions=Decimal(str(row.interactions))) for row in result
+                    ]
+                return [SimpleNamespace(**{str(key): value for key, value in row._mapping.items()}) for row in result]
+
+            yield SimpleNamespace(execute=execute)
+
+    # This test adapter implements the context-manager/execute subset used by
+    # these raw SQL methods and preserves the production PostgreSQL AVG type.
+    return DifyAPISQLAlchemyWorkflowRunRepository(session_maker=cast(sessionmaker[Session], statistic_session))
+
+
+@pytest.mark.parametrize(
+    ("method", "metric", "expected_a", "expected_b", "expected_all"),
+    [
+        ("get_daily_runs_statistics", "runs", 2, 1, 7),
+        ("get_daily_token_cost_statistics", "token_count", 20, 30, 270),
+        ("get_average_app_interaction_statistics", "interactions", 2.0, 1.0, 1.4),
+    ],
+)
+def test_workflow_statistics_account_scope(
+    sqlite_session_factory: sessionmaker[Session],
+    monkeypatch: pytest.MonkeyPatch,
+    method: str,
+    metric: str,
+    expected_a: float,
+    expected_b: float,
+    expected_all: float,
+) -> None:
+    seed_workflow_account_statistics(sqlite_session_factory)
+    repository = sqlite_workflow_statistic_repository(sqlite_session_factory, monkeypatch)
+    query = getattr(repository, method)
+    arguments = {
+        "tenant_id": "tenant-1",
+        "app_id": "app-1",
+        "triggered_from": WorkflowRunTriggeredFrom.APP_RUN,
+        "start_date": datetime(2024, 1, 2),
+        "end_date": datetime(2024, 1, 3),
+    }
+    for actor, expected in [("account-1", expected_a), ("account-2", expected_b), (None, expected_all)]:
+        assert query(**arguments, account_id=actor) == [{"date": "2024-01-02", metric: expected}]
+    assert query(**arguments) == [{"date": "2024-01-02", metric: expected_all}]
+    assert query(**arguments, account_id="unknown") == []
+    assert query(**arguments, account_id="account-1' OR '1'='1") == []
+    arguments.pop("start_date")
+    arguments.pop("end_date")
+    assert sorted(row["date"] for row in query(**arguments, account_id="account-1")) == [
+        "2024-01-01",
+        "2024-01-02",
+        "2024-01-03",
+    ]
+    assert [row["date"] for row in query(**arguments, account_id="account-2")] == ["2024-01-02"]
+
+
+def test_workflow_daily_terminals_remain_app_wide(
+    sqlite_session_factory: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    seed_workflow_account_statistics(sqlite_session_factory)
+    repository = sqlite_workflow_statistic_repository(sqlite_session_factory, monkeypatch)
+    assert repository.get_daily_terminals_statistics(
+        tenant_id="tenant-1",
+        app_id="app-1",
+        triggered_from=WorkflowRunTriggeredFrom.APP_RUN,
+        start_date=datetime(2024, 1, 2),
+        end_date=datetime(2024, 1, 3),
+    ) == [{"date": "2024-01-02", "terminal_count": 5}]

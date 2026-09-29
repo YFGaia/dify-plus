@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
+import pytest
+
 from machinery.context import RequestContext
 from models.enums import WorkflowRunTriggeredFrom
 from repositories.api_workflow_run_repository import APIWorkflowRunRepository
@@ -64,7 +66,33 @@ def test_workflow_statistic_queries_delegate_to_workflow_run_repository() -> Non
         "end_date": end_date,
         "timezone": "Asia/Shanghai",
     }
-    workflow_runs.get_daily_runs_statistics.assert_called_once_with(**expected_arguments)
+    workflow_runs.get_daily_runs_statistics.assert_called_once_with(**expected_arguments, account_id=None)
     workflow_runs.get_daily_terminals_statistics.assert_called_once_with(**expected_arguments)
-    workflow_runs.get_daily_token_cost_statistics.assert_called_once_with(**expected_arguments)
-    workflow_runs.get_average_app_interaction_statistics.assert_called_once_with(**expected_arguments)
+    workflow_runs.get_daily_token_cost_statistics.assert_called_once_with(**expected_arguments, account_id=None)
+    workflow_runs.get_average_app_interaction_statistics.assert_called_once_with(**expected_arguments, account_id=None)
+
+
+@pytest.mark.parametrize("account_id", ["account-1", "account-2"])
+@pytest.mark.parametrize("account", [True, False])
+@pytest.mark.parametrize(
+    ("method", "repository_method"),
+    [
+        ("get_daily_runs", "get_daily_runs_statistics"),
+        ("get_daily_token_costs", "get_daily_token_cost_statistics"),
+        ("get_average_app_interactions", "get_average_app_interaction_statistics"),
+    ],
+)
+def test_account_scope_uses_context(method: str, repository_method: str, account: bool, account_id: str) -> None:
+    repository = MagicMock(spec=APIWorkflowRunRepository)
+    context = _request_context()._replace(account_id=account_id)
+    service = WorkflowStatisticQueryService(workflow_runs=repository)
+    getattr(service, method)(context, app_id="app-1", start_date=None, end_date=None, timezone="UTC", account=account)
+    getattr(repository, repository_method).assert_called_once_with(
+        tenant_id="workspace-1",
+        app_id="app-1",
+        triggered_from=WorkflowRunTriggeredFrom.APP_RUN,
+        start_date=None,
+        end_date=None,
+        timezone="UTC",
+        account_id=account_id if account else None,
+    )
