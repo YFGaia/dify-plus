@@ -259,7 +259,7 @@ describe('ApiKeyModal', () => {
     expect(screen.getByText('appApi.apiKeyModal.scopeAllDatasets')).toBeInTheDocument()
   })
 
-  it('creates an app API key through the generated mutation input', async () => {
+  it('creates an app API key through the generated mutation input and copies its secret', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     await renderModal(appScope)
 
@@ -276,6 +276,10 @@ describe('ApiKeyModal', () => {
     expect(
       await screen.findByRole('textbox', { name: 'appApi.apiKeyModal.secretKey' }),
     ).toHaveValue('new-app-token-123')
+    await user.click(
+      screen.getByRole('button', { name: 'appOverview.overview.appInfo.embedded.copy' }),
+    )
+    expect(await navigator.clipboard.readText()).toBe('new-app-token-123')
     await waitFor(() => expect(apiMocks.listApp).toHaveBeenCalledTimes(2))
   })
 
@@ -649,6 +653,37 @@ describe('ApiKeyModal', () => {
       }),
     ).toBeDisabled()
   })
+
+  it.each([appScope, datasetScope, environmentScope])(
+    'does not expose edit or delete actions for $type keys when the caller cannot manage keys',
+    async (scope) => {
+      const existingKeys = [
+        {
+          id: 'key-1',
+          token: 'existing-secret-token-123456789',
+          type: scope.type === 'environment' ? 'api' : scope.type,
+          created_at: 1,
+        },
+      ]
+      apiMocks.appKeys = existingKeys
+      apiMocks.datasetKeys = existingKeys
+      apiMocks.environmentKeys = existingKeys
+
+      await renderModal(scope, { canManage: false })
+
+      expect(await screen.findByText('exi...cret-token-123456789')).toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /^common.operation.edit / }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /^common.operation.delete / }),
+      ).not.toBeInTheDocument()
+      expect(apiMocks.updateApp).not.toHaveBeenCalled()
+      expect(apiMocks.deleteApp).not.toHaveBeenCalled()
+      expect(apiMocks.deleteDataset).not.toHaveBeenCalled()
+      expect(apiMocks.deleteEnvironment).not.toHaveBeenCalled()
+    },
+  )
 
   it('exposes an accessible close button', async () => {
     const { onOpenChange } = await renderModal(datasetScope)
