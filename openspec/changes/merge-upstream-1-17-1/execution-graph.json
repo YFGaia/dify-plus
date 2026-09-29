@@ -2455,7 +2455,7 @@
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "in_progress",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -2539,16 +2539,17 @@
           "14.15_v02_evidence_format_followup",
           "14.16_recandidate_after_metadata_formatting",
           "14.17_ukrainian_i18n_parity",
-          "14.18_final_candidate_structural_acceptance"
+          "14.18_final_candidate_structural_acceptance",
+          "14.19_final_candidate_after_M01_build_script_change"
         ],
         "current_subtask": {
           "id": "14.19_final_candidate_after_M01_build_script_change",
-          "status": "in_progress",
+          "status": "passed",
           "owner": "M08/coordinator",
           "model": "coordinator",
           "reasoning_effort": "high",
           "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
-          "candidate_tree": "d3906ed2b06bd6ad43550968191c774c329ef396",
+          "candidate_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
           "registered_paths": [
             "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.18-final-candidate-structural-acceptance.md",
             "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
@@ -2605,9 +2606,13 @@
             "result": "Exact three-path M01 commit; only the build script source value changed. Upstream/M00 ancestry, api subtree, quota models and navigation route were verified.",
             "scope_limit": "Structural review only; V02 production builds remain outstanding."
           },
-          "dispatch_status": "coordinator_working",
+          "dispatch_status": "completed",
           "candidate_source_commit": null,
-          "candidate_source_tree": null
+          "candidate_source_tree": null,
+          "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+          "parent_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+          "report_sha256": "a90d5f3a852aa276fb1baf697882c6c8e589fae857e456c024bcd98eb21b16f2",
+          "result": "14/14 allowlist exact; upstream/M00 ancestry, unchanged 91-path ownership map, no unmerged index/conflict markers, exact API subtree and separate quota behavior verified. Strict OpenSpec and exact-path formatting passed. V02 remains outstanding."
         },
         "parallel_subtasks": [
           {
@@ -4038,8 +4043,8 @@
             "result": "11/11 commit allowlist exact; direct-child ancestry, M00 merge ancestry, 91/91 resolved conflict mapping, no conflict markers/unmerged index, unchanged API subtree and quota boundary, exact locale parity, formatting and strict OpenSpec validation passed."
           }
         ],
-        "next_subtask": "14.19_final_candidate_after_M01_build_script_change",
-        "dispatch_status": "coordinator_working",
+        "next_subtask": null,
+        "dispatch_status": "completed",
         "active_subtasks": {}
       },
       "active_subtasks": {}
@@ -4130,7 +4135,7 @@
       "owner_role": "前端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -4164,15 +4169,18 @@
       "owned_conflict_paths": [],
       "outputs": ["evidence/V02/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "completed_subtasks": ["16.1_16.2_16.3_candidate_frontend_luna_verification"],
+        "completed_subtasks": [
+          "16.1_16.2_16.3_candidate_frontend_luna_verification",
+          "16.15_final_candidate_default_next_and_vinext_builds"
+        ],
         "current_subtask": {
           "id": "16.15_final_candidate_default_next_and_vinext_builds",
-          "status": "queued_waiting_for_M08_14_19",
+          "status": "passed",
           "owner": "V02",
           "model": "gpt-6-luna",
           "reasoning_effort": "high",
-          "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
-          "candidate_tree": "d3906ed2b06bd6ad43550968191c774c329ef396",
+          "base_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+          "candidate_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
           "registered_paths": [
             "evidence/V02/16.15-final-candidate-build-result.json",
             "evidence/V02/16.15-final-candidate-build.log"
@@ -4188,14 +4196,27 @@
             "Archive commit/tree exactly equal the M08/14.19 accepted commit/tree and existing dependency overlays resolve without install/sync/network.",
             "Pinned full pnpm check passes before either build.",
             "Default pnpm --dir web build succeeds; then and only then pnpm --dir web build:vinext succeeds.",
-            "Both build logs contain the quota-management route; no source/test/index/working-tree mutation occurs in the archive test flow.",
+            "Quota route is present in the default Next route table and is verified in Vinext client/server generated artifacts with SHA-256; source/test/index/worktree remain unchanged.",
             "Report exact candidate/toolchain hashes, commands, exits, durations, route output, and cache/cleanup disposition; keep 16.14 diagnostic distinct from this V02 gate."
           ],
           "editable_paths": [
             "evidence/V02/16.15-final-candidate-build-result.json",
             "evidence/V02/16.15-final-candidate-build.log"
           ],
-          "dispatch_status": "queued"
+          "dispatch_status": "completed",
+          "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+          "implementation_agent": "/root/v02_16_14_luna_webpack",
+          "dispatch_agent": "/root/v02_16_14_luna_webpack",
+          "host_id": "local",
+          "verdict": "passed",
+          "result_sha256": "1ee29a4ac6743ec768d8118737e12963269631c8e044a48305bbeded5a9aae80",
+          "log_sha256": "5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483",
+          "result_path": "evidence/V02/16.15-final-candidate-build-result.json",
+          "log_path": "evidence/V02/16.15-final-candidate-build.log",
+          "route_evidence": "Next route table plus Vinext generated artifacts; Vinext stdout omits route table, so use manifest/chunk hashes recorded in result.",
+          "archive_mutation_finding": "No mutation: initial report was a symlink hashing false positive; sequential exact-candidate check/Next/Vinext comparison was unchanged.",
+          "log_git_blob_sha1": "b3a9471a2848c981a25a770021a185110f461a7a",
+          "log_git_blob_content_sha256": "61d0551310c2a26c8fbfa140465128f56810e42df84e8b36dc4c7e63a62c7fe9"
         },
         "parallel_subtasks": [
           {
@@ -4585,21 +4606,30 @@
           },
           {
             "id": "16.15_final_candidate_default_next_and_vinext_builds",
-            "status": "queued_waiting_for_M08_14_19",
+            "status": "running",
             "owner": "V02",
             "model": "gpt-6-luna",
             "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
             "registered_paths": [
               "evidence/V02/16.15-final-candidate-build-result.json",
               "evidence/V02/16.15-final-candidate-build.log"
-            ]
+            ],
+            "dispatch_agent": "/root/v02_16_14_luna_webpack",
+            "host_id": "local"
           }
         ],
-        "next_subtask": "16.15_final_candidate_default_next_and_vinext_builds",
-        "dispatch_status": "queued_after_M08_14_19",
-        "active_subtasks": {}
-      },
-      "blocked_reason": "V02/16.13 default Next/Turbopack build stalled. V02/16.14 webpack diagnostic passed on the same candidate, but the default build and Vinext gates remain incomplete; waiting for M01/7.5 build-script compatibility change and M08/14.19 candidate freeze before V02/16.15."
+        "next_subtask": null,
+        "dispatch_status": "completed",
+        "active_subtasks": [],
+        "latest_attempt": {
+          "status": "passed",
+          "result_sha256": "e7b06e6c38edd3562516817d6ecbcff5333bd1869504767183b97fda9562a510",
+          "log_sha256": "5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483",
+          "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+          "candidate_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d"
+        },
+        "blocked_reason": null
+      }
     },
     {
       "id": "R01",
@@ -4608,7 +4638,7 @@
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -4629,7 +4659,11 @@
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
       "outputs": ["evidence/R01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
-      "blocked_reason": "V02/16.14 proved the exact candidate can complete a Next build with Webpack, but the registered default build and Vinext gates remain incomplete. M01/7.5 is applying the evidence-driven webpack default selection; M08 must freeze and accept a new candidate, then V02 must pass both build gates before R01."
+      "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+      "candidate_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+      "readiness_state": "code-ready",
+      "log_sha256": "d0a2e45f3ecc7ef123d6f9096a9fdc8f1bc5b76353008f7ed3357949d511394d",
+      "result_sha256": "b3f8ab320a2a79fa54c2312be11a2dda140e08ee29350ebb36af61bd5a1ebc01"
     },
     {
       "id": "V03",
@@ -4638,7 +4672,7 @@
       "owner_role": "数据与容器验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation_isolated_runtime",
       "inputs": [
@@ -4663,7 +4697,8 @@
       "evidence": ["evidence/V03/result.json", "evidence/V03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": ["evidence/V03/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
+      "outputs": ["evidence/V03/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
+      "blocked_reason": "R01 is code-ready, but A03 remains blocked pending explicit authorization for read-only access to the actual deployment and business data; V03 requires both R01 and A03."
     },
     {
       "id": "V04",
@@ -4948,7 +4983,7 @@
       "outputs": ["evidence/D04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     }
   ],
-  "next_subtask": "M08/14.19_final_candidate_after_M01_build_script_change",
+  "next_subtask": "A03/authorized_read_only_environment_inventory",
   "execution_control": {
     "coordinator_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
     "updated_at": "2026-09-29",
@@ -4992,10 +5027,9 @@
     ],
     "current_dispatches": [],
     "next_critical_path": [
-      "M01/7.5 passed and committed as 42fe3f904d6bd469ce887561a94909da882c4bb6; clean-archive pnpm check and independent Sol structural review passed.",
-      "M08/14.19 is freezing a new candidate directly from 42fe3f904d6bd469ce887561a94909da882c4bb6, with exact prior V02 evidence and coordinator state paths.",
-      "After M08/14.19 acceptance, V02/16.15 runs full pnpm check then default Next build (Webpack selected by the script) and Vinext sequentially; reuse exact-input lint:tss/i18n/unit and V01/browser evidence.",
-      "R01 remains blocked until V02 passes. A03 and production gates retain their separate authorization boundary."
+      "V02/16.15 passed on exact candidate 970b704e351f8b98d1f0450e5dd50734b5d21e8c / tree ccb16e6692f53c68fe13e2ca51036649c707735d; R01 17.1-17.3 passed as code-ready.",
+      "A03 is blocked because actual deployment/business-data read-only access is not authorized. V03 requires R01 and A03 and cannot begin until A03 is authorized and completed.",
+      "V03-V06 and R02 remain unstarted. D00-D04 require the separate explicit production authorization path; no deployment or production readiness is claimed."
     ],
     "quality_gates_unchanged": true,
     "coordinator_handoff": {

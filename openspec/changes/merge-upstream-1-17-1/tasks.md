@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 当前现场：M08/14.18 接受的父候选为 `d2fea9989725c79afdeec3eba4eaa6e0e260e480`；M01/7.5 已提交为其直接子提交 `42fe3f904d6bd469ce887561a94909da882c4bb6`，tree `d3906ed2b06bd6ad43550968191c774c329ef396`。个人 `total_quota/used_quota` 与 API Key 日/月限额保持分离。M01 clean-archive `pnpm check` 和独立 Sol 结构复核通过。V02/16.11 的 tss/i18n/222 项单测通过并可复用；16.13 默认 Turbopack 构建无进展中断，16.14 同候选 Webpack 生产构建 93.05 秒通过（诊断结果，不计默认门禁通过）。M08/14.19 正在冻结新候选；之后 V02/16.15 先对该候选跑完整 check，再执行默认 Next 与 Vinext。R01 尚未通过，A03/生产仍按授权边界阻塞。
+> 当前现场：M08/14.19 冻结候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 已通过 V02/16.15 与 R01 源码验收，状态为 code-ready。全仓 check、默认 Next 和 Vinext 均 exit 0；额度管理路由已在两种构建产物中核实，个人 `total_quota/used_quota` 与 API Key 日/月/累计限额分离。A03 实际环境只读盘点仍因缺少授权而阻塞；V03 及后续环境/生产门槛未执行。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -186,7 +186,7 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 - [x] 14.16 [M08/协调者] 精确暂存并提交 13 路径 metadata-only 候选 `783859de3ebc098f2c9916516c831d92e547a913` / tree `badf6fb2196fe201185a1e81883504eb35cbffc0`；allowlist 完全匹配，产品源码/测试字节不变，M00/M01–M07 ancestry、91/91 冲突路径、十个计费/OAuth 锚点及 API 子树结构通过。报告 `evidence/M08/14.16-recandidate-structural-acceptance.md` SHA-256 `3b185d76f07d31bacb495883b551b115746a527f1842cc4ae79a2ac036c4e65b`。
 - [x] 14.17 [M08/Astra] 修复 V02/16.10 发现的 `uk-UA` 翻译缺口：layout 2 keys、oauth 17 keys，共 19 条乌克兰语；JSON 与 `en-US` exact key parity 通过，定向 `i18n:check --file layout oauth --lang uk-UA` 沙箱外重试 exit 0。仅改两份 locale JSON 和报告；证据 `evidence/M08/14.17-ukrainian-locale-parity.md` SHA-256 `87c183df488a8e620f915e02d5c9a9cc0eea66bf15700fa4d127c9753da8e117`。
 - [x] 14.18 [M08/协调者] 精确暂存 11/11 allowlist 并提交新候选 `d2fea9989725c79afdeec3eba4eaa6e0e260e480` / tree `2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5`，直接父为 `783859de`。M00 双父祖先、91/91 resolved 映射、无冲突索引/标记、API 子树 `895c0be99faafa5314806ddb2c0553c6062c7f67` 和个人额度/API Key 日月限额边界保持；strict OpenSpec 与 10 条非日志文件格式检查通过。原始 V02 日志保留输出空格并绑定 SHA。报告 `evidence/M08/14.18-final-candidate-structural-acceptance.md` SHA-256 `fbaed006adf7c126d9c088f75fb9ffbd1e1e1c39453f49308f72c0af6bdd41c2`；不代表 V02 或生产通过。
-- [ ] 14.19 [M08/协调者] 以 M01/7.5 提交 `42fe3f904d6bd469ce887561a94909da882c4bb6` 为直接父，按 graph 的 14 项 allowlist 纳入 14.18 结构报告、V02/16.11–16.14 原始结果/日志及协调者状态，冻结新候选。复核 M00/上游祖先、91/91 冲突映射、无冲突标记、API 子树与独立额度边界；strict OpenSpec 和登记非日志路径格式检查通过。报告 commit/tree/hash 到 `evidence/M08/14.19-final-candidate-structural-acceptance.md`，不代表 V02、R01 或生产通过。
+- [x] 14.19 [M08/协调者] 精确暂存 14/14 allowlist 并提交候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d`，直接父为 M01/7.5 提交 `42fe3f904d6bd469ce887561a94909da882c4bb6`。M00 双父/上游祖先、91/91 冲突路径映射、无冲突索引/标记、API 子树和额度边界通过；strict OpenSpec、10 条非日志路径 formatter 检查通过。报告 `evidence/M08/14.19-final-candidate-structural-acceptance.md` SHA-256 `a90d5f3a852aa276fb1baf697882c6c8e589fae857e456c024bcd98eb21b16f2`；不代表 V02、R01 或生产通过。
 
 ## 15. V01 后端静态与定向回归（前置：M08）
 
@@ -213,13 +213,13 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 - [ ] 16.12 [V02/Luna] 在同一精确候选新建 clean git archive，复用 16.11 已通过的检查。将现有 `web/node_modules` 以 copy-on-write 目录克隆放入归档（确认非 symlink；其余 overlay 依旧按登记路径链接），不安装/同步/联网、不改源/测试；只运行 `pnpm --dir web build`，通过后才运行 `build:vinext`。结果只写 `evidence/V02/16.12-final-candidate-build-overlay-result.json` 与同目录 log。
 - [ ] 16.11 [V02/Luna] 候选 `d2fea9989725c79afdeec3eba4eaa6e0e260e480` / tree `2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5` 的 clean archive：check、lint:tss、i18n（24 locale / 0 missing）和正确加载 `web/vite.config.ts` 的定向 unit（20 files / 222 tests）通过。Next build 首失败：Turbopack 拒绝指向归档外的 `web/node_modules` symlink；`build:vinext` 未运行。报告 `evidence/V02/16.11-final-candidate-result.json`，日志同目录。
 - [x] 16.14 [V02/Luna] 在精确候选 `d2fea9989725c79afdeec3eba4eaa6e0e260e480` 上仅做 Webpack 诊断：`pnpm --config.verify-deps-before-run=false --dir web exec next build --webpack --debug` exit 0 / 93.05 秒，产物路由含 `/system-manage-extend/quota-management`，原 `.next` 缓存恢复。该结果不代替默认 Next/Vinext 门禁。结果 SHA-256 `0fd784af61163e70eb6b6dc135d54dcbd66942e4c8eb29bfcfc62c2a511cad68`，log SHA-256 `935835cd2cdaa98646a5287cb58ac2ebadfe632d57bc1797430063aa874128fd`。
-- [ ] 16.15 [V02/Luna] M08/14.19 冻结后，在精确新候选 clean archive 首跑全仓 `pnpm check`；通过后复用输入哈希未变的 16.11 tss/i18n/unit、V01 和 M08/14.7 browser 证据，然后依次运行默认 `pnpm --dir web build` 与 `pnpm --dir web build:vinext`。不安装/同步/联网、不改源/测试；首个失败停止。结果只写 `evidence/V02/16.15-final-candidate-build-result.json` 与 `.log`。
+- [x] 16.15 [V02/Luna] 在候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 的唯一 clean archive 中按序执行全仓 `pnpm check`（exit 0 / 40.02 秒）、默认 Next build（exit 0 / 100.05 秒）、Vinext build（exit 0 / 50.04 秒）。复用 16.11 tss 6,266/6,266、i18n 24 locale/零缺失、unit 222/222，V01 160/160 和精确哈希浏览器 2/2。Next 路由表列出额度管理路由；Vinext stdout 不打印路由表，改以 25 个生成客户端/服务端产物及 SHA-256 核实。checkout、index、源/测试及原 `.next` 均未变化，symlink 扫描误报已纠正。结果 SHA-256 `1ee29a4ac6743ec768d8118737e12963269631c8e044a48305bbeded5a9aae80`，原始 log SHA-256 `5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483`；Git blob `b3a9471a2848c981a25a770021a185110f461a7a` 仅将 3 个 CRLF 对规范化为 LF。
 
 ## 17. R01 源码合并候选验收（前置：V01, V02）
 
-- [ ] 17.1 [R01] 汇总全部冲突/语义/静态测试记录；核验：在 `evidence/R01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 17.2 [R01] 记录候选 commit 与待环境验证项；不得此时声称已上线；核验：在 `evidence/R01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 17.3 [R01] 节点验收：源码候选可构建，阻断级新增回归清零；状态明确为 code-ready，仍须环境链；保存绑定版本的证据并更新节点状态。
+- [x] 17.1 [R01] 汇总 M00/M08 冲突与语义记录、V01 后端 160/160、前端 unit 222/222、quota browser 2/2、V02 全仓检查及双构建；详情与输入 hash 见 `evidence/R01/result.json`。
+- [x] 17.2 [R01] 记录精确候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d`、上游与 M00 祖先、API 子树和待环境验证项；明确未部署，详见 `evidence/R01/result.json` 与 `execution.log`。
+- [x] 17.3 [R01] 节点验收：候选可构建，新增阻断回归为零，状态 `code-ready`；真实部署/数据库/向量/业务验收仍需后续门槛。
 
 ## 18. V03 目标镜像、空库与存量双链演练（前置：R01, A03）
 

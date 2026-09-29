@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "node_id": "R01",
+  "task_id": "17.1_17.2_17.3_final_candidate_code_ready_acceptance",
+  "status": "passed",
+  "readiness_state": "code-ready",
+  "recorded_at_utc": "2026-09-29T15:59:10Z",
+  "candidate": {
+    "branch": "codex/merge-upstream-1.17.1",
+    "commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+    "tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+    "direct_parent": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+    "product_source_diff_from_candidate": false,
+    "index_clean": true,
+    "unmerged_index_entries": 0,
+    "verification_head": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+    "verification_head_matched_candidate": true
+  },
+  "merge_integrity": {
+    "upstream_1_17_1_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+    "upstream_is_ancestor": true,
+    "m00_merge_commit": "948fefb69ae87abefa7e91a13968213696b3e310",
+    "m00_is_ancestor": true,
+    "m00_merge_parents": [
+      "b17761ed0166e8ef49474da418b95a9462adbb9c",
+      "8387590ace4a094de812b7847fc6a4c3a27cd52b"
+    ],
+    "api_tree": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+    "conflict_paths_resolved": "91/91",
+    "unmerged_index_entries": 0
+  },
+  "quota_feature_preservation": {
+    "account_balance_fields": ["total_quota", "used_quota"],
+    "account_balance_is_separate_from_api_key_limits": true,
+    "api_key_limits": ["day_limit_quota", "month_limit_quota", "accumulated_quota"],
+    "quota_management_route": "/system-manage-extend/quota-management",
+    "quota_source_sha256": {
+      "api/models/account_money_extend.py": "a387392acf5cb8a4af38bafe5ee412e45cbe4edc5282230fb9ca2bdb5075fe6c",
+      "api/controllers/console/money_extend.py": "3bf52aa53fddd8585012aa4f992a8bfce645b7d81cc057e668851639456c9eb7",
+      "api/controllers/console/workspace/account_extend.py": "c4bc3b0311ddc79d7dad9c97b58a1144db32aa33fbde2ce018a9146c5cc5b98e",
+      "api/models/api_token_money_extend.py": "191e93df76fac5bff58835e373620c7e0f5e98b7d4c31eaca0c46063b42c8fca",
+      "api/controllers/console/apikey.py": "f6b3ec14e0258dc9157e3af9e4f16cd0f18bd408ab4d6453c36e9033a8841d90"
+    },
+    "quota_page_git_blob": "47a18cacdeaa775d6afef6f8817ed6a2556ccffd",
+    "next_route_table_contains_route": true,
+    "vinext_generated_client_server_artifacts_contain_route": true,
+    "vinext_route_artifact_hashes_recorded": true
+  },
+  "verification": {
+    "M08_14_19_structural_candidate_acceptance": {
+      "status": "passed",
+      "report": "evidence/M08/14.19-final-candidate-structural-acceptance.md",
+      "report_sha256": "a90d5f3a852aa276fb1baf697882c6c8e589fae857e456c024bcd98eb21b16f2"
+    },
+    "V01_backend_regression": {
+      "status": "passed",
+      "api_tree_matches_candidate": true,
+      "compileall": "passed",
+      "app_factory_import": "passed",
+      "focused_pytest": {
+        "passed": 160,
+        "failed": 0
+      }
+    },
+    "V02_reused_frontend_gates": {
+      "lint_tss": {
+        "passed": 6266,
+        "failed": 0
+      },
+      "i18n": {
+        "locales": 24,
+        "missing_keys": 0
+      },
+      "focused_unit": {
+        "files": 20,
+        "passed": 222,
+        "failed": 0
+      },
+      "quota_browser_spec": {
+        "result": "2 Chromium tests passed",
+        "spec_sha256": "93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120"
+      }
+    },
+    "V02_16_15_final_candidate_build": {
+      "status": "passed",
+      "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+      "candidate_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+      "pnpm_check": {
+        "exit_code": 0,
+        "duration_seconds": 40.02
+      },
+      "default_next_build": {
+        "exit_code": 0,
+        "duration_seconds": 100.05
+      },
+      "vinext_build": {
+        "exit_code": 0,
+        "duration_seconds": 50.04
+      },
+      "route_verified_in_next_output_and_vinext_artifacts": true,
+      "source_test_tree_unchanged": true,
+      "source_checkout_and_index_unchanged": true,
+      "workspace_next_cache_unchanged": true,
+      "result": "evidence/V02/16.15-final-candidate-build-result.json",
+      "result_sha256": "1ee29a4ac6743ec768d8118737e12963269631c8e044a48305bbeded5a9aae80",
+      "log": "evidence/V02/16.15-final-candidate-build.log",
+      "log_sha256": "5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483",
+      "log_git_blob_sha1": "b3a9471a2848c981a25a770021a185110f461a7a",
+      "log_git_blob_content_sha256": "61d0551310c2a26c8fbfa140465128f56810e42df84e8b36dc4c7e63a62c7fe9",
+      "log_git_normalization": "Exactly 3 CRLF pairs normalized to LF for the committed Git blob; no other bytes differ."
+    }
+  },
+  "regression_assessment": {
+    "blocking_new_regressions": 0,
+    "pnpm_check_errors": 0,
+    "pnpm_check_existing_lint_warnings": 1931,
+    "pnpm_check_linted_files": 6910,
+    "known_warning_is_blocking": false
+  },
+  "environment_and_release_boundary": {
+    "state": "not_run",
+    "A03": "blocked: no explicit authorization for read-only access to the actual deployment and business data",
+    "V03_V06": "not run; require A03 and isolated database/vector/business test environments",
+    "R02": "not run; follows V06 rehearsal",
+    "D00_D04": "not run; require explicit production authorization and approved release gates",
+    "deployed": false,
+    "production_ready": false
+  },
+  "conclusion": "Candidate is code-ready on the exact frozen upstream-merged commit. Independent account quota balances and API Key daily/monthly/cumulative limits remain separate, and the quota-management route is present in both build outputs. This acceptance does not claim database/vector rehearsal, real-business acceptance, deployment, or production readiness.",
+  "evidence": [
+    "evidence/M00/result.json",
+    "evidence/M08/result.json",
+    "evidence/M08/14.19-final-candidate-structural-acceptance.md",
+    "evidence/V01/result.json",
+    "evidence/V02/16.11-final-candidate-result.json",
+    "evidence/V02/16.15-final-candidate-build-result.json",
+    "evidence/V02/16.15-final-candidate-build.log"
+  ]
+}

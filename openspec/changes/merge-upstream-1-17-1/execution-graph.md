@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> 当前状态以 execution-graph.json 为准：M01/7.5 已提交 `42fe3f904d6bd469ce887561a94909da882c4bb6`，仅将默认 Next build 脚本设为 Webpack；clean-archive `pnpm check` 与独立 Sol 结构复核通过。M08/14.19 正在从该提交冻结新候选，保留上游 1.17.1 与 M00 双父祖先。个人额度与 API Key 日/月限额分表实现未变；API 子树仍为 `895c0be99faafa5314806ddb2c0553c6062c7f67`。V02/16.11 的 check/tss/i18n/222 项定向 unit 通过；16.13 默认 Turbopack 构建静止无进展，16.14 同候选 Webpack 生产构建 93.05 秒通过且缓存恢复。16.14 仅为诊断，不计 V02 默认构建门禁。M08/14.19 完成后，V02/16.15 将对新候选重跑完整 check、默认 Next 与 Vinext；R01 和真实环境/生产节点仍未通过。
+> 当前状态以 execution-graph.json 为准：候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 已通过 M08/14.19、V02/16.15 与 R01，状态为 code-ready。候选包含上游 1.17.1，额度账户余额与 API Key 日/月/累计限额边界保留；Next 和 Vinext 均构建成功，额度管理路由在两种构建输出中得到核验。当前没有活动子任务。A03 实际环境只读盘点仍因缺授权而阻塞；V03-V06、R02 与生产节点尚未执行。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01 已通过；M03 9.1–9.6 已通过（9.6 追加 29 项定向测试并保持 schema 不变）；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；11.7 修复继承的 OpenAPI 配置格式债务，精确格式检查通过，独立提交 `c304fe188e949733fa4ac1697004e3b99d9db95d`；M07 13.1–13.6 源码验收已通过（13.4 有 P3 操作边界；13.6 GitLab manifest 修复经 Luna 复核），真实 pipeline/镜像供货仍待部署证据；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 Sol 分析已完成，12.2a 已完成并通过测试及 scoped check，提交 82227748fcbe7b727da1d4aed67306f44ef00a4b；12.2c 的精确路径与前置已登记；12.2c 已完成，137 项测试通过，五文件 scoped check 零错误；两条基线 warning 已核实，提交 78c099003f06b06a4820bb5c62999a7c0c65e0e8；12.3/12.4 Sol 分析已完成并登记精确路径；12.3 限定 app key 支持的额度和 login_config 汇率；12.4 恢复现有 owner 导航组件挂载且保留权限；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对已完成，四条登记路径完整；M08 与 V01 的首候选验收已通过；V02/16.5–16.7 的阻断证据均保留；M08/14.10 候选仍是 `95101d76b955481ce6c9519596aeea426680fa71`，API 子树复用 V01 160/160。16.7 的 archive 曾漏链接 package-level node_modules；16.8 补齐 workspace overlay 后首失败转为 ESLint。Sol 已确认 M05 workspace/app-info 合约差异和 M08 retention_number 闭环丢失属于集成缺口；M06/12.7 与 M08/14.12 已修复，M05/11.8 与 M08/14.11 正在执行。新的源候选验收与 V02 重跑仍待完成。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01 已通过；M03 9.1–9.6 已通过（9.6 追加 29 项定向测试并保持 schema 不变）；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；11.7 修复继承的 OpenAPI 配置格式债务，精确格式检查通过，独立提交 `c304fe188e949733fa4ac1697004e3b99d9db95d`；M07 13.1–13.6 源码验收已通过（13.4 有 P3 操作边界；13.6 GitLab manifest 修复经 Luna 复核），真实 pipeline/镜像供货仍待部署证据；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 Sol 分析已完成，12.2a 已完成并通过测试及 scoped check，提交 82227748fcbe7b727da1d4aed67306f44ef00a4b；12.2c 的精确路径与前置已登记；12.2c 已完成，137 项测试通过，五文件 scoped check 零错误；两条基线 warning 已核实，提交 78c099003f06b06a4820bb5c62999a7c0c65e0e8；12.3/12.4 Sol 分析已完成并登记精确路径；12.3 限定 app key 支持的额度和 login_config 汇率；12.4 恢复现有 owner 导航组件挂载且保留权限；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对已完成，四条登记路径完整；M08 与 V01 的首候选验收已通过；V02/16.5–16.7 的阻断证据均保留；M08/14.10 候选仍是 `95101d76b955481ce6c9519596aeea426680fa71`，API 子树复用 V01 160/160。16.7 的 archive 曾漏链接 package-level node_modules；16.8 补齐 workspace overlay 后首失败转为 ESLint。Sol 已确认 M05 workspace/app-info 合约差异和 M08 retention_number 闭环丢失属于集成缺口；M06/12.7 与 M08/14.12 已修复，M05/11.8 与 M08/14.11 正在执行。M08/14.19 冻结的候选已通过 V02/16.15 和 R01 源码验收并达到 code-ready；A03 实际环境只读盘点仍待授权。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M06 最新子任务进度：12.3、12.4 均已通过；独立 Luna 在最终组合快照验证 API key/MainNav 两个 spec 共 97 项通过，六个目标路径与实现提交一致且 eafe 文件安全恢复，证据见 `evidence/M06/12.3-12.4-final-verification.md`。12.4 owner-only 系统管理导航恢复提交 `a7b7ddeeda`；12.3 后续修订提交 `4526fd02f2`。12.1b Sol 独立路径交叉核对无遗漏，四条登记路径充足。12.5 locale 最终 24 语言命令检查通过，零引用旧 quota modal 已删除并提交 `5bb83572ca`。12.6a 独立应用中心 MainNav 入口已通过 92 项 MainNav 测试并提交 `6061766c11`，保留 upstream Home `/`；12.6b system-integration 宿主测试已启动，个人统计由 M04/M03 做 account-scoped API 与生成契约分析，API-key 交互回归新增登记为 12.6i。M06/12.7 已修复 dormant 组件失效导入并通过单文件检查，父节点已通过。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
@@ -222,7 +222,7 @@ git ls-files -u
 git show --no-patch --format=%P HEAD
 ```
 
-状态：passed；merge commit `948fefb69ae87abefa7e91a13968213696b3e310`，tree `56d356a4eb2cacbea577b5fd885bd19637b1203f`；第一父 `b17761ed0166e8ef49474da418b95a9462adbb9c`，第二父 `8387590ace4a094de812b7847fc6a4c3a27cd52b`。该基线不可部署，不代表升级完成；M01–M08/V01/V02/R01 尚未通过，A03 与生产门槛保持原状态。
+状态：passed；merge commit `948fefb69ae87abefa7e91a13968213696b3e310`，tree `56d356a4eb2cacbea577b5fd885bd19637b1203f`；第一父 `b17761ed0166e8ef49474da418b95a9462adbb9c`，第二父 `8387590ace4a094de812b7847fc6a4c3a27cd52b`。该基线不可部署，不代表升级完成；M01–M08 与 V01 已通过，V02/R01 尚未通过，A03 与生产门槛保持原状态。
 
 证据：`evidence/M00/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
 
@@ -399,7 +399,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M08 · 集成审查与候选源码提交
 
-- 状态：in_progress；14.18 接受的父候选为 `d2fea9989725c79afdeec3eba4eaa6e0e260e480`。M01/7.5 的唯一源码改动已提交为其直接子项 `42fe3f904d6bd469ce887561a94909da882c4bb6`；Sol 独立结构复核通过。14.19 正按登记清单提交 M08/V02 状态和 16.11–16.14 原始证据，形成新的 metadata/evidence 候选；随后 V02/16.15 在精确新候选上执行完整 check 与两项生产构建。
+- 状态：passed for structural acceptance；候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d`，直接父为 `42fe3f904d6bd469ce887561a94909da882c4bb6`。14/14 allowlist、上游/M00 祖先、91/91 冲突映射、API 子树及独立额度边界通过；详见 `evidence/M08/14.19-final-candidate-structural-acceptance.md`。V02/16.15 已派发至 Luna 并正在执行。
 
 - 前置：M02, M03, M04, M05, M06, M07；负责人：集成负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`git_index, lockfiles`。
@@ -458,11 +458,11 @@ uv run --project api pytest api/tests/unit_tests/controllers/console/test_apikey
 
 ## M01 follow-up 7.5
 
-- 状态：passed；提交 `42fe3f904d6bd469ce887561a94909da882c4bb6` 只将 `web/package.json` 默认 `build` 从 `next build` 改为 `next build --webpack`，版本、依赖和锁未改。固定 Node 24.20.0/pnpm 12.3.4 下 clean-archive `pnpm check` 通过；独立 Sol 复核确认 M00/上游祖先、API 子树、额度边界与额度管理路由保留。证据 `evidence/M01/7.5-next-webpack-compatibility.md` 与原始 `7.5-pnpm-check.log`。M08/14.19 新候选结构验收仍在进行。
+- 状态：passed；提交 `42fe3f904d6bd469ce887561a94909da882c4bb6` 只将 `web/package.json` 默认 `build` 从 `next build` 改为 `next build --webpack`，版本、依赖和锁未改。固定 Node 24.20.0/pnpm 12.3.4 下 clean-archive `pnpm check` 通过；独立 Sol 复核确认 M00/上游祖先、API 子树、额度边界与额度管理路由保留。证据 `evidence/M01/7.5-next-webpack-compatibility.md` 与原始 `7.5-pnpm-check.log`。M08/14.19 新候选结构验收已通过；V02/16.15 与 R01 后续结果见下文。
 
 ## V02 · 前端检查、定向测试与双构建
 
-- 状态：blocked，等待 M08/14.19。16.11 的 check/tss/i18n（24 locales/0 missing）与 20 files / 222 tests 定向 unit 通过；16.11 与 16.12 的 clean archive Next build 均因 `web/node_modules/next` 解析到归档外被 Turbopack 阻断，`build:vinext` 未运行。16.13 在精确候选 checkout 上默认 Turbopack 无进展超过 16 分钟后中断并恢复原始 8.4 GB `web/.next`；16.14 在同候选显式 Webpack 诊断构建 93.05 秒通过，且缓存恢复，结果仅诊断。M01/7.5 已将默认脚本切到 Webpack。下一步 V02/16.15 对 M08/14.19 精确候选先跑完整 `pnpm check`，再复用输入未变的 tss/i18n/unit 与 V01/浏览器结果；随后执行默认 Next 与 Vinext。16.8–16.10 的早期首失败、修复与验收历史见各自报告，避免重复运行。
+- 状态：passed；固定候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 的 16.15 `pnpm check`、默认 Next、Vinext 顺序门禁全部 exit 0。额度管理路由在 Next 路由表及 Vinext 生成客户端/服务端构建产物中得到 SHA-256 绑定证据；检查器对 `web/CLAUDE.md` 的初始“改写”是符号链接哈希误报，精确快照逐命令复核无源码/测试变化。16.13 Turbopack 停滞与 16.14 Webpack 诊断仍作为历史结果保留，不影响当前正式门禁通过。结果/log SHA-256 分别为 `e7b06e6c38edd3562516817d6ecbcff5333bd1869504767183b97fda9562a510` / `5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483`。
 
 - 前置：M08；负责人：前端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。
@@ -496,7 +496,7 @@ pnpm --dir web build:vinext
 
 ## R01 · 源码合并候选验收
 
-- 状态：blocked；V01 已通过，V02 等待 M08/14.19 新候选与 V02/16.15 默认 Next/Vinext 两项门禁；本节点尚未执行。
+- 状态：passed，`code-ready`；精确候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 含上游 1.17.1，V01/V02 检查通过，额度边界和路由构建保留。A03/V03 环境链与生产发布尚未完成，不能据此声称已上线。R01 结果与命令证据见 `evidence/R01/result.json`、`execution.log`。
 
 - 前置：V01, V02；负责人：集成负责人；建议模型：Sol/high。
 - 授权：`implementation`；资源锁：`集成负责人`。
@@ -516,6 +516,7 @@ pnpm --dir web build:vinext
 
 ## V03 · 目标镜像、空库与存量双链演练
 
+- 状态：blocked；R01 已 code-ready，A03 实际环境只读盘点尚未获授权，故 V03 双库演练不能启动。
 - 前置：R01, A03；负责人：数据与容器验证负责人；建议模型：Luna/high。
 - 授权：`implementation_isolated_runtime`；资源锁：`heavy_compute, test_database`。
 - 写入范围：隔离镜像/副本/迁移记录。
