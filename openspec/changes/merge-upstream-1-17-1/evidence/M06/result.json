@@ -350,7 +350,18 @@
         "web/service/explore.spec.ts",
         "web/service/__tests__/use-explore.spec.tsx"
       ],
-      "observation": "Expected source and test paths contain uncommitted implementation edits in the registered isolated worktree; no completion commit observed yet."
+      "observation": "Expected source and test paths contain uncommitted implementation edits in the registered isolated worktree; no completion commit observed yet.",
+      "duplicate_worktree_observation": {
+        "worktree_path": "/Users/liuxingwang/.codex/worktrees/f7b7/dify-plus",
+        "base_commit": "354b88becc769987b0c1a87de89c7661fd99a5e5",
+        "relationship": "base is an ancestor of the registered 12.2a base f2424be34839fdb2a5d696ad451e3963bbc5b6bb",
+        "tracked_implementation_patch_id": "1ed9f86a9c72eff4f12e6b947e0b08518ff64fd6",
+        "test_file_sha256": "3f520bdc0b0ba5f39814b8044a048f14e7daa112cb2598e4b5ddcc712f35397e",
+        "unregistered_changes": [
+          "oxlint-suppressions.json removes the web/service/use-explore.ts @tanstack/query/prefer-query-options suppression count 2"
+        ],
+        "handling": "The registered 7155 worktree remains the canonical 12.2a implementation source. Preserve f7b7 without integrating it; do not include its unregistered suppression change."
+      }
     },
     "9.6_recommended_apps_page_status": {
       "status": "passed",
