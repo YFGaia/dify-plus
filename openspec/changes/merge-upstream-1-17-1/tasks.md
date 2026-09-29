@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 规划已进入执行：A00/A01/A02/A04/M00/M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7，现已由 36 项测试、Swagger 断言及独立 Luna 复核收束并恢复 passed；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言和 Astra worktree 字节比对均完成；M04 节点源码验收已通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 已启动：12.1a 应用级 WebApp 认证开关已由 `ea853611dc` 提交并经独立 Luna 审查无阻断；12.2、12.3、12.4 三个 Sol 分析对话正在 worktree provisioning；卡片套件因缺失已锁定 cn@0.2.4 尚未收集；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已登记宿主和聚焦测试路径，独立 Sol 交叉核对中；M07 13.1–13.3、13.5 已通过；13.4 的 env 范围修正及 init_secret_key 串行门实现完成，待新 Luna 复核；13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
+> 规划已进入执行：A00/A01/A02/A04/M00/M01/M03 已通过；M02 原 8.1–8.5 通过后重开 8.6–8.7，现已由 36 项测试、Swagger 断言及独立 Luna 复核收束并恢复 passed；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言和 Astra worktree 字节比对均完成；M04 节点源码验收已通过；11.4 已验证畸形 summary 响应在 queryFn 阶段失败且不进入 TanStack 原始缓存，12 项聚焦、25 项受影响测试通过，独立 Luna 无阻断项；M06 12.1a、12.1b 已完成并提交，22 项 WebApp 卡片测试、20 项 context 测试及两个 scoped check 均通过，独立 Luna 复核无阻断；主工作区仍缺锁定依赖 cn@0.2.4，测试在依赖齐全的隔离 worktree 通过，未改依赖或 lockfile；12.2、12.3、12.4 三个 Sol 分析任务仍在 worktree provisioning，12.1b 的路径交叉核对也待回传。M07 13.1–13.3、13.5 已通过；13.4 的 env 范围修正及 init_secret_key 串行门实现完成，待新 Luna 复核；13.6 验收暂缓；M08/V01/V02/R01 等待各自前置。M03 349 项定向测试通过，证据见 evidence/M03/result.json。A03 因真实环境只读授权缺失仍阻塞，环境与生产状态不变。节点依赖和授权见 execution-graph.json；专项报告的局部编号不作为调度依据。每一小项完成附可检查的证据，节点验收通过后及时更新图状态，并精确提交本节点代码、测试和证据。提交 SHA 在提交后核验，不能写入其自身提交。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -96,8 +96,8 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
 
-- [ ] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；M02 8.6 权限与 M05 11.6 类型契约均已通过；12.1b 已提交并通过独立 Luna 审查，12.1a 的 frozen-dependency 卡片套件仍待独立 Luna 验证。详情见 `evidence/M06/result.json#/preflight/contract_handoff`。
-  - [ ] 12.1a [M06] built-in WebApp 开关独立于站点启用及 environment/global auth；代码与 8 个参数化测试已写，独立 Luna 代码审查无阻断发现；卡片测试因 cn@0.2.4 未安装而未收集，独立 Luna frozen-dependency 验证任务正在 provisioning；15 项现有地址/认证测试通过。当前证据见 `evidence/M06/result.json#/subtasks/12.1a`。
+- [x] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；M02 8.6 权限与 M05 11.6 类型契约均已通过；12.1a、12.1b 已分别提交，代码审查、聚焦测试和限定检查均通过。详情见 `evidence/M06/result.json#/preflight/contract_handoff`。
+  - [x] 12.1a [M06] built-in WebApp 开关独立于站点启用及 environment/global auth；8 个参数化用例由独立 Luna 在隔离 worktree 全部通过（卡片套件 22 项），两文件 scoped `vp check` 通过；独立代码审查无阻断，现有地址/认证套件另有 15 项通过。主工作区缺少已锁定 `cn@0.2.4`，因此未改依赖或 lockfile。证据见 `evidence/M06/result.json#/subtasks/12.1a`。
   - [x] 12.1b [M06] 已由 M02 8.6 和 M05 11.6 解锁；四条登记路径由 Astra 实现并以 `9ee0119ca1ae501008db1913777ac4582af17205` 提交。Node 24.20.0 / pnpm 12.3.4 下两条聚焦测试共 20 项通过，四文件 `vp check` 的格式、lint、限定路径类型检查通过；独立 Luna 未发现阻断。主工作区复跑的组件套件因缺少已声明依赖 `cn@0.2.4` 在收集前失败，隔离 worktree 的相同已提交文件通过；未改依赖或 lockfile。Sol 路径交叉核对仍 provision 中，若发现缺少必需路径再重开。证据见 `evidence/M06/12.1b-path-registration.md` 和 `evidence/M06/result.json#/subtasks/12.1b`。
 - [ ] 12.2 [M06] 迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；Sol 只读分析任务 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning，实施路径与测试范围待分析交接后登记；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。

@@ -1045,17 +1045,18 @@
       "implementation_progress": {
         "completed_subtasks": [
           "preflight",
+          "12.1a",
           "12.1b"
         ],
         "current_subtask": {
-          "id": "12.1a_test_verification",
-          "status": "verification_provisioning",
-          "evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_test_verification",
+          "id": "12.2_analysis",
+          "status": "conversation_provisioning",
+          "evidence": "evidence/M06/result.json#/subtasks/12.2_analysis",
           "dependencies": {
-            "12.1a_implementation": "ea853611dc"
+            "12.1": "passed; commits ea853611dc and 9ee0119ca1ae501008db1913777ac4582af17205"
           }
         },
-        "next_subtask": "12.1a_test_verification",
+        "next_subtask": "12.2_analysis",
         "parallel_subtasks": [
           {
             "id": "12.2_analysis",
@@ -1088,10 +1089,12 @@
           "scope": "Read-only API-key scope/balance display and login_config exchange-rate data-flow analysis."
         },
         "12.1a_test_verification": {
-          "status": "conversation_provisioning",
+          "status": "passed",
           "model": "gpt-6-luna",
           "client_thread_id": "client-new-thread:633765b7-88e4-446d-96f5-e50a6e62e064",
-          "scope": "Independent focused test verification of the committed WebApp auth switch and recovery of the declared locked dependency inside its isolated worktree."
+          "verification_agent": "/root/m06_12_1a_luna_test_retry",
+          "evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_test_verification",
+          "result": "22 card tests and a two-file format/lint/scoped type check passed in the dependency-complete isolated worktree; no source/dependency changes."
         },
         "12.4_analysis": {
           "status": "conversation_provisioning",
