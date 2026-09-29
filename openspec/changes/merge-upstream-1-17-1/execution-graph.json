@@ -2130,9 +2130,10 @@
           },
           {
             "id": "12.6f_statistics_integration_recovery",
-            "status": "ready",
+            "status": "implementation_in_progress",
             "owner": "M04",
             "model": "gpt-6-astra",
+            "base_commit": "5514c6df0f88921fbf7029611bd95de216d20757",
             "dependencies": [
               "12.6f_workflow_statistics_analysis:passed",
               "12.6e_review_followup:passed",
@@ -2151,7 +2152,10 @@
               "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
               "evidence/M06/12.6f-verification.md"
             ],
-            "scope": "Single-writer integration of the two stopped 12.6f shared-checkout attempts. Deduplicate controller/service/repository parameters and Logstore predicates; review and reconcile the existing diff; add missing controller and Logstore tests; run the full registered focused suite and scoped checks; write evidence and commit exact registered paths. No other writer may touch these paths."
+            "scope": "Single-writer integration of the two stopped 12.6f shared-checkout attempts. Deduplicate controller/service/repository parameters and Logstore predicates; review and reconcile the existing diff; add missing controller and Logstore tests; run the full registered focused suite and scoped checks; write evidence and commit exact registered paths. No other writer may touch these paths.",
+            "dispatch_channel": "codex_project_local",
+            "implementation_thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
+            "thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8"
           },
           {
             "id": "12.6f_logstore_actor_index_config_preservation",

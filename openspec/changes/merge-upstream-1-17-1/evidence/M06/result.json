@@ -1503,10 +1503,13 @@
       "historical_implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5"
     },
     "12.6f_statistics_integration_recovery": {
-      "status": "ready",
+      "status": "implementation_in_progress",
       "model": "gpt-6-astra",
       "owner": "M04",
-      "base_commit": "cb761050c287dd8de5bb0d1b9cd09f949779375d",
+      "base_commit": "5514c6df0f88921fbf7029611bd95de216d20757",
+      "dispatch_channel": "codex_project_local",
+      "implementation_thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
+      "thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
       "dependencies": [
         "12.6f_workflow_statistics_analysis:passed",
         "12.6e_review_followup:passed",
@@ -1529,7 +1532,8 @@
       "stopped_threads": [
         "01a0ebbd-d178-7982-9141-834a93649224",
         "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
-      ]
+      ],
+      "current_worktree_observation": "At dispatch, seven registered code/test paths had uncommitted changes; controller and Logstore behavior test files were not yet present. Unrelated untracked user paths remain untouched."
     },
     "12.6f_logstore_actor_index_config_preservation": {
       "id": "12.6f_logstore_actor_index_config_preservation",
