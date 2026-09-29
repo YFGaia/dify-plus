@@ -1198,7 +1198,7 @@
           },
           {
             "id": "12.5a_locale_group_a",
-            "status": "ready_for_implementation",
+            "status": "implementation_in_progress",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -1214,7 +1214,8 @@
               "web/i18n/id-ID/extend.json",
               "web/i18n/it-IT/extend.json",
               "web/i18n/lo-LA/extend.json"
-            ]
+            ],
+            "agent": "/root/m06_12_5a_locale_a"
           },
           {
             "id": "12.5b_locale_group_b",
@@ -1401,6 +1402,23 @@
           "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
           "created_from_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
           "dispatch_channel": "codex_project_worktree"
+        },
+        "12.5a_locale_group_a": {
+          "status": "implementation_in_progress",
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "agent": "/root/m06_12_5a_locale_a",
+          "registered_paths": [
+            "web/i18n/ar-TN/extend.json",
+            "web/i18n/de-DE/extend.json",
+            "web/i18n/es-ES/extend.json",
+            "web/i18n/fa-IR/extend.json",
+            "web/i18n/fr-FR/extend.json",
+            "web/i18n/hi-IN/extend.json",
+            "web/i18n/id-ID/extend.json",
+            "web/i18n/it-IT/extend.json",
+            "web/i18n/lo-LA/extend.json"
+          ]
         }
       }
     },

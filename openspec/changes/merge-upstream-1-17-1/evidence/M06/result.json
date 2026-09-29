@@ -439,7 +439,7 @@
       }
     },
     "12.5a_locale_group_a": {
-      "status": "ready_for_implementation",
+      "status": "implementation_in_progress",
       "owner": "M06",
       "model": "gpt-6-astra",
       "dependencies": [
@@ -456,7 +456,8 @@
         "web/i18n/it-IT/extend.json",
         "web/i18n/lo-LA/extend.json"
       ],
-      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity."
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity.",
+      "agent": "/root/m06_12_5a_locale_a"
     },
     "12.5b_locale_group_b": {
       "status": "ready_for_implementation",

@@ -106,7 +106,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；Sol 只读分析任务 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning，实施路径与测试范围待分析交接后登记；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.4 [M06] 系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施；Sol 只读分析任务 `client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c` 正在 worktree provisioning；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.5 [M06] 补齐24个locale的extend namespace；清理仍存在的无引用旧secret-key quota modal；核验有效旧宿主引用并保留仍在使用的category、template-card、app-card-utils。Sol分析发现lo-LA缺整个135-key文件，另21个已有locale各缺85个 `systemManage.*` key；必须补齐全部22个文件才可通过 `i18n:check --file extend`。报告：`evidence/M06/12.5-analysis.md`。
-  - [ ] 12.5a [M06/Astra] 填充 ar-TN、de-DE、es-ES、fa-IR、fr-FR、hi-IN、id-ID、it-IT 的85个缺失key，并为lo-LA新建完整135-key `extend.json`；仅改对应9个登记locale路径，保留插值token；按语言组运行 `pnpm i18n:check --file extend --lang ...`。
+  - [ ] 12.5a [M06/Astra] 填充 ar-TN、de-DE、es-ES、fa-IR、fr-FR、hi-IN、id-ID、it-IT 的85个缺失key，并为lo-LA新建完整135-key `extend.json`；仅改对应9个登记locale路径，保留插值token；按语言组运行 `pnpm i18n:check --file extend --lang ...`；当前由独立 Astra 子任务 `/root/m06_12_5a_locale_a` 实施。
   - [ ] 12.5b [M06/Astra] 填充 ja-JP、ko-KR、nl-NL、pl-PL、pt-BR、ro-RO、ru-RU 的85个缺失key；仅改对应7个登记locale路径并保留插值token；按语言组运行 `pnpm i18n:check --file extend --lang ...`。
   - [ ] 12.5c [M06/Astra] 填充 sl-SI、th-TH、tr-TR、uk-UA、vi-VN、zh-Hant 的85个缺失key；仅改对应6个登记locale路径并保留插值token；按语言组运行 `pnpm i18n:check --file extend --lang ...`。
   - [ ] 12.5d [M06/Astra，前置：12.3 passed] 确认12.3新API-key quota modal/table已验收后，删除零引用 `web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx`；保留有效category、template-card、app-card-utils入口；运行全量 `pnpm i18n:check --file extend` 与受影响定向检查。
