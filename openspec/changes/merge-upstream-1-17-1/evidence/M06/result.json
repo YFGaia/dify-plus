@@ -896,7 +896,7 @@
     },
     "12.3_app_api_key_quota_and_balance": {
       "id": "12.3_app_api_key_quota_and_balance",
-      "status": "implementation_in_progress",
+      "status": "final_snapshot_verification_in_progress",
       "owner": "M06",
       "model": "gpt-6-astra",
       "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
@@ -925,7 +925,7 @@
       ],
       "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
       "analysis_evidence": "evidence/M06/12.3-analysis.md",
-      "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted.",
+      "observation": "Earlier direct-Node verification passed at b49d389. Registered-path updates in 4526fd02 and 12.4 implementation changed the final six-file snapshot; a fresh Luna task is rerunning both specs against a7b7ddeeda before this subtask can be marked passed.",
       "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
     },
     "12.3_implementation": {
@@ -951,16 +951,16 @@
         "scope": "Read-only six-file review; tests and scoped checks were not run."
       },
       "verification_task": {
-        "agent": "/root/m06_12_3_direct_node_tests",
-        "status": "passed",
-        "plan": "Run two registered Vitest specs through direct Node 24.20 without pnpm; overlay/restore six target files in eafe with hash verification."
+        "agent": "/root/m06_12_3_12_4_final_luna",
+        "status": "in_progress",
+        "plan": "Run both registered Vitest specs against final combined 12.3+12.4 snapshot using direct Node in the dependency-complete eafe worktree; overlay and hash-verify restoration of six target files."
       },
       "limits": [
         "First isolated pnpm test attempt auto-attempted node@24.20 installation and was stopped (exit 129); no tests passed from that attempt.",
         "Zero/negative exchange rate hides conversion as conservative UI behavior; no product rule defines those values."
       ],
       "verification": {
-        "status": "passed",
+        "status": "historical_pass_pending_final_snapshot_revalidation",
         "review_target_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
         "command": "node node_modules/vitest/vitest.mjs run app/components/api-key/__tests__/api-key-modal.spec.tsx app/components/main-nav/__tests__/index.spec.tsx",
         "working_directory": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus/web",
@@ -970,8 +970,31 @@
         "restore": "All six registered eafe target files were restored from /private/tmp/m06-12-3-vitest-backup/; git diff --exit-code on six targets returned 0 and restored SHA256 hashes matched initial eafe hashes. Existing message-context changes remained untouched."
       },
       "followup_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
-      "review_status": "passed"
+      "review_status": "passed",
+      "followup_commits": [
+        "4526fd02f2039f568ea605012329f4da2a1bc514"
+      ]
+    },
+    "12.4_implementation": {
+      "status": "implementation_complete_verification_in_progress",
+      "model": "gpt-6-astra",
+      "implementation_commit": "a7b7ddeeda",
+      "registered_paths": [
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "summary": [
+        "Restored the existing SystemManageNavExtend owner-only entry in MainNav.",
+        "Added focused coverage for owner visibility, admin/member denial, route highlighting, and workspace role switching."
+      ],
+      "verification_task": {
+        "agent": "/root/m06_12_3_12_4_final_luna",
+        "status": "in_progress",
+        "scope": "Combined focused specs for 12.3 and 12.4 at final snapshot."
+      },
+      "analysis_evidence": "evidence/M06/12.4-analysis.md",
+      "evidence": "evidence/M06/result.json#/subtasks/12.4_implementation"
     }
   },
-  "next_subtask": "12.3_app_api_key_quota_and_balance"
+  "next_subtask": "12.3_12.4_final_runtime_verification"
 }

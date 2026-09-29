@@ -1137,14 +1137,12 @@
           "preflight"
         ],
         "current_subtask": {
-          "id": "12.3_app_api_key_quota_and_balance",
-          "status": "implementation_in_progress",
+          "id": "12.3_12.4_final_runtime_verification",
+          "status": "verification_in_progress",
           "owner": "M06",
-          "model": "gpt-6-astra",
-          "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
-          "title": "M06 12.3 API key 与余额实现",
-          "created_from_commit": "20fcdc3f2382458c241f9f065ce7990513e480bb",
-          "dispatch_channel": "codex_fork_same_directory",
+          "model": "gpt-6-luna",
+          "agent": "/root/m06_12_3_12_4_final_luna",
+          "base_commit": "a7b7ddeeda",
           "registered_paths": [
             "web/app/components/api-key/api-key-modal.tsx",
             "web/app/components/api-key/api-key-table.tsx",
@@ -1153,22 +1151,7 @@
             "web/app/components/main-nav/index.tsx",
             "web/app/components/main-nav/__tests__/index.spec.tsx"
           ],
-          "observed_modified_paths": [
-            "web/app/components/api-key/api-key-modal.tsx",
-            "web/app/components/api-key/api-key-table.tsx",
-            "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
-            "web/app/components/main-nav/components/account-money-extend.tsx",
-            "web/app/components/main-nav/index.tsx",
-            "web/app/components/main-nav/__tests__/index.spec.tsx"
-          ],
-          "dependencies": [
-            "12.3_analysis:analysis_complete_paths_registered",
-            "M05 11.2 login_config contract"
-          ],
-          "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
-          "analysis_evidence": "evidence/M06/12.3-analysis.md",
-          "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted.",
-          "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
+          "scope": "Run both focused Vitest specs on the final combined 12.3+12.4 snapshot through direct Node in eafe; restore and hash-verify the six target files."
         },
         "next_subtask": "12.4_implementation",
         "parallel_subtasks": [
@@ -1602,7 +1585,7 @@
           },
           {
             "id": "12.3_app_api_key_quota_and_balance",
-            "status": "implementation_in_progress",
+            "status": "final_snapshot_verification_in_progress",
             "owner": "M06",
             "model": "gpt-6-astra",
             "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
@@ -1631,7 +1614,7 @@
             ],
             "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
             "analysis_evidence": "evidence/M06/12.3-analysis.md",
-            "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted."
+            "observation": "Earlier b49 verification passed 90 tests; changes in 4526fd02 and 12.4 require final-snapshot rerun."
           },
           {
             "id": "12.5e_post_fix_i18n_parity",
@@ -1651,6 +1634,20 @@
             ],
             "scope": "Read-only independent verification of id-ID/pl-PL post-fix locale key parity, order, existing values and interpolation tokens; safely rerun scoped i18n parity with auto-install disabled and report exact commands/results.",
             "evidence": "evidence/M06/result.json#/subtasks/12.5_language_corrections/post_fix_parity_revalidation"
+          },
+          {
+            "id": "12.4_implementation",
+            "status": "implementation_complete_verification_in_progress",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "implementation_commit": "a7b7ddeeda",
+            "registered_paths": [
+              "web/app/components/main-nav/index.tsx",
+              "web/app/components/main-nav/__tests__/index.spec.tsx"
+            ],
+            "analysis_evidence": "evidence/M06/12.4-analysis.md",
+            "evidence": "evidence/M06/result.json#/subtasks/12.4_implementation",
+            "observation": "SystemManageNavExtend owner-only navigation mount and tests committed; final combined runtime verification is in progress."
           }
         ],
         "completed_analyses": [
