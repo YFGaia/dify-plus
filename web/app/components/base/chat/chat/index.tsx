@@ -10,17 +10,87 @@ import type { Node } from '@/app/components/workflow/types'
 import type { AppData, ToolIcon } from '@/models/share'
 import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
-import { memo } from 'react'
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Fragment, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore as useAppStore } from '@/app/components/app/store'
+import { useChatWithHistoryContext } from '@/app/components/base/chat/chat-with-history/context'
+import {
+  deleteMessageContext,
+  hasConsoleContextSession,
+  messageContextList,
+} from '@/service/message-context-extend'
 import Answer from './answer'
 import ChatInputArea from './chat-input-area'
 import ChatLogModals from './chat-log-modals'
 import { ChatContextProvider } from './context-provider'
 import Question from './question'
+import s from './style.module.css'
 import TryToAsk from './try-to-ask'
 import { useChatLayout } from './use-chat-layout'
+
+const MessageContextMarker = ({
+  conversationId,
+  messageId,
+  isResponding,
+}: {
+  conversationId: string
+  messageId: string
+  isResponding?: boolean
+}) => {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const queryKey = ['message-context-extend', conversationId]
+  const { data: contextList = [] } = useQuery(
+    queryOptions({
+      queryKey,
+      queryFn: () => messageContextList({ conversation_id: conversationId }),
+      enabled: !isResponding,
+      retry: false,
+      // Override the app's five-minute freshness window: finishing an answer can
+      // create a new context boundary in the same conversation.
+      staleTime: 0,
+      gcTime: 0,
+    }),
+  )
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      deleteMessageContext({
+        conversation_id: conversationId,
+        message_id: messageId,
+      }),
+    onSuccess: async (result) => {
+      if (result !== 'ok') return
+      // Cancel earlier reads before updating this conversation, even if the user
+      // has switched to another conversation while the deletion was in flight.
+      await queryClient.cancelQueries({ queryKey, exact: true })
+      queryClient.setQueryData<string[]>(queryKey, (previous) =>
+        previous?.filter((id) => id !== messageId),
+      )
+      await queryClient.invalidateQueries({ queryKey, exact: true })
+    },
+  })
+
+  if (!contextList.includes(messageId)) return null
+
+  return (
+    <button
+      type="button"
+      disabled={isPending || isResponding}
+      onClick={() => mutate()}
+      className={s.contextTag}
+      aria-label={t(($) => $['configuration.restoreContext'], { ns: 'extend' })}
+    >
+      <span className={s.isCenter}>
+        {t(($) => $['configuration.clearContext'], { ns: 'extend' })}
+      </span>
+      <span className={s.recover}>
+        {t(($) => $['configuration.restoreContext'], { ns: 'extend' })}
+      </span>
+    </button>
+  )
+}
 
 export type ChatProps = {
   answerActionPosition?: AnswerActionPosition
@@ -147,6 +217,8 @@ const Chat: FC<ChatProps> = ({
   getHumanInputNodeData,
 }) => {
   const { t } = useTranslation()
+  const { currentConversationId } = useChatWithHistoryContext()
+  const canLoadMessageContext = !!currentConversationId && hasConsoleContextSession()
   const {
     currentLogItem,
     setCurrentLogItem,
@@ -216,25 +288,34 @@ const Chat: FC<ChatProps> = ({
               if (item.isAnswer) {
                 const isLast = item.id === chatList.at(-1)?.id
                 return (
-                  <Answer
-                    answerActionPosition={answerActionPosition}
-                    appData={appData}
-                    key={item.id}
-                    item={item}
-                    question={chatList[index - 1]?.content ?? ''}
-                    index={index}
-                    config={config}
-                    answerIcon={answerIcon}
-                    responding={isLast && isResponding}
-                    showPromptLog={showPromptLog}
-                    chatAnswerContainerInner={chatAnswerContainerInner}
-                    hideProcessDetail={hideProcessDetail}
-                    noChatInput={noChatInput}
-                    switchSibling={switchSibling}
-                    hideAvatar={hideAvatar}
-                    renderAgentContent={renderAgentContent}
-                    onHumanInputFormSubmit={onHumanInputFormSubmit}
-                  />
+                  <Fragment key={item.id}>
+                    <Answer
+                      answerActionPosition={answerActionPosition}
+                      appData={appData}
+                      item={item}
+                      question={chatList[index - 1]?.content ?? ''}
+                      index={index}
+                      config={config}
+                      answerIcon={answerIcon}
+                      responding={isLast && isResponding}
+                      showPromptLog={showPromptLog}
+                      chatAnswerContainerInner={chatAnswerContainerInner}
+                      hideProcessDetail={hideProcessDetail}
+                      noChatInput={noChatInput}
+                      switchSibling={switchSibling}
+                      hideAvatar={hideAvatar}
+                      renderAgentContent={renderAgentContent}
+                      onHumanInputFormSubmit={onHumanInputFormSubmit}
+                    />
+                    {canLoadMessageContext && (
+                      <MessageContextMarker
+                        key={currentConversationId}
+                        conversationId={currentConversationId}
+                        messageId={item.id}
+                        isResponding={isResponding}
+                      />
+                    )}
+                  </Fragment>
                 )
               }
               return (
