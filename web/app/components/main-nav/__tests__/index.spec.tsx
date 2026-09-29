@@ -19,6 +19,7 @@ import userEvent from '@testing-library/user-event'
 import { createStore, Provider as JotaiProvider } from 'jotai'
 import { queryClientAtom } from 'jotai-tanstack-query'
 import { NuqsTestingAdapter } from 'nuqs/adapters/testing'
+import SystemManageLayout from '@/app/(commonLayout)/system-manage-extend/layout'
 import { DETAIL_SIDEBAR_STORAGE_KEY } from '@/app/components/detail-sidebar/storage'
 import { LEARN_DIFY_HIDDEN_STORAGE_KEY } from '@/app/components/explore/learn-dify/storage'
 import { gotoAnythingDialogHandle } from '@/app/components/goto-anything/dialog-handle'
@@ -28,6 +29,7 @@ import {
   stepByStepTourSkipRecoveryVisibleAtom,
 } from '@/app/components/step-by-step-tour/state'
 import { STEP_BY_STEP_TOUR_SHELL_MODE_STORAGE_KEY } from '@/app/components/step-by-step-tour/storage'
+import { getWorkspaceRoleFlags } from '@/context/app-context-normalizers'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
 import { loginConfigQueryOptions } from '@/features/system-features/client'
 import { usePathname, useRouter } from '@/next/navigation'
@@ -210,6 +212,7 @@ vi.mock('@/next/navigation', async (importOriginal) => {
     ...actual,
     usePathname: vi.fn(),
     useRouter: vi.fn(),
+    useSelectedLayoutSegment: () => mockPathname.split('/')[2] ?? null,
   }
 })
 
@@ -556,6 +559,38 @@ const consoleState: MainNavConsoleState = {
 }
 const workspaceMenuAccessibleName = /Solar Studio.*common\.mainNav\.workspace\.openMenu/
 
+const systemManageRoutes = [
+  {
+    name: 'extend.systemManage.menu.integration',
+    href: '/system-manage-extend/system-integration',
+  },
+  { name: 'extend.systemManage.menu.quota', href: '/system-manage-extend/quota-management' },
+  {
+    name: 'extend.systemManage.menu.codeExecutionControl',
+    href: '/system-manage-extend/code-execution-control',
+  },
+]
+
+const createSystemManageConsoleState = (
+  role: GetWorkspacesCurrentSummaryResponse['role'],
+  id = 'workspace-1',
+): MainNavConsoleState => {
+  const currentWorkspace: GetWorkspacesCurrentSummaryResponse = {
+    id,
+    name: 'Solar Studio',
+    plan: 'team',
+    credits: 7500,
+    role,
+    admin_extend: true,
+    tenant_extend: true,
+  }
+  return {
+    ...consoleState,
+    currentWorkspace,
+    ...getWorkspaceRoleFlags(currentWorkspace),
+  }
+}
+
 type MainNavSystemFeatures = Exclude<
   NonNullable<Parameters<typeof renderWithoutPricing>[1]>['systemFeatures'],
   null | undefined
@@ -654,7 +689,8 @@ const loginConfigFixture = (rate = 8) => ({
 })
 const balanceIdentity = { accountId: 'user-1', workspaceId: 'workspace-1' }
 const accountMoneyKey = (identity = balanceIdentity) => [
-  ...consoleQuery.account.money.get.queryKey(), identity,
+  ...consoleQuery.account.money.get.queryKey(),
+  identity,
 ]
 
 describe('MainNav', () => {
@@ -730,72 +766,116 @@ describe('MainNav', () => {
   it('renders account balance with login_config rate independently of key usage and workspace credits', async () => {
     balanceMocks.money.mockResolvedValue({ total_quota: '100', used_quota: '2.5' })
     const { queryClient } = renderMainNav()
-    queryClient.setQueryData(consoleQuery.apps.byResourceId.apiKeys.get.queryKey({
-      input: { params: { resource_id: 'app-1' } },
-    }), { data: [{ accumulated_quota: 99, day_used_quota: 70 }] })
+    queryClient.setQueryData(
+      consoleQuery.apps.byResourceId.apiKeys.get.queryKey({
+        input: { params: { resource_id: 'app-1' } },
+      }),
+      { data: [{ accumulated_quota: 99, day_used_quota: 70 }] },
+    )
     const balance = await screen.findByRole('status', { name: 'extend.user.credit' })
     expect(within(balance).getByText('¥20.00')).toBeInTheDocument()
     expect(within(balance).getByText('¥800.00')).toBeInTheDocument()
-    expect(queryClient.getQueryData(accountMoneyKey())).toEqual({ total_quota: 100, used_quota: 2.5 })
-    expect(queryClient.getQueryData(loginConfigQueryOptions(balanceIdentity).queryKey)).toMatchObject({ rmb_to_usd_rate: 8 })
-  })
-
-  it.each(['forbidden', 'malformed'])('hides cached conversion after %s login_config response without using public fallback', async (failure) => {
-    balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
-    const { queryClient } = renderMainNav()
-    await screen.findByRole('status', { name: 'extend.user.credit' })
-    if (failure === 'forbidden') balanceMocks.loginConfig.mockRejectedValue(new Response(null, { status: 403 }))
-    else balanceMocks.loginConfig.mockResolvedValue({ rmb_to_usd_rate: 7.26 })
-    await act(async () => {
-      await queryClient.invalidateQueries({ queryKey: loginConfigQueryOptions(balanceIdentity).queryKey })
+    expect(queryClient.getQueryData(accountMoneyKey())).toEqual({
+      total_quota: 100,
+      used_quota: 2.5,
     })
-    await waitFor(() => expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument())
-    expect(queryClient.getQueryState(loginConfigQueryOptions(balanceIdentity).queryKey)?.status).toBe('error')
-    expect(screen.queryByText('¥18.15')).not.toBeInTheDocument()
+    expect(
+      queryClient.getQueryData(loginConfigQueryOptions(balanceIdentity).queryKey),
+    ).toMatchObject({ rmb_to_usd_rate: 8 })
   })
 
-  it.each([0, -1])('does not display conversion for a nonpositive configured rate %s', async (rate) => {
-    balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
-    balanceMocks.loginConfig.mockResolvedValue(loginConfigFixture(rate))
-    const { queryClient } = renderMainNav()
-    await waitFor(() => {
-      expect(queryClient.getQueryState(accountMoneyKey())?.status).toBe('success')
-      expect(queryClient.getQueryState(loginConfigQueryOptions(balanceIdentity).queryKey)?.status).toBe('success')
-    })
-    expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
-  })
-
-  it.each(['account', 'workspace'])('isolates cached balance and exchange rate after switching %s', async (kind) => {
-    const store = createStore()
-    balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
-    const { queryClient } = renderMainNav(undefined, { store })
-    await screen.findByRole('status', { name: 'extend.user.credit' })
-    balanceMocks.loginConfig.mockRejectedValue(new Response(null, { status: 403 }))
-    balanceMocks.money.mockResolvedValue({ total_quota: 10, used_quota: 1 })
-    const nextIdentity = kind === 'account'
-      ? { ...balanceIdentity, accountId: 'user-2' }
-      : { ...balanceIdentity, workspaceId: 'workspace-2' }
-    await act(async () => {
-      if (kind === 'account') {
-        queryClient.setQueryData(userProfileQueryOptions().queryKey, {
-          profile: { ...mainNavUserProfile, id: 'user-2' }, meta: consoleState.profileMeta,
+  it.each(['forbidden', 'malformed'])(
+    'hides cached conversion after %s login_config response without using public fallback',
+    async (failure) => {
+      balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
+      const { queryClient } = renderMainNav()
+      await screen.findByRole('status', { name: 'extend.user.credit' })
+      if (failure === 'forbidden')
+        balanceMocks.loginConfig.mockRejectedValue(new Response(null, { status: 403 }))
+      else balanceMocks.loginConfig.mockResolvedValue({ rmb_to_usd_rate: 7.26 })
+      await act(async () => {
+        await queryClient.invalidateQueries({
+          queryKey: loginConfigQueryOptions(balanceIdentity).queryKey,
         })
-      } else {
-        mockConsoleState.current = { ...consoleState, currentWorkspace: { ...consoleState.currentWorkspace, id: 'workspace-2' } }
-        seedRegisteredConsoleStateFixture(store)
-      }
-    })
-    await waitFor(() => expect(queryClient.getQueryState(loginConfigQueryOptions(nextIdentity).queryKey)?.status).toBe('error'))
-    expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
-    await waitFor(() => expect(queryClient.getQueryData(accountMoneyKey(nextIdentity))).toEqual({ total_quota: 10, used_quota: 1 }))
-    balanceMocks.loginConfig.mockResolvedValue(loginConfigFixture(9))
-    await act(async () => {
-      await queryClient.invalidateQueries({ queryKey: loginConfigQueryOptions(nextIdentity).queryKey })
-    })
-    const balance = await screen.findByRole('status', { name: 'extend.user.credit' })
-    expect(within(balance).getByText('¥9.00')).toBeInTheDocument()
-    expect(within(balance).getByText('¥90.00')).toBeInTheDocument()
-  })
+      })
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('status', { name: 'extend.user.credit' }),
+        ).not.toBeInTheDocument(),
+      )
+      expect(
+        queryClient.getQueryState(loginConfigQueryOptions(balanceIdentity).queryKey)?.status,
+      ).toBe('error')
+      expect(screen.queryByText('¥18.15')).not.toBeInTheDocument()
+    },
+  )
+
+  it.each([0, -1])(
+    'does not display conversion for a nonpositive configured rate %s',
+    async (rate) => {
+      balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
+      balanceMocks.loginConfig.mockResolvedValue(loginConfigFixture(rate))
+      const { queryClient } = renderMainNav()
+      await waitFor(() => {
+        expect(queryClient.getQueryState(accountMoneyKey())?.status).toBe('success')
+        expect(
+          queryClient.getQueryState(loginConfigQueryOptions(balanceIdentity).queryKey)?.status,
+        ).toBe('success')
+      })
+      expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
+    },
+  )
+
+  it.each(['account', 'workspace'])(
+    'isolates cached balance and exchange rate after switching %s',
+    async (kind) => {
+      const store = createStore()
+      balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
+      const { queryClient } = renderMainNav(undefined, { store })
+      await screen.findByRole('status', { name: 'extend.user.credit' })
+      balanceMocks.loginConfig.mockRejectedValue(new Response(null, { status: 403 }))
+      balanceMocks.money.mockResolvedValue({ total_quota: 10, used_quota: 1 })
+      const nextIdentity =
+        kind === 'account'
+          ? { ...balanceIdentity, accountId: 'user-2' }
+          : { ...balanceIdentity, workspaceId: 'workspace-2' }
+      await act(async () => {
+        if (kind === 'account') {
+          queryClient.setQueryData(userProfileQueryOptions().queryKey, {
+            profile: { ...mainNavUserProfile, id: 'user-2' },
+            meta: consoleState.profileMeta,
+          })
+        } else {
+          mockConsoleState.current = {
+            ...consoleState,
+            currentWorkspace: { ...consoleState.currentWorkspace, id: 'workspace-2' },
+          }
+          seedRegisteredConsoleStateFixture(store)
+        }
+      })
+      await waitFor(() =>
+        expect(
+          queryClient.getQueryState(loginConfigQueryOptions(nextIdentity).queryKey)?.status,
+        ).toBe('error'),
+      )
+      expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
+      await waitFor(() =>
+        expect(queryClient.getQueryData(accountMoneyKey(nextIdentity))).toEqual({
+          total_quota: 10,
+          used_quota: 1,
+        }),
+      )
+      balanceMocks.loginConfig.mockResolvedValue(loginConfigFixture(9))
+      await act(async () => {
+        await queryClient.invalidateQueries({
+          queryKey: loginConfigQueryOptions(nextIdentity).queryKey,
+        })
+      })
+      const balance = await screen.findByRole('status', { name: 'extend.user.credit' })
+      expect(within(balance).getByText('¥9.00')).toBeInTheDocument()
+      expect(within(balance).getByText('¥90.00')).toBeInTheDocument()
+    },
+  )
 
   it('does not fetch or show a balance without an authenticated account identity', async () => {
     mockConsoleState.current = { ...consoleState, userProfile: { ...mainNavUserProfile, id: '' } }
@@ -814,9 +894,14 @@ describe('MainNav', () => {
     await act(async () => {
       await queryClient.invalidateQueries({ queryKey: accountMoneyKey() })
     })
-    await waitFor(() => expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument(),
+    )
     expect(queryClient.getQueryState(accountMoneyKey())?.status).toBe('error')
-    expect(queryClient.getQueryData(accountMoneyKey())).toEqual({ total_quota: 100, used_quota: 2.5 })
+    expect(queryClient.getQueryData(accountMoneyKey())).toEqual({
+      total_quota: 100,
+      used_quota: 2.5,
+    })
   })
 
   it.each([
@@ -825,13 +910,18 @@ describe('MainNav', () => {
     { total_quota: 100, used_quota: '' },
     { total_quota: 100, used_quota: Infinity },
     { used_quota: 1 },
-  ])('rejects malformed account balances before writing successful query data: %j', async (response) => {
-    balanceMocks.money.mockResolvedValue(response)
-    const { queryClient } = renderMainNav()
-    await waitFor(() => expect(queryClient.getQueryState(accountMoneyKey())?.status).toBe('error'))
-    expect(queryClient.getQueryData(accountMoneyKey())).toBeUndefined()
-    expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
-  })
+  ])(
+    'rejects malformed account balances before writing successful query data: %j',
+    async (response) => {
+      balanceMocks.money.mockResolvedValue(response)
+      const { queryClient } = renderMainNav()
+      await waitFor(() =>
+        expect(queryClient.getQueryState(accountMoneyKey())?.status).toBe('error'),
+      )
+      expect(queryClient.getQueryData(accountMoneyKey())).toBeUndefined()
+      expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
+    },
+  )
 
   it('renders primary navigation with the planned routes', () => {
     renderMainNav()
@@ -880,7 +970,97 @@ describe('MainNav', () => {
       '/skills',
       '/integrations/model-provider',
       '/marketplace',
+      '/system-manage-extend/system-integration',
     ])
+  })
+
+  it('shows the owner system management entry and all three destination links', () => {
+    renderMainNav(undefined, {
+      extra: <SystemManageLayout>System management content</SystemManageLayout>,
+    })
+
+    const primaryNavigation = screen.getByRole('navigation', { name: 'common.navigation.primary' })
+    const systemManageLink = within(primaryNavigation).getByRole('link', {
+      name: 'extend.systemManage.title',
+    })
+    expect(systemManageLink).toHaveAttribute('href', '/system-manage-extend/system-integration')
+    expect(systemManageLink).not.toHaveAttribute('aria-current')
+    for (const { name, href } of systemManageRoutes) {
+      expect(screen.getByRole('link', { name })).toHaveAttribute('href', href)
+    }
+    expect(screen.getByText('System management content')).toBeInTheDocument()
+  })
+
+  it.each(['admin', 'normal'] as const)(
+    'hides system management links and direct page content from %s even with extension flags',
+    (role) => {
+      mockPathname = '/system-manage-extend/system-integration'
+      mockConsoleState.current = createSystemManageConsoleState(role)
+      renderMainNav(undefined, {
+        extra: <SystemManageLayout>System management content</SystemManageLayout>,
+      })
+
+      expect(
+        screen.queryByRole('link', { name: 'extend.systemManage.title' }),
+      ).not.toBeInTheDocument()
+      for (const { name } of systemManageRoutes) {
+        expect(screen.queryByRole('link', { name })).not.toBeInTheDocument()
+      }
+      expect(screen.queryByText('System management content')).not.toBeInTheDocument()
+      expect(screen.getByText('extend.systemManage.common.noPermission')).toBeInTheDocument()
+    },
+  )
+
+  it.each(systemManageRoutes)('marks system management active on $href', ({ href }) => {
+    mockPathname = href
+    renderMainNav()
+
+    expect(screen.getByRole('link', { name: 'extend.systemManage.title' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(screen.getByRole('link', { name: /common.menus.apps/ })).not.toHaveAttribute(
+      'aria-current',
+    )
+  })
+
+  it('updates system management access when switching between owner and non-owner workspaces', async () => {
+    const store = createStore()
+    const { queryClient } = renderMainNav(undefined, {
+      store,
+      extra: <SystemManageLayout>System management content</SystemManageLayout>,
+    })
+    expect(screen.getByRole('link', { name: 'extend.systemManage.title' })).toBeInTheDocument()
+
+    for (const role of ['admin', 'normal', 'owner'] as const) {
+      await act(async () => {
+        mockConsoleState.current = createSystemManageConsoleState(role, `workspace-${role}`)
+        queryClient.setQueryData(
+          consoleQuery.workspaces.current.summary.get.queryKey(),
+          mockConsoleState.current.currentWorkspace,
+        )
+        seedRegisteredConsoleStateFixture(store)
+      })
+
+      if (role === 'owner') {
+        expect(
+          screen.getByRole('link', { name: 'extend.systemManage.title' }),
+        ).toBeInTheDocument()
+        for (const { name } of systemManageRoutes) {
+          expect(screen.getByRole('link', { name })).toBeInTheDocument()
+        }
+        expect(screen.getByText('System management content')).toBeInTheDocument()
+      } else {
+        expect(
+          screen.queryByRole('link', { name: 'extend.systemManage.title' }),
+        ).not.toBeInTheDocument()
+        for (const { name } of systemManageRoutes) {
+          expect(screen.queryByRole('link', { name })).not.toBeInTheDocument()
+        }
+        expect(screen.queryByText('System management content')).not.toBeInTheDocument()
+        expect(screen.getByText('extend.systemManage.common.noPermission')).toBeInTheDocument()
+      }
+    }
   })
 
   it('hides the roster entry when Agent v2 is disabled', () => {

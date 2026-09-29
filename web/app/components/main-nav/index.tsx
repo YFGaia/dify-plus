@@ -23,6 +23,7 @@ import AccountSection from './components/account-section'
 import HelpMenu from './components/help-menu'
 import MainNavLink from './components/nav-link'
 import { MainNavSearchButton } from './components/search-button'
+import SystemManageNavExtend from './components/system-manage-nav-extend'
 import { WorkspaceCard } from './components/workspace-card'
 import { isMainNavRouteVisible, MAIN_NAV_ROUTES } from './routes'
 
@@ -130,6 +131,7 @@ export function MainNav({ className, initialPlatform }: MainNavProps) {
               )}
             </MainNavLink>
           ))}
+          <SystemManageNavExtend pathname={pathname} />
         </nav>
         {!isCurrentWorkspaceDatasetOperator && (
           <Suspense fallback={null}>
