@@ -1004,7 +1004,7 @@
       "owner_role": "前端业务负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "in_progress",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -1049,7 +1049,11 @@
       "evidence": [
         "evidence/M06/result.json",
         "evidence/M06/execution.log",
-        "evidence/M06/12.1b-path-registration.md"
+        "evidence/M06/12.1b-path-registration.md",
+        "evidence/M06/12.6g-verification.md",
+        "evidence/M06/12.6h-verification.md",
+        "evidence/M06/12.6i-validation.md",
+        "evidence/M06/12.6-final-aggregate.md"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -1150,32 +1154,11 @@
           "12.6f_workflow_account_statistics",
           "12.6f_statistics_integration_recovery",
           "12.6j_frontend_dependency_recovery",
-          "12.6b_system_integration_host_test"
+          "12.6b_system_integration_host_test",
+          "12.6"
         ],
-        "current_subtask": {
-          "id": "12.6i_fixture_typing",
-          "status": "passed",
-          "owner": "M06",
-          "model": "gpt-6-astra",
-          "registered_paths": [
-            "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
-            "evidence/M06/12.6i-validation.md"
-          ],
-          "scope": "Fix two actual scoped TypeScript failures in existing API key test fixture without weakening coverage, suppression, casts or production changes; rerun 23 focused tests and scoped check.",
-          "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess.",
-          "verification": {
-            "status": "passed",
-            "focused_tests": "23 passed; exit 0",
-            "scoped_check": "format/lint/types passed; exit 0",
-            "verified_test_sha256": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08",
-            "runtime": "Node 24.20.0; VP_SKIP_INSTALL=1",
-            "review_agent": "/root/api_key_final_snapshot_review",
-            "review_result": "No P1/P2/P3; hash stable before/after"
-          },
-          "review_status": "passed_no_p1_p2_p3",
-          "review_agent": "/root/api_key_final_snapshot_review"
-        },
-        "next_subtask": "12.6i_fixture_typing",
+        "current_subtask": null,
+        "next_subtask": "M08",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -2312,7 +2295,8 @@
             "Dataset/environment quota behavior is unsupported; do not expose quota controls there.",
             "Account balance and key quota are distinct; validate account money before cache and source exchange rate only from identity-bound login_config, never public fallback.",
             "Agent v2 quota editing is outside the current backend contract."
-          ]
+          ],
+          "dispatch_status": "closed"
         },
         "12.1a_test_verification": {
           "status": "passed",
@@ -2320,7 +2304,8 @@
           "client_thread_id": "client-new-thread:633765b7-88e4-446d-96f5-e50a6e62e064",
           "verification_agent": "/root/m06_12_1a_luna_test_retry",
           "evidence": "evidence/M06/result.json#/subtasks/12.1a/independent_test_verification",
-          "result": "22 card tests and a two-file format/lint/scoped type check passed in the dependency-complete isolated worktree; no source/dependency changes."
+          "result": "22 card tests and a two-file format/lint/scoped type check passed in the dependency-complete isolated worktree; no source/dependency changes.",
+          "dispatch_status": "closed"
         },
         "12.4_analysis": {
           "status": "analysis_complete_paths_registered",
@@ -2336,15 +2321,18 @@
             "Pages/layout remain; owner nav entry was removed from MainNav.",
             "Restore existing owner-only nav component mount; keep direct-access and role guards, including extension-flag denial.",
             "Preserve backend is_admin_or_owner behavior and do not implement P6."
-          ]
+          ],
+          "dispatch_status": "closed"
         },
         "12.1b_path_analysis": {
-          "status": "conversation_provisioning",
+          "status": "completed_handoff_registered",
           "model": "gpt-6-sol",
           "client_thread_id": "client-new-thread:3f8019c7-3df7-4c7c-b8e6-fa755aa6ef07",
           "base_commit": "659d8b9cda6df16292e8a1eb45cd7e98ccf6f1aa",
           "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and exact source/test path registration.",
-          "registration_decision": "root source audit registered the four exact paths; Sol cross-check remains pending and cannot expand scope without re-registration"
+          "registration_decision": "root source audit registered the four exact paths; Sol cross-check remains pending and cannot expand scope without re-registration",
+          "dispatch_status": "closed",
+          "superseded_by": "12.1b_implementation:passed"
         },
         "12.1b_implementation": {
           "status": "passed",
@@ -2369,7 +2357,8 @@
             "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
             "web/service/message-context-extend.ts",
             "web/service/message-context-extend.spec.ts"
-          ]
+          ],
+          "dispatch_status": "closed"
         },
         "12.2a_app_center_repair": {
           "status": "passed",
@@ -2449,7 +2438,8 @@
             }
           },
           "source_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b",
-          "integration_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b"
+          "integration_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b",
+          "dispatch_status": "closed"
         },
         "12.2c_studio_sync_menu": {
           "status": "passed",
@@ -2519,7 +2509,8 @@
             }
           },
           "source_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8",
-          "integration_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8"
+          "integration_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8",
+          "dispatch_status": "closed"
         },
         "12.5a_locale_group_a": {
           "status": "passed",
@@ -2588,7 +2579,8 @@
           },
           "observation": "Luna review found no blocking issue; one P3 Indonesian wording refinement remains for a scoped follow-up.",
           "follow_up_commit": "0b360565b4c733660225faecfd337538a0d635c3",
-          "follow_up_review": "evidence/M06/12.5-follow-up-review.md"
+          "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
+          "dispatch_status": "closed"
         },
         "12.5b_locale_group_b": {
           "status": "passed",
@@ -2632,7 +2624,8 @@
             },
             "diff_check_exit_code": 0,
             "environment_note": "The first attempt in the detached source worktree could not start because that worktree lacks tsx; the same scoped check passed in the root worktree with the pinned repository runtime. No dependencies or lockfiles changed."
-          }
+          },
+          "dispatch_status": "closed"
         },
         "12.5c_locale_group_c": {
           "status": "passed",
@@ -2674,7 +2667,8 @@
             },
             "diff_check_exit_code": 0,
             "environment_note": "The detached source worktree lacks tsx; its invocation did not start. The scoped check was rerun successfully in the root worktree with the pinned repository runtime. No dependencies or lockfiles changed."
-          }
+          },
+          "dispatch_status": "closed"
         },
         "12.5_full_locale_parity": {
           "status": "passed",
@@ -2711,7 +2705,8 @@
               "ar-TN": 0
             }
           },
-          "evidence": "evidence/M06/12.5-combined-verification.md"
+          "evidence": "evidence/M06/12.5-combined-verification.md",
+          "dispatch_status": "closed"
         },
         "12.5bc_independent_luna_review": {
           "id": "12.5bc_independent_luna_review",
@@ -2768,7 +2763,8 @@
             "pl_PL": "84805a93186032f84245c01bdbc3ec620c325d63"
           },
           "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
-          "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3"
+          "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+          "dispatch_status": "closed"
         },
         "12.5_language_corrections": {
           "status": "passed",
@@ -2806,11 +2802,12 @@
             "result": "Both original P3/P2 findings are resolved; placeholders and sandbox-full to standard-sandbox behavior remain accurate. No P1/P2/P3 findings remain.",
             "scope": "Read-only focused translation review; no pnpm parity run, edits, or commits.",
             "evidence": "evidence/M06/12.5-follow-up-review.md"
-          }
+          },
+          "dispatch_status": "closed"
         },
         "12.3_app_api_key_quota_and_balance": {
           "id": "12.3_app_api_key_quota_and_balance",
-          "status": "implementation_in_progress",
+          "status": "passed",
           "owner": "M06",
           "model": "gpt-6-astra",
           "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
@@ -2839,7 +2836,8 @@
           ],
           "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
           "analysis_evidence": "evidence/M06/12.3-analysis.md",
-          "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted."
+          "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted.",
+          "dispatch_status": "closed"
         },
         "12.3_implementation": {
           "status": "passed",
@@ -2883,7 +2881,8 @@
             "restore": "All six registered eafe target files were restored from /private/tmp/m06-12-3-vitest-backup/; git diff --exit-code on six targets returned 0 and restored SHA256 hashes matched initial eafe hashes. Existing message-context changes remained untouched."
           },
           "followup_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
-          "review_status": "passed"
+          "review_status": "passed",
+          "dispatch_status": "closed"
         },
         "12.3_independent_runtime_verification": {
           "status": "passed",
@@ -2899,7 +2898,8 @@
             "exit_code": 0,
             "result": "2 test files, 90 tests passed",
             "restore": "All six registered eafe target files were restored from /private/tmp/m06-12-3-vitest-backup/; git diff --exit-code on six targets returned 0 and restored SHA256 hashes matched initial eafe hashes. Existing message-context changes remained untouched."
-          }
+          },
+          "dispatch_status": "closed"
         },
         "12.6e_review_followup": {
           "id": "12.6e_review_followup",
@@ -2928,7 +2928,8 @@
             "ruff_and_format": "passed",
             "diff_check": "passed"
           },
-          "secondary_review_thread_id": "01a0ebaf-7f96-7112-815c-33ef98a6a395"
+          "secondary_review_thread_id": "01a0ebaf-7f96-7112-815c-33ef98a6a395",
+          "dispatch_status": "closed"
         },
         "12.6f_logstore_actor_index": {
           "id": "12.6f_logstore_actor_index",
@@ -2953,7 +2954,8 @@
           "verification_evidence": "evidence/M06/12.6f-logstore-index-verification.md",
           "test_result": "3 tests; independent Luna rerun 3 passed",
           "review_result": "No P1/P2/P3",
-          "evidence": "evidence/M06/12.6f-logstore-index-verification.md"
+          "evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+          "dispatch_status": "closed"
         },
         "12.6f_workflow_account_statistics": {
           "id": "12.6f_workflow_account_statistics",
@@ -3033,7 +3035,8 @@
           "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
           "validation_status": "passed",
           "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed",
-          "implementation_commit": "7593d52222"
+          "implementation_commit": "7593d52222",
+          "dispatch_status": "closed"
         },
         "12.6f_logstore_actor_index_reconciliation": {
           "id": "12.6f_logstore_actor_index_reconciliation",
@@ -3047,7 +3050,8 @@
           "review_result": "No P1/P2/P3",
           "blocked_reason": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
           "verification_invalidated_by": "12.6f_logstore_actor_index_config_preservation",
-          "followup": "12.6f_logstore_actor_index_config_preservation"
+          "followup": "12.6f_logstore_actor_index_config_preservation",
+          "dispatch_status": "closed"
         },
         "12.6f_logstore_actor_index_config_preservation": {
           "id": "12.6f_logstore_actor_index_config_preservation",
@@ -3074,7 +3078,8 @@
           "verification_evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
           "test_result": "46 passed; 36 regression cases failed before repair",
           "verified_source_sha256": "22ad424ee36911206d42d3064d7613931eb26846ebbab5f6f187ecd20025da44",
-          "implementation_commit": "8466ad5ff749271057d14df7d6e0589dad4b226f"
+          "implementation_commit": "8466ad5ff749271057d14df7d6e0589dad4b226f",
+          "dispatch_status": "closed"
         },
         "12.6j_frontend_dependency_recovery": {
           "id": "12.6j_frontend_dependency_recovery",
@@ -3089,12 +3094,14 @@
           "dependencies": [],
           "analysis_agent": "/root/frontend_dependency_diagnosis",
           "implementation_agent": "/root/frontend_dependency_recovery",
-          "finding": "Root tools resolved after frozen install, but deduped workspace-local legacy vite-plus symlinks still shadow root and break contracts vp fmt. Installer is repairing proven stale generated links.",
+          "finding": "Frozen dependency recovery and workspace entrypoint repair completed; direct tools ready.",
           "initial_install_exit_code": 0,
           "workspace_entrypoint_verification": "passed",
           "verification": "Frozen install exit 0; stale generated links/shims repaired; contracts/web vp and Vite imports pass; no dangling workspace dependencies",
           "verification_evidence": "evidence/M06/12.6j-dependency-recovery.md",
-          "scope_limit": "Dependency readiness only; does not pass any UI tests. Subsequent pnpm commands can add the same 19-line tool registration; root reconciles it after generators stop."
+          "scope_limit": "Dependency readiness only; does not pass any UI tests. Subsequent pnpm commands can add the same 19-line tool registration; root reconciles it after generators stop.",
+          "lock_side_effect": "Root restored only the verified 19-line @pnpm/exe registration after generation stopped; exact backup and patch in /private/tmp/dify-scheduling-pnpm-lock-side-effect.*",
+          "dispatch_status": "closed"
         },
         "12.6i_fixture_typing": {
           "id": "12.6i_fixture_typing",
@@ -3117,33 +3124,31 @@
             "review_result": "No P1/P2/P3; hash stable before/after"
           },
           "review_status": "passed_no_p1_p2_p3",
-          "review_agent": "/root/api_key_final_snapshot_review"
+          "review_agent": "/root/api_key_final_snapshot_review",
+          "implementation_commit": "c474b9c42b",
+          "dispatch_status": "closed"
+        },
+        "12.6_final_aggregate": {
+          "id": "12.6_final_aggregate",
+          "status": "passed",
+          "owner": "M06",
+          "model": "gpt-6-luna",
+          "agent": "/root/m06_final_aggregate",
+          "read_only_source": true,
+          "registered_paths": [
+            "evidence/M06/12.6-final-aggregate.md"
+          ],
+          "scope": "One bounded integrated frontend regression, 24-locale extend checker and existing generated-schema verification; no full builds, backend reruns, code edits or dispatch.",
+          "verification": "16 files / 399 tests passed; 24-locale extend, six-endpoint contract parsing, OpenSpec strict and diff-check passed",
+          "snapshot_commit": "c474b9c42bfc46325540a8a27c4de28b6a538eee",
+          "evidence": "evidence/M06/12.6-final-aggregate.md",
+          "dispatch_status": "closed"
         }
       },
-      "next_subtask": "12.6i_fixture_typing",
-      "current_subtask": {
-        "id": "12.6i_fixture_typing",
-        "status": "passed",
-        "owner": "M06",
-        "model": "gpt-6-astra",
-        "registered_paths": [
-          "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
-          "evidence/M06/12.6i-validation.md"
-        ],
-        "scope": "Fix two actual scoped TypeScript failures in existing API key test fixture without weakening coverage, suppression, casts or production changes; rerun 23 focused tests and scoped check.",
-        "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess.",
-        "verification": {
-          "status": "passed",
-          "focused_tests": "23 passed; exit 0",
-          "scoped_check": "format/lint/types passed; exit 0",
-          "verified_test_sha256": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08",
-          "runtime": "Node 24.20.0; VP_SKIP_INSTALL=1",
-          "review_agent": "/root/api_key_final_snapshot_review",
-          "review_result": "No P1/P2/P3; hash stable before/after"
-        },
-        "review_status": "passed_no_p1_p2_p3",
-        "review_agent": "/root/api_key_final_snapshot_review"
-      }
+      "next_subtask": "M08",
+      "current_subtask": null,
+      "acceptance_evidence": "evidence/M06/12.6-final-aggregate.md",
+      "completion_boundary": "Source and focused integration acceptance only; V02 real browser/full checks/dual builds and all environment gates remain pending."
     },
     {
       "id": "M07",
@@ -3380,7 +3385,7 @@
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "ready",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -3432,13 +3437,13 @@
         "evidence/M08/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "M06 尚未完成；其余 M02–M07 前置已通过。",
       "preflight_analysis": {
         "status": "completed_read_only",
         "agent": "/root/integration_preflight_analysis",
         "evidence": "evidence/M08/preflight-analysis.md",
         "does_not_satisfy_M08_acceptance": true
-      }
+      },
+      "readiness_evidence": "M02-M07 passed, including M06 integrated 399-test snapshot c474b9c42b; M08 acceptance itself has not yet run."
     },
     {
       "id": "V01",
@@ -4040,5 +4045,54 @@
       ]
     }
   ],
-  "next_subtask": "12.6i_fixture_typing"
+  "next_subtask": "M08",
+  "execution_control": {
+    "coordinator_thread_id": "01a0ebc5-51b2-7e50-8e0b-5aad1931eb16",
+    "updated_at": "2026-09-29",
+    "evidence": "evidence/scheduling-optimization.md",
+    "rules": [
+      "Only the coordinator owns execution-graph, result metadata, tasks, Git index and commits.",
+      "Each bounded subtask gets a fresh agent with exact input commit, path allowlist, dependencies, acceptance and stop condition. Child agents do not inherit the complete merge objective or dispatch other tasks.",
+      "One writer per path; parallelize only disjoint paths or read-only tasks. Dependency installer and contract generator each have one exclusive owner.",
+      "Exactly one independent review per stable snapshot. Re-review only changed paths or a concrete new finding; tie results to file hashes and runtime.",
+      "Use exact Node 24.20.0 and existing direct vp with VP_SKIP_INSTALL=1. Do not let routine tests invoke pnpm auto-install.",
+      "Finish children immediately after evidence delivery. Do not send progress acknowledgements that restart completed tasks.",
+      "Long checks report concrete milestones; after 20-30 minutes without new evidence, inspect the first blocked step. Do not start duplicate workers.",
+      "Reuse unchanged backend/source evidence by hashes. Full integration checks and real environment gates remain explicit; never mark them passed from unit fixtures."
+    ],
+    "abnormal_tasks": [
+      {
+        "thread_id": "01a0e889-6c99-7021-a4dc-f7e277ef90c5",
+        "dispatch_status": "retired",
+        "observed_runtime_status": "idle"
+      },
+      {
+        "thread_id": "01a0eb20-f978-71e3-9dbf-396839a34414",
+        "dispatch_status": "retired",
+        "observed_runtime_status": "idle"
+      },
+      {
+        "thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
+        "dispatch_status": "retired",
+        "observed_runtime_status": "idle"
+      },
+      {
+        "thread_id": "01a0eb31-28c8-7982-a48d-1a0b019df2c4",
+        "dispatch_status": "retired",
+        "observed_runtime_status": "idle"
+      },
+      {
+        "thread_id": "01a0eb21-61a6-7ad1-b2aa-b74eb261c9c2",
+        "dispatch_status": "retired",
+        "observed_runtime_status": "active_stop_requested_user_action_pending"
+      }
+    ],
+    "current_dispatches": [],
+    "next_critical_path": [
+      "M08 integration ownership and candidate source",
+      "V01 backend checks and V02 frontend checks in parallel",
+      "R01 source acceptance"
+    ],
+    "quality_gates_unchanged": true
+  }
 }

@@ -1,7 +1,7 @@
 {
   "node": "M06",
-  "status": "in_progress",
-  "implementation": "in_progress",
+  "status": "passed",
+  "implementation": "passed",
   "deployable": false,
   "preflight": {
     "status": "completed",
@@ -1591,12 +1591,13 @@
       "dependencies": [],
       "analysis_agent": "/root/frontend_dependency_diagnosis",
       "implementation_agent": "/root/frontend_dependency_recovery",
-      "finding": "Root tools resolved after frozen install, but deduped workspace-local legacy vite-plus symlinks still shadow root and break contracts vp fmt. Installer is repairing proven stale generated links.",
+      "finding": "Frozen dependency recovery and workspace entrypoint repair completed; direct tools ready.",
       "initial_install_exit_code": 0,
       "workspace_entrypoint_verification": "passed",
       "verification": "Frozen install exit 0; stale generated links/shims repaired; contracts/web vp and Vite imports pass; no dangling workspace dependencies",
       "verification_evidence": "evidence/M06/12.6j-dependency-recovery.md",
-      "scope_limit": "Dependency readiness only; does not pass any UI tests. Subsequent pnpm commands can add the same 19-line tool registration; root reconciles it after generators stop."
+      "scope_limit": "Dependency readiness only; does not pass any UI tests. Subsequent pnpm commands can add the same 19-line tool registration; root reconciles it after generators stop.",
+      "lock_side_effect": "Root restored only the verified 19-line @pnpm/exe registration after generation stopped; exact backup and patch in /private/tmp/dify-scheduling-pnpm-lock-side-effect.*"
     },
     "12.6g_user_overview_ui_contract": {
       "id": "12.6g_user_overview_ui_contract",
@@ -1671,8 +1672,27 @@
         "review_result": "No P1/P2/P3; hash stable before/after"
       },
       "review_status": "passed_no_p1_p2_p3",
-      "review_agent": "/root/api_key_final_snapshot_review"
+      "review_agent": "/root/api_key_final_snapshot_review",
+      "implementation_commit": "c474b9c42b"
+    },
+    "12.6_final_aggregate": {
+      "id": "12.6_final_aggregate",
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-luna",
+      "agent": "/root/m06_final_aggregate",
+      "read_only_source": true,
+      "registered_paths": [
+        "evidence/M06/12.6-final-aggregate.md"
+      ],
+      "scope": "One bounded integrated frontend regression, 24-locale extend checker and existing generated-schema verification; no full builds, backend reruns, code edits or dispatch.",
+      "verification": "16 files / 399 tests passed; 24-locale extend, six-endpoint contract parsing, OpenSpec strict and diff-check passed",
+      "snapshot_commit": "c474b9c42bfc46325540a8a27c4de28b6a538eee",
+      "evidence": "evidence/M06/12.6-final-aggregate.md",
+      "dispatch_status": "closed"
     }
   },
-  "next_subtask": "12.6i_fixture_typing"
+  "next_subtask": "M08",
+  "acceptance_evidence": "evidence/M06/12.6-final-aggregate.md",
+  "completion_boundary": "Source and focused integration acceptance only; V02 real browser/full checks/dual builds and all environment gates remain pending."
 }
