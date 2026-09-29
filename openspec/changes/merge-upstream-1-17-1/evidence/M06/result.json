@@ -1272,14 +1272,30 @@
           "extension": "020_workflow_run_account"
         },
         "evidence": "evidence/M06/12.6e-verification.md",
-        "review_status": "passed_root_code_review",
+        "review_status": "passed_after_follow_up",
         "verification_snapshot_head": "ac4d5b1127c1c69ad774f0df8f13fba2745c47e5",
-        "branch_head": "e9359f9bfe688f24212112cdc3e5f2ac6560c910"
+        "branch_head": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+        "followup_commit": "2ca9e0d7cb",
+        "followup_tests": "60 focused tests; 208 tests in the original seven-file regression",
+        "followup_review": "Independent Luna found no P1/P2/P3.",
+        "review_evidence": "evidence/M06/12.6e-review.md"
       },
       "implementation_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
-      "independent_review_status": "pending_luna_read_only_review",
+      "independent_review_status": "findings_resolved_by_followup",
       "independent_review_thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
-      "independent_review_scope_note": "Separate review conversation remains active; root code review and test rerun are recorded independently."
+      "independent_review_scope_note": "Separate review conversation remains active; root code review and test rerun are recorded independently.",
+      "independent_review_findings": [
+        "P2: SQL scope validation errors were logged and swallowed before Logstore append.",
+        "P2: migration returned for an existing association table without ensuring its required scope index."
+      ],
+      "followup_thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
+      "independent_review_findings_resolved_by": "2ca9e0d7cb",
+      "followup_commit": "2ca9e0d7cbb3b1cc79148d44659129cf84f98451",
+      "followup_tests": "60 focused; 208 across seven registered files",
+      "followup_review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
+      "followup_review_result": "No P1/P2/P3",
+      "review_evidence": "evidence/M06/12.6e-review.md",
+      "followup_evidence": "evidence/M06/12.6e-review.md"
     },
     "12.6i_api_key_interaction_regressions": {
       "status": "implementation_review_passed_verification_blocked_dependency_missing",
@@ -1307,7 +1323,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "implementation_in_progress",
+      "status": "blocked_by_12.6f_logstore_actor_index",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1328,8 +1344,11 @@
       "dispatch_channel": "codex_project_local",
       "implementation_model": "gpt-6-astra",
       "latest_attempt_note": "12.6e passed and committed; 12.6f implementation has started from its registered analysis and nine paths. SQLAlchemy account filtering uses the fork association; Logstore requires confirming the event index/query contract before coding.",
-      "implementation_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
-      "thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8"
+      "implementation_thread_id": null,
+      "thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
+      "blocked_reason": "The Logstore workflow_execution index does not yet register from_account_id for SQL aggregation; wait for the separately registered index task to pass.",
+      "index_prerequisite": "12.6f_logstore_actor_index",
+      "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8"
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
@@ -1353,12 +1372,56 @@
       "summary": "12.6f query paths confirmed. After 12.6e association-table design: SQLAlchemy uses the tenant/app-scoped ownership association; Logstore uses its trusted from_account_id event field. Missing/NULL ownership is excluded; app-wide default and daily-terminals remain unchanged."
     },
     "12.6e_independent_luna_verification": {
-      "status": "review_in_progress",
+      "status": "findings_resolved_by_followup",
       "model": "gpt-6-luna",
       "thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
       "read_only": true,
-      "scope": "Independent review and focused verification of the stopped implementation snapshot."
+      "scope": "Independent review and focused verification of the stopped implementation snapshot.",
+      "followup_review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
+      "followup_review_result": "No P1/P2/P3",
+      "followup_commit": "2ca9e0d7cb",
+      "review_evidence": "evidence/M06/12.6e-review.md"
+    },
+    "12.6e_review_followup": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
+      "dependencies": [
+        "12.6e_workflow_account_ownership_persistence:implementation_passed",
+        "12.6e_independent_luna_verification:two_P2_findings"
+      ],
+      "registered_paths": [
+        "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+        "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
+        "api/tests/unit_tests/models/test_workflow.py",
+        "evidence/M06/12.6e-review.md"
+      ],
+      "scope": "Close two Luna P2 findings: fail closed if SQL scope validation errors before Logstore write; reconcile missing migration index on an existing table and safely downgrade if index is absent.",
+      "latest_test_result": "Four regressions failed on original implementation; Astra applied fixes and reports two-file focused tests pass. Root verification pending.",
+      "implementation_commit": "2ca9e0d7cbb3b1cc79148d44659129cf84f98451",
+      "focused_tests": "60 passed on two files; 208 passed on original seven-file regression set, rerun by root",
+      "ruff_and_format": "passed four registered paths",
+      "independent_review_status": "no_p1_p2",
+      "independent_review_thread_id": "01a0eba3-ec07-7cb2-9e20-c14247500c60",
+      "evidence": "evidence/M06/12.6e-review.md"
+    },
+    "12.6f_logstore_actor_index": {
+      "status": "implementation_in_progress",
+      "model": "gpt-6-astra",
+      "owner": "M04",
+      "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+      "base_commit": "895831abea",
+      "registered_paths": [
+        "api/extensions/logstore/aliyun_logstore.py",
+        "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
+        "evidence/M06/12.6f-logstore-index-verification.md"
+      ],
+      "dependencies": [
+        "12.6e_review_followup:passed"
+      ],
+      "scope": "Register trusted workflow-run from_account_id as a Logstore index field for SQL aggregation queries, and verify create/reconcile while preserving custom indexes."
     }
   },
-  "next_subtask": "12.6f_workflow_account_statistics"
+  "next_subtask": "12.6f_logstore_actor_index"
 }
