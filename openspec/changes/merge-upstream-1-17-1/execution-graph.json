@@ -1150,8 +1150,8 @@
           "status": "ready",
           "owner": "M02",
           "model": "gpt-6-astra",
-          "branch_head": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
-          "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
+          "branch_head": "70600669fd6557ab7bfaa0bc030a107c57811c9d",
+          "base_commit": "70600669fd6557ab7bfaa0bc030a107c57811c9d",
           "dispatch_channel": "codex_project_local",
           "registered_paths": [
             "api/controllers/web/workflow.py",
@@ -1181,7 +1181,8 @@
           "migration_down_revision": "019_webapp_auth_switch",
           "implementation_gate": "Use only registered paths. Put this fork-owned schema change on migrations_extend revision 020_workflow_run_account after 019_webapp_auth_switch; do not add a local revision to the upstream main chain. Verify actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation.",
           "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged",
-          "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f"
+          "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+          "implementation_restart_reason": "First Astra attempt stopped after migration review: fork-owned schema must extend migrations_extend, not the upstream main chain."
         },
         "next_subtask": "12.6e_workflow_account_ownership_persistence",
         "parallel_subtasks": [
@@ -1816,7 +1817,7 @@
             "analysis_model": "gpt-6-sol",
             "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
             "analysis_read_only": true,
-            "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
+            "base_commit": "70600669fd6557ab7bfaa0bc030a107c57811c9d",
             "migration_down_revision": "019_webapp_auth_switch",
             "evidence": "evidence/M06/12.6e-analysis.md",
             "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
@@ -1824,7 +1825,9 @@
             "migration_revision": "020_workflow_run_account",
             "implementation_gate": "Use only registered paths. Put this fork-owned schema change on migrations_extend revision 020_workflow_run_account after 019_webapp_auth_switch; do not add a local revision to the upstream main chain. Verify actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation.",
             "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged",
-            "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f"
+            "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+            "branch_head": "70600669fd6557ab7bfaa0bc030a107c57811c9d",
+            "implementation_restart_reason": "First Astra attempt stopped after migration review: fork-owned schema must extend migrations_extend, not the upstream main chain."
           },
           {
             "id": "12.6f_workflow_account_statistics",
