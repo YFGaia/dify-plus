@@ -3,7 +3,7 @@ import type { ModelParameterRule } from '../declarations'
 import { cn } from '@langgenius/dify-ui/cn'
 import { Field, FieldItem, FieldLabel } from '@langgenius/dify-ui/field'
 import { Fieldset, FieldsetLegend } from '@langgenius/dify-ui/fieldset'
-import { Radio, RadioGroup } from '@langgenius/dify-ui/radio' // 上游 base/radio 已删除，改用 dify-ui radio 原语
+import { Radio, RadioGroup } from '@langgenius/dify-ui/radio-group' // 上游 base/radio 已删除，改用 dify-ui radio 原语
 import {
   Select,
   SelectContent,

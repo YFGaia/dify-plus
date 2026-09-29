@@ -60,6 +60,9 @@ export const useConfiguration = (): ConfigurationViewModel => {
   const { data: fileUploadConfigResponse } = useFileUploadConfig()
   const [formattingChanged, setFormattingChanged] = useState(false)
   const [hasFetchedDetail, setHasFetchedDetail] = useState(false)
+  const [retentionNumber, setRetentionNumber] = useState(
+    Number(process.env.NEXT_CONTEXT_RETENTION_DEFAULT_COUNT || 5),
+  )
   // oxlint-disable-next-line eslint-react/use-state -- This custom hook returns a state object.
   const featureConfiguration = useFeatureConfigurationState()
   const [mode, setMode] = useState<AppModeEnum>(AppModeEnum.CHAT)
@@ -270,6 +273,7 @@ export const useConfiguration = (): ConfigurationViewModel => {
     setHasFetchedDetail,
     setMode,
     setPublishedConfig,
+    setRetentionNumber,
     syncToPublishedConfig,
   })
 
@@ -318,6 +322,7 @@ export const useConfiguration = (): ConfigurationViewModel => {
     promptEmpty,
     promptMode,
     resolvedModelModeType,
+    retentionNumber,
     setCanReturnToSimpleMode,
     setPublishedConfig,
     syncToPublishedConfig,
@@ -378,6 +383,7 @@ export const useConfiguration = (): ConfigurationViewModel => {
       query,
       readonly: configurationReadonly,
       rerankSettingModalOpen,
+      retentionNumber,
       setCanReturnToSimpleMode,
       setControlClearChatMessage,
       setConversationId,
@@ -387,6 +393,7 @@ export const useConfiguration = (): ConfigurationViewModel => {
       setPromptMode: handlePromptModeChange,
       setQuery,
       setRerankSettingModalOpen,
+      setRetentionNumber,
       showHistoryModal,
       showSelectDataSet,
     },

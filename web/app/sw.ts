@@ -14,7 +14,7 @@ import {
 
 declare global {
   // Declaration merging into the global WorkerGlobalScope requires an interface.
-  // oxlint-disable-next-line typescript/consistent-type-definitions
+  // oxlint-disable-next-line typescript/consistent-type-definitions -- WorkerGlobalScope augmentation requires interface declaration merging.
   interface WorkerGlobalScope extends SerwistGlobalConfig {
     __SW_MANIFEST: (PrecacheEntry | string)[] | undefined
   }

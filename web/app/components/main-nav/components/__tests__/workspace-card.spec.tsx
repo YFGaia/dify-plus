@@ -92,6 +92,8 @@ const currentWorkspaceValue: GetWorkspacesCurrentSummaryResponse = {
   plan: 'sandbox',
   role: 'owner',
   credits: 7500,
+  admin_extend: false,
+  tenant_extend: false,
 }
 const workspaceMenuAccessibleName = new RegExp(
   `${currentWorkspaceValue.name}.*common\\.mainNav\\.workspace\\.openMenu`,

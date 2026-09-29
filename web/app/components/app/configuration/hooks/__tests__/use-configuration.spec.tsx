@@ -193,6 +193,7 @@ vi.mock('@/utils/completion-params', () => ({
 describe('useConfiguration', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubEnv('NEXT_CONTEXT_RETENTION_DEFAULT_COUNT', undefined)
     latestAdvancedPromptConfigOptions = undefined
     mockTempStopState = []
     mockCurrentModelFeatures = ['vision']
@@ -253,6 +254,10 @@ describe('useConfiguration', () => {
     })
   })
 
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
   it('should load configuration state and expose the derived view model', async () => {
     const { result } = renderHook(() => useConfiguration())
 
@@ -267,6 +272,77 @@ describe('useConfiguration', () => {
     expect(result.current.contextValue.isShowVisionConfig).toBe(true)
   })
 
+  it.each([12, 999])(
+    'should load and publish the saved retention number %i',
+    async (retentionNumber) => {
+      const appDetail = await mockFetchAppDetailDirect()
+      mockFetchAppDetailDirect.mockResolvedValue({
+        ...appDetail,
+        retention_number: retentionNumber,
+      })
+      const { result } = renderHook(() => useConfiguration())
+
+      await waitFor(() => {
+        expect(result.current.showLoading).toBe(false)
+      })
+      expect(result.current.contextValue.retentionNumber).toBe(retentionNumber)
+
+      await act(async () => {
+        await result.current.appPublisherProps.onPublish!(undefined, result.current.featuresData)
+      })
+      expect(updateAppModelConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ retention_number: retentionNumber }),
+        }),
+      )
+    },
+  )
+
+  it.each([
+    { configuredDefault: undefined, expected: 5 },
+    { configuredDefault: '8', expected: 8 },
+  ])(
+    'should publish default retention $expected when app detail omits it',
+    async ({ configuredDefault, expected }) => {
+      vi.stubEnv('NEXT_CONTEXT_RETENTION_DEFAULT_COUNT', configuredDefault)
+      const { result } = renderHook(() => useConfiguration())
+
+      await waitFor(() => {
+        expect(result.current.showLoading).toBe(false)
+      })
+      expect(result.current.contextValue.retentionNumber).toBe(expected)
+
+      await act(async () => {
+        await result.current.appPublisherProps.onPublish!(undefined, result.current.featuresData)
+      })
+      expect(updateAppModelConfig).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ retention_number: expected }),
+        }),
+      )
+    },
+  )
+
+  it('should publish the retention number edited through the configuration context', async () => {
+    const { result } = renderHook(() => useConfiguration())
+
+    await waitFor(() => {
+      expect(result.current.showLoading).toBe(false)
+    })
+    act(() => {
+      result.current.contextValue.setRetentionNumber(17)
+    })
+
+    await act(async () => {
+      await result.current.appPublisherProps.onPublish!(undefined, result.current.featuresData)
+    })
+    expect(updateAppModelConfig).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: expect.objectContaining({ retention_number: 17 }),
+      }),
+    )
+  })
+
   it('should update model parameters and publish the current configuration', async () => {
     const { result, queryClient } = renderHook(() => useConfiguration())
     const detailQueryKey = consoleQuery.apps.byAppId.get.queryKey({
@@ -279,6 +355,7 @@ describe('useConfiguration', () => {
       id: 'app-1',
       mode: 'chat',
       name: 'Cached app',
+      webapp_auth_enabled_extend: true,
     })
 
     await waitFor(() => {

@@ -72,6 +72,7 @@ const updateCachedAppMetadata = (cachedApp: AppDetailWithSite | undefined, app: 
     name: app.name,
     updated_at: app.updated_at,
     use_icon_as_answer_icon: app.use_icon_as_answer_icon,
+    webapp_auth_enabled_extend: cachedApp.webapp_auth_enabled_extend ?? true,
   }
 }
 

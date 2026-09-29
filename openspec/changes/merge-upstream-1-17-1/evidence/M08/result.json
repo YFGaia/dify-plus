@@ -8,7 +8,9 @@
       "owner": "M08",
       "model": "gpt-6-sol",
       "base_commit": "b680479655a21f5c535298bc0ea4ba3154242090",
-      "registered_paths": ["openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md"],
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md"
+      ],
       "scope": "Read-only reconcile all 91 original M00 conflict paths against M01-M07 committed implementations, owner/host tables, evidence and current HEAD. Produce one exact-row mapping for final disposition, owning implementation commit, final host/new location, validating test/evidence, and unresolved uncertainty. Do not change source, ownership TSVs, graph/tasks, lockfiles or Git index; write only the registered analysis report.",
       "dependencies": [
         "M01:passed",
@@ -90,7 +92,9 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-luna-verification.md"
       ],
       "scope": "After the M06 account-balance migration, remove only the zero-import legacy account/money REST wrapper, its DTO, and the single oxlint suppression keyed to that deleted wrapper. Keep the active account-money-extend component, Console generated API, backend account/money route, personal quota model, API-key day/month quota behavior, and other legacy services untouched. Write implementation evidence only to the registered M08 report; do not edit graph/result/tasks/ownership tables, stage, or commit.",
-      "dependencies": ["M08/14.2:completed_read_only"],
+      "dependencies": [
+        "M08/14.2:completed_read_only"
+      ],
       "acceptance": [
         "Confirm exact current reference scan before deletion.",
         "Delete only the two registered dead source files and remove only their one oxlint suppression entry.",
@@ -125,7 +129,9 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md"
       ],
       "scope": "Read-only owner disposition for the 14 deleted M00 conflict paths listed unresolved in evidence/M08/14.1-analysis.md, plus verify the active web/features/home/template-card.tsx host and proposed overlap registration. For each deleted path, compare fork/base/upstream history and current host/tests; identify migrated equivalent, intentional upstream removal, or unresolved owner decision with exact source and evidence. Do not edit code, tests, ownership tables, graph/tasks/result, run tests, stage, or commit; write only the registered report.",
-      "dependencies": ["M08/14.2:completed_read_only"],
+      "dependencies": [
+        "M08/14.2:completed_read_only"
+      ],
       "acceptance": [
         "Account for exactly the 14 deleted conflict paths from 14.1, once each.",
         "Tie every disposition to exact current source/test or upstream history; retain unresolved status when evidence is insufficient.",
@@ -150,7 +156,10 @@
         "docs/dify-plus/README.md"
       ],
       "scope": "Read-only compare fork-parent and 1.17.1-selected AGENTS.md/README.md with current candidate and surviving docs. Identify Dify-Plus-specific operating guidance, custom feature/deployment/upgrade information removed by M00, what is stale, and exact current source/docs for a concise integration. Preserve current upstream README content and avoid unsupported quota claims. Write only the registered analysis report. Coordinator may edit only registered AGENTS.md, README.md and docs/dify-plus/README.md after review; you do not edit any docs, source, tests, graph/result/tasks/ownership tables, run tests, stage or commit.",
-      "dependencies": ["M08/14.1:completed_read_only", "M08/14.2:completed_read_only"],
+      "dependencies": [
+        "M08/14.1:completed_read_only",
+        "M08/14.2:completed_read_only"
+      ],
       "acceptance": [
         "Enumerate material fork-only AGENTS and README content removed by M00.",
         "Verify target docs/images exist and current version/migration facts before recommending links or claims.",
@@ -160,7 +169,11 @@
       "implementation_agent": "/root/m08_project_documentation_disposition",
       "thread_id": null,
       "host_id": "local",
-      "editable_paths": ["AGENTS.md", "README.md", "docs/dify-plus/README.md"],
+      "editable_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/dify-plus/README.md"
+      ],
       "report_sha256": "96f09d381a1dfd6095774e0f3624a6fd891f3d509f4496344bdd1cab419e6472",
       "result": "Read-only documentation disposition is complete; coordinator integration edits are pending."
     },
@@ -179,7 +192,9 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md"
       ],
       "scope": "Integrate the reviewed Dify-Plus documentation disposition into the upstream 1.17.1 candidate. Preserve the current upstream README and add a concise fork section; restore stable fork operating guidance in AGENTS.md; update the docs index so 1.16 documents and the old deployment guide are explicitly historical and the active source graph/runbook/Plus Compose entry are linked; correct account/API-key quota semantics; label the 1.17.1 planning file as a historical snapshot and link live execution status. Exact editable paths are registered_paths only. Do not claim production deployment or API-key lifetime quota cap.",
-      "dependencies": ["M08/14.2c:completed_read_only"],
+      "dependencies": [
+        "M08/14.2c:completed_read_only"
+      ],
       "acceptance": [
         "README retains upstream text and adds only evidence-backed Plus feature and migration entry points.",
         "AGENTS documents stable fork module map and current migration chain without a pinned stale baseline.",
@@ -259,7 +274,9 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md"
       ],
       "scope": "Resolve the old Home catalog TagFilter disposition using source-level evidence only. Compare the fork implementation at the registered base with the TagFilter value contract, current RecommendedAppResponse category schema, current Home category/search behavior, and installed-app tag filter. Determine whether a working user-visible tag filter was lost or the removed control had mismatched values. Do not edit code, tests, ownership tables, graph/result/tasks, stage, commit, or run tests; write only the registered report.",
-      "dependencies": ["M08/14.2b:completed_read_only"],
+      "dependencies": [
+        "M08/14.2b:completed_read_only"
+      ],
       "acceptance": [
         "Quote exact source paths/expressions showing tag values and catalog category values.",
         "Distinguish Home recommended catalog from installed fork apps.",
@@ -283,7 +300,9 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md"
       ],
       "scope": "Independently verify Astra implementation of the workspace-manager-only App API Key boundary. Read only the two registered component/spec paths and implementation report, then run only `app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx` under the Web unit project using the existing Node 24.20/Vitest runtime with install skipped. Do not rerun quota modal or main-nav suites, install dependencies, edit source/tests, modify graph/result/tasks/ownership, stage, or commit. Write only the registered verification report.",
-      "dependencies": ["M08/14.2e:implementation_complete"],
+      "dependencies": [
+        "M08/14.2e:implementation_complete"
+      ],
       "acceptance": [
         "All tests in the single focused spec pass.",
         "Confirm manager and ACL positive/negative behavior, query suppression, and permission-revocation cleanup from the test assertions and source diff.",
@@ -306,7 +325,9 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md"
       ],
       "scope": "Correct only the registered API-secret-key-button test fixture so current-workspace role snapshots satisfy the generated schema required by workspace-state. Include required admin_extend and tenant_extend fields for manager positive cases and workspace-role revocation. Do not change component source, alter expected product behavior, install dependencies, stage, commit, or run tests. Then document the exact fixture defect and correction in the registered report.",
-      "dependencies": ["M08/14.2e_luna_verification:failed"],
+      "dependencies": [
+        "M08/14.2e_luna_verification:failed"
+      ],
       "acceptance": [
         "Manager tests seed a valid CurrentWorkspaceSummaryResponse and observe manager roles rather than the fallback normal role.",
         "Role revocation seeds a schema-valid editor summary.",
@@ -332,7 +353,9 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md"
       ],
       "scope": "Rerun Luna independent validation of the same API-secret-key-button spec after the required workspace summary fixture correction. Inspect the registered test diff/report and run only the exact single unit spec from web with the existing Node 24.20/Vitest 4.1.11 runtime and VP_SKIP_INSTALL=1. Do not rerun other suites, install dependencies, modify source/tests/graph/result/tasks/ownership, stage, or commit; write only the registered report.",
-      "dependencies": ["M08/14.2g:passed"],
+      "dependencies": [
+        "M08/14.2g:passed"
+      ],
       "acceptance": [
         "Focused spec passes all cases; report records exact command and counts.",
         "Confirm role fixtures reach manager positive and role-revocation cases.",
@@ -357,7 +380,9 @@
         "evidence/M08/14.2i-quota-modal-layout.md"
       ],
       "scope": "Restore the fork's responsive App API Key modal width in the new shared modal host and prove the quota-table layout in Chromium. The fork parent used 90vw with a 1200px maximum; the candidate currently fixes the modal at w-200 (50rem), while quota-table columns have a much wider combined width. Update only the modal width and the registered browser spec. Render the actual ApiKeyModal app scope with one quota-bearing row at desktop 1440x900 and narrow 390x844 viewports. Keep any horizontal overflow inside the table's scroll container, make the rightmost row actions reachable, and prevent document/dialog viewport overflow. Do not change quota data or limits, permissions, API behavior, translations, lockfiles, or other tests. Run only the registered browser spec using the installed Node 24.20/Vitest runtime with installation skipped; write only the registered report in addition to the two code paths. Do not edit graph/result/tasks/ownership, stage, or commit.",
-      "dependencies": ["M08/14.2e_preserve_manager_only_api_key_management:passed"],
+      "dependencies": [
+        "M08/14.2e_preserve_manager_only_api_key_management:passed"
+      ],
       "acceptance": [
         "The app API Key modal restores the responsive fork width contract: approximately 90vw capped at 1200px on desktop and bounded by the viewport on narrow screens.",
         "A browser-mode test renders the actual ApiKeyModal and quota row at 1440x900 and 390x844; dialog stays within the viewport with no document-level horizontal overflow.",
@@ -390,9 +415,13 @@
       "model": "gpt-6-luna",
       "reasoning_effort": "low",
       "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
-      "registered_paths": ["evidence/M08/14.2j-luna-verification.md"],
+      "registered_paths": [
+        "evidence/M08/14.2j-luna-verification.md"
+      ],
       "scope": "Independently inspect the registered 14.2i modal source, browser spec and evidence report against their recorded SHA-256 identities, then rerun only web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx in the existing Node 24.20/Vitest 4.1.11 Chromium Browser Mode runtime with VP_SKIP_INSTALL=1. Reuse the existing chromium_headless_shell-1208 executable at /Users/liuxingwang/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell via the documented Vitest startVitest + vite-plus/test/browser-playwright invocation. Validate both 1440x900 and 390x844 cases, table-only horizontal scrolling, and reachable delete action. Do not install anything, run other suites, edit source/tests/graph/tasks/ownership, stage or commit; write only evidence/M08/14.2j-luna-verification.md. If the documented browser runtime is unavailable, report the exact blocker without broadening scope.",
-      "dependencies": ["M08/14.2i_responsive_quota_modal_layout_browser_acceptance:passed"],
+      "dependencies": [
+        "M08/14.2i_responsive_quota_modal_layout_browser_acceptance:passed"
+      ],
       "acceptance": [
         "Recorded source, spec and implementation-report hashes match the inspected snapshot.",
         "Only the registered Chromium browser spec runs; both viewport cases pass and the exact command, counts, runtime and measured assertions are reported.",
@@ -402,7 +431,9 @@
       "review_agent": "/root/m08_quota_modal_layout_luna_review",
       "thread_id": null,
       "host_id": "local",
-      "editable_paths": ["evidence/M08/14.2j-luna-verification.md"],
+      "editable_paths": [
+        "evidence/M08/14.2j-luna-verification.md"
+      ],
       "input_hashes": {
         "web/app/components/api-key/api-key-modal.tsx": "68f1d7553884ffe99a926340d0452f1d4944293a148f99f7253129e022d15218",
         "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx": "600070bed0a71e7ecba9c0dcfa06fe729f456b82b6ba39f3f0bf9658386fb31a",
@@ -674,18 +705,109 @@
       ],
       "report_sha256": "7f68d19e842adbfb2374f4d4787274e1892a2ef0184e3e9c53e56a09d3f86da5",
       "result": "V02/16.6 reported 63 exact formatter failures; the 14.9 remediation formatted all 68 unique paths (63 failures plus current evidence/status additions). JSON values and Markdown wording were preserved; upstream workflow YAML parsed equal; Dify UI TSX files stayed byte-identical. Exact formatter check passed. A new candidate and structural acceptance are next."
+    },
+    "14.10_final_candidate_and_structural_acceptance": {
+      "status": "passed",
+      "candidate_commit": "95101d76b955481ce6c9519596aeea426680fa71",
+      "candidate_tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+      "parent": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+      "commit_allowlist_count": 73,
+      "committed_changed_path_count": 71,
+      "unchanged_allowlist_paths": [
+        "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+        "packages/dify-ui/src/dialog/index.stories.tsx"
+      ],
+      "commit_sha": "95101d76b955481ce6c9519596aeea426680fa71",
+      "structural_report": "evidence/M08/14.10-final-candidate-structural-acceptance.md",
+      "structural_report_sha256": "5861a90abca83bba99072710a761ea92047d76660fb6e244cc81e83162c5fe95",
+      "m00_two_parent_ancestor": true,
+      "m01_m07_ancestor_count": 42,
+      "resolved_original_conflict_paths": 91,
+      "missing_final_hosts": 0,
+      "billing_oauth_anchors": 10,
+      "v01_api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+      "v01_report_sha256": "995e8f0dbb5c0f8853eea275cd653df14b41b8fc81e6bb9a75d6836da76efe77",
+      "v01_160_of_160_reused": true,
+      "quota_preservation": "AccountMoneyExtend total_quota/used_quota and /account/money remain separate from Cloud quota; API Key day/month model, CRUD, and Service API admission anchors remain.",
+      "index_conflicts": 0,
+      "source_conflict_markers": 0,
+      "legacy_web_reference_hits": 0,
+      "verdict": "passed_structural_acceptance_v02_pending",
+      "documentation_formatter_exit_code": 0,
+      "openspec_strict_exit_code": 0
+    },
+    "14.12_oxlint_disable_description": {
+      "status": "passed",
+      "summary": "Added accurate same-line reason; one-path scoped check and diff check passed.",
+      "evidence": "evidence/M08/14.12-oxlint-disable-description.md",
+      "source_sha256": "895c12431f63000746027b46052a1b50748f00c89e9aad2845bd83f8106fcf39",
+      "evidence_sha256": "92fb83d7bd01b0465b1f97710773c048d8b8700d5594506df9b375c7c68ffd00"
+    },
+    "14.11_retention_number_restoration": {
+      "status": "passed",
+      "summary": "Restored default 5/environment override, detail response loading, debug Context value/setter, and publish payload. Targeted tests: 19/19 and publish utility 16/16; scoped check and diff check passed.",
+      "evidence": "evidence/M08/14.11-retention-number-restoration.md",
+      "source_sha256": {
+        "web/app/components/app/configuration/hooks/use-configuration.ts": "e31dbec18bd1435ca8615c010adf1343019a578af8be9ecd0d6731f3ee4e3318",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/use-configuration-loader.ts": "edca057d91893f1d7ac1d2a22fa83d43a70952d7fbb3f3a1e02121ab2affc60d",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/use-configuration-publish.ts": "1b2d2228dbaf2f06e4a86e3498dfc27f5d680e4932f9f225e7604d1150a229f9",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/publish.ts": "c0f2e1f39e695e9f9d22e9b04c94799034abe6a784a8b4eba18ff7ecb8699a42",
+        "web/app/components/app/configuration/hooks/build-configuration-context.ts": "fbabc1c55514f7762c7c239e1480705fa3aa3caf21868894aaf3acb09dd0b38e",
+        "web/app/components/app/configuration/hooks/__tests__/use-configuration.spec.tsx": "8e2d9cb5dae65bc7fa731655d7de09f4d4eff0a0c264f32b96d42d0e24103395"
+      },
+      "evidence_sha256": "4664b9821828fd4f11851edac98203c51ca68be4509e668cc988f6e864c02bc1"
+    },
+    "14.13_independent_v02_fix_verification": {
+      "status": "passed",
+      "summary": "Independent Luna review found no blockers. Four focused specs passed: 88/88; quota paths unchanged and all 12 source paths registered.",
+      "evidence": "evidence/M08/14.13-independent-v02-fix-verification.md",
+      "evidence_sha256": "2af22690bed17c4190d837272534d84d3c55984233aff6107dc17d786fd5b9e4",
+      "test_summary": "4 files, 88 tests passed"
+    },
+    "14.14_recandidate_after_v02_root_cause_repairs": {
+      "status": "queued",
+      "commit_allowlist": [
+        "web/app/components/header/account-setting/model-provider-page/model-parameter-modal/parameter-item-extend.tsx",
+        "web/app/components/app-sidebar/app-info/use-app-info-actions.ts",
+        "web/test/console/state-fixture.ts",
+        "web/test/console/current-workspace.ts",
+        "web/app/components/main-nav/components/__tests__/workspace-card.spec.tsx",
+        "web/app/components/app/configuration/hooks/use-configuration.ts",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/use-configuration-loader.ts",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/use-configuration-publish.ts",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/publish.ts",
+        "web/app/components/app/configuration/hooks/build-configuration-context.ts",
+        "web/app/components/app/configuration/hooks/__tests__/use-configuration.spec.tsx",
+        "web/app/sw.ts",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.8-v02-contract-reconciliation.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.7-parameter-item-disposition.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.11-retention-number-restoration.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.12-oxlint-disable-description.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.13-independent-v02-fix-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.7-final-candidate-result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.8-final-candidate-result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md"
+      ]
     }
   },
   "updated_at": "2026-09-29",
-  "next_subtask": "M08/14.10_final_candidate_and_structural_acceptance",
+  "next_subtask": "14.14_recandidate_after_v02_root_cause_repairs",
   "candidate_source_commit": {
-    "sha": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
-    "parent": "c304fe188e949733fa4ac1697004e3b99d9db95d",
-    "tree": "d94e6e1a034175165598bafe859d3f605b80beee",
-    "previous_candidate": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "sha": "95101d76b955481ce6c9519596aeea426680fa71",
+    "parent": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+    "tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+    "previous_candidate": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
     "m00_ancestor": true,
-    "structural_acceptance_report": "evidence/M08/14.8-final-candidate-structural-acceptance.md",
-    "structural_acceptance_report_sha256": "cfc3d2e13007f3bd5ab11506d218cce0e3b1d2a8e4e7d02dfc462511a75ad95d"
+    "structural_acceptance_report": "evidence/M08/14.10-final-candidate-structural-acceptance.md",
+    "structural_acceptance_report_sha256": "5861a90abca83bba99072710a761ea92047d76660fb6e244cc81e83162c5fe95",
+    "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67"
   },
   "candidate_source_commit_before_followup": {
     "sha": "ba33fe26dc21ae3a308f14a61999009fc2849779",
@@ -695,13 +817,16 @@
     "m00_ancestor": true
   },
   "v02_failure_followup": {
-    "status": "V02/16.5 blocked before vp check; 16.6 reached vp check and found 63 formatting paths; M08/14.9 formatting-only remediation passed; new candidate and structural acceptance pending.",
-    "candidate_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+    "status": "M08/14.10 structural acceptance passed for candidate 95101d76b955481ce6c9519596aeea426680fa71; V02/16.7 is registered against the exact candidate.",
+    "candidate_commit": "95101d76b955481ce6c9519596aeea426680fa71",
     "failure_report": "evidence/V02/16.6-final-candidate-result.json",
     "candidate_owned_format_path": "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
     "independent_m05_format_path": "packages/contracts/openapi-ts.api.config.ts",
     "failure_report_sha256": "09eef2b100176239cabf35820d99075d015bef93d1a65a0edde4b310f36b82f5",
     "formatter_followup_report": "evidence/M08/14.9-v02-formatter-debt-remediation.md",
-    "formatter_path_manifest": "evidence/M08/14.9-v02-formatter-path-manifest.json"
+    "formatter_path_manifest": "evidence/M08/14.9-v02-formatter-path-manifest.json",
+    "candidate_tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+    "structural_acceptance_report": "evidence/M08/14.10-final-candidate-structural-acceptance.md",
+    "structural_acceptance_report_sha256": "5861a90abca83bba99072710a761ea92047d76660fb6e244cc81e83162c5fe95"
   }
 }

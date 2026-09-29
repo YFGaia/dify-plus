@@ -36,6 +36,8 @@ const defaultCurrentWorkspace = {
   plan: null,
   credits: null,
   role: 'owner',
+  admin_extend: false,
+  tenant_extend: false,
 } satisfies GetWorkspacesCurrentSummaryResponse
 
 const currentWorkspaceAtom = atom<GetWorkspacesCurrentSummaryResponse>(defaultCurrentWorkspace)

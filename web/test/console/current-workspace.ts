@@ -14,6 +14,8 @@ const createCurrentWorkspaceFixture = (
   plan: null,
   role: 'owner',
   credits: null,
+  admin_extend: false,
+  tenant_extend: false,
   ...overrides,
 })
 

@@ -171,7 +171,10 @@
       "model": "gpt-6-astra",
       "agent": "/root/m05_11_3_workspace_atoms",
       "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
-      "registered_scope_commits": ["396f8aff2add33879b44de1f01eed8a4bfd689fe", "cc0eb704da"],
+      "registered_scope_commits": [
+        "396f8aff2add33879b44de1f01eed8a4bfd689fe",
+        "cc0eb704da"
+      ],
       "changed_paths": [
         "web/context/app-context-defaults.ts",
         "web/context/app-context-extend.ts",
@@ -413,6 +416,19 @@
         "M06 still must connect account-money-extend to loginConfigQueryOptions for the configured RMB_TO_USD_RATE.",
         "Existing unresolved cn import prevents collection of the broader SSR/hydration and code-execution page suites; the 11.3 limitation and zero executed page cases are recorded above."
       ]
+    },
+    "11.8_v02_contract_reconciliation": {
+      "status": "passed",
+      "summary": "Cache updater preserves false and defaults missing app auth setting to true; three workspace fixtures include required false extension flags; scoped check had zero errors and one existing warning; two suites passed 53/53.",
+      "evidence": "evidence/M05/11.8-v02-contract-reconciliation.md",
+      "source_sha256": {
+        "web/app/components/app-sidebar/app-info/use-app-info-actions.ts": "271f3954a957f94360514df417e18d87d46001c640826c2a737b26e73d70b829",
+        "web/test/console/state-fixture.ts": "7a6153c313a1aa98828968f2d66753a9af07be9f6d1bc4c038b28f860de9a113",
+        "web/test/console/current-workspace.ts": "7556fe9178fd35d834ee68b8a32f28026927c405e0ede60e332aca5104666400",
+        "web/app/components/main-nav/components/__tests__/workspace-card.spec.tsx": "9ffc7ee3c932b1eb6e9ce78b0871fc78da5976a217ea4b8b8bb5be61b7cfbf6d"
+      },
+      "evidence_sha256": "c55c5d9d0a619ba86dcef3737e166d4ca58c2ffff9bc7837d8a6031af4d4273b",
+      "focused_tests": "53 passed"
     }
   },
   "known_limits": [
@@ -427,8 +443,16 @@
   "codegen_investigation": "evidence/M05/codegen-investigation.json",
   "codegen_analysis": "evidence/M05/codegen-analysis.md",
   "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
-  "tasks_complete": ["11.1", "11.2", "11.3", "11.4", "11.5", "11.6"],
-  "next_subtask": "complete",
+  "tasks_complete": [
+    "11.1",
+    "11.2",
+    "11.3",
+    "11.4",
+    "11.5",
+    "11.6",
+    "11.8"
+  ],
+  "next_subtask": "M06/M08",
   "followup_context_contract": {
     "status": "passed",
     "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",

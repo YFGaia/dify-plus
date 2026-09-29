@@ -29,6 +29,7 @@ type UseConfigurationPublishParams = {
   promptEmpty: boolean
   promptMode: BackendModelConfig['prompt_type']
   resolvedModelModeType: ModelModeType
+  retentionNumber: number
   setCanReturnToSimpleMode: (value: boolean) => void
   setPublishedConfig: Dispatch<SetStateAction<ConfigurationPublishConfig | null>>
   syncToPublishedConfig: (config: ConfigurationPublishConfig) => void
@@ -55,6 +56,7 @@ export function useConfigurationPublish({
   promptEmpty,
   promptMode,
   resolvedModelModeType,
+  retentionNumber,
   setCanReturnToSimpleMode,
   setPublishedConfig,
   syncToPublishedConfig,
@@ -91,6 +93,7 @@ export function useConfigurationPublish({
         promptEmpty,
         promptMode,
         resolvedModelModeType,
+        retentionNumber,
         setCanReturnToSimpleMode,
         setPublishedConfig: handlePublishedConfigChange,
         t,
@@ -117,6 +120,7 @@ export function useConfigurationPublish({
       promptEmpty,
       promptMode,
       resolvedModelModeType,
+      retentionNumber,
       setCanReturnToSimpleMode,
       setPublishedConfig,
       syncToPublishedConfig,

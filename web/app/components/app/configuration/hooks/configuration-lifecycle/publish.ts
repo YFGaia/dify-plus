@@ -121,6 +121,7 @@ export const createPublishHandler =
     promptEmpty,
     promptMode,
     resolvedModelModeType,
+    retentionNumber,
     setCanReturnToSimpleMode,
     setPublishedConfig,
     t: rawTranslate,
@@ -142,6 +143,7 @@ export const createPublishHandler =
     promptEmpty: boolean
     promptMode: BackendModelConfig['prompt_type']
     resolvedModelModeType: ModelModeType
+    retentionNumber?: number
     setCanReturnToSimpleMode: (value: boolean) => void
     setPublishedConfig: (config: ConfigurationPublishConfig) => void
     t: SelectorTranslate<'appDebug' | 'common'>
@@ -200,6 +202,8 @@ export const createPublishHandler =
       promptVariables,
       resolvedModelModeType,
     })
+
+    if (retentionNumber !== undefined) body.retention_number = retentionNumber
 
     await updateAppModelConfig({ url: `/apps/${appId}/model-config`, body })
     const nextModelConfig = produce(modelConfig, (draft: ModelConfig) => {

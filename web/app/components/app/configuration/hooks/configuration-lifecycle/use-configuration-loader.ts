@@ -15,6 +15,7 @@ type ConfigurationLoaderOperations = {
   setHasFetchedDetail: Dispatch<SetStateAction<boolean>>
   setMode: Dispatch<SetStateAction<AppModeEnum>>
   setPublishedConfig: Dispatch<SetStateAction<ConfigurationPublishConfig | null>>
+  setRetentionNumber: Dispatch<SetStateAction<number>>
   syncToPublishedConfig: (config: ConfigurationPublishConfig) => void
 }
 
@@ -37,6 +38,8 @@ export function useConfigurationLoader({
 
       current.setCollectionList(configurationState.collectionList)
       current.setMode(configurationState.mode)
+      if (configurationState.response.retention_number !== undefined)
+        current.setRetentionNumber(configurationState.response.retention_number)
       current.syncToPublishedConfig(configurationState.publishedConfig)
       if (configurationState.annotationConfig)
         current.setAnnotationConfig(configurationState.annotationConfig, true)

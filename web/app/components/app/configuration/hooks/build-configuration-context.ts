@@ -36,6 +36,7 @@ type ContextBase = Pick<
   | 'query'
   | 'readonly'
   | 'rerankSettingModalOpen'
+  | 'retentionNumber'
   | 'setCanReturnToSimpleMode'
   | 'setControlClearChatMessage'
   | 'setConversationId'
@@ -45,6 +46,7 @@ type ContextBase = Pick<
   | 'setPromptMode'
   | 'setQuery'
   | 'setRerankSettingModalOpen'
+  | 'setRetentionNumber'
   | 'showHistoryModal'
   | 'showSelectDataSet'
 >
