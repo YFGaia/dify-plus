@@ -120,7 +120,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 13.3 [M07] 更新 Agent token/网络/SSRF/卷、plugin版本/队列、Web Next/Vinext 与 ingress；核验：`evidence/M07/result.json` 记录 token 双端、专用 SSRF/隔离网/持久卷、plugin 0.6.10-local、Vinext 和未改动的上游同版 ingress/entrypoint；83 项静态断言、默认/全 profile Compose 解析通过。
 - [x] 13.4 [M07] 已更新 906 行 env 逐变量审计，根样例只保留 `COMPOSE_PROFILES`、`DIFY_AGENT_SERVER_SECRET_KEY`；五项 Compose fallback、嵌套 PostgreSQL 默认值及 SECRET_KEY 持久化策略通过前序复验。提交 `1b1ddf4eb3` 新增 `init_secret_key` 串行 seed 七个消费者、`init_permissions` 失败闭合及 `--no-deps` migration 说明；358 项专项断言、52 项旧 env 检查、83 项 seed-aware Compose 检查及 SSRF 单测通过。独立 Luna 复核无 P1/P2；记录了 `--no-deps`、直接启动及跨 Compose project 并发的 P3 操作边界。证据见 `evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation` 和 `evidence/M07/13.4-independent-review.md`。
 - [x] 13.5 [M07] GitHub build validate 与 GitLab 私有镜像供货分开记账；两份 GitHub workflow 与上游相同且不为 fork 推送；GitLab manifest/artifact 静态风险见 `evidence/M07/ci-analysis.md`。
-- [ ] 13.6 [M07] 节点验收：配置/镜像矩阵可审查；无误用官方 api/web 镜像替代 fork；fork Compose 不因无文本冲突被漏审；保存绑定版本的证据并更新节点状态。 之前的独立 Luna 初审发现的三项静态/运行边界问题由独立 Sol 对话 `client-new-thread:c343887d-4f89-4fe7-8872-0a2e0db7c8bb` 按当前提交复核其是否仍适用；复核完成前保持未通过。
+- [ ] 13.6 [M07] 节点验收：配置/镜像矩阵可审查；无误用官方 api/web 镜像替代 fork；fork Compose 不因无文本冲突被漏审；保存绑定版本的证据并更新节点状态。 之前的独立 Luna 初审发现由独立 Sol 对话 `01a0eb47-c6b5-7c90-985a-e00b6d53bd6c` 按当前提交复核中；旧 worktree 对话长期停留在不可解析的 provisioning，已记录并由本地只读任务替代。复核完成前保持未通过。
 
 ## 14. M08 集成审查与候选源码提交（前置：M02, M03, M04, M05, M06, M07）
 

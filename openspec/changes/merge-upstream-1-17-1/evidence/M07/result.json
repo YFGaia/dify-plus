@@ -586,12 +586,11 @@
         "deployment_boundary": "Source node review does not establish deployability; no private image pull/digest, real credentials, containers, database migration, proxy, or Agent runtime was tested."
       },
       "follow_up_revalidation": {
-        "status": "conversation_provisioning",
+        "status": "review_in_progress",
         "model": "gpt-6-sol",
-        "client_thread_id": "client-new-thread:c343887d-4f89-4fe7-8872-0a2e0db7c8bb",
-        "title": "M07 13.6 Compose 与镜像矩阵验收分析",
-        "base_commit": "8d39ba7c1ed9779285c66c3c10d2245c4257179f",
-        "dispatch_channel": "codex_project_worktree",
+        "title": "M07 13.6 Compose 与镜像矩阵验收",
+        "base_commit": "9b6937464d6cb845a10a3193230ee6683ca3eecb",
+        "dispatch_channel": "codex_shared_local",
         "registered_paths": [
           "docker/docker-compose.dify-plus.yaml",
           "api/docker/entrypoint.sh",
@@ -615,8 +614,18 @@
           "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
           "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md"
         ],
-        "scope": "Read-only current-commit revalidation of M07 13.6 acceptance, including prior finding freshness after 13.4 source/docs changes; audit Compose/image matrix, fork-private API/Web tags, unmerged/no-conflict Compose paths, CI supply separation, and evidence limits.",
-        "evidence": "evidence/M07/result.json#/subtasks/13.6/follow_up_revalidation"
+        "scope": "One-shot, read-only local audit of M07 13.6 at current branch HEAD; revalidate prior findings against current Compose/env/CI source, fork image matrix, registration and evidence boundaries. No edits, commits, containers, private pulls, secrets, or network.",
+        "evidence": "evidence/M07/result.json#/subtasks/13.6/follow_up_revalidation",
+        "thread_id": "01a0eb47-c6b5-7c90-985a-e00b6d53bd6c",
+        "superseded_worktree_attempt": {
+          "status": "superseded_unresolved_provisioning",
+          "model": "gpt-6-sol",
+          "client_thread_id": "client-new-thread:c343887d-4f89-4fe7-8872-0a2e0db7c8bb",
+          "title": "M07 13.6 Compose 与镜像矩阵验收",
+          "base_commit": "8d39ba7c1ed9779285c66c3c10d2245c4257179f",
+          "dispatch_channel": "codex_project_worktree",
+          "reason": "No resolvable threadId appeared in list_threads after provisioning; superseded by a one-shot local read-only Sol thread."
+        }
       }
     }
   },
