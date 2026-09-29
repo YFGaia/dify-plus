@@ -113,6 +113,16 @@ Monitor and analyze application logs and performance over time. You could contin
 **7. Backend-as-a-Service**:
 All of Dify's offerings come with corresponding APIs, so you could effortlessly integrate Dify into your own business logic.
 
+## Dify-Plus extensions
+
+Dify-Plus keeps the upstream Dify application platform and adds fork-specific Console and API capabilities:
+
+- Independent personal account balance and quota management, separate from upstream Cloud quota.
+- Per-day and per-month limits for app API keys. Cumulative usage is tracked separately; it is not a lifetime key limit.
+- An installed-app center, workspace model synchronization, and additional login and system-integration options.
+
+For the fork feature map and current merge status, see the [Dify-Plus documentation](docs/dify-plus/README.md) and [upstream 1.17.1 execution graph](openspec/changes/merge-upstream-1-17-1/execution-graph.md). The maintained fork Compose entry is [`docker/docker-compose.dify-plus.yaml`](docker/docker-compose.dify-plus.yaml); its migration service runs both the upstream and Dify-Plus migration chains. Follow that file and the [upgrade runbook](openspec/changes/merge-upstream-1-17-1/runbook.md) for upgrade steps.
+
 ## Using Dify
 
 - **Cloud <br/>**

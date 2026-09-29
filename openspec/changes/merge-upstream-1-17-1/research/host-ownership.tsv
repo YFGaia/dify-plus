@@ -14,7 +14,7 @@ web/app/components/app/access-point/shared/use-access-point-actions.ts	M06	V02	w
 web/service/webapp-address.ts	M06	V02	web/service/webapp-auth.ts	exists_in_1.17.1	address-scoped passport replaces share-code-only calls
 web/app/components/apps/app-card/index.tsx	M06	V02	web/app/components/apps/app-card.tsx	exists_in_1.17.1	new card split receives sync controls
 web/app/components/apps/app-card/interactions.tsx	M06	V02	web/app/components/apps/app-card.tsx	exists_in_1.17.1	new card interaction menu receives sync actions
-web/app/components/api-key/api-key-modal.tsx	M06	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	new unified modal receives supported quota fields
+web/app/components/api-key/api-key-modal.tsx	M08	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	M06 modal/quota host retained; M08 14.2i scoped responsive-width handoff, with V02 browser verification
 web/app/components/api-key/api-key-table.tsx	M06	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	new unified table receives quota display
 web/app/components/main-nav/components/workspace-card.tsx	M06	V02	web/app/components/main-nav/components/account-money-extend.tsx	exists_in_1.17.1	new sidebar location for personal balance
 web/features/home/template-card.tsx	M06	V02	web/app/components/explore/app-card/index.tsx	exists_in_1.17.1	active HomeContent template card in 1.17.1; preserve its live host behavior

@@ -5446,11 +5446,6 @@
       "count": 3
     }
   },
-  "web/service/common-extend.ts": {
-    "no-restricted-imports": {
-      "count": 1
-    }
-  },
   "web/service/common.spec.ts": {
     "@tanstack/query/prefer-query-options": {
       "count": 2

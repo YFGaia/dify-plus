@@ -1,6 +1,6 @@
 # Dify-Plus 合并 upstream 1.17.1 完整规划
 
-日期：2026-09-28。状态：**规划稿；尚未实施合并**。目标：[官方 Dify 1.17.1](https://github.com/langgenius/dify/releases/tag/1.17.1)。
+日期：2026-09-28。状态：**原始规划快照，已进入实施与验证阶段**。本文中的“尚未实施”、旧工作区状态和节点进度均为编写时记录；当前源码合并状态、证据和阻塞项以[执行图](../../openspec/changes/merge-upstream-1-17-1/execution-graph.md)及[执行任务清单](../../openspec/changes/merge-upstream-1-17-1/tasks.md)为准。目标：[官方 Dify 1.17.1](https://github.com/langgenius/dify/releases/tag/1.17.1)。
 
 ## 1. 建议与交付边界
 

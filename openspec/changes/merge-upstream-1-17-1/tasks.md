@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 当前现场：M00–M05、M07 已通过；M06 仍在实施。Logstore 完整配置保留修复已通过 46 项测试与独立 Luna 复核；统计恢复由唯一 Astra writer 整合。随后完成个人总览 UI、六端点契约生成及前端宿主验证。M08/V01/V02/R01 等待前置，A03 与真实环境/生产链仍受既有授权边界阻塞。详见 execution-graph.json 与各 evidence。
+> 当前现场：M00–M07 已通过；M08/14.1 已完成 91 路径只读核对与 Luna 复核，14.2 已证明锁文件/生成契约无需刷新并完成静态扫描。14.2a 旧余额 wrapper 清理及 Luna 115 项复核已通过；14.2b/14.2c 只读处置完成；14.2d 文档接回和 15 个相对链接核对通过。14.2e App API Key 的 workspace-manager UI 门槛已由 Astra 实施，测试夹具 schema 问题已修复，Luna 单文件复验 9/9 通过；Home TagFilter 错误 ID/category 映射已判定不恢复。14.2i/14.2j 已完成：Astra 与 Luna 各自 Chromium 2/2 通过（1440×900、390×844），输入哈希一致；14.4 已对齐 91 条路径的处置/宿主/验收映射；14.3 正在按精确路径暂存 M08 候选提交，V01/V02 仍待提交后验证。个人额度与上游 Cloud quota 分离、API Key 日/月限额继续保留。A03 与真实环境/生产链仍受既有授权边界约束。详见 execution-graph.json 与各 evidence。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -142,10 +142,21 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 ## 14. M08 集成审查与候选源码提交（前置：M02, M03, M04, M05, M06, M07）
 
-- [ ] 14.1 [M08] 核对 M01–M07 各自已提交代码、配套测试、证据与状态；由各 owner 交付冲突处理与自动合并语义清单；核验：在 `evidence/M08/result.json` 附各节点提交与清单，不以规划代替完成。 子任务 `14.1_conflict_path_reconciliation_analysis` 由 Sol 对话 `01a0ebf4-986f-7a13-864a-4b035e2ee48d` 只读核对 91 路径中。
-- [ ] 14.2 [M08] M01 将锁文件写入权显式移交集成负责人，由 M08 统一刷新最终锁文件/契约生成物；扫描 orphan、旧 import、安全包装、四个后续提交；核验：在 `evidence/M08/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 14.1 [M08] 核对 M01–M07 已提交代码、测试、证据与状态，并交付 91 个原始冲突路径清单；Sol 只读分析与独立 Luna 复核均确认 91/91 唯一覆盖，记录见 `evidence/M08/14.1-analysis.md` 与 `evidence/M08/result.json`。17 个未决项已明确留给后续 owner 处置；这只完成分析子项，不代表 M08 通过。
+- [x] 14.2 [M08] M01 锁/契约最终写入权已交接；Astra 对照锁、生成产物哈希证明无需刷新，并完成静态 import、安全包装、额度边界和四个 fork 后续提交扫描。发现的旧余额 wrapper 与 14 个删除路径已注册后续处置；证据 `evidence/M08/14.2-integration-scan.md`。
+  - [x] 14.2a [M08/Astra→Luna] 删除迁移后零引用的 account/money wrapper、DTO 与唯一 suppression；Node 24.20 / Vitest 4.1.11 下主导航余额/API-key 两组测试 115/115 通过。个人额度、Console 余额链路及 Key 日/月限制保留。证据 `evidence/M08/14.2a-orphan-cleanup.md`、`evidence/M08/14.2a-luna-verification.md`。
+  - [x] 14.2b [M08/Sol] 对 14 个删除冲突路径逐项完成只读 owner disposition，并复核 active template-card 宿主映射；三个待闭合项转后续 owner/验证任务。证据 `evidence/M08/14.2b-deleted-path-disposition.md`。
+  - [x] 14.2c [M08/Sol] 完成根目录项目说明和 Dify-Plus 文档处置只读核查；保留账户独立额度与 API Key 日/月限额语义，文档整合由协调者按登记路径继续。证据 `evidence/M08/14.2c-doc-disposition.md`。
+  - [x] 14.2d [M08/Sol] 按 14.2c 核查整合根目录与 Dify-Plus 文档；明确 quota 语义、历史文档边界和本次 1.17.1 执行入口。15 个相对链接与 diff whitespace 检查通过，证据 `evidence/M08/14.2d-documentation-integration.md`。
+  - [x] 14.2e [M08/Astra→Luna] 在新 AccessPoint 宿主保留原 workspace-manager-only App API Key 管理门槛；无 manager 权限时不读取或打开密钥管理，保留 AccessPoint ACL 与日/月额度流程。修正 workspace fixture schema 后单文件复验 9/9 通过。证据 `evidence/M08/14.2e-manager-only-apikey-boundary.md`、`evidence/M08/14.2h-luna-verification.md`。
+    - [x] 14.2e-Luna 首轮 [M08/Luna] 首次运行 2/9 的发现是测试夹具缺少 schema 必需字段，修复见 14.2g；不作为源码行为失败。证据 `evidence/M08/14.2e-luna-verification.md`。
+  - [x] 14.2g [M08/Sol] 修复权限 spec 的 workspace fixture：补齐 `admin_extend` / `tenant_extend`，确保 manager 正向场景和撤权场景走有效角色快照；只改测试夹具。未运行测试。证据 `evidence/M08/14.2g-test-fixture-correction.md`。
+  - [x] 14.2h [M08/Luna] 修正夹具后只复跑 `api-secret-key-button.spec.tsx`，验证 manager/ACL 双门槛、查询阻断与权限撤销；9/9 通过。证据 `evidence/M08/14.2h-luna-verification.md`。
+  - [x] 14.2i [M08/Astra→Luna] 按 fork 原有 90vw/1200px 上限恢复统一 API Key modal 的响应式宽度；Astra Chromium 2/2，Luna 独立复核 2/2，输入哈希匹配。证据 `evidence/M08/14.2i-quota-modal-layout.md`、`evidence/M08/14.2j-luna-verification.md`。
+- [x] 14.2j [M08/Luna] 独立核验 14.2i 源码、测试与哈希，并只复跑登记的 Chromium browser spec；2/2 通过，无额外依赖或测试范围扩展。证据 `evidence/M08/14.2j-luna-verification.md`。
+  - [x] 14.2f [M08/Sol] 类型与调用链核实旧 Home TagFilter 将 Tag UUID 与 catalog category 字符串直接比较，没有可用映射；保留有效的 Home 分类筛选和已安装应用 TagFilter，不恢复错误比较。证据 `evidence/M08/14.2f-home-template-tagfilter-disposition.md`。
 - [ ] 14.3 [M08] 只暂存逐项列出的本轮集成修复、证据和状态文件，不 stage 未跟踪用户目录；创建候选源码提交，不再创建 upstream merge commit；核验：在 `evidence/M08/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 14.4 [M08] 更新冲突表每项处置/新宿主/验收映射；核验：在 `evidence/M08/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 14.4 [M08] 更新冲突表每项处置/新宿主/验收映射；原始 91 路径逐条映射，验证责任标明 V01/V02 pending，未冒称候选验收。证据 `evidence/M08/14.4-conflict-ownership-reconciliation.md`。
 - [ ] 14.5 [M08] 节点验收：未解决索引为零、冲突标记和孤儿宿主为零；M00 双父 merge 祖先仍可追溯，M01–M07 各有独立提交，十挂点和全部91路径有审查记录；保存绑定版本的证据并更新节点状态。
 
 ## 15. V01 后端静态与定向回归（前置：M08）

@@ -3,9 +3,11 @@
 import { Button } from '@langgenius/dify-ui/button'
 import { cn } from '@langgenius/dify-ui/cn'
 import { skipToken, useQuery } from '@tanstack/react-query'
+import { useAtomValue } from 'jotai'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ApiKeyModal } from '@/app/components/api-key/api-key-modal'
+import { isCurrentWorkspaceManagerAtom } from '@/context/workspace-state'
 import { consoleQuery } from '@/service/console'
 
 type ApiSecretKeyButtonProps = {
@@ -25,10 +27,13 @@ export function ApiSecretKeyButton({
 }: ApiSecretKeyButtonProps) {
   const { t } = useTranslation()
   const [modalOpen, setModalOpen] = useState(false)
+  const isCurrentWorkspaceManager = useAtomValue(isCurrentWorkspaceManagerAtom)
+  const canManageApiKeys = isCurrentWorkspaceManager && canManage
   const isEnvironmentScope = Boolean(environmentId)
   const apiKeysQuery = useQuery(
     consoleQuery.apps.byResourceId.apiKeys.get.queryOptions({
-      input: isEnvironmentScope || !canManage ? skipToken : { params: { resource_id: appId } },
+      input:
+        isEnvironmentScope || !canManageApiKeys ? skipToken : { params: { resource_id: appId } },
     }),
   )
   const apiKeyCount = isEnvironmentScope
@@ -36,8 +41,10 @@ export function ApiSecretKeyButton({
     : (apiKeysQuery.data?.data.length ?? 0)
   const buttonDisabled =
     disabled ||
-    !canManage ||
+    !canManageApiKeys ||
     (!isEnvironmentScope && (apiKeysQuery.isPending || apiKeysQuery.isError))
+
+  if (!isCurrentWorkspaceManager) return null
 
   return (
     <>
@@ -60,14 +67,17 @@ export function ApiSecretKeyButton({
         </span>
       </Button>
 
-      <ApiKeyModal
-        canManage={canManage}
-        open={modalOpen}
-        scope={
-          environmentId ? { type: 'environment', appId, environmentId } : { type: 'app', appId }
-        }
-        onOpenChange={setModalOpen}
-      />
+      {/* Revoking access also removes any nested key-management dialogs. */}
+      {canManageApiKeys && (
+        <ApiKeyModal
+          canManage={canManageApiKeys}
+          open={modalOpen}
+          scope={
+            environmentId ? { type: 'environment', appId, environmentId } : { type: 'app', appId }
+          }
+          onOpenChange={setModalOpen}
+        />
+      )}
     </>
   )
 }

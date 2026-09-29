@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
 } from '@langgenius/dify-ui/alert-dialog'
 import { Button } from '@langgenius/dify-ui/button'
+import { cn } from '@langgenius/dify-ui/cn'
 import {
   Dialog,
   DialogClose,
@@ -307,7 +308,12 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="flex w-200 flex-col overflow-hidden p-0">
+        <DialogContent
+          className={cn(
+            'flex w-200 flex-col overflow-hidden p-0',
+            scope.type === 'app' && 'w-[90vw] max-w-300',
+          )}
+        >
           <div className="flex shrink-0 flex-col gap-1 px-6 pt-6 pr-14 pb-4">
             <DialogTitle className="title-2xl-semi-bold text-text-primary">
               {t(($) => $['apiKeyModal.apiSecretKey'], { ns: 'appApi' })}

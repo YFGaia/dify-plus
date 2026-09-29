@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> 当前状态以 execution-graph.json 为准：M00–M07 passed；M06 最终集成回归 399 项通过，24 语言与契约解析通过。M08 ready。唯一调度入口为当前主任务；调度规则与异常会话处置见 [调度优化记录](evidence/scheduling-optimization.md)。后续关键路径 M08 → V01/V02 → R01；环境与生产节点仍受独立授权和验收约束。
+> 当前状态以 execution-graph.json 为准：M00–M07 passed；M08/14.2 已证明最终锁与 API 生成物无需重写。旧余额 wrapper 清理及 Luna 115 项复核通过，个人额度与 API Key 日/月额度仍保留；14 个删除路径与文档只读报告已完成，文档接回及链接检查通过。Astra 已在新 AccessPoint 宿主恢复 App API Key 的 workspace-manager UI 门槛，Luna 首次发现并报告测试夹具缺字段，协调者已修正并派 Luna 复验；Home 旧 TagFilter 的 ID/category 错误映射已判定不恢复；新额度表格宽度视觉验收仍待闭合。后续关键路径 M08 候选源码 → V01/V02 → R01；环境与生产节点仍受独立授权和验收约束。
 
 ## 依赖图
 
@@ -397,7 +397,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M08 · 集成审查与候选源码提交
 
-- 状态：blocked；前置节点 M04, M05, M06, M07 尚未通过；未执行本节点。
+- 状态：in_progress；M02–M07 已通过，14.2a–14.2j 已完成（14.2i Astra 与 14.2j Luna Chromium 均 2/2）；M08/14.4 已完成 91 条冲突路径映射；14.3 正在精确路径暂存并准备候选源码提交，V01/V02 待提交后验证。
 
 - 前置：M02, M03, M04, M05, M06, M07；负责人：集成负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`git_index, lockfiles`。
