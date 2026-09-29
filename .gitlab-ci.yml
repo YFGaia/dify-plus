@@ -42,7 +42,6 @@ build-api-amd64:
         -f api/Dockerfile .
       docker push $image_name:$platform_tag
       docker push $image_name:$CI_COMMIT_SHA-amd64
-      echo $image_name:$platform_tag >> manifest_api.txt
 
 # 构建API镜像 - ARM64
 build-api-arm64:
@@ -61,7 +60,6 @@ build-api-arm64:
         -f api/Dockerfile .
       docker push $image_name:$platform_tag
       docker push $image_name:$CI_COMMIT_SHA-arm64
-      echo $image_name:$platform_tag >> manifest_api.txt
 
 # 构建Web镜像 - AMD64
 build-web-amd64:
@@ -80,7 +78,6 @@ build-web-amd64:
         -f web/Dockerfile .
       docker push $image_name:$platform_tag
       docker push $image_name:$CI_COMMIT_SHA-amd64
-      echo $image_name:$platform_tag >> manifest_web.txt
 
 # 构建Web镜像 - ARM64
 build-web-arm64:
@@ -99,7 +96,6 @@ build-web-arm64:
         -f web/Dockerfile .
       docker push $image_name:$platform_tag
       docker push $image_name:$CI_COMMIT_SHA-arm64
-      echo $image_name:$platform_tag >> manifest_web.txt
 
 # 创建API多架构清单
 create-manifest-api:
@@ -111,8 +107,8 @@ create-manifest-api:
     - |
       image_name=$DIFY_API_IMAGE_NAME
       tag=$CI_COMMIT_TAG
-      docker manifest create $image_name:$tag $(cat manifest_api.txt)
-      docker manifest create $image_name:latest $(cat manifest_api.txt)
+      docker manifest create $image_name:$tag $image_name:${tag}-amd64 $image_name:${tag}-arm64
+      docker manifest create $image_name:latest $image_name:${tag}-amd64 $image_name:${tag}-arm64
       docker manifest push $image_name:$tag
       docker manifest push $image_name:latest
 
@@ -126,7 +122,7 @@ create-manifest-web:
     - |
       image_name=$DIFY_WEB_IMAGE_NAME
       tag=$CI_COMMIT_TAG
-      docker manifest create $image_name:$tag $(cat manifest_web.txt)
-      docker manifest create $image_name:latest $(cat manifest_web.txt)
+      docker manifest create $image_name:$tag $image_name:${tag}-amd64 $image_name:${tag}-arm64
+      docker manifest create $image_name:latest $image_name:${tag}-amd64 $image_name:${tag}-arm64
       docker manifest push $image_name:$tag
       docker manifest push $image_name:latest
