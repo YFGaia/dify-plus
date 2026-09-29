@@ -1117,7 +1117,9 @@
         "scoped_check_error": "MODULE_NOT_FOUND: node_modules/vite-plus/bin/vp",
         "diff_check_exit_code": 0,
         "test_sha256": "4088c14548fc66871dba2ba9fa2c63ea52cae3bcc3653c2546290eddb54a1b4d"
-      }
+      },
+      "review_status": "pending_independent_luna",
+      "review_thread_id": "01a0eb7c-53c5-7600-af3b-1dccba308181"
     },
     "12.6a_home_navigation_luna_review": {
       "status": "passed",
@@ -1128,9 +1130,8 @@
       "evidence": "evidence/M06/12.6a-review.md"
     },
     "12.6d_app_account_statistics": {
-      "status": "implementation_committed_verification_pending",
+      "status": "implementation_integrated_review_passed_tests_blocked",
       "model": "gpt-6-astra",
-      "client_thread_id": "client-new-thread:cfa97c71-5353-4ee5-8c44-9d760b1d0221",
       "registered_paths": [
         "api/controllers/console/app/statistic.py",
         "api/services/app_statistic_query.py",
@@ -1138,16 +1139,27 @@
         "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
         "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
       ],
-      "implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+      "implementation_commit": "fcc0b0e7a5",
       "worktree_path": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
-      "verification_status": "awaiting_author_test_report_and_independent_luna_review"
+      "verification_status": "blocked_pytest_missing",
+      "source_implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+      "review_thread_id": "01a0eb76-9ccc-7072-8187-f9e0b790040a",
+      "review_status": "passed_no_p1_p2_p3",
+      "unit_test_command": "UV_OFFLINE=1 uv run --frozen --no-sync --project api python -m pytest api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
+      "unit_test_exit_code": 1,
+      "unit_test_error": "No module named pytest",
+      "evidence": [
+        "evidence/M06/12.6d-verification.md",
+        "evidence/M06/12.6d-review.md"
+      ]
     },
     "12.6e_workflow_actor_analysis": {
-      "status": "thread_provisioning",
+      "status": "analysis_in_progress",
       "model": "gpt-6-sol",
       "client_thread_id": "client-new-thread:09798d06-40b5-480e-a815-a9b51df460c9",
-      "base_commit": "9f1086a99d",
-      "read_only": true
+      "base_commit": "fcc0b0e7a5",
+      "read_only": true,
+      "thread_id": "01a0eb7c-080b-7b31-b722-b8edb28ab55b"
     },
     "12.6e_workflow_account_ownership_persistence": {
       "status": "blocked_pending_analysis",
@@ -1163,7 +1175,7 @@
       "note": "No code until exact migration and trusted actor propagation paths are confirmed."
     },
     "12.6i_api_key_interaction_regressions": {
-      "status": "implementation_committed_verification_pending",
+      "status": "implementation_committed_verification_blocked_dependency_missing",
       "model": "gpt-6-astra",
       "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
       "registered_paths": [
@@ -1171,8 +1183,20 @@
       ],
       "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
       "superseded_duplicate_client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae",
-      "implementation_commit": "a602bb8a58"
+      "implementation_commit": "a602bb8a585b348df2626f21c68c644814ce5367",
+      "evidence": "evidence/M06/12.6i-validation.md",
+      "verification": {
+        "status": "blocked_dependency_missing",
+        "focused_spec_exit_code": 1,
+        "focused_spec_error": "MODULE_NOT_FOUND: web/node_modules/vitest/vitest.mjs",
+        "scoped_check_exit_code": 1,
+        "scoped_check_error": "MODULE_NOT_FOUND: node_modules/vite-plus/bin/vp",
+        "diff_check_exit_code": 0,
+        "test_sha256": "5b6dbe75aba281d32070cf9db3d10eeccb955eef94224dc36dcc1d3aae41c79c"
+      },
+      "review_status": "pending_independent_luna",
+      "review_thread_id": "01a0eb7c-6b41-7840-b661-5a3c9eb3b86c"
     }
   },
-  "next_subtask": "12.6d_app_account_statistics"
+  "next_subtask": "12.6e_workflow_actor_analysis"
 }

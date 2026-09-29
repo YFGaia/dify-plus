@@ -1144,33 +1144,32 @@
           "12.6a_home_navigation"
         ],
         "current_subtask": {
-          "id": "12.6b_system_integration_host_test",
-          "status": "implementation_present_validation_blocked_dependency_missing",
-          "owner": "M06",
+          "id": "12.6d_app_account_statistics",
+          "status": "implementation_integrated_review_passed_tests_blocked",
+          "owner": "M04",
           "model": "gpt-6-astra",
-          "branch_head": "2a72712052",
+          "branch_head": "fcc0b0e7a5",
           "registered_paths": [
-            "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
+            "api/controllers/console/app/statistic.py",
+            "api/services/app_statistic_query.py",
+            "api/repositories/app_statistic_query_repository.py",
+            "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
+            "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
           ],
-          "scope": "Add focused host behavior tests for system-integration tab/content switching at the exact registered test path.",
-          "thread_id": "01a0eb6c-c197-7360-9e37-2258755300cf",
-          "title": "M06 12.6b 系统集成页宿主测试",
-          "base_commit": "c2baf732b297b5e9258f1852f4a175f61a0f7697",
-          "dispatch_channel": "codex_shared_local",
-          "observed_path": "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx",
-          "verification": {
-            "status": "blocked_dependency_missing",
-            "focused_spec_exit_code": 1,
-            "focused_spec_error": "MODULE_NOT_FOUND: web/node_modules/vitest/vitest.mjs",
-            "scoped_check_exit_code": 1,
-            "scoped_check_error": "MODULE_NOT_FOUND: node_modules/vite-plus/bin/vp",
-            "diff_check_exit_code": 0,
-            "test_sha256": "4088c14548fc66871dba2ba9fa2c63ea52cae3bcc3653c2546290eddb54a1b4d"
-          },
-          "evidence": "evidence/M06/12.6b-validation.md",
-          "implementation_commit": "db73bbf8b18f24958eab9312b5d1af6248b526a0"
+          "scope": "Add optional account-scoped behavior to the three chart-backed app statistics endpoints using authenticated RequestContext.account_id and trusted from_account_id. Preserve default app-wide behavior and existing debugger/type filters.",
+          "implementation_commit": "fcc0b0e7a5",
+          "source_implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+          "verification_status": "blocked_pytest_missing",
+          "unit_test_exit_code": 1,
+          "unit_test_error": "No module named pytest",
+          "review_status": "passed_no_p1_p2_p3",
+          "review_thread_id": "01a0eb76-9ccc-7072-8187-f9e0b790040a",
+          "evidence": [
+            "evidence/M06/12.6d-verification.md",
+            "evidence/M06/12.6d-review.md"
+          ]
         },
-        "next_subtask": "12.6d_app_account_statistics",
+        "next_subtask": "12.6e_workflow_actor_analysis",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1722,7 +1721,9 @@
             "observed_path": "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx",
             "thread_id": "01a0eb6c-c197-7360-9e37-2258755300cf",
             "base_commit": "c2baf732b297b5e9258f1852f4a175f61a0f7697",
-            "verification": "evidence/M06/12.6b-validation.md"
+            "verification": "evidence/M06/12.6b-validation.md",
+            "review_status": "pending_independent_luna",
+            "review_thread_id": "01a0eb7c-53c5-7600-af3b-1dccba308181"
           },
           {
             "id": "12.6c_user_overview_backend_contract",
@@ -1735,7 +1736,7 @@
           },
           {
             "id": "12.6d_app_account_statistics",
-            "status": "implementation_committed_verification_pending",
+            "status": "implementation_integrated_review_passed_tests_blocked",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1746,10 +1747,20 @@
               "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
             ],
             "scope": "Add optional account-scoped behavior to the three chart-backed app statistics endpoints using authenticated RequestContext.account_id and trusted from_account_id. Preserve default app-wide behavior and existing debugger/type filters.",
-            "branch_head": "a813050cc5",
-            "implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+            "branch_head": "fcc0b0e7a5",
+            "implementation_commit": "fcc0b0e7a5",
             "worktree_path": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
-            "verification_status": "awaiting_author_test_report_and_independent_luna_review"
+            "verification_status": "blocked_pytest_missing",
+            "source_implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+            "review_thread_id": "01a0eb76-9ccc-7072-8187-f9e0b790040a",
+            "review_status": "passed_no_p1_p2_p3",
+            "unit_test_command": "UV_OFFLINE=1 uv run --frozen --no-sync --project api python -m pytest api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
+            "unit_test_exit_code": 1,
+            "unit_test_error": "No module named pytest",
+            "evidence": [
+              "evidence/M06/12.6d-verification.md",
+              "evidence/M06/12.6d-review.md"
+            ]
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
@@ -1813,7 +1824,7 @@
           },
           {
             "id": "12.6i_api_key_interaction_regressions",
-            "status": "implementation_in_progress",
+            "status": "implementation_committed_verification_blocked_dependency_missing",
             "owner": "M06",
             "model": "gpt-6-astra",
             "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
@@ -1826,10 +1837,23 @@
             ],
             "scope": "Add focused assertions for copying the created API key and canManage=false edit/delete behavior with no mutation calls. Preserve existing key visibility and secret-copy product semantics; do not change source components.",
             "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
+            "implementation_commit": "a602bb8a585b348df2626f21c68c644814ce5367",
+            "evidence": "evidence/M06/12.6i-validation.md",
+            "verification": {
+              "status": "blocked_dependency_missing",
+              "focused_spec_exit_code": 1,
+              "focused_spec_error": "MODULE_NOT_FOUND: web/node_modules/vitest/vitest.mjs",
+              "scoped_check_exit_code": 1,
+              "scoped_check_error": "MODULE_NOT_FOUND: node_modules/vite-plus/bin/vp",
+              "diff_check_exit_code": 0,
+              "test_sha256": "5b6dbe75aba281d32070cf9db3d10eeccb955eef94224dc36dcc1d3aae41c79c"
+            },
             "superseded_duplicate_provisioning": {
               "status": "superseded_duplicate_worktree_attempt",
               "client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae"
-            }
+            },
+            "review_status": "pending_independent_luna",
+            "review_thread_id": "01a0eb7c-6b41-7840-b661-5a3c9eb3b86c"
           },
           {
             "id": "12.6a_home_navigation_luna_review",
