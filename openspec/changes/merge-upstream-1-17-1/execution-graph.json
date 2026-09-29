@@ -2463,7 +2463,7 @@
         "evidence": "evidence/M08/preflight-analysis.md",
         "does_not_satisfy_M08_acceptance": true
       },
-      "readiness_evidence": "M02-M07 passed, including M06 integrated 399-test snapshot c474b9c42b; M08 acceptance itself has not yet run.",
+      "readiness_evidence": "M08/14.16 accepted metadata-only candidate 783859de3ebc098f2c9916516c831d92e547a913; V01 exact API subtree and quota-modal evidence reusable; V02/16.10 is next.",
       "implementation_progress": {
         "completed_subtasks": [
           "14.1_conflict_path_reconciliation_analysis",
@@ -2488,16 +2488,58 @@
           "14.9b_coordinator_evidence_formatter_paths",
           "14.9_v02_formatter_debt_candidate_followup",
           "14.10_final_candidate_and_structural_acceptance",
-          "14.15_v02_evidence_format_followup"
+          "14.15_v02_evidence_format_followup",
+          "14.16_recandidate_after_metadata_formatting",
+          "14.17_ukrainian_i18n_parity"
         ],
         "current_subtask": {
-          "id": "14.16_recandidate_after_metadata_formatting",
-          "status": "queued",
+          "id": "14.18_final_candidate_structural_acceptance",
+          "status": "in_progress",
           "owner": "M08/coordinator",
-          "model": "gpt-6-sol",
+          "model": "coordinator",
+          "reasoning_effort": "high",
+          "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
           "registered_paths": [
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md"
-          ]
+            "web/i18n/uk-UA/layout.json",
+            "web/i18n/uk-UA/oauth.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+            "openspec/changes/merge-upstream-1-17-1/tasks.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.18-final-candidate-structural-acceptance.md"
+          ],
+          "commit_allowlist": [
+            "web/i18n/uk-UA/layout.json",
+            "web/i18n/uk-UA/oauth.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+            "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+            "openspec/changes/merge-upstream-1-17-1/tasks.md"
+          ],
+          "scope": "Freeze the post-14.17 source candidate as a direct child of 783859de3ebc098f2c9916516c831d92e547a913. Stage only the exact registered commit_allowlist, including the two uk-UA namespace files and coordinator evidence/state updates already registered here. The 14.18 acceptance report is written after the commit and remains outside this candidate to avoid self-referential hashes. Do not stage unrelated untracked directories, make unrelated edits, or create branches/worktrees.",
+          "dependencies": [
+            "M08/14.16:passed",
+            "M08/14.17:passed",
+            "V02/16.10:blocked_at_i18n with exact same-archive retry evidence"
+          ],
+          "acceptance": [
+            "The staged path set equals commit_allowlist exactly; ignored log is force-added only by its exact registered path.",
+            "Candidate is a direct child of 783859de3ebc098f2c9916516c831d92e547a913 and its tree contains the exact 19-key uk-UA translations plus registered state/evidence updates.",
+            "M00 two-parent merge ancestry, M01-M07 implementation ancestry, all 91 conflict-path dispositions, and no unresolved index/conflict markers are preserved.",
+            "API subtree hash remains 895c0be99faafa5314806ddb2c0553c6062c7f67; personal total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota remains cumulative usage.",
+            "Report records commit/tree, exact path allowlist, source and evidence hashes, structural scans, and OpenSpec/format checks without claiming V02 or production acceptance."
+          ],
+          "dispatch_status": "coordinator_working"
         },
         "parallel_subtasks": [
           {
@@ -3842,10 +3884,89 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate.log",
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.15-v02-evidence-format-followup.md"
             ]
+          },
+          {
+            "id": "14.17_ukrainian_i18n_parity",
+            "status": "passed",
+            "owner": "M08/Astra",
+            "model": "gpt-6-astra",
+            "reasoning_effort": "high",
+            "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+            "registered_paths": [
+              "web/i18n/uk-UA/layout.json",
+              "web/i18n/uk-UA/oauth.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md"
+            ],
+            "scope": "Repair only the supported uk-UA locale parity exposed by V02/16.10: add the missing layout and oauth translation namespace files using the exact en-US key sets and accurate Ukrainian strings. Preserve flat key names and product terms. Do not change application code, other locales, tests, graph/tasks/result, stage, or commit. Write the implementation report at the registered M08 evidence path.",
+            "dependencies": [
+              "V02/16.10 same-candidate retry reached i18n checker and reported 19 missing keys in uk-UA layout/oauth"
+            ],
+            "acceptance": [
+              "Both JSON files parse and their key sets exactly match en-US layout/oauth respectively",
+              "All 19 missing keys receive Ukrainian translations with no English fallback placeholders",
+              "Targeted i18n check for layout/oauth and uk-UA passes",
+              "Only the two registered locale files and implementation report change"
+            ],
+            "dispatch_status": "completed",
+            "report_sha256": "87c183df488a8e620f915e02d5c9a9cc0eea66bf15700fa4d127c9753da8e117",
+            "locale_sha256": {
+              "web/i18n/uk-UA/layout.json": "2abd6e3cbfbd9fc15b6febb31c2c34cbd3542bfe857406ed28df0ccf203d2233",
+              "web/i18n/uk-UA/oauth.json": "6913c80196bb45035d1ec478e2087a0be712d5d501ebab0cd7237a747d62f02a"
+            },
+            "result": "19 Ukrainian translations added; JSON and exact en-US key parity passed; targeted i18n checker passed after same-command sandbox retry."
+          },
+          {
+            "id": "14.18_final_candidate_structural_acceptance",
+            "status": "in_progress",
+            "owner": "M08/coordinator",
+            "model": "coordinator",
+            "reasoning_effort": "high",
+            "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+            "registered_paths": [
+              "web/i18n/uk-UA/layout.json",
+              "web/i18n/uk-UA/oauth.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.18-final-candidate-structural-acceptance.md"
+            ],
+            "commit_allowlist": [
+              "web/i18n/uk-UA/layout.json",
+              "web/i18n/uk-UA/oauth.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md"
+            ],
+            "scope": "Freeze the post-14.17 source candidate as a direct child of 783859de3ebc098f2c9916516c831d92e547a913. Stage only the exact registered commit_allowlist, including the two uk-UA namespace files and coordinator evidence/state updates already registered here. The 14.18 acceptance report is written after the commit and remains outside this candidate to avoid self-referential hashes. Do not stage unrelated untracked directories, make unrelated edits, or create branches/worktrees.",
+            "dependencies": [
+              "M08/14.16:passed",
+              "M08/14.17:passed",
+              "V02/16.10:blocked_at_i18n with exact same-archive retry evidence"
+            ],
+            "acceptance": [
+              "The staged path set equals commit_allowlist exactly; ignored log is force-added only by its exact registered path.",
+              "Candidate is a direct child of 783859de3ebc098f2c9916516c831d92e547a913 and its tree contains the exact 19-key uk-UA translations plus registered state/evidence updates.",
+              "M00 two-parent merge ancestry, M01-M07 implementation ancestry, all 91 conflict-path dispositions, and no unresolved index/conflict markers are preserved.",
+              "API subtree hash remains 895c0be99faafa5314806ddb2c0553c6062c7f67; personal total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota remains cumulative usage.",
+              "Report records commit/tree, exact path allowlist, source and evidence hashes, structural scans, and OpenSpec/format checks without claiming V02 or production acceptance."
+            ],
+            "dispatch_status": "coordinator_working"
           }
         ],
-        "next_subtask": "14.16_recandidate_after_metadata_formatting",
-        "dispatch_status": "coordinator_ready_for_14.16",
+        "next_subtask": "14.17_ukrainian_i18n_parity",
+        "dispatch_status": "coordinator_working",
         "active_subtasks": {}
       },
       "active_subtasks": {}
@@ -3936,7 +4057,7 @@
       "owner_role": "前端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "in_progress",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -3972,37 +4093,18 @@
       "implementation_progress": {
         "completed_subtasks": ["16.1_16.2_16.3_candidate_frontend_luna_verification"],
         "current_subtask": {
-          "id": "16.9_final_candidate_post_fix_complete_overlay",
+          "id": "16.10_final_candidate_metadata_format_retry",
           "status": "blocked",
           "owner": "V02",
           "model": "gpt-6-luna",
-          "reasoning_effort": "high",
-          "base_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
-          "candidate_tree": "219f855a099258cbb712daae55e5a365390189ac",
+          "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+          "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
           "registered_paths": [
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate-result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate.log"
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log"
           ],
-          "scope": "After M05/11.8, M08/14.11, M08/14.12 and independent Luna review pass, run V02 against the new coordinator-frozen and M08-accepted candidate in a clean git archive under /private/tmp. Recreate all already-existing workspace dependency symlinks, including sdks/nodejs-client/node_modules, without install/sync/network; exclude web/.next caches. First run pnpm --config.verify-deps-before-run=false check and stop at the first failure. If it passes, run lint:tss, i18n, registered unit suites and both builds sequentially. Reuse only exact-hash V01 160/160 and M08/14.7 browser 2/2 evidence. Record candidate SHA/tree, complete overlay, commands, exits, counts, hashes and warnings. Do not edit source/tests/graph/tasks, stage, or commit.",
-          "dependencies": [
-            "M05/11.8 passed",
-            "M06/12.7 passed",
-            "M08/14.11, 14.12 and 14.13 passed",
-            "M08/14.14 new structural acceptance passed",
-            "V01 API subtree hash and M08/14.7 browser spec hashes match"
-          ],
-          "acceptance": [
-            "Archive tree equals exact accepted candidate commit/tree and all existing package node_modules overlays including sdks/nodejs-client are verified",
-            "No network/install/sync/source mutation/stage/commit",
-            "pnpm check passes; then all registered frontend gates pass in sequence with exact evidence",
-            "Stop and retain first failure otherwise"
-          ],
-          "dispatch_status": "completed_blocked",
           "dispatch_agent": "/root/v02_16_9_luna_candidate",
-          "verdict": "blocked_candidate_open_spec_formatting_debt",
-          "result_sha256": "144b72e21e5f889765e4100f1db3b8f92a492689303aa538bcd94b32fe426fed",
-          "log_sha256": "416da374084b134fa519925d5a132a5360bf5c117e9fc245135781133b78c639",
-          "root_cause": "pnpm check stopped in vp formatter on seven coordinator-owned OpenSpec report/state paths; all 12 workspace dependency overlays including SDK resolved. No source checks or later V02 gates ran."
+          "dispatch_status": "completed_blocked"
         },
         "parallel_subtasks": [
           {
@@ -4218,12 +4320,12 @@
           },
           {
             "id": "16.10_final_candidate_metadata_format_retry",
-            "status": "queued",
+            "status": "blocked",
             "owner": "V02",
             "model": "gpt-6-luna",
             "reasoning_effort": "high",
-            "base_commit": null,
-            "candidate_tree": null,
+            "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+            "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
             "registered_paths": [
               "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
               "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log"
@@ -4238,10 +4340,15 @@
               "pnpm check passes, then registered later V02 gates pass sequentially; stop and record first failure otherwise",
               "Only exact registered result/log paths changed"
             ],
-            "dispatch_status": "pending"
+            "dispatch_status": "completed_blocked",
+            "dispatch_agent": "/root/v02_16_9_luna_candidate",
+            "verdict": "blocked_i18n_missing_uk-UA_layout_oauth_keys_after_sandbox_retry",
+            "root_cause": "The initial sandboxed i18n check stopped before checker startup with tsx Unix socket listen EPERM. Retrying only i18n:check on the same immutable candidate archive with sandbox restrictions lifted executed the checker and found 19 missing uk-UA keys across layout.json (2) and oauth.json (17).",
+            "result_sha256": "7cef41d4fa3047f2e486cb0aa6cb95a09293f4f8bdd1fbf211a0f85e9a5e680a",
+            "log_sha256": "c6cd445eff8f1045d39e0ab54dae23fe6a6975a4e66e3cc4ad4aa9e155766585"
           }
         ],
-        "next_subtask": "M08/14.15_v02_evidence_format_followup",
+        "next_subtask": "14.17_ukrainian_i18n_parity",
         "dispatch_status": "blocked_first_failed_gate",
         "active_subtasks": {}
       }
@@ -4274,7 +4381,7 @@
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
       "outputs": ["evidence/R01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
-      "blocked_reason": "前置节点 V01, V02 尚未通过；未执行本节点。"
+      "blocked_reason": "V02/16.10 blocked at i18n:check on 19 missing uk-UA locale keys; M08/14.17 must fix and a new candidate must be frozen before V02 retry."
     },
     {
       "id": "V03",
@@ -4593,7 +4700,7 @@
       "outputs": ["evidence/D04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     }
   ],
-  "next_subtask": "M08/14.16_recandidate_after_metadata_formatting",
+  "next_subtask": "M08/14.18_final_candidate_structural_acceptance",
   "execution_control": {
     "coordinator_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
     "updated_at": "2026-09-29",
@@ -4637,9 +4744,9 @@
     ],
     "current_dispatches": [],
     "next_critical_path": [
-      "M08/14.15 passed: eight registered coordinator metadata paths were formatted; exact 12-path formatter check and diff-check passed.",
-      "M08/14.16 freezes a metadata-only successor on the existing branch with exact allowlist equality and source/test identity checks.",
-      "V02/16.10 retries the new exact candidate with all 12 existing workspace overlays; stop at the first failed gate."
+      "V02/16.10 is blocked at i18n on candidate 783859de; same-archive retry found 19 missing uk-UA keys after sandbox EPERM was resolved.",
+      "M08/14.17 passed: uk-UA layout/oauth have exact en-US key parity, 19 Ukrainian translations, and targeted checker exit 0.",
+      "M08/coordinator is freezing and structurally accepting the exact next candidate in 14.18; only then dispatch V02/16.11 on that immutable candidate."
     ],
     "quality_gates_unchanged": true,
     "coordinator_handoff": {

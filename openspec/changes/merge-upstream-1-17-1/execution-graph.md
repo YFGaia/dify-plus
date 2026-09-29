@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> 当前状态以 execution-graph.json 为准：候选 `686a5cfa5614ea45b0d9973e52014b07c13b07e7`（tree `219f855a099258cbb712daae55e5a365390189ac`）已通过 M08/14.14 结构验收；父候选 `95101d76b955481ce6c9519596aeea426680fa71` 通过 14.10，M00 双父、M01–M07 的 42 个实现提交和 91/91 宿主映射均保留。个人 `total_quota/used_quota` 与 API Key 日/月额度保持独立。V01 API 子树 SHA `895c0be99faafa5314806ddb2c0553c6062c7f67` 一致，复用 160/160。M05/11.8、M06/12.7、M08/14.11–14.15 均已通过；Luna 独立复核 4 files / 88 tests。V02/16.9 已在完整 12 项依赖 overlay（含 SDK）下完成尝试，但首门禁因 7 条 coordinator-owned OpenSpec 格式问题阻断，后续门禁未运行。14.15 已完成精确格式修复与 11 路径检查；下一步是 M08/14.16 metadata-only 候选结构验收，然后由 V02/16.10 重试。R01 等待 V02 通过。
+> 当前状态以 execution-graph.json 为准：候选 `783859de3ebc098f2c9916516c831d92e547a913`（tree `badf6fb2196fe201185a1e81883504eb35cbffc0`）通过 M08/14.16 结构验收，但 V02/16.10 未通过：`pnpm check`（8,945 文件格式通过、ESLint 0 errors / 1,931 warnings）与 `lint:tss`（6,266/6,266）通过；同归档 i18n 重试发现 `uk-UA` 的 layout/oauth 缺 19 个 key，unit 与双构建按首失败规则停止。M08/14.17 已补齐两份乌克兰语文件，exact key parity 与定向 checker 通过；当前协调者按精确 allowlist 执行 14.18 冻结/结构验收，之后运行 V02/16.11。个人 `total_quota/used_quota` 与 API Key 日/月额度继续独立；V01 API 子树 SHA `895c0be99faafa5314806ddb2c0553c6062c7f67` 和 quota modal browser 2/2 按精确哈希复用。M05/11.8、M06/12.7、M08/14.11–14.17 已通过；R01 等待 V02 全部通过，R02 是上线准备完成，D04 才是生产升级完成。
 
 ## 依赖图
 
@@ -458,7 +458,7 @@ uv run --project api pytest api/tests/unit_tests/controllers/console/test_apikey
 
 ## V02 · 前端检查、定向测试与双构建
 
-- 状态：blocked，待新候选重试。16.8 对候选 `95101d76b955481ce6c9519596aeea426680fa71` 使用 workspace overlay，formatter 8,934 文件通过后 `lint:eslint` 首失败（12 errors、1,931 warnings，6,910 files）。M06/12.7 已修复 dormant 文件导入；M05/11.8 修复必填输出类型/cache 语义；M08/14.11 恢复 retention_number 加载、Context 与发布透传；14.12 补齐 suppression 原因。V02/16.9 对候选 `686a5cfa5614ea45b0d9973e52014b07c13b07e7` 验证完整 12 项 overlay（含 `sdks/nodejs-client/node_modules`），但 `pnpm check` 在 7 条 OpenSpec 状态/证据路径的 formatter 首失败；lint、i18n、单测及双构建按首失败规则未运行。M08/14.15 已格式化这 7 条路径及 precheck 发现的 `tasks.md`，固定 12 路径 `vp fmt --check` 和 `git diff --check` 均通过。下一步冻结并结构验收 metadata-only 候选（14.16），再由 V02/16.10 重试。16.8 与 16.9 的原始报告分别见 `evidence/V02/16.8-final-candidate-result.json`、`evidence/V02/16.9-final-candidate-result.json`。
+- 状态：16.10 对已通过 M08/14.16 结构验收的候选 `783859de3ebc098f2c9916516c831d92e547a913` 执行中。16.8 对候选 `95101d76b955481ce6c9519596aeea426680fa71` 使用 workspace overlay，formatter 8,934 文件通过后 `lint:eslint` 首失败（12 errors、1,931 warnings，6,910 files）。M06/12.7 已修复 dormant 文件导入；M05/11.8 修复必填输出类型/cache 语义；M08/14.11 恢复 retention_number 加载、Context 与发布透传；14.12 补齐 suppression 原因。V02/16.9 对候选 `686a5cfa5614ea45b0d9973e52014b07c13b07e7` 验证完整 12 项 overlay（含 `sdks/nodejs-client/node_modules`），但 `pnpm check` 在 7 条 OpenSpec 状态/证据路径的 formatter 首失败；lint、i18n、单测及双构建按首失败规则未运行。M08/14.15 将这 7 条路径及 `tasks.md` 格式化，12 路径 `vp fmt --check` 和 `git diff --check` 通过；14.16 冻结并结构验收 metadata-only 候选。16.8 与 16.9 的原始报告分别见 `evidence/V02/16.8-final-candidate-result.json`、`evidence/V02/16.9-final-candidate-result.json`。
 
 - 前置：M08；负责人：前端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。

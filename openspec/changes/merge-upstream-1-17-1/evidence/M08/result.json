@@ -753,35 +753,104 @@
       "staged_or_committed": false
     },
     "14.16_recandidate_after_metadata_formatting": {
-      "status": "queued",
+      "status": "passed",
       "base_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
-      "registered_paths": ["evidence/M08/14.16-recandidate-structural-acceptance.md"],
-      "commit_allowlist": [
-        "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.8-v02-contract-reconciliation.md",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.13-independent-v02-fix-verification.md",
+      "candidate_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+      "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
+      "evidence": "evidence/M08/14.16-recandidate-structural-acceptance.md",
+      "evidence_sha256": "3b185d76f07d31bacb495883b551b115746a527f1842cc4ae79a2ac036c4e65b",
+      "staged_path_count": 13,
+      "registered_path_set_exact": true,
+      "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+      "conflict_path_count": 91,
+      "conflict_path_status": "91/91 resolved",
+      "m00_ancestor": true,
+      "source_or_test_bytes_changed": false,
+      "quota_boundary": "personal AccountMoneyExtend quota remains separate from upstream Cloud quota; API Key daily/monthly limits remain"
+    },
+    "14.17_ukrainian_i18n_parity": {
+      "id": "14.17_ukrainian_i18n_parity",
+      "status": "passed",
+      "owner": "M08/Astra",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+      "registered_paths": [
+        "web/i18n/uk-UA/layout.json",
+        "web/i18n/uk-UA/oauth.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md"
+      ],
+      "scope": "Repair only the supported uk-UA locale parity exposed by V02/16.10: add the missing layout and oauth translation namespace files using the exact en-US key sets and accurate Ukrainian strings. Preserve flat key names and product terms. Do not change application code, other locales, tests, graph/tasks/result, stage, or commit. Write the implementation report at the registered M08 evidence path.",
+      "dependencies": [
+        "V02/16.10 same-candidate retry reached i18n checker and reported 19 missing keys in uk-UA layout/oauth"
+      ],
+      "acceptance": [
+        "Both JSON files parse and their key sets exactly match en-US layout/oauth respectively",
+        "All 19 missing keys receive Ukrainian translations with no English fallback placeholders",
+        "Targeted i18n check for layout/oauth and uk-UA passes",
+        "Only the two registered locale files and implementation report change"
+      ],
+      "dispatch_status": "completed",
+      "report_sha256": "87c183df488a8e620f915e02d5c9a9cc0eea66bf15700fa4d127c9753da8e117",
+      "locale_sha256": {
+        "web/i18n/uk-UA/layout.json": "2abd6e3cbfbd9fc15b6febb31c2c34cbd3542bfe857406ed28df0ccf203d2233",
+        "web/i18n/uk-UA/oauth.json": "6913c80196bb45035d1ec478e2087a0be712d5d501ebab0cd7237a747d62f02a"
+      },
+      "result": "19 Ukrainian translations added; JSON and exact en-US key parity passed; targeted i18n checker passed after same-command sandbox retry."
+    },
+    "14.18_final_candidate_structural_acceptance": {
+      "id": "14.18_final_candidate_structural_acceptance",
+      "status": "in_progress",
+      "owner": "M08/coordinator",
+      "model": "coordinator",
+      "reasoning_effort": "high",
+      "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+      "registered_paths": [
+        "web/i18n/uk-UA/layout.json",
+        "web/i18n/uk-UA/oauth.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
         "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
         "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
         "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
         "openspec/changes/merge-upstream-1-17-1/tasks.md",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.14-recandidate-structural-acceptance.md",
-        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate-result.json",
-        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate.log",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.15-v02-evidence-format-followup.md"
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.18-final-candidate-structural-acceptance.md"
+      ],
+      "commit_allowlist": [
+        "web/i18n/uk-UA/layout.json",
+        "web/i18n/uk-UA/oauth.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md"
+      ],
+      "scope": "Freeze the post-14.17 source candidate as a direct child of 783859de3ebc098f2c9916516c831d92e547a913. Stage only the exact registered commit_allowlist, including the two uk-UA namespace files and coordinator evidence/state updates already registered here. The 14.18 acceptance report is written after the commit and remains outside this candidate to avoid self-referential hashes. Do not stage unrelated untracked directories, make unrelated edits, or create branches/worktrees.",
+      "dependencies": [
+        "M08/14.16:passed",
+        "M08/14.17:passed",
+        "V02/16.10:blocked_at_i18n with exact same-archive retry evidence"
       ],
       "acceptance": [
-        "Exact staged path set equals commit_allowlist",
-        "No product source or test bytes change from the base candidate",
-        "M00 and M01-M07 ancestry, 91-path ownership map, quota anchors and API subtree identity remain valid",
-        "Record the new candidate commit/tree before V02/16.10 starts"
-      ]
+        "The staged path set equals commit_allowlist exactly; ignored log is force-added only by its exact registered path.",
+        "Candidate is a direct child of 783859de3ebc098f2c9916516c831d92e547a913 and its tree contains the exact 19-key uk-UA translations plus registered state/evidence updates.",
+        "M00 two-parent merge ancestry, M01-M07 implementation ancestry, all 91 conflict-path dispositions, and no unresolved index/conflict markers are preserved.",
+        "API subtree hash remains 895c0be99faafa5314806ddb2c0553c6062c7f67; personal total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota remains cumulative usage.",
+        "Report records commit/tree, exact path allowlist, source and evidence hashes, structural scans, and OpenSpec/format checks without claiming V02 or production acceptance."
+      ],
+      "dispatch_status": "coordinator_working"
     }
   },
   "updated_at": "2026-09-29",
-  "next_subtask": "14.16_recandidate_after_metadata_formatting",
-  "candidate_source_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+  "next_subtask": "14.18_final_candidate_structural_acceptance",
+  "candidate_source_commit": "783859de3ebc098f2c9916516c831d92e547a913",
   "candidate_source_commit_before_followup": {
     "sha": "ba33fe26dc21ae3a308f14a61999009fc2849779",
     "parent": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
@@ -802,5 +871,5 @@
     "structural_acceptance_report": "evidence/M08/14.10-final-candidate-structural-acceptance.md",
     "structural_acceptance_report_sha256": "5861a90abca83bba99072710a761ea92047d76660fb6e244cc81e83162c5fe95"
   },
-  "candidate_source_tree": "219f855a099258cbb712daae55e5a365390189ac"
+  "candidate_source_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0"
 }

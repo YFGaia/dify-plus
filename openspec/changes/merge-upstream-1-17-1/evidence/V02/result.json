@@ -5,7 +5,7 @@
   "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
   "worktree_head": "ba33fe26dc21ae3a308f14a61999009fc2849779",
   "status": "blocked",
-  "summary": "V02/16.9 validated the exact new candidate and all 12 existing dependency overlays, including the SDK. pnpm check stopped at formatting on seven coordinator-owned OpenSpec report/state files; no source lint or later gates ran. A bounded metadata-format repair and new candidate are registered.",
+  "summary": "V02/16.10 checked exact candidate 783859de3ebc098f2c9916516c831d92e547a913 with all 12 dependency overlays. pnpm check and lint:tss passed; the initial i18n invocation hit sandbox socket EPERM, and a same-archive retry executed the checker and found 19 missing uk-UA layout/oauth keys. Unit and both web builds stopped at the first failed gate; M08/14.17 has since repaired and verified the locale data, pending a new candidate and V02/16.11.",
   "environment": {
     "node": "v24.20.0",
     "pnpm": "12.3.4",
@@ -123,40 +123,43 @@
     "pnpm --dir web build:vinext"
   ],
   "stop_reason": {
-    "issue": "Candidate-added browser spec is unformatted, confirmed in read-only check.",
-    "next_owner": "M08 / 14.2i",
-    "additional_inherited_issue": "M05-owned packages/contracts/openapi-ts.api.config.ts also fails format check and is unchanged in candidate commit."
+    "issue": "Candidate 783859de has 19 missing uk-UA i18n keys; source-data repair passed in M08/14.17.",
+    "next_owner": "M08 / 14.18 then V02 / 16.11",
+    "environment_note": "Initial sandbox socket EPERM was resolved by rerunning only the same gate on the same immutable archive with sandbox restrictions lifted."
   },
   "no_source_test_changes_or_fixes": true,
   "no_staging_or_commit": true,
   "latest_attempt": {
-    "task_id": "16.9_final_candidate_post_fix_complete_overlay",
-    "candidate_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
-    "candidate_tree": "219f855a099258cbb712daae55e5a365390189ac",
+    "task_id": "16.10_final_candidate_metadata_format_retry",
+    "candidate_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+    "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
     "status": "blocked",
-    "result": "evidence/V02/16.9-final-candidate-result.json",
-    "result_sha256": "144b72e21e5f889765e4100f1db3b8f92a492689303aa538bcd94b32fe426fed",
-    "log": "evidence/V02/16.9-final-candidate.log",
-    "log_sha256": "416da374084b134fa519925d5a132a5360bf5c117e9fc245135781133b78c639",
-    "first_failed_gate": "pnpm check / vp check formatter",
-    "failure_count": 7,
-    "changed_from_candidate_parent": false,
-    "next_attempt": "16.10_final_candidate_metadata_format_retry_after_14.15_and_14.16"
+    "result": "evidence/V02/16.10-final-candidate-result.json",
+    "result_sha256": "7cef41d4fa3047f2e486cb0aa6cb95a09293f4f8bdd1fbf211a0f85e9a5e680a",
+    "log": "evidence/V02/16.10-final-candidate.log",
+    "log_sha256": "c6cd445eff8f1045d39e0ab54dae23fe6a6975a4e66e3cc4ad4aa9e155766585",
+    "first_failed_gate": "web i18n:check",
+    "initial_attempt": "blocked before checker startup by tsx Unix socket listen EPERM in sandbox",
+    "same_archive_retry": "checker ran and found 19 missing uk-UA keys: layout 2, oauth 17",
+    "not_run": ["focused unit suite", "pnpm --dir web build", "pnpm --dir web build:vinext"],
+    "next_attempt": "16.11_final_candidate_after_uk-UA_locale_repair"
   },
   "current_candidate": {
-    "commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
-    "tree": "219f855a099258cbb712daae55e5a365390189ac",
-    "status": "blocked_formatter_followup",
-    "next_attempt": "metadata-only successor after M08/14.15"
+    "commit": "783859de3ebc098f2c9916516c831d92e547a913",
+    "tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
+    "status": "blocked_at_i18n",
+    "next_attempt": "16.11_final_candidate_after_uk-UA_locale_repair"
   },
   "next_attempt": {
     "task_id": "16.10_final_candidate_metadata_format_retry",
-    "status": "pending_format_followup",
-    "candidate_commit": null,
+    "status": "running",
+    "candidate_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+    "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
     "dependencies": [
       "M08/14.15 passed",
       "M08/14.16 structural acceptance passed",
       "SDK node_modules overlay included"
-    ]
+    ],
+    "dispatch_agent": "/root/v02_16_9_luna_candidate"
   }
 }
