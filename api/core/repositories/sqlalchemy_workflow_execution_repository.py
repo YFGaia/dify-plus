@@ -20,6 +20,7 @@ from models import (
     WorkflowRun,
 )
 from models.enums import WorkflowRunTriggeredFrom
+from models.workflow_account_extend import WorkflowRunAccountExtend
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,7 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
         user: Account | EndUser,
         app_id: str | None,
         triggered_from: WorkflowRunTriggeredFrom | None,
+        from_account_id: str | None = None,
     ):
         """
         Initialize the repository with a SQLAlchemy sessionmaker or engine and context information.
@@ -53,6 +55,7 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
             user: Account or EndUser used for creator attribution
             app_id: App ID for filtering by application (can be None)
             triggered_from: Source of the execution trigger (DEBUGGING or APP_RUN)
+            from_account_id: Validated WebApp Console actor; ignored for already persisted ownership
         """
         # If an engine is provided, create a sessionmaker from it
         match session_factory:
@@ -71,6 +74,7 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
 
         # Store app context
         self._app_id = app_id
+        self._from_account_id = from_account_id
 
         # Extract user context
         self._triggered_from = triggered_from
@@ -175,6 +179,14 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
 
         return db_model
 
+    def validate_scope(self, execution_id: str) -> None:
+        """Reject foreign SQL records before a configured dual-write appends a log."""
+        with self._session_factory() as session:
+            for model in (WorkflowRun, WorkflowRunAccountExtend):
+                row = session.get(model, execution_id)
+                if row is not None and (row.tenant_id != self._tenant_id or row.app_id != self._app_id):
+                    raise ValueError("Unauthorized access to workflow run")
+
     @override
     def save(self, execution: WorkflowExecution):
         """
@@ -199,14 +211,30 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
         with self._session_factory() as session:
             existing_model = session.get(WorkflowRun, db_model.id)
             if existing_model:
-                if existing_model.tenant_id != self._tenant_id:
+                if existing_model.tenant_id != self._tenant_id or existing_model.app_id != self._app_id:
                     raise ValueError("Unauthorized access to workflow run")
                 # Preserve the original start time for pause/resume flows.
                 db_model.created_at = existing_model.created_at
+            # Also check an association retained after SQL run cleanup; it cannot
+            # be claimed by another scope or overwritten by a retry.
+            attribution = session.get(WorkflowRunAccountExtend, db_model.id)
+            if attribution is not None and (
+                attribution.tenant_id != self._tenant_id or attribution.app_id != self._app_id
+            ):
+                raise ValueError("Unauthorized access to workflow run")
 
             # SQLAlchemy merge intelligently handles both insert and update operations
             # based on the presence of the primary key
             session.merge(db_model)
+            if existing_model is None and attribution is None and self._app_id is not None:
+                session.add(
+                    WorkflowRunAccountExtend(
+                        workflow_run_id=db_model.id,
+                        tenant_id=self._tenant_id,
+                        app_id=self._app_id,
+                        from_account_id=self._from_account_id,
+                    )
+                )
             session.commit()
 
             # Update the in-memory cache for faster subsequent lookups

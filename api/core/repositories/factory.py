@@ -68,6 +68,7 @@ class DifyCoreRepositoryFactory:
         user: Account | EndUser,
         app_id: str,
         triggered_from: WorkflowRunTriggeredFrom,
+        from_account_id: str | None = None,
     ) -> WorkflowExecutionRepository:
         """
         Create a WorkflowExecutionRepository instance based on configuration.
@@ -78,6 +79,7 @@ class DifyCoreRepositoryFactory:
             user: Account or EndUser used for creator attribution
             app_id: Application ID
             triggered_from: Source of the execution trigger
+            from_account_id: Request-validated Console actor, or the original persisted actor on resume
 
         Returns:
             Configured WorkflowExecutionRepository instance
@@ -95,6 +97,7 @@ class DifyCoreRepositoryFactory:
                 user=user,
                 app_id=app_id,
                 triggered_from=triggered_from,
+                from_account_id=from_account_id,
             )
         except (ImportError, Exception) as e:
             raise RepositoryImportError(f"Failed to create WorkflowExecutionRepository from '{class_path}': {e}") from e

@@ -10,6 +10,7 @@ from configs import dify_config
 from core.repositories.factory import WorkflowExecutionRepository
 from core.repositories.sqlalchemy_workflow_execution_repository import SQLAlchemyWorkflowExecutionRepository
 from extensions.logstore.aliyun_logstore import AliyunLogStore
+from extensions.logstore.sql_escape import escape_logstore_query_value
 from graphon.entities import WorkflowExecution
 from graphon.workflow_type_encoder import WorkflowRuntimeTypeConverter
 from models import (
@@ -22,6 +23,44 @@ from models.enums import WorkflowRunTriggeredFrom
 logger = logging.getLogger(__name__)
 
 
+def get_logstore_account_actor(
+    client: AliyunLogStore, *, execution_id: str, tenant_id: str, app_id: str | None
+) -> tuple[bool, str | None]:
+    """Read immutable ownership from the earliest Logstore version, without SQL I/O.
+
+    Missing/empty fields mean unknown ownership. A lookup failure must propagate;
+    the caller must not treat it as a new run and append guessed ownership.
+    """
+    # Raw SDK reads include unindexed event fields, even when PG mode is enabled.
+    # The upstream WorkflowRun-derived SQL index does not contain this fork field.
+    first = None
+    offset = 0
+    to_time = int(time.time()) + 1
+    while True:
+        rows = client.get_logs(
+            logstore=AliyunLogStore.workflow_execution_logstore,
+            from_time=0,
+            to_time=to_time,
+            query=f"id:{escape_logstore_query_value(execution_id)}",
+            line=100,
+            offset=offset,
+            reverse=False,
+        )
+        # Search indexes may tokenize IDs. Only exact run IDs can supply ownership.
+        # Check scope after lookup so a foreign run cannot appear to be a new run.
+        for row in rows:
+            if row.get("id") != execution_id:
+                continue
+            if row.get("tenant_id") != tenant_id or row.get("app_id") != (app_id or ""):
+                raise ValueError("Unauthorized access to workflow run")
+            if first is None or int(row.get("log_version") or 0) < int(first.get("log_version") or 0):
+                first = row
+        if len(rows) < 100:
+            break
+        offset += len(rows)
+    return (False, None) if first is None else (True, first.get("from_account_id") or None)
+
+
 class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
     def __init__(
         self,
@@ -30,6 +69,7 @@ class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
         user: Account | EndUser,
         app_id: str | None,
         triggered_from: WorkflowRunTriggeredFrom | None,
+        from_account_id: str | None = None,
     ):
         """
         Initialize the repository with a SQLAlchemy sessionmaker or engine and context information.
@@ -40,6 +80,7 @@ class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
             user: Account or EndUser used for creator attribution
             app_id: App ID for filtering by application (can be None)
             triggered_from: Source of the execution trigger (DEBUGGING or APP_RUN)
+            from_account_id: Validated WebApp Console actor; ignored for already persisted ownership
         """
         logger.debug(
             "LogstoreWorkflowExecutionRepository.__init__: app_id=%s, triggered_from=%s", app_id, triggered_from
@@ -54,6 +95,8 @@ class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
 
         # Store app context
         self._app_id = app_id
+        self._from_account_id = from_account_id
+        self._account_actors: dict[str, str | None] = {}
 
         # Extract user context
         self._triggered_from = triggered_from
@@ -69,6 +112,7 @@ class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
             user=user,
             app_id=app_id,
             triggered_from=triggered_from,
+            from_account_id=from_account_id,
         )
 
         self._enable_dual_write = dify_config.LOGSTORE_DUAL_WRITE_ENABLED
@@ -150,6 +194,7 @@ class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
                 else str(self._creator_user_role),
             ),
             ("created_by", self._creator_user_id),
+            ("from_account_id", self._account_actors.get(domain_model.id_, self._from_account_id) or ""),
             ("started_at", domain_model.started_at.isoformat() if domain_model.started_at else ""),
             ("finished_at", domain_model.finished_at.isoformat() if domain_model.finished_at else ""),
         ]
@@ -174,6 +219,23 @@ class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
             "save: id=%s, workflow_id=%s, status=%s", execution.id_, execution.workflow_id, execution.status.value
         )
         try:
+            if self._enable_dual_write:
+                # Reject an existing SQL run in a foreign scope before appending
+                # a Logstore version. SQL availability remains best-effort.
+                try:
+                    self.sql_repository.validate_scope(execution.id_)
+                except ValueError:
+                    raise
+                except Exception:
+                    logger.exception("Failed to check SQL workflow run scope: id=%s", execution.id_)
+            if execution.id_ not in self._account_actors:
+                exists, actor = get_logstore_account_actor(
+                    self.logstore_client,
+                    execution_id=execution.id_,
+                    tenant_id=self._tenant_id,
+                    app_id=self._app_id,
+                )
+                self._account_actors[execution.id_] = actor if exists else self._from_account_id
             logstore_model = self._to_logstore_model(execution)
             self.logstore_client.put_log(AliyunLogStore.workflow_execution_logstore, logstore_model)
 
@@ -185,8 +247,13 @@ class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
         # Dual-write to SQL database if enabled (for safe migration)
         if self._enable_dual_write:
             try:
+                # A SQL copy first created after Logstore recovery uses that run's
+                # original actor, including NULL for historical Logstore records.
+                self.sql_repository._from_account_id = self._account_actors[execution.id_]
                 self.sql_repository.save(execution)
                 logger.debug("Dual-write: saved workflow execution to SQL database: id=%s", execution.id_)
+            except ValueError:
+                raise
             except Exception:
                 logger.exception("Failed to dual-write workflow execution to SQL database: id=%s", execution.id_)
                 # Don't raise - LogStore write succeeded, SQL is just a backup

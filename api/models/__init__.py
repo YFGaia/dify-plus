@@ -153,6 +153,7 @@ from .workflow import (
     WorkflowVersionCounter,
     resolve_workflow_kind,
 )
+from .workflow_account_extend import WorkflowRunAccountExtend
 
 __all__ = [
     "APIBasedExtension",
@@ -296,6 +297,7 @@ __all__ = [
     "WorkflowNodeExecutionTriggeredFrom",
     "WorkflowPause",
     "WorkflowRun",
+    "WorkflowRunAccountExtend",
     "WorkflowRunArchiveBundle",
     "WorkflowRunTriggeredFrom",
     "WorkflowSchedulePlan",

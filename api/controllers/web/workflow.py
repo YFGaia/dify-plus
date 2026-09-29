@@ -80,7 +80,8 @@ class WorkflowRunApi(WebApiResource):
 
         # ----------------- start You must log in to access your account extend ---------------
         # no login（per-app 认证开关关闭时允许匿名访问；已登录用户短路跳过开关查询）
-        if is_end_login(end_user) is None and WebAppAuthExtendService.is_webapp_auth_enabled(app_model.id):
+        user_info = is_end_login(end_user)
+        if user_info is None and WebAppAuthExtendService.is_webapp_auth_enabled(app_model.id):
             raise WebAuthRequiredErrorExtend()
         # ----------------- stop You must log in to access your account extend ---------------
 
@@ -92,8 +93,7 @@ class WorkflowRunApi(WebApiResource):
         payload = WorkflowRunPayload.model_validate(web_ns.payload or {})
         args = payload.model_dump(exclude_none=True)
 
-        # extend: 获取 Console 用户 ID，直接作为 from_account_id 传递
-        user_info = is_end_login(end_user)
+        # Only the Console cookie admitted for this request may supply account attribution.
         if user_info:
             args["account_id"] = user_info.id
 

@@ -1,5 +1,6 @@
 import dataclasses
 import json
+from types import ModuleType
 from unittest import mock
 from uuid import uuid4
 
@@ -460,3 +461,93 @@ class TestWorkflowDraftVariableGetValue:
         draft_var.set_value(int_var)
         value = draft_var.get_value()
         assert value == int_var
+
+
+def _workflow_account_extension_migration() -> ModuleType:
+    import importlib.util
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[3] / (
+        "migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py"
+    )
+    spec = importlib.util.spec_from_file_location("workflow_account_extension_migration", path)
+    assert spec is not None
+    assert spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_workflow_account_extension_migration_creates_separate_table() -> None:
+    import sqlalchemy as sa
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+
+    from models.workflow_account_extend import WorkflowRunAccountExtend
+
+    migration = _workflow_account_extension_migration()
+    assert migration.down_revision == "019_webapp_auth_switch"
+    assert WorkflowRunAccountExtend.__table__.c.from_account_id.nullable
+    engine = sa.create_engine("sqlite://")
+    with engine.begin() as connection:
+        connection.execute(sa.text("CREATE TABLE workflow_runs (id VARCHAR(36) PRIMARY KEY)"))
+        connection.execute(sa.text("INSERT INTO workflow_runs VALUES ('old-run')"))
+        with Operations.context(MigrationContext.configure(connection)):
+            migration.upgrade()
+            migration.upgrade()
+        inspector = sa.inspect(connection)
+        assert inspector.has_table("workflow_runs")
+        assert inspector.has_table("workflow_run_account_extend")
+        assert "from_account_id" not in {column["name"] for column in inspector.get_columns("workflow_runs")}
+        assert connection.execute(sa.text("SELECT count(*) FROM workflow_run_account_extend")).scalar_one() == 0
+        connection.execute(
+            sa.text(
+                "INSERT INTO workflow_run_account_extend "
+                "(workflow_run_id, tenant_id, app_id, from_account_id) VALUES (:run, :tenant, :app, :actor)"
+            ),
+            [
+                {"run": "anonymous", "tenant": "tenant", "app": "app", "actor": None},
+                {"run": "authenticated", "tenant": "tenant", "app": "app", "actor": "account-a"},
+            ],
+        )
+        assert connection.execute(
+            sa.text("SELECT workflow_run_id, from_account_id FROM workflow_run_account_extend ORDER BY workflow_run_id")
+        ).all() == [("anonymous", None), ("authenticated", "account-a")]
+        with Operations.context(MigrationContext.configure(connection)):
+            migration.downgrade()
+        assert inspector.has_table("workflow_runs")
+        assert not sa.inspect(connection).has_table("workflow_run_account_extend")
+
+
+def test_workflow_account_extension_migration_extends_only_fork_chain() -> None:
+    from pathlib import Path
+
+    from alembic.script import ScriptDirectory
+
+    api_dir = Path(__file__).resolve().parents[3]
+    main = ScriptDirectory(str(api_dir / "migrations"))
+    assert main.get_heads() == ["c3f1a9b2e6d4"]
+    extension = ScriptDirectory(str(api_dir / "migrations_extend"))
+    assert extension.get_heads() == ["020_workflow_run_account"]
+    assert extension.get_revision("020_workflow_run_account").down_revision == "019_webapp_auth_switch"
+
+
+@pytest.mark.parametrize(("dialect", "uuid_type"), [("postgresql", "UUID"), ("mysql", "CHAR(36)")])
+def test_workflow_account_extension_migration_compiles(dialect: str, uuid_type: str) -> None:
+    from io import StringIO
+
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+
+    output = StringIO()
+    context = MigrationContext.configure(dialect_name=dialect, opts={"as_sql": True, "output_buffer": output})
+    with Operations.context(context):
+        _workflow_account_extension_migration().upgrade()
+    sql = output.getvalue()
+    assert "CREATE TABLE workflow_run_account_extend" in sql
+    assert f"from_account_id {uuid_type}" in sql
+    assert f"from_account_id {uuid_type} NOT NULL" not in sql
+    assert "workflow_run_account_extend_scope_idx" in sql
+    assert "ALTER TABLE workflow_runs" not in sql
+    assert "FOREIGN KEY" not in sql
+    assert "UPDATE" not in sql

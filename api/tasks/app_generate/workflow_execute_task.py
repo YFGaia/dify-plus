@@ -36,6 +36,7 @@ from models.enums import CreatorUserRole, WorkflowRunTriggeredFrom
 from models.model import App, AppMode, Conversation, EndUser, Message
 from models.workflow import Workflow, WorkflowNodeExecutionTriggeredFrom, WorkflowRun
 from repositories.factory import DifyAPIRepositoryFactory
+from services.workflow_run_account_extend import get_workflow_run_account_id
 
 logger = logging.getLogger(__name__)
 
@@ -696,10 +697,25 @@ def _resume_workflow(
 ) -> None:
     resumed_generate_entity = generate_entity.model_copy(update={"stream": True})
 
+    if (
+        workflow_run.tenant_id != app_model.tenant_id
+        or workflow_run.app_id != app_model.id
+        or generate_entity.app_config.app_id != app_model.id
+    ):
+        raise ValueError("Unauthorized access to workflow run")
+
     try:
         triggered_from = WorkflowRunTriggeredFrom(workflow_run.triggered_from)
     except ValueError:
         triggered_from = WorkflowRunTriggeredFrom.APP_RUN
+
+    with session_factory() as session:
+        from_account_id = get_workflow_run_account_id(
+            session,
+            workflow_run_id=workflow_run.id,
+            tenant_id=workflow_run.tenant_id,
+            app_id=workflow_run.app_id,
+        )
 
     workflow_execution_repository = DifyCoreRepositoryFactory.create_workflow_execution_repository(
         session_factory=session_factory,
@@ -707,6 +723,7 @@ def _resume_workflow(
         user=user,
         app_id=app_model.id,
         triggered_from=triggered_from,
+        from_account_id=from_account_id,
     )
     workflow_node_execution_repository = DifyCoreRepositoryFactory.create_workflow_node_execution_repository(
         session_factory=session_factory,

@@ -195,3 +195,67 @@ class TestWorkflowRunApiWebAppAuthSwitch:
         mock_compact.assert_called_once()
         assert result == {"result": "ok"}
         switch.assert_called_once_with("app-1")
+
+
+@pytest.mark.parametrize(
+    "claims",
+    [None, {}, {"sub": "Web API Passport", "exp": 1, "user_id": "a"}, {"sub": "Console API Passport", "user_id": "a"}],
+)
+def test_workflow_console_actor_rejects_invalid_cookie(app: Flask, claims: dict[str, str | int] | None) -> None:
+    from flask import request
+
+    from services.webapp_console_identity_extend import get_console_account_extend
+
+    with (
+        app.test_request_context("/workflows/run", headers={"Authorization": "Bearer webapp-token"}),
+        patch("services.webapp_console_identity_extend.extract_console_cookie_token", return_value="cookie"),
+        patch("services.webapp_console_identity_extend.PassportService") as passport,
+        patch("services.webapp_console_identity_extend.AccountService.load_logged_in_account") as load,
+    ):
+        if claims is None:
+            passport.return_value.verify.side_effect = ValueError("expired")
+        else:
+            passport.return_value.verify.return_value = claims
+        assert get_console_account_extend(request, session=MagicMock()) is None
+        load.assert_not_called()
+
+
+@pytest.mark.parametrize("account_id", ["account-a", "account-b"])
+def test_workflow_console_actor_resolves_cookie_account(app: Flask, account_id: str) -> None:
+    from flask import request
+
+    from models.account import Account
+    from services.webapp_console_identity_extend import get_console_account_extend
+
+    account = Account(name="Actor", email="actor@example.com")
+    account.id = account_id
+    with (
+        app.test_request_context("/workflows/run"),
+        patch("services.webapp_console_identity_extend.extract_console_cookie_token", return_value="cookie"),
+        patch("services.webapp_console_identity_extend.PassportService") as passport,
+        patch("services.webapp_console_identity_extend.Session") as session,
+        patch(
+            "services.webapp_console_identity_extend.AccountService.load_logged_in_account", return_value=account
+        ) as load,
+    ):
+        passport.return_value.verify.return_value = {
+            "sub": "Console API Passport",
+            "exp": 123,
+            "user_id": account_id,
+        }
+        assert get_console_account_extend(request, session=MagicMock()) is account
+        load.assert_called_once_with(account_id=account_id, session=session.return_value.__enter__.return_value)
+
+
+def test_workflow_console_actor_does_not_use_bearer_without_cookie(app: Flask) -> None:
+    from flask import request
+
+    from services.webapp_console_identity_extend import get_console_account_extend
+
+    with (
+        app.test_request_context("/workflows/run", headers={"Authorization": "Bearer webapp-token"}),
+        patch("services.webapp_console_identity_extend.extract_console_cookie_token", return_value=None),
+        patch("services.webapp_console_identity_extend.PassportService") as passport,
+    ):
+        assert get_console_account_extend(request, session=MagicMock()) is None
+        passport.assert_not_called()

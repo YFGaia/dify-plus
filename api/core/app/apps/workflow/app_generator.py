@@ -259,6 +259,7 @@ class WorkflowAppGenerator(BaseAppGenerator):
                 user=user,
                 app_id=application_generate_entity.app_config.app_id,
                 triggered_from=workflow_triggered_from,
+                from_account_id=args.get("account_id") if invoke_from == InvokeFrom.WEB_APP else None,
             )
             # Create workflow node execution repository
             workflow_node_execution_repository = DifyCoreRepositoryFactory.create_workflow_node_execution_repository(

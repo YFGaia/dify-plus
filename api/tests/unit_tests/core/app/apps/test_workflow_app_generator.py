@@ -2,7 +2,9 @@
 
 import contextlib
 import json
+from collections.abc import Callable, Generator
 from types import SimpleNamespace
+from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -23,6 +25,7 @@ from models.enums import CreatorUserRole, EndUserType, WorkflowRunTriggeredFrom
 from models.model import App, AppMode, EndUser
 from models.snippet import CustomizedSnippet
 from models.workflow import Workflow, WorkflowKind, WorkflowNodeExecutionTriggeredFrom, WorkflowRun, WorkflowType
+from models.workflow_account_extend import WorkflowRunAccountExtend
 
 
 def _workflow(
@@ -204,8 +207,10 @@ def test_ensure_snippet_start_node_in_worker_applies_snippet_start_injection(
     ensure_start_node.assert_called_once_with(workflow, snippet)
 
 
+@pytest.mark.parametrize("actor", [None, "account-a", "account-b"])
+@pytest.mark.parametrize("invoke_from", [InvokeFrom.WEB_APP, InvokeFrom.SERVICE_API, InvokeFrom.DEBUGGER])
 def test_generate_includes_parent_trace_context_in_extras(
-    monkeypatch: pytest.MonkeyPatch, sqlite_session: Session
+    monkeypatch: pytest.MonkeyPatch, sqlite_session: Session, actor: str | None, invoke_from: InvokeFrom
 ) -> None:
     generator = WorkflowAppGenerator()
     app, workflow, end_user = _persist_generator_rows(sqlite_session)
@@ -264,6 +269,7 @@ def test_generate_includes_parent_trace_context_in_extras(
         user=end_user,
         args={
             "inputs": {"query": "hello"},
+            "account_id": actor,
             "files": [],
             "external_trace_id": "trace-1",
             "parent_trace_context": {
@@ -272,7 +278,7 @@ def test_generate_includes_parent_trace_context_in_extras(
             },
             "trace_session_id": "session-1",
         },
-        invoke_from=InvokeFrom.SERVICE_API,
+        invoke_from=invoke_from,
         streaming=False,
         call_depth=0,
     )
@@ -290,6 +296,10 @@ def test_generate_includes_parent_trace_context_in_extras(
     assert isinstance(captured["workflow_execution_repository"], SQLAlchemyWorkflowExecutionRepository)
     assert isinstance(captured["workflow_node_execution_repository"], SQLAlchemyWorkflowNodeExecutionRepository)
     assert repository_tenant_ids == {"workflow": app.tenant_id, "node": app.tenant_id}
+
+    assert captured["workflow_execution_repository"]._from_account_id == (
+        actor if invoke_from == InvokeFrom.WEB_APP else None
+    )
 
 
 def test_resume_delegates_to_generate(monkeypatch: pytest.MonkeyPatch, sqlite_session: Session) -> None:
@@ -518,3 +528,137 @@ def test_resume_path_runs_worker_with_runtime_state(monkeypatch: pytest.MonkeyPa
     assert worker_lifecycle["joined"] is True
     assert worker_lifecycle["join_timeout"] == 300
     runner_instance.run.assert_called_once()
+
+
+@pytest.mark.parametrize("actor", [None, "account-a", "account-b"])
+@pytest.mark.parametrize("recovery", ["normal", "async"])
+@pytest.mark.parametrize("backend", ["sqlalchemy", "logstore"])
+@pytest.mark.parametrize("corrupt_scope", [None, "tenant", "app"])
+def test_recovery_uses_saved_actor_despite_resuming_identity(
+    monkeypatch: pytest.MonkeyPatch,
+    sqlite_session: Session,
+    actor: str | None,
+    recovery: str,
+    backend: str,
+    corrupt_scope: str | None,
+    config_overrides: Callable[..., None],
+) -> None:
+    from graphon.entities import WorkflowExecution
+    from graphon.enums import WorkflowType as RuntimeWorkflowType
+    from libs.datetime_utils import naive_utc_now
+    from tasks import async_workflow_tasks
+    from tasks.app_generate import workflow_execute_task
+
+    app, workflow, end_user = _persist_generator_rows(sqlite_session)
+    session_factory = sessionmaker(bind=sqlite_session.get_bind(), expire_on_commit=False)
+    execution = WorkflowExecution.new(
+        id_="run",
+        workflow_id=workflow.id,
+        workflow_type=RuntimeWorkflowType.WORKFLOW,
+        workflow_version="1",
+        graph={},
+        inputs={},
+        started_at=naive_utc_now(),
+    )
+    original_repo = SQLAlchemyWorkflowExecutionRepository(
+        session_factory=session_factory,
+        tenant_id=app.tenant_id,
+        user=end_user,
+        app_id=app.id,
+        triggered_from=WorkflowRunTriggeredFrom.APP_RUN,
+        from_account_id=actor,
+    )
+    original_repo.save(execution)
+    client = MagicMock()
+    if backend == "logstore":
+        config_overrides(
+            CORE_WORKFLOW_EXECUTION_REPOSITORY=(
+                "extensions.logstore.repositories.logstore_workflow_execution_repository.LogstoreWorkflowExecutionRepository"
+            ),
+            LOGSTORE_DUAL_WRITE_ENABLED=False,
+        )
+        client.supports_pg_protocol = True
+        client.get_logs.return_value = [
+            {"id": "run", "tenant_id": app.tenant_id, "app_id": app.id, "from_account_id": actor or ""}
+        ]
+        monkeypatch.setattr(
+            "extensions.logstore.repositories.logstore_workflow_execution_repository.AliyunLogStore",
+            MagicMock(return_value=client),
+        )
+        monkeypatch.setattr("services.workflow_run_account_extend.AliyunLogStore", lambda: client)
+        with session_factory() as session:
+            association = session.get(WorkflowRunAccountExtend, "run")
+            assert association is not None
+            session.delete(association)
+            session.commit()
+    with session_factory() as session:
+        saved_run = session.get(WorkflowRun, "run")
+        assert saved_run is not None
+    generate_entity = _generate_entity(app, workflow, end_user, invoke_from=InvokeFrom.WEB_APP)
+    generate_entity.extras["account_id"] = "retry-account"
+    end_user.external_user_id = "retry-account"
+    if corrupt_scope == "tenant":
+        saved_run.tenant_id = "foreign"
+    elif corrupt_scope == "app":
+        generate_entity.app_config.app_id = "foreign"
+    captured = {}
+
+    def resume(**kwargs: object) -> Generator[object, None, None]:
+        repo = cast(SQLAlchemyWorkflowExecutionRepository, kwargs["workflow_execution_repository"])
+        captured["actor"] = repo._from_account_id
+        repo.save(execution)
+        return (item for item in [])
+
+    generator = MagicMock()
+    generator.resume.side_effect = resume
+    run_repo = MagicMock()
+    pause = MagicMock(workflow_execution_id="run")
+    with pytest.raises(ValueError, match="Unauthorized") if corrupt_scope else contextlib.nullcontext():
+        if recovery == "normal":
+            monkeypatch.setattr(workflow_execute_task, "WorkflowAppGenerator", lambda: generator)
+            monkeypatch.setattr(workflow_execute_task, "_publish_streaming_response", MagicMock())
+            workflow_execute_task._resume_workflow(
+                app_model=app,
+                workflow=workflow,
+                user=end_user,
+                generate_entity=generate_entity,
+                graph_runtime_state=_runtime_state(),
+                response_stream_filter=MagicMock(),
+                session_factory=session_factory,
+                pause_state_config=MagicMock(),
+                workflow_run_id="run",
+                workflow_run=saved_run,
+                workflow_run_repo=run_repo,
+                pause_entity=pause,
+            )
+        else:
+            monkeypatch.setattr(async_workflow_tasks, "db", SimpleNamespace(engine=sqlite_session.get_bind()))
+            monkeypatch.setattr(async_workflow_tasks, "WorkflowAppGenerator", lambda: generator)
+            monkeypatch.setattr(async_workflow_tasks, "_get_user", lambda *_: end_user)
+            monkeypatch.setattr(async_workflow_tasks, "_query_trigger_log_info", lambda *_: None)
+            monkeypatch.setattr(
+                async_workflow_tasks.DifyAPIRepositoryFactory,
+                "create_api_workflow_run_repository",
+                lambda *_: run_repo,
+            )
+            run_repo.get_workflow_pause.return_value = pause
+            run_repo.get_workflow_run_by_id_without_tenant.return_value = saved_run
+            context = MagicMock()
+            context.get_generate_entity.return_value = generate_entity
+            monkeypatch.setattr(async_workflow_tasks.WorkflowResumptionContext, "loads", lambda *_: context)
+            monkeypatch.setattr(async_workflow_tasks.GraphRuntimeState, "from_snapshot", lambda *_: _runtime_state())
+            async_workflow_tasks.resume_workflow_execution.run({"workflow_run_id": "run"})
+    if corrupt_scope:
+        generator.resume.assert_not_called()
+        return
+    assert captured["actor"] == actor
+    with session_factory() as session:
+        row = session.get(WorkflowRun, "run")
+        assert row is not None
+        attribution = session.get(WorkflowRunAccountExtend, "run")
+        if backend == "logstore":
+            assert attribution is None
+            assert dict(client.put_log.call_args.args[1])["from_account_id"] == (actor or "")
+        else:
+            assert attribution is not None
+            assert attribution.from_account_id == actor

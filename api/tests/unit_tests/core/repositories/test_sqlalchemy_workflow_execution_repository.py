@@ -423,3 +423,169 @@ class TestSQLAlchemyWorkflowExecutionRepository:
         persisted_model = sqlite_session.get(WorkflowRun, sample_workflow_execution.id_)
         assert persisted_model is not None
         assert persisted_model.tenant_id == other_tenant_id
+
+
+@pytest.mark.parametrize("actor", [None, "account-a", "account-b"])
+@pytest.mark.parametrize("retry_actor", [None, "retry-account"])
+def test_account_actor_is_written_once(
+    sqlite_session_factory: sessionmaker[Session],
+    end_user: EndUser,
+    sample_workflow_execution: WorkflowExecution,
+    actor: str | None,
+    retry_actor: str | None,
+) -> None:
+    end_user.external_user_id = "untrusted-binding"
+    kwargs = {
+        "session_factory": sqlite_session_factory,
+        "tenant_id": RESOURCE_TENANT_ID,
+        "user": end_user,
+        "app_id": "app",
+        "triggered_from": WorkflowRunTriggeredFrom.APP_RUN,
+    }
+    SQLAlchemyWorkflowExecutionRepository(**kwargs, from_account_id=actor).save(sample_workflow_execution)
+    SQLAlchemyWorkflowExecutionRepository(**kwargs, from_account_id=retry_actor).save(sample_workflow_execution)
+    with sqlite_session_factory() as session:
+        row = session.get(WorkflowRun, sample_workflow_execution.id_)
+        assert row is not None
+        from models.workflow_account_extend import WorkflowRunAccountExtend
+
+        attribution = session.get(WorkflowRunAccountExtend, row.id)
+        assert attribution is not None
+        assert attribution.from_account_id == actor
+        assert row.created_by == end_user.id
+        assert row.created_by_role == CreatorUserRole.END_USER
+        assert row.triggered_from == WorkflowRunTriggeredFrom.APP_RUN
+
+
+@pytest.mark.parametrize("changed_scope", [{"tenant_id": "other-tenant"}, {"app_id": "other-app"}])
+def test_account_actor_update_rejects_other_owner_scope(
+    sqlite_session_factory: sessionmaker[Session],
+    end_user: EndUser,
+    sample_workflow_execution: WorkflowExecution,
+    changed_scope: dict[str, str],
+) -> None:
+    kwargs = {
+        "session_factory": sqlite_session_factory,
+        "tenant_id": RESOURCE_TENANT_ID,
+        "user": end_user,
+        "app_id": "app",
+        "triggered_from": WorkflowRunTriggeredFrom.APP_RUN,
+        "from_account_id": "account-a",
+    }
+    SQLAlchemyWorkflowExecutionRepository(**kwargs).save(sample_workflow_execution)
+    with pytest.raises(ValueError, match="Unauthorized"):
+        SQLAlchemyWorkflowExecutionRepository(
+            session_factory=sqlite_session_factory,
+            tenant_id=changed_scope.get("tenant_id", RESOURCE_TENANT_ID),
+            user=end_user,
+            app_id=changed_scope.get("app_id", "app"),
+            triggered_from=WorkflowRunTriggeredFrom.APP_RUN,
+            from_account_id="retry-account",
+        ).save(sample_workflow_execution)
+
+
+def _save_actor_test_run(
+    factory: sessionmaker[Session], execution: WorkflowExecution, backend: str, actor: str | None
+) -> None:
+    if backend == "sqlalchemy":
+        SQLAlchemyWorkflowExecutionRepository(
+            session_factory=factory,
+            tenant_id=RESOURCE_TENANT_ID,
+            user=EndUser(id="end-user"),
+            app_id="app",
+            triggered_from=WorkflowRunTriggeredFrom.APP_RUN,
+            from_account_id=actor,
+        ).save(execution)
+    else:
+        from unittest.mock import patch
+
+        from tasks.workflow_execution_tasks import save_workflow_execution_task
+
+        with patch("tasks.workflow_execution_tasks.session_factory.create_session", factory):
+            save_workflow_execution_task.run(
+                execution_data=execution.model_dump(mode="json"),
+                tenant_id=RESOURCE_TENANT_ID,
+                app_id="app",
+                triggered_from="app-run",
+                creator_user_id="end-user",
+                creator_user_role="end_user",
+                from_account_id=actor,
+            )
+
+
+@pytest.mark.parametrize("backend", ["sqlalchemy", "celery"])
+def test_historical_run_is_not_backfilled(
+    sqlite_session_factory: sessionmaker[Session], sample_workflow_execution: WorkflowExecution, backend: str
+) -> None:
+    from models.workflow_account_extend import WorkflowRunAccountExtend
+    from services.workflow_run_account_extend import get_workflow_run_account_id
+
+    _save_actor_test_run(sqlite_session_factory, sample_workflow_execution, backend, None)
+    with sqlite_session_factory() as session:
+        attribution = session.get(WorkflowRunAccountExtend, sample_workflow_execution.id_)
+        assert attribution is not None
+        session.delete(attribution)
+        session.commit()
+    _save_actor_test_run(sqlite_session_factory, sample_workflow_execution, backend, "retry-account")
+    with sqlite_session_factory() as session:
+        assert session.get(WorkflowRunAccountExtend, sample_workflow_execution.id_) is None
+        assert (
+            get_workflow_run_account_id(
+                session, workflow_run_id=sample_workflow_execution.id_, tenant_id=RESOURCE_TENANT_ID, app_id="app"
+            )
+            is None
+        )
+
+
+@pytest.mark.parametrize("backend", ["sqlalchemy", "celery"])
+def test_run_and_actor_are_rolled_back_together(
+    sqlite_session_factory: sessionmaker[Session], sample_workflow_execution: WorkflowExecution, backend: str
+) -> None:
+    from sqlalchemy import event
+
+    from models.workflow_account_extend import WorkflowRunAccountExtend
+
+    def reject_insert(*_args: object) -> None:
+        raise RuntimeError("actor write failed")
+
+    event.listen(WorkflowRunAccountExtend, "before_insert", reject_insert)
+    try:
+        with pytest.raises(RuntimeError, match="actor write failed"):
+            _save_actor_test_run(sqlite_session_factory, sample_workflow_execution, backend, "account-a")
+    finally:
+        event.remove(WorkflowRunAccountExtend, "before_insert", reject_insert)
+    with sqlite_session_factory() as session:
+        assert session.get(WorkflowRun, sample_workflow_execution.id_) is None
+        assert session.get(WorkflowRunAccountExtend, sample_workflow_execution.id_) is None
+
+
+@pytest.mark.parametrize("backend", ["sqlalchemy", "celery"])
+@pytest.mark.parametrize("foreign_scope", [False, True])
+def test_retained_association_is_immutable_and_scope_checked(
+    sqlite_session_factory: sessionmaker[Session],
+    sample_workflow_execution: WorkflowExecution,
+    backend: str,
+    foreign_scope: bool,
+) -> None:
+    from models.workflow_account_extend import WorkflowRunAccountExtend
+
+    with sqlite_session_factory() as session:
+        session.add(
+            WorkflowRunAccountExtend(
+                workflow_run_id=sample_workflow_execution.id_,
+                tenant_id="other-tenant" if foreign_scope else RESOURCE_TENANT_ID,
+                app_id="app",
+                from_account_id="original-account",
+            )
+        )
+        session.commit()
+    if foreign_scope:
+        with pytest.raises(ValueError, match="Unauthorized"):
+            _save_actor_test_run(sqlite_session_factory, sample_workflow_execution, backend, "retry-account")
+    else:
+        _save_actor_test_run(sqlite_session_factory, sample_workflow_execution, backend, "retry-account")
+    with sqlite_session_factory() as session:
+        attribution = session.get(WorkflowRunAccountExtend, sample_workflow_execution.id_)
+        assert attribution is not None
+        assert attribution.from_account_id == "original-account"
+        assert (session.get(WorkflowRun, sample_workflow_execution.id_) is None) == foreign_scope

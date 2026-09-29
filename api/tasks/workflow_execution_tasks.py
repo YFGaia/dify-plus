@@ -17,6 +17,7 @@ from graphon.entities import WorkflowExecution
 from graphon.workflow_type_encoder import WorkflowRuntimeTypeConverter
 from models import CreatorUserRole, WorkflowRun
 from models.enums import WorkflowRunTriggeredFrom
+from models.workflow_account_extend import WorkflowRunAccountExtend
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ def save_workflow_execution_task(
     triggered_from: str,
     creator_user_id: str,
     creator_user_role: str,
+    from_account_id: str | None = None,
 ) -> bool:
     """
     Asynchronously save or update a workflow execution to the database.
@@ -41,6 +43,7 @@ def save_workflow_execution_task(
         triggered_from: Source of the execution trigger
         creator_user_id: ID of the user who created the execution
         creator_user_role: Role of the user who created the execution
+        from_account_id: Validated WebApp actor, optional for older queued tasks
 
     Returns:
         True if successful, False otherwise
@@ -53,7 +56,13 @@ def save_workflow_execution_task(
             # Check if workflow run already exists
             existing_run = session.scalar(select(WorkflowRun).where(WorkflowRun.id == execution.id_))
 
+            attribution = session.get(WorkflowRunAccountExtend, execution.id_)
+            if attribution is not None and (attribution.tenant_id != tenant_id or attribution.app_id != app_id):
+                raise ValueError("Unauthorized access to workflow run")
+
             if existing_run:
+                if existing_run.tenant_id != tenant_id or existing_run.app_id != app_id:
+                    raise ValueError("Unauthorized access to workflow run")
                 # Update existing workflow run
                 _update_workflow_run_from_execution(existing_run, execution)
                 logger.debug("Updated existing workflow run: %s", execution.id_)
@@ -68,6 +77,15 @@ def save_workflow_execution_task(
                     creator_user_role=CreatorUserRole(creator_user_role),
                 )
                 session.add(workflow_run)
+                if app_id and attribution is None:
+                    session.add(
+                        WorkflowRunAccountExtend(
+                            workflow_run_id=execution.id_,
+                            tenant_id=tenant_id,
+                            app_id=app_id,
+                            from_account_id=from_account_id,
+                        )
+                    )
                 logger.debug("Created new workflow run: %s", execution.id_)
 
             session.commit()

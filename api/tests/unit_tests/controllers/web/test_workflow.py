@@ -123,3 +123,34 @@ class TestWorkflowTaskStopApi:
         assert result == {"result": "success"}
         mock_legacy.assert_called_once_with("task-1")
         mock_graph.assert_called_once_with("task-1")
+
+
+@pytest.mark.parametrize("actor", [None, "account-a", "account-b"])
+def test_workflow_account_actor_comes_from_current_console_identity(
+    app: Flask, monkeypatch: pytest.MonkeyPatch, actor: str | None
+) -> None:
+    from types import SimpleNamespace
+
+    user = _end_user()
+    user.external_user_id = "old-bound-account"
+    resolver = MagicMock(return_value=SimpleNamespace(id=actor) if actor else None)
+    monkeypatch.setattr("controllers.web.workflow.is_end_login", resolver)
+    with (
+        patch("controllers.web.workflow.WebAppAuthExtendService.is_webapp_auth_enabled", return_value=False),
+        patch("controllers.web.workflow.web_ns") as namespace,
+        patch("controllers.web.workflow.AppGenerateService.generate") as generate,
+        patch("controllers.web.workflow.AppGenerateServiceExtend.calculate_cumulative_usage"),
+        patch("controllers.web.workflow.helper.compact_generate_response"),
+        app.test_request_context("/workflows/run", method="POST"),
+    ):
+        namespace.payload = {
+            "inputs": dict[str, str](),
+            "account_id": "forged-account",
+            "from_account_id": "forged-account",
+        }
+        WorkflowRunApi().post(_workflow_app(), user)
+    resolver.assert_called_once_with(user)
+    args = generate.call_args.kwargs["args"]
+    assert args.get("account_id") == actor
+    assert "from_account_id" not in args
+    assert generate.call_args.kwargs["user"] is user

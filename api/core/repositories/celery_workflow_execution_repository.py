@@ -50,6 +50,7 @@ class CeleryWorkflowExecutionRepository(WorkflowExecutionRepository):
         user: Account | EndUser,
         app_id: str | None,
         triggered_from: WorkflowRunTriggeredFrom | None,
+        from_account_id: str | None = None,
     ):
         """
         Initialize the repository with Celery task configuration and context information.
@@ -60,6 +61,7 @@ class CeleryWorkflowExecutionRepository(WorkflowExecutionRepository):
             user: Account or EndUser used for creator attribution
             app_id: App ID for filtering by application (can be None)
             triggered_from: Source of the execution trigger (DEBUGGING or APP_RUN)
+            from_account_id: Validated WebApp Console actor; ignored for already persisted ownership
         """
         # Store session factory for fallback operations
         match session_factory:
@@ -78,6 +80,7 @@ class CeleryWorkflowExecutionRepository(WorkflowExecutionRepository):
 
         # Store app context
         self._app_id = app_id
+        self._from_account_id = from_account_id
 
         # Extract user context
         self._triggered_from = triggered_from
@@ -116,6 +119,7 @@ class CeleryWorkflowExecutionRepository(WorkflowExecutionRepository):
                 triggered_from=self._triggered_from.value if self._triggered_from else "",
                 creator_user_id=self._creator_user_id,
                 creator_user_role=self._creator_user_role.value,
+                from_account_id=self._from_account_id,
             )
 
             logger.debug("Queued async save for workflow execution: %s", execution.id_)

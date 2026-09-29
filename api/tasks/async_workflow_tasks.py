@@ -37,6 +37,7 @@ from services.workflow.entities import (
     WorkflowResumeTaskData,
     WorkflowTaskData,
 )
+from services.workflow_run_account_extend import get_workflow_run_account_id
 from tasks.workflow_cfs_scheduler.cfs_scheduler import AsyncWorkflowCFSPlanEntity, AsyncWorkflowCFSPlanScheduler
 from tasks.workflow_cfs_scheduler.entities import AsyncWorkflowQueue, AsyncWorkflowSystemStrategy
 
@@ -245,12 +246,24 @@ def resume_workflow_execution(task_data_dict: dict[str, Any]) -> None:
         if app_model is None:
             raise _AppNotFoundError(f"App not found: app_id={workflow_run.app_id}, workflow_run_id={workflow_run.id}")
 
+    if workflow_run.tenant_id != app_model.tenant_id or workflow_run.app_id != generate_entity.app_config.app_id:
+        raise ValueError("Unauthorized access to workflow run")
+
+    with session_factory() as session:
+        from_account_id = get_workflow_run_account_id(
+            session,
+            workflow_run_id=workflow_run.id,
+            tenant_id=workflow_run.tenant_id,
+            app_id=workflow_run.app_id,
+        )
+
     workflow_execution_repository = DifyCoreRepositoryFactory.create_workflow_execution_repository(
         session_factory=session_factory,
         tenant_id=app_model.tenant_id,
         user=user,
         app_id=generate_entity.app_config.app_id,
         triggered_from=WorkflowRunTriggeredFrom(workflow_run.triggered_from),
+        from_account_id=from_account_id,
     )
     workflow_node_execution_repository = DifyCoreRepositoryFactory.create_workflow_node_execution_repository(
         session_factory=session_factory,
