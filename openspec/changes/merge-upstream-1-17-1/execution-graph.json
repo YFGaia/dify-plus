@@ -2414,7 +2414,7 @@
         ],
         "current_subtask": {
           "id": "13.6_source_acceptance_revalidation",
-          "status": "review_in_progress",
+          "status": "review_complete_p2_remediation_pending",
           "model": "gpt-6-sol",
           "title": "M07 13.6 Compose 与镜像矩阵验收",
           "base_commit": "9b6937464d6cb845a10a3193230ee6683ca3eecb",
@@ -2453,11 +2453,18 @@
             "base_commit": "8d39ba7c1ed9779285c66c3c10d2245c4257179f",
             "dispatch_channel": "codex_project_worktree",
             "reason": "No resolvable threadId appeared in list_threads after provisioning; superseded by a one-shot local read-only Sol thread."
-          }
+          },
+          "review_target_commit": "8dbd5e6a03e6966446ee413e0eea9bf656c9fb7c",
+          "review_status": "findings_blocking",
+          "review_evidence": "evidence/M07/13.6-independent-review.md",
+          "next_subtask": "13.6_gitlab_manifest_artifact_fix"
         },
-        "next_subtask": "13.6_source_acceptance_revalidation"
+        "next_subtask": "13.6_gitlab_manifest_artifact_fix"
       },
       "registered_additional_paths": [
+        ".github/workflows/build-push.yml",
+        ".github/workflows/docker-build.yml",
+        ".gitlab-ci.yml",
         "api/docker/entrypoint.sh",
         "docker/docker-compose.dify-plus.yaml",
         "docker/envs/core-services/api.env.example",
@@ -2470,9 +2477,7 @@
         "docker/envs/core-services/worker.env.example",
         "docker/ssrf_proxy/squid-agent.conf.template",
         "docker/ssrf_proxy/squid-common.conf.template",
-        "docker/ssrf_proxy/squid.conf.template",
-        ".github/workflows/build-push.yml",
-        ".github/workflows/docker-build.yml"
+        "docker/ssrf_proxy/squid.conf.template"
       ],
       "active_subtasks": {
         "13.6_source_acceptance_revalidation": {
