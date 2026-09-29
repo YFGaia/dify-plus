@@ -393,6 +393,14 @@
       "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
       "created_from_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
       "dispatch_channel": "codex_project_worktree"
+    },
+    "12.5_analysis": {
+      "status": "in_progress",
+      "model": "gpt-6-sol",
+      "agent": "/root/m06_12_5_analysis",
+      "scope": "Read-only exact path and ownership analysis for M06 12.5: lo-LA extend locale completeness and obsolete Overview/secret-key/category production references.",
+      "registered_paths": [],
+      "write_scope": "read-only; no files may be modified"
     }
   },
   "next_subtask": "12.2a_app_center_repair"

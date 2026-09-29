@@ -105,7 +105,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [ ] 12.2c [M06] M03 9.6 已提供 current-page sync IDs；独立 gpt-6-astra 任务 `client-new-thread:0ceed222-0cfe-483a-a7b1-b61587486cf7` 已从 `00728c296c` 创建，worktree provisioning；将 Studio sync/unsync 菜单迁至 1.17.1 app-card interaction host，保留 manager/admin_extend/tenant_extend 权限、确认流程与成功后的 app-list 缓存失效；详见 `evidence/M06/result.json#/subtasks/12.2c_studio_sync_menu`。
 - [ ] 12.3 [M06] API key modal/table 按 scope 显示已支持额度，余额保留独立显示；Sol 只读分析任务 `client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947` 正在 worktree provisioning，实施路径与测试范围待分析交接后登记；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 12.4 [M06] 系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施；Sol 只读分析任务 `client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c` 正在 worktree provisioning；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 12.5 [M06] 补 lo-LA extend，共24语言；移除旧 Overview/secret-key/category 生产引用；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核；核验：在 `evidence/M06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [ ] 12.5 [M06] 补 lo-LA extend，共24语言；移除旧 Overview/secret-key/category 生产引用；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核。精确路径和 owner 由独立 Sol 只读分析 `/root/m06_12_5_analysis` 先核对，实施前先登记；核验见 `evidence/M06/result.json#/subtasks/12.5_analysis`。
 - [ ] 12.6 [M06] 节点验收：现有 fork 路由都能被新宿主访问；两个 WebApp Switch 独立；24 语言资源齐全；旧测试迁移到真实新挂点；保存绑定版本的证据并更新节点状态。
 
 ## 13. M07 综合部署和 CI 对齐（前置：M01）
