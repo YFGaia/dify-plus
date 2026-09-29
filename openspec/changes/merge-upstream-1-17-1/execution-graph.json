@@ -1140,7 +1140,7 @@
           "observation": "A fresh read-only Sol task replaced an earlier provisioning request whose thread ID was not exposed; the task is active in a separate conversation.",
           "evidence": "evidence/M06/result.json#/subtasks/12.3_analysis"
         },
-        "next_subtask": "12.3_analysis",
+        "next_subtask": "12.3_app_api_key_quota_and_balance",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1490,6 +1490,10 @@
             "finding_count": 1,
             "blocker": "P2: Polish tenant terminology uses dzierżawa (lease), obscuring which tenant/code nodes revert to standard sandbox; fix and re-review before passing M06 locale review."
           }
+        ],
+        "completed_analyses": [
+          "12.3_analysis",
+          "12.4_analysis"
         ]
       },
       "registered_additional_paths": [
@@ -1528,19 +1532,35 @@
         "web/i18n/uk-UA/extend.json",
         "web/i18n/vi-VN/extend.json",
         "web/i18n/zh-Hant/extend.json",
-        "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
+        "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx",
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/api-key-table.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "web/app/components/main-nav/components/account-money-extend.tsx",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
       ],
       "active_subtasks": {
         "12.3_analysis": {
-          "status": "analysis_in_progress",
+          "status": "analysis_complete_paths_registered",
           "model": "gpt-6-sol",
-          "scope": "Read-only API-key scope/balance display and login_config exchange-rate data-flow analysis.",
-          "superseded_client_thread_id": "client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947",
+          "agent": "/root/m06_12_3_analysis_retry",
           "thread_id": "01a0eb1c-f509-7f71-961e-2b1fd2978b99",
-          "title": "M06 12.3 API key额度与汇率分析",
-          "created_from_commit": "b42f68b3e39602975c50817f2404ac48b062edb9",
-          "dispatch_channel": "codex_fork_same_directory",
-          "observation": "A fresh read-only Sol task replaced an earlier provisioning request whose thread ID was not exposed; the task is active in a separate conversation."
+          "evidence": "evidence/M06/12.3-analysis.md",
+          "registered_paths": [
+            "web/app/components/api-key/api-key-modal.tsx",
+            "web/app/components/api-key/api-key-table.tsx",
+            "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+            "web/app/components/main-nav/components/account-money-extend.tsx",
+            "web/app/components/main-nav/index.tsx",
+            "web/app/components/main-nav/__tests__/index.spec.tsx"
+          ],
+          "summary": [
+            "App key endpoint supports quota create/list/edit; current modal omits required create body and quota UI.",
+            "Dataset/environment quota behavior is unsupported; do not expose quota controls there.",
+            "Account balance and key quota are distinct; validate account money before cache and source exchange rate only from identity-bound login_config, never public fallback.",
+            "Agent v2 quota editing is outside the current backend contract."
+          ]
         },
         "12.1a_test_verification": {
           "status": "passed",
@@ -1551,15 +1571,20 @@
           "result": "22 card tests and a two-file format/lint/scoped type check passed in the dependency-complete isolated worktree; no source/dependency changes."
         },
         "12.4_analysis": {
-          "status": "analysis_in_progress",
+          "status": "analysis_complete_paths_registered",
           "model": "gpt-6-sol",
-          "scope": "Read-only route-host and permission analysis for M06 12.4.",
-          "superseded_client_thread_id": "client-new-thread:ce4d7349-48fd-4c62-9eda-11b50db7908c",
+          "agent": "/root/m06_12_4_analysis_retry",
           "thread_id": "01a0eb1d-b29e-7372-919d-a77825b52415",
-          "title": "M06 12.4 系统管理路由与权限分析",
-          "created_from_commit": "b42f68b3e39602975c50817f2404ac48b062edb9",
-          "dispatch_channel": "codex_fork_same_directory",
-          "observation": "A fresh read-only Sol task replaced an earlier provisioning request whose thread ID was not exposed; the task is active in a separate conversation."
+          "evidence": "evidence/M06/12.4-analysis.md",
+          "registered_paths": [
+            "web/app/components/main-nav/index.tsx",
+            "web/app/components/main-nav/__tests__/index.spec.tsx"
+          ],
+          "summary": [
+            "Pages/layout remain; owner nav entry was removed from MainNav.",
+            "Restore existing owner-only nav component mount; keep direct-access and role guards, including extension-flag denial.",
+            "Preserve backend is_admin_or_owner behavior and do not implement P6."
+          ]
         },
         "12.1b_path_analysis": {
           "status": "conversation_provisioning",
@@ -2008,14 +2033,15 @@
           "13.1",
           "13.2",
           "13.3",
+          "13.4",
           "13.5"
         ],
         "current_subtask": {
           "id": "13.4",
-          "status": "independent_review_in_progress",
+          "status": "passed",
           "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation",
           "implementation_commit": "1b1ddf4eb3",
-          "review_status": "in_progress",
+          "review_status": "passed",
           "review_thread_id": "01a0eb20-f978-71e3-9dbf-396839a34414",
           "review_title": "M07 13.4 init_secret_key 独立复核",
           "superseded_review_client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
@@ -2025,9 +2051,32 @@
           ],
           "dispatch_channel": "codex_fork_same_directory",
           "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
-          "observation": "Fresh independent Luna conversation is active; the unreadable provisioning client-thread request is superseded."
+          "observation": "Independent Luna read-only review found no P1/P2 blockers; P3 Compose bypass/cross-project serialization boundary recorded.",
+          "independent_review": {
+            "status": "passed",
+            "reviewer": "independent gpt-6-luna subtask /root/m07_13_4_luna_review",
+            "target_commit": "1b1ddf4eb3a84a903022767d68e466f5bbe82cdb",
+            "scope": "Read-only static review of Compose seed gate, seven consumer dependencies, init_permissions fail-closed behavior, migration guidance, default-disabled Agent v2 and blank token examples.",
+            "findings": [
+              {
+                "priority": "none",
+                "result": "No P1/P2 blockers. init_secret_key gates migration, API, WebSocket, worker, worker-gaia, worker-dataset, and worker_beat."
+              },
+              {
+                "priority": "P3",
+                "result": "--no-deps, direct container starts, and concurrent separate Compose projects bypass or exceed the Compose dependency DAG; operators must initialize first and serialize those paths."
+              }
+            ],
+            "evidence": "evidence/M07/13.4-independent-review.md",
+            "limits": [
+              "No deployment or container run",
+              "No real volume or secret inspection",
+              "Dedicated assertion results are recorded from the implementation task and were not rerun by this reviewer"
+            ]
+          },
+          "next_subtask": "13.6_deferred"
         },
-        "next_subtask": "13.4_independent_luna_review"
+        "next_subtask": "13.6_deferred"
       },
       "registered_additional_paths": [
         "api/docker/entrypoint.sh",
