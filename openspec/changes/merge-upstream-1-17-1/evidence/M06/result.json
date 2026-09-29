@@ -1324,7 +1324,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "blocked_by_12.6f_logstore_actor_index",
+      "status": "ready",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1347,9 +1347,10 @@
       "latest_attempt_note": "12.6e passed and committed; 12.6f implementation has started from its registered analysis and nine paths. SQLAlchemy account filtering uses the fork association; Logstore requires confirming the event index/query contract before coding.",
       "implementation_thread_id": null,
       "thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
-      "blocked_reason": "from_account_id must first be registered in the Logstore workflow_execution index by 12.6f_logstore_actor_index.",
-      "index_prerequisite": "12.6f_logstore_actor_index",
-      "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8"
+      "blocked_reason": null,
+      "index_prerequisite": "12.6f_logstore_actor_index:passed",
+      "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+      "index_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5"
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
@@ -1408,10 +1409,10 @@
       "evidence": "evidence/M06/12.6e-review.md"
     },
     "12.6f_logstore_actor_index": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "model": "gpt-6-astra",
       "owner": "M04",
-      "thread_id": "01a0ebb6-81d1-7533-aac6-02fb68ae01e9",
+      "thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
       "base_commit": "2b0612367b276154c59137f9de27bb9ddbfe26c9",
       "registered_paths": [
         "api/extensions/logstore/aliyun_logstore.py",
@@ -1422,11 +1423,25 @@
         "12.6e_review_followup:passed"
       ],
       "scope": "Register trusted workflow-run from_account_id as a Logstore index field for SQL aggregation queries, and verify create/reconcile while preserving custom indexes.",
-      "implementation_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+      "implementation_thread_id": "01a0ebb6-81d1-7533-aac6-02fb68ae01e9",
       "independent_verification_thread_id": "01a0ebb4-d6a5-7073-ac10-7c1ffbe7016f",
-      "implementation_tests": "3 passed",
+      "implementation_tests": "3 initial tests passed; strict existing-key doc_value/type follow-up is open",
       "implementation_static_checks": "Ruff check/format and diff-check passed",
-      "dispatch_channel": "codex_project_local"
+      "dispatch_channel": "codex_project_local",
+      "implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "verification": {
+        "status": "passed",
+        "test_result": "10 passed; independent Luna and root",
+        "ruff_check": "passed",
+        "ruff_format": "passed",
+        "diff_check": "passed",
+        "review_findings": "0 P1/P2/P3",
+        "evidence": "evidence/M06/12.6f-logstore-index-verification.md"
+      },
+      "limits": [
+        "No live Aliyun verification",
+        "Historical logstore indexing/visibility remains deployment acceptance"
+      ]
     },
     "12.6e-review-followup": {
       "status": "passed",
@@ -1438,7 +1453,24 @@
       "review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
       "review_result": "No P1/P2/P3",
       "evidence": "evidence/M06/12.6e-review.md"
+    },
+    "12.6f_logstore_actor_index_reconciliation": {
+      "status": "ready",
+      "model": "gpt-6-astra",
+      "owner": "M04",
+      "base_commit": "17a755d104b6417e63b25dfe11a3156f34b37250",
+      "dependencies": [
+        "12.6f_logstore_actor_index:implementation_complete",
+        "12.6f_index_existing_config_gap:confirmed"
+      ],
+      "registered_paths": [
+        "api/extensions/logstore/aliyun_logstore.py",
+        "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
+        "evidence/M06/12.6f-logstore-index-reconcile-verification.md"
+      ],
+      "scope": "For from_account_id only, ensure required index_type=text and doc_value=True even when an existing key has a compatible text/json type but wrong doc_value; correct incompatible actor types without changing global json/text compatibility or custom fields. Add parameterized regressions for wrong actor options and preserve other fields.",
+      "finding": "Existing _merge_index_configs treats text/json as compatible and compares only index_type, so from_account_id with doc_value=False is retained."
     }
   },
-  "next_subtask": "12.6f_logstore_actor_index"
+  "next_subtask": "12.6f_logstore_actor_index_reconciliation"
 }
