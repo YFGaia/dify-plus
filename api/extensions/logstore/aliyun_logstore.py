@@ -489,6 +489,14 @@ class AliyunLogStore:
             token_list=self.DEFAULT_TOKEN_LIST,
             chinese=True,
         )  # Maps to 'created_at' in PG
+        # Fork account attribution is stored outside WorkflowRun but supports analytics in Logstore.
+        index_keys["from_account_id"] = IndexKeyConfig(
+            index_type="text",
+            case_sensitive=False,
+            doc_value=True,
+            token_list=self.DEFAULT_TOKEN_LIST,
+            chinese=True,
+        )
 
         logger.info("Generated %d index keys for workflow_execution from WorkflowRun model", len(index_keys))
         return index_keys
