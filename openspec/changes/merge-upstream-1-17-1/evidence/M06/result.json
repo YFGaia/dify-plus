@@ -1103,14 +1103,17 @@
       ]
     },
     "12.6a_home_navigation_luna_review": {
-      "status": "thread_provisioning",
+      "status": "passed_no_findings",
       "model": "gpt-6-luna",
-      "client_thread_id": "client-new-thread:cf667e29-8771-4de8-935e-f67447c17154",
+      "thread_id": "01a0eb61-ea9a-73c1-ba83-09edbf105c90",
       "registered_paths": [
         "web/app/components/main-nav/routes.ts",
         "web/app/components/main-nav/index.tsx",
         "web/app/components/main-nav/__tests__/index.spec.tsx"
-      ]
+      ],
+      "evidence": "evidence/M06/12.6a-review.md",
+      "findings": [],
+      "superseded_duplicate_client_thread_id": "client-new-thread:cf667e29-8771-4de8-935e-f67447c17154"
     },
     "12.6d_app_account_statistics": {
       "status": "thread_provisioning",
@@ -1123,6 +1126,26 @@
         "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
         "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
       ]
+    },
+    "12.6e_workflow_actor_analysis": {
+      "status": "thread_provisioning",
+      "model": "gpt-6-sol",
+      "client_thread_id": "client-new-thread:09798d06-40b5-480e-a815-a9b51df460c9",
+      "base_commit": "9f1086a99d",
+      "read_only": true
+    },
+    "12.6e_workflow_account_ownership_persistence": {
+      "status": "blocked_pending_analysis",
+      "registered_paths": [
+        "api/models/workflow.py",
+        "api/core/app/apps/workflow/generate_task_pipeline.py",
+        "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
+        "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+        "api/repositories/api_workflow_run_repository.py",
+        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+      ],
+      "note": "No code until exact migration and trusted actor propagation paths are confirmed."
     }
   },
   "next_subtask": "12.6b_system_integration_host_test"

@@ -1733,7 +1733,7 @@
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "registered_ready",
+            "status": "analysis_in_progress",
             "owner": "M02",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1745,7 +1745,11 @@
               "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
               "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
             ],
-            "scope": "Propagate a server-trusted Console account actor for WebApp workflow executions through SQLAlchemy and Logstore persistence/query boundaries; do not infer historical ownership. Refine exact migration and test paths during preflight before code."
+            "scope": "Propagate a server-trusted Console account actor for WebApp workflow executions through SQLAlchemy and Logstore persistence/query boundaries; do not infer historical ownership. Refine exact migration and test paths during preflight before code.",
+            "analysis_model": "gpt-6-sol",
+            "analysis_client_thread_id": "client-new-thread:09798d06-40b5-480e-a815-a9b51df460c9",
+            "analysis_base_commit": "9f1086a99d",
+            "implementation_gate": "Wait for exact persistence/migration path registration and trusted-actor propagation design."
           },
           {
             "id": "12.6f_workflow_account_statistics",
@@ -1802,10 +1806,11 @@
           },
           {
             "id": "12.6a_home_navigation_luna_review",
-            "status": "thread_provisioning",
+            "status": "passed_no_findings",
             "owner": "M06",
             "model": "gpt-6-luna",
-            "client_thread_id": "client-new-thread:cf667e29-8771-4de8-935e-f67447c17154",
+            "thread_id": "01a0eb61-ea9a-73c1-ba83-09edbf105c90",
+            "title": "M06 12.6a 独立 Luna 复核",
             "branch_head": "a813050cc5",
             "registered_paths": [
               "web/app/components/main-nav/routes.ts",
@@ -1813,7 +1818,14 @@
               "web/app/components/main-nav/__tests__/index.spec.tsx"
             ],
             "implementation_commit": "6061766c11348e9179cc3eb03b1d747bd3f19726",
-            "scope": "Independent read-only review and focused test attempt; never bypass pnpm signature verification or alter the lockfile."
+            "evidence": "evidence/M06/12.6a-review.md",
+            "findings": [],
+            "verification": "Read-only review; no tests/build run by Luna.",
+            "scope": "Independent read-only review of route, label typing, role visibility, Home and app-center active boundaries, and owner gate.",
+            "superseded_duplicate_provisioning": {
+              "status": "superseded_duplicate",
+              "client_thread_id": "client-new-thread:cf667e29-8771-4de8-935e-f67447c17154"
+            }
           }
         ],
         "completed_analyses": [
