@@ -1149,7 +1149,8 @@
           "12.6f_logstore_actor_index_config_preservation",
           "12.6f_workflow_account_statistics",
           "12.6f_statistics_integration_recovery",
-          "12.6j_frontend_dependency_recovery"
+          "12.6j_frontend_dependency_recovery",
+          "12.6b_system_integration_host_test"
         ],
         "current_subtask": {
           "id": "12.6g_user_overview_ui_contract",
@@ -1713,7 +1714,7 @@
           },
           {
             "id": "12.6b_system_integration_host_test",
-            "status": "verification_in_progress",
+            "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
             "implementation_commit": "db73bbf8b18f24958eab9312b5d1af6248b526a0",
@@ -1725,7 +1726,14 @@
             "observed_path": "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx",
             "thread_id": "01a0eb6c-c197-7360-9e37-2258755300cf",
             "base_commit": "c2baf732b297b5e9258f1852f4a175f61a0f7697",
-            "verification": "evidence/M06/12.6b-validation.md",
+            "verification": {
+              "status": "passed",
+              "focused_tests": "2 passed in 1 file, exit 0",
+              "scoped_check": "format/lint/types passed, exit 0",
+              "test_sha256": "4088c14548fc66871dba2ba9fa2c63ea52cae3bcc3653c2546290eddb54a1b4d",
+              "runtime": "Node 24.20.0; Vite Plus 0.3.1; Vitest 4.1.11",
+              "thread_id": "01a0ebda-52ac-7293-8ecd-960555e698b7"
+            },
             "review_status": "passed_no_p1_p2_p3",
             "review_thread_id": "01a0eb7c-53c5-7600-af3b-1dccba308181",
             "review_evidence": "evidence/M06/12.6b-review.md",
