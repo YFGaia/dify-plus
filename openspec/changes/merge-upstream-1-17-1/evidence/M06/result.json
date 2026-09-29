@@ -591,6 +591,67 @@
         "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
       ],
       "scope": "Delete the zero-reference legacy quota modal only after the new API-key quota host is accepted."
+    },
+    "12.5_full_locale_parity": {
+      "status": "passed",
+      "source_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
+      "verification": {
+        "command": "pnpm i18n:check --file extend",
+        "runtime": "Node 24.20.0 and pinned pnpm 12.3.4 from web/ in the root worktree",
+        "exit_code": 0,
+        "checked_locale_count": 24,
+        "missing_key_counts": {
+          "en-US": 0,
+          "zh-Hans": 0,
+          "zh-Hant": 0,
+          "pt-BR": 0,
+          "es-ES": 0,
+          "fr-FR": 0,
+          "de-DE": 0,
+          "ja-JP": 0,
+          "ko-KR": 0,
+          "lo-LA": 0,
+          "ru-RU": 0,
+          "it-IT": 0,
+          "th-TH": 0,
+          "uk-UA": 0,
+          "vi-VN": 0,
+          "ro-RO": 0,
+          "pl-PL": 0,
+          "hi-IN": 0,
+          "tr-TR": 0,
+          "fa-IR": 0,
+          "sl-SI": 0,
+          "id-ID": 0,
+          "nl-NL": 0,
+          "ar-TN": 0
+        }
+      },
+      "evidence": "evidence/M06/12.5-combined-verification.md"
+    },
+    "12.5bc_independent_luna_review": {
+      "id": "12.5bc_independent_luna_review",
+      "status": "independent_review_provisioning",
+      "owner": "M06",
+      "model": "gpt-6-luna",
+      "client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
+      "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
+      "registered_paths": [
+        "web/i18n/ja-JP/extend.json",
+        "web/i18n/ko-KR/extend.json",
+        "web/i18n/nl-NL/extend.json",
+        "web/i18n/pl-PL/extend.json",
+        "web/i18n/pt-BR/extend.json",
+        "web/i18n/ro-RO/extend.json",
+        "web/i18n/ru-RU/extend.json",
+        "web/i18n/sl-SI/extend.json",
+        "web/i18n/th-TH/extend.json",
+        "web/i18n/tr-TR/extend.json",
+        "web/i18n/uk-UA/extend.json",
+        "web/i18n/vi-VN/extend.json",
+        "web/i18n/zh-Hant/extend.json"
+      ],
+      "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics."
     }
   },
   "next_subtask": "12.2a_app_center_repair"
