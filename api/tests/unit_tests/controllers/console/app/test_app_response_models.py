@@ -19,7 +19,7 @@ from werkzeug.datastructures import MultiDict
 
 from models.account import Account
 from models.enums import CustomizeTokenStrategy, TagType
-from models.model import App, AppMode, AppModelConfig, IconType, Site, Tag, TagBinding
+from models.model import App, AppMode, AppModelConfig, IconType, RecommendedApp, Site, Tag, TagBinding
 from models.workflow import Workflow, WorkflowType
 from services.app_service import RecentAppListItem
 
@@ -635,6 +635,64 @@ def test_app_list_uses_injected_session_for_draft_workflows(
     assert response["data"][0]["has_draft_trigger"] is True
     get_permissions.assert_called_once_with("tenant-1", "user-1", session=sqlite_session)
     assert response["data"][0]["permission_keys"] == ["app.acl.edit"]
+
+
+@pytest.mark.parametrize("page_state", ["populated", "empty", "missing"])
+def test_app_list_recommended_apps_are_scoped_to_current_page(
+    app: Flask,
+    app_module: ModuleType,
+    monkeypatch: pytest.MonkeyPatch,
+    sqlite_session: Session,
+    config_overrides: Callable[..., None],
+    page_state: str,
+) -> None:
+    config_overrides(RBAC_ENABLED=False)
+    synced_app = _app(app_id=APP_ID, name="Matching synced app")
+    unsynced_app = _app(app_id="00000000-0000-0000-0000-000000000102", name="Matching unsynced app")
+    off_page_app = _app(app_id="00000000-0000-0000-0000-000000000103", name="Matching off-page app")
+    other_tenant_app = _app(
+        app_id="00000000-0000-0000-0000-000000000104",
+        tenant_id="00000000-0000-0000-0000-000000000002",
+    )
+    sqlite_session.add_all([synced_app, unsynced_app, off_page_app, other_tenant_app])
+    # Multiple recommendation rows must still produce a single current-page app ID.
+    for app_id in [synced_app.id, synced_app.id, off_page_app.id, other_tenant_app.id]:
+        sqlite_session.add(RecommendedApp(app_id=app_id, description="", copyright="", privacy_policy="", category=""))
+    sqlite_session.commit()
+    page_items = [unsynced_app, synced_app] if page_state == "populated" else []
+    pagination = (
+        None
+        if page_state == "missing"
+        else SimpleNamespace(page=2, per_page=2, total=3, has_next=False, items=page_items)
+    )
+    get_paginate_apps = MagicMock(return_value=pagination)
+    monkeypatch.setattr(app_module.AppService, "get_paginate_apps", get_paginate_apps)
+    monkeypatch.setattr(app_module.SystemFeatureService, "is_webapp_auth_enabled", lambda: False)
+    monkeypatch.setattr(
+        app_module.enterprise_rbac_service.RBACService.MyPermissions,
+        "get",
+        MagicMock(return_value=app_module.enterprise_rbac_service.MyPermissionsResponse()),
+    )
+    session_scalars = MagicMock(wraps=sqlite_session.scalars)
+    monkeypatch.setattr(sqlite_session, "scalars", session_scalars)
+
+    with app.test_request_context("/console/api/apps?page=2&limit=2&name=Matching", method="GET"):
+        response, status = _unwrap(app_module.AppListApi().get)(TENANT_ID, ACCOUNT_ID, sqlite_session)
+
+    assert status == 200
+    assert response["recommended_apps"] == ([APP_ID] if page_state == "populated" else [])
+    assert [item["id"] for item in response["data"]] == [item.id for item in page_items]
+    user_id, tenant_id, params, request_session = get_paginate_apps.call_args.args
+    assert (user_id, tenant_id, request_session) == (ACCOUNT_ID, TENANT_ID, sqlite_session)
+    assert (params.page, params.limit, params.name) == (2, 2, "Matching")
+    recommendation_queries = [
+        call.args[0]
+        for call in session_scalars.call_args_list
+        if call.args[0].column_descriptions[0].get("entity") is RecommendedApp
+    ]
+    assert len(recommendation_queries) == (1 if page_state == "populated" else 0)
+    if recommendation_queries:
+        assert recommendation_queries[0].compile().params == {"app_id_1": [item.id for item in page_items]}
 
 
 def test_app_create_api_attaches_permission_keys(

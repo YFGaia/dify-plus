@@ -50,7 +50,7 @@ from graphon.enums import WorkflowExecutionStatus
 from libs.helper import build_icon_url, dump_response, to_timestamp
 from libs.login import login_required
 from models import Account, App, DatasetPermissionEnum, Workflow
-from models.model import IconType
+from models.model import IconType, RecommendedApp
 from models.model_extend import AppExtend  # Extend: 记忆上下文功能
 from services.app_dsl_service import AppDslService
 from services.app_service import (
@@ -699,7 +699,12 @@ class AppListApi(Resource):
             from_attributes=True,
             context={"session": session},
         )
-        pagination_model.recommended_apps = []  # extend: recommended app ids（由同步应用功能使用）
+        # Extend: sync status is limited to the apps on the authorized, filtered page.
+        if app_ids:
+            recommended_app_ids = set(
+                session.scalars(select(RecommendedApp.app_id).where(RecommendedApp.app_id.in_(app_ids)))
+            )
+            pagination_model.recommended_apps = [app_id for app_id in app_ids if app_id in recommended_app_ids]
         if app_pagination.items:
             pagination_model = pagination_model.model_copy(
                 update={
