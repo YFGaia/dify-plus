@@ -49,6 +49,12 @@ class TokensPerSecondStatisticRecord(NamedTuple):
 
 
 class AppStatisticQuery(Protocol):
+    """Read an authorized app; optional account IDs must come from authenticated context.
+
+    Personal statistics use persisted from_account_id, never end-user external IDs.
+    Omitting account_id preserves app-wide statistics.
+    """
+
     def get_daily_messages(
         self,
         *,
@@ -65,6 +71,7 @@ class AppStatisticQuery(Protocol):
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account_id: str | None = None,
     ) -> Sequence[DailyConversationStatisticRecord]: ...
 
     def get_daily_terminals(
@@ -83,6 +90,7 @@ class AppStatisticQuery(Protocol):
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account_id: str | None = None,
     ) -> Sequence[DailyTokenCostStatisticRecord]: ...
 
     def get_average_session_interactions(
@@ -92,6 +100,7 @@ class AppStatisticQuery(Protocol):
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account_id: str | None = None,
     ) -> Sequence[AverageSessionInteractionStatisticRecord]: ...
 
     def get_user_satisfaction_rates(

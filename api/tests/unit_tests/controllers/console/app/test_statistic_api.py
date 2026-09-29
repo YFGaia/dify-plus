@@ -10,11 +10,16 @@ from unittest.mock import MagicMock
 
 import pytest
 from flask import Flask
-from werkzeug.exceptions import BadRequest
+from sqlalchemy.orm import Session, sessionmaker
+from werkzeug.exceptions import BadRequest, Forbidden
 
+from controllers.console import flask_admission
 from controllers.console.app import statistic as statistic_module
+from controllers.console.app import wraps as app_wraps
+from libs.login import AccountWithTenant
 from machinery.context import RequestContext
-from models.model import App
+from models.model import App, AppMode
+from repositories import app_statistic_query_repository as repository_module
 from services.app_statistic_query import (
     AppStatisticQuery,
     AverageResponseTimeStatisticRecord,
@@ -25,6 +30,16 @@ from services.app_statistic_query import (
     DailyTokenCostStatisticRecord,
     TokensPerSecondStatisticRecord,
     UserSatisfactionRateStatisticRecord,
+)
+from tests.unit_tests.repositories.test_app_statistic_query_repository import (
+    SQLiteStatisticRepository,
+    seed_account_statistics,
+)
+
+ACCOUNT_RESOURCES = (
+    statistic_module.DailyConversationStatistic,
+    statistic_module.DailyTokenCostStatistic,
+    statistic_module.AverageSessionInteractionStatistic,
 )
 
 
@@ -68,11 +83,16 @@ def _invoke(
     end: str | None = None,
 ) -> dict[str, Any]:
     resource = resource_type()
+    query_type = (
+        statistic_module.AccountStatisticTimeRangeQuery
+        if resource_type in ACCOUNT_RESOURCES
+        else statistic_module.StatisticTimeRangeQuery
+    )
     method = unwrap(resource.get)
     with app.test_request_context("/console/api/apps/app-1/statistics", method="GET"):
         response = method(
             resource,
-            statistic_module.StatisticTimeRangeQuery(start=start, end=end),
+            query_type(start=start, end=end),
             _request_context(),
             app_model=_app_model(),
         )
@@ -164,6 +184,7 @@ def test_statistic_endpoint_delegates_to_statistic_query(
         start_date=None,
         end_date=None,
         timezone="UTC",
+        **({"account_id": None} if resource_type in ACCOUNT_RESOURCES else {}),
     )
 
 
@@ -196,3 +217,109 @@ def test_statistic_endpoint_rejects_invalid_time_range(app: Flask, monkeypatch: 
         _invoke(app, statistic_module.DailyMessageStatistic)
 
     statistics.get_daily_messages.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    ("resource_type", "metric", "expected_a", "expected_b", "expected_all"),
+    [
+        (statistic_module.DailyConversationStatistic, "conversation_count", 1, 1, 3),
+        (statistic_module.DailyTokenCostStatistic, "token_count", 6, 12, 36),
+        (statistic_module.AverageSessionInteractionStatistic, "interactions", 2.0, 4.0, 4.0),
+    ],
+)
+def test_account_statistics_http_isolation(
+    monkeypatch: pytest.MonkeyPatch,
+    sqlite_session_factory: sessionmaker[Session],
+    resource_type: type,
+    metric: str,
+    expected_a: float,
+    expected_b: float,
+    expected_all: float,
+) -> None:
+    """Exercise admission context, app/type guard, GET validation, SQL and serialization.
+
+    The signed-in account is supplied at the authentication boundary; login/setup
+    wrappers are outside this unit test. Caller query IDs cannot override it.
+    """
+    seed_account_statistics(sqlite_session_factory)
+    repository = SQLiteStatisticRepository(session_factory=sqlite_session_factory)
+    monkeypatch.setattr(repository_module, "convert_datetime_to_date", lambda field: f"DATE({field})")
+    monkeypatch.setattr(statistic_module, "application_services", lambda: SimpleNamespace(app_statistics=repository))
+    account = SimpleNamespace(id="account-1", timezone="UTC")
+    identity = AccountWithTenant(account=account, tenant_id="tenant-1")
+    monkeypatch.setattr(flask_admission, "current_account_with_tenant", lambda: identity)
+    monkeypatch.setattr(statistic_module, "current_account_with_tenant", lambda: identity)
+    monkeypatch.setattr(app_wraps, "current_account_with_tenant", lambda: identity)
+    rbac = MagicMock()
+    monkeypatch.setattr(flask_admission, "enforce_rbac_checks", rbac)
+
+    def load_app(app_id: str) -> App | None:
+        with sqlite_session_factory() as session:
+            return app_wraps._load_app_model(session, app_id)
+
+    monkeypatch.setattr(app_wraps, "_load_app_model_from_scoped_session", load_app)
+    method = resource_type.get
+    while method.__code__.co_name != "inject_request_context":
+        method = method.__wrapped__
+    http_app = Flask(__name__)
+    http_app.add_url_rule("/statistics/<app_id>", view_func=lambda app_id: method(resource_type(), app_id=app_id))
+    client = http_app.test_client()
+    date_range = {"start": "2024-01-01 00:00", "end": "2024-01-02 00:00"}
+
+    for account_id, expected in [("account-1", expected_a), ("account-2", expected_b)]:
+        account.id = account_id
+        response = client.get(
+            "/statistics/app-1",
+            query_string={
+                **date_range,
+                "account": "true",
+                "account_id": "account-2" if account_id == "account-1" else "account-1",
+                "from_account_id": "caller-selected",
+                "external_user_id": "enterpriseuser",
+            },
+        )
+        assert response.status_code == 200
+        assert response.json["data"][0][metric] == expected
+        assert len(response.json["data"]) == 1
+        assert rbac.call_args.kwargs["account_id"] == account_id
+        assert rbac.call_args.kwargs["tenant_id"] == "tenant-1"
+        assert rbac.call_args.kwargs["checks"][0].scene == statistic_module.RBACPermission.APP_MONITOR
+
+        for query in [date_range, {**date_range, "account": "false"}]:
+            response = client.get("/statistics/app-1", query_string=query)
+            assert response.status_code == 200
+            assert response.json["data"][0][metric] == expected_all
+
+    account.id = "account-1"
+    response = client.get("/statistics/app-1", query_string={"account": "true"})
+    assert [row["date"] for row in response.json["data"]] == ["2024-01-01", "2024-01-02"]
+    account.id = "account-2"
+    response = client.get("/statistics/app-1", query_string={"account": "true"})
+    assert [row["date"] for row in response.json["data"]] == ["2024-01-01"]
+    assert client.get("/statistics/app-1?account=invalid").status_code == 422
+    assert client.get("/statistics/app-2?account=true").status_code == 404
+    rbac.side_effect = Forbidden()
+    assert client.get("/statistics/app-1?account=true").status_code == 403
+    rbac.side_effect = None
+    if resource_type is statistic_module.AverageSessionInteractionStatistic:
+        with sqlite_session_factory() as session:
+            session.query(App).filter_by(id="app-1").update({"mode": AppMode.COMPLETION})
+            session.commit()
+        assert client.get("/statistics/app-1?account=true").status_code == 404
+
+
+def test_account_query_documentation_is_limited_to_supported_charts() -> None:
+    assert "account" not in statistic_module.StatisticTimeRangeQuery.model_fields
+    for resource_type in [
+        *ACCOUNT_RESOURCES,
+        statistic_module.DailyMessageStatistic,
+        statistic_module.DailyTerminalsStatistic,
+        statistic_module.UserSatisfactionRateStatistic,
+        statistic_module.AverageResponseTimeStatistic,
+        statistic_module.TokensPerSecondStatistic,
+    ]:
+        params = resource_type.get.__apidoc__["params"]
+        assert ("account" in params) == (resource_type in ACCOUNT_RESOURCES)
+        if resource_type in ACCOUNT_RESOURCES:
+            assert params["account"]["in"] == "query"
+            assert params["account"]["type"] == "boolean"

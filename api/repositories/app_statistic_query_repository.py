@@ -106,6 +106,7 @@ WHERE
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account_id: str | None = None,
     ) -> tuple[DailyConversationStatisticRecord, ...]:
         converted_created_at = convert_datetime_to_date("created_at")
         sql_query = f"""SELECT
@@ -120,6 +121,9 @@ WHERE
             app_id=app_id,
             timezone=timezone,
         )
+        if account_id is not None:
+            sql_query += " AND messages.from_account_id = :account_id"
+            parameters["account_id"] = account_id
         sql_query = _append_time_range(
             sql_query,
             parameters,
@@ -181,6 +185,7 @@ WHERE
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account_id: str | None = None,
     ) -> tuple[DailyTokenCostStatisticRecord, ...]:
         converted_created_at = convert_datetime_to_date("created_at")
         sql_query = f"""SELECT
@@ -196,6 +201,9 @@ WHERE
             app_id=app_id,
             timezone=timezone,
         )
+        if account_id is not None:
+            sql_query += " AND messages.from_account_id = :account_id"
+            parameters["account_id"] = account_id
         sql_query = _append_time_range(
             sql_query,
             parameters,
@@ -223,6 +231,7 @@ WHERE
         start_date: datetime | None,
         end_date: datetime | None,
         timezone: str,
+        account_id: str | None = None,
     ) -> tuple[AverageSessionInteractionStatisticRecord, ...]:
         converted_created_at = convert_datetime_to_date("c.created_at")
         sql_query = f"""SELECT
@@ -245,6 +254,9 @@ FROM
             app_id=app_id,
             timezone=timezone,
         )
+        if account_id is not None:
+            sql_query += " AND m.from_account_id = :account_id"
+            parameters["account_id"] = account_id
         sql_query = _append_time_range(
             sql_query,
             parameters,

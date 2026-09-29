@@ -32,12 +32,18 @@ class StatisticTimeRangeQuery(BaseModel):
         return value
 
 
+class AccountStatisticTimeRangeQuery(StatisticTimeRangeQuery):
+    """Personal scope for the three app charts that support trusted account ownership."""
+
+    account: bool = Field(default=False, description="Limit statistics to the authenticated account")
+
+
 class DailyMessageStatisticItem(ResponseModel):
     date: str
     message_count: int
 
 
-register_schema_models(console_ns, StatisticTimeRangeQuery)
+register_schema_models(console_ns, StatisticTimeRangeQuery, AccountStatisticTimeRangeQuery)
 
 
 class StatisticDataResponse[T](ResponseModel):
@@ -179,7 +185,7 @@ class DailyMessageStatistic(Resource):
 class DailyConversationStatistic(Resource):
     @console_ns.doc("get_daily_conversation_statistics")
     @console_ns.doc(description="Get daily conversation statistics for an application")
-    @console_ns.doc(params={"app_id": "Application ID", **query_params_from_model(StatisticTimeRangeQuery)})
+    @console_ns.doc(params={"app_id": "Application ID", **query_params_from_model(AccountStatisticTimeRangeQuery)})
     @console_ns.response(
         200,
         "Daily conversation statistics retrieved successfully",
@@ -189,14 +195,15 @@ class DailyConversationStatistic(Resource):
         rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
     )
     @get_app_model
-    @model_validate(StatisticTimeRangeQuery)
-    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+    @model_validate(AccountStatisticTimeRangeQuery)
+    def get(self, req_data: AccountStatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
         start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
         response_data = application_services().app_statistics.get_daily_conversations(
             app_id=app_model.id,
             start_date=start_date,
             end_date=end_date,
             timezone=timezone,
+            account_id=_request_context.account_id if req_data.account else None,
         )
 
         return dump_response(DailyConversationStatisticResponse, {"data": response_data})
@@ -233,7 +240,7 @@ class DailyTerminalsStatistic(Resource):
 class DailyTokenCostStatistic(Resource):
     @console_ns.doc("get_daily_token_cost_statistics")
     @console_ns.doc(description="Get daily token cost statistics for an application")
-    @console_ns.doc(params={"app_id": "Application ID", **query_params_from_model(StatisticTimeRangeQuery)})
+    @console_ns.doc(params={"app_id": "Application ID", **query_params_from_model(AccountStatisticTimeRangeQuery)})
     @console_ns.response(
         200,
         "Daily token cost statistics retrieved successfully",
@@ -243,14 +250,15 @@ class DailyTokenCostStatistic(Resource):
         rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
     )
     @get_app_model
-    @model_validate(StatisticTimeRangeQuery)
-    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+    @model_validate(AccountStatisticTimeRangeQuery)
+    def get(self, req_data: AccountStatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
         start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
         response_data = application_services().app_statistics.get_daily_token_costs(
             app_id=app_model.id,
             start_date=start_date,
             end_date=end_date,
             timezone=timezone,
+            account_id=_request_context.account_id if req_data.account else None,
         )
 
         return dump_response(DailyTokenCostStatisticResponse, {"data": response_data})
@@ -260,7 +268,7 @@ class DailyTokenCostStatistic(Resource):
 class AverageSessionInteractionStatistic(Resource):
     @console_ns.doc("get_average_session_interaction_statistics")
     @console_ns.doc(description="Get average session interaction statistics for an application")
-    @console_ns.doc(params={"app_id": "Application ID", **query_params_from_model(StatisticTimeRangeQuery)})
+    @console_ns.doc(params={"app_id": "Application ID", **query_params_from_model(AccountStatisticTimeRangeQuery)})
     @console_ns.response(
         200,
         "Average session interaction statistics retrieved successfully",
@@ -270,14 +278,15 @@ class AverageSessionInteractionStatistic(Resource):
         rbac_checks=[RBACCheck(RBACPermission.APP_MONITOR, PlainApp())],
     )
     @get_app_model(mode=[AppMode.CHAT, AppMode.AGENT_CHAT, AppMode.ADVANCED_CHAT, AppMode.AGENT])
-    @model_validate(StatisticTimeRangeQuery)
-    def get(self, req_data: StatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
+    @model_validate(AccountStatisticTimeRangeQuery)
+    def get(self, req_data: AccountStatisticTimeRangeQuery, _request_context: RequestContext, app_model: App):
         start_date, end_date, timezone = _resolve_statistic_time_range(req_data)
         response_data = application_services().app_statistics.get_average_session_interactions(
             app_id=app_model.id,
             start_date=start_date,
             end_date=end_date,
             timezone=timezone,
+            account_id=_request_context.account_id if req_data.account else None,
         )
 
         return dump_response(AverageSessionInteractionStatisticResponse, {"data": response_data})
