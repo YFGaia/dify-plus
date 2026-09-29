@@ -4,8 +4,8 @@
   "task_id": "16.1_16.2_16.3_candidate_frontend_luna_verification",
   "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
   "worktree_head": "ba33fe26dc21ae3a308f14a61999009fc2849779",
-  "status": "blocked",
-  "summary": "V02/16.10 checked exact candidate 783859de3ebc098f2c9916516c831d92e547a913 with all 12 dependency overlays. pnpm check and lint:tss passed; the initial i18n invocation hit sandbox socket EPERM, and a same-archive retry executed the checker and found 19 missing uk-UA layout/oauth keys. Unit and both web builds stopped at the first failed gate; M08/14.17 has since repaired and verified the locale data, pending a new candidate and V02/16.11.",
+  "status": "blocked_waiting_for_M08_14_19_candidate",
+  "summary": "M01/7.5 passed and committed as 42fe3f904d6bd469ce887561a94909da882c4bb6; the default web build script now selects the exact Next Webpack path that passed the 16.14 diagnostic. V02/16.11 check/tss/i18n/222 focused tests remain reusable by unchanged inputs, while 16.13 Turbopack stalled and 16.14 Webpack passed diagnostically in 93.05 seconds on the prior candidate. M08/14.19 is freezing a new candidate; 16.14 is not the default build gate. V02/16.15 must run full pnpm check, then the default Next build and Vinext sequentially.",
   "environment": {
     "node": "v24.20.0",
     "pnpm": "12.3.4",
@@ -123,43 +123,35 @@
     "pnpm --dir web build:vinext"
   ],
   "stop_reason": {
-    "issue": "Candidate 783859de has 19 missing uk-UA i18n keys; source-data repair passed in M08/14.17.",
-    "next_owner": "M08 / 14.18 then V02 / 16.11",
-    "environment_note": "Initial sandbox socket EPERM was resolved by rerunning only the same gate on the same immutable archive with sandbox restrictions lifted."
+    "issue": "Both archive attempts reached the same Turbopack dependency boundary: relative web/node_modules/next resolves outside the archive. In the current exact candidate checkout it resolves inside the repository root.",
+    "next_owner": "V02 / 16.13",
+    "note": "Run only the two builds from exact candidate HEAD/tree. Preserve and restore the pre-existing web/.next directory; do not change source, tests, or dependency installation state."
   },
   "no_source_test_changes_or_fixes": true,
   "no_staging_or_commit": true,
   "latest_attempt": {
-    "task_id": "16.10_final_candidate_metadata_format_retry",
-    "candidate_commit": "783859de3ebc098f2c9916516c831d92e547a913",
-    "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
-    "status": "blocked",
-    "result": "evidence/V02/16.10-final-candidate-result.json",
-    "result_sha256": "7cef41d4fa3047f2e486cb0aa6cb95a09293f4f8bdd1fbf211a0f85e9a5e680a",
-    "log": "evidence/V02/16.10-final-candidate.log",
-    "log_sha256": "c6cd445eff8f1045d39e0ab54dae23fe6a6975a4e66e3cc4ad4aa9e155766585",
-    "first_failed_gate": "web i18n:check",
-    "initial_attempt": "blocked before checker startup by tsx Unix socket listen EPERM in sandbox",
-    "same_archive_retry": "checker ran and found 19 missing uk-UA keys: layout 2, oauth 17",
-    "not_run": ["focused unit suite", "pnpm --dir web build", "pnpm --dir web build:vinext"],
-    "next_attempt": "16.11_final_candidate_after_uk-UA_locale_repair"
+    "task_id": "16.14_next_webpack_diagnostic",
+    "candidate_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+    "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+    "status": "diagnostic_build_completed",
+    "diagnostic_only": true,
+    "default_next_build_gate_passed": false,
+    "build_vinext_run": false,
+    "result": "evidence/V02/16.14-webpack-diagnostic-result.json",
+    "result_sha256": "0fd784af61163e70eb6b6dc135d54dcbd66942e4c8eb29bfcfc62c2a511cad68",
+    "log": "evidence/V02/16.14-webpack-diagnostic.log",
+    "log_sha256": "935835cd2cdaa98646a5287cb58ac2ebadfe632d57bc1797430063aa874128fd",
+    "command": "pnpm --config.verify-deps-before-run=false --dir web exec next build --webpack --debug",
+    "exit_code": 0,
+    "duration_seconds": 93.05,
+    "root_cause_inference": "The exact candidate completed the Webpack build while the default Turbopack build stalled; compiler-path-specific behavior is indicated but source root cause is not established.",
+    "next_attempt": "After M08/14.19, run V02/16.15 on the exact frozen commit/tree."
   },
   "current_candidate": {
-    "commit": "783859de3ebc098f2c9916516c831d92e547a913",
-    "tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
-    "status": "blocked_at_i18n",
-    "next_attempt": "16.11_final_candidate_after_uk-UA_locale_repair"
+    "commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+    "tree": "d3906ed2b06bd6ad43550968191c774c329ef396",
+    "status": "waiting_for_M08_14_19_metadata_candidate",
+    "next_attempt": "After M08/14.19 freezes the candidate, run V02/16.15."
   },
-  "next_attempt": {
-    "task_id": "16.10_final_candidate_metadata_format_retry",
-    "status": "running",
-    "candidate_commit": "783859de3ebc098f2c9916516c831d92e547a913",
-    "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
-    "dependencies": [
-      "M08/14.15 passed",
-      "M08/14.16 structural acceptance passed",
-      "SDK node_modules overlay included"
-    ],
-    "dispatch_agent": "/root/v02_16_9_luna_candidate"
-  }
+  "next_attempt": "After M08/14.19 freezes the candidate, run V02/16.15."
 }

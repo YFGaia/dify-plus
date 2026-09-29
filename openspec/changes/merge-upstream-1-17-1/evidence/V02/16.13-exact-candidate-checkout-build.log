@@ -1,0 +1,72 @@
+V02/16.13 exact-candidate checkout build retry
+Candidate commit: d2fea9989725c79afdeec3eba4eaa6e0e260e480
+Candidate tree: 2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5
+Branch: codex/merge-upstream-1.17.1
+Precondition: index clean; no staged changes; no tracked/untracked source/test paths under web/api/packages/cli/e2e/sdks; current checkout HEAD/tree exact.
+Pre-build metadata-only tracked diff names:
+openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json
+openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json
+openspec/changes/merge-upstream-1-17-1/execution-graph.json
+openspec/changes/merge-upstream-1-17-1/execution-graph.md
+openspec/changes/merge-upstream-1-17-1/tasks.md
+Filesystem device id repo=16777231 private_tmp=16777231; atomic rename allowed.
+Original web/.next: directory (not symlink); bytes=8491085824; files=29344; directories=984.
+Original web/.next key manifests:
+2018879d1701eb214ec6483d0c8029a419e391ca3d0d6bdb0fa136737785aeca  web/.next/BUILD_ID
+615f2dfbc1358ea0f83e05871cbfb960dd6f29729379e2577f7f35465d20e500  web/.next/build-manifest.json
+3aea2717f8815cd70e7e259022476e0815d712cb02cb16e03dd931585c7cab5e  web/.next/routes-manifest.json
+637e06a92a898c7b02fd5136c6b43d86dee52c751690a7874f92de4817c2db35  web/.next/prerender-manifest.json
+4ad6e87a5e23718db53378ceffbd25555a53249858c373fb9e3a7b725258c292  web/.next/required-server-files.json
+Pre-build .git/index SHA-256: 4cf9eb1784e0e02372891f9575e2998ec2691dd1383878ca741bb3800c13e01f
+Pre-build source/test status: clean for web/api/packages/cli/e2e/sdks (no tracked diff and no untracked files).
+Pre-build config/lock hashes:
+1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f  package.json
+d4b810e9bd3c978540138b6a766f0f337909fc60a0bd9f846471e41f85fc0bc9  web/package.json
+b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824  pnpm-lock.yaml
+2f38f98a582b64bd1bf6d73384d1e66ea3fe9b9790f1bb4f287e0c164d18c54e  web/vite.config.ts
+eb9fc3cfde01e3773716386d82776cdec0d4c305ed3a0aebd70729833f8cfa64  web/next.config.ts
+Node v24.20.0 SHA-256 9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a
+pnpm 12.3.4 SHA-256 99ccfa6b57e73c693ec2ec9760a978f063b001df8f462e89fce3a30be3d641f3
+Environment: VP_SKIP_INSTALL=1; --config.verify-deps-before-run=false. No install/sync/network.
+Unique same-filesystem temp dir: /private/tmp/dify-v02-16.13.uIdHwL
+Move plan: atomic mv web/.next -> /private/tmp/dify-v02-16.13.uIdHwL/original-next; EXIT/INT/TERM/HUP trap will move generated web/.next -> /private/tmp/dify-v02-16.13.uIdHwL/generated-next, restore original-next to web/.next, compare path/type/files/bytes/key manifests, then remove only generated-next and empty task temp dir when verification passes.
+Reused 16.11 passed gates: check (8,950 formatted; 0 ESLint errors), lint:tss 6,266, i18n 24 locales/0 missing, focused unit 20 files/222 passed. Reused V01 API tests 160/160 and M08/14.7 quota modal browser Chromium 2/2; no checks/tests rerun.
+MOVE original web/.next -> /private/tmp/dify-v02-16.13.uIdHwL/original-next complete (same device 16777231).
+
+=== BUILD GATE build ===
+COMMAND: PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false --dir web build
+$ next build
+▲ Next.js 16.3.4 (Turbopack)
+✓ Running next.config.ts took 399ms
+
+  Creating an optimized production build ...
+POST_RESTORE web/.next: directory (not symlink); bytes=8491085824; files=29344; directories=984
+POST_RESTORE key manifests:
+2018879d1701eb214ec6483d0c8029a419e391ca3d0d6bdb0fa136737785aeca  /Users/liuxingwang/go/src/dify-plus/web/.next/BUILD_ID
+615f2dfbc1358ea0f83e05871cbfb960dd6f29729379e2577f7f35465d20e500  /Users/liuxingwang/go/src/dify-plus/web/.next/build-manifest.json
+3aea2717f8815cd70e7e259022476e0815d712cb02cb16e03dd931585c7cab5e  /Users/liuxingwang/go/src/dify-plus/web/.next/routes-manifest.json
+637e06a92a898c7b02fd5136c6b43d86dee52c751690a7874f92de4817c2db35  /Users/liuxingwang/go/src/dify-plus/web/.next/prerender-manifest.json
+4ad6e87a5e23718db53378ceffbd25555a53249858c373fb9e3a7b725258c292  /Users/liuxingwang/go/src/dify-plus/web/.next/required-server-files.json
+POST_BUILD .git/index SHA-256: 4cf9eb1784e0e02372891f9575e2998ec2691dd1383878ca741bb3800c13e01f
+POST_BUILD source/test tracked diff names: <none>
+POST_BUILD source/test status: <clean>
+POST_BUILD config/lock hashes:
+1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f  package.json
+d4b810e9bd3c978540138b6a766f0f337909fc60a0bd9f846471e41f85fc0bc9  web/package.json
+b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824  pnpm-lock.yaml
+2f38f98a582b64bd1bf6d73384d1e66ea3fe9b9790f1bb4f287e0c164d18c54e  web/vite.config.ts
+eb9fc3cfde01e3773716386d82776cdec0d4c305ed3a0aebd70729833f8cfa64  web/next.config.ts
+RESTORE_VERIFICATION=provisional direct string comparison differed because shasum output contained relative pre-run versus absolute post-run paths; the path-normalized follow-up verification is recorded below.
+REMOVED_ONLY_TASK_GENERATED_NEXT_AND_EMPTY_TEMP=confirmed
+RESTORE_FINAL=web/.next original directory restored; bytes=8491085824
+RESTORE_FINAL_FILES=29344
+
+RESTORE_FINAL_DIRS=984
+
+RESTORE_FINAL_INDEX_SHA=4cf9eb1784e0e02372891f9575e2998ec2691dd1383878ca741bb3800c13e01f
+BUILD_STOP=bounded SIGINT via existing exec session after >16m without progress; build command exit was not separately captured; build:vinext not run
+PATH_NORMALIZED_RESTORATION_VERIFICATION=passed.
+Original `web/.next` remains a real directory. Pre/post matched: du bytes 8491085824; regular files 29344; directories 984; key manifest content SHA-256s for BUILD_ID, build-manifest.json, routes-manifest.json, prerender-manifest.json, required-server-files.json are identical. The trap's earlier provisional mismatch was only because raw `shasum` output contained different relative/absolute displayed path prefixes; comparing digest values by basename passes.
+Pre/post git index SHA-256 is 4cf9eb1784e0e02372891f9575e2998ec2691dd1383878ca741bb3800c13e01f. Source/test tracked and untracked status remains clean. package.json, web/package.json, pnpm-lock.yaml, web/vite.config.ts, web/next.config.ts hashes match pre-run values.
+The original exec session is terminal with wrapper exit code 1 after SIGINT via its session interrupt channel. The Next build had emitted no progress after entering `Creating an optimized production build ...` for over 16 minutes. Its own command exit code was not captured separately. The existing EXIT trap completed and restored the original `.next`; only generated-next and the now-empty task temp directory were removed. `build:vinext` was not started.
+FINAL_RESTORE=passed; original web/.next baseline preserved; generated output and task temp removed.

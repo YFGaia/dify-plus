@@ -250,7 +250,12 @@
         "依赖变化可解释；无抹除钉钉/pypinyin 等 fork 依赖",
         "生成物来源明确，工具链版本可复现"
       ],
-      "evidence": ["evidence/M01/result.json", "evidence/M01/execution.log"],
+      "evidence": [
+        "evidence/M01/result.json",
+        "evidence/M01/execution.log",
+        "evidence/M01/7.5-next-webpack-compatibility.md",
+        "evidence/M01/7.5-pnpm-check.log"
+      ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
         "oxlint-suppressions.json",
@@ -287,6 +292,47 @@
           "node_runtime": "24.20.0 official SHA256-verified archive; repository frozen/offline/lockfile-only passed",
           "final_lock_write_owner": "M08"
         }
+      },
+      "implementation_progress": {
+        "completed_subtasks": [
+          "M01 initial toolchain/lock reconciliation passed; evidence remains in evidence/M01/result.json.",
+          "7.5_next_build_webpack_compatibility passed and committed as 42fe3f904d6bd469ce887561a94909da882c4bb6; clean-archive pnpm check passed, M08/14.19 candidate acceptance follows."
+        ],
+        "current_subtask": {
+          "id": "7.5_next_build_webpack_compatibility",
+          "status": "passed",
+          "owner": "M01",
+          "model": "gpt-6-astra",
+          "reasoning_effort": "high",
+          "base_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+          "candidate_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+          "candidate_tree": "d3906ed2b06bd6ad43550968191c774c329ef396",
+          "registered_paths": [
+            "web/package.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M01/7.5-next-webpack-compatibility.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M01/7.5-pnpm-check.log"
+          ],
+          "scope": "Only web/package.json scripts.build changes from next build to next build --webpack. M01 report and exact raw pnpm check output are committed. No versions, dependencies, lockfiles, application source or tests changed.",
+          "acceptance": [
+            "Pinned Node 24.20.0 and pnpm 12.3.4 clean-archive pnpm check passed: formatter 8,950 files, ESLint 0 errors and 1,931 existing warnings across 6,910 files.",
+            "The exact source commit is a direct child of d2fea9989725c79afdeec3eba4eaa6e0e260e480; its diff contains only web/package.json and the two registered M01 evidence paths.",
+            "V02/16.14 same-candidate webpack diagnostic passed in 93.05 seconds; this is diagnostic evidence and is not the default build gate.",
+            "M08/14.19 must accept the refreshed candidate before V02 runs the default Next build and Vinext."
+          ],
+          "editable_paths": ["web/package.json"],
+          "dispatch_agent": "/root/m01_7_5_astra_build_script",
+          "dispatch_status": "completed",
+          "result_sha256": "789bc325bc95a09ddd5b632683bb0108a03cc921b6f0434f2885f8a2b44a4836",
+          "log_sha256": "b66f8a4204ba9c4f3224a95bb313d3e1f36ce3b9852f43124fc5420cdd110175",
+          "independent_structure_review": {
+            "status": "passed",
+            "model": "gpt-6-sol",
+            "candidate_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+            "scope": "Read-only diff, ancestry, API/quota boundary and quota route check; no quality gates duplicated."
+          }
+        },
+        "next_subtask": null,
+        "dispatch_status": "completed"
       }
     },
     {
@@ -2452,7 +2498,9 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log"
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+        "evidence/M08/14.18-final-candidate-structural-acceptance.md",
+        "evidence/M08/14.19-final-candidate-structural-acceptance.md"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": ["AGENTS.md", "README.md"],
@@ -2490,56 +2538,76 @@
           "14.10_final_candidate_and_structural_acceptance",
           "14.15_v02_evidence_format_followup",
           "14.16_recandidate_after_metadata_formatting",
-          "14.17_ukrainian_i18n_parity"
+          "14.17_ukrainian_i18n_parity",
+          "14.18_final_candidate_structural_acceptance"
         ],
         "current_subtask": {
-          "id": "14.18_final_candidate_structural_acceptance",
+          "id": "14.19_final_candidate_after_M01_build_script_change",
           "status": "in_progress",
           "owner": "M08/coordinator",
           "model": "coordinator",
           "reasoning_effort": "high",
-          "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+          "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+          "candidate_tree": "d3906ed2b06bd6ad43550968191c774c329ef396",
           "registered_paths": [
-            "web/i18n/uk-UA/layout.json",
-            "web/i18n/uk-UA/oauth.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.18-final-candidate-structural-acceptance.md",
             "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.11-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.11-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.12-final-candidate-build-overlay-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.12-final-candidate-build-overlay.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.13-exact-candidate-checkout-build-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.13-exact-candidate-checkout-build.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.14-webpack-diagnostic-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.14-webpack-diagnostic.log",
             "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
             "openspec/changes/merge-upstream-1-17-1/tasks.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.18-final-candidate-structural-acceptance.md"
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.19-final-candidate-structural-acceptance.md"
           ],
           "commit_allowlist": [
-            "web/i18n/uk-UA/layout.json",
-            "web/i18n/uk-UA/oauth.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.18-final-candidate-structural-acceptance.md",
             "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.11-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.11-final-candidate.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.12-final-candidate-build-overlay-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.12-final-candidate-build-overlay.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.13-exact-candidate-checkout-build-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.13-exact-candidate-checkout-build.log",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.14-webpack-diagnostic-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.14-webpack-diagnostic.log",
             "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
             "openspec/changes/merge-upstream-1-17-1/tasks.md"
           ],
-          "scope": "Freeze the post-14.17 source candidate as a direct child of 783859de3ebc098f2c9916516c831d92e547a913. Stage only the exact registered commit_allowlist, including the two uk-UA namespace files and coordinator evidence/state updates already registered here. The 14.18 acceptance report is written after the commit and remains outside this candidate to avoid self-referential hashes. Do not stage unrelated untracked directories, make unrelated edits, or create branches/worktrees.",
+          "scope": "Freeze a metadata/evidence candidate directly on the M01/7.5 commit. Include the prior M08/14.18 report and exact V02/16.11-16.14 reports/logs plus coordinator state. The post-commit 14.19 acceptance report is registered but excluded from this commit to avoid self-reference. Do not touch unrelated paths, source code, tests, dependencies or lockfiles; do not create branches/worktrees.",
           "dependencies": [
-            "M08/14.16:passed",
-            "M08/14.17:passed",
-            "V02/16.10:blocked_at_i18n with exact same-archive retry evidence"
+            "M08/14.18 accepted parent d2fea9989725c79afdeec3eba4eaa6e0e260e480.",
+            "M01/7.5 passed and committed as 42fe3f904d6bd469ce887561a94909da882c4bb6; clean-archive pnpm check passed.",
+            "Independent Sol review of 42fe3f904d6bd469ce887561a94909da882c4bb6 passed; API tree and quota boundary are unchanged.",
+            "V02/16.11-16.14 evidence is registered; 16.14 is diagnostic only and does not pass V02."
           ],
           "acceptance": [
-            "The staged path set equals commit_allowlist exactly; ignored log is force-added only by its exact registered path.",
-            "Candidate is a direct child of 783859de3ebc098f2c9916516c831d92e547a913 and its tree contains the exact 19-key uk-UA translations plus registered state/evidence updates.",
-            "M00 two-parent merge ancestry, M01-M07 implementation ancestry, all 91 conflict-path dispositions, and no unresolved index/conflict markers are preserved.",
-            "API subtree hash remains 895c0be99faafa5314806ddb2c0553c6062c7f67; personal total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota remains cumulative usage.",
-            "Report records commit/tree, exact path allowlist, source and evidence hashes, structural scans, and OpenSpec/format checks without claiming V02 or production acceptance."
+            "The staged path set equals commit_allowlist exactly; raw logs are force-added only at registered paths and remain byte-identical.",
+            "The new candidate is a direct child of 42fe3f904d6bd469ce887561a94909da882c4bb6 and retains upstream 1.17.1 and M00 two-parent merge ancestry.",
+            "No application source, tests, dependencies or lockfiles change in the M08 metadata candidate; api subtree remains 895c0be99faafa5314806ddb2c0553c6062c7f67.",
+            "Account total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota; /system-manage-extend/quota-management remains reachable.",
+            "All 91 conflict paths stay resolved with no conflict markers or unmerged index; strict OpenSpec and exact-path formatting pass, excluding raw tool logs to preserve source evidence.",
+            "Report records candidate commit/tree, path allowlist and evidence hashes; no V02 default-build, R01, deployment or production pass is claimed."
           ],
-          "dispatch_status": "coordinator_working"
+          "post_commit_report": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.19-final-candidate-structural-acceptance.md",
+          "independent_review": {
+            "status": "passed",
+            "model": "gpt-6-sol",
+            "candidate_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+            "result": "Exact three-path M01 commit; only the build script source value changed. Upstream/M00 ancestry, api subtree, quota models and navigation route were verified.",
+            "scope_limit": "Structural review only; V02 production builds remain outstanding."
+          },
+          "dispatch_status": "coordinator_working",
+          "candidate_source_commit": null,
+          "candidate_source_tree": null
         },
         "parallel_subtasks": [
           {
@@ -3917,7 +3985,7 @@
           },
           {
             "id": "14.18_final_candidate_structural_acceptance",
-            "status": "in_progress",
+            "status": "passed",
             "owner": "M08/coordinator",
             "model": "coordinator",
             "reasoning_effort": "high",
@@ -3962,10 +4030,15 @@
               "API subtree hash remains 895c0be99faafa5314806ddb2c0553c6062c7f67; personal total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota remains cumulative usage.",
               "Report records commit/tree, exact path allowlist, source and evidence hashes, structural scans, and OpenSpec/format checks without claiming V02 or production acceptance."
             ],
-            "dispatch_status": "coordinator_working"
+            "dispatch_status": "completed",
+            "candidate_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+            "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+            "parent_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+            "report_sha256": "fbaed006adf7c126d9c088f75fb9ffbd1e1e1c39453f49308f72c0af6bdd41c2",
+            "result": "11/11 commit allowlist exact; direct-child ancestry, M00 merge ancestry, 91/91 resolved conflict mapping, no conflict markers/unmerged index, unchanged API subtree and quota boundary, exact locale parity, formatting and strict OpenSpec validation passed."
           }
         ],
-        "next_subtask": "14.17_ukrainian_i18n_parity",
+        "next_subtask": "14.19_final_candidate_after_M01_build_script_change",
         "dispatch_status": "coordinator_working",
         "active_subtasks": {}
       },
@@ -4057,7 +4130,7 @@
       "owner_role": "前端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "in_progress",
+      "status": "blocked",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -4077,8 +4150,8 @@
         "pnpm check",
         "pnpm --dir web lint:tss",
         "pnpm --dir web i18n:check",
-        "pnpm exec vp test run --project unit web/features/system-features web/service/console web/app/components/app/access-point web/app/components/api-key",
-        "pnpm exec vp test run --project browser web/app/components/app/access-point web/app/components/api-key",
+        "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit features/system-features service/console app/components/app/access-point app/components/api-key",
+        "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project browser app/components/app/access-point app/components/api-key",
         "pnpm --dir web build",
         "pnpm --dir web build:vinext"
       ],
@@ -4093,18 +4166,36 @@
       "implementation_progress": {
         "completed_subtasks": ["16.1_16.2_16.3_candidate_frontend_luna_verification"],
         "current_subtask": {
-          "id": "16.10_final_candidate_metadata_format_retry",
-          "status": "blocked",
+          "id": "16.15_final_candidate_default_next_and_vinext_builds",
+          "status": "queued_waiting_for_M08_14_19",
           "owner": "V02",
           "model": "gpt-6-luna",
-          "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
-          "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
+          "reasoning_effort": "high",
+          "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+          "candidate_tree": "d3906ed2b06bd6ad43550968191c774c329ef396",
           "registered_paths": [
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log"
+            "evidence/V02/16.15-final-candidate-build-result.json",
+            "evidence/V02/16.15-final-candidate-build.log"
           ],
-          "dispatch_agent": "/root/v02_16_9_luna_candidate",
-          "dispatch_status": "completed_blocked"
+          "scope": "After M08/14.19 freezes a candidate, verify its exact commit/tree and run pnpm check first in a clean git archive with existing dependency overlays, no install/sync/network/source/test edits. If check passes, reuse exact-input 16.11 lint:tss, i18n and focused-unit results plus V01/browser results where their input hashes remain unchanged. Then run the registered default pnpm --dir web build (which now selects --webpack); only if it passes run pnpm --dir web build:vinext. Preserve the current web/.next and never overwrite unrelated paths. Capture exact output and hashes; stop at first failure.",
+          "dependencies": [
+            "M08/14.19 candidate structurally accepted.",
+            "M01/7.5 build script commit 42fe3f904d6bd469ce887561a94909da882c4bb6.",
+            "Reuse V01 160/160 and M08/14.7 exact-hash Chromium quota modal 2/2.",
+            "Reuse V02/16.11 lint:tss 6,266/6,266, i18n 24 locales/zero missing, and focused unit 20 files/222 tests because application/test/dependency inputs are unchanged; rerun full check on the new metadata candidate."
+          ],
+          "acceptance": [
+            "Archive commit/tree exactly equal the M08/14.19 accepted commit/tree and existing dependency overlays resolve without install/sync/network.",
+            "Pinned full pnpm check passes before either build.",
+            "Default pnpm --dir web build succeeds; then and only then pnpm --dir web build:vinext succeeds.",
+            "Both build logs contain the quota-management route; no source/test/index/working-tree mutation occurs in the archive test flow.",
+            "Report exact candidate/toolchain hashes, commands, exits, durations, route output, and cache/cleanup disposition; keep 16.14 diagnostic distinct from this V02 gate."
+          ],
+          "editable_paths": [
+            "evidence/V02/16.15-final-candidate-build-result.json",
+            "evidence/V02/16.15-final-candidate-build.log"
+          ],
+          "dispatch_status": "queued"
         },
         "parallel_subtasks": [
           {
@@ -4346,12 +4437,169 @@
             "root_cause": "The initial sandboxed i18n check stopped before checker startup with tsx Unix socket listen EPERM. Retrying only i18n:check on the same immutable candidate archive with sandbox restrictions lifted executed the checker and found 19 missing uk-UA keys across layout.json (2) and oauth.json (17).",
             "result_sha256": "7cef41d4fa3047f2e486cb0aa6cb95a09293f4f8bdd1fbf211a0f85e9a5e680a",
             "log_sha256": "c6cd445eff8f1045d39e0ab54dae23fe6a6975a4e66e3cc4ad4aa9e155766585"
+          },
+          {
+            "id": "16.11_final_candidate_after_uk-UA_locale_repair",
+            "status": "blocked",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+            "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.11-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.11-final-candidate.log"
+            ],
+            "scope": "Run V02 on the exact M08/14.18-accepted commit in a fresh git archive under /private/tmp. Recreate the 12 already-existing workspace dependency overlays including sdks/nodejs-client; do not install, sync, access network, include web/.next node_modules, mutate source/tests, stage, or commit. Run pnpm check first and stop at its first failure. If it passes, run lint:tss, i18n:check, the registered focused unit suite, then both web builds sequentially. If i18n again stops before checker startup with sandbox socket EPERM, retry only that same gate against the same immutable archive with sandbox restrictions lifted. Reuse exact-hash V01 160/160 and M08/14.7 quota-modal Chromium 2/2 evidence; write only the two registered attempt files.",
+            "dependencies": [
+              "M08/14.17:passed",
+              "M08/14.18:passed for exact commit/tree",
+              "V01 exact API subtree evidence reusable",
+              "M08/14.7 exact browser evidence reusable"
+            ],
+            "acceptance": [
+              "Archive commit/tree exactly equal d2fea9989725c79afdeec3eba4eaa6e0e260e480 / 2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5 and all 12 existing dependency overlays resolve.",
+              "No dependency installation, sync, network access, source/test mutation, staging or commit.",
+              "The focused unit invocation runs from archive/web, loads web/vite.config.ts, collects nonzero relevant tests, and passes; both web builds then pass in order. A zero-collection invocation is a harness failure and must not be reported as a source-test failure.",
+              "Reuse V01 160/160 and exact-hash quota-modal browser 2/2 without duplicate execution. Record exact commands, exits, counts, warnings, and candidate/environment hashes."
+            ],
+            "implementation_agent": "/root/v02_16_9_luna_candidate",
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.11-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.11-final-candidate.log"
+            ],
+            "dispatch_status": "completed_blocked",
+            "dispatch_agent": "/root/v02_16_9_luna_candidate",
+            "unit_cwd": "archive root; pnpm --dir web sets execution cwd to web/",
+            "unit_command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit features/system-features service/console app/components/app/access-point app/components/api-key",
+            "initial_invocation_disposition": "The first attempt followed the prior root-relative command but ran from archive root, where no unit project is configured; it collected zero tests. Preserve its output as an invalid invocation and rerun the corrected registered gate from web/ once.",
+            "verdict": "blocked_turbopack_archive_symlink_boundary",
+            "result_sha256": "4e250f06ab4de17b582674ca40f338e387274607a4e3664b5fd6a9cd7b8db0c1",
+            "log_sha256": "44e4421b7c6a4ee5cfeb528026916b6414e3a8526910b79ad72afbeaade2f184",
+            "root_cause": "check, lint:tss, i18n and focused unit passed; Turbopack rejected web/node_modules resolving outside the clean archive root; build:vinext was not run."
+          },
+          {
+            "id": "16.12_final_candidate_build_overlay_retry",
+            "status": "blocked",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "base_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+            "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+            "result": "evidence/V02/16.12-final-candidate-build-overlay-result.json",
+            "result_sha256": "36d16f2a73a2e92b900ec3a27a7266b0b1edb775b06087089117a184fedc14fe",
+            "log": "evidence/V02/16.12-final-candidate-build-overlay.log",
+            "log_sha256": "97b4a7bdbb66a5a3aae51606e40fb140e246061929da17ab53edb944b4ff6865",
+            "first_failed_gate": "pnpm --dir web build",
+            "blocked_reason": "The in-archive COW clone removed the top-level web/node_modules symlink, but its nested next package symlink still resolved to the workspace path outside the archive root.",
+            "overlay_manifest_sha256": "4f00c2c4c5f07d658d65bcaf92ca0ec38b6d1df75bee86613123000e8012b326",
+            "not_run": ["pnpm --dir web build:vinext"],
+            "dispatch_status": "completed_blocked",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.12-final-candidate-build-overlay-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.12-final-candidate-build-overlay.log"
+            ]
+          },
+          {
+            "id": "16.13_exact_candidate_checkout_builds_preserving_next_output",
+            "status": "blocked",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+            "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.13-exact-candidate-checkout-build-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.13-exact-candidate-checkout-build.log"
+            ],
+            "scope": "Run only the two registered build gates from the current checkout after verifying HEAD and tree exactly match the accepted candidate and that there are no staged or application source/test diffs. The checkout is used because its relative node_modules symlinks resolve within the candidate root, unlike the clean archive overlays. Preserve the existing 8.4 GB web/.next: verify repo and /private/tmp are on the same filesystem, atomically move the existing directory to a unique temp backup, run pnpm --dir web build and then pnpm --dir web build:vinext only if the first passes, and use an EXIT/INT/TERM trap to move generated web/.next output aside and restore the original directory exactly. Do not remove or overwrite the original cache; remove only this task's generated output after confirming restoration. Reuse 16.11 passed check/tss/i18n/unit and exact-hash V01/browser evidence. No dependency install/sync, network, source/test mutation, staging, or commit; write only the two registered result/log files.",
+            "dependencies": [
+              "M08/14.18:passed for exact commit/tree",
+              "V02/16.11:check/tss/i18n/unit passed and are reused",
+              "V02/16.12:archive overlay remains blocked by nested next symlink outside archive root",
+              "V01 exact API subtree evidence reusable",
+              "M08/14.7 exact browser evidence reusable"
+            ],
+            "acceptance": [
+              "HEAD/tree equal d2fea9989725c79afdeec3eba4eaa6e0e260e480 / 2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5, index clean, and no application source/test diff before or after.",
+              "The original web/.next directory is restored after the run with its original path, manifest, and size; generated build output is isolated and removed only after successful restoration.",
+              "Run pnpm --dir web build and, only after success, pnpm --dir web build:vinext. Record exact commands, exits, candidate/source/environment hashes, cache preservation evidence, and any first failure."
+            ],
+            "implementation_agent": "/root/v02_16_9_luna_candidate",
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.13-exact-candidate-checkout-build-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.13-exact-candidate-checkout-build.log"
+            ],
+            "dispatch_status": "completed_blocked",
+            "dispatch_agent": "/root/v02_16_9_luna_candidate",
+            "verdict": "blocked_build_no_progress_interrupted",
+            "result_sha256": "f563676fe0e180ef0d5b5849382c4c8ae0a7a9bbe40d0a67ce51e2a24c66f2d6",
+            "log_sha256": "39d0b9427960706655759d8f3095a30ef270a15815941d7cef3823d8048a60cc",
+            "first_failed_gate": "pnpm --dir web build",
+            "root_cause": "Exact candidate checkout passed dependency-boundary preconditions and Next entered Creating an optimized production build, then produced no progress for over 16 minutes and was interrupted through the same exec session. The wrapper exit was 1; the underlying build exit was not separately captured. The original web/.next cache was restored and verified; build:vinext was not run.",
+            "not_run": ["pnpm --dir web build:vinext"]
+          },
+          {
+            "id": "16.14_next_webpack_diagnostic",
+            "status": "completed",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+            "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.14-webpack-diagnostic-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.14-webpack-diagnostic.log"
+            ],
+            "scope": "Diagnostic only on the exact accepted candidate. With pinned Node 24.20.0/pnpm 12.3.4 and no install, sync, network, source/test edits, staging or commit, preserve the original web/.next on the same filesystem and run the supported Next CLI webpack diagnostic `pnpm --dir web exec next build --webpack --debug`. Capture progress and first failure. Bound the run to 30 minutes; inspect concrete process/log progress at 5-minute intervals and stop only if it remains idle without progress. Restore and verify the original web/.next in every exit path, remove only generated output after restoration. This does not satisfy the default Next build gate and must not trigger build:vinext.",
+            "dependencies": [
+              "16.13 blocked: exact candidate Next/Turbopack build made no progress after entering production build; cache restoration passed.",
+              "16.11 check/tss/i18n/focused unit passed and are reused.",
+              "V01 API result 160/160 and M08/14.7 quota-modal browser 2/2 exact-hash results are reusable.",
+              "Next 16.3.4 CLI help confirms --webpack and --debug options."
+            ],
+            "acceptance": [
+              "Before and after, HEAD/tree equal the accepted candidate; index clean; no application source/test diff.",
+              "No package installation, dependency sync, network access, source/test mutation, stage or commit.",
+              "Record whether webpack build completes, exact command/exit/duration/output and candidate/toolchain hashes; if it stalls, capture live process evidence before bounded stop.",
+              "Original web/.next remains at its path and its pre-run file/directory counts, size and key manifest hashes match after restoration; generated output and this attempt temp are cleaned only after restore verification.",
+              "Diagnostic outcome is not labeled as V02 passing; default `pnpm --dir web build` and `build:vinext` remain outstanding."
+            ],
+            "editable_paths": [
+              "evidence/V02/16.14-webpack-diagnostic-result.json",
+              "evidence/V02/16.14-webpack-diagnostic.log"
+            ],
+            "dispatch_status": "completed",
+            "implementation_agent": "/root/v02_16_14_luna_webpack",
+            "dispatch_agent": "/root/v02_16_14_luna_webpack",
+            "host_id": "local",
+            "verdict": "diagnostic_build_completed",
+            "result_sha256": "0fd784af61163e70eb6b6dc135d54dcbd66942e4c8eb29bfcfc62c2a511cad68",
+            "log_sha256": "935835cd2cdaa98646a5287cb58ac2ebadfe632d57bc1797430063aa874128fd",
+            "diagnostic_only": true,
+            "default_next_build_gate_passed": false,
+            "build_vinext_run": false,
+            "source_defect_found": false,
+            "root_cause": "Same exact candidate completed a full Next.js production build in 93.05 seconds with explicit --webpack --debug, while default Next/Turbopack stalled without progress for over 16 minutes. This supports a compiler-path-specific stall; it does not prove a source defect or satisfy the default build gate."
+          },
+          {
+            "id": "16.15_final_candidate_default_next_and_vinext_builds",
+            "status": "queued_waiting_for_M08_14_19",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+            "registered_paths": [
+              "evidence/V02/16.15-final-candidate-build-result.json",
+              "evidence/V02/16.15-final-candidate-build.log"
+            ]
           }
         ],
-        "next_subtask": "14.17_ukrainian_i18n_parity",
-        "dispatch_status": "blocked_first_failed_gate",
+        "next_subtask": "16.15_final_candidate_default_next_and_vinext_builds",
+        "dispatch_status": "queued_after_M08_14_19",
         "active_subtasks": {}
-      }
+      },
+      "blocked_reason": "V02/16.13 default Next/Turbopack build stalled. V02/16.14 webpack diagnostic passed on the same candidate, but the default build and Vinext gates remain incomplete; waiting for M01/7.5 build-script compatibility change and M08/14.19 candidate freeze before V02/16.15."
     },
     {
       "id": "R01",
@@ -4381,7 +4629,7 @@
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
       "outputs": ["evidence/R01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
-      "blocked_reason": "V02/16.10 blocked at i18n:check on 19 missing uk-UA locale keys; M08/14.17 must fix and a new candidate must be frozen before V02 retry."
+      "blocked_reason": "V02/16.14 proved the exact candidate can complete a Next build with Webpack, but the registered default build and Vinext gates remain incomplete. M01/7.5 is applying the evidence-driven webpack default selection; M08 must freeze and accept a new candidate, then V02 must pass both build gates before R01."
     },
     {
       "id": "V03",
@@ -4700,7 +4948,7 @@
       "outputs": ["evidence/D04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     }
   ],
-  "next_subtask": "M08/14.18_final_candidate_structural_acceptance",
+  "next_subtask": "M08/14.19_final_candidate_after_M01_build_script_change",
   "execution_control": {
     "coordinator_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
     "updated_at": "2026-09-29",
@@ -4744,9 +4992,10 @@
     ],
     "current_dispatches": [],
     "next_critical_path": [
-      "V02/16.10 is blocked at i18n on candidate 783859de; same-archive retry found 19 missing uk-UA keys after sandbox EPERM was resolved.",
-      "M08/14.17 passed: uk-UA layout/oauth have exact en-US key parity, 19 Ukrainian translations, and targeted checker exit 0.",
-      "M08/coordinator is freezing and structurally accepting the exact next candidate in 14.18; only then dispatch V02/16.11 on that immutable candidate."
+      "M01/7.5 passed and committed as 42fe3f904d6bd469ce887561a94909da882c4bb6; clean-archive pnpm check and independent Sol structural review passed.",
+      "M08/14.19 is freezing a new candidate directly from 42fe3f904d6bd469ce887561a94909da882c4bb6, with exact prior V02 evidence and coordinator state paths.",
+      "After M08/14.19 acceptance, V02/16.15 runs full pnpm check then default Next build (Webpack selected by the script) and Vinext sequentially; reuse exact-input lint:tss/i18n/unit and V01/browser evidence.",
+      "R01 remains blocked until V02 passes. A03 and production gates retain their separate authorization boundary."
     ],
     "quality_gates_unchanged": true,
     "coordinator_handoff": {

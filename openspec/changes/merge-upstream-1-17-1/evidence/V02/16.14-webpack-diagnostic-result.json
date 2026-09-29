@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "node_id": "V02",
+  "task_id": "16.14_next_webpack_diagnostic",
+  "candidate_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+  "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+  "command": "pnpm --config.verify-deps-before-run=false --dir web exec next build --webpack --debug",
+  "checkout_before": {
+    "head": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+    "tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+    "branch": "codex/merge-upstream-1.17.1",
+    "index_sha256": "4cf9eb1784e0e02372891f9575e2998ec2691dd1383878ca741bb3800c13e01f",
+    "index_clean": true,
+    "preexisting_tracked_diff_paths": [
+      "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+      "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+      "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+      "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+      "openspec/changes/merge-upstream-1-17-1/tasks.md"
+    ],
+    "preexisting_untracked_path_count": 7739,
+    "preexisting_untracked_top_level_counts": {
+      ".agents": 4,
+      ".claude": 8,
+      ".cursor": 10,
+      ".gemini": 8,
+      ".github": 8,
+      ".tmp": 7697,
+      "openspec": 4
+    },
+    "source_test_paths_clean": true
+  },
+  "filesystem": {
+    "repo_device_id": 16777231,
+    "private_tmp_device_id": 16777231,
+    "same_filesystem": true,
+    "original_next_type": "directory_not_symlink",
+    "original_next_before": {
+      "allocated_bytes": 8491085824,
+      "regular_files": 29344,
+      "directories": 1054,
+      "key_manifests": {
+        "BUILD_ID": "2018879d1701eb214ec6483d0c8029a419e391ca3d0d6bdb0fa136737785aeca",
+        "build-manifest.json": "615f2dfbc1358ea0f83e05871cbfb960dd6f29729379e2577f7f35465d20e500",
+        "routes-manifest.json": "3aea2717f8815cd70e7e259022476e0815d712cb02cb16e03dd931585c7cab5e",
+        "prerender-manifest.json": "637e06a92a898c7b02fd5136c6b43d86dee52c751690a7874f92de4817c2db35",
+        "required-server-files.json": "4ad6e87a5e23718db53378ceffbd25555a53249858c373fb9e3a7b725258c292"
+      }
+    },
+    "unique_temp_directory": "/private/tmp/dify-v02-16.14.qtb1b8ny",
+    "atomic_backup_path": "/private/tmp/dify-v02-16.14.qtb1b8ny/original-next",
+    "generated_output_path": "/private/tmp/dify-v02-16.14.qtb1b8ny/generated-next",
+    "atomic_move_completed": true,
+    "generated_output_moved_aside": true,
+    "original_restored": true,
+    "original_next_after": {
+      "allocated_bytes": 8491085824,
+      "regular_files": 29344,
+      "directories": 1054,
+      "key_manifests": {
+        "BUILD_ID": "2018879d1701eb214ec6483d0c8029a419e391ca3d0d6bdb0fa136737785aeca",
+        "build-manifest.json": "615f2dfbc1358ea0f83e05871cbfb960dd6f29729379e2577f7f35465d20e500",
+        "routes-manifest.json": "3aea2717f8815cd70e7e259022476e0815d712cb02cb16e03dd931585c7cab5e",
+        "prerender-manifest.json": "637e06a92a898c7b02fd5136c6b43d86dee52c751690a7874f92de4817c2db35",
+        "required-server-files.json": "4ad6e87a5e23718db53378ceffbd25555a53249858c373fb9e3a7b725258c292"
+      }
+    },
+    "original_next_matches": true,
+    "original_path_type_after": "directory_not_symlink",
+    "generated_output_removed": true,
+    "task_temp_removed_after_restore_verification": true
+  },
+  "environment": {
+    "node_version": "v24.20.0",
+    "node_path": "/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin/node",
+    "node_sha256": "9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a",
+    "pnpm_version": "12.3.4",
+    "pnpm_path": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm",
+    "pnpm_sha256": "99ccfa6b57e73c693ec2ec9760a978f063b001df8f462e89fce3a30be3d641f3",
+    "VP_SKIP_INSTALL": "1",
+    "verify_deps_before_run": false,
+    "install_sync_network_used": false
+  },
+  "started_at_utc": "2026-09-29T14:43:48.307786+00:00",
+  "progress": [],
+  "build": {
+    "exit_code": 0,
+    "duration_seconds": 93.05,
+    "timed_out_30m": false,
+    "stopped_idle_over_10m": false,
+    "process_progress_samples": [],
+    "last_output_age_seconds": 0.04
+  },
+  "checkout_after": {
+    "head": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+    "tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+    "branch": "codex/merge-upstream-1.17.1",
+    "index_sha256": "4cf9eb1784e0e02372891f9575e2998ec2691dd1383878ca741bb3800c13e01f",
+    "index_clean": true,
+    "preexisting_tracked_diff_paths": [
+      "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+      "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+      "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+      "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+      "openspec/changes/merge-upstream-1-17-1/tasks.md"
+    ],
+    "preexisting_untracked_path_count": 7739,
+    "preexisting_untracked_top_level_counts": {
+      ".agents": 4,
+      ".claude": 8,
+      ".cursor": 10,
+      ".gemini": 8,
+      ".github": 8,
+      ".tmp": 7697,
+      "openspec": 4
+    },
+    "source_test_paths_clean": true
+  },
+  "source_test_paths_clean_after": true,
+  "source_test_index_mutated_by_task": false,
+  "staged_or_committed": false,
+  "config_lock_hashes": {
+    "package.json": "1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f",
+    "web/package.json": "d4b810e9bd3c978540138b6a766f0f337909fc60a0bd9f846471e41f85fc0bc9",
+    "pnpm-lock.yaml": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+    "web/next.config.ts": "eb9fc3cfde01e3773716386d82776cdec0d4c305ed3a0aebd70729833f8cfa64",
+    "web/vite.config.ts": "2f38f98a582b64bd1bf6d73384d1e66ea3fe9b9790f1bb4f287e0c164d18c54e"
+  },
+  "log_bytes": 126938,
+  "log_sha256": "935835cd2cdaa98646a5287cb58ac2ebadfe632d57bc1797430063aa874128fd",
+  "status": "diagnostic_build_completed",
+  "conclusion": "webpack_build_completed_diagnostic_only",
+  "diagnostic_only": true,
+  "default_next_build_gate_passed": false,
+  "build_vinext_run": false,
+  "source_defect_found": false,
+  "finished_at_utc": "2026-09-29T14:45:22.466191+00:00",
+  "diagnostic_interpretation": "The webpack production build completed in 93.05 seconds, while the prior default Next/Turbopack build stalled. This is consistent with a compiler-path-specific stall; this diagnostic alone does not establish root cause or satisfy the default build gate."
+}

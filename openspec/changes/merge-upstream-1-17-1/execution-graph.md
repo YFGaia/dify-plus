@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> 当前状态以 execution-graph.json 为准：候选 `783859de3ebc098f2c9916516c831d92e547a913`（tree `badf6fb2196fe201185a1e81883504eb35cbffc0`）通过 M08/14.16 结构验收，但 V02/16.10 未通过：`pnpm check`（8,945 文件格式通过、ESLint 0 errors / 1,931 warnings）与 `lint:tss`（6,266/6,266）通过；同归档 i18n 重试发现 `uk-UA` 的 layout/oauth 缺 19 个 key，unit 与双构建按首失败规则停止。M08/14.17 已补齐两份乌克兰语文件，exact key parity 与定向 checker 通过；当前协调者按精确 allowlist 执行 14.18 冻结/结构验收，之后运行 V02/16.11。个人 `total_quota/used_quota` 与 API Key 日/月额度继续独立；V01 API 子树 SHA `895c0be99faafa5314806ddb2c0553c6062c7f67` 和 quota modal browser 2/2 按精确哈希复用。M05/11.8、M06/12.7、M08/14.11–14.17 已通过；R01 等待 V02 全部通过，R02 是上线准备完成，D04 才是生产升级完成。
+> 当前状态以 execution-graph.json 为准：M01/7.5 已提交 `42fe3f904d6bd469ce887561a94909da882c4bb6`，仅将默认 Next build 脚本设为 Webpack；clean-archive `pnpm check` 与独立 Sol 结构复核通过。M08/14.19 正在从该提交冻结新候选，保留上游 1.17.1 与 M00 双父祖先。个人额度与 API Key 日/月限额分表实现未变；API 子树仍为 `895c0be99faafa5314806ddb2c0553c6062c7f67`。V02/16.11 的 check/tss/i18n/222 项定向 unit 通过；16.13 默认 Turbopack 构建静止无进展，16.14 同候选 Webpack 生产构建 93.05 秒通过且缓存恢复。16.14 仅为诊断，不计 V02 默认构建门禁。M08/14.19 完成后，V02/16.15 将对新候选重跑完整 check、默认 Next 与 Vinext；R01 和真实环境/生产节点仍未通过。
 
 ## 依赖图
 
@@ -228,10 +228,10 @@ git show --no-patch --format=%P HEAD
 
 ## M01 · 工具链、依赖与生成物
 
-- 状态：passed（初始锁专项）；五个 fork 前端依赖及 Python 钉钉/pypinyin 保留。
+- 状态：passed；初始工具链/锁专项通过，补充的 7.5 构建脚本适配也已提交；五个 fork 前端依赖及 Python 钉钉/pypinyin 保留。
 - 工具实测：官方 pnpm 12.3.4 包和原生二进制 SRI 一致；初始解析使用获授权的 Node24.19.0；随后官方 Node24.20.0 归档 SHA256 校验及精确版本仓库锁检查通过。Python 3.12.9 的 locked/offline/no-sync 检查通过。
 - 锁文件：仓库 pnpm-lock.yaml 已更新并通过 frozen/offline/lockfile-only；新增 50 个 package / 53 个 snapshot 全部属于五依赖的可达范围，既有条目无改动/删除；api/uv.lock SHA 不变。五项 peer 问题与原锁相同。
-- 交接：M08 保有最终锁/契约生成物刷新权；非代码 ESLint、完整安装和构建待 M08/V02。M02 已通过；M03/M07 ready，M04–M06/M08/V01/V02/R01 等待前置；A03/环境/生产状态不变。本次不实施下游。
+- 交接：M08 保有最终锁/契约生成物刷新权；M01/7.5 提交 `42fe3f904d6bd469ce887561a94909da882c4bb6`，精确改为 `next build --webpack`，clean-archive `pnpm check` 通过（8,950 文件格式通过，ESLint 0 errors / 1,931 warnings）。M08/14.19 正在冻结新候选；默认 Next 与 Vinext 仍待 V02/16.15。M02–M07、V01 已通过；A03/环境/生产状态不变。
 - 本地副作用：早期 `uv run --no-sync` 自动重建了指向失效解释器的 `api/.venv`，原 3.12.8 环境变为 3.12.9 空环境；后续检查已隔离到 `/private/tmp`。详情见证据。
 - 前置：M00；负责人：构建负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`构建负责人`。
@@ -399,7 +399,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M08 · 集成审查与候选源码提交
 
-- 状态：in_progress；首个候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 的 M08/14.6 格式化修复已通过 exact-path formatter 与单文件 Chromium 2/2；14.7 Luna 独立复核 2/2 通过。M05/11.7 的继承配置格式问题已修复并通过精确检查；下一步按路径提交并生成新候选、复做结构验收。V02 首轮在全仓 `pnpm check` 阻断，后续门槛未执行；待独立复核及新候选提交后重跑。
+- 状态：in_progress；14.18 接受的父候选为 `d2fea9989725c79afdeec3eba4eaa6e0e260e480`。M01/7.5 的唯一源码改动已提交为其直接子项 `42fe3f904d6bd469ce887561a94909da882c4bb6`；Sol 独立结构复核通过。14.19 正按登记清单提交 M08/V02 状态和 16.11–16.14 原始证据，形成新的 metadata/evidence 候选；随后 V02/16.15 在精确新候选上执行完整 check 与两项生产构建。
 
 - 前置：M02, M03, M04, M05, M06, M07；负责人：集成负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`git_index, lockfiles`。
@@ -456,9 +456,13 @@ uv run --project api pytest api/tests/unit_tests/controllers/console/test_apikey
 
 证据：`evidence/V01/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
 
+## M01 follow-up 7.5
+
+- 状态：passed；提交 `42fe3f904d6bd469ce887561a94909da882c4bb6` 只将 `web/package.json` 默认 `build` 从 `next build` 改为 `next build --webpack`，版本、依赖和锁未改。固定 Node 24.20.0/pnpm 12.3.4 下 clean-archive `pnpm check` 通过；独立 Sol 复核确认 M00/上游祖先、API 子树、额度边界与额度管理路由保留。证据 `evidence/M01/7.5-next-webpack-compatibility.md` 与原始 `7.5-pnpm-check.log`。M08/14.19 新候选结构验收仍在进行。
+
 ## V02 · 前端检查、定向测试与双构建
 
-- 状态：16.10 对已通过 M08/14.16 结构验收的候选 `783859de3ebc098f2c9916516c831d92e547a913` 执行中。16.8 对候选 `95101d76b955481ce6c9519596aeea426680fa71` 使用 workspace overlay，formatter 8,934 文件通过后 `lint:eslint` 首失败（12 errors、1,931 warnings，6,910 files）。M06/12.7 已修复 dormant 文件导入；M05/11.8 修复必填输出类型/cache 语义；M08/14.11 恢复 retention_number 加载、Context 与发布透传；14.12 补齐 suppression 原因。V02/16.9 对候选 `686a5cfa5614ea45b0d9973e52014b07c13b07e7` 验证完整 12 项 overlay（含 `sdks/nodejs-client/node_modules`），但 `pnpm check` 在 7 条 OpenSpec 状态/证据路径的 formatter 首失败；lint、i18n、单测及双构建按首失败规则未运行。M08/14.15 将这 7 条路径及 `tasks.md` 格式化，12 路径 `vp fmt --check` 和 `git diff --check` 通过；14.16 冻结并结构验收 metadata-only 候选。16.8 与 16.9 的原始报告分别见 `evidence/V02/16.8-final-candidate-result.json`、`evidence/V02/16.9-final-candidate-result.json`。
+- 状态：blocked，等待 M08/14.19。16.11 的 check/tss/i18n（24 locales/0 missing）与 20 files / 222 tests 定向 unit 通过；16.11 与 16.12 的 clean archive Next build 均因 `web/node_modules/next` 解析到归档外被 Turbopack 阻断，`build:vinext` 未运行。16.13 在精确候选 checkout 上默认 Turbopack 无进展超过 16 分钟后中断并恢复原始 8.4 GB `web/.next`；16.14 在同候选显式 Webpack 诊断构建 93.05 秒通过，且缓存恢复，结果仅诊断。M01/7.5 已将默认脚本切到 Webpack。下一步 V02/16.15 对 M08/14.19 精确候选先跑完整 `pnpm check`，再复用输入未变的 tss/i18n/unit 与 V01/浏览器结果；随后执行默认 Next 与 Vinext。16.8–16.10 的早期首失败、修复与验收历史见各自报告，避免重复运行。
 
 - 前置：M08；负责人：前端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。
@@ -492,7 +496,7 @@ pnpm --dir web build:vinext
 
 ## R01 · 源码合并候选验收
 
-- 状态：blocked；前置节点 V01, V02 尚未通过；未执行本节点。
+- 状态：blocked；V01 已通过，V02 等待 M08/14.19 新候选与 V02/16.15 默认 Next/Vinext 两项门禁；本节点尚未执行。
 
 - 前置：V01, V02；负责人：集成负责人；建议模型：Sol/high。
 - 授权：`implementation`；资源锁：`集成负责人`。

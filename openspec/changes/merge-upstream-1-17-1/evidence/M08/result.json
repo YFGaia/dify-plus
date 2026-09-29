@@ -800,7 +800,7 @@
     },
     "14.18_final_candidate_structural_acceptance": {
       "id": "14.18_final_candidate_structural_acceptance",
-      "status": "in_progress",
+      "status": "passed",
       "owner": "M08/coordinator",
       "model": "coordinator",
       "reasoning_effort": "high",
@@ -845,11 +845,81 @@
         "API subtree hash remains 895c0be99faafa5314806ddb2c0553c6062c7f67; personal total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota remains cumulative usage.",
         "Report records commit/tree, exact path allowlist, source and evidence hashes, structural scans, and OpenSpec/format checks without claiming V02 or production acceptance."
       ],
-      "dispatch_status": "coordinator_working"
+      "dispatch_status": "completed",
+      "candidate_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+      "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+      "parent_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+      "report_sha256": "fbaed006adf7c126d9c088f75fb9ffbd1e1e1c39453f49308f72c0af6bdd41c2",
+      "result": "11/11 commit allowlist exact; direct-child ancestry, M00 merge ancestry, 91/91 resolved conflict mapping, no conflict markers/unmerged index, unchanged API subtree and quota boundary, exact locale parity, formatting and strict OpenSpec validation passed."
+    },
+    "14.19_final_candidate_after_M01_build_script_change": {
+      "id": "14.19_final_candidate_after_M01_build_script_change",
+      "status": "in_progress",
+      "owner": "M08/coordinator",
+      "model": "coordinator",
+      "reasoning_effort": "high",
+      "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+      "candidate_tree": "d3906ed2b06bd6ad43550968191c774c329ef396",
+      "registered_paths": [
+        "evidence/M08/14.18-final-candidate-structural-acceptance.md",
+        "evidence/M08/result.json",
+        "evidence/V02/16.11-final-candidate-result.json",
+        "evidence/V02/16.11-final-candidate.log",
+        "evidence/V02/16.12-final-candidate-build-overlay-result.json",
+        "evidence/V02/16.12-final-candidate-build-overlay.log",
+        "evidence/V02/16.13-exact-candidate-checkout-build-result.json",
+        "evidence/V02/16.13-exact-candidate-checkout-build.log",
+        "evidence/V02/16.14-webpack-diagnostic-result.json",
+        "evidence/V02/16.14-webpack-diagnostic.log",
+        "evidence/V02/result.json",
+        "execution-graph.json",
+        "execution-graph.md",
+        "tasks.md",
+        "evidence/M08/14.19-final-candidate-structural-acceptance.md"
+      ],
+      "commit_allowlist": [
+        "evidence/M08/14.18-final-candidate-structural-acceptance.md",
+        "evidence/M08/result.json",
+        "evidence/V02/16.11-final-candidate-result.json",
+        "evidence/V02/16.11-final-candidate.log",
+        "evidence/V02/16.12-final-candidate-build-overlay-result.json",
+        "evidence/V02/16.12-final-candidate-build-overlay.log",
+        "evidence/V02/16.13-exact-candidate-checkout-build-result.json",
+        "evidence/V02/16.13-exact-candidate-checkout-build.log",
+        "evidence/V02/16.14-webpack-diagnostic-result.json",
+        "evidence/V02/16.14-webpack-diagnostic.log",
+        "evidence/V02/result.json",
+        "execution-graph.json",
+        "execution-graph.md",
+        "tasks.md"
+      ],
+      "scope": "Freeze a metadata/evidence candidate directly on the M01/7.5 commit. Include the prior M08/14.18 report and exact V02/16.11-16.14 reports/logs plus coordinator state. The post-commit 14.19 acceptance report is registered but excluded from this commit to avoid self-reference. Do not touch unrelated paths, source code, tests, dependencies or lockfiles; do not create branches/worktrees.",
+      "dependencies": [
+        "M08/14.18 accepted parent d2fea9989725c79afdeec3eba4eaa6e0e260e480.",
+        "M01/7.5 passed and committed as 42fe3f904d6bd469ce887561a94909da882c4bb6; clean-archive pnpm check passed.",
+        "Independent Sol review of 42fe3f904d6bd469ce887561a94909da882c4bb6 passed; API tree and quota boundary are unchanged.",
+        "V02/16.11-16.14 evidence is registered; 16.14 is diagnostic only and does not pass V02."
+      ],
+      "acceptance": [
+        "The staged path set equals commit_allowlist exactly; raw logs are force-added only at registered paths and remain byte-identical.",
+        "The new candidate is a direct child of 42fe3f904d6bd469ce887561a94909da882c4bb6 and retains upstream 1.17.1 and M00 two-parent merge ancestry.",
+        "No application source, tests, dependencies or lockfiles change in the M08 metadata candidate; api subtree remains 895c0be99faafa5314806ddb2c0553c6062c7f67.",
+        "Account total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota; /system-manage-extend/quota-management remains reachable.",
+        "All 91 conflict paths stay resolved with no conflict markers or unmerged index; strict OpenSpec and exact-path formatting pass, excluding raw tool logs to preserve source evidence.",
+        "Report records candidate commit/tree, path allowlist and evidence hashes; no V02 default-build, R01, deployment or production pass is claimed."
+      ],
+      "dispatch_status": "coordinator_working",
+      "independent_review": {
+        "status": "passed",
+        "model": "gpt-6-sol",
+        "candidate_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+        "result": "Exact three-path M01 commit; only the build script source value changed. Upstream/M00 ancestry, api subtree, quota models and navigation route were verified.",
+        "scope_limit": "Structural review only; V02 production builds remain outstanding."
+      }
     }
   },
   "updated_at": "2026-09-29",
-  "next_subtask": "14.18_final_candidate_structural_acceptance",
+  "next_subtask": "14.19_final_candidate_after_M01_build_script_change",
   "candidate_source_commit": "783859de3ebc098f2c9916516c831d92e547a913",
   "candidate_source_commit_before_followup": {
     "sha": "ba33fe26dc21ae3a308f14a61999009fc2849779",
