@@ -1,7 +1,9 @@
+from copy import deepcopy
 from unittest.mock import Mock, patch
 
 import pytest
 from aliyun.log import IndexConfig, IndexKeyConfig, IndexLineConfig
+from aliyun.log.index_config import IndexJsonKeyConfig
 
 from extensions.logstore.aliyun_logstore import AliyunLogStore
 
@@ -63,6 +65,96 @@ def test_existing_compatible_actor_index_keeps_user_configuration() -> None:
 
     assert needs_update is False
     assert merged.key_config_list["from_account_id"] is actor
+
+
+@pytest.mark.parametrize(
+    ("actor_type", "doc_value"),
+    [(None, False), ("text", False), ("json", True), ("json", False), ("long", True), ("double", False)],
+)
+@pytest.mark.parametrize("with_line_config", [True, False])
+@pytest.mark.parametrize("reduce_lists", ["white", "black", "both"])
+def test_reconcile_preserves_complete_index_config(
+    actor_type: str | None, doc_value: bool, with_line_config: bool, reduce_lists: str
+) -> None:
+    store = object.__new__(AliyunLogStore)
+    store.client = Mock()
+    store.project_name = "test-project"
+    required_keys = store._get_workflow_execution_index_keys()
+    required_before = {name: deepcopy(config.to_json()) for name, config in required_keys.items()}
+    keys = dict(required_keys)
+    if actor_type is None:
+        del keys["from_account_id"]
+    else:
+        keys["from_account_id"] = IndexKeyConfig(
+            index_type=actor_type,
+            doc_value=doc_value,
+            case_sensitive=True,
+            token_list=["|", "~"],
+            chinese=False,
+            alias="account_actor",
+            json_key_config=IndexJsonKeyConfig(index_all=False, max_depth=3) if actor_type == "json" else None,
+        )
+    custom_json = IndexJsonKeyConfig(index_all=False, max_depth=4)
+    custom_json.add_key("nested.count", "long", doc_value=True, alias="count")
+    keys["custom_payload"] = IndexKeyConfig(index_type="json", json_key_config=custom_json, token_list=[";"])
+    keys["custom_metric"] = IndexKeyConfig(index_type="long", doc_value=False, alias="metric")
+    line_config = (
+        IndexLineConfig(
+            token_list=["|"], case_sensitive=True, chinese=False, auto_key_detect=True, auto_key_count_limit=37
+        )
+        if with_line_config
+        else None
+    )
+    existing = IndexConfig(
+        ttl=37,
+        line_config=line_config,
+        key_config_list=keys,
+        all_keys_config=IndexKeyConfig(token_list=["~"], case_sensitive=True, doc_value=True, chinese=False),
+        log_reduce=True,
+        scan_index=False,
+    )
+    existing.modify_time = 1234567890
+    existing.set_docvalue_max_text_len(4096)
+    if reduce_lists in {"white", "both"}:
+        existing.set_log_reduce_white_list(["custom_payload"])
+    if reduce_lists in {"black", "both"}:
+        existing.set_log_reduce_black_list(["custom_metric"])
+    before = deepcopy(existing.to_json())
+    expected = deepcopy(before)
+    if actor_type is None:
+        expected["keys"]["from_account_id"] = deepcopy(required_before["from_account_id"])
+    else:
+        expected_actor = expected["keys"]["from_account_id"]
+        expected_actor.update(type="text", doc_value=True, token=["|", "~"], caseSensitive=True)
+        for json_option in ("index_all", "max_depth", "json_keys"):
+            expected_actor.pop(json_option, None)
+
+    with (
+        patch.object(store, "get_existing_index_config", return_value=existing),
+        patch.object(store, "_get_workflow_execution_index_keys", return_value=required_keys),
+    ):
+        store.ensure_index_config(AliyunLogStore.workflow_execution_logstore)
+
+    store.client.create_index.assert_not_called()
+    store.client.update_index.assert_called_once()
+    project, logstore, updated = store.client.update_index.call_args.args
+    assert (project, logstore) == ("test-project", AliyunLogStore.workflow_execution_logstore)
+    assert updated.to_json()["keys"]["from_account_id"] == expected["keys"]["from_account_id"]
+    assert updated.to_json() == expected
+    # The SDK omits ttl/modify_time and serializes only the white list when both lists exist.
+    assert vars(updated) == {**vars(existing), "key_config_list": updated.key_config_list}
+    assert updated is not existing
+    assert updated.key_config_list is not existing.key_config_list
+    assert existing.to_json() == before
+    assert {name: config.to_json() for name, config in required_keys.items()} == required_before
+
+    store.client.reset_mock()
+    with patch.object(store, "get_existing_index_config", return_value=updated):
+        store.ensure_index_config(AliyunLogStore.workflow_execution_logstore)
+    store.client.update_index.assert_not_called()
+    store.client.create_index.assert_not_called()
+    assert updated.to_json() == expected
+    assert existing.to_json() == before
 
 
 @pytest.mark.parametrize(

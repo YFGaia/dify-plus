@@ -1145,32 +1145,42 @@
           "12.6d_app_account_statistics",
           "12.6e_workflow_actor_analysis",
           "12.6e_workflow_account_ownership_persistence",
-          "12.6f_logstore_actor_index"
+          "12.6f_logstore_actor_index",
+          "12.6f_logstore_actor_index_config_preservation"
         ],
         "current_subtask": {
-          "id": "12.6f_logstore_actor_index_config_preservation",
           "status": "implementation_in_progress",
-          "owner": "M04",
           "model": "gpt-6-astra",
-          "base_commit": "5514c6df0f",
+          "owner": "M04",
+          "base_commit": "5514c6df0f88921fbf7029611bd95de216d20757",
+          "dispatch_channel": "codex_project_local",
+          "implementation_thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
+          "thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
           "dependencies": [
-            "12.6f_logstore_actor_index:implementation_complete",
-            "12.6f_logstore_actor_index_reconciliation:reopened_by_P2"
+            "12.6f_workflow_statistics_analysis:passed",
+            "12.6e_review_followup:passed",
+            "12.6f_logstore_actor_index_config_preservation:passed"
           ],
           "registered_paths": [
-            "api/extensions/logstore/aliyun_logstore.py",
-            "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
-            "evidence/M06/12.6f-logstore-index-config-preservation.md"
+            "api/controllers/console/app/workflow_statistic.py",
+            "api/services/workflow_statistic_query_service.py",
+            "api/repositories/api_workflow_run_repository.py",
+            "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+            "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+            "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+            "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+            "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+            "evidence/M06/12.6f-verification.md"
           ],
-          "scope": "Preserve the complete existing Aliyun SLS IndexConfig during update_index while adding/fixing workflow_execution.from_account_id; retain ttl, all_keys_config, log_reduce, docvalue_max_text_len, reduce white/black lists, line_config, scan_index, all custom keys, and compatible actor text options such as token_list/case_sensitive. Add regression coverage for overwrite semantics and only force required actor type/doc_value where incompatible.",
-          "finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
-          "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
-          "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
-          "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
-          "implementation_thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
-          "dispatch_channel": "codex_project_local"
+          "scope": "Single-writer integration of the two stopped 12.6f shared-checkout attempts. Deduplicate controller/service/repository parameters and Logstore predicates; review and reconcile the existing diff; add missing controller and Logstore tests; run the full registered focused suite and scoped checks; write evidence and commit exact registered paths. No other writer may touch these paths.",
+          "stopped_threads": [
+            "01a0ebbd-d178-7982-9141-834a93649224",
+            "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
+          ],
+          "current_worktree_observation": "At dispatch, seven registered code/test paths had uncommitted changes; controller and Logstore behavior test files were not yet present. Unrelated untracked user paths remain untouched."
         },
-        "next_subtask": "12.6f_logstore_actor_index_config_preservation",
+        "next_subtask": "12.6f_statistics_integration_recovery",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1864,7 +1874,7 @@
           },
           {
             "id": "12.6f_workflow_account_statistics",
-            "status": "implementation_in_progress_integration_blocked",
+            "status": "implementation_in_progress",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1896,7 +1906,7 @@
               "12.6f_logstore_actor_index:passed",
               "12.6f_logstore_actor_index_reconciliation:passed"
             ],
-            "blocked_by": "12.6f_logstore_actor_index_config_preservation",
+            "blocked_by": null,
             "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
             "base_commit": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8",
             "implementation_thread_ids": [
@@ -1915,7 +1925,7 @@
               "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
               "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
             ],
-            "blocked_reason": "Index update may discard existing user-managed SLS index settings; statistics work may finish independently but is not acceptable until the registered config-preservation follow-up passes."
+            "blocked_reason": null
           },
           {
             "id": "12.6g_user_overview_ui_contract",
@@ -1925,9 +1935,14 @@
             "registered_paths": [
               "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/page.tsx",
               "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/layout-main.tsx",
-              "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/__tests__/page.spec.tsx"
+              "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/__tests__/page.spec.tsx",
+              "web/app/components/app/overview/app-chart.tsx",
+              "web/app/components/app/overview/__tests__/app-chart.spec.tsx",
+              "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/__tests__/layout-main.spec.tsx",
+              "evidence/M06/12.6g-verification.md"
             ],
-            "scope": "Await route params, retain account=true for every period including all time, and enforce the same canMonitor guard as overview. Add host behavior tests after endpoint contracts are implemented."
+            "scope": "Promise route params; retain account=true for all periods; canMonitor blocks chart rendering and direct-route admission; keep direct-only navigation; preserve empty-data date fallback.",
+            "analysis_agent": "/root/overview_ui_analysis"
           },
           {
             "id": "12.6h_contract_generation",
@@ -2105,7 +2120,7 @@
           },
           {
             "id": "12.6f_logstore_actor_index_reconciliation",
-            "status": "reopened_by_P2",
+            "status": "passed_after_config_preservation",
             "owner": "M04",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -2126,7 +2141,8 @@
             "evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md",
             "base_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
             "blocked_reason": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
-            "verification_invalidated_by": "12.6f_logstore_actor_index_config_preservation"
+            "verification_invalidated_by": "12.6f_logstore_actor_index_config_preservation",
+            "followup": "12.6f_logstore_actor_index_config_preservation"
           },
           {
             "id": "12.6f_statistics_integration_recovery",
@@ -2137,8 +2153,7 @@
             "dependencies": [
               "12.6f_workflow_statistics_analysis:passed",
               "12.6e_review_followup:passed",
-              "12.6f_logstore_actor_index:passed",
-              "12.6f_logstore_actor_index_reconciliation:passed"
+              "12.6f_logstore_actor_index_config_preservation:passed"
             ],
             "registered_paths": [
               "api/controllers/console/app/workflow_statistic.py",
@@ -2159,7 +2174,7 @@
           },
           {
             "id": "12.6f_logstore_actor_index_config_preservation",
-            "status": "implementation_in_progress",
+            "status": "passed",
             "owner": "M04",
             "model": "gpt-6-astra",
             "base_commit": "5514c6df0f",
@@ -2177,7 +2192,12 @@
             "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
             "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
             "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
-            "implementation_thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e"
+            "implementation_thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
+            "review_agent": "/root/index_preservation_review",
+            "review_result": "No P1/P2/P3; independent Luna rerun 46 passed; Ruff check and format passed",
+            "verification_evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
+            "test_result": "46 passed; 36 regression cases failed before repair",
+            "verified_source_sha256": "22ad424ee36911206d42d3064d7613931eb26846ebbab5f6f187ecd20025da44"
           }
         ],
         "completed_analyses": [
@@ -2907,7 +2927,7 @@
         },
         "12.6f_workflow_account_statistics": {
           "id": "12.6f_workflow_account_statistics",
-          "status": "implementation_in_progress_integration_blocked",
+          "status": "implementation_in_progress",
           "model": "gpt-6-astra",
           "owner": "M06",
           "registered_paths": [
@@ -2977,11 +2997,12 @@
           "source_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b",
           "integration_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b",
           "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
-          "blocked_by": "12.6f_logstore_actor_index_config_preservation"
+          "blocked_by": null,
+          "blocked_reason": null
         },
         "12.6f_logstore_actor_index_reconciliation": {
           "id": "12.6f_logstore_actor_index_reconciliation",
-          "status": "reopened_by_P2",
+          "status": "passed_after_config_preservation",
           "owner": "M04",
           "model": "gpt-6-astra",
           "implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
@@ -2990,11 +3011,12 @@
           "static_checks": "Ruff check/format/diff-check passed",
           "review_result": "No P1/P2/P3",
           "blocked_reason": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
-          "verification_invalidated_by": "12.6f_logstore_actor_index_config_preservation"
+          "verification_invalidated_by": "12.6f_logstore_actor_index_config_preservation",
+          "followup": "12.6f_logstore_actor_index_config_preservation"
         },
         "12.6f_logstore_actor_index_config_preservation": {
           "id": "12.6f_logstore_actor_index_config_preservation",
-          "status": "implementation_in_progress",
+          "status": "passed",
           "owner": "M04",
           "model": "gpt-6-astra",
           "base_commit": "5514c6df0f",
@@ -3011,29 +3033,60 @@
           "finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
           "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
           "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
-          "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e"
+          "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
+          "review_agent": "/root/index_preservation_review",
+          "review_result": "No P1/P2/P3; independent Luna rerun 46 passed; Ruff check and format passed",
+          "verification_evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
+          "test_result": "46 passed; 36 regression cases failed before repair",
+          "verified_source_sha256": "22ad424ee36911206d42d3064d7613931eb26846ebbab5f6f187ecd20025da44"
+        },
+        "12.6j_frontend_dependency_recovery": {
+          "id": "12.6j_frontend_dependency_recovery",
+          "status": "ready",
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "base_commit": "d2fbe18cd1a621d4704fd29c73fa4c294aa1d770",
+          "registered_paths": [
+            "evidence/M06/12.6j-dependency-recovery.md"
+          ],
+          "scope": "Restore ignored node_modules with exact Node 24.20.0/pnpm 12.3.4 and frozen existing lockfiles; do not modify manifests/locks, other checkouts or create worktrees. Runtime tests remain separate subtasks.",
+          "dependencies": [],
+          "analysis_agent": "/root/frontend_dependency_diagnosis",
+          "implementation_agent": "/root/frontend_dependency_recovery"
         }
       },
-      "next_subtask": "12.6f_logstore_actor_index_config_preservation",
+      "next_subtask": "12.6f_statistics_integration_recovery",
       "current_subtask": {
-        "id": "12.6f_logstore_actor_index_config_preservation",
-        "status": "registered",
-        "owner": "M04",
+        "status": "implementation_in_progress",
         "model": "gpt-6-astra",
-        "base_commit": "187abce8f4143985344507c969ff23685f7f2126",
+        "owner": "M04",
+        "base_commit": "5514c6df0f88921fbf7029611bd95de216d20757",
+        "dispatch_channel": "codex_project_local",
+        "implementation_thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
+        "thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
         "dependencies": [
-          "12.6f_logstore_actor_index:implementation_complete",
-          "12.6f_logstore_actor_index_reconciliation:reopened_by_P2"
+          "12.6f_workflow_statistics_analysis:passed",
+          "12.6e_review_followup:passed",
+          "12.6f_logstore_actor_index_config_preservation:passed"
         ],
         "registered_paths": [
-          "api/extensions/logstore/aliyun_logstore.py",
-          "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
-          "evidence/M06/12.6f-logstore-index-config-preservation.md"
+          "api/controllers/console/app/workflow_statistic.py",
+          "api/services/workflow_statistic_query_service.py",
+          "api/repositories/api_workflow_run_repository.py",
+          "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+          "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+          "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+          "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+          "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+          "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+          "evidence/M06/12.6f-verification.md"
         ],
-        "scope": "Preserve the complete existing Aliyun SLS IndexConfig during update_index while adding/fixing workflow_execution.from_account_id; retain ttl, all_keys_config, log_reduce, docvalue_max_text_len, reduce white/black lists, line_config, scan_index, all custom keys, and compatible actor text options such as token_list/case_sensitive. Add regression coverage for overwrite semantics and only force required actor type/doc_value where incompatible.",
-        "finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
-        "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
-        "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md"
+        "scope": "Single-writer integration of the two stopped 12.6f shared-checkout attempts. Deduplicate controller/service/repository parameters and Logstore predicates; review and reconcile the existing diff; add missing controller and Logstore tests; run the full registered focused suite and scoped checks; write evidence and commit exact registered paths. No other writer may touch these paths.",
+        "stopped_threads": [
+          "01a0ebbd-d178-7982-9141-834a93649224",
+          "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
+        ],
+        "current_worktree_observation": "At dispatch, seven registered code/test paths had uncommitted changes; controller and Logstore behavior test files were not yet present. Unrelated untracked user paths remain untouched."
       }
     },
     {
@@ -3925,5 +3978,5 @@
       ]
     }
   ],
-  "next_subtask": "12.6f_logstore_actor_index_config_preservation"
+  "next_subtask": "12.6f_statistics_integration_recovery"
 }

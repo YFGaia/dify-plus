@@ -1324,7 +1324,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "blocked_by_logstore_index_config_preservation",
+      "status": "implementation_in_progress",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1347,7 +1347,7 @@
       "latest_attempt_note": "Astra is completing the registered account-statistics implementation on disjoint paths. Integration acceptance is blocked until the SLS IndexConfig preservation P2 follow-up passes.",
       "implementation_thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
       "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
-      "blocked_reason": "A follow-up P2 requires preserving the full existing Aliyun IndexConfig during actor-index reconciliation.",
+      "blocked_reason": null,
       "index_prerequisite": "12.6f_logstore_actor_index_config_preservation",
       "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
       "index_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
@@ -1363,7 +1363,7 @@
         "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
       ],
       "validation_status": "not_run_root_reconciliation_required",
-      "blocked_by": "12.6f_logstore_actor_index_config_preservation"
+      "blocked_by": null
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
@@ -1470,7 +1470,7 @@
       "evidence": "evidence/M06/12.6e-review.md"
     },
     "12.6f_logstore_actor_index_reconciliation": {
-      "status": "reopened_by_P2",
+      "status": "passed_after_config_preservation",
       "model": "gpt-6-astra",
       "owner": "M04",
       "base_commit": "17a755d104b6417e63b25dfe11a3156f34b37250",
@@ -1500,7 +1500,8 @@
       "static_checks": "Ruff check/format and diff-check passed",
       "reopened_finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
       "verification_invalidated_by": "12.6f_logstore_actor_index_config_preservation",
-      "historical_implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5"
+      "historical_implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "followup": "12.6f_logstore_actor_index_config_preservation"
     },
     "12.6f_statistics_integration_recovery": {
       "status": "implementation_in_progress",
@@ -1513,8 +1514,7 @@
       "dependencies": [
         "12.6f_workflow_statistics_analysis:passed",
         "12.6e_review_followup:passed",
-        "12.6f_logstore_actor_index:passed",
-        "12.6f_logstore_actor_index_reconciliation:passed"
+        "12.6f_logstore_actor_index_config_preservation:passed"
       ],
       "registered_paths": [
         "api/controllers/console/app/workflow_statistic.py",
@@ -1537,7 +1537,7 @@
     },
     "12.6f_logstore_actor_index_config_preservation": {
       "id": "12.6f_logstore_actor_index_config_preservation",
-      "status": "implementation_in_progress",
+      "status": "passed",
       "owner": "M04",
       "model": "gpt-6-astra",
       "base_commit": "5514c6df0f",
@@ -1555,8 +1555,44 @@
       "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
       "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
       "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
-      "implementation_thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e"
+      "implementation_thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
+      "review_agent": "/root/index_preservation_review",
+      "review_result": "No P1/P2/P3; independent Luna rerun 46 passed; Ruff check and format passed",
+      "verification_evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
+      "test_result": "46 passed; 36 regression cases failed before repair",
+      "verified_source_sha256": "22ad424ee36911206d42d3064d7613931eb26846ebbab5f6f187ecd20025da44"
+    },
+    "12.6j_frontend_dependency_recovery": {
+      "id": "12.6j_frontend_dependency_recovery",
+      "status": "ready",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "base_commit": "d2fbe18cd1a621d4704fd29c73fa4c294aa1d770",
+      "registered_paths": [
+        "evidence/M06/12.6j-dependency-recovery.md"
+      ],
+      "scope": "Restore ignored node_modules with exact Node 24.20.0/pnpm 12.3.4 and frozen existing lockfiles; do not modify manifests/locks, other checkouts or create worktrees. Runtime tests remain separate subtasks.",
+      "dependencies": [],
+      "analysis_agent": "/root/frontend_dependency_diagnosis",
+      "implementation_agent": "/root/frontend_dependency_recovery"
+    },
+    "12.6g_user_overview_ui_contract": {
+      "id": "12.6g_user_overview_ui_contract",
+      "status": "registered_blocked_by_12.6d_12.6f",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/page.tsx",
+        "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/layout-main.tsx",
+        "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/__tests__/page.spec.tsx",
+        "web/app/components/app/overview/app-chart.tsx",
+        "web/app/components/app/overview/__tests__/app-chart.spec.tsx",
+        "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/__tests__/layout-main.spec.tsx",
+        "evidence/M06/12.6g-verification.md"
+      ],
+      "scope": "Promise route params; retain account=true for all periods; canMonitor blocks chart rendering and direct-route admission; keep direct-only navigation; preserve empty-data date fallback.",
+      "analysis_agent": "/root/overview_ui_analysis"
     }
   },
-  "next_subtask": "12.6f_logstore_actor_index_config_preservation"
+  "next_subtask": "12.6f_statistics_integration_recovery"
 }
