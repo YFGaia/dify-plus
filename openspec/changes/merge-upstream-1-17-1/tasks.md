@@ -120,7 +120,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
   - [ ] 12.6f [M04/Astra；前置 12.6e] 为三项 workflow 图表端点增加 account 范围过滤，保持 app-wide 默认及 SQLAlchemy/Logstore 一致，并用双账号数据覆盖。
   - [ ] 12.6g [M06/Astra；前置 12.6d/f] 修复用户总览 Promise params、全时间 account 参数与 `canMonitor` 守卫，增加页面/布局行为测试；保留 direct-only 路由，不新增未经证实的导航入口。
   - [ ] 12.6h [M05/M08/Astra；前置 12.6d/f] 两类后端契约稳定后再生成并审查 Console OpenAPI 与 apps TS/Zod/oRPC 类型，生成物所有权仍归 M05/M08。
-  - [ ] 12.6i [M06/Astra；前置 12.3] API-key 测试已在 `a602bb8a58` 提交：新建后点击复制并读回完整 secret；三个 scope 在 `canManage=false` 时不显示编辑/删除且 mutation 未调用。focused test 与 scoped check 因 Vitest/Vite Plus 依赖不完整未能启动（exit 1），diff-check 通过；独立 Luna 复核进行中。证据：`evidence/M06/12.6i-validation.md`。
+  - [ ] 12.6i [M06/Astra；前置 12.3] API-key 测试已在 `a602bb8a58` 提交：新建后点击复制并读回完整 secret；三个 scope 在 `canManage=false` 时不显示编辑/删除且 mutation 未调用。focused test 与 scoped check 因 Vitest/Vite Plus 依赖不完整未能启动（exit 1），diff-check 通过；独立 Luna 无 P1/P2/P3，另一份重叠测试提交 `777238cc` 不合并。待依赖可用环境运行 focused spec 与 scoped check。证据：`evidence/M06/12.6i-validation.md`、`evidence/M06/12.6i-review.md`。
 
 ## 13. M07 综合部署和 CI 对齐（前置：M01）
 

@@ -1175,10 +1175,19 @@
     "12.6e_workflow_actor_analysis": {
       "status": "analysis_in_progress",
       "model": "gpt-6-sol",
-      "client_thread_id": "client-new-thread:09798d06-40b5-480e-a815-a9b51df460c9",
-      "base_commit": "fcc0b0e7a5",
+      "thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
+      "base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
       "read_only": true,
-      "thread_id": "01a0eb7c-080b-7b31-b722-b8edb28ab55b"
+      "registered_paths": [
+        "api/models/workflow.py",
+        "api/core/app/apps/workflow/generate_task_pipeline.py",
+        "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
+        "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+        "api/repositories/api_workflow_run_repository.py",
+        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+      ],
+      "implementation_gate": "Wait for exact persistence, migration, and trusted actor paths before dispatching Astra implementation."
     },
     "12.6e_workflow_account_ownership_persistence": {
       "status": "blocked_pending_analysis",
@@ -1194,7 +1203,7 @@
       "note": "No code until exact migration and trusted actor propagation paths are confirmed."
     },
     "12.6i_api_key_interaction_regressions": {
-      "status": "implementation_committed_verification_blocked_dependency_missing",
+      "status": "implementation_review_passed_verification_blocked_dependency_missing",
       "model": "gpt-6-astra",
       "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
       "registered_paths": [
@@ -1213,8 +1222,10 @@
         "diff_check_exit_code": 0,
         "test_sha256": "5b6dbe75aba281d32070cf9db3d10eeccb955eef94224dc36dcc1d3aae41c79c"
       },
-      "review_status": "pending_independent_luna",
-      "review_thread_id": "01a0eb7c-6b41-7840-b661-5a3c9eb3b86c"
+      "review_status": "passed_no_p1_p2_p3",
+      "review_thread_id": "01a0eb7c-6b41-7840-b661-5a3c9eb3b86c",
+      "review_evidence": "evidence/M06/12.6i-review.md",
+      "superseded_competing_commit": "777238cc"
     }
   },
   "next_subtask": "12.6e_workflow_actor_analysis"

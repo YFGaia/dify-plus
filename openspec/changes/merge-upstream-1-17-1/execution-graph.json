@@ -1145,48 +1145,27 @@
           "12.6d_app_account_statistics"
         ],
         "current_subtask": {
-          "id": "12.6d_app_account_statistics",
-          "status": "passed",
-          "owner": "M04",
-          "model": "gpt-6-astra",
+          "id": "12.6e_workflow_actor_analysis",
+          "status": "analysis_in_progress",
+          "owner": "M02",
+          "model": "gpt-6-sol",
           "branch_head": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
-          "implementation_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
-          "source_implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+          "thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
+          "title": "M06 12.6e trusted workflow actor analysis",
+          "base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
+          "dispatch_channel": "codex_projectless_readonly",
+          "read_only": true,
           "registered_paths": [
-            "api/controllers/console/app/statistic.py",
-            "api/services/app_statistic_query.py",
-            "api/repositories/app_statistic_query_repository.py",
-            "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
-            "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
+            "api/models/workflow.py",
+            "api/core/app/apps/workflow/generate_task_pipeline.py",
+            "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
+            "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+            "api/repositories/api_workflow_run_repository.py",
+            "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
           ],
-          "scope": "Add optional account=true to the three chart-backed app-statistics endpoints using authenticated RequestContext.account_id and trusted from_account_id; preserve app-wide defaults and existing filters.",
-          "review_thread_id": "01a0eb76-9ccc-7072-8187-f9e0b790040a",
-          "review_status": "passed_no_p1_p2_p3",
-          "verification": {
-            "status": "passed",
-            "test_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-12-6d-uv-cache LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONDONTWRITEBYTECODE=1 uv run --project api --no-sync pytest -q -o addopts= -p no:cacheprovider api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
-            "test_exit_code": 0,
-            "tests_passed": 22,
-            "warnings": 56,
-            "duration_seconds": 2.11,
-            "verification_worktree": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
-            "verification_worktree_head": "175e3040bdc9a5f34f07643a844ec95018bd4072",
-            "verified_paths_match_integrated_commit": true,
-            "worktree_clean_after_verification": true,
-            "ruff_check_exit_code": 0,
-            "ruff_format_check_exit_code": 0,
-            "diff_check_exit_code": 0,
-            "notes": [
-              "Coverage output was disabled for this focused run to avoid the read-only worktree permission failure from the first attempt.",
-              "Existing temporary Python 3.12 environment and temporary uv cache were used with --no-sync; no dependencies, lockfiles, source files, index, or commits were changed by verification.",
-              "LiteLLM remote model cost lookup was disabled with LITELLM_LOCAL_MODEL_COST_MAP=True.",
-              "Warnings are existing cgi, Pydantic class-config, and sqlite3 datetime adapter deprecations plus 56 SQLAlchemy/SQLite adapter warnings."
-            ]
-          },
-          "evidence": [
-            "evidence/M06/12.6d-verification.md",
-            "evidence/M06/12.6d-review.md"
-          ]
+          "scope": "Read-only trace of authenticated WebApp Console account actor propagation into SQLAlchemy and Logstore workflow execution storage/query, identify exact migration and test paths; never infer historical ownership.",
+          "implementation_gate": "Wait for exact persistence, migration, and trusted actor paths before dispatching Astra implementation."
         },
         "next_subtask": "12.6e_workflow_actor_analysis",
         "parallel_subtasks": [
@@ -1816,9 +1795,10 @@
             ],
             "scope": "Propagate a server-trusted Console account actor for WebApp workflow executions through SQLAlchemy and Logstore persistence/query boundaries; do not infer historical ownership. Refine exact migration and test paths during preflight before code.",
             "analysis_model": "gpt-6-sol",
-            "analysis_client_thread_id": "client-new-thread:09798d06-40b5-480e-a815-a9b51df460c9",
-            "analysis_base_commit": "9f1086a99d",
-            "implementation_gate": "Wait for exact persistence/migration path registration and trusted-actor propagation design."
+            "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
+            "implementation_gate": "Wait for exact persistence, migration, and trusted actor paths before dispatching Astra implementation.",
+            "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
+            "analysis_read_only": true
           },
           {
             "id": "12.6f_workflow_account_statistics",
@@ -1862,7 +1842,7 @@
           },
           {
             "id": "12.6i_api_key_interaction_regressions",
-            "status": "implementation_committed_verification_blocked_dependency_missing",
+            "status": "implementation_review_passed_verification_blocked_dependency_missing",
             "owner": "M06",
             "model": "gpt-6-astra",
             "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
@@ -1890,8 +1870,10 @@
               "status": "superseded_duplicate_worktree_attempt",
               "client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae"
             },
-            "review_status": "pending_independent_luna",
-            "review_thread_id": "01a0eb7c-6b41-7840-b661-5a3c9eb3b86c"
+            "review_status": "passed_no_p1_p2_p3",
+            "review_thread_id": "01a0eb7c-6b41-7840-b661-5a3c9eb3b86c",
+            "review_evidence": "evidence/M06/12.6i-review.md",
+            "superseded_competing_commit": "777238cc"
           },
           {
             "id": "12.6a_home_navigation_luna_review",
