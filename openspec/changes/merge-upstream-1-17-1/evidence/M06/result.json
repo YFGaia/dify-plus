@@ -167,7 +167,7 @@
       }
     },
     "12.2_analysis": {
-      "status": "conversation_provisioning",
+      "status": "analysis_in_progress",
       "model": "gpt-6-sol",
       "client_thread_id": "client-new-thread:de387753-bd0e-47c7-9710-c7a2cd63a43e",
       "created_from_commit": "97cd9efb0f",
@@ -186,7 +186,11 @@
           "client_thread_id": "client-new-thread:2ec33e10-44d1-412b-8769-6f91983560c2",
           "status": "provisioning_not_readable"
         }
-      ]
+      ],
+      "analysis_agent": "/root/m06_12_2_analysis",
+      "analysis_agent_status": "running",
+      "analysis_agent_base_commit": "a872f60ea7",
+      "thread_provisioning_status": "provisioning_not_readable"
     },
     "12.3_analysis": {
       "status": "conversation_provisioning",

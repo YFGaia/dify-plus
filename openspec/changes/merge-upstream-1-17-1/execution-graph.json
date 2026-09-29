@@ -1050,7 +1050,7 @@
         ],
         "current_subtask": {
           "id": "12.2_analysis",
-          "status": "conversation_provisioning",
+          "status": "analysis_in_progress",
           "evidence": "evidence/M06/result.json#/subtasks/12.2_analysis",
           "dependencies": {
             "12.1": "passed; commits ea853611dc and 9ee0119ca1ae501008db1913777ac4582af17205"
@@ -1082,7 +1082,7 @@
       ],
       "active_subtasks": {
         "12.2_analysis": {
-          "status": "conversation_provisioning",
+          "status": "analysis_in_progress",
           "model": "gpt-6-sol",
           "client_thread_id": "client-new-thread:de387753-bd0e-47c7-9710-c7a2cd63a43e",
           "created_from_commit": "97cd9efb0f",
@@ -1090,7 +1090,11 @@
             "client-new-thread:2e1f6c5d-5ef0-41b7-99dd-b8a8007dbae9",
             "client-new-thread:2ec33e10-44d1-412b-8769-6f91983560c2"
           ],
-          "scope": "Read-only app-center categories/filtering, installed-app navigation, recommended-app runtime validation, and Studio sync-menu analysis."
+          "scope": "Read-only app-center categories/filtering, installed-app navigation, recommended-app runtime validation, and Studio sync-menu analysis.",
+          "analysis_agent": "/root/m06_12_2_analysis",
+          "analysis_agent_status": "running",
+          "analysis_agent_base_commit": "a872f60ea7",
+          "thread_provisioning_status": "provisioning_not_readable"
         },
         "12.3_analysis": {
           "status": "conversation_provisioning",
