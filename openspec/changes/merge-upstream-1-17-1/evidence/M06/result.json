@@ -1107,8 +1107,8 @@
       "scope": "Add focused host behavior tests for system-integration tab/content switching at the exact registered test path.",
       "evidence": "evidence/M06/12.6b-validation.md",
       "observed_path": "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx",
-      "branch_head": "48dfb74ab1b2f7f9202fe43202c29e7b595eb3e8",
-      "implementation_commit": "pending",
+      "branch_head": "2a72712052",
+      "implementation_commit": "db73bbf8b18f24958eab9312b5d1af6248b526a0",
       "verification": {
         "status": "blocked_dependency_missing",
         "focused_spec_exit_code": 1,
@@ -1163,14 +1163,15 @@
       "note": "No code until exact migration and trusted actor propagation paths are confirmed."
     },
     "12.6i_api_key_interaction_regressions": {
-      "status": "implementation_in_progress",
+      "status": "implementation_committed_verification_pending",
       "model": "gpt-6-astra",
       "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
       "registered_paths": [
         "web/app/components/api-key/__tests__/api-key-modal.spec.tsx"
       ],
       "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
-      "superseded_duplicate_client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae"
+      "superseded_duplicate_client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae",
+      "implementation_commit": "a602bb8a58"
     }
   },
   "next_subtask": "12.6d_app_account_statistics"
