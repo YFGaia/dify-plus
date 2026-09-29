@@ -124,8 +124,10 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
   - [x] 12.6f [M04] SQLAlchemy/Logstore 三个统计端点支持可信 account=true，保留默认全应用与 daily-terminals。40 项聚焦测试、63 项 Schema 测试、九文件 Ruff/格式、源码/测试 Pyrefly 通过；独立 Luna 无 P1/P2/P3。证据 `evidence/M06/12.6f-verification.md`。
   - [x] 12.6f_statistics_integration_recovery [M04/Astra] 已将共享 diff 收敛为九路径实现和测试；原 writer 均停止，最终文件哈希与独立审阅相符，索引前置 8466ad5ff7 已通过。
   - [ ] 12.6g [M06/Astra；前置 12.6d/f] 修复用户总览 Promise params、全时间 account 参数与 `canMonitor` 守卫，增加页面/布局行为测试；保留 direct-only 路由，不新增未经证实的导航入口。
-  - [ ] 12.6h [M05/M08/Astra；前置 12.6d/f] 两类后端契约稳定后再生成并审查 Console OpenAPI 与 apps TS/Zod/oRPC 类型，生成物所有权仍归 M05/M08。
+  - [x] 12.6h [M05/M08/Astra→Luna] 标准 Console OpenAPI/Markdown 与 apps TS/Zod/oRPC 生成完成；六端点 account 布尔参数经 AST/实际 schema 解析及独立 Luna 复核通过。其余 196 个生成输出哈希未变；忽略的 JSON 不强制提交。证据 `evidence/M06/12.6h-verification.md`。
   - [ ] 12.6i [M06/Astra；前置 12.3] API-key 测试已在 `a602bb8a58` 提交：新建后点击复制并读回完整 secret；三个 scope 在 `canManage=false` 时不显示编辑/删除且 mutation 未调用。focused test 与 scoped check 因 Vitest/Vite Plus 依赖不完整未能启动（exit 1），diff-check 通过；独立 Luna 无 P1/P2/P3。Luna 独立重试复用了指向已删除 worktree 的 Vitest 悬空 symlink（0 tests），Vite Plus 仍缺失且依赖副本哈希未变；另一份重叠测试提交 `777238cc` 不合并。待依赖可用环境运行 focused spec 与 scoped check。证据：`evidence/M06/12.6i-validation.md`、`evidence/M06/12.6i-review.md`。
+
+  - [ ] 12.6i_fixture_typing [M06/Astra] 独立复验 23 项通过，但限定 type check 暴露 queryKey 参数和可空数组夹具两处错误；仅修登记测试，保留行为覆盖后重跑，证据追加12.6i-validation。
 
   - [x] 12.6j [M06/Astra] 使用精确 Node/pnpm 和 frozen lock 恢复当前 checkout 的前端依赖；仅写 ignored 依赖与专属证据，不改 manifest/lock，不创建 worktree。根安装和 contracts/web workspace 入口均通过；21 失效链接、28 旧包装器已备份后恢复。依赖就绪与源码验证分开记账。证据 `evidence/M06/12.6j-dependency-recovery.md`。
 

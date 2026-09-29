@@ -3022,6 +3022,7 @@ Get average session interaction statistics for an application
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
 | app_id | path | Application ID | Yes | string (uuid) |
+| account | query | Limit statistics to the authenticated account | No | boolean |
 | end | query | End date (YYYY-MM-DD HH:MM) | No | string |
 | start | query | Start date (YYYY-MM-DD HH:MM) | No | string |
 
@@ -3039,6 +3040,7 @@ Get daily conversation statistics for an application
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
 | app_id | path | Application ID | Yes | string (uuid) |
+| account | query | Limit statistics to the authenticated account | No | boolean |
 | end | query | End date (YYYY-MM-DD HH:MM) | No | string |
 | start | query | Start date (YYYY-MM-DD HH:MM) | No | string |
 
@@ -3090,6 +3092,7 @@ Get daily token cost statistics for an application
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
 | app_id | path | Application ID | Yes | string (uuid) |
+| account | query | Limit statistics to the authenticated account | No | boolean |
 | end | query | End date (YYYY-MM-DD HH:MM) | No | string |
 | start | query | Start date (YYYY-MM-DD HH:MM) | No | string |
 
@@ -3712,6 +3715,7 @@ Get workflow average app interaction statistics
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
 | app_id | path | Application ID | Yes | string (uuid) |
+| account | query | Limit statistics to the authenticated account | No | boolean |
 | end | query | End date and time (YYYY-MM-DD HH:MM) | No | string |
 | start | query | Start date and time (YYYY-MM-DD HH:MM) | No | string |
 
@@ -3729,6 +3733,7 @@ Get workflow daily runs statistics
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
 | app_id | path | Application ID | Yes | string (uuid) |
+| account | query | Limit statistics to the authenticated account | No | boolean |
 | end | query | End date and time (YYYY-MM-DD HH:MM) | No | string |
 | start | query | Start date and time (YYYY-MM-DD HH:MM) | No | string |
 
@@ -3763,6 +3768,7 @@ Get workflow daily token cost statistics
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
 | app_id | path | Application ID | Yes | string (uuid) |
+| account | query | Limit statistics to the authenticated account | No | boolean |
 | end | query | End date and time (YYYY-MM-DD HH:MM) | No | string |
 | start | query | Start date and time (YYYY-MM-DD HH:MM) | No | string |
 
@@ -4783,12 +4789,37 @@ Restore a published workflow version into the draft workflow
 | ---- | ---------- | ----------- | -------- | ------ |
 | resource_id | path | App ID | Yes | string (uuid) |
 
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [ApiKeyQuotaPayload](#apikeyquotapayload)<br> |
+
 #### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 201 | API key created successfully | **application/json**: [ApiKeyItem](#apikeyitem)<br> |
 | 400 | Maximum keys exceeded |  |
+
+### [PUT] /apps/{resource_id}/api-keys
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| resource_id | path |  | Yes | string (uuid) |
+
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [ApiKeyQuotaUpdatePayload](#apikeyquotaupdatepayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | API key quota updated | **application/json**: [ApiKeyItem](#apikeyitem)<br> |
 
 ### [DELETE] /apps/{resource_id}/api-keys/{api_key_id}
 **Delete an API key for an app**
@@ -7185,6 +7216,21 @@ Get instruction generation template
 | ---- | ----------- | ------ |
 | 200 | Success | **application/json**: [SimpleResultOptionalDataResponse](#simpleresultoptionaldataresponse)<br> |
 
+### [GET] /login_config
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Success | **application/json**: [LoginConfigResponse](#loginconfigresponse)<br> |
+| 403 | Missing or invalid login_config token |  |
+
+### [GET] /login_config_bootstrap
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Success | **application/json**: [LoginConfigBootstrapResponse](#loginconfigbootstrapresponse)<br> |
+
 ### [POST] /logout
 #### Responses
 
@@ -7205,6 +7251,37 @@ Get instruction generation template
 | Code | Description |
 | ---- | ----------- |
 | 302 | Redirect to OAuth callback page |
+
+### [DELETE] /message/context
+**Remove one marker after checking the conversation's app edit permission**
+
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| conversation_id | query |  | Yes | string |
+| message_id | query |  | Yes | string |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Context marker removed | **application/json**: [DeleteMessageContextResponse](#deletemessagecontextresponse)<br> |
+
+### [GET] /message/context
+**Return context markers only for an authorized conversation in the active tenant**
+
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| conversation_id | query |  | Yes | string |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Message context IDs | **application/json**: [MessageContextResponse](#messagecontextresponse)<br> |
 
 ### [GET] /notification
 Return the active in-product notification for the current user in the requested language (defaults to English when omitted). Unavailable translations fall back to English, then the first available content. The notification is NOT marked as seen here; call POST /notification/dismiss when the user explicitly closes the modal.
@@ -7274,8 +7351,9 @@ Handle OAuth callback and complete login process
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
-| provider | path | OAuth provider name (github/google) | Yes | string |
-| code | query | Authorization code from OAuth provider | Yes | string |
+| provider | path | OAuth provider name (github/google/oauth2) | Yes | string |
+| access_token | query | Legacy OAuth2 provider token callback | No | string |
+| code | query | Authorization code from OAuth provider | No | string |
 | state | query | OAuth state parameter | No | string |
 
 #### Responses
@@ -7361,7 +7439,7 @@ Initiate OAuth login process
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
-| provider | path | OAuth provider name (github/google) | Yes | string |
+| provider | path | OAuth provider name (github/google/oauth2) | Yes | string |
 | invite_token | query | Optional invitation token | No | string |
 | language | query | Preferred interface language | No | string |
 | redirect_url | query | Relative page to resume after login | No | string |
@@ -13226,6 +13304,61 @@ Import a Skill zip package from multipart form field `file`.
 ## default
 Default namespace
 
+### [GET] /account/money
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [DELETE] /apps/{app_id}/sync
+**Delete sync app**
+
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| app_id | path |  | Yes | string (uuid) |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [PUT] /apps/{app_id}/sync
+**Sync app**
+
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| app_id | path |  | Yes | string (uuid) |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /ding-talk/login
+**DingTalk login**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /ding-talk/third-party/login
+**DingTalk login**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
 ### [GET] /explore/banners
 **Get banner list**
 
@@ -13240,6 +13373,249 @@ Default namespace
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
 | 200 | Success | **application/json**: [BannerListResponse](#bannerlistresponse)<br> |
+
+### [DELETE] /extend/{path}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| path | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /extend/{path}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| path | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [OPTIONS] /extend/{path}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| path | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [PATCH] /extend/{path}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| path | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /extend/{path}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| path | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [PUT] /extend/{path}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| path | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /installed/apps
+**Installed app**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /system-manage-extend/code-execution-control
+**获取授权邮箱名单（created_at 升序）**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /system-manage-extend/code-execution-control
+**添加授权邮箱；邮箱格式非法或重复返回 400**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [DELETE] /system-manage-extend/code-execution-control/{record_id}
+**删除授权记录；记录不存在返回 404**
+
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| record_id | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /system-manage-extend/forward-tokens
+**获取转发 Token 列表**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /system-manage-extend/forward-tokens
+**创建转发 Token**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [DELETE] /system-manage-extend/forward-tokens/{seq}
+**删除转发 Token**
+
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| seq | path |  | Yes | integer |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /system-manage-extend/integration/dingtalk
+**获取钉钉配置**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /system-manage-extend/integration/dingtalk
+**保存钉钉配置**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /system-manage-extend/integration/dingtalk/test
+**测试钉钉 AppKey/AppSecret 是否有效**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /system-manage-extend/integration/dingtalk/test-callback
+**处理钉钉测试回调**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /system-manage-extend/integration/email-api/test
+**测试邮箱 API 连通性**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /system-manage-extend/integration/oauth2
+**获取 OAuth2 配置**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /system-manage-extend/integration/oauth2
+**保存 OAuth2 配置**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /system-manage-extend/integration/oauth2/test
+**测试 OAuth2 连接**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [GET] /system-manage-extend/quota-management
+**获取用户额度分页列表，支持按 name/email 搜索**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
+
+### [POST] /system-manage-extend/quota-management/set
+**设置指定用户的总额度（UPSERT）**
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 200 | Success |
 
 ---
 ### Schemas
@@ -13478,6 +13854,16 @@ Model class for AI model.
 | name | string |  | Yes |
 | timezone | string |  | No |
 
+#### AccountStatisticTimeRangeQuery
+
+Personal scope for the three app charts that support trusted account ownership.
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| account | boolean | Limit statistics to the authenticated account | No |
+| end | string | End date (YYYY-MM-DD HH:MM) | No |
+| start | string | Start date (YYYY-MM-DD HH:MM) | No |
+
 #### AccountTimezonePayload
 
 | Name | Type | Description | Required |
@@ -13505,6 +13891,16 @@ Model class for AI model.
 | role | string |  | Yes |
 | roles | [ object ] |  | No |
 | status | string |  | Yes |
+
+#### AccountWorkflowStatisticQuery
+
+Personal chart scope; the account identity comes only from admission.
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| account | boolean | Limit statistics to the authenticated account | No |
+| end | string | End date and time (YYYY-MM-DD HH:MM) | No |
+| start | string | Start date and time (YYYY-MM-DD HH:MM) | No |
 
 #### ActivateCheckQuery
 
@@ -13703,6 +14099,7 @@ Model class for AI model.
 | model_config | [AppModelConfigResponse](#appmodelconfigresponse) |  | No |
 | name | string |  | Yes |
 | permission_keys | [ string ] |  | Yes |
+| retention_number | integer |  | No |
 | role | string |  | No |
 | site | [AppDetailSiteResponse](#appdetailsiteresponse) |  | No |
 | tags | [ [Tag](#tag) ] |  | No |
@@ -13710,6 +14107,7 @@ Model class for AI model.
 | updated_at | integer |  | No |
 | updated_by | string |  | No |
 | use_icon_as_answer_icon | boolean |  | No |
+| webapp_auth_enabled_extend | boolean, <br>**Default:** true |  | No |
 | workflow | [WorkflowPartial](#workflowpartial) |  | No |
 
 #### AgentAppFeaturesPayload
@@ -13752,6 +14150,7 @@ default (the config form sends the full desired feature state on save).
 | limit | integer |  | Yes |
 | page | integer |  | Yes |
 | publication_counts | [AgentPublicationCountsResponse](#agentpublicationcountsresponse) |  | Yes |
+| recommended_apps | [ string ] |  | No |
 | total | integer |  | Yes |
 
 #### AgentAppPartial
@@ -15540,10 +15939,16 @@ Legacy Chat App model config used only for follow-up question generation.
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
+| accumulated_quota | number |  | No |
 | created_at | integer |  | No |
 | dataset_ids | [ string ], <br>**Default:**  |  | No |
+| day_limit_quota | number |  | No |
+| day_used_quota | number |  | No |
+| description | string |  | No |
 | id | string |  | Yes |
 | last_used_at | integer |  | No |
+| month_limit_quota | number |  | No |
+| month_used_quota | number |  | No |
 | token | string |  | Yes |
 | type | string |  | Yes |
 
@@ -15552,6 +15957,23 @@ Legacy Chat App model config used only for follow-up question generation.
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | data | [ [ApiKeyItem](#apikeyitem) ] |  | Yes |
+
+#### ApiKeyQuotaPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| day_limit_quota | number, <br>**Default:** -1 |  | No |
+| description | string, <br>**Default:** 默认 |  | No |
+| month_limit_quota | number, <br>**Default:** -1 |  | No |
+
+#### ApiKeyQuotaUpdatePayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| day_limit_quota | number, <br>**Default:** -1 |  | No |
+| description | string, <br>**Default:** 默认 |  | No |
+| id | string |  | Yes |
+| month_limit_quota | number, <br>**Default:** -1 |  | No |
 
 #### ApiProviderDetailResponse
 
@@ -15763,12 +16185,14 @@ This class is used to store the schema information of an api based tool.
 | model_config | [AppModelConfigResponse](#appmodelconfigresponse) |  | No |
 | name | string |  | Yes |
 | permission_keys | [ string ] |  | No |
+| retention_number | integer |  | No |
 | site | [AppDetailSiteResponse](#appdetailsiteresponse) |  | No |
 | tags | [ [Tag](#tag) ] |  | No |
 | tracing |  |  | No |
 | updated_at | integer |  | No |
 | updated_by | string |  | No |
 | use_icon_as_answer_icon | boolean |  | No |
+| webapp_auth_enabled_extend | boolean, <br>**Default:** true |  | No |
 | workflow | [WorkflowPartial](#workflowpartial) |  | No |
 
 #### AppDslVersionResponse
@@ -15908,6 +16332,7 @@ AppMCPServer Status Enum
 | has_more | boolean |  | Yes |
 | limit | integer |  | Yes |
 | page | integer |  | Yes |
+| recommended_apps | [ string ] |  | No |
 | total | integer |  | Yes |
 
 #### AppPartial
@@ -15995,6 +16420,7 @@ AppMCPServer Status Enum
 | show_workflow_steps | boolean |  | No |
 | title | string |  | No |
 | use_icon_as_answer_icon | boolean |  | No |
+| webapp_auth_enabled_extend | boolean |  | No |
 
 #### AppTracePayload
 
@@ -16869,11 +17295,13 @@ Model class for credential form schema.
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
+| admin_extend | boolean |  | Yes |
 | credits | integer | Remaining credits in the effective pool; -1 means unlimited. | Yes |
 | id | string |  | Yes |
 | name | string |  | Yes |
 | plan | [CloudPlan](#cloudplan) |  | Yes |
 | role | [TenantAccountRole](#tenantaccountrole) |  | Yes |
+| tenant_extend | boolean |  | Yes |
 
 #### CustomConfigurationResponse
 
@@ -17671,6 +18099,12 @@ Default model entity.
 | model | string |  | Yes |
 | model_type | [ModelType](#modeltype) |  | Yes |
 | provider | [SimpleProviderEntityResponse](#simpleproviderentityresponse) |  | Yes |
+
+#### DeleteMessageContextResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| DeleteMessageContextResponse | string |  |  |
 
 #### DeletedTool
 
@@ -19225,6 +19659,48 @@ Enum class for large language model mode.
 | configs | [ object ] |  | No |
 | enabled | boolean |  | No |
 
+#### LoginConfigBootstrapResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| ok | boolean |  | Yes |
+| token | string |  | Yes |
+
+#### LoginConfigResponse
+
+Console-only login configuration, serialized from the fork service result.
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| branding | [BrandingModel](#brandingmodel) |  | Yes |
+| deployment_edition | [DeploymentEdition](#deploymentedition) |  | Yes |
+| ding_talk | boolean |  | Yes |
+| ding_talk_client_id | string |  | Yes |
+| ding_talk_corp_id | string |  | Yes |
+| enable_app_deploy | boolean |  | Yes |
+| enable_change_email | boolean, <br>**Default:** true |  | Yes |
+| enable_collaboration_mode | boolean, <br>**Default:** true |  | Yes |
+| enable_creators_platform | boolean |  | Yes |
+| enable_email_code_login | boolean |  | Yes |
+| enable_email_password_login | boolean, <br>**Default:** true |  | Yes |
+| enable_explore_banner | boolean |  | Yes |
+| enable_learn_app | boolean, <br>**Default:** true |  | Yes |
+| enable_marketplace | boolean |  | Yes |
+| enable_social_oauth_login | boolean |  | Yes |
+| enable_step_by_step_tour | boolean |  | Yes |
+| is_allow_register | boolean |  | Yes |
+| is_custom_auth2 | boolean |  | Yes |
+| is_custom_auth2_logout | string |  | Yes |
+| is_email_setup | boolean |  | Yes |
+| knowledge_fs_enabled | boolean |  | Yes |
+| license | [LicenseStatusModel](#licensestatusmodel) |  | Yes |
+| plugin_installation_permission | [PluginInstallationPermissionModel](#plugininstallationpermissionmodel) |  | Yes |
+| rbac_enabled | boolean |  | Yes |
+| rmb_to_usd_rate | number, <br>**Default:** 7.26 |  | Yes |
+| sso_enforced_for_signin | boolean |  | Yes |
+| sso_enforced_for_signin_protocol | [SSOProtocol](#ssoprotocol) |  | Yes |
+| webapp_auth | [WebAppAuthModel](#webappauthmodel) |  | Yes |
+
 #### LoginPayload
 
 | Name | Type | Description | Required |
@@ -19415,6 +19891,12 @@ Enum class for large language model mode.
 | ---- | ---- | ----------- | -------- |
 | account_id | string |  | No |
 | account_name | string |  | No |
+
+#### MessageContextResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| MessageContextResponse | array |  |  |
 
 #### MessageDetail
 
@@ -19959,7 +20441,8 @@ Coarse node-level status used by Inspector to pick a banner.
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| code | string | Authorization code from OAuth provider | Yes |
+| access_token | string | Legacy OAuth2 provider token callback | No |
+| code | string | Authorization code from OAuth provider | No |
 | state | string | OAuth state parameter | No |
 
 #### OAuthClientPayload
@@ -23006,6 +23489,7 @@ Tag type
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
+| admin_extend | boolean |  | No |
 | created_at | integer |  | No |
 | custom_config | [WorkspaceCustomConfigResponse](#workspacecustomconfigresponse) |  | No |
 | id | string |  | Yes |
@@ -23015,6 +23499,7 @@ Tag type
 | plan | [CloudPlan](#cloudplan) |  | No |
 | role | string |  | No |
 | status | string |  | No |
+| tenant_extend | boolean |  | No |
 | trial_credits | integer |  | No |
 | trial_credits_exhausted_at | integer |  | No |
 | trial_credits_used | integer |  | No |

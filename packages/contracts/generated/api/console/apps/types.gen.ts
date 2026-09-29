@@ -4808,6 +4808,7 @@ export type GetAppsByAppIdStatisticsAverageSessionInteractionsData = {
     app_id: string
   }
   query?: {
+    account?: boolean
     end?: string
     start?: string
   }
@@ -4827,6 +4828,7 @@ export type GetAppsByAppIdStatisticsDailyConversationsData = {
     app_id: string
   }
   query?: {
+    account?: boolean
     end?: string
     start?: string
   }
@@ -4884,6 +4886,7 @@ export type GetAppsByAppIdStatisticsTokenCostsData = {
     app_id: string
   }
   query?: {
+    account?: boolean
     end?: string
     start?: string
   }
@@ -5555,6 +5558,7 @@ export type GetAppsByAppIdWorkflowStatisticsAverageAppInteractionsData = {
     app_id: string
   }
   query?: {
+    account?: boolean
     end?: string
     start?: string
   }
@@ -5574,6 +5578,7 @@ export type GetAppsByAppIdWorkflowStatisticsDailyConversationsData = {
     app_id: string
   }
   query?: {
+    account?: boolean
     end?: string
     start?: string
   }
@@ -5612,6 +5617,7 @@ export type GetAppsByAppIdWorkflowStatisticsTokenCostsData = {
     app_id: string
   }
   query?: {
+    account?: boolean
     end?: string
     start?: string
   }

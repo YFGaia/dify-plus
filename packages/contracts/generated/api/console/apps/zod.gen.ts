@@ -5272,6 +5272,7 @@ export const zGetAppsByAppIdStatisticsAverageSessionInteractionsPath = z.object(
 })
 
 export const zGetAppsByAppIdStatisticsAverageSessionInteractionsQuery = z.object({
+  account: z.boolean().optional().default(false),
   end: z.string().optional(),
   start: z.string().optional(),
 })
@@ -5287,6 +5288,7 @@ export const zGetAppsByAppIdStatisticsDailyConversationsPath = z.object({
 })
 
 export const zGetAppsByAppIdStatisticsDailyConversationsQuery = z.object({
+  account: z.boolean().optional().default(false),
   end: z.string().optional(),
   start: z.string().optional(),
 })
@@ -5330,6 +5332,7 @@ export const zGetAppsByAppIdStatisticsTokenCostsPath = z.object({
 })
 
 export const zGetAppsByAppIdStatisticsTokenCostsQuery = z.object({
+  account: z.boolean().optional().default(false),
   end: z.string().optional(),
   start: z.string().optional(),
 })
@@ -5753,6 +5756,7 @@ export const zGetAppsByAppIdWorkflowStatisticsAverageAppInteractionsPath = z.obj
 })
 
 export const zGetAppsByAppIdWorkflowStatisticsAverageAppInteractionsQuery = z.object({
+  account: z.boolean().optional().default(false),
   end: z.string().optional(),
   start: z.string().optional(),
 })
@@ -5768,6 +5772,7 @@ export const zGetAppsByAppIdWorkflowStatisticsDailyConversationsPath = z.object(
 })
 
 export const zGetAppsByAppIdWorkflowStatisticsDailyConversationsQuery = z.object({
+  account: z.boolean().optional().default(false),
   end: z.string().optional(),
   start: z.string().optional(),
 })
@@ -5798,6 +5803,7 @@ export const zGetAppsByAppIdWorkflowStatisticsTokenCostsPath = z.object({
 })
 
 export const zGetAppsByAppIdWorkflowStatisticsTokenCostsQuery = z.object({
+  account: z.boolean().optional().default(false),
   end: z.string().optional(),
   start: z.string().optional(),
 })
