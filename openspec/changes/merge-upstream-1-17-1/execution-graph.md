@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> 当前状态以 execution-graph.json 为准：M00–M07 passed；M08/14.2 已证明最终锁与 API 生成物无需重写。旧余额 wrapper 清理及 Luna 115 项复核通过，个人额度与 API Key 日/月额度仍保留；14 个删除路径与文档只读报告已完成，文档接回及链接检查通过。Astra 已在新 AccessPoint 宿主恢复 App API Key 的 workspace-manager UI 门槛，Luna 首次发现并报告测试夹具缺字段，协调者已修正并派 Luna 复验；Home 旧 TagFilter 的 ID/category 错误映射已判定不恢复；新额度表格宽度视觉验收仍待闭合。后续关键路径 M08 候选源码 → V01/V02 → R01；环境与生产节点仍受独立授权和验收约束。
+> 当前状态以 execution-graph.json 为准：M00–M08 已通过源码候选门槛；固定候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 上，V01 已通过 compileall、app_factory 导入及 160/160 后端定向测试。V02 首轮在 frozen lock 检查通过后因 `pnpm check` 格式门槛阻断，定向测试和双构建尚未运行；已将候选新增 browser spec 退回 M08、继承的契约配置格式债务退回 M05。个人额度与 API Key 日/月额度保持独立功能。M05 配置格式修复已通过；M08 spec 已由 Astra 格式化，Astra 与独立 Luna 各自单文件 Chromium 2/2；正在形成新候选并重做结构验收，之后重跑 V02，R01 继续等待，环境与生产节点仍受各自验收和授权约束。
 
 ## 依赖图
 
@@ -71,7 +71,7 @@ flowchart TD
 
 ## 调度与人员安排
 
-- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01 已通过；M03 9.1–9.6 已通过（9.6 追加 29 项定向测试并保持 schema 不变）；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；M07 13.1–13.6 源码验收已通过（13.4 有 P3 操作边界；13.6 GitLab manifest 修复经 Luna 复核），真实 pipeline/镜像供货仍待部署证据；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 Sol 分析已完成，12.2a 已完成并通过测试及 scoped check，提交 82227748fcbe7b727da1d4aed67306f44ef00a4b；12.2c 的精确路径与前置已登记；12.2c 已完成，137 项测试通过，五文件 scoped check 零错误；两条基线 warning 已核实，提交 78c099003f06b06a4820bb5c62999a7c0c65e0e8；12.3/12.4 Sol 分析已完成并登记精确路径；12.3 限定 app key 支持的额度和 login_config 汇率；12.4 恢复现有 owner 导航组件挂载且保留权限；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对已完成，四条登记路径完整；M08/V01/V02/R01 尚未通过。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01 已通过；M03 9.1–9.6 已通过（9.6 追加 29 项定向测试并保持 schema 不变）；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；11.7 修复继承的 OpenAPI 配置格式债务，精确格式检查通过，独立提交 `c304fe188e949733fa4ac1697004e3b99d9db95d`；M07 13.1–13.6 源码验收已通过（13.4 有 P3 操作边界；13.6 GitLab manifest 修复经 Luna 复核），真实 pipeline/镜像供货仍待部署证据；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 Sol 分析已完成，12.2a 已完成并通过测试及 scoped check，提交 82227748fcbe7b727da1d4aed67306f44ef00a4b；12.2c 的精确路径与前置已登记；12.2c 已完成，137 项测试通过，五文件 scoped check 零错误；两条基线 warning 已核实，提交 78c099003f06b06a4820bb5c62999a7c0c65e0e8；12.3/12.4 Sol 分析已完成并登记精确路径；12.3 限定 app key 支持的额度和 login_config 汇率；12.4 恢复现有 owner 导航组件挂载且保留权限；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对已完成，四条登记路径完整；M08 与 V01 的首候选验收已通过；V02 首轮因格式检查失败阻断，M05/M08 正处理对应 owner 路径，R01 等待修复候选验证。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
 - 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
 - M06 最新子任务进度：12.3、12.4 均已通过；独立 Luna 在最终组合快照验证 API key/MainNav 两个 spec 共 97 项通过，六个目标路径与实现提交一致且 eafe 文件安全恢复，证据见 `evidence/M06/12.3-12.4-final-verification.md`。12.4 owner-only 系统管理导航恢复提交 `a7b7ddeeda`；12.3 后续修订提交 `4526fd02f2`。12.1b Sol 独立路径交叉核对无遗漏，四条登记路径充足。12.5 locale 最终 24 语言命令检查通过，零引用旧 quota modal 已删除并提交 `5bb83572ca`。12.6a 独立应用中心 MainNav 入口已通过 92 项 MainNav 测试并提交 `6061766c11`，保留 upstream Home `/`；12.6b system-integration 宿主测试已启动，个人统计由 M04/M03 做 account-scoped API 与生成契约分析，API-key 交互回归新增登记为 12.6i。M06 父节点保持未通过。
 - M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
@@ -397,7 +397,7 @@ M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 war
 
 ## M08 · 集成审查与候选源码提交
 
-- 状态：in_progress；M02–M07 已通过，14.2a–14.2j 已完成（14.2i Astra 与 14.2j Luna Chromium 均 2/2）；M08/14.4 已完成 91 条冲突路径映射；14.3 正在精确路径暂存并准备候选源码提交，V01/V02 待提交后验证。
+- 状态：in_progress；首个候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 的 M08/14.6 格式化修复已通过 exact-path formatter 与单文件 Chromium 2/2；14.7 Luna 独立复核 2/2 通过。M05/11.7 的继承配置格式问题已修复并通过精确检查；下一步按路径提交并生成新候选、复做结构验收。V02 首轮在全仓 `pnpm check` 阻断，后续门槛未执行；待独立复核及新候选提交后重跑。
 
 - 前置：M02, M03, M04, M05, M06, M07；负责人：集成负责人；建议模型：Astra/high。
 - 授权：`implementation`；资源锁：`git_index, lockfiles`。
@@ -427,7 +427,7 @@ git status --short
 
 ## V01 · 后端静态与定向回归
 
-- 状态：blocked；前置节点 M08 尚未通过；未执行本节点。
+- 状态：passed；候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 上 compileall 与 app_factory 导入成功，三个定向 spec 共 160/160 通过；0 失败、0 跳过。证据：`evidence/V01/result.json`、`execution.log`。
 
 - 前置：M08；负责人：后端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。
@@ -456,7 +456,7 @@ uv run --project api pytest api/tests/unit_tests/controllers/console/test_apikey
 
 ## V02 · 前端检查、定向测试与双构建
 
-- 状态：blocked；前置节点 M08 尚未通过；未执行本节点。
+- 状态：blocked；候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 的离线 frozen lock 检查通过，`pnpm check` 在 `vp check` 阶段退出 1，发现 2116 个工作区格式问题。只读归因确认候选新增 browser spec `web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx` 格式不符（owner M08/14.2i）；`packages/contracts/openapi-ts.api.config.ts` 也是格式问题但候选前后未变（owner M05）。`lint:eslint` 未运行；tss/i18n、unit/browser、双构建全部依规则停止。V02 证据：`evidence/V02/result.json`、`execution.log`。
 
 - 前置：M08；负责人：前端验证负责人；建议模型：Luna/high。
 - 授权：`implementation`；资源锁：`heavy_compute`。

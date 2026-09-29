@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 当前现场：M00–M07 已通过；M08/14.1 已完成 91 路径只读核对与 Luna 复核，14.2 已证明锁文件/生成契约无需刷新并完成静态扫描。14.2a 旧余额 wrapper 清理及 Luna 115 项复核已通过；14.2b/14.2c 只读处置完成；14.2d 文档接回和 15 个相对链接核对通过。14.2e App API Key 的 workspace-manager UI 门槛已由 Astra 实施，测试夹具 schema 问题已修复，Luna 单文件复验 9/9 通过；Home TagFilter 错误 ID/category 映射已判定不恢复。14.2i/14.2j 已完成：Astra 与 Luna 各自 Chromium 2/2 通过（1440×900、390×844），输入哈希一致；14.4 已对齐 91 条路径的处置/宿主/验收映射；14.3 正在按精确路径暂存 M08 候选提交，V01/V02 仍待提交后验证。个人额度与上游 Cloud quota 分离、API Key 日/月限额继续保留。A03 与真实环境/生产链仍受既有授权边界约束。详见 execution-graph.json 与各 evidence。
+> 当前现场：M00–M07 已通过；M08/14.1 已完成 91 路径只读核对与 Luna 复核，14.2 已证明锁文件/生成契约无需刷新并完成静态扫描。14.2a 旧余额 wrapper 清理及 Luna 115 项复核已通过；14.2b/14.2c 只读处置完成；14.2d 文档接回和 15 个相对链接核对通过。14.2e App API Key 的 workspace-manager UI 门槛已由 Astra 实施，测试夹具 schema 问题已修复，Luna 单文件复验 9/9 通过；Home TagFilter 错误 ID/category 映射已判定不恢复。14.2i/14.2j 已完成：Astra 与 Luna 各自 Chromium 2/2 通过（1440×900、390×844），输入哈希一致；14.4 已对齐 91 条路径的处置/宿主/验收映射；14.3 候选源码已提交 `ba33fe26dc21ae3a308f14a61999009fc2849779`；M08/14.5 结构验收已通过；V01 在候选提交上通过 compileall、app_factory 导入及 160/160 后端定向测试；V02 候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 的锁检查通过，但 `pnpm check` 发现 2116 项全工作区格式问题并在首失败处停止；确认本候选新增 browser spec 格式错误由 M08/14.2i 修复，继承的 `openapi-ts.api.config.ts` 格式债务归 M05。二者已登记并行修复，后续门槛未执行。个人额度与上游 Cloud quota 分离、API Key 日/月限额继续保留。A03 与真实环境/生产链仍受既有授权边界约束。详见 execution-graph.json 与各 evidence。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -95,6 +95,8 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [x] 11.5 [M05] Sol 对当前源码与 11.1–11.4 证据执行只读节点验收：旧 Console 服务未恢复为双源；SSR 校验真实 public snapshot、匿名不能读详细 license；workspace 两扩展权限位在缓存前生成 schema 校验；`systemManage` 仍由手写契约唯一持有。节点源码验收通过，绑定 `abe3b9ae33b99a373bc3445e0919b6ab21349fe5`；V02 浏览器验收与 M06 汇率消费者仍待下游。
 - [x] 11.6 [M05] M02 8.6 已通过后，通过标准 API schema 命令更新已登记的 message 三文件；GET 必填 `conversation_id` → `string[]`，DELETE 必填 `conversation_id/message_id` → 字符串 `ok`。64 个生成任务、191 个格式化文件、schema 断言、仅三条登记路径变化及 Astra task worktree 字节比对均通过。记录见 `evidence/M05/11.6-message-contract-generation.log` 与 `evidence/M05/result.json#/followup_context_contract`。
 
+- [x] 11.7 [M05] 修复 V02 首轮 `pnpm check` 暴露的 M05 所有权文件 `packages/contracts/openapi-ts.api.config.ts` 格式债务；仅允许格式器规范化；需 exact-path formatter 通过、逐行确认无语义变化并记录原始 diff，写报告并形成独立 M05 follow-up 提交 `c304fe188e949733fa4ac1697004e3b99d9db95d`。
+
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
 
 - [x] 12.1 [M06] 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard；M02 8.6 权限与 M05 11.6 类型契约均已通过；12.1a、12.1b 已分别提交，代码审查、聚焦测试和限定检查均通过。详情见 `evidence/M06/result.json#/preflight/contract_handoff`。
@@ -155,16 +157,22 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
   - [x] 14.2i [M08/Astra→Luna] 按 fork 原有 90vw/1200px 上限恢复统一 API Key modal 的响应式宽度；Astra Chromium 2/2，Luna 独立复核 2/2，输入哈希匹配。证据 `evidence/M08/14.2i-quota-modal-layout.md`、`evidence/M08/14.2j-luna-verification.md`。
 - [x] 14.2j [M08/Luna] 独立核验 14.2i 源码、测试与哈希，并只复跑登记的 Chromium browser spec；2/2 通过，无额外依赖或测试范围扩展。证据 `evidence/M08/14.2j-luna-verification.md`。
   - [x] 14.2f [M08/Sol] 类型与调用链核实旧 Home TagFilter 将 Tag UUID 与 catalog category 字符串直接比较，没有可用映射；保留有效的 Home 分类筛选和已安装应用 TagFilter，不恢复错误比较。证据 `evidence/M08/14.2f-home-template-tagfilter-disposition.md`。
-- [ ] 14.3 [M08] 只暂存逐项列出的本轮集成修复、证据和状态文件，不 stage 未跟踪用户目录；创建候选源码提交，不再创建 upstream merge commit；核验：在 `evidence/M08/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 14.3 [M08] 仅将登记的 34 个源码、文档、图表和证据路径提交为候选 `ba33fe26dc21ae3a308f14a61999009fc2849779`（父 `ac5fca9ace9401734bca31d87b03548b9ff83b18`）；未纳入用户未跟踪目录，M00 merge 祖先不变。V01/V02 尚未运行。
 - [x] 14.4 [M08] 更新冲突表每项处置/新宿主/验收映射；原始 91 路径逐条映射，验证责任标明 V01/V02 pending，未冒称候选验收。证据 `evidence/M08/14.4-conflict-ownership-reconciliation.md`。
-- [ ] 14.5 [M08] 节点验收：未解决索引为零、冲突标记和孤儿宿主为零；M00 双父 merge 祖先仍可追溯，M01–M07 各有独立提交，十挂点和全部91路径有审查记录；保存绑定版本的证据并更新节点状态。
+- [x] 14.5 [M08] 候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 结构验收通过：未解决索引/冲突标记/旧 wrapper 引用均为零；M00 双父 merge 与 M01–M07 的 42 个提交可追溯；91 路径与十个计费/OAuth 挂点均有候选证据。V01/V02 仍待执行。证据 `evidence/M08/14.5-source-acceptance.md`。
+
+- [x] 14.6 [M08] 修复候选新增浏览器 spec `web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx` 的格式问题；测试逻辑不变，exact-path formatter 通过，重跑该单一 Chromium spec 2/2，并记录新哈希。此修改产生新源码候选，随后重做 V02。
+
+- [x] 14.7 [M08/Luna] 对 14.6 格式化后的精确 spec 哈希 `93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120` 独立复核，只重跑该 Chromium 文件并核实 2/2；写 `evidence/M08/14.7-luna-verification.md`。
+
+- [ ] 14.8 [M08] 基于 M05 follow-up 与 14.6/14.7 完成状态，按显式路径提交 M05/M08 修复为新候选；在新候选复验结构（M00–M07 祖先、91 路径、10 个挂点、额度边界、无冲突/旧 wrapper），并记录候选 SHA/tree。V02 必须绑定新候选重跑。
 
 ## 15. V01 后端静态与定向回归（前置：M08）
 
-- [ ] 15.1 [V01] 读取 api/AGENTS.md；按合并后工具配置运行静态/导入和定向测试；核验：在 `evidence/V01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 15.2 [V01] 执行已随候选提交冻结的新注册/gateway/site/service_api/key/message/workflow/session/beat/retention 用例；需要修改源码或用例则退回对应 M 节点，更新候选后重验；核验：在 `evidence/V01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 15.3 [V01] 新增问题交还对应 M 节点修复，固定新 commit 后重验；核验：在 `evidence/V01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 15.4 [V01] 节点验收：单测报告明确用例、commit、结果；已有债务与新增回归分开；无运行权限或依赖不可用记 blocked；保存绑定版本的证据并更新节点状态。
+- [x] 15.1 [V01] 读取 api/AGENTS.md；按合并后工具配置运行静态/导入和定向测试；核验：在 `evidence/V01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 15.2 [V01] 执行已随候选提交冻结的新注册/gateway/site/service_api/key/message/workflow/session/beat/retention 用例；需要修改源码或用例则退回对应 M 节点，更新候选后重验；核验：在 `evidence/V01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 15.3 [V01] 新增问题交还对应 M 节点修复，固定新 commit 后重验；核验：在 `evidence/V01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 15.4 [V01] 节点验收：单测报告明确用例、commit、结果；已有债务与新增回归分开；无运行权限或依赖不可用记 blocked；保存绑定版本的证据并更新节点状态。
 
 ## 16. V02 前端检查、定向测试与双构建（前置：M08）
 

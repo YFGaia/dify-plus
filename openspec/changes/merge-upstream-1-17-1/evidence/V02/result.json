@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "node_id": "V02",
+  "task_id": "16.1_16.2_16.3_candidate_frontend_luna_verification",
+  "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+  "worktree_head": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+  "status": "blocked",
+  "summary": "Offline frozen lockfile consistency passed. pnpm check failed at vp check due formatting issues, including a candidate-added browser spec confirmed by read-only formatter check. Later V02 gates were stopped.",
+  "environment": {
+    "node": "v24.20.0",
+    "pnpm": "12.3.4",
+    "vitest": "4.1.11",
+    "vp_skip_install": "1",
+    "dependency_sync_or_network_install": false,
+    "node_sha256": "9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a",
+    "pnpm_sha256": "99ccfa6b57e73c693ec2ec9760a978f063b001df8f462e89fce3a30be3d641f3"
+  },
+  "candidate_validation": {
+    "web_inputs_match_candidate": true,
+    "package_json_and_lockfile_match_candidate": true,
+    "candidate_source_test_worktree_changes": false,
+    "web_manifest_sha256": "0d998a0aa935dc602779095a66cfcf4e008f445dfc9b98a53e3a949541dad571",
+    "test_manifest_sha256": "b139fae64a35e4daf06457d229f10eb141d2fe6cca2933eec7b96b2d5951889b",
+    "focused_sha256": {
+      "package.json": "1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f",
+      "pnpm-lock.yaml": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+      "web/vite.config.ts": "2f38f98a582b64bd1bf6d73384d1e66ea3fe9b9790f1bb4f287e0c164d18c54e",
+      "packages/contracts/openapi-ts.api.config.ts": "97918ed972fdad63d61bf565bd42ff95d4b7877f2d50b13de617afff57aae767",
+      "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx": "12362a39440450c6b8205592a6829ce080c23e5f4a5796b0d852daffd212844a",
+      "web/app/components/api-key/api-key-modal.tsx": "68f1d7553884ffe99a926340d0452f1d4944293a148f99f7253129e022d15218",
+      "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx": "600070bed0a71e7ecba9c0dcfa06fe729f456b82b6ba39f3f0bf9658386fb31a"
+    },
+    "formatter_failures": [
+      {
+        "path": "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+        "classification": "candidate-tracked; added by candidate; worktree unchanged",
+        "candidate_blob_matches_worktree": true,
+        "owner": "M08 / 14.2i"
+      },
+      {
+        "path": "packages/contracts/openapi-ts.api.config.ts",
+        "classification": "candidate-tracked; unchanged from candidate parent; worktree unchanged",
+        "candidate_blob_matches_worktree": true,
+        "last_changed_by": "21bdeec37cacaac22f9f9c3308de381041ceab9b9",
+        "owner": "M05"
+      }
+    ],
+    "worktree_examples_from_checker_output": {
+      "tracked_modified": [
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json"
+      ],
+      "untracked": [
+        ".claude/commands/opsx/apply.md",
+        ".tmp/phase5/lock-upstream.yaml"
+      ]
+    }
+  },
+  "reused_m08": [
+    {
+      "id": "14.2h",
+      "result": "corrected API Secret Key Button unit spec passed 9/9",
+      "current_candidate_test_sha256": "12362a39440450c6b8205592a6829ce080c23e5f4a5796b0d852daffd212844a",
+      "note": "Prior report records command and count but not test-file SHA-256."
+    },
+    {
+      "id": "14.2j",
+      "result": "1 Chromium file, 2/2 tests passed",
+      "candidate_spec_sha256": "600070bed0a71e7ecba9c0dcfa06fe729f456b82b6ba39f3f0bf9658386fb31a",
+      "prior_spec_sha256": "600070bed0a71e7ecba9c0dcfa06fe729f456b82b6ba39f3f0bf9658386fb31a",
+      "note": "Exact spec hash and nonzero browser collection match; reused without rerunning."
+    }
+  ],
+  "checks": [
+    {
+      "name": "offline_frozen_lockfile_consistency",
+      "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm install --frozen-lockfile --offline --lockfile-only --ignore-scripts",
+      "exit_code": 0,
+      "output": "Scope: all 13 workspace projects\n✓ Lockfile passes supply-chain policies (verified 10h ago)\nDone in 116ms using pnpm v12.3.4"
+    },
+    {
+      "name": "pnpm_check",
+      "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm check",
+      "exit_code": 1,
+      "failed_stage": "vp check",
+      "formatter_issue_count": 2116,
+      "lint_eslint_ran": false,
+      "output_truncated_by_tool": true,
+      "original_output_tokens": 30089,
+      "original_output_lines": 2120
+    },
+    {
+      "name": "read_only_formatter_attribution",
+      "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm exec vp fmt packages/contracts/openapi-ts.api.config.ts web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx --check",
+      "exit_code": 1,
+      "nonformatted_files": 2,
+      "output": "Checking formatting...\n\npackages/contracts/openapi-ts.api.config.ts (4ms)\nweb/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx (4ms)\n\nFormat issues found in above 2 files. Run without --check to fix.\nFinished in 76ms on 2 files using 10 threads."
+    },
+    {
+      "name": "read_only_all_candidate_web_paths_format_check",
+      "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm exec vp fmt web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx web/app/components/api-key/api-key-modal.tsx web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx web/app/components/app/access-point/shared/api-secret-key-button.tsx web/models/common-extend.ts web/service/common-extend.ts --check",
+      "exit_code": 1,
+      "nonformatted_files": 1,
+      "output": "Checking formatting...\n\nweb/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx (4ms)\n\nFormat issues found in above 1 files. Run without --check to fix.\nFinished in 362ms on 4 files using 10 threads.",
+      "candidate_web_paths_supplied": 6,
+      "formatter_reported_processed_files": 4,
+      "other_inputs_disposition": "not reported by formatter output"
+    }
+  ],
+  "reused_results": [
+    {
+      "id": "M08/14.2h",
+      "report": "evidence/M08/14.2h-luna-verification.md",
+      "tests": "9 passed"
+    },
+    {
+      "id": "M08/14.2j",
+      "report": "evidence/M08/14.2j-luna-verification.md",
+      "tests": "2 Chromium tests passed",
+      "exact_spec_hash_match": true
+    }
+  ],
+  "skipped_gates": [
+    "pnpm --dir web lint:tss",
+    "pnpm --dir web i18n:check",
+    "registered unit suite",
+    "registered browser suite; exact-hash 14.2j spec result reused",
+    "pnpm --dir web build",
+    "pnpm --dir web build:vinext"
+  ],
+  "stop_reason": {
+    "issue": "Candidate-added browser spec is unformatted, confirmed in read-only check.",
+    "next_owner": "M08 / 14.2i",
+    "additional_inherited_issue": "M05-owned packages/contracts/openapi-ts.api.config.ts also fails format check and is unchanged in candidate commit."
+  },
+  "no_source_test_changes_or_fixes": true,
+  "no_staging_or_commit": true
+}

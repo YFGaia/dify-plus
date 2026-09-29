@@ -504,7 +504,7 @@
     },
     "14.3_candidate_source_commit": {
       "id": "14.3_candidate_source_commit",
-      "status": "in_progress",
+      "status": "passed",
       "owner": "M08/coordinator",
       "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
       "registered_paths": [
@@ -592,9 +592,110 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
-      ]
+      ],
+      "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "candidate_parent": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "changed_path_count": 34,
+      "registered_path_set_exact": true,
+      "m00_ancestor": true,
+      "result": "Scoped candidate source commit created at ba33fe26dc21ae3a308f14a61999009fc2849779 (parent ac5fca9ace9401734bca31d87b03548b9ff83b18), exactly 34 registered paths; M00 ancestry verified. All remaining user-owned untracked directories were excluded. V01/V02 are still pending."
+    },
+    "14.5_m08_structural_acceptance": {
+      "id": "14.5_m08_structural_acceptance",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.5-source-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md"
+      ],
+      "scope": "Run M08 structural candidate acceptance against the committed source candidate. Check the unresolved Git index, conflict markers, M00 merge ancestry/parents, M01-M07 ancestry, exact 91-path owner mapping and final hosts, ten billing/OAuth hook evidence, retired orphan wrapper reachability, and the independent personal-quota/API-key day-month contract. Bind every result to the exact candidate commit and report limits. Do not run broad suites here; V01/V02 are separate candidate verification gates. Write only the registered acceptance/status records.",
+      "dependencies": [
+        "M08/14.3_candidate_source_commit:passed",
+        "M08/14.4_conflict_ownership_final_reconciliation:passed"
+      ],
+      "acceptance": [
+        "No unmerged index entries or conflict markers.",
+        "M00 remains a two-parent ancestor of the candidate and M01-M07 commits remain ancestors.",
+        "All 91 M00 paths have exact disposition/host/evidence mapping; no missing or orphan host.",
+        "The ten billing/OAuth integration points and quota separation have candidate-source evidence.",
+        "M08 can pass only if its own acceptance criteria are complete; V01/V02 remain separately pending."
+      ],
+      "implementation_agent": "/root",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.5-source-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md"
+      ],
+      "report_sha256": "8cccedd7caea25aa161fbdf83972ea93813aeea65182caee42dcbd7771d56017",
+      "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "checks": {
+        "unmerged_index": 0,
+        "conflict_markers": 0,
+        "orphan_wrapper_references": 0,
+        "m00_two_parent_ancestor": true,
+        "m01_m07_commits_checked": 42,
+        "original_conflict_paths_exact": 91,
+        "candidate_hosts_present": 91,
+        "quota_oauth_hooks_present": 10,
+        "quota_boundary": "personal account quota separate from API-key day/month limits; no lifetime key cap claim"
+      },
+      "result": "M08 structural acceptance passed against the committed candidate; V01 and V02 remain unrun and are ready as separate nodes."
+    },
+    "14.6_format_candidate_quota_browser_spec": {
+      "id": "14.6_format_candidate_quota_browser_spec",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "model": "gpt-6-astra",
+      "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "registered_paths": [
+        "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md"
+      ],
+      "report_sha256": "be5406214c5a4cedbcb73258fe91a270c5a6db3f58f75a740c487e0f3559ec1b",
+      "result": "Exact formatter passed; candidate browser spec hash is 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120; one Chromium file collected two tests and both passed. Changes are limited to formatter normalization in the vi.hoisted typed fixture; assertions and fixture values are preserved. Independent Luna review pending."
+    },
+    "14.7_luna_review_formatted_quota_browser_spec": {
+      "id": "14.7_luna_review_formatted_quota_browser_spec",
+      "status": "passed",
+      "owner": "M08",
+      "model": "gpt-6-luna",
+      "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md"
+      ],
+      "report_sha256": "410ec06a79f1b21eb7a116cefac69785db6591d2c8ce3364c3a3d16d655c26d2",
+      "result": "Independent Luna verified exact formatted spec hash and reran only the Chromium browser file; 1 file, 2/2 tests passed with matching geometry."
     }
   },
   "updated_at": "2026-09-29",
-  "next_subtask": "M08/14.3_candidate_source_commit"
+  "next_subtask": "14.8_recandidate_and_structural_acceptance",
+  "candidate_source_commit": {
+    "sha": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "parent": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+    "registered_path_count": 34,
+    "registered_path_set_exact": true,
+    "m00_ancestor": true
+  },
+  "candidate_source_commit_before_followup": {
+    "sha": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "parent": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+    "registered_path_count": 34,
+    "registered_path_set_exact": true,
+    "m00_ancestor": true
+  },
+  "v02_failure_followup": {
+    "status": "M05 formatting fix passed; M08 formatting fix and independent Luna review passed; new candidate commit and V02 rerun pending",
+    "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "failure_report": "evidence/V02/result.json",
+    "candidate_owned_format_path": "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+    "independent_m05_format_path": "packages/contracts/openapi-ts.api.config.ts"
+  }
 }

@@ -1,0 +1,63 @@
+Candidate: ba33fe26dc21ae3a308f14a61999009fc2849779
+Worktree HEAD: ba33fe26dc21ae3a308f14a61999009fc2849779
+API tree comparison: no diff against candidate commit
+Environment: /private/tmp/dify-m02-python-complete
+UV_CACHE_DIR: /private/tmp/dify-m02-uv-cache
+Dependency sync/install: disabled with --no-sync
+
+Environment selection probe (not counted as V01 checks)
+The first attempt passed --python /private/tmp/dify-m02-python-complete/bin/python. That selected an interpreter without the preprovisioned packages: compileall passed, the import check failed with ModuleNotFoundError: No module named 'socketio', and pytest failed to spawn because pytest was not on PATH. No install/sync was attempted. Inspection confirmed /private/tmp/dify-m02-python-complete/bin/pytest exists. The checks were then rerun against the same preprovisioned environment by setting UV_PROJECT_ENVIRONMENT.
+
+CHECK 1: compileall
+Command:
+UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python -m compileall -q api
+Exit code: 0
+Output:
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+
+CHECK 2: app_factory import
+Command:
+UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python -c "import sys; sys.path.insert(0, 'api'); from app_factory import create_app"
+Exit code: 0
+Output:
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+CHECK 3: focused pytest
+Command:
+UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/test_apikey.py api/tests/unit_tests/services/test_account_service.py api/tests/unit_tests/core/app/workflow/test_persistence_layer.py
+Exit code: 0
+Output:
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+\u001b[92m17:39:34 - LiteLLM:WARNING\u001b[0m: get_model_cost_map.py:271 - LiteLLM: Failed to fetch remote model cost map from https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json: [Errno 8] nodename nor servname provided, or not known. Falling back to local backup.
+........................................................................ [ 45%]
+........................................................................ [ 90%]
+................                                                         [100%]
+=============================== warnings summary ===============================
+api/core/rag/index_processor/index_processor_base.py:3
+  /Users/liuxingwang/go/src/dify-plus/api/core/rag/index_processor/index_processor_base.py:3: DeprecationWarning: 'cgi' is deprecated and slated for removal in Python 3.13
+    import cgi
+
+api/core/workflow/nodes/knowledge_retrieval/retrieval.py:20
+  /Users/liuxingwang/go/src/dify-plus/api/core/workflow/nodes/knowledge_retrieval/retrieval.py:20: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class SourceMetadata(BaseModel):
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+160 passed, 2 warnings in 3.20s
+
+Only the files assigned to this subtask were written.

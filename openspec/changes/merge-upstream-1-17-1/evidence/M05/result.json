@@ -504,5 +504,16 @@
     "execution_owner": "integration_agent_standard_generator_rerun",
     "execution_note": "The registered files were regenerated through the package standard command in the root checkout and byte-matched the Astra task worktree. The new task had not returned a readable thread result at acceptance time.",
     "implementation_commit": "5177f98e1589117341ac152890d53d6abb3707ff"
+  },
+  "formatting_followup": {
+    "status": "passed",
+    "subtask": "11.7_openapi_ts_config_format_followup",
+    "registered_path": "packages/contracts/openapi-ts.api.config.ts",
+    "trigger": "V02 pnpm check found inherited M05-owned format debt; focused read-only vp fmt --check confirms the exact file is nonformatted.",
+    "source_candidate": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "report": "evidence/M05/11.7-openapi-ts-config-format-followup.md",
+    "report_sha256": "b4eeb988813e44dc3e76e5be6b7e9c7ff67f52402aa5eff43ecf1385d84a781a",
+    "source_sha256_after": "b9ba490dd66e161cd9216fc61ede65bd1c77d08fe321218a2e9d04d1397724ca",
+    "implementation_commit": "c304fe188e949733fa4ac1697004e3b99d9db95d"
   }
 }

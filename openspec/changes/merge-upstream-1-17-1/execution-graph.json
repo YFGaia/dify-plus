@@ -871,15 +871,51 @@
           "11.3",
           "11.4",
           "11.5",
-          "11.6"
+          "11.6",
+          "11.7"
         ],
         "current_subtask": {
-          "id": "11.6",
+          "id": "11.7_openapi_ts_config_format_followup",
           "status": "passed",
-          "evidence": "evidence/M05/result.json#/followup_context_contract"
+          "evidence": "evidence/M05/11.7-openapi-ts-config-format-followup.md"
         },
         "next_subtask": "complete",
-        "deployable": false
+        "deployable": false,
+        "followup_subtasks": [
+          {
+            "id": "11.7_openapi_ts_config_format_followup",
+            "status": "passed",
+            "owner": "M05",
+            "model": "gpt-6-astra",
+            "reasoning_effort": "high",
+            "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+            "registered_paths": [
+              "packages/contracts/openapi-ts.api.config.ts",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md"
+            ],
+            "scope": "Repair only formatting in M05-owned packages/contracts/openapi-ts.api.config.ts, which the candidate-wide pnpm check reported and a focused read-only formatter check confirmed. Use the pinned Node 24.20.0/pnpm 12.3.4 and exact formatter; make no semantic changes. Run focused formatter check on this exact path and git diff -w / diff check proving only formatting changed. Do not edit product tests, generated contracts, package manifests or lockfiles, graph/tasks/results, stage, or commit. Write only the registered evidence report alongside the exact source path.",
+            "dependencies": [
+              "V02 first attempt: blocked at pnpm check",
+              "M05:passed before follow-up"
+            ],
+            "acceptance": [
+              "Only the registered M05-owned source file changes.",
+              "Focused formatter check passes; whitespace-insensitive diff is empty and diff check is clean.",
+              "Report records candidate base, exact command, hashes, exit codes, and no semantic behavior or generated-output changes."
+            ],
+            "implementation_agent": "/root/m05_format_config_astra",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "packages/contracts/openapi-ts.api.config.ts",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md"
+            ],
+            "dispatch_status": "completed",
+            "source_sha256_after": "b9ba490dd66e161cd9216fc61ede65bd1c77d08fe321218a2e9d04d1397724ca",
+            "report_sha256": "b4eeb988813e44dc3e76e5be6b7e9c7ff67f52402aa5eff43ecf1385d84a781a",
+            "implementation_commit": "c304fe188e949733fa4ac1697004e3b99d9db95d"
+          }
+        ]
       },
       "registered_additional_paths": [
         "packages/contracts/console.ts",
@@ -3459,99 +3495,49 @@
           "14.2h_luna_verification_after_fixture_fix",
           "14.2i_responsive_quota_modal_layout_browser_acceptance",
           "14.2j_luna_quota_modal_browser_review",
-          "14.4_conflict_ownership_final_reconciliation"
+          "14.4_conflict_ownership_final_reconciliation",
+          "14.3_candidate_source_commit",
+          "14.5_m08_structural_acceptance",
+          "14.6_format_candidate_quota_browser_spec",
+          "14.7_luna_review_formatted_quota_browser_spec"
         ],
         "current_subtask": {
-          "id": "14.3_candidate_source_commit",
-          "status": "in_progress",
+          "id": "14.8_recandidate_and_structural_acceptance",
+          "status": "registered",
           "owner": "M08/coordinator",
-          "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+          "model": "gpt-6-astra",
+          "reasoning_effort": "high",
+          "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
           "registered_paths": [
-            "AGENTS.md",
-            "README.md",
-            "docs/dify-plus/README.md",
-            "docs/dify-plus/二开功能详解-后端与数据层.md",
-            "docs/dify-plus/合并规划-upstream-1.17.1.md",
             "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-            "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv",
-            "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
-            "openspec/changes/merge-upstream-1-17-1/research/overlap-ownership.tsv",
-            "openspec/changes/merge-upstream-1-17-1/tasks.md",
-            "oxlint-suppressions.json",
-            "web/app/components/api-key/api-key-modal.tsx",
-            "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx",
-            "web/app/components/app/access-point/shared/api-secret-key-button.tsx",
-            "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
-            "web/models/common-extend.ts",
-            "web/service/common-extend.ts",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-luna-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-orphan-cleanup.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
+            "openspec/changes/merge-upstream-1-17-1/tasks.md"
           ],
-          "scope": "Create the scoped M08 candidate source commit on the already authorized current branch. Stage only the exact registered paths. Include the M08 source/documentation fixes, focused specs, dispositions, owner matrix and evidence. Verify the staged name set equals this allowlist and git diff --cached --check passes. Commit the candidate without creating another upstream merge commit. Do not stage any user-owned untracked skill/config directories or other paths. Record commit SHA, parent, changed path set and limitations in M08 result after commit; keep V01/V02 pending until they run against this exact candidate commit.",
+          "scope": "After M05 11.7 is committed and M08 14.6/14.7 pass, create the new scoped M08 candidate commit containing only registered M08 source/evidence/state plus coordinator status files, with M05 follow-up commit as ancestor. Exclude all unrelated untracked user paths. Re-run the cheap structural acceptance on the resulting candidate: no unmerged index or conflict markers; M00 merge ancestry and all M01-M07 commits remain reachable; all 91 mapped paths exist; old account wrapper refs remain absent; personal account quota and API-key daily/monthly fields/enforcement remain; the 10 billing/OAuth anchors remain. Record exact commit/tree/hashes and stage allowlist. Do not rerun V01/V02 here; V01 API subtree applicability and V02 candidate-only verification are separate gates.",
           "dependencies": [
-            "M08/14.2j_luna_quota_modal_browser_review:passed",
-            "M08/14.4_conflict_ownership_final_reconciliation:passed"
+            "M05/11.7:passed",
+            "M08/14.6:passed",
+            "M08/14.7:passed"
           ],
           "acceptance": [
-            "Index starts empty and contains only the registered M08 paths.",
-            "Scoped staged diff passes whitespace check; source and docs preserve the independent personal quota and API Key day/month limit contracts.",
-            "A candidate source commit is created on codex/merge-upstream-1.17.1; M00 remains an ancestor and no new upstream merge commit is created.",
-            "Candidate commit identity and exact scope are recorded; V01/V02 remain explicitly pending."
+            "Candidate commit is a descendant of M05 follow-up commit and does not create another upstream merge commit.",
+            "Only exact registered M08 source/state/evidence paths are staged; unrelated untracked dirs remain untouched.",
+            "Structural acceptance passes on the exact new commit.",
+            "Report records new candidate SHA/tree and identifies V01/V02 status without claiming them passed."
           ],
           "implementation_agent": "/root",
           "thread_id": null,
           "host_id": "local",
           "editable_paths": [
-            "AGENTS.md",
-            "README.md",
-            "docs/dify-plus/README.md",
-            "docs/dify-plus/二开功能详解-后端与数据层.md",
-            "docs/dify-plus/合并规划-upstream-1.17.1.md",
             "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
             "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-            "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv",
-            "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
-            "openspec/changes/merge-upstream-1-17-1/research/overlap-ownership.tsv",
-            "openspec/changes/merge-upstream-1-17-1/tasks.md",
-            "oxlint-suppressions.json",
-            "web/app/components/api-key/api-key-modal.tsx",
-            "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx",
-            "web/app/components/app/access-point/shared/api-secret-key-button.tsx",
-            "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
-            "web/models/common-extend.ts",
-            "web/service/common-extend.ts",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-luna-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-orphan-cleanup.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
-          ]
+            "openspec/changes/merge-upstream-1-17-1/tasks.md"
+          ],
+          "dispatch_status": "registered"
         },
         "parallel_subtasks": [
           {
@@ -4013,7 +3999,7 @@
           },
           {
             "id": "14.3_candidate_source_commit",
-            "status": "in_progress",
+            "status": "passed",
             "owner": "M08/coordinator",
             "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
             "registered_paths": [
@@ -4101,105 +4087,166 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
-            ]
+            ],
+            "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+            "candidate_parent": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+            "changed_path_count": 34,
+            "registered_path_set_exact": true,
+            "m00_ancestor": true,
+            "result": "Scoped candidate source commit created at ba33fe26dc21ae3a308f14a61999009fc2849779 (parent ac5fca9ace9401734bca31d87b03548b9ff83b18), exactly 34 registered paths; M00 ancestry verified. All remaining user-owned untracked directories were excluded. V01/V02 are still pending."
+          },
+          {
+            "id": "14.5_m08_structural_acceptance",
+            "status": "passed",
+            "owner": "M08/coordinator",
+            "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.5-source-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md"
+            ],
+            "scope": "Run M08 structural candidate acceptance against the committed source candidate. Check the unresolved Git index, conflict markers, M00 merge ancestry/parents, M01-M07 ancestry, exact 91-path owner mapping and final hosts, ten billing/OAuth hook evidence, retired orphan wrapper reachability, and the independent personal-quota/API-key day-month contract. Bind every result to the exact candidate commit and report limits. Do not run broad suites here; V01/V02 are separate candidate verification gates. Write only the registered acceptance/status records.",
+            "dependencies": [
+              "M08/14.3_candidate_source_commit:passed",
+              "M08/14.4_conflict_ownership_final_reconciliation:passed"
+            ],
+            "acceptance": [
+              "No unmerged index entries or conflict markers.",
+              "M00 remains a two-parent ancestor of the candidate and M01-M07 commits remain ancestors.",
+              "All 91 M00 paths have exact disposition/host/evidence mapping; no missing or orphan host.",
+              "The ten billing/OAuth integration points and quota separation have candidate-source evidence.",
+              "M08 can pass only if its own acceptance criteria are complete; V01/V02 remain separately pending."
+            ],
+            "implementation_agent": "/root",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.5-source-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md"
+            ],
+            "report_sha256": "8cccedd7caea25aa161fbdf83972ea93813aeea65182caee42dcbd7771d56017",
+            "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+            "checks": {
+              "unmerged_index": 0,
+              "conflict_markers": 0,
+              "orphan_wrapper_references": 0,
+              "m00_two_parent_ancestor": true,
+              "m01_m07_commits_checked": 42,
+              "original_conflict_paths_exact": 91,
+              "candidate_hosts_present": 91,
+              "quota_oauth_hooks_present": 10,
+              "quota_boundary": "personal account quota separate from API-key day/month limits; no lifetime key cap claim"
+            },
+            "result": "M08 structural acceptance passed against the committed candidate; V01 and V02 remain unrun and are ready as separate nodes."
+          },
+          {
+            "id": "14.6_format_candidate_quota_browser_spec",
+            "status": "passed",
+            "owner": "M08/coordinator",
+            "model": "gpt-6-astra",
+            "reasoning_effort": "high",
+            "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+            "registered_paths": [
+              "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md"
+            ],
+            "scope": "Fix only formatting in the candidate-added API-key responsive browser spec that V02 confirmed fails vp fmt. Preserve test logic and all assertions. Use Node 24.20.0/pnpm 12.3.4; focused formatter check on the exact registered file must pass. Rerun only this exact Chromium browser spec using the previously documented installed Chromium 1208 executable override, and record nonzero collection/pass counts and new input hash. Do not modify the modal implementation, other source/tests, dependencies, lockfiles, graph/tasks/ownership, stage, or commit. Write the registered evidence report.",
+            "dependencies": [
+              "V02 first attempt: blocked at pnpm check",
+              "M08/14.2i:passed before formatting follow-up"
+            ],
+            "acceptance": [
+              "Only the registered browser spec is changed and its test logic remains semantically unchanged.",
+              "Exact-path formatter check passes; git diff --check passes.",
+              "The single spec collects two real browser tests and both pass on existing Chromium; report includes before/after hash and exact command."
+            ],
+            "implementation_agent": "/root/m08_quota_modal_layout_astra",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md"
+            ],
+            "dispatch_status": "completed",
+            "verdict": "passed",
+            "report_sha256": "be5406214c5a4cedbcb73258fe91a270c5a6db3f58f75a740c487e0f3559ec1b"
+          },
+          {
+            "id": "14.7_luna_review_formatted_quota_browser_spec",
+            "status": "passed",
+            "owner": "M08",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md"
+            ],
+            "scope": "Independently review M08/14.6 report and exact formatted API-key quota browser spec. Verify its current SHA-256 equals 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120; confirm only the quotaKey fixture formatting hunk changed from 14.2i and all test assertions/data remain present. Rerun only that one Chromium browser spec with the documented installed Chromium 1208 override; require one file, two tests collected and passed. Do not edit any source/test, graph/tasks/results/ownership, install dependencies, run other checks, stage, or commit; write only the registered independent report.",
+            "dependencies": [
+              "M08/14.6_format_candidate_quota_browser_spec:passed"
+            ],
+            "acceptance": [
+              "Exact input spec hash and report hash are recorded.",
+              "Independent single-spec Chromium run collects 2 and passes 2; no other test suite is run.",
+              "Report distinguishes this check from V02 and does not claim live quota/account or deployment acceptance."
+            ],
+            "implementation_agent": "/root/m08_quota_modal_layout_luna_review",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md"
+            ],
+            "dispatch_status": "completed",
+            "verdict": "passed",
+            "report_sha256": "410ec06a79f1b21eb7a116cefac69785db6591d2c8ce3364c3a3d16d655c26d2"
+          },
+          {
+            "id": "14.8_recandidate_and_structural_acceptance",
+            "status": "registered",
+            "owner": "M08/coordinator",
+            "model": "gpt-6-astra",
+            "reasoning_effort": "high",
+            "base_commit": "c304fe188e949733fa4ac1697004e3b99d9db95d",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md"
+            ],
+            "scope": "After M05 11.7 is committed and M08 14.6/14.7 pass, create the new scoped M08 candidate commit containing only registered M08 source/evidence/state plus coordinator status files, with M05 follow-up commit as ancestor. Exclude all unrelated untracked user paths. Re-run the cheap structural acceptance on the resulting candidate: no unmerged index or conflict markers; M00 merge ancestry and all M01-M07 commits remain reachable; all 91 mapped paths exist; old account wrapper refs remain absent; personal account quota and API-key daily/monthly fields/enforcement remain; the 10 billing/OAuth anchors remain. Record exact commit/tree/hashes and stage allowlist. Do not rerun V01/V02 here; V01 API subtree applicability and V02 candidate-only verification are separate gates.",
+            "dependencies": [
+              "M05/11.7:passed",
+              "M08/14.6:passed",
+              "M08/14.7:passed"
+            ],
+            "acceptance": [
+              "Candidate commit is a descendant of M05 follow-up commit and does not create another upstream merge commit.",
+              "Only exact registered M08 source/state/evidence paths are staged; unrelated untracked dirs remain untouched.",
+              "Structural acceptance passes on the exact new commit.",
+              "Report records new candidate SHA/tree and identifies V01/V02 status without claiming them passed."
+            ],
+            "implementation_agent": "/root",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md"
+            ],
+            "dispatch_status": "registered"
           }
         ],
-        "next_subtask": "14.3_candidate_source_commit",
-        "dispatch_status": "coordinator_preparing_scoped_candidate_commit",
-        "active_subtasks": {
-          "14.3_candidate_source_commit": {
-            "id": "14.3_candidate_source_commit",
-            "status": "in_progress",
-            "owner": "M08/coordinator",
-            "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
-            "registered_paths": [
-              "AGENTS.md",
-              "README.md",
-              "docs/dify-plus/README.md",
-              "docs/dify-plus/二开功能详解-后端与数据层.md",
-              "docs/dify-plus/合并规划-upstream-1.17.1.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
-              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
-              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-              "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv",
-              "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
-              "openspec/changes/merge-upstream-1-17-1/research/overlap-ownership.tsv",
-              "openspec/changes/merge-upstream-1-17-1/tasks.md",
-              "oxlint-suppressions.json",
-              "web/app/components/api-key/api-key-modal.tsx",
-              "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx",
-              "web/app/components/app/access-point/shared/api-secret-key-button.tsx",
-              "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
-              "web/models/common-extend.ts",
-              "web/service/common-extend.ts",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-luna-verification.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-orphan-cleanup.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
-            ],
-            "scope": "Create the scoped M08 candidate source commit on the already authorized current branch. Stage only the exact registered paths. Include the M08 source/documentation fixes, focused specs, dispositions, owner matrix and evidence. Verify the staged name set equals this allowlist and git diff --cached --check passes. Commit the candidate without creating another upstream merge commit. Do not stage any user-owned untracked skill/config directories or other paths. Record commit SHA, parent, changed path set and limitations in M08 result after commit; keep V01/V02 pending until they run against this exact candidate commit.",
-            "dependencies": [
-              "M08/14.2j_luna_quota_modal_browser_review:passed",
-              "M08/14.4_conflict_ownership_final_reconciliation:passed"
-            ],
-            "acceptance": [
-              "Index starts empty and contains only the registered M08 paths.",
-              "Scoped staged diff passes whitespace check; source and docs preserve the independent personal quota and API Key day/month limit contracts.",
-              "A candidate source commit is created on codex/merge-upstream-1.17.1; M00 remains an ancestor and no new upstream merge commit is created.",
-              "Candidate commit identity and exact scope are recorded; V01/V02 remain explicitly pending."
-            ],
-            "implementation_agent": "/root",
-            "thread_id": null,
-            "host_id": "local",
-            "editable_paths": [
-              "AGENTS.md",
-              "README.md",
-              "docs/dify-plus/README.md",
-              "docs/dify-plus/二开功能详解-后端与数据层.md",
-              "docs/dify-plus/合并规划-upstream-1.17.1.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
-              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
-              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-              "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv",
-              "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
-              "openspec/changes/merge-upstream-1-17-1/research/overlap-ownership.tsv",
-              "openspec/changes/merge-upstream-1-17-1/tasks.md",
-              "oxlint-suppressions.json",
-              "web/app/components/api-key/api-key-modal.tsx",
-              "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx",
-              "web/app/components/app/access-point/shared/api-secret-key-button.tsx",
-              "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
-              "web/models/common-extend.ts",
-              "web/service/common-extend.ts",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-luna-verification.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-orphan-cleanup.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
-              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
-            ]
-          }
-        }
+        "next_subtask": "14.8_recandidate_and_structural_acceptance",
+        "dispatch_status": "M08_browser_spec_independent_review_passed_recandidate_pending",
+        "active_subtasks": {}
       },
       "active_subtasks": {
         "14.2e_luna_verification": {
@@ -4259,7 +4306,7 @@
       "owner_role": "后端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -4297,7 +4344,48 @@
         "evidence/V01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "前置节点 M08 尚未通过；未执行本节点。"
+      "implementation_progress": {
+        "completed_subtasks": [
+          "15.1_15.2_candidate_backend_luna_regression"
+        ],
+        "current_subtask": null,
+        "parallel_subtasks": [
+          {
+            "id": "15.1_15.2_candidate_backend_luna_regression",
+            "status": "completed",
+            "owner": "V01",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/execution.log"
+            ],
+            "scope": "Read api/AGENTS.md and execute V01 steps 15.1/15.2 on the exact candidate commit ba33fe26dc21ae3a308f14a61999009fc2849779. Use the already provisioned /private/tmp/dify-m02-python-complete environment with uv run --project api --no-sync (do not install or sync dependencies). Run the V01 graph commands: compileall -q api; import app_factory; and the three focused unit test files test_apikey.py, test_account_service.py, test_persistence_layer.py. Record actual collection and results. Do not rerun the previous broad M02/M03/M04 suites; note their historical evidence separately without claiming it validates this candidate. Do not edit product source/tests, graph/tasks/ownership, stage or commit. Write only the registered V01 result and execution log. If the preprovisioned environment is unavailable, record the exact blocker and stop without installing.",
+            "dependencies": [
+              "M08:passed"
+            ],
+            "acceptance": [
+              "The input commit is the exact M08 candidate; API working files are unchanged from that commit during execution.",
+              "Static compile and app_factory import have exact exit codes.",
+              "All three graph-registered focused unit specs collect nonzero tests and pass; exact collected/passed counts and warnings are recorded.",
+              "No package synchronization, installation, unrelated suite, source change, stage or commit."
+            ],
+            "implementation_agent": "/root/m08_v01_candidate_backend_luna",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V01/execution.log"
+            ],
+            "dispatch_status": "completed",
+            "verdict": "passed"
+          }
+        ],
+        "next_subtask": "V02/16.1_16.2_16.3_candidate_frontend_luna_verification",
+        "dispatch_status": "passed_candidate_backend_regression",
+        "active_subtasks": {}
+      }
     },
     {
       "id": "V02",
@@ -4351,7 +4439,51 @@
         "evidence/V02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "blocked_reason": "前置节点 M08 尚未通过；未执行本节点。"
+      "implementation_progress": {
+        "completed_subtasks": [
+          "16.1_16.2_16.3_candidate_frontend_luna_verification"
+        ],
+        "current_subtask": null,
+        "parallel_subtasks": [
+          {
+            "id": "16.1_16.2_16.3_candidate_frontend_luna_verification",
+            "status": "blocked",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/execution.log"
+            ],
+            "scope": "On exact candidate ba33fe26dc21ae3a308f14a61999009fc2849779, use pinned Node 24.20.0 and pnpm 12.3.4. Verify frozen install/lock consistency, then run V02 graph checks in sequence: pnpm check; web lint:tss; web i18n:check; registered unit and browser suites for system-features, console, access-point and api-key; web build and build:vinext. First inspect browser test collection and confirm nonzero relevant scenarios. Reuse exact-hash M08 evidence for the 14.2e manager/ACL unit spec (9/9) and 14.2j responsive modal Chromium coverage (2/2) when the identical files are included; do not separately rerun those custom checks. Capture command exit codes, collected counts, source/test/environment hashes, and known warnings. No product source/test edits, dependency changes, graph edits, staging, or commits; if a source/test defect appears, stop and return it to its owner for a new candidate.",
+            "dependencies": [
+              "M08:passed"
+            ],
+            "acceptance": [
+              "Candidate commit and relevant web source/test inputs match the fixed candidate; no source or test path changes during verification.",
+              "Node and pnpm versions match M01; frozen install validates the unchanged lock without modifying tracked manifests or lockfiles.",
+              "pnpm check, web lint:tss, web i18n:check and both web builds pass, with exact exit codes and warnings recorded.",
+              "Registered unit/browser suites collect nonzero relevant tests and pass; browser suite includes real browser scenarios, and exact-hash M08 checks are reused without duplicate execution.",
+              "24 extend locales remain loadable and quota/account role boundaries are covered by passing evidence; no source fix, install, stage or commit is made by verifier."
+            ],
+            "implementation_agent": "/root/m08_v01_candidate_backend_luna",
+            "thread_id": null,
+            "host_id": "local",
+            "editable_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/execution.log"
+            ],
+            "dispatch_status": "completed_blocked",
+            "verdict": "blocked_at_pnpm_check",
+            "report_sha256": "5a7ddc26107ed4264b1fdbf4527670c5486d52334b2d69b59b4eef033f8a1ca3"
+          }
+        ],
+        "next_subtask": "M05/11.7_openapi_ts_config_format_followup_and_M08/14.6_candidate_browser_spec_format",
+        "dispatch_status": "blocked_pnpm_check_candidate_format_issue",
+        "active_subtasks": {}
+      },
+      "blocked_reason": "首轮候选 ba33fe26dc21ae3a308f14a61999009fc2849779 的 pnpm check 失败，后续门槛已停。M05 11.7 格式修复与 M08 14.6/14.7 格式复核均通过；等待 M05 独立提交、M08 新候选与结构复验后重跑 V02。"
     },
     {
       "id": "R01",
@@ -4850,7 +4982,7 @@
       ]
     }
   ],
-  "next_subtask": "M08/14.3_candidate_source_commit",
+  "next_subtask": "M08/14.8_recandidate_and_structural_acceptance",
   "execution_control": {
     "coordinator_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
     "updated_at": "2026-09-29",
@@ -4894,8 +5026,10 @@
     ],
     "current_dispatches": [],
     "next_critical_path": [
-      "M08 scoped candidate source commit (14.3)",
-      "V01 backend checks and V02 frontend checks against candidate commit",
+      "M05 11.7 scoped commit",
+      "M08 14.8 updated candidate commit and structural acceptance",
+      "V01 API tree applicability on updated candidate",
+      "V02 full gate in clean candidate snapshot",
       "R01 source candidate acceptance"
     ],
     "quality_gates_unchanged": true,

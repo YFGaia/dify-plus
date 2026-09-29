@@ -5,19 +5,22 @@ import { page } from 'vite-plus/test/browser'
 import { render } from 'vitest-browser-react'
 import { ApiKeyModal } from '../api-key-modal'
 
-const quotaKey = vi.hoisted(() => ({
-  id: 'layout-key',
-  type: 'app',
-  token: 'app-layout-fixture-abcdefghijklmnopqrst',
-  description: 'Support assistant',
-  accumulated_quota: 42.5,
-  day_used_quota: 2.5,
-  day_limit_quota: 10,
-  month_used_quota: 12.5,
-  month_limit_quota: 100,
-  created_at: 1704067200,
-  last_used_at: 1704153600,
-} satisfies ApiKeyItem))
+const quotaKey = vi.hoisted(
+  () =>
+    ({
+      id: 'layout-key',
+      type: 'app',
+      token: 'app-layout-fixture-abcdefghijklmnopqrst',
+      description: 'Support assistant',
+      accumulated_quota: 42.5,
+      day_used_quota: 2.5,
+      day_limit_quota: 10,
+      month_used_quota: 12.5,
+      month_limit_quota: 100,
+      created_at: 1704067200,
+      last_used_at: 1704153600,
+    }) satisfies ApiKeyItem,
+)
 
 vi.mock('@/service/console', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/service/console')>()
