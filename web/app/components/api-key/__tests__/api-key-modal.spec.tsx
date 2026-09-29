@@ -36,8 +36,15 @@ vi.mock('@/service/console', async (importOriginal) => {
           apiKeys: {
             get: {
               queryKey: appApiKeys.get.queryKey,
-              queryOptions: ({ input }: { input: { params: { resource_id: string } } | typeof skipToken }) => ({
-                queryKey: input === skipToken ? appApiKeys.get.queryKey() : appApiKeys.get.queryKey({ input }),
+              queryOptions: ({
+                input,
+              }: {
+                input: { params: { resource_id: string } } | typeof skipToken
+              }) => ({
+                queryKey:
+                  input === skipToken
+                    ? appApiKeys.get.queryKey()
+                    : appApiKeys.get.queryKey({ input }),
                 queryFn:
                   input === skipToken
                     ? skipToken
@@ -276,7 +283,10 @@ describe('ApiKeyModal', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     await renderModal(appScope)
     await user.click(screen.getByText('appApi.apiKeyModal.createNewSecretKey'))
-    await user.type(screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }), 'Production')
+    await user.type(
+      screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }),
+      'Production',
+    )
     const day = screen.getByRole('textbox', { name: 'extend.apiKeyModal.dayLimitItemName' })
     const month = screen.getByRole('textbox', { name: 'extend.apiKeyModal.monthLimitItemName' })
     await user.clear(day)
@@ -284,51 +294,88 @@ describe('ApiKeyModal', () => {
     await user.clear(month)
     await user.type(month, '250')
     await user.click(screen.getByRole('button', { name: 'common.operation.create' }))
-    await waitFor(() => expect(apiMocks.createApp).toHaveBeenCalledWith({
-      params: { resource_id: 'app-123' },
-      body: { description: 'Production', day_limit_quota: 25, month_limit_quota: 250 },
-    }))
+    await waitFor(() =>
+      expect(apiMocks.createApp).toHaveBeenCalledWith({
+        params: { resource_id: 'app-123' },
+        body: { description: 'Production', day_limit_quota: 25, month_limit_quota: 250 },
+      }),
+    )
   })
 
   it('edits legacy app keys using unlimited defaults and refreshes the list', async () => {
-    apiMocks.appKeys = [{ id: 'app-key-1', token: 'app-secret-token-123456789', type: 'app', created_at: 1 }]
+    apiMocks.appKeys = [
+      { id: 'app-key-1', token: 'app-secret-token-123456789', type: 'app', created_at: 1 },
+    ]
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     await renderModal(appScope)
     expect(await screen.findAllByText('0 / extend.apiKeyModal.noLimit')).toHaveLength(2)
-    await user.click(screen.getByRole('button', { name: 'common.operation.edit app...cret-token-123456789' }))
-    expect(screen.getByRole('textbox', { name: 'extend.apiKeyModal.dayLimitItemName' })).toHaveValue('-1')
-    expect(screen.getByRole('textbox', { name: 'extend.apiKeyModal.monthLimitItemName' })).toHaveValue('-1')
-    await user.type(screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }), 'Updated')
+    await user.click(
+      screen.getByRole('button', { name: 'common.operation.edit app...cret-token-123456789' }),
+    )
+    expect(
+      screen.getByRole('textbox', { name: 'extend.apiKeyModal.dayLimitItemName' }),
+    ).toHaveValue('-1')
+    expect(
+      screen.getByRole('textbox', { name: 'extend.apiKeyModal.monthLimitItemName' }),
+    ).toHaveValue('-1')
+    await user.type(
+      screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }),
+      'Updated',
+    )
     apiMocks.updateApp.mockImplementation(async () => {
       apiMocks.appKeys = [{ ...apiMocks.appKeys[0], description: 'Updated' }]
       return apiMocks.appKeys[0]
     })
     await user.click(screen.getByRole('button', { name: 'common.operation.save' }))
-    await waitFor(() => expect(apiMocks.updateApp).toHaveBeenCalledWith({
-      params: { resource_id: 'app-123' },
-      body: { id: 'app-key-1', description: 'Updated', day_limit_quota: -1, month_limit_quota: -1 },
-    }))
+    await waitFor(() =>
+      expect(apiMocks.updateApp).toHaveBeenCalledWith({
+        params: { resource_id: 'app-123' },
+        body: {
+          id: 'app-key-1',
+          description: 'Updated',
+          day_limit_quota: -1,
+          month_limit_quota: -1,
+        },
+      }),
+    )
     expect(await screen.findByText('Updated')).toBeInTheDocument()
     expect(apiMocks.createApp).not.toHaveBeenCalled()
   })
 
   it('keeps a failed quota edit open for retry without losing its draft', async () => {
-    apiMocks.appKeys = [{ id: 'app-key-1', token: 'app-secret-token-123456789', type: 'app', created_at: 1 }]
+    apiMocks.appKeys = [
+      { id: 'app-key-1', token: 'app-secret-token-123456789', type: 'app', created_at: 1 },
+    ]
     apiMocks.updateApp.mockRejectedValueOnce(new Error('Update failed'))
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     await renderModal(appScope)
-    await user.click(await screen.findByRole('button', { name: 'common.operation.edit app...cret-token-123456789' }))
-    const description = screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })
+    await user.click(
+      await screen.findByRole('button', {
+        name: 'common.operation.edit app...cret-token-123456789',
+      }),
+    )
+    const description = screen.getByRole('textbox', {
+      name: 'extend.apiKeyModal.descriptionPlaceholder',
+    })
     await user.type(description, 'Keep this draft')
     await user.click(screen.getByRole('button', { name: 'common.operation.save' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('common.api.actionFailed')
     expect(description).toHaveValue('Keep this draft')
     await user.click(screen.getByRole('button', { name: 'common.operation.save' }))
     await waitFor(() => expect(apiMocks.updateApp).toHaveBeenCalledTimes(2))
-    await waitFor(() => expect(screen.queryByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })).not.toBeInTheDocument())
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }),
+      ).not.toBeInTheDocument(),
+    )
     expect(apiMocks.updateApp).toHaveBeenLastCalledWith({
       params: { resource_id: 'app-123' },
-      body: { id: 'app-key-1', description: 'Keep this draft', day_limit_quota: -1, month_limit_quota: -1 },
+      body: {
+        id: 'app-key-1',
+        description: 'Keep this draft',
+        day_limit_quota: -1,
+        month_limit_quota: -1,
+      },
     })
   })
 
@@ -343,23 +390,35 @@ describe('ApiKeyModal', () => {
     await waitFor(() => expect(create).toHaveAttribute('aria-disabled', 'true'))
     await user.click(create)
     await user.keyboard('{Escape}')
-    expect(screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })).toBeDisabled()
+    expect(
+      screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }),
+    ).toBeDisabled()
     expect(apiMocks.createApp).toHaveBeenCalledTimes(1)
     await act(async () => created.resolve({ token: 'created-once' }))
-    expect(await screen.findByRole('textbox', { name: 'appApi.apiKeyModal.secretKey' })).toHaveValue('created-once')
+    expect(
+      await screen.findByRole('textbox', { name: 'appApi.apiKeyModal.secretKey' }),
+    ).toHaveValue('created-once')
   })
 
   it('discards a cancelled creation draft and limits descriptions to the API maximum', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     await renderModal(appScope)
     await user.click(screen.getByText('appApi.apiKeyModal.createNewSecretKey'))
-    const description = screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })
+    const description = screen.getByRole('textbox', {
+      name: 'extend.apiKeyModal.descriptionPlaceholder',
+    })
     await user.type(description, 'a'.repeat(51))
     expect(description).toHaveValue('a'.repeat(50))
     await user.click(screen.getByRole('button', { name: 'common.operation.close' }))
-    await waitFor(() => expect(screen.queryByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })).not.toBeInTheDocument())
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }),
+      ).not.toBeInTheDocument(),
+    )
     await user.click(screen.getByText('appApi.apiKeyModal.createNewSecretKey'))
-    expect(screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })).toHaveValue('')
+    expect(
+      screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }),
+    ).toHaveValue('')
     expect(apiMocks.createApp).not.toHaveBeenCalled()
   })
 
@@ -371,49 +430,77 @@ describe('ApiKeyModal', () => {
     await user.clear(day)
     await user.type(day, '-0.5')
     await user.click(screen.getByRole('button', { name: 'common.operation.create' }))
-    expect(await screen.findByRole('alert')).toHaveTextContent('extend.systemManage.quota.editDialog.invalidInput')
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'extend.systemManage.quota.editDialog.invalidInput',
+    )
     expect(apiMocks.createApp).not.toHaveBeenCalled()
     await user.clear(day)
     await user.type(day, '0')
     await user.click(screen.getByRole('button', { name: 'common.operation.create' }))
-    await waitFor(() => expect(apiMocks.createApp).toHaveBeenCalledWith({
-      params: { resource_id: 'app-123' },
-      body: { description: '', day_limit_quota: 0, month_limit_quota: -1 },
-    }))
+    await waitFor(() =>
+      expect(apiMocks.createApp).toHaveBeenCalledWith({
+        params: { resource_id: 'app-123' },
+        body: { description: '', day_limit_quota: 0, month_limit_quota: -1 },
+      }),
+    )
   })
 
   it('shows accumulated, daily and monthly app usage independently and preserves edit values', async () => {
-    apiMocks.appKeys = [{
-      id: 'app-key-1', token: 'app-secret-token-123456789', type: 'app', created_at: 1,
-      description: 'Existing', accumulated_quota: 100, day_used_quota: 2,
-      day_limit_quota: -1, month_used_quota: 20, month_limit_quota: 50,
-    }]
+    apiMocks.appKeys = [
+      {
+        id: 'app-key-1',
+        token: 'app-secret-token-123456789',
+        type: 'app',
+        created_at: 1,
+        description: 'Existing',
+        accumulated_quota: 100,
+        day_used_quota: 2,
+        day_limit_quota: -1,
+        month_used_quota: 20,
+        month_limit_quota: 50,
+      },
+    ]
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
     await renderModal(appScope)
     expect(await screen.findByText('100')).toBeInTheDocument()
     expect(screen.getByText('2 / extend.apiKeyModal.noLimit')).toBeInTheDocument()
     expect(screen.getByText('20 / 50')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: 'common.operation.edit app...cret-token-123456789' }))
-    const description = screen.getByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })
+    await user.click(
+      screen.getByRole('button', { name: 'common.operation.edit app...cret-token-123456789' }),
+    )
+    const description = screen.getByRole('textbox', {
+      name: 'extend.apiKeyModal.descriptionPlaceholder',
+    })
     expect(description).toHaveValue('Existing')
     await user.clear(description)
     await user.click(screen.getByRole('button', { name: 'common.operation.save' }))
-    await waitFor(() => expect(apiMocks.updateApp).toHaveBeenCalledWith({
-      params: { resource_id: 'app-123' },
-      body: { id: 'app-key-1', description: '', day_limit_quota: -1, month_limit_quota: 50 },
-    }))
+    await waitFor(() =>
+      expect(apiMocks.updateApp).toHaveBeenCalledWith({
+        params: { resource_id: 'app-123' },
+        body: { id: 'app-key-1', description: '', day_limit_quota: -1, month_limit_quota: 50 },
+      }),
+    )
   })
 
-  it.each([datasetScope, environmentScope])('does not expose app quota controls for $type keys', async (scope) => {
-    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
-    await renderModal(scope)
-    expect(screen.queryByRole('columnheader', { name: /extend.apiKeyModal.dayLimit/ })).not.toBeInTheDocument()
-    await user.click(screen.getByText('appApi.apiKeyModal.createNewSecretKey'))
-    expect(screen.queryByRole('textbox', { name: 'extend.apiKeyModal.dayLimitItemName' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' })).not.toBeInTheDocument()
-    expect(apiMocks.createApp).not.toHaveBeenCalled()
-    expect(apiMocks.updateApp).not.toHaveBeenCalled()
-  })
+  it.each([datasetScope, environmentScope])(
+    'does not expose app quota controls for $type keys',
+    async (scope) => {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+      await renderModal(scope)
+      expect(
+        screen.queryByRole('columnheader', { name: /extend.apiKeyModal.dayLimit/ }),
+      ).not.toBeInTheDocument()
+      await user.click(screen.getByText('appApi.apiKeyModal.createNewSecretKey'))
+      expect(
+        screen.queryByRole('textbox', { name: 'extend.apiKeyModal.dayLimitItemName' }),
+      ).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('textbox', { name: 'extend.apiKeyModal.descriptionPlaceholder' }),
+      ).not.toBeInTheDocument()
+      expect(apiMocks.createApp).not.toHaveBeenCalled()
+      expect(apiMocks.updateApp).not.toHaveBeenCalled()
+    },
+  )
 
   it('creates a workspace dataset API key scoped to all knowledge bases', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })

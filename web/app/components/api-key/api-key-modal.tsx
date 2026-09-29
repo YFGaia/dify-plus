@@ -62,8 +62,9 @@ function AppQuotaForm({
   const [dayLimit, setDayLimit] = useState(apiKey?.day_limit_quota ?? -1)
   const [monthLimit, setMonthLimit] = useState(apiKey?.month_limit_quota ?? -1)
   const [submitted, setSubmitted] = useState(false)
-  const validLimits = [dayLimit, monthLimit].every((value) =>
-    Number.isFinite(value) && (value === -1 || value >= 0))
+  const validLimits = [dayLimit, monthLimit].every(
+    (value) => Number.isFinite(value) && (value === -1 || value >= 0),
+  )
 
   return (
     <form
@@ -233,12 +234,13 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
 
   const handleSubmitQuota = (body: ApiKeyQuotaPayload) => {
     if (
-      scope.type !== 'app'
-      || quotaEditor?.appId !== scope.appId
-      || createDisabled
-      || createAppApiKey.isPending
-      || updateAppApiKey.isPending
-    ) return
+      scope.type !== 'app' ||
+      quotaEditor?.appId !== scope.appId ||
+      createDisabled ||
+      createAppApiKey.isPending ||
+      updateAppApiKey.isPending
+    )
+      return
     if (quotaEditor.apiKey) {
       updateAppApiKey.mutate(
         {
@@ -336,14 +338,16 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
               canManage={canManage}
               showScope={scope.type === 'dataset'}
               showQuota={scope.type === 'app'}
-              onEditRequest={scope.type === 'app'
-                ? (apiKey) => {
-                    createAppApiKey.reset()
-                    updateAppApiKey.reset()
-                    setQuotaEditor({ appId: scope.appId, apiKey })
-                    setQuotaEditorOpen(true)
-                  }
-                : undefined}
+              onEditRequest={
+                scope.type === 'app'
+                  ? (apiKey) => {
+                      createAppApiKey.reset()
+                      updateAppApiKey.reset()
+                      setQuotaEditor({ appId: scope.appId, apiKey })
+                      setQuotaEditorOpen(true)
+                    }
+                  : undefined
+              }
               onDeleteRequest={setDeleteKeyId}
             />
           )}
@@ -362,9 +366,7 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
         }}
       >
         <DialogContent className="flex flex-col gap-4">
-          <DialogTitle>
-            {t(($) => $['apiKeyModal.apiSecretKey'], { ns: 'appApi' })}
-          </DialogTitle>
+          <DialogTitle>{t(($) => $['apiKeyModal.apiSecretKey'], { ns: 'appApi' })}</DialogTitle>
           <DialogDescription>
             {t(($) => $['apiKeyModal.noLimitTips'], { ns: 'extend' })}
           </DialogDescription>
@@ -373,7 +375,7 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
               <IconButton
                 aria-label={t(($) => $['operation.close'], { ns: 'common' })}
                 disabled={createAppApiKey.isPending || updateAppApiKey.isPending}
-                className="absolute right-4 top-4"
+                className="absolute top-4 right-4"
               >
                 <span aria-hidden className="i-ri-close-line size-4" />
               </IconButton>

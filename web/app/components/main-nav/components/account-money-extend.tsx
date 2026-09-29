@@ -15,7 +15,11 @@ import { consoleQuery } from '@/service/console'
 const quota = z
   .union([
     z.number(),
-    z.string().trim().regex(/^\d+(?:\.\d+)?$/).transform(Number),
+    z
+      .string()
+      .trim()
+      .regex(/^\d+(?:\.\d+)?$/)
+      .transform(Number),
   ])
   .pipe(z.number().finite().nonnegative())
 const accountMoneySchema = z.object({ total_quota: quota, used_quota: quota })
@@ -56,13 +60,14 @@ const AccountMoneyExtend = () => {
   const money = useAtomValue(accountMoneyQueryAtom)
   const exchangeRate = config.data?.rmb_to_usd_rate
   if (
-    identity.accountId === null
-    || !config.isSuccess
-    || !money.isSuccess
-    || exchangeRate === undefined
-    || !Number.isFinite(exchangeRate)
-    || exchangeRate <= 0
-  ) return null
+    identity.accountId === null ||
+    !config.isSuccess ||
+    !money.isSuccess ||
+    exchangeRate === undefined ||
+    !Number.isFinite(exchangeRate) ||
+    exchangeRate <= 0
+  )
+    return null
   const userMoney = money.data
 
   const usedQuota = userMoney.used_quota

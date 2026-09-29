@@ -99,7 +99,9 @@ export function ApiKeyTable({
                   <td className="px-3 py-2">
                     {('month_used_quota' in apiKey && apiKey.month_used_quota) || 0}
                     {' / '}
-                    {quotaLimit('month_limit_quota' in apiKey ? apiKey.month_limit_quota : undefined)}
+                    {quotaLimit(
+                      'month_limit_quota' in apiKey ? apiKey.month_limit_quota : undefined,
+                    )}
                   </td>
                 </>
               )}
