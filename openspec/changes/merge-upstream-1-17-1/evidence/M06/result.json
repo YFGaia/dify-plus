@@ -875,7 +875,24 @@
         "findings_remaining": [],
         "evidence": "evidence/M06/12.5-follow-up-review.md"
       },
-      "observation": "Both locale corrections are integrated and independently re-reviewed; scoped i18n parity should be rerun with a complete dependency environment."
+      "observation": "Both locale corrections are integrated and independently re-reviewed; scoped i18n parity should be rerun with a complete dependency environment.",
+      "post_fix_parity_revalidation": {
+        "status": "verification_in_progress",
+        "model": "gpt-6-luna",
+        "thread_id": "01a0eb3e-ade0-7380-a27b-b548332ce0c8",
+        "title": "M06 12.5e 修订后语言完整性验收",
+        "base_commit": "490fd465e3c0809b129cb4721936c1a8d1d21a7b",
+        "dispatch_channel": "codex_shared_local",
+        "registered_paths": [
+          "web/i18n/id-ID/extend.json",
+          "web/i18n/pl-PL/extend.json",
+          "web/package.json",
+          "package.json",
+          "pnpm-lock.yaml"
+        ],
+        "scope": "Read-only independent verification of id-ID/pl-PL post-fix locale key parity, order, existing values and interpolation tokens; safely rerun scoped i18n parity with auto-install disabled and report exact commands/results.",
+        "evidence": "evidence/M06/result.json#/subtasks/12.5_language_corrections/post_fix_parity_revalidation"
+      }
     },
     "12.3_app_api_key_quota_and_balance": {
       "id": "12.3_app_api_key_quota_and_balance",

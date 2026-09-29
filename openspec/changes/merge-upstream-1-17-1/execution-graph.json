@@ -1632,6 +1632,25 @@
             "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
             "analysis_evidence": "evidence/M06/12.3-analysis.md",
             "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted."
+          },
+          {
+            "id": "12.5e_post_fix_i18n_parity",
+            "status": "verification_in_progress",
+            "owner": "M06",
+            "model": "gpt-6-luna",
+            "thread_id": "01a0eb3e-ade0-7380-a27b-b548332ce0c8",
+            "title": "M06 12.5e 修订后语言完整性验收",
+            "base_commit": "490fd465e3c0809b129cb4721936c1a8d1d21a7b",
+            "dispatch_channel": "codex_shared_local",
+            "registered_paths": [
+              "web/i18n/id-ID/extend.json",
+              "web/i18n/pl-PL/extend.json",
+              "web/package.json",
+              "package.json",
+              "pnpm-lock.yaml"
+            ],
+            "scope": "Read-only independent verification of id-ID/pl-PL post-fix locale key parity, order, existing values and interpolation tokens; safely rerun scoped i18n parity with auto-install disabled and report exact commands/results.",
+            "evidence": "evidence/M06/result.json#/subtasks/12.5_language_corrections/post_fix_parity_revalidation"
           }
         ],
         "completed_analyses": [
