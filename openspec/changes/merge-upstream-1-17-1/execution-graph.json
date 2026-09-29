@@ -1142,16 +1142,17 @@
           "12.5e_final_locale_parity",
           "12.6c_user_overview_backend_contract",
           "12.6a_home_navigation",
-          "12.6d_app_account_statistics"
+          "12.6d_app_account_statistics",
+          "12.6e_workflow_actor_analysis"
         ],
         "current_subtask": {
           "id": "12.6e_workflow_account_ownership_persistence",
-          "status": "implementation_in_progress",
-          "owner": "M02/M03",
+          "status": "ready",
+          "owner": "M02",
           "model": "gpt-6-astra",
-          "branch_head": "ad74ac0f0f",
+          "branch_head": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
           "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
-          "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+          "dispatch_channel": "codex_project_local",
           "registered_paths": [
             "api/controllers/web/workflow.py",
             "api/services/webapp_console_identity_extend.py",
@@ -1173,9 +1174,12 @@
             "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
             "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
           ],
+          "scope": "Add nullable WorkflowRun.from_account_id for WebApp runs only, propagate a validated Console account actor through normal and async execution/recovery in SQLAlchemy and Logstore, and preserve created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
+          "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
+          "analysis_evidence": "evidence/M06/12.6e-analysis.md",
+          "migration_revision": "ec4aa03225de",
           "migration_down_revision": "c3f1a9b2e6d4",
-          "scope": "Persist only a trusted Console account actor for WebApp WorkflowRun, preserve it through SQLAlchemy, Logstore, configured Celery and recovery. Unknown/history remains NULL; preserve created_by semantics.",
-          "evidence": "evidence/M06/12.6e-analysis.md"
+          "implementation_gate": "Use only the registered paths; migration HEAD, actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation are acceptance gates."
         },
         "next_subtask": "12.6e_workflow_account_ownership_persistence",
         "parallel_subtasks": [
@@ -1758,40 +1762,31 @@
             ],
             "scope": "Add optional account-scoped behavior to the three chart-backed app-statistics endpoints using authenticated RequestContext.account_id and trusted from_account_id. Preserve default app-wide behavior and existing debugger/type filters.",
             "branch_head": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
-            "implementation_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
+            "implementation_commit": "fcc0b0e7a5",
             "source_implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
             "implementation_source_worktree": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
             "review_thread_id": "01a0eb76-9ccc-7072-8187-f9e0b790040a",
             "review_status": "passed_no_p1_p2_p3",
             "verification": {
               "status": "passed",
-              "test_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-12-6d-uv-cache LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONDONTWRITEBYTECODE=1 uv run --project api --no-sync pytest -q -o addopts= -p no:cacheprovider api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
-              "test_exit_code": 0,
-              "tests_passed": 22,
-              "warnings": 56,
-              "duration_seconds": 2.11,
-              "verification_worktree": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
-              "verification_worktree_head": "175e3040bdc9a5f34f07643a844ec95018bd4072",
-              "verified_paths_match_integrated_commit": true,
-              "worktree_clean_after_verification": true,
+              "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-12-6d-uv-cache LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONDONTWRITEBYTECODE=1 uv run --project api --no-sync pytest -q -o addopts= -p no:cacheprovider api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
+              "exit_code": 0,
+              "result": "22 passed, 56 warnings in 2.11s",
               "ruff_check_exit_code": 0,
               "ruff_format_check_exit_code": 0,
               "diff_check_exit_code": 0,
-              "notes": [
-                "Coverage output was disabled for this focused run to avoid the read-only worktree permission failure from the first attempt.",
-                "Existing temporary Python 3.12 environment and temporary uv cache were used with --no-sync; no dependencies, lockfiles, source files, index, or commits were changed by verification.",
-                "LiteLLM remote model cost lookup was disabled with LITELLM_LOCAL_MODEL_COST_MAP=True.",
-                "Warnings are existing cgi, Pydantic class-config, and sqlite3 datetime adapter deprecations plus 56 SQLAlchemy/SQLite adapter warnings."
-              ]
+              "implementation_paths_equal_exit_code": 0,
+              "runtime": "Python 3.12 existing environment; uv --no-sync; uv cache and venv redirected to /private/tmp; no dependency sync/install"
             },
             "evidence": [
               "evidence/M06/12.6d-verification.md",
               "evidence/M06/12.6d-review.md"
-            ]
+            ],
+            "verification_status": "passed"
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "implementation_in_progress",
+            "status": "ready",
             "owner": "M02/M03",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1815,14 +1810,18 @@
               "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
               "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
             ],
-            "scope": "Persist only a trusted Console account actor for WebApp WorkflowRun, preserve it through SQLAlchemy, Logstore, configured Celery and recovery. Unknown/history remains NULL; preserve created_by semantics.",
+            "scope": "Add nullable WorkflowRun.from_account_id for WebApp runs only, propagate a validated Console account actor through normal and async execution/recovery in SQLAlchemy and Logstore, and preserve created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
             "analysis_model": "gpt-6-sol",
             "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
             "analysis_read_only": true,
             "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
             "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
             "migration_down_revision": "c3f1a9b2e6d4",
-            "evidence": "evidence/M06/12.6e-analysis.md"
+            "evidence": "evidence/M06/12.6e-analysis.md",
+            "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
+            "analysis_evidence": "evidence/M06/12.6e-analysis.md",
+            "migration_revision": "ec4aa03225de",
+            "implementation_gate": "Use only the registered paths; migration HEAD, actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation are acceptance gates."
           },
           {
             "id": "12.6f_workflow_account_statistics",
@@ -1841,7 +1840,8 @@
               "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
             ],
             "scope": "After trusted WorkflowRun.from_account_id persistence, add optional account=true to the three workflow chart endpoints using authenticated RequestContext.account_id; SQLAlchemy and Logstore filter tenant_id + app_id + triggered_from + from_account_id; NULL is excluded and app-wide defaults remain unchanged.",
-            "dependency": "12.6e_workflow_account_ownership_persistence:passed"
+            "dependency": "12.6e_workflow_account_ownership_persistence:passed",
+            "depends_on": "12.6e_workflow_account_ownership_persistence:passed"
           },
           {
             "id": "12.6g_user_overview_ui_contract",
@@ -1932,7 +1932,8 @@
         ],
         "completed_analyses": [
           "12.3_analysis",
-          "12.4_analysis"
+          "12.4_analysis",
+          "12.6e_workflow_actor_analysis"
         ],
         "path_cross_check_12_1b": {
           "status": "passed_no_required_path_changes",

@@ -1141,7 +1141,7 @@
         "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
         "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
       ],
-      "implementation_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
+      "implementation_commit": "fcc0b0e7a5",
       "source_implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
       "verification_worktree": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
       "review": {
@@ -1151,39 +1151,58 @@
       },
       "verification": {
         "status": "passed",
-        "test_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-12-6d-uv-cache LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONDONTWRITEBYTECODE=1 uv run --project api --no-sync pytest -q -o addopts= -p no:cacheprovider api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
-        "test_exit_code": 0,
-        "tests_passed": 22,
-        "warnings": 56,
-        "duration_seconds": 2.11,
-        "verification_worktree": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
-        "verification_worktree_head": "175e3040bdc9a5f34f07643a844ec95018bd4072",
-        "verified_paths_match_integrated_commit": true,
-        "worktree_clean_after_verification": true,
+        "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-12-6d-uv-cache LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONDONTWRITEBYTECODE=1 uv run --project api --no-sync pytest -q -o addopts= -p no:cacheprovider api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
+        "exit_code": 0,
+        "result": "22 passed, 56 warnings in 2.11s",
         "ruff_check_exit_code": 0,
         "ruff_format_check_exit_code": 0,
         "diff_check_exit_code": 0,
-        "notes": [
-          "Coverage output was disabled for this focused run to avoid the read-only worktree permission failure from the first attempt.",
-          "Existing temporary Python 3.12 environment and temporary uv cache were used with --no-sync; no dependencies, lockfiles, source files, index, or commits were changed by verification.",
-          "LiteLLM remote model cost lookup was disabled with LITELLM_LOCAL_MODEL_COST_MAP=True.",
-          "Warnings are existing cgi, Pydantic class-config, and sqlite3 datetime adapter deprecations plus 56 SQLAlchemy/SQLite adapter warnings."
-        ]
+        "implementation_paths_equal_exit_code": 0,
+        "runtime": "Python 3.12 existing environment; uv --no-sync; uv cache and venv redirected to /private/tmp; no dependency sync/install"
       },
-      "evidence": "evidence/M06/12.6d-verification.md"
+      "evidence": [
+        "evidence/M06/12.6d-verification.md",
+        "evidence/M06/12.6d-review.md"
+      ],
+      "verification_status": "passed",
+      "review_status": "passed_no_p1_p2_p3"
     },
     "12.6e_workflow_actor_analysis": {
-      "status": "completed_handoff_registered",
+      "status": "analysis_complete_paths_registered",
       "model": "gpt-6-sol",
-      "thread_id": "01a0eb7c-080b-7b31-b722-b8edb28ab55b",
+      "thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
       "base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
       "read_only": true,
-      "evidence": "evidence/M06/12.6e-analysis.md"
+      "evidence": "evidence/M06/12.6e-analysis.md",
+      "registered_paths": [
+        "api/controllers/web/workflow.py",
+        "api/services/webapp_console_identity_extend.py",
+        "api/models/workflow.py",
+        "api/migrations/versions/2026_09_29_1200-ec4aa03225de_add_workflow_run_from_account_id.py",
+        "api/core/app/apps/workflow/app_generator.py",
+        "api/core/repositories/factory.py",
+        "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
+        "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+        "api/core/repositories/celery_workflow_execution_repository.py",
+        "api/tasks/app_generate/workflow_execute_task.py",
+        "api/tasks/async_workflow_tasks.py",
+        "api/tasks/workflow_execution_tasks.py",
+        "api/tests/unit_tests/controllers/web/test_workflow.py",
+        "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
+        "api/tests/unit_tests/models/test_workflow.py",
+        "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
+        "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+        "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
+      ],
+      "migration_revision": "ec4aa03225de",
+      "migration_down_revision": "c3f1a9b2e6d4",
+      "summary": "WebApp controller validates the Console cookie/account, but workflow repository creation drops the identity; propagate the account explicitly through SQLAlchemy, Logstore and Celery/recovery. Preserve created_by as EndUser and leave historical rows NULL; no inference or backfill."
     },
     "12.6e_workflow_account_ownership_persistence": {
-      "status": "implementation_in_progress",
+      "status": "ready",
       "model": "gpt-6-astra",
-      "owner": "M02/M03",
+      "owner": "M02",
       "thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
       "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
       "registered_paths": [
@@ -1208,7 +1227,21 @@
         "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
       ],
       "migration_down_revision": "c3f1a9b2e6d4",
-      "evidence": "evidence/M06/12.6e-analysis.md"
+      "evidence": "evidence/M06/12.6e-analysis.md",
+      "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
+      "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
+      "analysis_evidence": "evidence/M06/12.6e-analysis.md",
+      "migration_revision": "ec4aa03225de",
+      "scope": "Add nullable WorkflowRun.from_account_id for WebApp runs only, propagate a validated Console account actor through normal and async execution/recovery in SQLAlchemy and Logstore, and preserve created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
+      "verification_gates": [
+        "authenticated and absent/invalid Console identity",
+        "SQLAlchemy and Logstore first write",
+        "Celery serialization and normal/async recovery preserve actor",
+        "old rows remain NULL and Logstore old records read as NULL",
+        "pause/resume does not overwrite actor",
+        "migration head and upgrade checks",
+        "no inference from external_user_id"
+      ]
     },
     "12.6i_api_key_interaction_regressions": {
       "status": "implementation_review_passed_verification_blocked_dependency_missing",
