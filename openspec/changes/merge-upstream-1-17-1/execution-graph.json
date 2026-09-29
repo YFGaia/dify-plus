@@ -1246,7 +1246,7 @@
           },
           {
             "id": "12.5b_locale_group_b",
-            "status": "conversation_provisioning",
+            "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -1264,7 +1264,33 @@
             "client_thread_id": "client-new-thread:c5e5befd-ba66-431e-bb13-f29f9ba0670b",
             "base_commit": "d867181b50",
             "created_from_commit": "d867181b50",
-            "dispatch_channel": "codex_project_worktree"
+            "dispatch_channel": "codex_project_worktree",
+            "source_commit": "37c4f5c71775880912286347c842106e4a9593ab",
+            "integration_commit": "bb83bc818d5e18b45dc0bfdafe40f7f8236fd6d2",
+            "worktree_path": "/Users/liuxingwang/.codex/worktrees/56bc/dify-plus",
+            "verification_evidence": "evidence/M06/12.5b-verification.md",
+            "verification": {
+              "json_parse": "All 7 registered locale files passed python3 -m json.tool.",
+              "key_order": "All files contain the same 135 ordered leaf keys as en-US/extend.json.",
+              "placeholders": "Interpolation tokens match en-US exactly for every key.",
+              "baseline_values": "Each locale preserves all 50 pre-existing values from base d867181b50.",
+              "i18n_check": {
+                "command": "pnpm i18n:check --file extend --lang ja-JP ko-KR nl-NL pl-PL pt-BR ro-RO ru-RU",
+                "runtime": "Node 24.20.0 and pinned pnpm 12.3.4, run from web/ in the root worktree.",
+                "exit_code": 0,
+                "missing_key_counts": {
+                  "ja-JP": 0,
+                  "ko-KR": 0,
+                  "nl-NL": 0,
+                  "pl-PL": 0,
+                  "pt-BR": 0,
+                  "ro-RO": 0,
+                  "ru-RU": 0
+                }
+              },
+              "diff_check_exit_code": 0,
+              "environment_note": "The first attempt in the detached source worktree could not start because that worktree lacks tsx; the same scoped check passed in the root worktree with the pinned repository runtime. No dependencies or lockfiles changed."
+            }
           },
           {
             "id": "12.5c_locale_group_c",
@@ -1483,7 +1509,7 @@
           "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9"
         },
         "12.5b_locale_group_b": {
-          "status": "conversation_provisioning",
+          "status": "passed",
           "owner": "M06",
           "model": "gpt-6-astra",
           "client_thread_id": "client-new-thread:c5e5befd-ba66-431e-bb13-f29f9ba0670b",
@@ -1498,7 +1524,33 @@
             "web/i18n/pt-BR/extend.json",
             "web/i18n/ro-RO/extend.json",
             "web/i18n/ru-RU/extend.json"
-          ]
+          ],
+          "source_commit": "37c4f5c71775880912286347c842106e4a9593ab",
+          "integration_commit": "bb83bc818d5e18b45dc0bfdafe40f7f8236fd6d2",
+          "worktree_path": "/Users/liuxingwang/.codex/worktrees/56bc/dify-plus",
+          "verification_evidence": "evidence/M06/12.5b-verification.md",
+          "verification": {
+            "json_parse": "All 7 registered locale files passed python3 -m json.tool.",
+            "key_order": "All files contain the same 135 ordered leaf keys as en-US/extend.json.",
+            "placeholders": "Interpolation tokens match en-US exactly for every key.",
+            "baseline_values": "Each locale preserves all 50 pre-existing values from base d867181b50.",
+            "i18n_check": {
+              "command": "pnpm i18n:check --file extend --lang ja-JP ko-KR nl-NL pl-PL pt-BR ro-RO ru-RU",
+              "runtime": "Node 24.20.0 and pinned pnpm 12.3.4, run from web/ in the root worktree.",
+              "exit_code": 0,
+              "missing_key_counts": {
+                "ja-JP": 0,
+                "ko-KR": 0,
+                "nl-NL": 0,
+                "pl-PL": 0,
+                "pt-BR": 0,
+                "ro-RO": 0,
+                "ru-RU": 0
+              }
+            },
+            "diff_check_exit_code": 0,
+            "environment_note": "The first attempt in the detached source worktree could not start because that worktree lacks tsx; the same scoped check passed in the root worktree with the pinned repository runtime. No dependencies or lockfiles changed."
+          }
         },
         "12.5c_locale_group_c": {
           "status": "conversation_provisioning",
