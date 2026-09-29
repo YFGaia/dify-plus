@@ -495,7 +495,9 @@
           "registered_paths_only": true,
           "status": "preserved after integration"
         }
-      }
+      },
+      "source_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8",
+      "integration_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8"
     },
     "12.5_analysis": {
       "status": "passed",
