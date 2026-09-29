@@ -1324,7 +1324,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "ready",
+      "status": "implementation_in_progress",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1338,17 +1338,17 @@
         "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
         "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-verification.md"
+        "evidence/M06/12.6f-verification.md"
       ],
       "scope": "Add optional account=true to three workflow charts. SQLAlchemy joins workflow_run_account_extend on workflow_run_id+tenant_id+app_id+from_account_id; Logstore applies the trusted per-run from_account_id field. Exclude missing/NULL ownership; preserve app-wide defaults and daily-terminals.",
-      "implementation_base_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "implementation_base_commit": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8",
       "dispatch_channel": "codex_project_local",
       "implementation_model": "gpt-6-astra",
-      "latest_attempt_note": "Both registered Logstore actor-index prerequisites are implemented and root-verified; a fresh Astra conversation can now implement the five registered API paths and four tests.",
-      "implementation_thread_id": null,
-      "thread_id": null,
+      "latest_attempt_note": "12.6e and both Logstore actor-index prerequisites are root-verified and passed; fresh Astra implementation conversation is active.",
+      "implementation_thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
+      "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
       "blocked_reason": null,
-      "index_prerequisite": "12.6f_logstore_actor_index:passed",
+      "index_prerequisite": "12.6f_logstore_actor_index_reconciliation:passed",
       "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
       "index_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
       "dependencies": [
@@ -1432,7 +1432,7 @@
       "implementation_tests": "3 initial tests passed; strict existing-key doc_value/type follow-up is open",
       "implementation_static_checks": "Ruff check/format and diff-check passed",
       "dispatch_channel": "codex_project_local",
-      "implementation_commit": "17a755d104b6417e63b25dfe11a3156f34b37250",
+      "implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
       "verification": {
         "status": "passed_root_rechecked",
         "test_result": "10 passed",
@@ -1445,7 +1445,12 @@
         "No live Aliyun verification",
         "Historical Logstore index coverage/visibility not tested"
       ],
-      "followup_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5"
+      "followup_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "test_result": "10 passed; independent Luna and root",
+      "evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+      "verification_evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+      "review_result": "No P1/P2/P3",
+      "static_checks": "Ruff check/format and diff-check passed"
     },
     "12.6e-review-followup": {
       "status": "passed",
@@ -1472,16 +1477,21 @@
         "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
         "evidence/M06/12.6f-logstore-index-reconcile-verification.md"
       ],
-      "scope": "For from_account_id only, ensure required index_type=text and doc_value=True even when an existing key has a compatible text/json type but wrong doc_value; correct incompatible actor types without changing global json/text compatibility or custom fields. Add parameterized regressions for wrong actor options and preserve other fields.",
+      "scope": "Force text/doc_value=True for workflow_execution.from_account_id across existing text/json/wrong-type options while preserving other fields and custom config.",
       "finding": "Existing _merge_index_configs treats text/json as compatible and compares only index_type, so from_account_id with doc_value=False is retained.",
       "implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
       "verification": {
-        "status": "passed_root_rechecked",
-        "focused_tests": "10 passed",
-        "ruff_and_format": "passed",
+        "test_result": "10 passed in independent Luna and root reruns",
+        "ruff_check": "passed",
+        "ruff_format": "passed",
         "diff_check": "passed",
-        "evidence": "evidence/M06/12.6f-logstore-index-verification.md"
-      }
+        "review_findings": "0 P1/P2/P3",
+        "evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md"
+      },
+      "verification_evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+      "test_result": "10 passed; independent Luna and root",
+      "review_result": "No P1/P2/P3",
+      "static_checks": "Ruff check/format and diff-check passed"
     }
   },
   "next_subtask": "12.6f_workflow_account_statistics"
