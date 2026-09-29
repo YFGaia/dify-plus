@@ -1177,7 +1177,6 @@
       "registered_paths": [
         "api/controllers/web/workflow.py",
         "api/services/webapp_console_identity_extend.py",
-        "api/models/workflow.py",
         "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
         "api/core/app/apps/workflow/app_generator.py",
         "api/core/repositories/factory.py",
@@ -1193,23 +1192,25 @@
         "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
         "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
-        "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
+        "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py",
+        "api/services/workflow_run_account_extend.py",
+        "api/models/workflow_account_extend.py",
+        "api/models/__init__.py"
       ],
       "migration_revision": "020_workflow_run_account",
       "migration_down_revision": "019_webapp_auth_switch",
-      "summary": "WebApp controller validates the Console cookie/account, but workflow repository creation drops the identity; propagate the account explicitly through SQLAlchemy, Logstore and Celery/recovery. Preserve created_by as EndUser and leave historical rows NULL; no inference or backfill.",
-      "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged"
+      "summary": "Use the dedicated workflow_run_account_extend association table and fork extension migration chain; keep upstream workflow_runs schema untouched. Historical/anonymous runs have no trusted association and are never backfilled.",
+      "migration_chain": "Dify Plus extension chain; association table only; upstream workflow_runs unchanged"
     },
     "12.6e_workflow_account_ownership_persistence": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "model": "gpt-6-astra",
-      "owner": "M02/M03",
-      "thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-      "base_commit": "aeb7ce1965c89f384c56ede54f6cff41a8e787c1",
+      "owner": "M03/M02",
+      "thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
+      "base_commit": "f1771c90a1a5701cb4ac115d3393320897bc5347",
       "registered_paths": [
         "api/controllers/web/workflow.py",
         "api/services/webapp_console_identity_extend.py",
-        "api/models/workflow.py",
         "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
         "api/core/app/apps/workflow/app_generator.py",
         "api/core/repositories/factory.py",
@@ -1225,15 +1226,18 @@
         "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
         "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
-        "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
+        "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py",
+        "api/services/workflow_run_account_extend.py",
+        "api/models/workflow_account_extend.py",
+        "api/models/__init__.py"
       ],
       "migration_down_revision": "019_webapp_auth_switch",
-      "evidence": "evidence/M06/12.6e-analysis.md",
+      "evidence": "evidence/M06/12.6e-verification.md",
       "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
       "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
       "analysis_evidence": "evidence/M06/12.6e-analysis.md",
       "migration_revision": "020_workflow_run_account",
-      "scope": "Add nullable WorkflowRun.from_account_id for WebApp runs only, propagate a validated Console account actor through normal and async execution/recovery in SQLAlchemy and Logstore, and preserve created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
+      "scope": "Persist authenticated WebApp Console account ownership in a Dify Plus workflow_run_account_extend association table without altering upstream workflow_runs; propagate the actor through normal and async execution/recovery in SQLAlchemy and Logstore while preserving created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
       "verification_gates": [
         "authenticated and absent/invalid Console identity",
         "SQLAlchemy and Logstore first write",
@@ -1243,11 +1247,39 @@
         "migration head and upgrade checks",
         "no inference from external_user_id"
       ],
-      "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-      "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged",
+      "implementation_thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
+      "migration_chain": "Dify Plus extension chain; association table only; upstream workflow_runs unchanged",
       "implementation_agent": "/root/m06_12_6e_astra_finalize",
       "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-      "restart_reason": "Fork-only migration belongs to migrations_extend, not upstream main chain; first Astra attempt was stopped before commit."
+      "restart_reason": "Fork-only migration belongs to migrations_extend, not upstream main chain; first Astra attempt was stopped before commit.",
+      "implementation_gate": "Use validated Console cookie actor only; one idempotent association row in the SQL transaction; preserve NULL first-write for anonymous/unknown runs; reject tenant/app mismatches on recovery and dual-write; no historical inference.",
+      "previous_implementation_thread_ids": [
+        "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+        "01a0eb8d-da62-7520-993c-6c1f8e7eed95",
+        "01a0eb97-fbb0-7650-8fa5-2fec800481ce"
+      ],
+      "dispatch_channel": "codex_project_local",
+      "latest_attempt_note": "Committed e9359f9bfe688f24212112cdc3e5f2ac6560c910. Root reran seven registered test files: 202 passed. Ruff/format passed 21 paths; source Pyrefly 0 diagnostics; strict test typing has 120 baseline diagnostics and no new diagnostics. Main migration head remains c3f1a9b2e6d4; extension head is 020_workflow_run_account. Live PostgreSQL/MySQL, Aliyun Logstore, cross-process concurrency and index visibility remain unverified. 12.6f is ready.",
+      "implementation_verification": {
+        "status": "passed_root_rechecked",
+        "reported_by_thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
+        "focused_tests": "202 passed; rerun by root after Astra stopped",
+        "ruff_and_format": "passed_21_registered_paths",
+        "source_pyrefly": "0 diagnostics",
+        "tests_pyrefly": "120 baseline diagnostics, no new diagnostics",
+        "migration_heads": {
+          "main": "c3f1a9b2e6d4",
+          "extension": "020_workflow_run_account"
+        },
+        "evidence": "evidence/M06/12.6e-verification.md",
+        "review_status": "passed_root_code_review",
+        "verification_snapshot_head": "ac4d5b1127c1c69ad774f0df8f13fba2745c47e5",
+        "branch_head": "e9359f9bfe688f24212112cdc3e5f2ac6560c910"
+      },
+      "implementation_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+      "independent_review_status": "pending_luna_read_only_review",
+      "independent_review_thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
+      "independent_review_scope_note": "Separate review conversation remains active; root code review and test rerun are recorded independently."
     },
     "12.6i_api_key_interaction_regressions": {
       "status": "implementation_review_passed_verification_blocked_dependency_missing",
@@ -1275,7 +1307,7 @@
       "superseded_competing_commit": "777238cc"
     },
     "12.6f_workflow_account_statistics": {
-      "status": "registered_blocked_by_12.6e",
+      "status": "ready",
       "model": "gpt-6-astra",
       "owner": "M04",
       "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1290,7 +1322,7 @@
         "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
       ],
-      "scope": "Add optional account=true to three workflow charts, authenticating account via RequestContext.account_id and filtering trusted persisted from_account_id consistently in SQLAlchemy/Logstore."
+      "scope": "Add optional account=true to three workflow charts. SQLAlchemy joins workflow_run_account_extend on workflow_run_id+tenant_id+app_id+from_account_id; Logstore applies the trusted per-run from_account_id field. Exclude missing/NULL ownership; preserve app-wide defaults and daily-terminals."
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",
@@ -1311,8 +1343,15 @@
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
       ],
       "path_overlap_with_12.6e": false,
-      "summary": "Only account=true uses authenticated RequestContext.account_id and persisted from_account_id across SQLAlchemy/Logstore. Preserve app-wide default, daily-terminals, and existing backend-specific completion behavior."
+      "summary": "12.6f query paths confirmed. After 12.6e association-table design: SQLAlchemy uses the tenant/app-scoped ownership association; Logstore uses its trusted from_account_id event field. Missing/NULL ownership is excluded; app-wide default and daily-terminals remain unchanged."
+    },
+    "12.6e_independent_luna_verification": {
+      "status": "review_in_progress",
+      "model": "gpt-6-luna",
+      "thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
+      "read_only": true,
+      "scope": "Independent review and focused verification of the stopped implementation snapshot."
     }
   },
-  "next_subtask": "12.6e_workflow_account_ownership_persistence"
+  "next_subtask": "12.6f_workflow_account_statistics"
 }

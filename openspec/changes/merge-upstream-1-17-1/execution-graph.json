@@ -1143,14 +1143,15 @@
           "12.6c_user_overview_backend_contract",
           "12.6a_home_navigation",
           "12.6d_app_account_statistics",
-          "12.6e_workflow_actor_analysis"
+          "12.6e_workflow_actor_analysis",
+          "12.6e_workflow_account_ownership_persistence"
         ],
         "current_subtask": {
           "id": "12.6e_workflow_account_ownership_persistence",
-          "status": "implementation_in_progress",
+          "status": "passed",
           "owner": "M02/M03",
           "model": "gpt-6-astra",
-          "branch_head": "3dcf375c920d9a471512a6ab94a1c09344d9a9e2",
+          "branch_head": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
           "base_commit": "3dcf375c920d9a471512a6ab94a1c09344d9a9e2",
           "dispatch_channel": "codex_project_local",
           "registered_paths": [
@@ -1187,14 +1188,35 @@
           "implementation_restart_reason": "Migration README forbids changing original system tables from migrations_extend; use an extension association table and restart implementation.",
           "implementation_thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
           "previous_implementation_thread_ids": [
-            "01a0eb8d-da62-7520-993c-6c1f8e7eed95"
+            "01a0eb8d-da62-7520-993c-6c1f8e7eed95",
+            "01a0eb97-fbb0-7650-8fa5-2fec800481ce"
           ],
           "superseded_implementation_thread_ids": [
             "01a0eb83-6577-7011-8ea1-2d6377041f8f",
             "01a0eb8d-da62-7520-993c-6c1f8e7eed95"
-          ]
+          ],
+          "reported_focused_tests": "173 passed (reported by active task; pending final independently recorded validation)",
+          "implementation_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+          "verification_status": "passed_root_rechecked",
+          "verification_evidence": "evidence/M06/12.6e-verification.md",
+          "verification_snapshot_head": "ac4d5b1127c1c69ad774f0df8f13fba2745c47e5",
+          "review_status": "passed_root_code_review",
+          "focused_tests": "202 passed; rerun by root after Astra stopped",
+          "ruff_and_format": "passed_21_registered_paths",
+          "source_pyrefly": "0 diagnostics",
+          "tests_pyrefly": "120 baseline diagnostics; zero new diagnostics",
+          "migration_heads": {
+            "main": "c3f1a9b2e6d4",
+            "extension": "020_workflow_run_account after 019_webapp_auth_switch"
+          },
+          "external_validation_limits": [
+            "No live PostgreSQL/MySQL migration",
+            "No live Aliyun Logstore verification",
+            "No cross-process concurrency or index-visibility test"
+          ],
+          "review_thread_id": null
         },
-        "next_subtask": "12.6e_workflow_account_ownership_persistence",
+        "next_subtask": "12.6f_workflow_account_statistics",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1799,7 +1821,7 @@
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "implementation_in_progress",
+            "status": "passed",
             "owner": "M02/M03",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1838,18 +1860,37 @@
             "implementation_gate": "Use validated Console cookie actor only; create one idempotent association row in the same SQL transaction; preserve NULL first-write for anonymous/unknown runs; reject tenant/app mismatches on recovery and dual-write; no historical inference.",
             "migration_chain": "Dify Plus extension chain; association table only; upstream workflow_runs unchanged",
             "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-            "branch_head": "3dcf375c920d9a471512a6ab94a1c09344d9a9e2",
+            "branch_head": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
             "implementation_restart_reason": "Migration README forbids changing original system tables from migrations_extend; use an extension association table and restart implementation.",
             "dispatch_channel": "codex_project_local",
             "implementation_thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
             "superseded_implementation_thread_ids": [
               "01a0eb83-6577-7011-8ea1-2d6377041f8f",
               "01a0eb8d-da62-7520-993c-6c1f8e7eed95"
-            ]
+            ],
+            "implementation_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+            "verification_status": "passed_root_rechecked",
+            "verification_evidence": "evidence/M06/12.6e-verification.md",
+            "verification_snapshot_head": "ac4d5b1127c1c69ad774f0df8f13fba2745c47e5",
+            "review_status": "passed_root_code_review",
+            "focused_tests": "202 passed; rerun by root after Astra stopped",
+            "ruff_and_format": "passed_21_registered_paths",
+            "source_pyrefly": "0 diagnostics",
+            "tests_pyrefly": "120 baseline diagnostics; zero new diagnostics",
+            "migration_heads": {
+              "main": "c3f1a9b2e6d4",
+              "extension": "020_workflow_run_account after 019_webapp_auth_switch"
+            },
+            "external_validation_limits": [
+              "No live PostgreSQL/MySQL migration",
+              "No live Aliyun Logstore verification",
+              "No cross-process concurrency or index-visibility test"
+            ],
+            "review_thread_id": null
           },
           {
             "id": "12.6f_workflow_account_statistics",
-            "status": "registered_blocked_by_12.6e",
+            "status": "ready",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1968,6 +2009,14 @@
             },
             "review_target_commit": "6061766c11348e9179cc3eb03b1d747bd3f19726",
             "review_result": "No P1/P2/P3; static route, label, visibility, active-boundary, and owner-gate review passed."
+          },
+          {
+            "id": "12.6e_independent_luna_verification",
+            "status": "review_in_progress",
+            "model": "gpt-6-luna",
+            "thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
+            "base_commit": "f1771c90a1a5701cb4ac115d3393320897bc5347",
+            "scope": "Read-only independent review and focused verification of the stopped 12.6e source snapshot; no file changes."
           }
         ],
         "completed_analyses": [
@@ -3530,5 +3579,5 @@
       ]
     }
   ],
-  "next_subtask": "12.6e_workflow_actor_analysis"
+  "next_subtask": "12.6f_workflow_account_statistics"
 }
