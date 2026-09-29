@@ -1178,7 +1178,7 @@
         "api/controllers/web/workflow.py",
         "api/services/webapp_console_identity_extend.py",
         "api/models/workflow.py",
-        "api/migrations/versions/2026_09_29_1200-ec4aa03225de_add_workflow_run_from_account_id.py",
+        "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
         "api/core/app/apps/workflow/app_generator.py",
         "api/core/repositories/factory.py",
         "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
@@ -1195,21 +1195,22 @@
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
         "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
       ],
-      "migration_revision": "ec4aa03225de",
-      "migration_down_revision": "c3f1a9b2e6d4",
-      "summary": "WebApp controller validates the Console cookie/account, but workflow repository creation drops the identity; propagate the account explicitly through SQLAlchemy, Logstore and Celery/recovery. Preserve created_by as EndUser and leave historical rows NULL; no inference or backfill."
+      "migration_revision": "020_workflow_run_account",
+      "migration_down_revision": "019_webapp_auth_switch",
+      "summary": "WebApp controller validates the Console cookie/account, but workflow repository creation drops the identity; propagate the account explicitly through SQLAlchemy, Logstore and Celery/recovery. Preserve created_by as EndUser and leave historical rows NULL; no inference or backfill.",
+      "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged"
     },
     "12.6e_workflow_account_ownership_persistence": {
-      "status": "ready",
+      "status": "implementation_in_progress",
       "model": "gpt-6-astra",
-      "owner": "M02",
+      "owner": "M02/M03",
       "thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-      "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
+      "base_commit": "aeb7ce1965c89f384c56ede54f6cff41a8e787c1",
       "registered_paths": [
         "api/controllers/web/workflow.py",
         "api/services/webapp_console_identity_extend.py",
         "api/models/workflow.py",
-        "api/migrations/versions/2026_09_29_1200-ec4aa03225de_add_workflow_run_from_account_id.py",
+        "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
         "api/core/app/apps/workflow/app_generator.py",
         "api/core/repositories/factory.py",
         "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
@@ -1226,12 +1227,12 @@
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
         "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
       ],
-      "migration_down_revision": "c3f1a9b2e6d4",
+      "migration_down_revision": "019_webapp_auth_switch",
       "evidence": "evidence/M06/12.6e-analysis.md",
       "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
       "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
       "analysis_evidence": "evidence/M06/12.6e-analysis.md",
-      "migration_revision": "ec4aa03225de",
+      "migration_revision": "020_workflow_run_account",
       "scope": "Add nullable WorkflowRun.from_account_id for WebApp runs only, propagate a validated Console account actor through normal and async execution/recovery in SQLAlchemy and Logstore, and preserve created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
       "verification_gates": [
         "authenticated and absent/invalid Console identity",
@@ -1241,7 +1242,12 @@
         "pause/resume does not overwrite actor",
         "migration head and upgrade checks",
         "no inference from external_user_id"
-      ]
+      ],
+      "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+      "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged",
+      "implementation_agent": "/root/m06_12_6e_astra_finalize",
+      "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+      "restart_reason": "Fork-only migration belongs to migrations_extend, not upstream main chain; first Astra attempt was stopped before commit."
     },
     "12.6i_api_key_interaction_regressions": {
       "status": "implementation_review_passed_verification_blocked_dependency_missing",
@@ -1285,6 +1291,27 @@
         "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
       ],
       "scope": "Add optional account=true to three workflow charts, authenticating account via RequestContext.account_id and filtering trusted persisted from_account_id consistently in SQLAlchemy/Logstore."
+    },
+    "12.6f_workflow_statistics_analysis": {
+      "status": "analysis_complete_paths_registered",
+      "model": "gpt-6-sol",
+      "agent": "/root/m06_12_6f_sol_analysis",
+      "base_commit": "59166311d1a864544e6eca1ea4675172bd59d052",
+      "read_only": true,
+      "evidence": "evidence/M06/12.6f-analysis.md",
+      "registered_paths": [
+        "api/controllers/console/app/workflow_statistic.py",
+        "api/services/workflow_statistic_query_service.py",
+        "api/repositories/api_workflow_run_repository.py",
+        "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+        "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+        "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+        "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+      ],
+      "path_overlap_with_12.6e": false,
+      "summary": "Only account=true uses authenticated RequestContext.account_id and persisted from_account_id across SQLAlchemy/Logstore. Preserve app-wide default, daily-terminals, and existing backend-specific completion behavior."
     }
   },
   "next_subtask": "12.6e_workflow_account_ownership_persistence"

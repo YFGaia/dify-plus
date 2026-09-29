@@ -1147,16 +1147,17 @@
         ],
         "current_subtask": {
           "id": "12.6e_workflow_account_ownership_persistence",
-          "status": "implementation_in_progress",
-          "owner": "M02/M03",
+          "status": "ready",
+          "owner": "M02",
           "model": "gpt-6-astra",
           "branch_head": "aeb7ce1965c89f384c56ede54f6cff41a8e787c1",
           "base_commit": "aeb7ce1965c89f384c56ede54f6cff41a8e787c1",
-          "dispatch_channel": "independent_astra_subagent",
+          "dispatch_channel": "codex_project_local",
           "registered_paths": [
             "api/controllers/web/workflow.py",
             "api/services/webapp_console_identity_extend.py",
-            "api/models/workflow.py",
+            "api/services/workflow_run_account_extend.py",
+            "api/models/workflow_account_extend.py",
             "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
             "api/core/app/apps/workflow/app_generator.py",
             "api/core/repositories/factory.py",
@@ -1174,17 +1175,15 @@
             "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
             "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
           ],
-          "scope": "Add nullable WorkflowRun.from_account_id for WebApp runs only, propagate a validated Console account actor through normal and async execution/recovery in SQLAlchemy and Logstore, and preserve created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
+          "scope": "Persist authenticated WebApp Console account ownership in a Dify Plus workflow_run_account_extend association table without altering upstream workflow_runs; propagate the actor through normal and async execution/recovery in SQLAlchemy and Logstore while preserving created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
           "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
           "analysis_evidence": "evidence/M06/12.6e-analysis.md",
           "migration_revision": "020_workflow_run_account",
           "migration_down_revision": "019_webapp_auth_switch",
-          "implementation_gate": "Use only registered paths. Put this fork-owned schema change on migrations_extend revision 020_workflow_run_account after 019_webapp_auth_switch; do not add a local revision to the upstream main chain. Verify actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation.",
-          "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged",
+          "implementation_gate": "Use only registered paths. Store SQL ownership in the Dify Plus workflow_run_account_extend table on extension migration revision 020_workflow_run_account after 019_webapp_auth_switch. Never add a column to upstream workflow_runs. Verify actor authenticity, transaction/scoping, Celery serialization/recovery, Logstore compatibility and pause/resume preservation.",
+          "migration_chain": "Dify Plus extension chain; new extension association table only; upstream workflow_runs unchanged",
           "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-          "implementation_restart_reason": "Independent Astra retry after correcting fork-only migration placement to migrations_extend.",
-          "implementation_thread_id": "01a0eb8d-da62-7520-993c-6c1f8e7eed95",
-          "implementation_agent": "/root/m06_12_6e_astra_finalize"
+          "implementation_restart_reason": "Migration README forbids changing original system tables from migrations_extend; use an extension association table and restart implementation."
         },
         "next_subtask": "12.6e_workflow_account_ownership_persistence",
         "parallel_subtasks": [
@@ -1791,13 +1790,14 @@
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "implementation_in_progress",
-            "owner": "M02/M03",
+            "status": "ready",
+            "owner": "M02",
             "model": "gpt-6-astra",
             "registered_paths": [
               "api/controllers/web/workflow.py",
               "api/services/webapp_console_identity_extend.py",
-              "api/models/workflow.py",
+              "api/services/workflow_run_account_extend.py",
+              "api/models/workflow_account_extend.py",
               "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
               "api/core/app/apps/workflow/app_generator.py",
               "api/core/repositories/factory.py",
@@ -1815,7 +1815,7 @@
               "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
               "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py"
             ],
-            "scope": "Add nullable WorkflowRun.from_account_id for WebApp runs only, propagate a validated Console account actor through normal and async execution/recovery in SQLAlchemy and Logstore, and preserve created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
+            "scope": "Persist authenticated WebApp Console account ownership in a Dify Plus workflow_run_account_extend association table without altering upstream workflow_runs; propagate the actor through normal and async execution/recovery in SQLAlchemy and Logstore while preserving created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
             "analysis_model": "gpt-6-sol",
             "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
             "analysis_read_only": true,
@@ -1825,14 +1825,12 @@
             "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
             "analysis_evidence": "evidence/M06/12.6e-analysis.md",
             "migration_revision": "020_workflow_run_account",
-            "implementation_gate": "Use only registered paths. Put this fork-owned schema change on migrations_extend revision 020_workflow_run_account after 019_webapp_auth_switch; do not add a local revision to the upstream main chain. Verify actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation.",
-            "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged",
+            "implementation_gate": "Use only registered paths. Store SQL ownership in the Dify Plus workflow_run_account_extend table on extension migration revision 020_workflow_run_account after 019_webapp_auth_switch. Never add a column to upstream workflow_runs. Verify actor authenticity, transaction/scoping, Celery serialization/recovery, Logstore compatibility and pause/resume preservation.",
+            "migration_chain": "Dify Plus extension chain; new extension association table only; upstream workflow_runs unchanged",
             "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
             "branch_head": "aeb7ce1965c89f384c56ede54f6cff41a8e787c1",
-            "implementation_restart_reason": "Independent Astra retry after correcting fork-only migration placement to migrations_extend.",
-            "implementation_thread_id": "01a0eb8d-da62-7520-993c-6c1f8e7eed95",
-            "dispatch_channel": "codex_project_local",
-            "implementation_agent": "/root/m06_12_6e_astra_finalize"
+            "implementation_restart_reason": "Migration README forbids changing original system tables from migrations_extend; use an extension association table and restart implementation.",
+            "dispatch_channel": "codex_project_local"
           },
           {
             "id": "12.6f_workflow_account_statistics",
@@ -1850,7 +1848,7 @@
               "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
               "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
             ],
-            "scope": "After trusted WorkflowRun.from_account_id persistence, add optional account=true to the three workflow chart endpoints using authenticated RequestContext.account_id; SQLAlchemy and Logstore filter tenant_id + app_id + triggered_from + from_account_id; NULL is excluded and app-wide defaults remain unchanged.",
+            "scope": "After trusted workflow-run actor persistence in workflow_run_account_extend, add optional account=true to the three workflow chart endpoints using authenticated RequestContext.account_id; SQLAlchemy and Logstore filter tenant_id + app_id + triggered_from + account association; unattributed historical runs are excluded and app-wide defaults remain unchanged.",
             "dependency": "12.6e_workflow_account_ownership_persistence:passed",
             "depends_on": "12.6e_workflow_account_ownership_persistence:passed",
             "analysis_status": "analysis_complete_paths_registered",
