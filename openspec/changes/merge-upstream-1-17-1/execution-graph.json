@@ -1147,7 +1147,7 @@
         ],
         "current_subtask": {
           "id": "12.6e_workflow_account_ownership_persistence",
-          "status": "implementation_in_progress",
+          "status": "ready",
           "owner": "M02",
           "model": "gpt-6-astra",
           "branch_head": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
@@ -1157,7 +1157,7 @@
             "api/controllers/web/workflow.py",
             "api/services/webapp_console_identity_extend.py",
             "api/models/workflow.py",
-            "api/migrations/versions/2026_09_29_1200-ec4aa03225de_add_workflow_run_from_account_id.py",
+            "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
             "api/core/app/apps/workflow/app_generator.py",
             "api/core/repositories/factory.py",
             "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
@@ -1177,10 +1177,11 @@
           "scope": "Add nullable WorkflowRun.from_account_id for WebApp runs only, propagate a validated Console account actor through normal and async execution/recovery in SQLAlchemy and Logstore, and preserve created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
           "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
           "analysis_evidence": "evidence/M06/12.6e-analysis.md",
-          "migration_revision": "ec4aa03225de",
-          "migration_down_revision": "c3f1a9b2e6d4",
-          "implementation_gate": "Use only the registered paths; migration HEAD, actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation are acceptance gates.",
-          "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f"
+          "migration_revision": "020_workflow_run_account",
+          "migration_down_revision": "019_webapp_auth_switch",
+          "implementation_gate": "Use only registered paths. Put this fork-owned schema change on migrations_extend revision 020_workflow_run_account after 019_webapp_auth_switch; do not add a local revision to the upstream main chain. Verify actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation.",
+          "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged",
+          "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f"
         },
         "next_subtask": "12.6e_workflow_account_ownership_persistence",
         "parallel_subtasks": [
@@ -1787,14 +1788,14 @@
           },
           {
             "id": "12.6e_workflow_account_ownership_persistence",
-            "status": "implementation_in_progress",
+            "status": "ready",
             "owner": "M02/M03",
             "model": "gpt-6-astra",
             "registered_paths": [
               "api/controllers/web/workflow.py",
               "api/services/webapp_console_identity_extend.py",
               "api/models/workflow.py",
-              "api/migrations/versions/2026_09_29_1200-ec4aa03225de_add_workflow_run_from_account_id.py",
+              "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
               "api/core/app/apps/workflow/app_generator.py",
               "api/core/repositories/factory.py",
               "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
@@ -1816,13 +1817,14 @@
             "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
             "analysis_read_only": true,
             "base_commit": "ad74ac0f0f4311f19450f5e8e4144a252914996b",
-            "implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
-            "migration_down_revision": "c3f1a9b2e6d4",
+            "migration_down_revision": "019_webapp_auth_switch",
             "evidence": "evidence/M06/12.6e-analysis.md",
             "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
             "analysis_evidence": "evidence/M06/12.6e-analysis.md",
-            "migration_revision": "ec4aa03225de",
-            "implementation_gate": "Use only the registered paths; migration HEAD, actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation are acceptance gates."
+            "migration_revision": "020_workflow_run_account",
+            "implementation_gate": "Use only registered paths. Put this fork-owned schema change on migrations_extend revision 020_workflow_run_account after 019_webapp_auth_switch; do not add a local revision to the upstream main chain. Verify actor authenticity, Celery serialization/recovery, Logstore compatibility and pause/resume preservation.",
+            "migration_chain": "Dify Plus extension chain; keep upstream main migration head unchanged",
+            "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f"
           },
           {
             "id": "12.6f_workflow_account_statistics",
@@ -1842,7 +1844,13 @@
             ],
             "scope": "After trusted WorkflowRun.from_account_id persistence, add optional account=true to the three workflow chart endpoints using authenticated RequestContext.account_id; SQLAlchemy and Logstore filter tenant_id + app_id + triggered_from + from_account_id; NULL is excluded and app-wide defaults remain unchanged.",
             "dependency": "12.6e_workflow_account_ownership_persistence:passed",
-            "depends_on": "12.6e_workflow_account_ownership_persistence:passed"
+            "depends_on": "12.6e_workflow_account_ownership_persistence:passed",
+            "analysis_status": "analysis_complete_paths_registered",
+            "analysis_agent": "/root/m06_12_6f_sol_analysis",
+            "analysis_base_commit": "59166311d1a864544e6eca1ea4675172bd59d052",
+            "analysis_evidence": "evidence/M06/12.6f-analysis.md",
+            "registered_paths_confirmed": true,
+            "path_overlap_with_12_6e": false
           },
           {
             "id": "12.6g_user_overview_ui_contract",
@@ -1944,7 +1952,8 @@
         "completed_analyses": [
           "12.3_analysis",
           "12.4_analysis",
-          "12.6e_workflow_actor_analysis"
+          "12.6e_workflow_actor_analysis",
+          "12.6f_workflow_statistics_analysis"
         ],
         "path_cross_check_12_1b": {
           "status": "passed_no_required_path_changes",
