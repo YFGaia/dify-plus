@@ -97,7 +97,7 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 - [x] 11.7 [M05] 修复 V02 首轮 `pnpm check` 暴露的 M05 所有权文件 `packages/contracts/openapi-ts.api.config.ts` 格式债务；仅允许格式器规范化；需 exact-path formatter 通过、逐行确认无语义变化并记录原始 diff，写报告并形成独立 M05 follow-up 提交 `c304fe188e949733fa4ac1697004e3b99d9db95d`。
 
-- [x] 11.8 [M05/Astra] 修复 V02/16.8 暴露的 API 输出类型与 UI cache updater/测试夹具不一致：保留 WebApp auth 默认 true 与显式 false 的语义；对 workspace summary fixture 补齐后端当前必填的 `admin_extend` / `tenant_extend` 默认值。四路径 scoped check 零错误（1 条既有 warning）、两套定向测试 53/53、false/default probe 和 diff-check 通过；证据 `evidence/M05/11.8-v02-contract-reconciliation.md` SHA-256 `c55c5d9d0a619ba86dcef3737e166d4ca58c2ffff9bc7837d8a6031af4d4273b`。
+- [x] 11.8 [M05/Astra] 修复 V02/16.8 暴露的 API 输出类型与 UI cache updater/测试夹具不一致：保留 WebApp auth 默认 true 与显式 false 的语义；对 workspace summary fixture 补齐后端当前必填的 `admin_extend` / `tenant_extend` 默认值。四路径 scoped check 零错误（1 条既有 warning）、两套定向测试 53/53、false/default probe 和 diff-check 通过；证据 `evidence/M05/11.8-v02-contract-reconciliation.md` SHA-256 `70755ff3753dfeebcdbe62bc8e0955ccfc560454604d6eb5e79f81c459e691fa`。
 
 ## 12. M06 前端业务挂载与国际化（前置：M04, M05）
 
@@ -177,9 +177,12 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 
 - [x] 14.11 [M08/Astra] 修复上游配置 hook 拆分时丢失的 fork 记忆上下文保留轮数闭环：恢复默认 5/env 覆盖、AppDetail 回填、Context 状态/setter 与发布透传；测试覆盖已保存 12/999、缺省 5、env 覆盖 8、编辑值 17。新增配置回归 19/19，发布工具 16/16，六路径 scoped check 与 diff-check 通过。证据 `evidence/M08/14.11-retention-number-restoration.md` SHA-256 `4664b9821828fd4f11851edac98203c51ca68be4509e668cc988f6e864c02bc1`。
 - [x] 14.12 [M08/Astra] 修复 `web/app/sw.ts` 中上游新 lint 规则触发的 disable 指令：在同一行 suppression 后补准确理由且不扩大作用域；单路径 `vp check` 与 diff-check 通过，无格式/lint/type 错误。证据 `evidence/M08/14.12-oxlint-disable-description.md`，源码 SHA-256 `895c12431f63000746027b46052a1b50748f00c89e9aad2845bd83f8106fcf39`，证据 SHA-256 `92fb83d7bd01b0465b1f97710773c048d8b8700d5594506df9b375c7c68ffd00`。
-- [x] 14.13 [M08/Luna] 独立复核 M05/11.8、M06/12.7、M08/14.11、14.12 修复快照；四个定向 spec 一次运行通过，4 files / 88 tests；额度路径无改动、12 个源码路径均登记，无阻断。证据 `evidence/M08/14.13-independent-v02-fix-verification.md` SHA-256 `2af22690bed17c4190d837272534d84d3c55984233aff6107dc17d786fd5b9e4`。
+- [x] 14.13 [M08/Luna] 独立复核 M05/11.8、M06/12.7、M08/14.11、14.12 修复快照；四个定向 spec 一次运行通过，4 files / 88 tests；额度路径无改动、12 个源码路径均登记，无阻断。证据 `evidence/M08/14.13-independent-v02-fix-verification.md` SHA-256 `11f6ca94b26cc9bc8036073f94f0b647d06526ce19c485b5a7a656c0edd76138`。
 
-- [ ] 14.14 [M08/协调者] 按 execution graph 的精确 commit_allowlist 冻结修复候选，显式暂存并核对路径集合后提交；在精确新 commit/tree 上复核 M00/M01–M07 祖先、无冲突、91-path owner map、10 个计费/OAuth 锚点、个人额度与 Cloud/API Key 独立边界及 V01 API 子树哈希。记录 `evidence/M08/14.14-recandidate-structural-acceptance.md`；不得创建分支/工作树或在结构验收前跑 V02。
+- [x] 14.14 [M08/协调者] 按精确 commit_allowlist 提交 27 条登记路径，候选 `686a5cfa5614ea45b0d9973e52014b07c13b07e7` / tree `219f855a099258cbb712daae55e5a365390189ac`；M00 双父与旧候选 ancestry 保持，91/91 owner map 和 10 个锚点沿用已验收祖先，API 子树与 V01 SHA 一致，个人额度和 API Key 日/月边界未变。报告 `evidence/M08/14.14-recandidate-structural-acceptance.md` SHA-256 `5bf4c2813b239c39cff2b510a5d6b5984798fb9c8f393f94da075d60b4c5c0a4`。
+
+- [x] 14.15 [M08/协调者] 格式化 V02/16.9 报告的 7 条 coordinator-owned 路径，以及 formatter precheck 额外发现的 `tasks.md`；刷新 M05/M08 证据哈希。固定 Node 24.20.0 下 exact-path `vp fmt --check` 12/12、`git diff --check` 通过；产品源码/测试路径未变化。证据 `evidence/M08/14.15-v02-evidence-format-followup.md` SHA-256 `378a8c08f7e39b1ffec66e8d433cd5ea12c2442e2da011f1b2b102031b2c4111`。
+- [ ] 14.16 [M08/协调者] 按 `evidence/M08/result.json` 中登记的 13 路径精确 allowlist，将 14.15 格式修复与 16.9 阻断证据冻结为 metadata-only 候选；核验暂存集、产品源码/测试字节身份、M00/M01–M07 ancestry、91 路径 owner map、quota 锚点及 API 子树，生成新 commit/tree 与结构验收后才允许 V02/16.10。验收报告路径为 `evidence/M08/14.16-recandidate-structural-acceptance.md`。
 
 ## 15. V01 后端静态与定向回归（前置：M08）
 
@@ -200,7 +203,8 @@ M01 结果：**passed（初始锁专项）**。pnpm 12.3.4 官方包及原生二
 - [ ] 16.6 [V02/Luna] 针对 16.5 在 pnpm 自动依赖验证生命周期内未能启动 `vp check` 的环境阻塞，新建候选 `97f94625d2d51fe1780f69aaecce5a56d3073db4` 的干净源码快照；固定 Node/pnpm 与锁哈希，使用 `pnpm --config.verify-deps-before-run=false check` 且不安装/同步依赖。若通过，继续 tss/i18n、登记的 unit 和双构建；首个失败即停，复用 M08/14.7 精确哈希浏览器结果。只写 `evidence/V02/16.6-final-candidate-result.json` 与日志，不改源码/测试、图或 tasks，不暂存/提交。 结果：首个 `vp check` 门禁执行成功启动，但 63 条 formatter 路径失败（15 条相对首父提交变更，48 条基线不变）；未运行后续 V02 门禁，证据见 `evidence/V02/16.6-final-candidate-result.json` 与日志。
 - [ ] 16.7 [V02/Luna] 候选 `95101d76b955481ce6c9519596aeea426680fa71` 的 clean archive `pnpm check` 在 formatter 阶段被两个与父提交未变的 Dify UI 文件阻断；lint:tss、i18n、单测与构建按首失败规则停止。根因是快照仅链接 root/web node_modules，缺少已配置的 `packages/dify-ui/node_modules`；临时补齐该链接后同一精确 formatter 检查通过。保留结果与日志，详见 `evidence/V02/16.7-final-candidate-result.json`。
 - [ ] 16.8 [V02/Luna] 对同一候选重试 clean archive V02，链接 root/web 与所有已存在 workspace package `node_modules`（跳过 web/.next 生成缓存），不安装、不同步、不联网；记录依赖 overlay 并先运行 `pnpm check`，首失败停止。尝试结果已记录：formatter 8,934 文件通过，lint:eslint 首失败为 12 errors / 1,931 warnings；归因发现 retention 功能回归、contract fixture/cache 类型问题及 lint suppression 描述问题；无后续门禁。证据 `evidence/V02/16.8-final-candidate-result.json` 与日志，待 M05/M08 修复并冻结新候选后重跑。
-- [ ] 16.9 [V02/Luna] 在 M05/11.8、M08/14.11–14.13 与新候选结构验收通过后，绑定新精确 commit/tree 创建 clean archive；链接所有已有 workspace `node_modules`，必须包含 `sdks/nodejs-client/node_modules`，排除 `web/.next/node_modules`，禁止安装/同步/联网。首跑 `pnpm --config.verify-deps-before-run=false check`，通过后顺序运行 lint:tss、i18n、登记 unit suites、双构建；首失败即停。仅写 `evidence/V02/16.9-final-candidate-result.json` 与 log；精确哈希仍匹配时复用 V01 160/160 与 M08/14.7 浏览器 2/2。
+- [ ] 16.9 [V02/Luna] 已尝试候选 `686a5cfa5614ea45b0d9973e52014b07c13b07e7` / tree `219f855a099258cbb712daae55e5a365390189ac`；12 个依赖 overlay（含 SDK）及候选树校验通过。首门禁在 formatter 因 7 个 OpenSpec 状态/证据文件格式问题阻断，后续门禁未运行；报告 `evidence/V02/16.9-final-candidate-result.json`，log 同目录。等待 M08/14.15 与 14.16 后由 16.10 重试。
+- [ ] 16.10 [V02/Luna] 在 M08/14.15 精确格式修复及 14.16 元数据候选结构验收通过后，对新 commit/tree 重跑完整 clean-archive V02；包含 SDK `node_modules` overlay，不安装/同步/联网，首失败即停。仅写 `evidence/V02/16.10-final-candidate-result.json` 与 log。
 
 ## 17. R01 源码合并候选验收（前置：V01, V02）
 

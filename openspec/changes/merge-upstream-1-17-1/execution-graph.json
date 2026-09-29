@@ -20,41 +20,24 @@
       "status": "passed",
       "condition": "always",
       "authorization": "explicit_user_implementation_and_branch",
-      "inputs": [
-        "research/source-inventory.json",
-        "design.md#decisions"
-      ],
-      "write_scope": [
-        "授权记录"
-      ],
-      "resources": [
-        "集成负责人"
-      ],
+      "inputs": ["research/source-inventory.json", "design.md#decisions"],
+      "write_scope": ["授权记录"],
+      "resources": ["集成负责人"],
       "steps": [
         "确认用户已授权本地代码实施、校验及创建指定执行分支 codex/merge-upstream-1.17.1；授权来源与边界见 evidence/A00/result.json",
         "用户选择指定执行分支；当前分支实施的替代决定不适用，分支创建留待 A01"
       ],
       "commands": [],
-      "acceptance": [
-        "授权记录明确涵盖动作、分支名称及环境边界"
-      ],
-      "evidence": [
-        "evidence/A00/result.json",
-        "evidence/A00/execution.log"
-      ],
+      "acceptance": ["授权记录明确涵盖动作、分支名称及环境边界"],
+      "evidence": ["evidence/A00/result.json", "evidence/A00/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A00/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A00/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "A01",
       "title": "冻结基线与保护共享工作区",
-      "dependencies": [
-        "A00"
-      ],
+      "dependencies": ["A00"],
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -66,12 +49,8 @@
         "design.md#decisions",
         "evidence/A00/result.json"
       ],
-      "write_scope": [
-        "Git refs 与本次规划材料"
-      ],
-      "resources": [
-        "git_index"
-      ],
+      "write_scope": ["Git refs 与本次规划材料"],
+      "resources": ["git_index"],
       "steps": [
         "检查当前 HEAD、工作区、upstream URL、tag；核对未跟踪路径与目标路径碰撞",
         "本次规划文件显式列出后独立提交或备份；其他未跟踪文件保留，禁止全量 stash/clean/reset",
@@ -88,23 +67,15 @@
         "完整 SHA 与本分析一致，变化则 A02 重新评估",
         "无未保存的受影响用户修改；未跟踪路径碰撞已逐项处置"
       ],
-      "evidence": [
-        "evidence/A01/result.json",
-        "evidence/A01/execution.log"
-      ],
+      "evidence": ["evidence/A01/result.json", "evidence/A01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A01/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "A02",
       "title": "刷新差异与冲突所有权",
-      "dependencies": [
-        "A01"
-      ],
+      "dependencies": ["A01"],
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -116,12 +87,8 @@
         "design.md#decisions",
         "evidence/A01/result.json"
       ],
-      "write_scope": [
-        "research/ 与 ownership 台账"
-      ],
-      "resources": [
-        "git_index"
-      ],
+      "write_scope": ["research/ 与 ownership 台账"],
+      "resources": ["git_index"],
       "steps": [
         "通过 upstream 取固定 tag 并核对 full SHA，不自动追 main",
         "刷新 merge-base、提交/文件差异和冲突预测；检查四个 fork 后续提交全部入账",
@@ -136,16 +103,10 @@
         "目标确为 8387590ace4a094de812b7847fc6a4c3a27cd52b",
         "所有冲突唯一归属；所有文件改写需求有 owner"
       ],
-      "evidence": [
-        "evidence/A02/result.json",
-        "evidence/A02/execution.log"
-      ],
+      "evidence": ["evidence/A02/result.json", "evidence/A02/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A02/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "A03",
@@ -158,43 +119,25 @@
       "blocked_reason": "缺少用户对真实部署和业务数据的只读访问授权；本地源码实施与验证授权不覆盖 A03 环境盘点。",
       "condition": "always",
       "authorization": "authorized_read_only_environment_access",
-      "inputs": [
-        "research/source-inventory.json",
-        "design.md#decisions"
-      ],
-      "write_scope": [
-        "脱敏环境清单"
-      ],
-      "resources": [
-        "运维负责人"
-      ],
+      "inputs": ["research/source-inventory.json", "design.md#decisions"],
+      "write_scope": ["脱敏环境清单"],
+      "resources": ["运维负责人"],
       "steps": [
         "填 runbook 环境表，查询实际服务镜像/版本/两个 DB head/数据卷/备份/队列",
         "盘点真实 Agent、SSO、模型和向量库；记录历史 backfill 完成状态",
         "确认副本访问与业务验收负责人，准备环境操作草案与备份恢复命令；不得输出凭据或完整含密钥 Compose"
       ],
       "commands": [],
-      "acceptance": [
-        "环境清单必填项完成，缺失项标 blocked",
-        "具备可恢复副本与隔离环境方案"
-      ],
-      "evidence": [
-        "evidence/A03/result.json",
-        "evidence/A03/execution.log"
-      ],
+      "acceptance": ["环境清单必填项完成，缺失项标 blocked", "具备可恢复副本与隔离环境方案"],
+      "evidence": ["evidence/A03/result.json", "evidence/A03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A03/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A03/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "A04",
       "title": "冻结跨层行为与接口契约",
-      "dependencies": [
-        "A02"
-      ],
+      "dependencies": ["A02"],
       "owner_role": "架构负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -206,12 +149,8 @@
         "design.md#decisions",
         "evidence/A02/result.json"
       ],
-      "write_scope": [
-        "contract-matrix 记录"
-      ],
-      "resources": [
-        "架构负责人"
-      ],
+      "write_scope": ["contract-matrix 记录"],
+      "resources": ["架构负责人"],
       "steps": [
         "按 design D3 逐条写请求/响应/错误/权限/缓存契约",
         "确定 public snapshot 与 fork login_config 合成；workspace summary 权限源",
@@ -219,27 +158,16 @@
         "记录匿名计费及 P4 已知债务，不因未答复改变付款人"
       ],
       "commands": [],
-      "acceptance": [
-        "身份/前端/额度负责人认可同一契约",
-        "不得以旧文件路径代替行为验收"
-      ],
-      "evidence": [
-        "evidence/A04/result.json",
-        "evidence/A04/execution.log"
-      ],
+      "acceptance": ["身份/前端/额度负责人认可同一契约", "不得以旧文件路径代替行为验收"],
+      "evidence": ["evidence/A04/result.json", "evidence/A04/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/A04/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/A04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "M00",
       "title": "形成非部署 merge 基线提交",
-      "dependencies": [
-        "A04"
-      ],
+      "dependencies": ["A04"],
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -251,12 +179,8 @@
         "design.md#decisions",
         "evidence/A04/result.json"
       ],
-      "write_scope": [
-        "Git merge state"
-      ],
-      "resources": [
-        "git_index"
-      ],
+      "write_scope": ["Git merge state"],
+      "resources": ["git_index"],
       "steps": [
         "确认 A01 所有保护措施完成",
         "在授权分支执行正式 merge；冲突退出码不等于失败，核对 MERGE_HEAD 与固定 target",
@@ -275,16 +199,10 @@
         "91 个预测冲突与实际冲突逐项核对并有唯一 owner；冲突树采用 upstream 版本或删除，fork 原始内容可从第一父与 A02 台账追溯",
         "基线明确不可部署，后续适配、M08 候选和验证门槛未被提前判通过"
       ],
-      "evidence": [
-        "evidence/M00/result.json",
-        "evidence/M00/execution.log"
-      ],
+      "evidence": ["evidence/M00/result.json", "evidence/M00/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/M00/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M00/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "completion": {
         "merge_commit": "948fefb69ae87abefa7e91a13968213696b3e310",
         "merge_tree": "56d356a4eb2cacbea577b5fd885bd19637b1203f",
@@ -297,9 +215,7 @@
     {
       "id": "M01",
       "title": "工具链、依赖与生成物",
-      "dependencies": [
-        "M00"
-      ],
+      "dependencies": ["M00"],
       "owner_role": "构建负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -323,9 +239,7 @@
         "api/providers/**/pyproject.toml",
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记"
       ],
-      "resources": [
-        "构建负责人"
-      ],
+      "resources": ["构建负责人"],
       "steps": [
         "对齐 Node24.20.0/pnpm12.3.4/Python3.12，保留 fork 专属依赖；本节点同步目标版本字段，避免演练后才改变镜像版本标识",
         "先处理声明/锁文件冲突；其余 owner 通过需求单申请新增依赖",
@@ -336,10 +250,7 @@
         "依赖变化可解释；无抹除钉钉/pypinyin 等 fork 依赖",
         "生成物来源明确，工具链版本可复现"
       ],
-      "evidence": [
-        "evidence/M01/result.json",
-        "evidence/M01/execution.log"
-      ],
+      "evidence": ["evidence/M01/result.json", "evidence/M01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
         "oxlint-suppressions.json",
@@ -348,10 +259,7 @@
         "web/next.config.ts",
         "web/package.json"
       ],
-      "outputs": [
-        "evidence/M01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "execution": {
         "pre_commit_head": "8e47d6c059e530d61a8955a1a28861a9815409a6",
         "source_changes": [
@@ -360,10 +268,7 @@
           "web/next.config.ts",
           "oxlint-suppressions.json"
         ],
-        "new_file_registration": [
-          "evidence/M01/result.json",
-          "evidence/M01/execution.log"
-        ],
+        "new_file_registration": ["evidence/M01/result.json", "evidence/M01/execution.log"],
         "steps": {
           "7.1": "passed_declarations_only",
           "7.2": "passed_initial_repo_lock_verification",
@@ -387,9 +292,7 @@
     {
       "id": "M02",
       "title": "后端基础与共同契约适配",
-      "dependencies": [
-        "M01"
-      ],
+      "dependencies": ["M01"],
       "owner_role": "后端基础负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -415,9 +318,7 @@
         "api/tests/unit_tests/controllers/console/app/test_app_extend.py",
         "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
       ],
-      "resources": [
-        "backend_core"
-      ],
+      "resources": ["backend_core"],
       "steps": [
         "采用新 application service/admission/session 模型与 fork 导出",
         "实现 A04 的 public/login_config/license 与 workspace summary 共同契约",
@@ -425,10 +326,7 @@
         "路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核"
       ],
       "commands": [],
-      "acceptance": [
-        "public/license 分级无泄露",
-        "summary 权限字段真实可读；无旧签名/双重路由"
-      ],
+      "acceptance": ["public/license 分级无泄露", "summary 权限字段真实可读；无旧签名/双重路由"],
       "evidence": [
         "evidence/M02/result.json",
         "evidence/M02/execution.log",
@@ -471,27 +369,20 @@
       "followup_progress": {
         "prior_acceptance": "passed for original 8.1-8.5; independent review remains valid for those paths",
         "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
-        "completed_subtasks": [
-          "8.6",
-          "8.7"
-        ],
+        "completed_subtasks": ["8.6", "8.7"],
         "current_subtask": {
           "id": "8.7",
           "status": "passed",
           "evidence": "evidence/M02/result.json#/followup_context_contract"
         },
         "next_subtask": "complete",
-        "implemented_subtasks": [
-          "8.6"
-        ]
+        "implemented_subtasks": ["8.6"]
       }
     },
     {
       "id": "M03",
       "title": "账号、OAuth 与 WebApp 后端",
-      "dependencies": [
-        "M02"
-      ],
+      "dependencies": ["M02"],
       "owner_role": "身份负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -514,9 +405,7 @@
         "api/controllers/console/app/app.py（9.6：AppPagination.recommended_apps 当前页同步状态）",
         "api/tests/unit_tests/controllers/console/app/test_app_response_models.py（9.6 回归）"
       ],
-      "resources": [
-        "身份负责人"
-      ],
+      "resources": ["身份负责人"],
       "steps": [
         "所有实际账号创建入口同事务幂等建额度；不重置已有账号",
         "将 OaOAuth/Casdoor 注册到新 gateway，适配 token 类型、state 与同源回跳，保留钉钉",
@@ -528,10 +417,7 @@
         "setup/邮箱/OAuth/邀请均有一条正确额度",
         "公开矩阵与新环境认证契约清晰，禁止复活旧 controller"
       ],
-      "evidence": [
-        "evidence/M03/result.json",
-        "evidence/M03/execution.log"
-      ],
+      "evidence": ["evidence/M03/result.json", "evidence/M03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
         "api/controllers/console/app/site.py",
@@ -542,10 +428,7 @@
         "api/controllers/console/app/app.py",
         "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
       ],
-      "outputs": [
-        "evidence/M03/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M03/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "execution": {
         "pre_commit_head": "acf866871a50316ea514d35a9d04092bd3e32b20",
         "thread_id": "01a0e943-cafc-79a0-bf18-d9264fa3d5d7",
@@ -569,9 +452,7 @@
               "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
               "exit_code": 0,
               "passed": 29,
-              "warnings": [
-                "1 pre-existing cgi deprecation warning"
-              ]
+              "warnings": ["1 pre-existing cgi deprecation warning"]
             },
             "ruff_format_check_exit_code": 0,
             "ruff_check_exit_code": 0,
@@ -580,14 +461,7 @@
         }
       },
       "implementation_progress": {
-        "completed_tasks": [
-          "9.1",
-          "9.2",
-          "9.3",
-          "9.4",
-          "9.5",
-          "9.6"
-        ],
+        "completed_tasks": ["9.1", "9.2", "9.3", "9.4", "9.5", "9.6"],
         "reopened_by": "M06 12.2 analysis found AppPagination.recommended_apps is always empty although the generated field and Studio sync feature already exist.",
         "current_subtask": {
           "id": "9.6_recommended_apps_page_status",
@@ -599,9 +473,7 @@
               "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
               "exit_code": 0,
               "passed": 29,
-              "warnings": [
-                "1 pre-existing cgi deprecation warning"
-              ]
+              "warnings": ["1 pre-existing cgi deprecation warning"]
             },
             "ruff_format_check_exit_code": 0,
             "ruff_check_exit_code": 0,
@@ -615,9 +487,7 @@
     {
       "id": "M04",
       "title": "计费、Service API 与记忆挂点",
-      "dependencies": [
-        "M03"
-      ],
+      "dependencies": ["M03"],
       "owner_role": "计费负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -644,9 +514,7 @@
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
         "本节点行为对应的配套测试源码，跨 owner 文件先登记移交"
       ],
-      "resources": [
-        "计费负责人"
-      ],
+      "resources": ["计费负责人"],
       "steps": [
         "建立十项挂点完整证据：M04 实施/复核九项计费与记忆挂点；OAuth 引用 M03 已通过证据，避免重复实现",
         "保留 token kwargs/请求线程 extras/初始执行 join；恢复路径不新增派发",
@@ -712,10 +580,7 @@
         "api/tests/unit_tests/controllers/service_api/test_wraps.py",
         "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
       ],
-      "outputs": [
-        "evidence/M04/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M04/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "registered_additional_paths": [
         "api/tests/unit_tests/controllers/service_api/test_billing_extend.py",
         "api/tests/unit_tests/core/app/test_billing_hooks_extend.py",
@@ -723,13 +588,7 @@
         "api/tests/unit_tests/core/memory/test_token_buffer_memory.py"
       ],
       "implementation_progress": {
-        "tasks_complete": [
-          "10.1",
-          "10.2",
-          "10.3",
-          "10.4",
-          "10.5"
-        ],
+        "tasks_complete": ["10.1", "10.2", "10.3", "10.4", "10.5"],
         "source_commits": [
           "521eb98761517347f28a18dcdfdcf646c389ddb8",
           "a65840a41a85de545811b8b879891a9f5d5ad278",
@@ -749,9 +608,7 @@
     {
       "id": "M05",
       "title": "Console transport 与前端契约",
-      "dependencies": [
-        "M03"
-      ],
+      "dependencies": ["M03"],
       "owner_role": "前端契约负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -777,9 +634,7 @@
         "packages/contracts/openapi-ts.api.config.ts",
         "packages/contracts/generated/api/** (only exact M05 paths registered in conflict-ownership.tsv)"
       ],
-      "resources": [
-        "前端契约负责人"
-      ],
+      "resources": ["前端契约负责人"],
       "steps": [
         "在目标 Console 架构注册 fork segment，迁移双阶段 Header/Cookie 协议",
         "SSR optional/hard 调用守卫形状，public snapshot 与 fork 配置按 A04 合成",
@@ -860,21 +715,9 @@
         "web/service/console/contract-loader.ts",
         "web/service/console/index.ts"
       ],
-      "outputs": [
-        "evidence/M05/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M05/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "tasks_complete": [
-          "11.1",
-          "11.2",
-          "11.3",
-          "11.4",
-          "11.5",
-          "11.6",
-          "11.7",
-          "11.8"
-        ],
+        "tasks_complete": ["11.1", "11.2", "11.3", "11.4", "11.5", "11.6", "11.7", "11.8"],
         "current_subtask": {
           "id": "11.8_v02_contract_reconciliation",
           "status": "passed",
@@ -885,7 +728,7 @@
             "web/test/console/current-workspace.ts": "7556fe9178fd35d834ee68b8a32f28026927c405e0ede60e332aca5104666400",
             "web/app/components/main-nav/components/__tests__/workspace-card.spec.tsx": "9ffc7ee3c932b1eb6e9ce78b0871fc78da5976a217ea4b8b8bb5be61b7cfbf6d"
           },
-          "evidence_sha256": "c55c5d9d0a619ba86dcef3737e166d4ca58c2ffff9bc7837d8a6031af4d4273b"
+          "evidence_sha256": "70755ff3753dfeebcdbe62bc8e0955ccfc560454604d6eb5e79f81c459e691fa"
         },
         "next_subtask": "complete",
         "deployable": false,
@@ -957,7 +800,7 @@
               "web/test/console/current-workspace.ts": "7556fe9178fd35d834ee68b8a32f28026927c405e0ede60e332aca5104666400",
               "web/app/components/main-nav/components/__tests__/workspace-card.spec.tsx": "9ffc7ee3c932b1eb6e9ce78b0871fc78da5976a217ea4b8b8bb5be61b7cfbf6d"
             },
-            "report_sha256": "c55c5d9d0a619ba86dcef3737e166d4ca58c2ffff9bc7837d8a6031af4d4273b"
+            "report_sha256": "70755ff3753dfeebcdbe62bc8e0955ccfc560454604d6eb5e79f81c459e691fa"
           }
         ]
       },
@@ -1022,9 +865,7 @@
         "prior_acceptance": "passed for 11.1-11.5; existing registered message contract trio regenerated and verified in 11.6",
         "blocked_on": null,
         "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
-        "completed_subtasks": [
-          "11.6"
-        ],
+        "completed_subtasks": ["11.6"],
         "current_subtask": {
           "id": "11.6",
           "status": "passed",
@@ -1044,14 +885,7 @@
       "completion": {
         "source_node": "passed",
         "deployable": false,
-        "completed_subtasks": [
-          "11.1",
-          "11.2",
-          "11.3",
-          "11.4",
-          "11.5",
-          "11.6"
-        ],
+        "completed_subtasks": ["11.1", "11.2", "11.3", "11.4", "11.5", "11.6"],
         "11.6": {
           "source_commit_before_generation": "0858f09cbdc2c0f5d052179b3afa2351d2ad0fe3",
           "standard_command_exit_code": 0,
@@ -1077,10 +911,7 @@
     {
       "id": "M06",
       "title": "前端业务挂载与国际化",
-      "dependencies": [
-        "M04",
-        "M05"
-      ],
+      "dependencies": ["M04", "M05"],
       "owner_role": "前端业务负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -1111,9 +942,7 @@
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
         "本节点行为对应的配套测试源码，跨 owner 文件先登记移交"
       ],
-      "resources": [
-        "前端业务负责人"
-      ],
+      "resources": ["前端业务负责人"],
       "steps": [
         "迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard",
         "迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单",
@@ -1197,10 +1026,7 @@
         "web/i18n/zh-Hant/extend.json",
         "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
       ],
-      "outputs": [
-        "evidence/M06/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M06/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "preflight_status": "completed",
       "implementation_progress": {
         "completed_subtasks": [
@@ -1336,9 +1162,7 @@
                 "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
                 "exit_code": 0,
                 "passed": 29,
-                "warnings": [
-                  "1 pre-existing cgi deprecation warning"
-                ]
+                "warnings": ["1 pre-existing cgi deprecation warning"]
               },
               "ruff_format_check_exit_code": 0,
               "ruff_check_exit_code": 0,
@@ -1411,9 +1235,7 @@
             "status": "passed_after_follow_up",
             "owner": "M06",
             "model": "gpt-6-astra",
-            "dependencies": [
-              "12.5_analysis:passed"
-            ],
+            "dependencies": ["12.5_analysis:passed"],
             "registered_paths": [
               "web/i18n/ar-TN/extend.json",
               "web/i18n/de-DE/extend.json",
@@ -1468,10 +1290,7 @@
                 {
                   "priority": "P3",
                   "locale": "id-ID",
-                  "keys": [
-                    "systemManage.quota.action.edit",
-                    "systemManage.quota.editDialog.title"
-                  ],
+                  "keys": ["systemManage.quota.action.edit", "systemManage.quota.editDialog.title"],
                   "finding": "The English label \"Edit\" remains in both values.",
                   "recommendation": "Use natural Indonesian \"Ubah\" (for example, \"Ubah Kuota\" and \"Ubah kuota untuk {{name}}\")."
                 }
@@ -1488,9 +1307,7 @@
             "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
-            "dependencies": [
-              "12.5_analysis:passed"
-            ],
+            "dependencies": ["12.5_analysis:passed"],
             "registered_paths": [
               "web/i18n/ja-JP/extend.json",
               "web/i18n/ko-KR/extend.json",
@@ -1536,9 +1353,7 @@
             "status": "passed",
             "owner": "M06",
             "model": "gpt-6-astra",
-            "dependencies": [
-              "12.5_analysis:passed"
-            ],
+            "dependencies": ["12.5_analysis:passed"],
             "registered_paths": [
               "web/i18n/sl-SI/extend.json",
               "web/i18n/th-TH/extend.json",
@@ -1645,10 +1460,7 @@
             "id": "12.5_language_corrections",
             "status": "passed",
             "model": "gpt-6-astra",
-            "registered_paths": [
-              "web/i18n/id-ID/extend.json",
-              "web/i18n/pl-PL/extend.json"
-            ],
+            "registered_paths": ["web/i18n/id-ID/extend.json", "web/i18n/pl-PL/extend.json"],
             "source_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
             "dependencies": [
               "12.5a_locale_group_a",
@@ -1851,10 +1663,7 @@
               "implementation_paths_equal_exit_code": 0,
               "runtime": "Python 3.12 existing environment; uv --no-sync; uv cache and venv redirected to /private/tmp; no dependency sync/install"
             },
-            "evidence": [
-              "evidence/M06/12.6d-verification.md",
-              "evidence/M06/12.6d-review.md"
-            ],
+            "evidence": ["evidence/M06/12.6d-verification.md", "evidence/M06/12.6d-review.md"],
             "verification_status": "passed"
           },
           {
@@ -2065,12 +1874,8 @@
             "model": "gpt-6-astra",
             "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
             "dispatch_channel": "codex_project_local",
-            "registered_paths": [
-              "web/app/components/api-key/__tests__/api-key-modal.spec.tsx"
-            ],
-            "dependencies": [
-              "12.3_implementation:passed"
-            ],
+            "registered_paths": ["web/app/components/api-key/__tests__/api-key-modal.spec.tsx"],
+            "dependencies": ["12.3_implementation:passed"],
             "scope": "Add focused assertions for copying the created API key and canManage=false edit/delete behavior with no mutation calls. Preserve existing key visibility and secret-copy product semantics; do not change source components.",
             "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
             "implementation_commit": "a602bb8a585b348df2626f21c68c644814ce5367",
@@ -2188,9 +1993,7 @@
             "scope": "Register the trusted from_account_id field as a workflow_execution Logstore index key required by account-scoped charts; add focused configuration coverage. Preserve upstream WorkflowRun and all existing custom index behavior. This is a separate prerequisite task; no edits until this registration is committed.",
             "dependency": "12.6f_analysis:analysis_complete_paths_registered",
             "base_commit": "2b0612367b276154c59137f9de27bb9ddbfe26c9",
-            "dependencies": [
-              "12.6e_review_followup:passed"
-            ],
+            "dependencies": ["12.6e_review_followup:passed"],
             "analysis_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
             "source_finding": "aliyun_logstore.py derives workflow_execution indexes from upstream WorkflowRun plus error_message/started_at; from_account_id is written by the fork but is not registered/indexed for SQL aggregation queries.",
             "evidence": "evidence/M06/12.6f-logstore-index-verification.md",
@@ -2401,9 +2204,7 @@
     {
       "id": "M07",
       "title": "综合部署和 CI 对齐",
-      "dependencies": [
-        "M01"
-      ],
+      "dependencies": ["M01"],
       "owner_role": "部署负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -2425,9 +2226,7 @@
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
         ".gitlab-ci.yml (registered 13.6 manifest-artifact follow-up only)"
       ],
-      "resources": [
-        "部署负责人"
-      ],
+      "resources": ["部署负责人"],
       "steps": [
         "人工移植上游 Compose 契约到 fork 综合 Compose，保留独立 worker/sandbox-full/私有镜像",
         "单执行者双迁移；发布业务容器关闭自动迁移",
@@ -2458,19 +2257,9 @@
         "docker/envs/core-services/web.env.example",
         "docker/nginx/conf.d/default.conf.template"
       ],
-      "outputs": [
-        "evidence/M07/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/M07/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "tasks_complete": [
-          "13.1",
-          "13.2",
-          "13.3",
-          "13.4",
-          "13.5",
-          "13.6"
-        ],
+        "tasks_complete": ["13.1", "13.2", "13.3", "13.4", "13.5", "13.6"],
         "current_subtask": {
           "id": "complete",
           "status": "passed",
@@ -2489,9 +2278,7 @@
           "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
           "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
           "findings_remaining": [],
-          "limits": [
-            "No GitLab pipeline or private image publication/pull was executed."
-          ],
+          "limits": ["No GitLab pipeline or private image publication/pull was executed."],
           "review_status": "initial_review_p2_resolved",
           "resolved_by_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
           "follow_up_review": "evidence/M07/13.6-manifest-fix-followup-review.md"
@@ -2525,9 +2312,7 @@
             "model": "gpt-6-astra",
             "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
             "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
-            "registered_paths": [
-              ".gitlab-ci.yml"
-            ],
+            "registered_paths": [".gitlab-ci.yml"],
             "verification_evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
             "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
           },
@@ -2549,9 +2334,7 @@
             "model": "gpt-6-astra",
             "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
             "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
-            "registered_paths": [
-              ".gitlab-ci.yml"
-            ],
+            "registered_paths": [".gitlab-ci.yml"],
             "verification": "Ruby Psych YAML parse; six sh -n; static tag/config assertions; diff check passed."
           },
           {
@@ -2622,14 +2405,7 @@
     {
       "id": "M08",
       "title": "集成审查与候选源码提交",
-      "dependencies": [
-        "M02",
-        "M03",
-        "M04",
-        "M05",
-        "M06",
-        "M07"
-      ],
+      "dependencies": ["M02", "M03", "M04", "M05", "M06", "M07"],
       "owner_role": "集成负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
@@ -2653,10 +2429,7 @@
         "本次合并元数据",
         "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记"
       ],
-      "resources": [
-        "git_index",
-        "lockfiles"
-      ],
+      "resources": ["git_index", "lockfiles"],
       "steps": [
         "核对 M01–M07 各自已提交代码、配套测试、证据与状态；由各 owner 交付冲突处理与自动合并语义清单",
         "M01 将锁文件写入权显式移交集成负责人，由 M08 统一刷新最终锁文件/契约生成物；扫描 orphan、旧 import、安全包装、四个后续提交",
@@ -2682,14 +2455,8 @@
         "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
-      "owned_conflict_paths": [
-        "AGENTS.md",
-        "README.md"
-      ],
-      "outputs": [
-        "evidence/M08/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "owned_conflict_paths": ["AGENTS.md", "README.md"],
+      "outputs": ["evidence/M08/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "preflight_analysis": {
         "status": "completed_read_only",
         "agent": "/root/integration_preflight_analysis",
@@ -2720,42 +2487,16 @@
           "14.9a_astra_upstream_formatter_paths",
           "14.9b_coordinator_evidence_formatter_paths",
           "14.9_v02_formatter_debt_candidate_followup",
-          "14.10_final_candidate_and_structural_acceptance"
+          "14.10_final_candidate_and_structural_acceptance",
+          "14.15_v02_evidence_format_followup"
         ],
         "current_subtask": {
-          "id": "14.14_recandidate_after_v02_root_cause_repairs",
+          "id": "14.16_recandidate_after_metadata_formatting",
           "status": "queued",
           "owner": "M08/coordinator",
           "model": "gpt-6-sol",
           "registered_paths": [
-            "web/app/components/header/account-setting/model-provider-page/model-parameter-modal/parameter-item-extend.tsx",
-            "web/app/components/app-sidebar/app-info/use-app-info-actions.ts",
-            "web/test/console/state-fixture.ts",
-            "web/test/console/current-workspace.ts",
-            "web/app/components/main-nav/components/__tests__/workspace-card.spec.tsx",
-            "web/app/components/app/configuration/hooks/use-configuration.ts",
-            "web/app/components/app/configuration/hooks/configuration-lifecycle/use-configuration-loader.ts",
-            "web/app/components/app/configuration/hooks/configuration-lifecycle/use-configuration-publish.ts",
-            "web/app/components/app/configuration/hooks/configuration-lifecycle/publish.ts",
-            "web/app/components/app/configuration/hooks/build-configuration-context.ts",
-            "web/app/components/app/configuration/hooks/__tests__/use-configuration.spec.tsx",
-            "web/app/sw.ts",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.8-v02-contract-reconciliation.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.7-parameter-item-disposition.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.11-retention-number-restoration.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.12-oxlint-disable-description.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.13-independent-v02-fix-verification.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.7-final-candidate-result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.8-final-candidate-result.json",
-            "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
-            "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-            "openspec/changes/merge-upstream-1-17-1/tasks.md",
-            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.14-recandidate-structural-acceptance.md"
+            "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md"
           ]
         },
         "parallel_subtasks": [
@@ -2845,9 +2586,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md"
             ],
             "scope": "Read-only owner disposition for the 14 deleted M00 conflict paths listed unresolved in evidence/M08/14.1-analysis.md, plus verify the active web/features/home/template-card.tsx host and proposed overlap registration. For each deleted path, compare fork/base/upstream history and current host/tests; identify migrated equivalent, intentional upstream removal, or unresolved owner decision with exact source and evidence. Do not edit code, tests, ownership tables, graph/tasks/result, run tests, stage, or commit; write only the registered report.",
-            "dependencies": [
-              "M08/14.2:completed_read_only"
-            ],
+            "dependencies": ["M08/14.2:completed_read_only"],
             "acceptance": [
               "Account for exactly the 14 deleted conflict paths from 14.1, once each.",
               "Tie every disposition to exact current source/test or upstream history; retain unresolved status when evidence is insufficient.",
@@ -2872,10 +2611,7 @@
               "docs/dify-plus/README.md"
             ],
             "scope": "Read-only compare fork-parent and 1.17.1-selected AGENTS.md/README.md with current candidate and surviving docs. Identify Dify-Plus-specific operating guidance, custom feature/deployment/upgrade information removed by M00, what is stale, and exact current source/docs for a concise integration. Preserve current upstream README content and avoid unsupported quota claims. Write only the registered analysis report. Coordinator may edit only registered AGENTS.md, README.md and docs/dify-plus/README.md after review; you do not edit any docs, source, tests, graph/result/tasks/ownership tables, run tests, stage or commit.",
-            "dependencies": [
-              "M08/14.1:completed_read_only",
-              "M08/14.2:completed_read_only"
-            ],
+            "dependencies": ["M08/14.1:completed_read_only", "M08/14.2:completed_read_only"],
             "acceptance": [
               "Enumerate material fork-only AGENTS and README content removed by M00.",
               "Verify target docs/images exist and current version/migration facts before recommending links or claims.",
@@ -2885,11 +2621,7 @@
             "implementation_agent": "/root/m08_project_documentation_disposition",
             "thread_id": null,
             "host_id": "local",
-            "editable_paths": [
-              "AGENTS.md",
-              "README.md",
-              "docs/dify-plus/README.md"
-            ],
+            "editable_paths": ["AGENTS.md", "README.md", "docs/dify-plus/README.md"],
             "report_sha256": "96f09d381a1dfd6095774e0f3624a6fd891f3d509f4496344bdd1cab419e6472",
             "result": "Root README/AGENTS fork guidance and docs index disposition completed. Coordinator integration edits remain separately scoped."
           },
@@ -2908,9 +2640,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md"
             ],
             "scope": "Integrate the reviewed Dify-Plus documentation disposition into the upstream 1.17.1 candidate. Preserve the current upstream README and add a concise fork section; restore stable fork operating guidance in AGENTS.md; update the docs index so 1.16 documents and the old deployment guide are explicitly historical and the active source graph/runbook/Plus Compose entry are linked; correct account/API-key quota semantics; label the 1.17.1 planning file as a historical snapshot and link live execution status. Exact editable paths are registered_paths only. Do not claim production deployment or API-key lifetime quota cap.",
-            "dependencies": [
-              "M08/14.2c:completed_read_only"
-            ],
+            "dependencies": ["M08/14.2c:completed_read_only"],
             "acceptance": [
               "README retains upstream text and adds only evidence-backed Plus feature and migration entry points.",
               "AGENTS documents stable fork module map and current migration chain without a pinned stale baseline.",
@@ -2988,9 +2718,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md"
             ],
             "scope": "Resolve the old Home catalog TagFilter disposition using source-level evidence only. Compare the fork implementation at the registered base with the TagFilter value contract, current RecommendedAppResponse category schema, current Home category/search behavior, and installed-app tag filter. Determine whether a working user-visible tag filter was lost or the removed control had mismatched values. Do not edit code, tests, ownership tables, graph/result/tasks, stage, commit, or run tests; write only the registered report.",
-            "dependencies": [
-              "M08/14.2b:completed_read_only"
-            ],
+            "dependencies": ["M08/14.2b:completed_read_only"],
             "acceptance": [
               "Quote exact source paths/expressions showing tag values and catalog category values.",
               "Distinguish Home recommended catalog from installed fork apps.",
@@ -3014,9 +2742,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md"
             ],
             "scope": "Independently verify Astra implementation of the workspace-manager-only App API Key boundary. Read only the two registered component/spec paths and implementation report, then run only `app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx` under the Web unit project using the existing Node 24.20/Vitest runtime with install skipped. Do not rerun quota modal or main-nav suites, install dependencies, edit source/tests, modify graph/result/tasks/ownership, stage, or commit. Write only the registered verification report.",
-            "dependencies": [
-              "M08/14.2e:implementation_complete"
-            ],
+            "dependencies": ["M08/14.2e:implementation_complete"],
             "acceptance": [
               "All tests in the single focused spec pass.",
               "Confirm manager and ACL positive/negative behavior, query suppression, and permission-revocation cleanup from the test assertions and source diff.",
@@ -3039,9 +2765,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md"
             ],
             "scope": "Correct only the registered API-secret-key-button test fixture so current-workspace role snapshots satisfy the generated schema required by workspace-state. Include required admin_extend and tenant_extend fields for manager positive cases and workspace-role revocation. Do not change component source, alter expected product behavior, install dependencies, stage, commit, or run tests. Then document the exact fixture defect and correction in the registered report.",
-            "dependencies": [
-              "M08/14.2e_luna_verification:failed"
-            ],
+            "dependencies": ["M08/14.2e_luna_verification:failed"],
             "acceptance": [
               "Manager tests seed a valid CurrentWorkspaceSummaryResponse and observe manager roles rather than the fallback normal role.",
               "Role revocation seeds a schema-valid editor summary.",
@@ -3067,9 +2791,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md"
             ],
             "scope": "Rerun Luna independent validation of the same API-secret-key-button spec after the required workspace summary fixture correction. Inspect the registered test diff/report and run only the exact single unit spec from web with the existing Node 24.20/Vitest 4.1.11 runtime and VP_SKIP_INSTALL=1. Do not rerun other suites, install dependencies, modify source/tests/graph/result/tasks/ownership, stage, or commit; write only the registered report.",
-            "dependencies": [
-              "M08/14.2g:passed"
-            ],
+            "dependencies": ["M08/14.2g:passed"],
             "acceptance": [
               "Focused spec passes all cases; report records exact command and counts.",
               "Confirm role fixtures reach manager positive and role-revocation cases.",
@@ -3094,9 +2816,7 @@
               "evidence/M08/14.2i-quota-modal-layout.md"
             ],
             "scope": "Restore the fork's responsive App API Key modal width in the new shared modal host and prove the quota-table layout in Chromium. The fork parent used 90vw with a 1200px maximum; the candidate currently fixes the modal at w-200 (50rem), while quota-table columns have a much wider combined width. Update only the modal width and the registered browser spec. Render the actual ApiKeyModal app scope with one quota-bearing row at desktop 1440x900 and narrow 390x844 viewports. Keep any horizontal overflow inside the table's scroll container, make the rightmost row actions reachable, and prevent document/dialog viewport overflow. Do not change quota data or limits, permissions, API behavior, translations, lockfiles, or other tests. Run only the registered browser spec using the installed Node 24.20/Vitest runtime with installation skipped; write only the registered report in addition to the two code paths. Do not edit graph/result/tasks/ownership, stage, or commit.",
-            "dependencies": [
-              "M08/14.2e_preserve_manager_only_api_key_management:passed"
-            ],
+            "dependencies": ["M08/14.2e_preserve_manager_only_api_key_management:passed"],
             "acceptance": [
               "The app API Key modal restores the responsive fork width contract: approximately 90vw capped at 1200px on desktop and bounded by the viewport on narrow screens.",
               "A browser-mode test renders the actual ApiKeyModal and quota row at 1440x900 and 390x844; dialog stays within the viewport with no document-level horizontal overflow.",
@@ -3129,13 +2849,9 @@
             "model": "gpt-6-luna",
             "reasoning_effort": "low",
             "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
-            "registered_paths": [
-              "evidence/M08/14.2j-luna-verification.md"
-            ],
+            "registered_paths": ["evidence/M08/14.2j-luna-verification.md"],
             "scope": "Independently inspect the registered 14.2i modal source, browser spec and evidence report against their recorded SHA-256 identities, then rerun only web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx in the existing Node 24.20/Vitest 4.1.11 Chromium Browser Mode runtime with VP_SKIP_INSTALL=1. Reuse the existing chromium_headless_shell-1208 executable at /Users/liuxingwang/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell via the documented Vitest startVitest + vite-plus/test/browser-playwright invocation. Validate both 1440x900 and 390x844 cases, table-only horizontal scrolling, and reachable delete action. Do not install anything, run other suites, edit source/tests/graph/tasks/ownership, stage or commit; write only evidence/M08/14.2j-luna-verification.md. If the documented browser runtime is unavailable, report the exact blocker without broadening scope.",
-            "dependencies": [
-              "M08/14.2i_responsive_quota_modal_layout_browser_acceptance:passed"
-            ],
+            "dependencies": ["M08/14.2i_responsive_quota_modal_layout_browser_acceptance:passed"],
             "acceptance": [
               "Recorded source, spec and implementation-report hashes match the inspected snapshot.",
               "Only the registered Chromium browser spec runs; both viewport cases pass and the exact command, counts, runtime and measured assertions are reported.",
@@ -3145,9 +2861,7 @@
             "review_agent": "/root/m08_quota_modal_layout_luna_review",
             "thread_id": null,
             "host_id": "local",
-            "editable_paths": [
-              "evidence/M08/14.2j-luna-verification.md"
-            ],
+            "editable_paths": ["evidence/M08/14.2j-luna-verification.md"],
             "input_hashes": {
               "web/app/components/api-key/api-key-modal.tsx": "68f1d7553884ffe99a926340d0452f1d4944293a148f99f7253129e022d15218",
               "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx": "600070bed0a71e7ecba9c0dcfa06fe729f456b82b6ba39f3f0bf9658386fb31a",
@@ -3406,9 +3120,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md"
             ],
             "scope": "Independently review M08/14.6 report and exact formatted API-key quota browser spec. Verify its current SHA-256 equals 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120; confirm only the quotaKey fixture formatting hunk changed from 14.2i and all test assertions/data remain present. Rerun only that one Chromium browser spec with the documented installed Chromium 1208 override; require one file, two tests collected and passed. Do not edit any source/test, graph/tasks/results/ownership, install dependencies, run other checks, stage, or commit; write only the registered independent report.",
-            "dependencies": [
-              "M08/14.6_format_candidate_quota_browser_spec:passed"
-            ],
+            "dependencies": ["M08/14.6_format_candidate_quota_browser_spec:passed"],
             "acceptance": [
               "Exact input spec hash and report hash are recorded.",
               "Independent single-spec Chromium run collects 2 and passes 2; no other test suite is run.",
@@ -3439,11 +3151,7 @@
               "openspec/changes/merge-upstream-1-17-1/tasks.md"
             ],
             "scope": "After M05 11.7 is committed and M08 14.6/14.7 pass, create the new scoped M08 candidate commit containing only registered M08 source/evidence/state plus coordinator status files, with M05 follow-up commit as ancestor. Exclude all unrelated untracked user paths. Re-run the cheap structural acceptance on the resulting candidate: no unmerged index or conflict markers; M00 merge ancestry and all M01-M07 commits remain reachable; all 91 mapped paths exist; old account wrapper refs remain absent; personal account quota and API-key daily/monthly fields/enforcement remain; the 10 billing/OAuth anchors remain. Record exact commit/tree/hashes and stage allowlist. Do not rerun V01/V02 here; V01 API subtree applicability and V02 candidate-only verification are separate gates.",
-            "dependencies": [
-              "M05/11.7:passed",
-              "M08/14.6:passed",
-              "M08/14.7:passed"
-            ],
+            "dependencies": ["M05/11.7:passed", "M08/14.6:passed", "M08/14.7:passed"],
             "acceptance": [
               "Candidate commit is a descendant of M05 follow-up commit and does not create another upstream merge commit.",
               "Only exact registered M08 source/state/evidence paths are staged; unrelated untracked dirs remain untouched.",
@@ -3599,9 +3307,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log"
             ],
             "scope": "Coordinator formats only the exact registered OpenSpec/report paths remaining from V02/16.6 plus current execution graph/tasks and new V02/M08 evidence JSON/Markdown paths. Do not edit the three Astra-owned source paths. Preserve JSON values and Markdown wording. No tests/install/stage/commit.",
-            "dependencies": [
-              "M08/14.9_v02_formatter_debt_candidate_followup:registered"
-            ],
+            "dependencies": ["M08/14.9_v02_formatter_debt_candidate_followup:registered"],
             "acceptance": [
               "All exact coordinator paths pass vp fmt --check.",
               "JSON values and Markdown token sequences are unchanged."
@@ -3926,9 +3632,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.12-oxlint-disable-description.md"
             ],
             "scope": "Add a precise reason to the same-line oxlint disable directive in web/app/sw.ts. Only edit the registered source and evidence paths; run one-path scoped check and diff check; no global V02, stage, or commit.",
-            "dependencies": [
-              "V02/16.8 lint rule diagnostic confirmed"
-            ],
+            "dependencies": ["V02/16.8 lint rule diagnostic confirmed"],
             "acceptance": [
               "Disable remains narrowly scoped and has an accurate reason",
               "Single-path scoped check and diff check pass",
@@ -3976,12 +3680,12 @@
             ],
             "dispatch_status": "completed",
             "verdict": "passed_independent_review_88_tests",
-            "report_sha256": "2af22690bed17c4190d837272534d84d3c55984233aff6107dc17d786fd5b9e4",
+            "report_sha256": "11f6ca94b26cc9bc8036073f94f0b647d06526ce19c485b5a7a656c0edd76138",
             "test_summary": "4 files, 88 tests passed"
           },
           {
             "id": "14.14_recandidate_after_v02_root_cause_repairs",
-            "status": "queued",
+            "status": "passed",
             "owner": "M08/coordinator",
             "model": "gpt-6-sol",
             "reasoning_effort": "high",
@@ -4058,11 +3762,90 @@
               "Structural checks and all independent quota boundaries pass on the frozen exact commit/tree",
               "No V02 command is run before this structural pass"
             ],
-            "dispatch_status": "ready_coordinator"
+            "dispatch_status": "completed_passed",
+            "candidate_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+            "candidate_tree": "219f855a099258cbb712daae55e5a365390189ac",
+            "verdict": "passed_structural_acceptance_v02_pending",
+            "report_sha256": "5bf4c2813b239c39cff2b510a5d6b5984798fb9c8f393f94da075d60b4c5c0a4"
+          },
+          {
+            "id": "14.15_v02_evidence_format_followup",
+            "status": "passed",
+            "owner": "M08/coordinator",
+            "model": "gpt-6-sol",
+            "reasoning_effort": "high",
+            "base_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.8-v02-contract-reconciliation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.13-independent-v02-fix-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.14-recandidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.15-v02-evidence-format-followup.md"
+            ],
+            "scope": "Format only the exact candidate-owned OpenSpec report/status paths reported by V02/16.9, plus the structural report and current task/narrative files registered for the next candidate. Use pinned Node 24.20.0 and existing vp formatter, no dependency install/sync. Update hashes in coordinator result/graph/task records after report formatting, then run exact-path formatter check and diff check. No source/test behavior change; do not stage or commit in this task.",
+            "dependencies": [
+              "V02/16.9 blocked only at vp formatter; seven exact paths reported in its result",
+              "M08/14.14 structural acceptance passed for candidate 686a5cfa5614ea45b0d9973e52014b07c13b07e7"
+            ],
+            "acceptance": [
+              "Only registered coordinator evidence/state files change; product source/tests remain byte-identical to candidate 686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+              "Exact-path formatting check and diff check pass after formatter normalization",
+              "Report records original 16.9 reported hashes, exact commands, final hashes and no semantic/source changes"
+            ],
+            "dispatch_status": "completed_coordinator",
+            "report": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.15-v02-evidence-format-followup.md",
+            "report_sha256": "378a8c08f7e39b1ffec66e8d433cd5ea12c2442e2da011f1b2b102031b2c4111",
+            "formatted_file_count": 8,
+            "exact_path_check": "12 files passed vp fmt --check; git diff --check passed",
+            "product_source_or_test_changed": false,
+            "staged_or_committed": false
+          },
+          {
+            "id": "14.16_recandidate_after_metadata_formatting",
+            "status": "queued",
+            "owner": "M08/coordinator",
+            "model": "gpt-6-sol",
+            "reasoning_effort": "high",
+            "base_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+            "candidate_commit": null,
+            "candidate_tree": null,
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md"
+            ],
+            "scope": "After 14.15 formatter remediation, freeze a metadata-only successor candidate with an exact commit allowlist. Include the 14.15 report, V02/16.9 result and log, and only the formatted coordinator evidence/state paths. Verify staged set, source-code tree equality against parent except for evidence/state, M00/M01-M07 ancestry, no conflicts, 91-path owner map, quota anchors, and API tree SHA reuse. Do not run V02 before this structural acceptance.",
+            "dependencies": ["M08/14.15 exact-path formatter repair passed"],
+            "acceptance": [
+              "No product source/test bytes changed from parent candidate",
+              "Exact stage allowlist matches registered paths",
+              "New candidate structural acceptance passes and report binds commit/tree"
+            ],
+            "dispatch_status": "ready_after_14.15",
+            "commit_allowlist": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.8-v02-contract-reconciliation.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.13-independent-v02-fix-verification.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+              "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+              "openspec/changes/merge-upstream-1-17-1/tasks.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.14-recandidate-structural-acceptance.md",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate.log",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.15-v02-evidence-format-followup.md"
+            ]
           }
         ],
-        "next_subtask": "14.14_recandidate_after_v02_root_cause_repairs",
-        "dispatch_status": "ready_for_recandidate_after_owner_fixes",
+        "next_subtask": "14.16_recandidate_after_metadata_formatting",
+        "dispatch_status": "coordinator_ready_for_14.16",
         "active_subtasks": {}
       },
       "active_subtasks": {}
@@ -4070,9 +3853,7 @@
     {
       "id": "V01",
       "title": "后端静态与定向回归",
-      "dependencies": [
-        "M08"
-      ],
+      "dependencies": ["M08"],
       "owner_role": "后端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4084,12 +3865,8 @@
         "design.md#decisions",
         "evidence/M08/result.json"
       ],
-      "write_scope": [
-        "受控测试/静态检查输出；不修改候选源码"
-      ],
-      "resources": [
-        "heavy_compute"
-      ],
+      "write_scope": ["受控测试/静态检查输出；不修改候选源码"],
+      "resources": ["heavy_compute"],
       "steps": [
         "读取 api/AGENTS.md；按合并后工具配置运行静态/导入和定向测试",
         "执行已随候选提交冻结的新注册/gateway/site/service_api/key/message/workflow/session/beat/retention 用例；需要修改源码或用例则退回对应 M 节点，更新候选后重验",
@@ -4104,20 +3881,12 @@
         "单测报告明确用例、commit、结果",
         "已有债务与新增回归分开；无运行权限或依赖不可用记 blocked"
       ],
-      "evidence": [
-        "evidence/V01/result.json",
-        "evidence/V01/execution.log"
-      ],
+      "evidence": ["evidence/V01/result.json", "evidence/V01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/V01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "completed_subtasks": [
-          "15.1_15.2_candidate_backend_luna_regression"
-        ],
+        "completed_subtasks": ["15.1_15.2_candidate_backend_luna_regression"],
         "current_subtask": null,
         "parallel_subtasks": [
           {
@@ -4132,9 +3901,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/V01/execution.log"
             ],
             "scope": "Read api/AGENTS.md and execute V01 steps 15.1/15.2 on the exact candidate commit ba33fe26dc21ae3a308f14a61999009fc2849779. Use the already provisioned /private/tmp/dify-m02-python-complete environment with uv run --project api --no-sync (do not install or sync dependencies). Run the V01 graph commands: compileall -q api; import app_factory; and the three focused unit test files test_apikey.py, test_account_service.py, test_persistence_layer.py. Record actual collection and results. Do not rerun the previous broad M02/M03/M04 suites; note their historical evidence separately without claiming it validates this candidate. Do not edit product source/tests, graph/tasks/ownership, stage or commit. Write only the registered V01 result and execution log. If the preprovisioned environment is unavailable, record the exact blocker and stop without installing.",
-            "dependencies": [
-              "M08:passed"
-            ],
+            "dependencies": ["M08:passed"],
             "acceptance": [
               "The input commit is the exact M08 candidate; API working files are unchanged from that commit during execution.",
               "Static compile and app_factory import have exact exit codes.",
@@ -4165,9 +3932,7 @@
     {
       "id": "V02",
       "title": "前端检查、定向测试与双构建",
-      "dependencies": [
-        "M08"
-      ],
+      "dependencies": ["M08"],
       "owner_role": "前端验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4179,12 +3944,8 @@
         "design.md#decisions",
         "evidence/M08/result.json"
       ],
-      "write_scope": [
-        "受控构建/测试输出"
-      ],
-      "resources": [
-        "heavy_compute"
-      ],
+      "write_scope": ["受控构建/测试输出"],
+      "resources": ["heavy_compute"],
       "steps": [
         "在固定候选提交执行认证/新 access-point/api-key/应用中心用例；先核对实际收集到 browser 场景，零用例或路径失效不得记通过；若需改测试源码，退回 M05/M06 并经 M08 冻结新候选",
         "执行 frozen 安装、check/tss/i18n、unit/browser 和双构建",
@@ -4204,56 +3965,44 @@
         "Node/pnpm 与锁文件一致，检查与双构建成功",
         "定向认证与角色矩阵通过；24份extend可加载"
       ],
-      "evidence": [
-        "evidence/V02/result.json",
-        "evidence/V02/execution.log"
-      ],
+      "evidence": ["evidence/V02/result.json", "evidence/V02/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/V02/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "implementation_progress": {
-        "completed_subtasks": [
-          "16.1_16.2_16.3_candidate_frontend_luna_verification"
-        ],
+        "completed_subtasks": ["16.1_16.2_16.3_candidate_frontend_luna_verification"],
         "current_subtask": {
-          "id": "16.8_candidate_snapshot_v02_retry_complete_workspace_node_modules_overlay",
+          "id": "16.9_final_candidate_post_fix_complete_overlay",
           "status": "blocked",
           "owner": "V02",
           "model": "gpt-6-luna",
           "reasoning_effort": "high",
-          "base_commit": "95101d76b955481ce6c9519596aeea426680fa71",
-          "candidate_tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+          "base_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+          "candidate_tree": "219f855a099258cbb712daae55e5a365390189ac",
           "registered_paths": [
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.8-final-candidate-result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.8-final-candidate.log"
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate-result.json",
+            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate.log"
           ],
-          "scope": "Retry V02 on exact candidate 95101d76b955481ce6c9519596aeea426680fa71 in a fresh git archive snapshot under /private/tmp; no branch/worktree. Previous 16.7 stopped at pnpm check because the archive had only root and web node_modules symlinks. The same candidate paths fail vp fmt --check in that setup; a controlled disposable archive with packages/dify-ui/node_modules symlinked to the already provisioned root checkout passes the focused formatter check. Recreate the complete existing workspace dependency overlay without installing or syncing: root node_modules, web/node_modules, packages/dify-ui/node_modules, packages/contracts/node_modules, packages/iconify-collections/node_modules, packages/jotai-tanstack-form/node_modules, packages/migrate-no-unchecked-indexed-access/node_modules, packages/nuqs-jotai/node_modules, packages/dev-proxy/node_modules, cli/node_modules, and e2e/node_modules. Do not include generated web/.next/node_modules. Verify symlink targets and exact candidate tree. Reuse lock consistency only if package.json and pnpm-lock hashes match; network/install/sync are forbidden. Run pnpm --config.verify-deps-before-run=false check with VP_SKIP_INSTALL=1; stop at first failure. If it passes, sequentially run web lint:tss, i18n:check, registered unit suite for system-features/console/access-point/api-key, then both web builds. Reuse exact-hash M08/14.7 Chromium 2/2 quota modal evidence if it matches. Record full symlink overlay, exact commands, exit codes, collected counts, hashes and warnings. Write only the two registered 16.8 attempt files; do not modify source/tests/graph/tasks/ownership, stage or commit.",
+          "scope": "After M05/11.8, M08/14.11, M08/14.12 and independent Luna review pass, run V02 against the new coordinator-frozen and M08-accepted candidate in a clean git archive under /private/tmp. Recreate all already-existing workspace dependency symlinks, including sdks/nodejs-client/node_modules, without install/sync/network; exclude web/.next caches. First run pnpm --config.verify-deps-before-run=false check and stop at the first failure. If it passes, run lint:tss, i18n, registered unit suites and both builds sequentially. Reuse only exact-hash V01 160/160 and M08/14.7 browser 2/2 evidence. Record candidate SHA/tree, complete overlay, commands, exits, counts, hashes and warnings. Do not edit source/tests/graph/tasks, stage, or commit.",
           "dependencies": [
-            "M08/14.10 structural acceptance passed for this exact candidate",
-            "V01 passed and API tree SHA matches 895c0be99faafa5314806ddb2c0553c6062c7f67; reuse 160/160",
-            "16.7 blocked at formatter stage due incomplete snapshot node_modules overlay; preserve its two-path failure report",
-            "16.5 and 16.6 historical lifecycle/formatter failures remain preserved"
+            "M05/11.8 passed",
+            "M06/12.7 passed",
+            "M08/14.11, 14.12 and 14.13 passed",
+            "M08/14.14 new structural acceptance passed",
+            "V01 API subtree hash and M08/14.7 browser spec hashes match"
           ],
           "acceptance": [
-            "Snapshot tree/commit exactly matches candidate and overlay links all listed existing workspace node_modules; generated web/.next dependency caches are excluded.",
-            "No dependency install, synchronization, network access, candidate source/test mutation, staging, or commit.",
-            "pnpm check, web lint:tss, i18n:check, nonzero registered unit suite, and both builds pass; stop and record the first failure otherwise.",
-            "Browser inventory confirms only the quota modal spec and reuses exact-hash 14.7 Chromium 2/2 without rerun."
-          ],
-          "implementation_agent": "/root/m08_v01_candidate_backend_luna",
-          "thread_id": null,
-          "host_id": "local",
-          "editable_paths": [
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.8-final-candidate-result.json",
-            "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.8-final-candidate.log"
+            "Archive tree equals exact accepted candidate commit/tree and all existing package node_modules overlays including sdks/nodejs-client are verified",
+            "No network/install/sync/source mutation/stage/commit",
+            "pnpm check passes; then all registered frontend gates pass in sequence with exact evidence",
+            "Stop and retain first failure otherwise"
           ],
           "dispatch_status": "completed_blocked",
-          "dispatch_agent": "/root/m08_v01_candidate_backend_luna",
-          "verdict": "blocked_lint_eslint_errors_after_formatter_pass",
-          "root_cause": "12 ESLint errors/1,931 warnings: M06 dormant import repaired by 12.7; Sol classified M05 fixture/cache output contract mismatches, a real M08 retention_number load-context-publish regression, and sw.ts suppression description. The SDK tsconfig error is an archive overlay omission; next V02 archive must include the existing sdks/nodejs-client/node_modules link. Source fixes are registered as M05/11.8 and M08/14.11-14.12. Later gates stopped at first failure."
+          "dispatch_agent": "/root/v02_16_9_luna_candidate",
+          "verdict": "blocked_candidate_open_spec_formatting_debt",
+          "result_sha256": "144b72e21e5f889765e4100f1db3b8f92a492689303aa538bcd94b32fe426fed",
+          "log_sha256": "416da374084b134fa519925d5a132a5360bf5c117e9fc245135781133b78c639",
+          "root_cause": "pnpm check stopped in vp formatter on seven coordinator-owned OpenSpec report/state paths; all 12 workspace dependency overlays including SDK resolved. No source checks or later V02 gates ran."
         },
         "parallel_subtasks": [
           {
@@ -4268,9 +4017,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/V02/execution.log"
             ],
             "scope": "On exact candidate ba33fe26dc21ae3a308f14a61999009fc2849779, use pinned Node 24.20.0 and pnpm 12.3.4. Verify frozen install/lock consistency, then run V02 graph checks in sequence: pnpm check; web lint:tss; web i18n:check; registered unit and browser suites for system-features, console, access-point and api-key; web build and build:vinext. First inspect browser test collection and confirm nonzero relevant scenarios. Reuse exact-hash M08 evidence for the 14.2e manager/ACL unit spec (9/9) and 14.2j responsive modal Chromium coverage (2/2) when the identical files are included; do not separately rerun those custom checks. Capture command exit codes, collected counts, source/test/environment hashes, and known warnings. No product source/test edits, dependency changes, graph edits, staging, or commits; if a source/test defect appears, stop and return it to its owner for a new candidate.",
-            "dependencies": [
-              "M08:passed"
-            ],
+            "dependencies": ["M08:passed"],
             "acceptance": [
               "Candidate commit and relevant web source/test inputs match the fixed candidate; no source or test path changes during verification.",
               "Node and pnpm versions match M01; frozen install validates the unchanged lock without modifying tracked manifests or lockfiles.",
@@ -4301,10 +4048,7 @@
               "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate.log"
             ],
             "scope": "Run remaining V02 gates against exact candidate 97f94625d2d51fe1780f69aaecce5a56d3073db4 in a disposable source snapshot created from `git archive` under /private/tmp; symlink the already provisioned root and web node_modules into the snapshot so repo-owned untracked directories and local metadata dirt cannot pollute whole-repo checks. Do not create a Git branch or worktree. Reuse frozen lock consistency because package.json and pnpm-lock.yaml hashes are unchanged from the passing first V02 attempt/M01; verify exact hashes and pinned Node 24.20.0/pnpm 12.3.4. Run pnpm check first and stop subsequent gates at the first failure, attributing any tracked candidate issue to owner. If it passes, run web lint:tss, web i18n:check, the registered unit path suite, then both web builds sequentially. Browser scope contains only the quota modal spec; reuse exact-hash M08 14.7 independent Chromium evidence (2/2) and do not rerun it. The API Secret Key Button 9-test prior report lacks an input hash, so keep the spec within the broader V02 unit run rather than claiming a hash-bound reuse. Write only the two registered attempt files; do not edit source/tests/graph/tasks/ownership, stage or commit. Preserve V02 attempt-1 failure evidence.",
-            "dependencies": [
-              "M08:passed",
-              "V01:passed and API tree applicability checked"
-            ],
+            "dependencies": ["M08:passed", "V01:passed and API tree applicability checked"],
             "acceptance": [
               "Source snapshot resolves to exact candidate commit and contains no untracked user-owned directories.",
               "Pinned Node/pnpm and unchanged package/lock hashes recorded; no dependency install or network sync.",
@@ -4441,12 +4185,12 @@
           },
           {
             "id": "16.9_final_candidate_post_fix_complete_overlay",
-            "status": "queued",
+            "status": "blocked",
             "owner": "V02",
             "model": "gpt-6-luna",
             "reasoning_effort": "high",
-            "base_commit": null,
-            "candidate_tree": null,
+            "base_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+            "candidate_tree": "219f855a099258cbb712daae55e5a365390189ac",
             "registered_paths": [
               "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate-result.json",
               "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.9-final-candidate.log"
@@ -4465,10 +4209,39 @@
               "pnpm check passes; then all registered frontend gates pass in sequence with exact evidence",
               "Stop and retain first failure otherwise"
             ],
+            "dispatch_status": "completed_blocked",
+            "dispatch_agent": "/root/v02_16_9_luna_candidate",
+            "verdict": "blocked_candidate_open_spec_formatting_debt",
+            "result_sha256": "144b72e21e5f889765e4100f1db3b8f92a492689303aa538bcd94b32fe426fed",
+            "log_sha256": "416da374084b134fa519925d5a132a5360bf5c117e9fc245135781133b78c639",
+            "root_cause": "pnpm check stopped in vp formatter on seven coordinator-owned OpenSpec report/state paths; all 12 workspace dependency overlays including SDK resolved. No source checks or later V02 gates ran."
+          },
+          {
+            "id": "16.10_final_candidate_metadata_format_retry",
+            "status": "queued",
+            "owner": "V02",
+            "model": "gpt-6-luna",
+            "reasoning_effort": "high",
+            "base_commit": null,
+            "candidate_tree": null,
+            "registered_paths": [
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+              "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log"
+            ],
+            "scope": "After M08/14.15 formatting, 14.16 candidate freeze/structural acceptance, retry V02 on a clean archive. Include all existing workspace dependency overlays, including SDK. Stop at first failure. Reuse V01/M08/14.7 exact-hash results; write only registered attempt result/log; no source, graph, task edits, stage or commit.",
+            "dependencies": [
+              "M08/14.15 passed",
+              "M08/14.16 candidate structural acceptance passed"
+            ],
+            "acceptance": [
+              "Exact archive candidate/tree and all 12 workspace overlays verified",
+              "pnpm check passes, then registered later V02 gates pass sequentially; stop and record first failure otherwise",
+              "Only exact registered result/log paths changed"
+            ],
             "dispatch_status": "pending"
           }
         ],
-        "next_subtask": "16.9_final_candidate_post_fix_complete_overlay_after_M08_structural_acceptance",
+        "next_subtask": "M08/14.15_v02_evidence_format_followup",
         "dispatch_status": "blocked_first_failed_gate",
         "active_subtasks": {}
       }
@@ -4476,10 +4249,7 @@
     {
       "id": "R01",
       "title": "源码合并候选验收",
-      "dependencies": [
-        "V01",
-        "V02"
-      ],
+      "dependencies": ["V01", "V02"],
       "owner_role": "集成负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4492,40 +4262,24 @@
         "evidence/V01/result.json",
         "evidence/V02/result.json"
       ],
-      "write_scope": [
-        "源码候选记录"
-      ],
-      "resources": [
-        "集成负责人"
-      ],
+      "write_scope": ["源码候选记录"],
+      "resources": ["集成负责人"],
       "steps": [
         "汇总全部冲突/语义/静态测试记录",
         "记录候选 commit 与待环境验证项；不得此时声称已上线"
       ],
       "commands": [],
-      "acceptance": [
-        "源码候选可构建，阻断级新增回归清零",
-        "状态明确为 code-ready，仍须环境链"
-      ],
-      "evidence": [
-        "evidence/R01/result.json",
-        "evidence/R01/execution.log"
-      ],
+      "acceptance": ["源码候选可构建，阻断级新增回归清零", "状态明确为 code-ready，仍须环境链"],
+      "evidence": ["evidence/R01/result.json", "evidence/R01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/R01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ],
+      "outputs": ["evidence/R01/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
       "blocked_reason": "前置节点 V01, V02 尚未通过；未执行本节点。"
     },
     {
       "id": "V03",
       "title": "目标镜像、空库与存量双链演练",
-      "dependencies": [
-        "R01",
-        "A03"
-      ],
+      "dependencies": ["R01", "A03"],
       "owner_role": "数据与容器验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4538,13 +4292,8 @@
         "evidence/R01/result.json",
         "evidence/A03/result.json"
       ],
-      "write_scope": [
-        "隔离镜像/副本/迁移记录"
-      ],
-      "resources": [
-        "heavy_compute",
-        "test_database"
-      ],
+      "write_scope": ["隔离镜像/副本/迁移记录"],
+      "resources": ["heavy_compute", "test_database"],
       "steps": [
         "先准备环境专属 override/备份恢复命令草案；构建固定候选 fork 镜像并核对 digest、平台与供货，把实际 digest 固定到隔离 override，复核无生产存储/队列连接后才开始演练",
         "空库从零两链；实际旧库副本主链再extend，记录17迁移与两head",
@@ -4556,23 +4305,15 @@
         "双head为 c3f1a9b2e6d4 / 020_workflow_run_account",
         "数据差异符合预审、破坏性数据有处置决定、耗时记录"
       ],
-      "evidence": [
-        "evidence/V03/result.json",
-        "evidence/V03/execution.log"
-      ],
+      "evidence": ["evidence/V03/result.json", "evidence/V03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V03/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/V03/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "V04",
       "title": "向量库副本演练",
-      "dependencies": [
-        "V03"
-      ],
+      "dependencies": ["V03"],
       "owner_role": "向量验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4584,12 +4325,8 @@
         "design.md#decisions",
         "evidence/V03/result.json"
       ],
-      "write_scope": [
-        "隔离向量数据副本"
-      ],
-      "resources": [
-        "vector_clone"
-      ],
+      "write_scope": ["隔离向量数据副本"],
+      "resources": ["vector_clone"],
       "steps": [
         "Weaviate 按真实版本逐minor演练至目标；低于1.27先专项方案",
         "每站验证schema/对象/向量/检索/备份恢复；必要时逻辑导出重建",
@@ -4601,24 +4338,15 @@
         "实际数据可写可检索，和基线查询集可比",
         "恢复路径与耗时有证据；其他向量库分支也必须通过"
       ],
-      "evidence": [
-        "evidence/V04/result.json",
-        "evidence/V04/execution.log"
-      ],
+      "evidence": ["evidence/V04/result.json", "evidence/V04/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V04/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/V04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "V05",
       "title": "真实业务与权限验收",
-      "dependencies": [
-        "V03",
-        "V04"
-      ],
+      "dependencies": ["V03", "V04"],
       "owner_role": "业务验收负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4631,12 +4359,8 @@
         "evidence/V03/result.json",
         "evidence/V04/result.json"
       ],
-      "write_scope": [
-        "隔离部署及verification-matrix证据"
-      ],
-      "resources": [
-        "test_environment"
-      ],
+      "write_scope": ["隔离部署及verification-matrix证据"],
+      "resources": ["test_environment"],
       "steps": [
         "使用目标 fork 镜像，按 verification-matrix 全部必测场景验收",
         "验证真实模型返回/计费、SSO、WebApp、知识库、系统管理、worker/beat/插件",
@@ -4648,23 +4372,15 @@
         "矩阵每项有请求/结果/数据库对账证据",
         "缺真实账号或凭据记blocked，不宣称生产就绪"
       ],
-      "evidence": [
-        "evidence/V05/result.json",
-        "evidence/V05/execution.log"
-      ],
+      "evidence": ["evidence/V05/result.json", "evidence/V05/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V05/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/V05/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "V06",
       "title": "整套恢复演练",
-      "dependencies": [
-        "V05"
-      ],
+      "dependencies": ["V05"],
       "owner_role": "运维验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
@@ -4676,12 +4392,8 @@
         "design.md#decisions",
         "evidence/V05/result.json"
       ],
-      "write_scope": [
-        "隔离回滚快照与恢复日志"
-      ],
-      "resources": [
-        "test_environment"
-      ],
+      "write_scope": ["隔离回滚快照与恢复日志"],
+      "resources": ["test_environment"],
       "steps": [
         "新版本先产生样本写入；停止所有写入者再恢复同一旧静止点数据与旧镜像",
         "验证旧双head、解密、文件/向量、登录/工作流/计费",
@@ -4689,27 +4401,16 @@
         "记录RTO与操作负责人；禁止image-only downgrade"
       ],
       "commands": [],
-      "acceptance": [
-        "旧版可真实运行，数据来自同一恢复点",
-        "RTO/RPO可接受且无不受控任务重放"
-      ],
-      "evidence": [
-        "evidence/V06/result.json",
-        "evidence/V06/execution.log"
-      ],
+      "acceptance": ["旧版可真实运行，数据来自同一恢复点", "RTO/RPO可接受且无不受控任务重放"],
+      "evidence": ["evidence/V06/result.json", "evidence/V06/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/V06/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/V06/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "R02",
       "title": "版本文档与环境上线操作包",
-      "dependencies": [
-        "V06"
-      ],
+      "dependencies": ["V06"],
       "owner_role": "发布负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4721,13 +4422,8 @@
         "design.md#decisions",
         "evidence/V06/result.json"
       ],
-      "write_scope": [
-        "docs/dify-plus/** 本轮升级文档",
-        "受控发布清单"
-      ],
-      "resources": [
-        "git_index"
-      ],
+      "write_scope": ["docs/dify-plus/** 本轮升级文档", "受控发布清单"],
+      "resources": ["git_index"],
       "steps": [
         "核验 M01 已对齐的版本字段，更新十挂点新坐标、运行手册、AGENTS baseline 与所有验证证据",
         "修订旧强制WebApp登录/旧migration018/旧前端路径；P4/P6仅标后续重定基线",
@@ -4740,23 +4436,15 @@
         "可执行环境包无占位符，演练证据完整",
         "tag对应已验证代码，明确不代表生产已上线"
       ],
-      "evidence": [
-        "evidence/R02/result.json",
-        "evidence/R02/execution.log"
-      ],
+      "evidence": ["evidence/R02/result.json", "evidence/R02/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/R02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/R02/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D00",
       "title": "生产变更授权与放行",
-      "dependencies": [
-        "R02"
-      ],
+      "dependencies": ["R02"],
       "owner_role": "发布负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4768,37 +4456,23 @@
         "design.md#decisions",
         "evidence/R02/result.json"
       ],
-      "write_scope": [
-        "生产审批记录"
-      ],
-      "resources": [
-        "发布负责人"
-      ],
+      "write_scope": ["生产审批记录"],
+      "resources": ["发布负责人"],
       "steps": [
         "提交精确版本、停机窗口、数据删除影响、备份恢复点、RPO/RTO给用户确认",
         "确认所需镜像已可拉取、备份容量与责任人在线；超阈值则延期"
       ],
       "commands": [],
-      "acceptance": [
-        "取得明确生产执行授权且全部前置通过"
-      ],
-      "evidence": [
-        "evidence/D00/result.json",
-        "evidence/D00/execution.log"
-      ],
+      "acceptance": ["取得明确生产执行授权且全部前置通过"],
+      "evidence": ["evidence/D00/result.json", "evidence/D00/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D00/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D00/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D01",
       "title": "封入口、停写与一致快照",
-      "dependencies": [
-        "D00"
-      ],
+      "dependencies": ["D00"],
       "owner_role": "运维负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4810,39 +4484,24 @@
         "design.md#decisions",
         "evidence/D00/result.json"
       ],
-      "write_scope": [
-        "生产入口/调度/队列/全套备份"
-      ],
-      "resources": [
-        "production_window"
-      ],
+      "write_scope": ["生产入口/调度/队列/全套备份"],
+      "resources": ["production_window"],
       "steps": [
         "按runbook停新请求、触发器/beat，按截止时间排空或冻结在途任务，再停worker/API/Agent/plugin等写入者",
         "核实无外部写入者，记录DB/向量/文件/Redis同一静止点",
         "备份并验证可读取恢复，记录所有版本与密钥受控引用"
       ],
       "commands": [],
-      "acceptance": [
-        "写入静止，备份完整可恢复",
-        "在途任务和恢复后重投策略已记录"
-      ],
-      "evidence": [
-        "evidence/D01/result.json",
-        "evidence/D01/execution.log"
-      ],
+      "acceptance": ["写入静止，备份完整可恢复", "在途任务和恢复后重投策略已记录"],
+      "evidence": ["evidence/D01/result.json", "evidence/D01/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D01/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D01/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D02",
       "title": "执行环境向量路径",
-      "dependencies": [
-        "D01"
-      ],
+      "dependencies": ["D01"],
       "owner_role": "向量负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4854,38 +4513,24 @@
         "design.md#decisions",
         "evidence/D01/result.json"
       ],
-      "write_scope": [
-        "生产向量引擎"
-      ],
-      "resources": [
-        "production_window"
-      ],
+      "write_scope": ["生产向量引擎"],
+      "resources": ["production_window"],
       "steps": [
         "仅执行V04已演练同版本同拓扑路径，逐站验证后推进",
         "其他向量库分支执行健康/兼容确认，不更换无关镜像",
         "任一步异常停止；恢复当前站配对快照，后续不得启动"
       ],
       "commands": [],
-      "acceptance": [
-        "实际版本/schema/检索与演练一致"
-      ],
-      "evidence": [
-        "evidence/D02/result.json",
-        "evidence/D02/execution.log"
-      ],
+      "acceptance": ["实际版本/schema/检索与演练一致"],
+      "evidence": ["evidence/D02/result.json", "evidence/D02/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D02/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D02/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D03",
       "title": "执行单一双链迁移",
-      "dependencies": [
-        "D02"
-      ],
+      "dependencies": ["D02"],
       "owner_role": "数据库负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4897,12 +4542,8 @@
         "design.md#decisions",
         "evidence/D02/result.json"
       ],
-      "write_scope": [
-        "生产DB主链与extend链"
-      ],
-      "resources": [
-        "production_window"
-      ],
+      "write_scope": ["生产DB主链与extend链"],
+      "resources": ["production_window"],
       "steps": [
         "仅启动必要中间件，用目标 fork API 单job先db upgrade再extend_db upgrade",
         "核对两head与破坏性迁移审计，不盲目stamp或重试",
@@ -4913,23 +4554,15 @@
         "双head、数据对账、模型凭据读回满足目标",
         "所有业务容器自动迁移关闭后才允许启动"
       ],
-      "evidence": [
-        "evidence/D03/result.json",
-        "evidence/D03/execution.log"
-      ],
+      "evidence": ["evidence/D03/result.json", "evidence/D03/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D03/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D03/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     },
     {
       "id": "D04",
       "title": "启动、业务放行与观察",
-      "dependencies": [
-        "D03"
-      ],
+      "dependencies": ["D03"],
       "owner_role": "发布与业务负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
@@ -4941,12 +4574,8 @@
         "design.md#decisions",
         "evidence/D03/result.json"
       ],
-      "write_scope": [
-        "生产服务/入口/观察记录"
-      ],
-      "resources": [
-        "production_window"
-      ],
+      "write_scope": ["生产服务/入口/观察记录"],
+      "resources": ["production_window"],
       "steps": [
         "用配对 digest 启动 API/Web/必要中间件及受控 worker/必要队列，beat/trigger 继续暂停；在封闭入口完成登录/模型/异步工作流/真实扣费/知识库 smoke",
         "必测通过后逐步开放入口，按既定策略开放其余任务消费并恢复 beat/trigger 调度",
@@ -4958,19 +4587,13 @@
         "真实业务负责人签收与观察通过，才标 deployed",
         "任何恢复后的新写入损失按RPO记录，绝不自动删除旧快照"
       ],
-      "evidence": [
-        "evidence/D04/result.json",
-        "evidence/D04/execution.log"
-      ],
+      "evidence": ["evidence/D04/result.json", "evidence/D04/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": [
-        "evidence/D04/result.json",
-        "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      "outputs": ["evidence/D04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     }
   ],
-  "next_subtask": "M08/14.14_recandidate_after_v02_root_cause_repairs",
+  "next_subtask": "M08/14.16_recandidate_after_metadata_formatting",
   "execution_control": {
     "coordinator_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
     "updated_at": "2026-09-29",
@@ -5014,10 +4637,9 @@
     ],
     "current_dispatches": [],
     "next_critical_path": [
-      "M06/12.7 and V02/16.8 diagnostic triage are complete; 16.8 remains blocked at the first ESLint gate with no downstream gates counted.",
-      "M05/11.8, M06/12.7, M08/14.11, 14.12 and independent Luna/14.13 review all passed (4 files, 88 tests); coordinator now freezes the repaired source candidate.",
-      "After exact-commit structural acceptance, V02/16.9 runs against the new candidate with all existing workspace overlays including sdks/nodejs-client/node_modules.",
-      "After source V01/V02 gates pass, continue R01 and V03-V06; deployment and production acceptance remain pending."
+      "M08/14.15 passed: eight registered coordinator metadata paths were formatted; exact 12-path formatter check and diff-check passed.",
+      "M08/14.16 freezes a metadata-only successor on the existing branch with exact allowlist equality and source/test identity checks.",
+      "V02/16.10 retries the new exact candidate with all 12 existing workspace overlays; stop at the first failed gate."
     ],
     "quality_gates_unchanged": true,
     "coordinator_handoff": {

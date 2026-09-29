@@ -5,7 +5,7 @@
   "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
   "worktree_head": "ba33fe26dc21ae3a308f14a61999009fc2849779",
   "status": "blocked",
-  "summary": "16.8 clean archive passed formatting on 8,934 files, then failed lint:eslint with 12 errors and 1,931 warnings. Root-cause triage routed real M05 contract/cache mismatches and the M08 retention_number regression to scoped fixes; M06/12.7 and M08/14.12 are repaired. The Node SDK config diagnostic came from an omitted existing node_modules overlay. Later gates were stopped at first failure.",
+  "summary": "V02/16.9 validated the exact new candidate and all 12 existing dependency overlays, including the SDK. pnpm check stopped at formatting on seven coordinator-owned OpenSpec report/state files; no source lint or later gates ran. A bounded metadata-format repair and new candidate are registered.",
   "environment": {
     "node": "v24.20.0",
     "pnpm": "12.3.4",
@@ -46,13 +46,8 @@
       }
     ],
     "worktree_examples_from_checker_output": {
-      "tracked_modified": [
-        "openspec/changes/merge-upstream-1-17-1/execution-graph.json"
-      ],
-      "untracked": [
-        ".claude/commands/opsx/apply.md",
-        ".tmp/phase5/lock-upstream.yaml"
-      ]
+      "tracked_modified": ["openspec/changes/merge-upstream-1-17-1/execution-graph.json"],
+      "untracked": [".claude/commands/opsx/apply.md", ".tmp/phase5/lock-upstream.yaml"]
     }
   },
   "reused_m08": [
@@ -135,33 +130,33 @@
   "no_source_test_changes_or_fixes": true,
   "no_staging_or_commit": true,
   "latest_attempt": {
-    "task_id": "16.8_candidate_snapshot_v02_retry_complete_workspace_node_modules_overlay",
-    "candidate_commit": "95101d76b955481ce6c9519596aeea426680fa71",
-    "candidate_tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+    "task_id": "16.9_final_candidate_post_fix_complete_overlay",
+    "candidate_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+    "candidate_tree": "219f855a099258cbb712daae55e5a365390189ac",
     "status": "blocked",
-    "result": "evidence/V02/16.8-final-candidate-result.json",
-    "result_sha256": "0535710ef1cd59b1c6d65f6596125e1e5858475306575604d62883df3218ba6b",
-    "first_failed_gate": "pnpm check / lint:eslint",
-    "formatter": "passed: 8,934 files",
-    "lint_eslint": "failed: 12 errors / 1,931 warnings / 6,910 files",
+    "result": "evidence/V02/16.9-final-candidate-result.json",
+    "result_sha256": "144b72e21e5f889765e4100f1db3b8f92a492689303aa538bcd94b32fe426fed",
+    "log": "evidence/V02/16.9-final-candidate.log",
+    "log_sha256": "416da374084b134fa519925d5a132a5360bf5c117e9fc245135781133b78c639",
+    "first_failed_gate": "pnpm check / vp check formatter",
+    "failure_count": 7,
     "changed_from_candidate_parent": false,
-    "next_attempt": "new candidate after M05/11.8 and M08/14.11 fixes; include sdks/nodejs-client/node_modules overlay"
+    "next_attempt": "16.10_final_candidate_metadata_format_retry_after_14.15_and_14.16"
   },
   "current_candidate": {
-    "commit": "95101d76b955481ce6c9519596aeea426680fa71",
-    "tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
-    "status": "blocked",
-    "next_attempt": "new candidate after registered source fixes"
+    "commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+    "tree": "219f855a099258cbb712daae55e5a365390189ac",
+    "status": "blocked_formatter_followup",
+    "next_attempt": "metadata-only successor after M08/14.15"
   },
   "next_attempt": {
-    "task_id": "post-source-fix-v02-candidate-retry",
-    "status": "pending_source_fixes",
+    "task_id": "16.10_final_candidate_metadata_format_retry",
+    "status": "pending_format_followup",
     "candidate_commit": null,
     "dependencies": [
-      "M05/11.8 passed",
-      "M08/14.11 passed",
-      "new M08 structural acceptance passed",
-      "complete workspace node_modules overlay includes sdks/nodejs-client"
+      "M08/14.15 passed",
+      "M08/14.16 structural acceptance passed",
+      "SDK node_modules overlay included"
     ]
   }
 }

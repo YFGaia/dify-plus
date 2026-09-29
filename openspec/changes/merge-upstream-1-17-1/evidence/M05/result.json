@@ -171,10 +171,7 @@
       "model": "gpt-6-astra",
       "agent": "/root/m05_11_3_workspace_atoms",
       "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
-      "registered_scope_commits": [
-        "396f8aff2add33879b44de1f01eed8a4bfd689fe",
-        "cc0eb704da"
-      ],
+      "registered_scope_commits": ["396f8aff2add33879b44de1f01eed8a4bfd689fe", "cc0eb704da"],
       "changed_paths": [
         "web/context/app-context-defaults.ts",
         "web/context/app-context-extend.ts",
@@ -427,7 +424,7 @@
         "web/test/console/current-workspace.ts": "7556fe9178fd35d834ee68b8a32f28026927c405e0ede60e332aca5104666400",
         "web/app/components/main-nav/components/__tests__/workspace-card.spec.tsx": "9ffc7ee3c932b1eb6e9ce78b0871fc78da5976a217ea4b8b8bb5be61b7cfbf6d"
       },
-      "evidence_sha256": "c55c5d9d0a619ba86dcef3737e166d4ca58c2ffff9bc7837d8a6031af4d4273b",
+      "evidence_sha256": "70755ff3753dfeebcdbe62bc8e0955ccfc560454604d6eb5e79f81c459e691fa",
       "focused_tests": "53 passed"
     }
   },
@@ -443,15 +440,7 @@
   "codegen_investigation": "evidence/M05/codegen-investigation.json",
   "codegen_analysis": "evidence/M05/codegen-analysis.md",
   "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
-  "tasks_complete": [
-    "11.1",
-    "11.2",
-    "11.3",
-    "11.4",
-    "11.5",
-    "11.6",
-    "11.8"
-  ],
+  "tasks_complete": ["11.1", "11.2", "11.3", "11.4", "11.5", "11.6", "11.8"],
   "next_subtask": "M06/M08",
   "followup_context_contract": {
     "status": "passed",
