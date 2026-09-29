@@ -1198,7 +1198,7 @@
           },
           {
             "id": "12.5a_locale_group_a",
-            "status": "implementation_in_progress",
+            "status": "independent_review_provisioning",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -1215,7 +1215,34 @@
               "web/i18n/it-IT/extend.json",
               "web/i18n/lo-LA/extend.json"
             ],
-            "agent": "/root/m06_12_5a_locale_a"
+            "agent": "/root/m06_12_5a_locale_a",
+            "source_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
+            "verification": {
+              "json_parse": "9 locale files passed python3 -m json.tool",
+              "key_order": "all 9 contain 135 keys in en-US order",
+              "placeholders": "all interpolation tokens match en-US exactly",
+              "baseline_values": "the original 50 values in eight existing locale files match commit ebeaa1926d",
+              "diff_check_exit_code": 0,
+              "i18n_check": {
+                "command": "pnpm i18n:check --file extend --lang ar-TN de-DE es-ES fa-IR fr-FR hi-IN id-ID it-IT lo-LA",
+                "runtime": "Node 24.20.0 and pinned pnpm 12.3.4; elevated retry required because default sandbox denied tsx Unix socket listen",
+                "exit_code": 0,
+                "missing_key_counts": {
+                  "ar-TN": 0,
+                  "de-DE": 0,
+                  "es-ES": 0,
+                  "fa-IR": 0,
+                  "fr-FR": 0,
+                  "hi-IN": 0,
+                  "id-ID": 0,
+                  "it-IT": 0,
+                  "lo-LA": 0
+                }
+              }
+            },
+            "review_model": "gpt-6-luna",
+            "review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
+            "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9"
           },
           {
             "id": "12.5b_locale_group_b",
@@ -1412,7 +1439,7 @@
           "dispatch_channel": "codex_project_worktree"
         },
         "12.5a_locale_group_a": {
-          "status": "implementation_in_progress",
+          "status": "independent_review_provisioning",
           "owner": "M06",
           "model": "gpt-6-astra",
           "agent": "/root/m06_12_5a_locale_a",
@@ -1426,7 +1453,34 @@
             "web/i18n/id-ID/extend.json",
             "web/i18n/it-IT/extend.json",
             "web/i18n/lo-LA/extend.json"
-          ]
+          ],
+          "source_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
+          "verification": {
+            "json_parse": "9 locale files passed python3 -m json.tool",
+            "key_order": "all 9 contain 135 keys in en-US order",
+            "placeholders": "all interpolation tokens match en-US exactly",
+            "baseline_values": "the original 50 values in eight existing locale files match commit ebeaa1926d",
+            "diff_check_exit_code": 0,
+            "i18n_check": {
+              "command": "pnpm i18n:check --file extend --lang ar-TN de-DE es-ES fa-IR fr-FR hi-IN id-ID it-IT lo-LA",
+              "runtime": "Node 24.20.0 and pinned pnpm 12.3.4; elevated retry required because default sandbox denied tsx Unix socket listen",
+              "exit_code": 0,
+              "missing_key_counts": {
+                "ar-TN": 0,
+                "de-DE": 0,
+                "es-ES": 0,
+                "fa-IR": 0,
+                "fr-FR": 0,
+                "hi-IN": 0,
+                "id-ID": 0,
+                "it-IT": 0,
+                "lo-LA": 0
+              }
+            }
+          },
+          "review_model": "gpt-6-luna",
+          "review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
+          "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9"
         },
         "12.5b_locale_group_b": {
           "status": "conversation_provisioning",
