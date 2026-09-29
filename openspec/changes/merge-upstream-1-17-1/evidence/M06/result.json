@@ -567,7 +567,7 @@
       }
     },
     "12.5a_locale_group_a": {
-      "status": "passed",
+      "status": "passed_after_follow_up",
       "owner": "M06",
       "model": "gpt-6-astra",
       "dependencies": [
@@ -615,7 +615,7 @@
       "superseded_review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
       "review_thread_id": "01a0eb23-5525-7453-b3ca-7a750f637ca6",
       "review_title": "M06 12.5a systemManage 多语言独立复核",
-      "review_status": "passed_after_follow_up",
+      "review_status": "passed",
       "dispatch_channel": "codex_fork_same_directory",
       "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
       "observation": "Independent Luna review completed; no blocker, one P3 Indonesian wording refinement is registered for follow-up.",
@@ -639,7 +639,8 @@
         ]
       },
       "follow_up_commit": "0b360565b4c733660225faecfd337538a0d635c3",
-      "follow_up_review": "evidence/M06/12.5-follow-up-review.md"
+      "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
+      "follow_up_evidence": "evidence/M06/12.5-follow-up-review.md"
     },
     "12.5b_locale_group_b": {
       "status": "passed",
@@ -786,7 +787,7 @@
     },
     "12.5bc_independent_luna_review": {
       "id": "12.5bc_independent_luna_review",
-      "status": "passed",
+      "status": "passed_after_follow_up",
       "owner": "M06",
       "model": "gpt-6-luna",
       "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
@@ -808,7 +809,7 @@
       "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics.",
       "superseded_review_client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
       "review_thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
-      "review_status": "passed_after_follow_up",
+      "review_status": "passed",
       "dispatch_channel": "codex_fork_same_directory",
       "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
       "observation": "Re-reviewed after locale corrections: Indonesian Edit labels use Ubah; Polish tenant wording is clear and preserves sandbox-full to standard sandbox behavior. 13 locales still have 85 keys each with zero missing/extra keys and zero placeholder mismatches. No P1/P2/P3 findings remain.",
@@ -831,26 +832,20 @@
       "missing_extra_keys": 0,
       "placeholder_mismatches": 0,
       "evidence": "evidence/M06/12.5-luna-review.md",
-      "resolved_findings": [
-        {
-          "priority": "P2",
-          "locale": "pl-PL",
-          "keys": [
-            "systemManage.codeExecutionControl.deleteConfirmContent",
-            "systemManage.codeExecutionControl.description"
-          ],
-          "issue": "Polish dzierżawa implies a lease/tenancy and ambiguously describes the SaaS tenant in elevated sandbox allowlist controls.",
-          "recommendation": {
-            "systemManage.codeExecutionControl.deleteConfirmContent": "Usunąć {{email}} z listy dozwolonych adresów? Węzły kodu w tenantach tego użytkownika powrócą do standardowej piaskownicy.",
-            "systemManage.codeExecutionControl.description": "Dozwolone adresy e-mail na tej liście należą do właścicieli tenantów. Węzły kodu w ich tenantach będą uruchamiane w pełnej piaskownicy (sandbox-full). Gdy lista jest pusta, wszystkie tenanty korzystają ze standardowej piaskownicy."
-          }
-        }
-      ],
+      "resolved_findings": [],
       "follow_up_commits": {
         "id_ID": "0b360565b4c733660225faecfd337538a0d635c3",
         "pl_PL": "84805a93186032f84245c01bdbc3ec620c325d63"
       },
-      "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
+      "follow_up_review": {
+        "status": "passed",
+        "model": "gpt-6-luna",
+        "reviewer": "/root/m06_12_5_locale_followup_review",
+        "review_target_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+        "polish_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
+        "findings_remaining": [],
+        "evidence": "evidence/M06/12.5-follow-up-review.md"
+      },
       "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3"
     },
     "12.5_language_corrections": {
@@ -865,32 +860,57 @@
         "id-ID": "0b360565b4c733660225faecfd337538a0d635c3",
         "pl-PL": "84805a93186032f84245c01bdbc3ec620c325d63"
       },
-      "review_task": "/root/m06_12_5_locale_followup_review",
-      "review_status": "passed",
       "scope": "Resolve one P3 Indonesian residual-English finding and one P2 Polish tenant/sandbox terminology finding; preserve placeholders, key order, and security semantics.",
       "verification": {
         "node": "24.20.0",
-        "json_key_order_placeholders": "passed for both locales; 135 keys each and localized-values assertions passed",
+        "json_key_order_placeholders": "passed for both locales; 135 keys each and localized-value assertions passed",
         "git_diff_check": "passed",
-        "pnpm_i18n_parity": "not run; pnpm unexpectedly attempted dependency auto-install and was stopped before installation; no manifest/lock changes"
+        "pnpm_i18n_parity": "not run; root pnpm attempted dependency auto-install because tsx is missing and was stopped before any dependency/lock change"
       },
       "independent_review": {
         "status": "passed",
-        "reviewer": "independent gpt-6-luna subtask /root/m06_12_5_locale_followup_review",
+        "model": "gpt-6-luna",
+        "reviewer": "/root/m06_12_5_locale_followup_review",
         "review_target_commit": "0b360565b4c733660225faecfd337538a0d635c3",
-        "prior_pl_fix_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
         "findings_remaining": [],
-        "checked_keys": [
-          "id-ID systemManage.quota.action.edit",
-          "id-ID systemManage.quota.editDialog.title",
-          "pl-PL systemManage.codeExecutionControl.deleteConfirmContent",
-          "pl-PL systemManage.codeExecutionControl.description"
-        ],
-        "result": "Both original P3/P2 findings are resolved; placeholders and sandbox-full to standard-sandbox behavior remain accurate. No P1/P2/P3 findings remain.",
-        "scope": "Read-only focused translation review; no pnpm parity run, edits, or commits.",
         "evidence": "evidence/M06/12.5-follow-up-review.md"
-      }
+      },
+      "observation": "Both locale corrections are integrated and independently re-reviewed; scoped i18n parity should be rerun with a complete dependency environment."
+    },
+    "12.3_app_api_key_quota_and_balance": {
+      "id": "12.3_app_api_key_quota_and_balance",
+      "status": "implementation_in_progress",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
+      "title": "M06 12.3 API key 与余额实现",
+      "created_from_commit": "20fcdc3f2382458c241f9f065ce7990513e480bb",
+      "dispatch_channel": "codex_fork_same_directory",
+      "registered_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/api-key-table.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "web/app/components/main-nav/components/account-money-extend.tsx",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "observed_modified_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/api-key-table.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "web/app/components/main-nav/components/account-money-extend.tsx",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "dependencies": [
+        "12.3_analysis:analysis_complete_paths_registered",
+        "M05 11.2 login_config contract"
+      ],
+      "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
+      "analysis_evidence": "evidence/M06/12.3-analysis.md",
+      "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted.",
+      "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
     }
   },
-  "next_subtask": "12.3_analysis"
+  "next_subtask": "12.3_app_api_key_quota_and_balance"
 }

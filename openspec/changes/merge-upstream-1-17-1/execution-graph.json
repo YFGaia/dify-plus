@@ -1130,22 +1130,43 @@
           "12.5_analysis",
           "12.5_language_corrections",
           "12.5a_locale_review",
-          "preflight"
+          "preflight",
+          "12.5a_locale_group_a",
+          "12.5bc_independent_luna_review"
         ],
         "current_subtask": {
-          "id": "12.5_language_corrections",
-          "status": "conversation_provisioning",
+          "id": "12.3_app_api_key_quota_and_balance",
+          "status": "implementation_in_progress",
+          "owner": "M06",
           "model": "gpt-6-astra",
-          "client_thread_id": "client-new-thread:f971e5f0-0552-49fc-a70a-acc9f8bdd5e2",
-          "title": "M06 12.5 印尼语 P3 修正",
-          "base_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
+          "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
+          "title": "M06 12.3 API key 与余额实现",
+          "created_from_commit": "20fcdc3f2382458c241f9f065ce7990513e480bb",
+          "dispatch_channel": "codex_fork_same_directory",
           "registered_paths": [
-            "web/i18n/id-ID/extend.json"
+            "web/app/components/api-key/api-key-modal.tsx",
+            "web/app/components/api-key/api-key-table.tsx",
+            "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+            "web/app/components/main-nav/components/account-money-extend.tsx",
+            "web/app/components/main-nav/index.tsx",
+            "web/app/components/main-nav/__tests__/index.spec.tsx"
           ],
-          "dispatch_channel": "codex_project_worktree",
-          "scope": "Correct only the two reviewed Indonesian Edit labels in id-ID/extend.json; Polish P2 wording is already fixed in 84805a93186032f84245c01bdbc3ec620c325d63 and is excluded from this implementation. Preserve 135-key order, interpolation, and all unrelated values.",
-          "source_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
-          "evidence": "evidence/M06/result.json#/subtasks/12.5_language_corrections"
+          "observed_modified_paths": [
+            "web/app/components/api-key/api-key-modal.tsx",
+            "web/app/components/api-key/api-key-table.tsx",
+            "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+            "web/app/components/main-nav/components/account-money-extend.tsx",
+            "web/app/components/main-nav/index.tsx",
+            "web/app/components/main-nav/__tests__/index.spec.tsx"
+          ],
+          "dependencies": [
+            "12.3_analysis:analysis_complete_paths_registered",
+            "M05 11.2 login_config contract"
+          ],
+          "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
+          "analysis_evidence": "evidence/M06/12.3-analysis.md",
+          "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted.",
+          "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
         },
         "next_subtask": "12.3_app_api_key_quota_and_balance",
         "parallel_subtasks": [
@@ -1310,7 +1331,7 @@
           },
           {
             "id": "12.5a_locale_group_a",
-            "status": "passed",
+            "status": "passed_after_follow_up",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -1359,9 +1380,9 @@
             "review_title": "M06 12.5a systemManage 多语言独立复核",
             "dispatch_channel": "codex_fork_same_directory",
             "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
-            "observation": "The original independent Luna review passed with one localized P3 Indonesian wording follow-up; a later duplicate review fork was stopped and superseded.",
+            "observation": "Initial Luna review had no blockers and one P3 Indonesian wording suggestion; that text was corrected and passed independent follow-up.",
             "superseded_duplicate_review_thread_id": "01a0eb21-61a6-7ad1-b2aa-b74eb261c9c2",
-            "review_status": "passed_after_follow_up",
+            "review_status": "passed",
             "review_result": {
               "status": "completed_no_blockers_one_p3",
               "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
@@ -1382,7 +1403,8 @@
               "checks": "No P1/P2 issue and no misleading operational translation found. No tests or edits were performed by the reviewer."
             },
             "follow_up_commit": "0b360565b4c733660225faecfd337538a0d635c3",
-            "follow_up_review": "evidence/M06/12.5-follow-up-review.md"
+            "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
+            "follow_up_evidence": "evidence/M06/12.5-follow-up-review.md"
           },
           {
             "id": "12.5b_locale_group_b",
@@ -1490,7 +1512,7 @@
           },
           {
             "id": "12.5bc_independent_luna_review",
-            "status": "passed",
+            "status": "passed_after_follow_up",
             "owner": "M06",
             "model": "gpt-6-luna",
             "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
@@ -1515,18 +1537,30 @@
             "superseded_review_client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
             "review_thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
             "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
-            "observation": "Re-reviewed after locale corrections: Indonesian Edit labels use Ubah; Polish tenant wording is clear and preserves sandbox-full to standard sandbox behavior. 13 locales still have 85 keys each with zero missing/extra keys and zero placeholder mismatches. No P1/P2/P3 findings remain.",
-            "review_status": "passed_after_follow_up",
+            "observation": "Initial P2 Polish terminology finding was corrected; independent follow-up found no remaining localization issues.",
+            "review_status": "passed",
             "finding_count": 0,
             "superseded_client_thread_id": null,
             "thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
-            "resolved_findings": [],
+            "resolved_findings": [
+              {
+                "priority": "P2",
+                "locale": "pl-PL",
+                "keys": [
+                  "systemManage.codeExecutionControl.deleteConfirmContent",
+                  "systemManage.codeExecutionControl.description"
+                ],
+                "resolution_commit": "84805a93186032f84245c01bdbc3ec620c325d63"
+              }
+            ],
             "follow_up_commits": {
               "id_ID": "0b360565b4c733660225faecfd337538a0d635c3",
               "pl_PL": "84805a93186032f84245c01bdbc3ec620c325d63"
             },
             "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
-            "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3"
+            "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+            "follow_up_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
+            "follow_up_evidence": "evidence/M06/12.5-follow-up-review.md"
           },
           {
             "id": "12.5_language_corrections",
@@ -1544,7 +1578,58 @@
               "12.5_luna_review"
             ],
             "scope": "Correct one P3 Indonesian label issue and one P2 Polish tenant/sandbox safety translation issue reported by independent Luna; preserve key order, placeholders, and unrelated existing values.",
-            "review_status": "passed"
+            "review_status": "passed",
+            "source_commits": {
+              "id-ID": "0b360565b4c733660225faecfd337538a0d635c3",
+              "pl-PL": "84805a93186032f84245c01bdbc3ec620c325d63"
+            },
+            "verification_evidence": "evidence/M06/12.5-follow-up-review.md",
+            "verification": {
+              "node": "24.20.0",
+              "json_key_order_placeholders": "passed for both locales; 135 keys each and localized-value assertions passed",
+              "git_diff_check": "passed",
+              "pnpm_i18n_parity": "not run; root pnpm attempted missing tsx dependency installation and stopped without manifest/lock changes"
+            },
+            "independent_review": {
+              "status": "passed",
+              "review_target_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+              "follow_up_evidence": "evidence/M06/12.5-follow-up-review.md",
+              "findings_remaining": []
+            },
+            "observation": "Both registered locale corrections are committed and independently re-reviewed; complete parity after the correction remains to be rerun."
+          },
+          {
+            "id": "12.3_app_api_key_quota_and_balance",
+            "status": "implementation_in_progress",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
+            "title": "M06 12.3 API key 与余额实现",
+            "created_from_commit": "20fcdc3f2382458c241f9f065ce7990513e480bb",
+            "dispatch_channel": "codex_fork_same_directory",
+            "registered_paths": [
+              "web/app/components/api-key/api-key-modal.tsx",
+              "web/app/components/api-key/api-key-table.tsx",
+              "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+              "web/app/components/main-nav/components/account-money-extend.tsx",
+              "web/app/components/main-nav/index.tsx",
+              "web/app/components/main-nav/__tests__/index.spec.tsx"
+            ],
+            "observed_modified_paths": [
+              "web/app/components/api-key/api-key-modal.tsx",
+              "web/app/components/api-key/api-key-table.tsx",
+              "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+              "web/app/components/main-nav/components/account-money-extend.tsx",
+              "web/app/components/main-nav/index.tsx",
+              "web/app/components/main-nav/__tests__/index.spec.tsx"
+            ],
+            "dependencies": [
+              "12.3_analysis:analysis_complete_paths_registered",
+              "M05 11.2 login_config contract"
+            ],
+            "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
+            "analysis_evidence": "evidence/M06/12.3-analysis.md",
+            "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted."
           }
         ],
         "completed_analyses": [
@@ -2111,6 +2196,39 @@
             "scope": "Read-only focused translation review; no pnpm parity run, edits, or commits.",
             "evidence": "evidence/M06/12.5-follow-up-review.md"
           }
+        },
+        "12.3_app_api_key_quota_and_balance": {
+          "id": "12.3_app_api_key_quota_and_balance",
+          "status": "implementation_in_progress",
+          "owner": "M06",
+          "model": "gpt-6-astra",
+          "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
+          "title": "M06 12.3 API key 与余额实现",
+          "created_from_commit": "20fcdc3f2382458c241f9f065ce7990513e480bb",
+          "dispatch_channel": "codex_fork_same_directory",
+          "registered_paths": [
+            "web/app/components/api-key/api-key-modal.tsx",
+            "web/app/components/api-key/api-key-table.tsx",
+            "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+            "web/app/components/main-nav/components/account-money-extend.tsx",
+            "web/app/components/main-nav/index.tsx",
+            "web/app/components/main-nav/__tests__/index.spec.tsx"
+          ],
+          "observed_modified_paths": [
+            "web/app/components/api-key/api-key-modal.tsx",
+            "web/app/components/api-key/api-key-table.tsx",
+            "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+            "web/app/components/main-nav/components/account-money-extend.tsx",
+            "web/app/components/main-nav/index.tsx",
+            "web/app/components/main-nav/__tests__/index.spec.tsx"
+          ],
+          "dependencies": [
+            "12.3_analysis:analysis_complete_paths_registered",
+            "M05 11.2 login_config contract"
+          ],
+          "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
+          "analysis_evidence": "evidence/M06/12.3-analysis.md",
+          "observation": "A fresh Astra conversation is completing the already-present registered-path draft, adding focused tests as needed; the root-owned code paths remain unstaged and uncommitted."
         }
       }
     },
@@ -2186,11 +2304,10 @@
         ],
         "current_subtask": {
           "id": "13.4",
-          "status": "independent_review_in_progress",
+          "status": "passed_with_nonblocking_p3",
           "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation",
           "implementation_commit": "1b1ddf4eb3",
-          "review_status": "in_progress",
-          "review_thread_id": "01a0eb20-f978-71e3-9dbf-396839a34414",
+          "review_status": "passed",
           "review_title": "M07 13.4 init_secret_key 独立复核",
           "superseded_review_client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
           "review_target_commit": "1b1ddf4eb3",
@@ -2199,7 +2316,7 @@
           ],
           "dispatch_channel": "codex_fork_same_directory",
           "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
-          "observation": "A fresh independent Luna conversation is actively reviewing the exact implementation commit.",
+          "observation": "The accepted independent Luna static review is recorded in evidence/M07/13.4-independent-review.md; a redundant same-scope conversation was stopped.",
           "independent_review": {
             "status": "passed",
             "reviewer": "independent gpt-6-luna subtask /root/m07_13_4_luna_review",
@@ -2222,7 +2339,8 @@
               "Dedicated assertion results are recorded from the implementation task and were not rerun by this reviewer"
             ]
           },
-          "next_subtask": "13.6_deferred"
+          "next_subtask": "13.6_deferred",
+          "superseded_duplicate_review_thread_id": "01a0eb20-f978-71e3-9dbf-396839a34414"
         },
         "next_subtask": "13.6_deferred"
       },

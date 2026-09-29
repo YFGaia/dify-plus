@@ -493,7 +493,7 @@
         }
       },
       "post_implementation_review": {
-        "status": "passed",
+        "status": "passed_with_nonblocking_p3",
         "reviewer": "independent gpt-6-luna subtask /root/m07_13_4_luna_review",
         "target_commit": "1b1ddf4eb3a84a903022767d68e466f5bbe82cdb",
         "scope": "Read-only static review of Compose seed gate, seven consumer dependencies, init_permissions fail-closed behavior, migration guidance, default-disabled Agent v2 and blank token examples.",
@@ -512,7 +512,13 @@
           "No deployment or container run",
           "No real volume or secret inspection",
           "Dedicated assertion results are recorded from the implementation task and were not rerun by this reviewer"
-        ]
+        ],
+        "superseded_client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
+        "dispatch_channel": "codex_fork_same_directory",
+        "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+        "provisioning_note": "The already-completed independent Luna review in evidence/M07/13.4-independent-review.md was accepted; a redundant same-scope fresh conversation was stopped.",
+        "review_status": "passed",
+        "superseded_duplicate_review_thread_id": "01a0eb20-f978-71e3-9dbf-396839a34414"
       }
     },
     "13.5": {
