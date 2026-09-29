@@ -535,7 +535,7 @@
       "evidence": "evidence/M06/12.5b-verification.md"
     },
     "12.5c_locale_group_c": {
-      "status": "conversation_provisioning",
+      "status": "passed",
       "owner": "M06",
       "model": "gpt-6-astra",
       "dependencies": [
@@ -553,7 +553,32 @@
       "client_thread_id": "client-new-thread:d35f1f2d-5fdc-4787-b247-aa69907254fb",
       "base_commit": "d867181b50",
       "created_from_commit": "d867181b50",
-      "dispatch_channel": "codex_project_worktree"
+      "dispatch_channel": "codex_project_worktree",
+      "source_commit": "9290d1ff47de61b66ce0870241914f42eca183c4",
+      "integration_commit": "44395f560311018132d85c4f2bc4d0edadf3789b",
+      "worktree_path": "/Users/liuxingwang/.codex/worktrees/3b0a/dify-plus",
+      "verification": {
+        "json_parse": "All 6 registered locale files passed python3 -m json.tool.",
+        "key_order": "All files contain the same 135 ordered leaf keys as en-US/extend.json.",
+        "placeholders": "Interpolation tokens match en-US exactly for every key.",
+        "baseline_values": "Each locale preserves all 50 pre-existing values from base d867181b50.",
+        "i18n_check": {
+          "command": "pnpm i18n:check --file extend --lang sl-SI th-TH tr-TR uk-UA vi-VN zh-Hant",
+          "runtime": "Node 24.20.0 and pinned pnpm 12.3.4, run from web/ in the root worktree.",
+          "exit_code": 0,
+          "missing_key_counts": {
+            "sl-SI": 0,
+            "th-TH": 0,
+            "tr-TR": 0,
+            "uk-UA": 0,
+            "vi-VN": 0,
+            "zh-Hant": 0
+          }
+        },
+        "diff_check_exit_code": 0,
+        "environment_note": "The detached source worktree lacks tsx; its invocation did not start. The scoped check was rerun successfully in the root worktree with the pinned repository runtime. No dependencies or lockfiles changed."
+      },
+      "evidence": "evidence/M06/12.5c-verification.md"
     },
     "12.5d_obsolete_secret_key_quota_modal": {
       "status": "blocked_by_dependency",
