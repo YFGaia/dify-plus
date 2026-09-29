@@ -1320,13 +1320,16 @@
         "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
         "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
         "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
-        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-verification.md"
       ],
       "scope": "Add optional account=true to three workflow charts. SQLAlchemy joins workflow_run_account_extend on workflow_run_id+tenant_id+app_id+from_account_id; Logstore applies the trusted per-run from_account_id field. Exclude missing/NULL ownership; preserve app-wide defaults and daily-terminals.",
-      "implementation_base_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+      "implementation_base_commit": "ac82f276115ab172623e133e5d4dd39a8e754260",
       "dispatch_channel": "codex_project_local",
       "implementation_model": "gpt-6-astra",
-      "latest_attempt_note": "12.6e passed and committed; 12.6f implementation has started from its registered analysis and nine paths. SQLAlchemy account filtering uses the fork association; Logstore requires confirming the event index/query contract before coding."
+      "latest_attempt_note": "12.6e passed and committed; 12.6f implementation has started from its registered analysis and nine paths. SQLAlchemy account filtering uses the fork association; Logstore requires confirming the event index/query contract before coding.",
+      "implementation_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
+      "thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8"
     },
     "12.6f_workflow_statistics_analysis": {
       "status": "analysis_complete_paths_registered",

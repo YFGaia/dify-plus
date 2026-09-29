@@ -1163,10 +1163,12 @@
             "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
             "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
             "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
-            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+            "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+            "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-verification.md"
           ],
           "scope": "Add account=true to three workflow charts using authenticated RequestContext.account_id; SQLAlchemy association joins scoped by workflow/tenant/app/account; Logstore trusted per-run actor filtering; preserve app-wide default and daily-terminals. Test account isolation, NULL/history, tenant/app scope.",
-          "analysis_evidence": "evidence/M06/12.6f-analysis.md"
+          "analysis_evidence": "evidence/M06/12.6f-analysis.md",
+          "implementation_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8"
         },
         "next_subtask": "12.6f_workflow_account_statistics",
         "parallel_subtasks": [
@@ -1857,7 +1859,7 @@
           },
           {
             "id": "12.6f_workflow_account_statistics",
-            "status": "in_progress",
+            "status": "implementation_in_progress",
             "owner": "M04",
             "model": "gpt-6-astra",
             "registered_paths": [
@@ -1869,7 +1871,8 @@
               "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
               "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
               "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
-              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+              "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+              "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-verification.md"
             ],
             "scope": "After 12.6e, add optional account=true to three workflow charts. SQLAlchemy filters via workflow_run_account_extend joined on workflow_run_id+tenant_id+app_id+from_account_id; Logstore filters its trusted per-run from_account_id event field. Exclude missing/NULL ownership while preserving app-wide defaults and existing source/date semantics.",
             "dependency": "12.6e_workflow_account_ownership_persistence:passed",
@@ -1879,7 +1882,9 @@
             "analysis_base_commit": "59166311d1a864544e6eca1ea4675172bd59d052",
             "analysis_evidence": "evidence/M06/12.6f-analysis.md",
             "registered_paths_confirmed": true,
-            "path_overlap_with_12_6e": "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py and its test are sequentially owned by 12.6f; 12.6e does not edit them."
+            "path_overlap_with_12_6e": "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py and its test are sequentially owned by 12.6f; 12.6e does not edit them.",
+            "implementation_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
+            "dispatch_channel": "codex_project_local"
           },
           {
             "id": "12.6g_user_overview_ui_contract",
