@@ -1155,8 +1155,8 @@
           "model": "gpt-6-astra",
           "base_commit": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8",
           "branch_head": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8",
-          "implementation_thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
           "dispatch_channel": "codex_project_local",
+          "implementation_thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
           "registered_paths": [
             "api/controllers/console/app/workflow_statistic.py",
             "api/services/workflow_statistic_query_service.py",
@@ -1169,7 +1169,13 @@
             "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
             "evidence/M06/12.6f-verification.md"
           ],
-          "scope": "Add authenticated account=true filtering to three workflow charts with SQL association scoping and indexed Logstore actor filtering; preserve app-wide default and daily-terminals."
+          "dependencies": [
+            "12.6e_review_followup:passed",
+            "12.6f_workflow_statistics_analysis:passed",
+            "12.6f_logstore_actor_index:passed",
+            "12.6f_logstore_actor_index_reconciliation:passed"
+          ],
+          "scope": "Add authenticated account=true filtering to three workflow charts. SQLAlchemy uses the ownership association scoped by workflow/tenant/app/account; Logstore filters the trusted from_account_id event field. Exclude missing/NULL ownership and preserve app-wide default and daily-terminals semantics."
         },
         "next_subtask": "12.6f_workflow_account_statistics",
         "parallel_subtasks": [
@@ -1893,9 +1899,10 @@
             "dispatch_channel": "codex_project_local",
             "dependencies": [
               "12.6e_review_followup:passed",
+              "12.6f_workflow_statistics_analysis:passed",
+              "12.6f_logstore_actor_index:passed",
               "12.6f_logstore_actor_index_reconciliation:passed"
             ],
-            "blocked_reason": "Account-scoped Logstore statistics require from_account_id in the workflow_execution index; 12.6f_logstore_actor_index must pass first.",
             "blocked_by": null,
             "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
             "base_commit": "2f94ec34d55ba3ac326e760ce9562a8eb88eb4e8"
@@ -2088,7 +2095,7 @@
           },
           {
             "id": "12.6f_logstore_actor_index_reconciliation",
-            "status": "ready",
+            "status": "passed",
             "owner": "M04",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -2102,11 +2109,11 @@
             ],
             "scope": "For from_account_id only, ensure required index_type=text and doc_value=True even when an existing key has a compatible text/json type but wrong doc_value; correct incompatible actor types without changing global json/text compatibility or custom fields. Add parameterized regressions for wrong actor options and preserve other fields.",
             "implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
-            "verification_status": "passed_root_rechecked",
+            "verification_status": "passed_root_and_independent_luna",
             "focused_tests": "10 passed",
             "ruff_and_format": "passed",
             "diff_check": "passed",
-            "evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+            "evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md",
             "base_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5"
           }
         ],
@@ -2849,9 +2856,20 @@
           ],
           "scope": "Verify/finalize actor-only index reconciliation: force workflow_execution.from_account_id to text/doc_value=True when existing key has incompatible type or disabled doc values, without changing global JSON/text compatibility or custom settings.",
           "analysis_evidence": "evidence/M06/12.6f-analysis.md"
+        },
+        "12.6f_logstore_actor_index_reconciliation": {
+          "id": "12.6f_logstore_actor_index_reconciliation",
+          "status": "passed",
+          "owner": "M04",
+          "model": "gpt-6-astra",
+          "implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+          "verification_evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md",
+          "test_result": "10 passed; independent Luna and root",
+          "static_checks": "Ruff check/format/diff-check passed",
+          "review_result": "No P1/P2/P3"
         }
       },
-      "next_subtask": "12.6f_logstore_actor_index_reconciliation",
+      "next_subtask": "12.6f_workflow_account_statistics",
       "current_subtask": {
         "id": "12.6f_logstore_actor_index",
         "status": "implementation_in_progress",

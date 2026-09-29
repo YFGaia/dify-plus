@@ -1488,7 +1488,7 @@
         "review_findings": "0 P1/P2/P3",
         "evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md"
       },
-      "verification_evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+      "verification_evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md",
       "test_result": "10 passed; independent Luna and root",
       "review_result": "No P1/P2/P3",
       "static_checks": "Ruff check/format and diff-check passed"
