@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from typing import cast
 from unittest.mock import patch
 
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session, sessionmaker
 
 from extensions.logstore.repositories.logstore_workflow_execution_repository import (
@@ -230,8 +231,14 @@ def test_logstore_does_not_require_sql_for_ownership(
             triggered_from=WorkflowRunTriggeredFrom.APP_RUN,
             from_account_id="retry-account",
         )
-        with patch.object(repository.sql_repository, "save", side_effect=RuntimeError("SQL unavailable")) as sql_save:
+        # Dual-write scope validation is mandatory; ownership itself comes from
+        # Logstore, and a later SQL backup failure remains best-effort.
+        with (
+            patch.object(repository.sql_repository, "validate_scope") as validate_scope,
+            patch.object(repository.sql_repository, "save", side_effect=RuntimeError("SQL unavailable")) as sql_save,
+        ):
             repository.save(_execution())
+            assert validate_scope.call_count == int(dual_write)
             assert sql_save.call_count == int(dual_write)
         assert dict(store.return_value.put_log.call_args.args[1])["from_account_id"] == ""
 
@@ -277,6 +284,44 @@ def test_dual_write_rejects_foreign_sql_scope_before_log_append(
         with pytest.raises(ValueError, match="Unauthorized"):
             repository.save(_execution())
         store.return_value.put_log.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "error",
+    [
+        ValueError("Unauthorized access to workflow run"),
+        RuntimeError("SQL unavailable"),
+        OperationalError("SELECT scope", {}, RuntimeError("Connection lost")),
+    ],
+    ids=["foreign-scope", "runtime-error", "sql-operational-error"],
+)
+def test_dual_write_scope_validation_failure_prevents_log_append(
+    config_overrides: Callable[..., None],
+    sqlite_session_factory: sessionmaker[Session],
+    caplog: pytest.LogCaptureFixture,
+    error: Exception,
+) -> None:
+    config_overrides(LOGSTORE_DUAL_WRITE_ENABLED=True)
+    with patch("extensions.logstore.repositories.logstore_workflow_execution_repository.AliyunLogStore") as store:
+        store.return_value.get_logs.return_value = []
+        repository = LogstoreWorkflowExecutionRepository(
+            session_factory=sqlite_session_factory,
+            tenant_id="tenant-1",
+            user=EndUser(id="end-user"),
+            app_id="app-1",
+            triggered_from=WorkflowRunTriggeredFrom.APP_RUN,
+        )
+        with (
+            patch.object(repository.sql_repository, "validate_scope", side_effect=error) as validate_scope,
+            patch.object(repository.sql_repository, "save") as sql_save,
+            pytest.raises(type(error)) as raised,
+        ):
+            repository.save(_execution())
+        assert raised.value is error
+        validate_scope.assert_called_once_with("run")
+        store.return_value.put_log.assert_not_called()
+        sql_save.assert_not_called()
+        assert any(record.exc_info and record.exc_info[1] is error for record in caplog.records)
 
 
 def test_logstore_actor_reads_raw_fields_across_pages() -> None:

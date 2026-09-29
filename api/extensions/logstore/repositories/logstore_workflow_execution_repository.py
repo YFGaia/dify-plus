@@ -220,14 +220,9 @@ class LogstoreWorkflowExecutionRepository(WorkflowExecutionRepository):
         )
         try:
             if self._enable_dual_write:
-                # Reject an existing SQL run in a foreign scope before appending
-                # a Logstore version. SQL availability remains best-effort.
-                try:
-                    self.sql_repository.validate_scope(execution.id_)
-                except ValueError:
-                    raise
-                except Exception:
-                    logger.exception("Failed to check SQL workflow run scope: id=%s", execution.id_)
+                # Scope validation must succeed before appending a Logstore
+                # version. Only the subsequent SQL backup write is best-effort.
+                self.sql_repository.validate_scope(execution.id_)
             if execution.id_ not in self._account_actors:
                 exists, actor = get_logstore_account_actor(
                     self.logstore_client,

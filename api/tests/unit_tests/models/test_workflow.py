@@ -478,7 +478,8 @@ def _workflow_account_extension_migration() -> ModuleType:
     return module
 
 
-def test_workflow_account_extension_migration_creates_separate_table() -> None:
+@pytest.mark.parametrize("table_exists", [False, True])
+def test_workflow_account_extension_migration_creates_separate_table(table_exists: bool) -> None:
     import sqlalchemy as sa
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
@@ -490,6 +491,11 @@ def test_workflow_account_extension_migration_creates_separate_table() -> None:
     assert WorkflowRunAccountExtend.__table__.c.from_account_id.nullable
     engine = sa.create_engine("sqlite://")
     with engine.begin() as connection:
+        if table_exists:
+            table = WorkflowRunAccountExtend.__table__.to_metadata(sa.MetaData())
+            table.indexes.clear()
+            table.create(connection)
+            assert sa.inspect(connection).get_indexes(table.name) == []
         connection.execute(sa.text("CREATE TABLE workflow_runs (id VARCHAR(36) PRIMARY KEY)"))
         connection.execute(sa.text("INSERT INTO workflow_runs VALUES ('old-run')"))
         with Operations.context(MigrationContext.configure(connection)):
@@ -498,6 +504,10 @@ def test_workflow_account_extension_migration_creates_separate_table() -> None:
         inspector = sa.inspect(connection)
         assert inspector.has_table("workflow_runs")
         assert inspector.has_table("workflow_run_account_extend")
+        indexes = inspector.get_indexes("workflow_run_account_extend")
+        assert len(indexes) == 1
+        assert indexes[0]["name"] == "workflow_run_account_extend_scope_idx"
+        assert indexes[0]["column_names"] == ["tenant_id", "app_id", "from_account_id", "workflow_run_id"]
         assert "from_account_id" not in {column["name"] for column in inspector.get_columns("workflow_runs")}
         assert connection.execute(sa.text("SELECT count(*) FROM workflow_run_account_extend")).scalar_one() == 0
         connection.execute(
@@ -516,6 +526,23 @@ def test_workflow_account_extension_migration_creates_separate_table() -> None:
         with Operations.context(MigrationContext.configure(connection)):
             migration.downgrade()
         assert inspector.has_table("workflow_runs")
+        assert not sa.inspect(connection).has_table("workflow_run_account_extend")
+
+
+@pytest.mark.parametrize("table_exists", [False, True])
+def test_workflow_account_extension_downgrade_handles_missing_objects(table_exists: bool) -> None:
+    import sqlalchemy as sa
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+
+    migration = _workflow_account_extension_migration()
+    engine = sa.create_engine("sqlite://")
+    with engine.begin() as connection, Operations.context(MigrationContext.configure(connection)) as operations:
+        if table_exists:
+            migration.upgrade()
+            operations.drop_index("workflow_run_account_extend_scope_idx", table_name="workflow_run_account_extend")
+        migration.downgrade()
+        migration.downgrade()
         assert not sa.inspect(connection).has_table("workflow_run_account_extend")
 
 
