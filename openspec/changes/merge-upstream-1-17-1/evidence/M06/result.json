@@ -1095,26 +1095,29 @@
       "evidence": "evidence/M06/12.6a-verification.md"
     },
     "12.6b_system_integration_host_test": {
-      "status": "implementation_in_progress",
+      "status": "implementation_present_validation_blocked_dependency_missing",
       "model": "gpt-6-astra",
-      "thread_id": "01a0eb69-f087-7991-b686-d5a60914f2f1",
-      "title": "M06 12.6b Astra 补系统集成页行为测试",
-      "base_commit": "8d5257ee908e328718395ad860b7406f249b81de",
+      "thread_id": "01a0eb6c-c197-7360-9e37-2258755300cf",
+      "title": "M06 12.6b 系统集成页宿主测试",
+      "base_commit": "c2baf732b297b5e9258f1852f4a175f61a0f7697",
       "dispatch_channel": "codex_shared_local",
       "registered_paths": [
         "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
       ],
       "scope": "Add focused host behavior tests for system-integration tab/content switching at the exact registered test path.",
-      "superseded_provisioning_attempt": {
-        "status": "superseded_unresolved_provisioning",
-        "model": "gpt-6-astra",
-        "client_thread_id": "client-new-thread:90eed99a-8d10-4a26-8b03-a6d447de36ba",
-        "title": "M06 12.6b system integration host test",
-        "base_commit": "a813050cc5",
-        "dispatch_channel": "codex_project_worktree",
-        "reason": "No resolvable thread id appeared in list_threads; superseded by a one-shot local Astra task for the same registered test-only path."
-      },
-      "evidence": "evidence/M06/result.json#/subtasks/12.6b_system_integration_host_test"
+      "evidence": "evidence/M06/12.6b-validation.md",
+      "observed_path": "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx",
+      "branch_head": "48dfb74ab1b2f7f9202fe43202c29e7b595eb3e8",
+      "implementation_commit": "pending",
+      "verification": {
+        "status": "blocked_dependency_missing",
+        "focused_spec_exit_code": 1,
+        "focused_spec_error": "MODULE_NOT_FOUND: web/node_modules/vitest/vitest.mjs",
+        "scoped_check_exit_code": 1,
+        "scoped_check_error": "MODULE_NOT_FOUND: node_modules/vite-plus/bin/vp",
+        "diff_check_exit_code": 0,
+        "test_sha256": "4088c14548fc66871dba2ba9fa2c63ea52cae3bcc3653c2546290eddb54a1b4d"
+      }
     },
     "12.6a_home_navigation_luna_review": {
       "status": "passed",
@@ -1125,7 +1128,7 @@
       "evidence": "evidence/M06/12.6a-review.md"
     },
     "12.6d_app_account_statistics": {
-      "status": "thread_provisioning",
+      "status": "implementation_committed_verification_pending",
       "model": "gpt-6-astra",
       "client_thread_id": "client-new-thread:cfa97c71-5353-4ee5-8c44-9d760b1d0221",
       "registered_paths": [
@@ -1134,7 +1137,10 @@
         "api/repositories/app_statistic_query_repository.py",
         "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
         "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
-      ]
+      ],
+      "implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+      "worktree_path": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
+      "verification_status": "awaiting_author_test_report_and_independent_luna_review"
     },
     "12.6e_workflow_actor_analysis": {
       "status": "thread_provisioning",
@@ -1167,5 +1173,5 @@
       "superseded_duplicate_client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae"
     }
   },
-  "next_subtask": "12.6b_system_integration_host_test"
+  "next_subtask": "12.6d_app_account_statistics"
 }
