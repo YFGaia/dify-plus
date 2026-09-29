@@ -495,7 +495,7 @@
       "owner_role": "身份负责人",
       "recommended_model": "Astra",
       "reasoning_effort": "high",
-      "status": "in_progress",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -555,12 +555,29 @@
           "9.2": "passed",
           "9.3": "passed",
           "9.4": "passed",
-          "9.5": "passed"
+          "9.5": "passed",
+          "9.6": "passed"
         },
         "evidence": "evidence/M03/result.json",
         "focused_tests_passed": 349,
         "schema_assertions_passed": 6,
-        "source_fingerprints": "evidence/M03/verified-inputs.json"
+        "source_fingerprints": "evidence/M03/verified-inputs.json",
+        "followup_9_6": {
+          "source_commit": "11fe1809f30c64d095d5a2a2ac81cc37eeb9e5c6",
+          "verification": {
+            "pytest": {
+              "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
+              "exit_code": 0,
+              "passed": 29,
+              "warnings": [
+                "1 pre-existing cgi deprecation warning"
+              ]
+            },
+            "ruff_format_check_exit_code": 0,
+            "ruff_check_exit_code": 0,
+            "git_diff_check_exit_code": 0
+          }
+        }
       },
       "implementation_progress": {
         "completed_tasks": [
@@ -568,41 +585,31 @@
           "9.2",
           "9.3",
           "9.4",
-          "9.5"
+          "9.5",
+          "9.6"
         ],
         "reopened_by": "M06 12.2 analysis found AppPagination.recommended_apps is always empty although the generated field and Studio sync feature already exist.",
         "current_subtask": {
           "id": "9.6_recommended_apps_page_status",
-          "status": "implementation_in_progress",
+          "status": "passed",
           "evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status",
-          "registered_paths": [
-            "api/controllers/console/app/app.py",
-            "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
-          ],
-          "agent": "/root/m03_9_6_sync_status",
-          "base_commit": "f2424be348"
+          "source_commit": "11fe1809f30c64d095d5a2a2ac81cc37eeb9e5c6",
+          "verification": {
+            "pytest": {
+              "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
+              "exit_code": 0,
+              "passed": 29,
+              "warnings": [
+                "1 pre-existing cgi deprecation warning"
+              ]
+            },
+            "ruff_format_check_exit_code": 0,
+            "ruff_check_exit_code": 0,
+            "git_diff_check_exit_code": 0
+          }
         },
-        "next_subtask": "9.6_recommended_apps_page_status",
-        "downstream_impact": "M04 and M05 evidence remains applicable because this follow-up keeps the existing response field and generated schema unchanged; M06 12.2c waits for 9.6."
-      },
-      "active_subtasks": {
-        "9.6_recommended_apps_page_status": {
-          "status": "implementation_in_progress",
-          "owner": "M03",
-          "model": "gpt-6-astra",
-          "scope": "Populate the existing AppPagination.recommended_apps field from RecommendedApp rows intersecting only the current app page.",
-          "registered_paths": [
-            "api/controllers/console/app/app.py",
-            "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
-          ],
-          "dependencies": [
-            "12.2_analysis:passed"
-          ],
-          "contract_change": false,
-          "downstream_impact": "M04/M05 schema evidence remains applicable; the existing generated optional string[] field is unchanged. M06 12.2c waits for this follow-up.",
-          "agent": "/root/m03_9_6_sync_status",
-          "base_commit": "f2424be348"
-        }
+        "next_subtask": "complete",
+        "downstream_impact": "M04/M05 schema evidence remains applicable because the existing optional recommended_apps string[] contract is unchanged; M06 12.2c is unblocked."
       }
     },
     {
@@ -1129,7 +1136,7 @@
           },
           {
             "id": "9.6_recommended_apps_page_status",
-            "status": "implementation_in_progress",
+            "status": "passed",
             "model": "gpt-6-astra",
             "owner": "M03",
             "registered_paths": [
@@ -1137,14 +1144,29 @@
               "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
             ],
             "agent": "/root/m03_9_6_sync_status",
-            "base_commit": "f2424be348"
+            "base_commit": "f2424be348",
+            "source_commit": "11fe1809f30c64d095d5a2a2ac81cc37eeb9e5c6",
+            "verification": {
+              "pytest": {
+                "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
+                "exit_code": 0,
+                "passed": 29,
+                "warnings": [
+                  "1 pre-existing cgi deprecation warning"
+                ]
+              },
+              "ruff_format_check_exit_code": 0,
+              "ruff_check_exit_code": 0,
+              "git_diff_check_exit_code": 0
+            }
           },
           {
             "id": "12.2c_studio_sync_menu",
-            "status": "blocked_by_registered_owner_followup",
+            "status": "ready_for_implementation",
             "model": "gpt-6-astra",
             "owner": "M06",
-            "dependency": "9.6_recommended_apps_page_status"
+            "dependency": "9.6_recommended_apps_page_status:passed",
+            "dependency_evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status"
           }
         ]
       },
@@ -1244,7 +1266,7 @@
           }
         },
         "12.2c_studio_sync_menu": {
-          "status": "blocked_by_registered_owner_followup",
+          "status": "ready_for_implementation",
           "owner": "M06",
           "model": "gpt-6-astra",
           "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
@@ -1256,8 +1278,9 @@
             "web/app/components/apps/__tests__/list.spec.tsx"
           ],
           "dependencies": [
-            "9.6_recommended_apps_page_status:pending"
-          ]
+            "9.6_recommended_apps_page_status:passed"
+          ],
+          "dependency_evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status"
         }
       }
     },

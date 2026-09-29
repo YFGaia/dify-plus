@@ -343,7 +343,7 @@
       }
     },
     "9.6_recommended_apps_page_status": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "owner": "M03",
       "model": "gpt-6-astra",
       "scope": "Populate the existing AppPagination.recommended_apps field from RecommendedApp rows intersecting only the current app page.",
@@ -355,12 +355,26 @@
         "12.2_analysis:passed"
       ],
       "contract_change": false,
-      "downstream_impact": "M04/M05 schema evidence remains applicable; the existing generated optional string[] field is unchanged. M06 12.2c waits for this follow-up.",
+      "downstream_impact": "M04/M05 schema evidence remains valid; the existing generated optional string[] field is unchanged. M06 12.2c is unblocked.",
       "agent": "/root/m03_9_6_sync_status",
-      "base_commit": "f2424be348"
+      "base_commit": "f2424be34839fdb2a5d696ad451e3963bbc5b6bb",
+      "source_commit": "11fe1809f30c64d095d5a2a2ac81cc37eeb9e5c6",
+      "verification": {
+        "pytest": {
+          "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
+          "exit_code": 0,
+          "passed": 29,
+          "warnings": [
+            "1 pre-existing cgi deprecation warning"
+          ]
+        },
+        "ruff_format_check_exit_code": 0,
+        "ruff_check_exit_code": 0,
+        "git_diff_check_exit_code": 0
+      }
     },
     "12.2c_studio_sync_menu": {
-      "status": "blocked_by_registered_owner_followup",
+      "status": "ready_for_implementation",
       "owner": "M06",
       "model": "gpt-6-astra",
       "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
@@ -372,8 +386,9 @@
         "web/app/components/apps/__tests__/list.spec.tsx"
       ],
       "dependencies": [
-        "9.6_recommended_apps_page_status:pending"
-      ]
+        "9.6_recommended_apps_page_status:passed"
+      ],
+      "dependency_evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status"
     }
   },
   "next_subtask": "12.2a_app_center_repair"

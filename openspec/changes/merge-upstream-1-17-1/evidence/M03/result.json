@@ -1,6 +1,6 @@
 {
   "node": "M03",
-  "status": "in_progress",
+  "status": "passed",
   "pre_commit_head": "acf866871a50316ea514d35a9d04092bd3e32b20",
   "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
   "branch": "codex/merge-upstream-1.17.1",
@@ -192,7 +192,7 @@
   "prior_passed_status": "9.1-9.5 passed before M06 12.2 cross-owner finding",
   "followups": {
     "9.6_recommended_apps_page_status": {
-      "status": "implementation_in_progress",
+      "status": "passed",
       "trigger": "M06 12.2 Sol analysis found AppPagination.recommended_apps is always set to an empty list.",
       "owner": "M03",
       "model": "gpt-6-astra",
@@ -206,10 +206,32 @@
         "unsynced app is absent",
         "synced app outside current page is absent"
       ],
-      "downstream_impact": "M04 and M05 evidence remains valid because no response schema changes; M06 12.2c waits for this producer.",
+      "downstream_impact": "M04/M05 schema evidence remains valid; M06 12.2c is unblocked.",
       "status_evidence": "evidence/M06/12.2-analysis.md",
       "agent": "/root/m03_9_6_sync_status",
-      "base_commit": "f2424be348"
+      "base_commit": "f2424be34839fdb2a5d696ad451e3963bbc5b6bb",
+      "source_commit": "11fe1809f30c64d095d5a2a2ac81cc37eeb9e5c6",
+      "verification": {
+        "pytest": {
+          "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
+          "exit_code": 0,
+          "passed": 29,
+          "warnings": [
+            "1 pre-existing cgi deprecation warning"
+          ]
+        },
+        "ruff_format_check_exit_code": 0,
+        "ruff_check_exit_code": 0,
+        "git_diff_check_exit_code": 0
+      },
+      "assertions_passed": [
+        "synced app on current page appears in recommended_apps",
+        "unsynced current-page app is omitted",
+        "synced off-page and other-tenant apps are omitted",
+        "empty and missing pagination return an empty list without a recommendation query",
+        "response schema and generated optional string[] contract are unchanged"
+      ],
+      "commit_note": "Source and regression test committed separately before this status update; SHA verified after commit."
     }
   }
 }
