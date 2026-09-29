@@ -46,6 +46,16 @@ export const MAIN_NAV_ROUTES = [
     activeIcon: 'i-custom-vender-main-nav-home-v2-active',
     visibility: VISIBLE_TO_ALL,
   },
+  // extend: Keep the fork app center separate from upstream Home and visible to every role.
+  {
+    key: 'app-center-extend',
+    href: '/explore/apps-center-extend',
+    labelKey: 'sidebar.appCenter',
+    active: (path: string) => isPathUnderRoute(path, '/explore/apps-center-extend'),
+    icon: 'i-ri-apps-2-line',
+    activeIcon: 'i-ri-apps-2-fill',
+    visibility: VISIBLE_TO_ALL,
+  },
   {
     key: 'apps',
     href: '/apps',

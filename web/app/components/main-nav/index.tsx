@@ -60,7 +60,13 @@ export function MainNav({ className, initialPlatform }: MainNavProps) {
         }),
       ).map((route) => ({
         href: route.href,
-        label: 'label' in route ? route.label : t(($) => $[route.labelKey], { ns: 'common' }),
+        // extend: Reuse the fork app-center label in its existing namespace.
+        label:
+          route.key === 'app-center-extend'
+            ? t(($) => $['sidebar.appCenter'], { ns: 'extend' })
+            : 'label' in route
+              ? route.label
+              : t(($) => $[route.labelKey], { ns: 'common' }),
         active: route.active,
         icon: route.icon,
         activeIcon: route.activeIcon,

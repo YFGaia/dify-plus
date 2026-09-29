@@ -178,6 +178,7 @@ const mockConsoleState = vi.hoisted(() => ({
 }))
 let skillEnabled = true
 let educationEnabled = false
+let mockPathname = '/apps'
 
 vi.mock('@tanstack/react-virtual')
 
@@ -441,7 +442,6 @@ vi.mock('nuqs', async (importOriginal) => {
       args[0] === 'pricing' ? actual.useQueryState(...args) : [null, mockSetSettingsDestination],
   }
 })
-let mockPathname = '/apps'
 let mockInstalledApps: InstalledAppResponse[] = []
 let mockInstalledAppsPending = false
 let mockInstalledAppsHasNextPage = false
@@ -574,7 +574,7 @@ const systemManageRoutes = [
 const createSystemManageConsoleState = (
   role: GetWorkspacesCurrentSummaryResponse['role'],
   id = 'workspace-1',
-): MainNavConsoleState => {
+): MainNavConsoleState & { currentWorkspace: GetWorkspacesCurrentSummaryResponse } => {
   const currentWorkspace: GetWorkspacesCurrentSummaryResponse = {
     id,
     name: 'Solar Studio',
@@ -770,7 +770,18 @@ describe('MainNav', () => {
       consoleQuery.apps.byResourceId.apiKeys.get.queryKey({
         input: { params: { resource_id: 'app-1' } },
       }),
-      { data: [{ accumulated_quota: 99, day_used_quota: 70 }] },
+      {
+        data: [
+          {
+            id: 'key-1',
+            token: 'test-token',
+            type: 'app',
+            dataset_ids: [],
+            accumulated_quota: 99,
+            day_used_quota: 70,
+          },
+        ],
+      },
     )
     const balance = await screen.findByRole('status', { name: 'extend.user.credit' })
     expect(within(balance).getByText('¥20.00')).toBeInTheDocument()
@@ -964,6 +975,7 @@ describe('MainNav', () => {
         .map((link) => link.getAttribute('href')),
     ).toEqual([
       '/',
+      '/explore/apps-center-extend',
       '/apps',
       '/agents',
       '/datasets',
@@ -973,6 +985,51 @@ describe('MainNav', () => {
       '/system-manage-extend/system-integration',
     ])
   })
+
+  // extend: Protect app-center reachability and its route boundary on the real MainNav host.
+  it.each(['owner', 'admin', 'editor', 'normal', 'dataset_operator'] as const)(
+    'shows the independent app center to %s',
+    (role) => {
+      mockConsoleState.current = createSystemManageConsoleState(role)
+      renderMainNav()
+
+      const navigation = within(
+        screen.getByRole('navigation', { name: 'common.navigation.primary' }),
+      )
+      expect(navigation.getByRole('link', { name: 'extend.sidebar.appCenter' })).toHaveAttribute(
+        'href',
+        '/explore/apps-center-extend',
+      )
+      expect(navigation.getByRole('link', { name: 'common.mainNav.home' })).toHaveAttribute(
+        'href',
+        '/',
+      )
+    },
+  )
+
+  it.each([
+    { pathname: '/explore/apps-center-extend', appCenterActive: true, homeActive: false },
+    { pathname: '/explore/apps-center-extend/', appCenterActive: true, homeActive: false },
+    { pathname: '/explore/apps-center-extend/category', appCenterActive: true, homeActive: false },
+    { pathname: '/explore/apps-center-extend-other', appCenterActive: false, homeActive: false },
+    { pathname: '/explore/apps-center', appCenterActive: false, homeActive: false },
+    { pathname: '/explore/installed/app-1', appCenterActive: false, homeActive: false },
+    { pathname: '/explore/apps', appCenterActive: false, homeActive: true },
+    { pathname: '/explore/apps/category', appCenterActive: false, homeActive: false },
+    { pathname: '/apps', appCenterActive: false, homeActive: false },
+    { pathname: '/', appCenterActive: false, homeActive: true },
+  ])(
+    'keeps app center and Home active states distinct on $pathname',
+    ({ pathname, appCenterActive, homeActive }) => {
+      mockPathname = pathname
+      renderMainNav()
+
+      const appCenterLink = screen.getByRole('link', { name: 'extend.sidebar.appCenter' })
+      const homeLink = screen.getByRole('link', { name: 'common.mainNav.home' })
+      expect(appCenterLink.getAttribute('aria-current')).toBe(appCenterActive ? 'page' : null)
+      expect(homeLink.getAttribute('aria-current')).toBe(homeActive ? 'page' : null)
+    },
+  )
 
   it('shows the owner system management entry and all three destination links', () => {
     renderMainNav(undefined, {
@@ -1034,18 +1091,17 @@ describe('MainNav', () => {
 
     for (const role of ['admin', 'normal', 'owner'] as const) {
       await act(async () => {
-        mockConsoleState.current = createSystemManageConsoleState(role, `workspace-${role}`)
+        const workspaceState = createSystemManageConsoleState(role, `workspace-${role}`)
+        mockConsoleState.current = workspaceState
         queryClient.setQueryData(
           consoleQuery.workspaces.current.summary.get.queryKey(),
-          mockConsoleState.current.currentWorkspace,
+          workspaceState.currentWorkspace,
         )
         seedRegisteredConsoleStateFixture(store)
       })
 
       if (role === 'owner') {
-        expect(
-          screen.getByRole('link', { name: 'extend.systemManage.title' }),
-        ).toBeInTheDocument()
+        expect(screen.getByRole('link', { name: 'extend.systemManage.title' })).toBeInTheDocument()
         for (const { name } of systemManageRoutes) {
           expect(screen.getByRole('link', { name })).toBeInTheDocument()
         }
