@@ -1,5 +1,5 @@
 'use client'
-import type { ApiKeyItem } from '@dify/contracts/api/console/apps/types.gen'
+import type { ApiKeyItem, ApiKeyQuotaPayload } from '@dify/contracts/api/console/apps/types.gen'
 import {
   AlertDialog,
   AlertDialogActions,
@@ -18,11 +18,14 @@ import {
   DialogTitle,
 } from '@langgenius/dify-ui/dialog'
 import { IconButton } from '@langgenius/dify-ui/icon-button'
-import { skipToken, useMutation, useQuery } from '@tanstack/react-query'
+import { Input } from '@langgenius/dify-ui/input'
+import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/app/components/base/loading'
+import DayLimitItemExtend from '@/app/components/base/param-item/day-limit-item-extend'
+import MonthLimitItemExtend from '@/app/components/base/param-item/month-limit-item-extend'
 import { currentWorkspaceAtom } from '@/context/workspace-state'
 import { consoleQuery } from '@/service/console'
 import { ApiKeyTable } from './api-key-table'
@@ -42,8 +45,81 @@ type ApiKeyModalProps = {
   onOpenChange: (open: boolean) => void
 }
 
+function AppQuotaForm({
+  apiKey,
+  pending,
+  failed,
+  onSubmit,
+}: {
+  apiKey?: ApiKeyItem
+  pending: boolean
+  failed: boolean
+  onSubmit: (body: ApiKeyQuotaPayload) => void
+}) {
+  const { t } = useTranslation()
+  const descriptionId = useId()
+  const [description, setDescription] = useState(apiKey?.description ?? '')
+  const [dayLimit, setDayLimit] = useState(apiKey?.day_limit_quota ?? -1)
+  const [monthLimit, setMonthLimit] = useState(apiKey?.month_limit_quota ?? -1)
+  const [submitted, setSubmitted] = useState(false)
+  const validLimits = [dayLimit, monthLimit].every((value) =>
+    Number.isFinite(value) && (value === -1 || value >= 0))
+
+  return (
+    <form
+      className="flex flex-col gap-4"
+      // The quota contract allows any nonnegative amount or -1. The legacy
+      // controls' increment step must not impose an additional submit constraint.
+      noValidate
+      onSubmit={(event) => {
+        event.preventDefault()
+        setSubmitted(true)
+        if (!pending && validLimits && description.length <= 50)
+          onSubmit({ description, day_limit_quota: dayLimit, month_limit_quota: monthLimit })
+      }}
+    >
+      <label htmlFor={descriptionId}>
+        {t(($) => $['apiKeyModal.descriptionPlaceholder'], { ns: 'extend' })}
+      </label>
+      <Input
+        id={descriptionId}
+        value={description}
+        maxLength={50}
+        disabled={pending}
+        onChange={(event) => setDescription(event.target.value)}
+      />
+      <DayLimitItemExtend
+        value={dayLimit}
+        enable={!pending}
+        onChange={(_key, value) => setDayLimit(value)}
+      />
+      <MonthLimitItemExtend
+        value={monthLimit}
+        enable={!pending}
+        onChange={(_key, value) => setMonthLimit(value)}
+      />
+      {submitted && !validLimits && (
+        <p role="alert">
+          {t(($) => $['systemManage.quota.editDialog.invalidInput'], { ns: 'extend' })}
+          {'; '}
+          {t(($) => $['apiKeyModal.noLimitTips'], { ns: 'extend' })}
+        </p>
+      )}
+      {failed && <p role="alert">{t(($) => $['api.actionFailed'], { ns: 'common' })}</p>}
+      <Button type="submit" loading={pending}>
+        {apiKey
+          ? t(($) => $['operation.save'], { ns: 'common' })
+          : t(($) => $['operation.create'], { ns: 'common' })}
+      </Button>
+    </form>
+  )
+}
+
 export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModalProps) {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const [quotaEditor, setQuotaEditor] = useState<{ appId: string; apiKey?: ApiKeyItem }>()
+  const [quotaEditorOpen, setQuotaEditorOpen] = useState(false)
   const currentWorkspace = useAtomValue(currentWorkspaceAtom)
   const [deleteKeyId, setDeleteKeyId] = useState<string>()
   const [createdApiKey, setCreatedApiKey] = useState<CreatedApiKey>()
@@ -70,6 +146,16 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
   )
 
   const createAppApiKey = useMutation(consoleQuery.apps.byResourceId.apiKeys.post.mutationOptions())
+  const updateAppApiKey = useMutation(
+    consoleQuery.apps.byResourceId.apiKeys.put.mutationOptions({
+      onSuccess: (_data, variables) =>
+        queryClient.invalidateQueries({
+          queryKey: consoleQuery.apps.byResourceId.apiKeys.get.queryKey({
+            input: { params: { resource_id: variables.params.resource_id } },
+          }),
+        }),
+    }),
+  )
   const deleteAppApiKey = useMutation(
     consoleQuery.apps.byResourceId.apiKeys.byApiKeyId.delete.mutationOptions(),
   )
@@ -115,6 +201,7 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
       setDeleteKeyId(undefined)
       setCreatedApiKey(undefined)
       setScopeDialogOpen(false)
+      setQuotaEditorOpen(false)
     }
     onOpenChange(nextOpen)
   }
@@ -124,10 +211,10 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
 
     switch (scope.type) {
       case 'app':
-        createAppApiKey.mutate(
-          { params: { resource_id: scope.appId } },
-          { onSuccess: setCreatedApiKey },
-        )
+        createAppApiKey.reset()
+        updateAppApiKey.reset()
+        setQuotaEditor({ appId: scope.appId })
+        setQuotaEditorOpen(true)
         break
       case 'dataset':
         // Dataset keys pick a knowledge-base scope before creation; the scope dialog
@@ -141,6 +228,35 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
           { onSuccess: setCreatedApiKey },
         )
         break
+    }
+  }
+
+  const handleSubmitQuota = (body: ApiKeyQuotaPayload) => {
+    if (
+      scope.type !== 'app'
+      || quotaEditor?.appId !== scope.appId
+      || createDisabled
+      || createAppApiKey.isPending
+      || updateAppApiKey.isPending
+    ) return
+    if (quotaEditor.apiKey) {
+      updateAppApiKey.mutate(
+        {
+          params: { resource_id: scope.appId },
+          body: { ...body, id: quotaEditor.apiKey.id },
+        },
+        { onSuccess: () => setQuotaEditorOpen(false) },
+      )
+    } else {
+      createAppApiKey.mutate(
+        { params: { resource_id: scope.appId }, body },
+        {
+          onSuccess: (apiKey) => {
+            setQuotaEditorOpen(false)
+            setCreatedApiKey(apiKey)
+          },
+        },
+      )
     }
   }
 
@@ -219,6 +335,15 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
               apiKeys={apiKeys}
               canManage={canManage}
               showScope={scope.type === 'dataset'}
+              showQuota={scope.type === 'app'}
+              onEditRequest={scope.type === 'app'
+                ? (apiKey) => {
+                    createAppApiKey.reset()
+                    updateAppApiKey.reset()
+                    setQuotaEditor({ appId: scope.appId, apiKey })
+                    setQuotaEditorOpen(true)
+                  }
+                : undefined}
               onDeleteRequest={setDeleteKeyId}
             />
           )}
@@ -228,6 +353,39 @@ export function ApiKeyModal({ open, canManage, scope, onOpenChange }: ApiKeyModa
               {t(($) => $['apiKeyModal.createNewSecretKey'], { ns: 'appApi' })}
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={open && scope.type === 'app' && quotaEditor?.appId === scope.appId && quotaEditorOpen}
+        onOpenChange={(nextOpen) => {
+          if (!createAppApiKey.isPending && !updateAppApiKey.isPending) setQuotaEditorOpen(nextOpen)
+        }}
+      >
+        <DialogContent className="flex flex-col gap-4">
+          <DialogTitle>
+            {t(($) => $['apiKeyModal.apiSecretKey'], { ns: 'appApi' })}
+          </DialogTitle>
+          <DialogDescription>
+            {t(($) => $['apiKeyModal.noLimitTips'], { ns: 'extend' })}
+          </DialogDescription>
+          <DialogClose
+            render={
+              <IconButton
+                aria-label={t(($) => $['operation.close'], { ns: 'common' })}
+                disabled={createAppApiKey.isPending || updateAppApiKey.isPending}
+                className="absolute right-4 top-4"
+              >
+                <span aria-hidden className="i-ri-close-line size-4" />
+              </IconButton>
+            }
+          />
+          <AppQuotaForm
+            key={`${quotaEditor?.appId}:${quotaEditor?.apiKey?.id ?? 'new'}`}
+            apiKey={quotaEditor?.apiKey}
+            pending={createAppApiKey.isPending || updateAppApiKey.isPending}
+            failed={createAppApiKey.isError || updateAppApiKey.isError}
+            onSubmit={handleSubmitQuota}
+          />
         </DialogContent>
       </Dialog>
       <AlertDialog

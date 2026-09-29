@@ -10,6 +10,8 @@ type ApiKeyTableProps = {
   canManage: boolean
   // Dataset keys carry a knowledge-base scope; enable the SCOPE column to surface it.
   showScope?: boolean
+  showQuota?: boolean
+  onEditRequest?: (apiKey: ApiKeyItem) => void
   onDeleteRequest: (apiKeyId: string) => void
 }
 
@@ -17,6 +19,8 @@ export function ApiKeyTable({
   apiKeys,
   canManage,
   showScope = false,
+  showQuota = false,
+  onEditRequest,
   onDeleteRequest,
 }: ApiKeyTableProps) {
   const { t } = useTranslation()
@@ -31,6 +35,9 @@ export function ApiKeyTable({
     return t(($) => $['apiKeyModal.scopeCount'], { ns: 'appApi', count: datasetIds.length })
   }
 
+  const quotaLimit = (value: number | null | undefined) =>
+    value == null || value === -1 ? t(($) => $['apiKeyModal.noLimit'], { ns: 'extend' }) : value
+
   return (
     <div className="min-h-0 overflow-auto border-y border-divider-subtle">
       <table className="w-full table-fixed text-left system-sm-regular text-text-secondary">
@@ -43,6 +50,22 @@ export function ApiKeyTable({
               <th className="w-40 px-3 py-2" scope="col">
                 {t(($) => $['apiKeyModal.scope'], { ns: 'appApi' })}
               </th>
+            )}
+            {showQuota && (
+              <>
+                <th className="w-40 px-3 py-2" scope="col">
+                  {t(($) => $['apiKeyModal.descriptionPlaceholder'], { ns: 'extend' })}
+                </th>
+                <th className="w-40 px-3 py-2" scope="col">
+                  {t(($) => $['systemManage.quota.table.usedQuota'], { ns: 'extend' })} (USD)
+                </th>
+                <th className="w-48 px-3 py-2" scope="col">
+                  {t(($) => $['apiKeyModal.dayLimit'], { ns: 'extend' })} (USD)
+                </th>
+                <th className="w-48 px-3 py-2" scope="col">
+                  {t(($) => $['apiKeyModal.monthLimit'], { ns: 'extend' })} (USD)
+                </th>
+              </>
             )}
             <th className="w-48 px-3 py-2" scope="col">
               {t(($) => $['apiKeyModal.created'], { ns: 'appApi' })}
@@ -60,6 +83,26 @@ export function ApiKeyTable({
             <tr className="border-b border-divider-regular last:border-b-0" key={apiKey.id}>
               <td className="truncate px-6 py-2 font-mono">{maskToken(apiKey.token)}</td>
               {showScope && <td className="truncate px-3 py-2">{scopeLabel(apiKey)}</td>}
+              {showQuota && (
+                <>
+                  <td className="px-3 py-2 wrap-break-word">
+                    {('description' in apiKey && apiKey.description) || '—'}
+                  </td>
+                  <td className="px-3 py-2">
+                    {('accumulated_quota' in apiKey && apiKey.accumulated_quota) || 0}
+                  </td>
+                  <td className="px-3 py-2">
+                    {('day_used_quota' in apiKey && apiKey.day_used_quota) || 0}
+                    {' / '}
+                    {quotaLimit('day_limit_quota' in apiKey ? apiKey.day_limit_quota : undefined)}
+                  </td>
+                  <td className="px-3 py-2">
+                    {('month_used_quota' in apiKey && apiKey.month_used_quota) || 0}
+                    {' / '}
+                    {quotaLimit('month_limit_quota' in apiKey ? apiKey.month_limit_quota : undefined)}
+                  </td>
+                </>
+              )}
               <td className="truncate px-3 py-2">
                 {formatTime(
                   Number(apiKey.created_at),
@@ -77,6 +120,14 @@ export function ApiKeyTable({
               <td className="px-6 py-1">
                 <div className="flex justify-end gap-1">
                   <CopyFeedback content={apiKey.token} />
+                  {canManage && showQuota && onEditRequest && (
+                    <IconButton
+                      aria-label={`${t(($) => $['operation.edit'], { ns: 'common' })} ${maskToken(apiKey.token)}`}
+                      onClick={() => onEditRequest(apiKey)}
+                    >
+                      <span aria-hidden className="i-ri-edit-line size-4" />
+                    </IconButton>
+                  )}
                   {canManage && (
                     <IconButton
                       aria-label={`${t(($) => $['operation.delete'], { ns: 'common' })} ${maskToken(apiKey.token)}`}

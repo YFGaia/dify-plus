@@ -29,6 +29,7 @@ import {
 } from '@/app/components/step-by-step-tour/state'
 import { STEP_BY_STEP_TOUR_SHELL_MODE_STORAGE_KEY } from '@/app/components/step-by-step-tour/storage'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
+import { loginConfigQueryOptions } from '@/features/system-features/client'
 import { usePathname, useRouter } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
 import {
@@ -36,8 +37,11 @@ import {
   renderWithConsoleQuery as renderWithoutPricing,
 } from '@/test/console/query-data'
 import { seedRegisteredConsoleStateFixture } from '@/test/console/state-fixture'
+import { createSystemFeaturesFixture } from '@/test/console/system-features'
 import { AppModeEnum } from '@/types/app'
 import { MainNav } from '../index'
+
+const balanceMocks = vi.hoisted(() => ({ money: vi.fn(), loginConfig: vi.fn() }))
 
 const onPricingUrlUpdate = vi.hoisted(() => vi.fn())
 
@@ -256,6 +260,36 @@ vi.mock('@/service/console', async (importOriginal) => {
   const workspacesQueryKey = ['console', 'workspaces', 'get'] as const
   const consoleQuery = new Proxy(actual.consoleQuery, {
     get(target, prop, receiver) {
+      if (prop === 'account') {
+        return new Proxy(actual.consoleQuery.account, {
+          get(account, property, accountReceiver) {
+            if (property === 'money') {
+              return {
+                get: {
+                  queryKey: actual.consoleQuery.account.money.get.queryKey,
+                  queryOptions: (options: object) => ({
+                    ...actual.consoleQuery.account.money.get.queryOptions(options),
+                    queryFn: balanceMocks.money,
+                  }),
+                },
+              }
+            }
+            return Reflect.get(account, property, accountReceiver)
+          },
+        })
+      }
+      if (prop === 'loginConfig') {
+        return {
+          get: {
+            key: actual.consoleQuery.loginConfig.get.key,
+            queryKey: actual.consoleQuery.loginConfig.get.queryKey,
+            queryOptions: (options: object) => ({
+              ...actual.consoleQuery.loginConfig.get.queryOptions(options),
+              queryFn: balanceMocks.loginConfig,
+            }),
+          },
+        }
+      }
       if (prop === 'workspaces') {
         return {
           current: {
@@ -609,9 +643,25 @@ function render(...args: Parameters<typeof renderWithoutPricing>) {
   return renderWithoutPricing(...args)
 }
 
+const loginConfigFixture = (rate = 8) => ({
+  ...createSystemFeaturesFixture(),
+  is_custom_auth2: false,
+  is_custom_auth2_logout: '',
+  ding_talk: false,
+  ding_talk_client_id: '',
+  ding_talk_corp_id: '',
+  rmb_to_usd_rate: rate,
+})
+const balanceIdentity = { accountId: 'user-1', workspaceId: 'workspace-1' }
+const accountMoneyKey = (identity = balanceIdentity) => [
+  ...consoleQuery.account.money.get.queryKey(), identity,
+]
+
 describe('MainNav', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    balanceMocks.money.mockReset().mockResolvedValue({ total_quota: 0, used_quota: 0 })
+    balanceMocks.loginConfig.mockReset().mockResolvedValue(loginConfigFixture())
     gotoAnythingDialogHandle.close()
     localStorage.clear()
     mockPathname = '/apps'
@@ -675,6 +725,112 @@ describe('MainNav', () => {
     mockUninstall.mockResolvedValue(undefined)
     mockUpdatePinStatus.mockResolvedValue({ result: 'success', message: 'updated' })
     mockSwitchWorkspace.mockReturnValue(new Promise(() => {}))
+  })
+
+  it('renders account balance with login_config rate independently of key usage and workspace credits', async () => {
+    balanceMocks.money.mockResolvedValue({ total_quota: '100', used_quota: '2.5' })
+    const { queryClient } = renderMainNav()
+    queryClient.setQueryData(consoleQuery.apps.byResourceId.apiKeys.get.queryKey({
+      input: { params: { resource_id: 'app-1' } },
+    }), { data: [{ accumulated_quota: 99, day_used_quota: 70 }] })
+    const balance = await screen.findByRole('status', { name: 'extend.user.credit' })
+    expect(within(balance).getByText('¥20.00')).toBeInTheDocument()
+    expect(within(balance).getByText('¥800.00')).toBeInTheDocument()
+    expect(queryClient.getQueryData(accountMoneyKey())).toEqual({ total_quota: 100, used_quota: 2.5 })
+    expect(queryClient.getQueryData(loginConfigQueryOptions(balanceIdentity).queryKey)).toMatchObject({ rmb_to_usd_rate: 8 })
+  })
+
+  it.each(['forbidden', 'malformed'])('hides cached conversion after %s login_config response without using public fallback', async (failure) => {
+    balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
+    const { queryClient } = renderMainNav()
+    await screen.findByRole('status', { name: 'extend.user.credit' })
+    if (failure === 'forbidden') balanceMocks.loginConfig.mockRejectedValue(new Response(null, { status: 403 }))
+    else balanceMocks.loginConfig.mockResolvedValue({ rmb_to_usd_rate: 7.26 })
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: loginConfigQueryOptions(balanceIdentity).queryKey })
+    })
+    await waitFor(() => expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument())
+    expect(queryClient.getQueryState(loginConfigQueryOptions(balanceIdentity).queryKey)?.status).toBe('error')
+    expect(screen.queryByText('¥18.15')).not.toBeInTheDocument()
+  })
+
+  it.each([0, -1])('does not display conversion for a nonpositive configured rate %s', async (rate) => {
+    balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
+    balanceMocks.loginConfig.mockResolvedValue(loginConfigFixture(rate))
+    const { queryClient } = renderMainNav()
+    await waitFor(() => {
+      expect(queryClient.getQueryState(accountMoneyKey())?.status).toBe('success')
+      expect(queryClient.getQueryState(loginConfigQueryOptions(balanceIdentity).queryKey)?.status).toBe('success')
+    })
+    expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
+  })
+
+  it.each(['account', 'workspace'])('isolates cached balance and exchange rate after switching %s', async (kind) => {
+    const store = createStore()
+    balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
+    const { queryClient } = renderMainNav(undefined, { store })
+    await screen.findByRole('status', { name: 'extend.user.credit' })
+    balanceMocks.loginConfig.mockRejectedValue(new Response(null, { status: 403 }))
+    balanceMocks.money.mockResolvedValue({ total_quota: 10, used_quota: 1 })
+    const nextIdentity = kind === 'account'
+      ? { ...balanceIdentity, accountId: 'user-2' }
+      : { ...balanceIdentity, workspaceId: 'workspace-2' }
+    await act(async () => {
+      if (kind === 'account') {
+        queryClient.setQueryData(userProfileQueryOptions().queryKey, {
+          profile: { ...mainNavUserProfile, id: 'user-2' }, meta: consoleState.profileMeta,
+        })
+      } else {
+        mockConsoleState.current = { ...consoleState, currentWorkspace: { ...consoleState.currentWorkspace, id: 'workspace-2' } }
+        seedRegisteredConsoleStateFixture(store)
+      }
+    })
+    await waitFor(() => expect(queryClient.getQueryState(loginConfigQueryOptions(nextIdentity).queryKey)?.status).toBe('error'))
+    expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
+    await waitFor(() => expect(queryClient.getQueryData(accountMoneyKey(nextIdentity))).toEqual({ total_quota: 10, used_quota: 1 }))
+    balanceMocks.loginConfig.mockResolvedValue(loginConfigFixture(9))
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: loginConfigQueryOptions(nextIdentity).queryKey })
+    })
+    const balance = await screen.findByRole('status', { name: 'extend.user.credit' })
+    expect(within(balance).getByText('¥9.00')).toBeInTheDocument()
+    expect(within(balance).getByText('¥90.00')).toBeInTheDocument()
+  })
+
+  it('does not fetch or show a balance without an authenticated account identity', async () => {
+    mockConsoleState.current = { ...consoleState, userProfile: { ...mainNavUserProfile, id: '' } }
+    renderMainNav()
+    await screen.findByRole('navigation', { name: 'common.navigation.primary' })
+    expect(balanceMocks.money).not.toHaveBeenCalled()
+    expect(balanceMocks.loginConfig).not.toHaveBeenCalled()
+    expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
+  })
+
+  it('hides an earlier balance if a refresh fails amount validation', async () => {
+    balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 2.5 })
+    const { queryClient } = renderMainNav()
+    await screen.findByRole('status', { name: 'extend.user.credit' })
+    balanceMocks.money.mockResolvedValue({ total_quota: 100, used_quota: 'invalid' })
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: accountMoneyKey() })
+    })
+    await waitFor(() => expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument())
+    expect(queryClient.getQueryState(accountMoneyKey())?.status).toBe('error')
+    expect(queryClient.getQueryData(accountMoneyKey())).toEqual({ total_quota: 100, used_quota: 2.5 })
+  })
+
+  it.each([
+    { total_quota: 'invalid', used_quota: 1 },
+    { total_quota: 100, used_quota: null },
+    { total_quota: 100, used_quota: '' },
+    { total_quota: 100, used_quota: Infinity },
+    { used_quota: 1 },
+  ])('rejects malformed account balances before writing successful query data: %j', async (response) => {
+    balanceMocks.money.mockResolvedValue(response)
+    const { queryClient } = renderMainNav()
+    await waitFor(() => expect(queryClient.getQueryState(accountMoneyKey())?.status).toBe('error'))
+    expect(queryClient.getQueryData(accountMoneyKey())).toBeUndefined()
+    expect(screen.queryByRole('status', { name: 'extend.user.credit' })).not.toBeInTheDocument()
   })
 
   it('renders primary navigation with the planned routes', () => {

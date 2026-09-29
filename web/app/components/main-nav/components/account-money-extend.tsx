@@ -1,32 +1,73 @@
 'use client'
 
-// 二开部分：额度徽章。原实现位于旧 web/app/components/header/account-money-extend/
-// （上游 1.15.0 删除旧 header 后重做到 main-nav 体系）。
-// 汇率不再硬编码（原 6.97），改读后端 login_config 下发的 rmb_to_usd_rate（配置 RMB_TO_USD_RATE）。
 import { cn } from '@langgenius/dify-ui/cn'
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { atom, useAtomValue } from 'jotai'
+import { atomWithQuery } from 'jotai-tanstack-query'
 import { useTranslation } from 'react-i18next'
-import { systemFeaturesQueryOptions } from '@/features/system-features/client'
-import { asSystemFeaturesExtend } from '@/features/system-features/extend'
-import { fetchUserMoney } from '@/service/common-extend'
+import { z } from 'zod'
+import { currentWorkspaceAtom } from '@/context/workspace-state'
+import { userProfileQueryOptions } from '@/features/account-profile/client'
+import { loginConfigQueryOptions } from '@/features/system-features/client'
+import { consoleQuery } from '@/service/console'
+
+// The generated response is unknown. Validate at the query boundary so malformed
+// balances never enter the cache as successful data.
+const quota = z
+  .union([
+    z.number(),
+    z.string().trim().regex(/^\d+(?:\.\d+)?$/).transform(Number),
+  ])
+  .pipe(z.number().finite().nonnegative())
+const accountMoneySchema = z.object({ total_quota: quota, used_quota: quota })
+
+const accountProfileQueryAtom = atomWithQuery(() => userProfileQueryOptions())
+const balanceIdentityAtom = atom((get) => {
+  const workspace = get(currentWorkspaceAtom)
+  const profile = get(accountProfileQueryAtom)
+  const accountId = profile.isSuccess ? profile.data.profile.id : undefined
+  return accountId && workspace.id
+    ? { accountId, workspaceId: workspace.id }
+    : { accountId: null, workspaceId: null }
+})
+const balanceConfigQueryAtom = atomWithQuery((get) => {
+  const identity = get(balanceIdentityAtom)
+  return { ...loginConfigQueryOptions(identity), enabled: identity.accountId !== null }
+})
+const accountMoneyQueryAtom = atomWithQuery((get) => {
+  const identity = get(balanceIdentityAtom)
+  const options = consoleQuery.account.money.get.queryOptions({
+    queryKey: [...consoleQuery.account.money.get.queryKey(), identity],
+    enabled: identity.accountId !== null,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  })
+  return {
+    ...options,
+    queryFn: async (context: Parameters<typeof options.queryFn>[0]) =>
+      accountMoneySchema.parse(await options.queryFn(context)),
+  }
+})
 
 const AccountMoneyExtend = () => {
   const { t } = useTranslation()
-  const { data: systemFeatures } = useSuspenseQuery(systemFeaturesQueryOptions())
-  const exchangeRate = asSystemFeaturesExtend(systemFeatures).rmb_to_usd_rate
-  const { data: userMoney } = useQuery({
-    queryKey: ['common-extend', 'account-money'],
-    queryFn: fetchUserMoney,
-  })
+  const identity = useAtomValue(balanceIdentityAtom)
+  const config = useAtomValue(balanceConfigQueryAtom)
+  const money = useAtomValue(accountMoneyQueryAtom)
+  const exchangeRate = config.data?.rmb_to_usd_rate
+  if (
+    identity.accountId === null
+    || !config.isSuccess
+    || !money.isSuccess
+    || exchangeRate === undefined
+    || !Number.isFinite(exchangeRate)
+    || exchangeRate <= 0
+  ) return null
+  const userMoney = money.data
 
-  if (!userMoney) return null
-
-  // 计算额度（确保使用数字类型）
-  const usedQuota = Number(userMoney.used_quota) || 0
-  const totalQuota = Number(userMoney.total_quota) || 0
+  const usedQuota = userMoney.used_quota
+  const totalQuota = userMoney.total_quota
   const remainingQuota = totalQuota - usedQuota
-
-  // 当总额度为0时不显示
   if (totalQuota === 0) return null
 
   // 转换为人民币并保留2位小数
@@ -46,7 +87,11 @@ const AccountMoneyExtend = () => {
       : 'text-text-secondary'
 
   return (
-    <div className="mt-2 flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]">
+    <div
+      role="status"
+      aria-label={t(($) => $['user.credit'], { ns: 'extend' })}
+      className="mt-2 flex items-center overflow-hidden rounded-md border border-divider-regular text-xs leading-[18px]"
+    >
       <div className="flex items-center bg-background-default-dimmed px-2 py-1 font-medium text-text-secondary">
         {t(($) => $['user.credit'], { ns: 'extend' })}
       </div>

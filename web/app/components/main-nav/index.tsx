@@ -18,6 +18,7 @@ import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import Link from '@/next/link'
 import { usePathname } from '@/next/navigation'
 import { consoleQuery } from '@/service/console'
+import AccountMoneyExtend from './components/account-money-extend'
 import AccountSection from './components/account-section'
 import HelpMenu from './components/help-menu'
 import MainNavLink from './components/nav-link'
@@ -142,6 +143,9 @@ export function MainNav({ className, initialPlatform }: MainNavProps) {
         )}
       </div>
       <div className="isolate w-60 shrink-0">
+        <div className="px-3">
+          <AccountMoneyExtend />
+        </div>
         <StepByStepTourMount
           recoveryAnchorRef={systemFeatures.branding.enabled ? undefined : helpMenuTriggerRef}
           className="relative z-1 -mb-1 ml-2.5 h-8 w-45.75 overflow-visible"
