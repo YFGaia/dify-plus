@@ -1303,7 +1303,7 @@
           },
           {
             "id": "12.5a_locale_group_a",
-            "status": "independent_review_provisioning",
+            "status": "independent_review_in_progress",
             "owner": "M06",
             "model": "gpt-6-astra",
             "dependencies": [
@@ -1346,8 +1346,13 @@
               }
             },
             "review_model": "gpt-6-luna",
-            "review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
-            "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9"
+            "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
+            "superseded_review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
+            "review_thread_id": "01a0eb23-5525-7453-b3ca-7a750f637ca6",
+            "review_title": "M06 12.5a systemManage 多语言独立复核",
+            "dispatch_channel": "codex_fork_same_directory",
+            "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+            "observation": "Fresh independent Luna conversation is active; the unreadable provisioning client-thread request is superseded."
           },
           {
             "id": "12.5b_locale_group_b",
@@ -1455,10 +1460,9 @@
           },
           {
             "id": "12.5bc_independent_luna_review",
-            "status": "independent_review_provisioning",
+            "status": "follow_up_required",
             "owner": "M06",
             "model": "gpt-6-luna",
-            "client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
             "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
             "registered_paths": [
               "web/i18n/ja-JP/extend.json",
@@ -1477,7 +1481,14 @@
             ],
             "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics.",
             "evidence": "evidence/M06/result.json#/subtasks/12.5bc_independent_luna_review",
-            "dispatch_channel": "codex_project_worktree"
+            "dispatch_channel": "codex_fork_same_directory",
+            "superseded_review_client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
+            "review_thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
+            "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+            "observation": "13 locales reviewed. All 85 keys per locale present; placeholders match; sandbox/cache warning semantics preserved. Exact-English residuals are established protocol/UI terms. Polish tenant terminology requires follow-up.",
+            "review_status": "follow_up_required",
+            "finding_count": 1,
+            "blocker": "P2: Polish tenant terminology uses dzierżawa (lease), obscuring which tenant/code nodes revert to standard sandbox; fix and re-review before passing M06 locale review."
           }
         ]
       },
@@ -1734,7 +1745,7 @@
           "integration_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8"
         },
         "12.5a_locale_group_a": {
-          "status": "independent_review_provisioning",
+          "status": "review_in_progress",
           "owner": "M06",
           "model": "gpt-6-astra",
           "agent": "/root/m06_12_5a_locale_a",
@@ -1902,7 +1913,7 @@
         },
         "12.5bc_independent_luna_review": {
           "id": "12.5bc_independent_luna_review",
-          "status": "independent_review_provisioning",
+          "status": "follow_up_required",
           "owner": "M06",
           "model": "gpt-6-luna",
           "client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
@@ -1922,7 +1933,11 @@
             "web/i18n/vi-VN/extend.json",
             "web/i18n/zh-Hant/extend.json"
           ],
-          "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics."
+          "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics.",
+          "review_status": "follow_up_required",
+          "finding_count": 1,
+          "blocker": "P2: Polish tenant terminology uses dzierżawa (lease), obscuring which tenant/code nodes revert to standard sandbox; fix and re-review before passing M06 locale review.",
+          "observation": "13 locales reviewed. All 85 keys per locale present; placeholders match; sandbox/cache warning semantics preserved. Exact-English residuals are established protocol/UI terms. Polish tenant terminology requires follow-up."
         }
       }
     },
@@ -1997,15 +2012,20 @@
         ],
         "current_subtask": {
           "id": "13.4",
-          "status": "independent_review_provisioning",
+          "status": "independent_review_in_progress",
           "evidence": "evidence/M07/result.json#/subtasks/13.4/startup_gate_implementation",
           "implementation_commit": "1b1ddf4eb3",
-          "review_status": "provisioning",
-          "review_client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
+          "review_status": "in_progress",
+          "review_thread_id": "01a0eb20-f978-71e3-9dbf-396839a34414",
+          "review_title": "M07 13.4 init_secret_key 独立复核",
+          "superseded_review_client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
           "review_target_commit": "1b1ddf4eb3",
           "superseded_review_client_thread_ids": [
             "client-new-thread:f80411cc-c502-499a-82f0-80c89ebf03ac"
-          ]
+          ],
+          "dispatch_channel": "codex_fork_same_directory",
+          "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+          "observation": "Fresh independent Luna conversation is active; the unreadable provisioning client-thread request is superseded."
         },
         "next_subtask": "13.4_independent_luna_review"
       },

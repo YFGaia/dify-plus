@@ -550,7 +550,7 @@
       }
     },
     "12.5a_locale_group_a": {
-      "status": "independent_review_provisioning",
+      "status": "independent_review_in_progress",
       "owner": "M06",
       "model": "gpt-6-astra",
       "dependencies": [
@@ -594,8 +594,14 @@
         }
       },
       "review_model": "gpt-6-luna",
-      "review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
-      "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9"
+      "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
+      "superseded_review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
+      "review_thread_id": "01a0eb23-5525-7453-b3ca-7a750f637ca6",
+      "review_title": "M06 12.5a systemManage 多语言独立复核",
+      "review_status": "in_progress",
+      "dispatch_channel": "codex_fork_same_directory",
+      "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+      "observation": "Fresh independent Luna conversation is active; the unreadable provisioning client-thread request is superseded."
     },
     "12.5b_locale_group_b": {
       "status": "passed",
@@ -742,10 +748,9 @@
     },
     "12.5bc_independent_luna_review": {
       "id": "12.5bc_independent_luna_review",
-      "status": "independent_review_provisioning",
+      "status": "follow_up_required",
       "owner": "M06",
       "model": "gpt-6-luna",
-      "client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
       "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
       "registered_paths": [
         "web/i18n/ja-JP/extend.json",
@@ -762,7 +767,39 @@
         "web/i18n/vi-VN/extend.json",
         "web/i18n/zh-Hant/extend.json"
       ],
-      "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics."
+      "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics.",
+      "superseded_review_client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
+      "review_thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
+      "review_status": "follow_up_required",
+      "dispatch_channel": "codex_fork_same_directory",
+      "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+      "observation": "Fresh independent Luna conversation is active; the unreadable provisioning client-thread request is superseded.",
+      "completed_at": "2026-09-29",
+      "finding_count": 1,
+      "blockers": [
+        {
+          "severity": "P2",
+          "locale": "pl-PL",
+          "keys": [
+            "systemManage.codeExecutionControl.deleteConfirmContent",
+            "systemManage.codeExecutionControl.description"
+          ],
+          "issue": "The Polish translation uses dzierżawa (lease/tenancy) for the SaaS tenant entity, making the affected tenant/code-node scope ambiguous in the elevated-sandbox allowlist controls.",
+          "recommendation": {
+            "systemManage.codeExecutionControl.deleteConfirmContent": "Usunąć {{email}} z listy dozwolonych adresów? Węzły kodu w tenantach tego użytkownika powrócą do standardowej piaskownicy.",
+            "systemManage.codeExecutionControl.description": "Dozwolone adresy e-mail na tej liście należą do właścicieli tenantów. Węzły kodu w ich tenantach będą uruchamiane w pełnej piaskownicy (sandbox-full). Gdy lista jest pusta, wszystkie tenanty korzystają ze standardowej piaskownicy."
+          }
+        }
+      ],
+      "review_checks": {
+        "system_manage_keys_per_locale": 85,
+        "missing_or_extra_keys": 0,
+        "placeholder_mismatches": 0,
+        "locales_reviewed": 13,
+        "other_blocking_findings": 0,
+        "english_residue": "Remaining exact English matches are established UI/protocol terms (API URL, Token, Avatar, Email).",
+        "operational_semantics": "All 13 locales preserve the sandbox-full to standard sandbox transition and the cache-sync warning/recovery instruction."
+      }
     }
   },
   "next_subtask": "12.3_analysis"
