@@ -17,7 +17,7 @@ web/app/components/apps/app-card/interactions.tsx	M06	V02	web/app/components/app
 web/app/components/api-key/api-key-modal.tsx	M06	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	new unified modal receives supported quota fields
 web/app/components/api-key/api-key-table.tsx	M06	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	new unified table receives quota display
 web/app/components/main-nav/components/workspace-card.tsx	M06	V02	web/app/components/main-nav/components/account-money-extend.tsx	exists_in_1.17.1	new sidebar location for personal balance
-web/features/home/template-card.tsx	M06	V02	web/app/components/explore/app-card/index.tsx	exists_in_1.17.1	upstream rename of fork-modified template card
+web/features/home/template-card.tsx	M06	V02	web/app/components/explore/app-card/index.tsx	exists_in_1.17.1	active HomeContent template card in 1.17.1; preserve its live host behavior
 web/i18n/lo-LA/extend.json	M06	V02	web/i18n/en-US/extend.json	create_for_fork	new upstream locale needs fork namespace file
 api/services/login_config_service_extend.py	M02	V01	M02 common contracts	M02_registered	fork-only login configuration and response model; public SystemFeatureModel unchanged
 api/models/workflow_log_extend.py	M02	V01	M02 common contracts	M02_registered	session-bound batch projection of fork log identity mappings

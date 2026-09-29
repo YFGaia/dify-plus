@@ -395,12 +395,115 @@
       "dispatch_channel": "codex_project_worktree"
     },
     "12.5_analysis": {
-      "status": "in_progress",
+      "status": "passed",
       "model": "gpt-6-sol",
       "agent": "/root/m06_12_5_analysis",
-      "scope": "Read-only exact path and ownership analysis for M06 12.5: lo-LA extend locale completeness and obsolete Overview/secret-key/category production references.",
-      "registered_paths": [],
-      "write_scope": "read-only; no files may be modified"
+      "evidence": "evidence/M06/12.5-analysis.md",
+      "scope": "Read-only exact-path and ownership analysis for full 24-locale fork namespace coverage and old UI reference cleanup.",
+      "findings": {
+        "en_US_keys": 135,
+        "zh_Hans_keys": 135,
+        "existing_extend_locales": 23,
+        "lo_LA_missing_file": true,
+        "incomplete_existing_locales": 21,
+        "missing_keys_per_existing_locale": 85,
+        "required_locale_paths": [
+          "web/i18n/ar-TN/extend.json",
+          "web/i18n/de-DE/extend.json",
+          "web/i18n/es-ES/extend.json",
+          "web/i18n/fa-IR/extend.json",
+          "web/i18n/fr-FR/extend.json",
+          "web/i18n/hi-IN/extend.json",
+          "web/i18n/id-ID/extend.json",
+          "web/i18n/it-IT/extend.json",
+          "web/i18n/lo-LA/extend.json",
+          "web/i18n/ja-JP/extend.json",
+          "web/i18n/ko-KR/extend.json",
+          "web/i18n/nl-NL/extend.json",
+          "web/i18n/pl-PL/extend.json",
+          "web/i18n/pt-BR/extend.json",
+          "web/i18n/ro-RO/extend.json",
+          "web/i18n/ru-RU/extend.json",
+          "web/i18n/sl-SI/extend.json",
+          "web/i18n/th-TH/extend.json",
+          "web/i18n/tr-TR/extend.json",
+          "web/i18n/uk-UA/extend.json",
+          "web/i18n/vi-VN/extend.json",
+          "web/i18n/zh-Hant/extend.json"
+        ],
+        "obsolete_zero_reference_path": "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx",
+        "preserve_active_category": "web/app/components/explore/category.tsx",
+        "preserve_active_template_card": "web/features/home/template-card.tsx",
+        "preserve_active_app_card_utils": "web/app/components/app/overview/app-card-utils.ts",
+        "validation": "pnpm i18n:check --file extend --lang <group locales>, then pnpm i18n:check --file extend"
+      }
+    },
+    "12.5a_locale_group_a": {
+      "status": "ready_for_implementation",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "dependencies": [
+        "12.5_analysis:passed"
+      ],
+      "registered_paths": [
+        "web/i18n/ar-TN/extend.json",
+        "web/i18n/de-DE/extend.json",
+        "web/i18n/es-ES/extend.json",
+        "web/i18n/fa-IR/extend.json",
+        "web/i18n/fr-FR/extend.json",
+        "web/i18n/hi-IN/extend.json",
+        "web/i18n/id-ID/extend.json",
+        "web/i18n/it-IT/extend.json",
+        "web/i18n/lo-LA/extend.json"
+      ],
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity."
+    },
+    "12.5b_locale_group_b": {
+      "status": "ready_for_implementation",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "dependencies": [
+        "12.5_analysis:passed"
+      ],
+      "registered_paths": [
+        "web/i18n/ja-JP/extend.json",
+        "web/i18n/ko-KR/extend.json",
+        "web/i18n/nl-NL/extend.json",
+        "web/i18n/pl-PL/extend.json",
+        "web/i18n/pt-BR/extend.json",
+        "web/i18n/ro-RO/extend.json",
+        "web/i18n/ru-RU/extend.json"
+      ],
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity."
+    },
+    "12.5c_locale_group_c": {
+      "status": "ready_for_implementation",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "dependencies": [
+        "12.5_analysis:passed"
+      ],
+      "registered_paths": [
+        "web/i18n/sl-SI/extend.json",
+        "web/i18n/th-TH/extend.json",
+        "web/i18n/tr-TR/extend.json",
+        "web/i18n/uk-UA/extend.json",
+        "web/i18n/vi-VN/extend.json",
+        "web/i18n/zh-Hant/extend.json"
+      ],
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity."
+    },
+    "12.5d_obsolete_secret_key_quota_modal": {
+      "status": "blocked_by_dependency",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "dependencies": [
+        "12.3:passed"
+      ],
+      "registered_paths": [
+        "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
+      ],
+      "scope": "Delete the zero-reference legacy quota modal only after the new API-key quota host is accepted."
     }
   },
   "next_subtask": "12.2a_app_center_repair"

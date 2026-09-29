@@ -74,6 +74,7 @@ web/app/components/develop/secret-key/__tests__/secret-key-modal.spec.tsx	M06	V0
 web/app/components/develop/secret-key/secret-key-button.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
 web/app/components/develop/secret-key/secret-key-modal.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
 web/app/components/develop/secret-key/style.module.css	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
+web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx	M06	V02	modify/delete	pending	zero-reference legacy quota modal; delete only after M06 12.3 validates the new API-key quota host
 web/app/components/explore/__tests__/index.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
 web/app/components/explore/app-list/__tests__/index.spec.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
 web/app/components/explore/app-list/index.tsx	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
@@ -92,6 +93,28 @@ web/features/home/template-card.tsx	M06	V02	content	pending	frontend business UI
 web/features/system-features/__tests__/system-features.spec.ts	M05	V02	modify/delete	pending	Console transport, public features or shared frontend contract
 web/features/system-features/client.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
 web/features/system-features/server.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract
+web/i18n/ar-TN/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/de-DE/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/es-ES/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/fa-IR/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/fr-FR/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/hi-IN/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/id-ID/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/it-IT/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/lo-LA/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/ja-JP/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/ko-KR/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/nl-NL/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/pl-PL/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/pt-BR/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/ro-RO/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/ru-RU/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/sl-SI/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/th-TH/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/tr-TR/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/uk-UA/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/vi-VN/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
+web/i18n/zh-Hant/extend.json	M06	V02	content	pending	24-locale fork namespace parity; fill missing systemManage translations (lo-LA receives the complete namespace)
 web/i18n/uk-UA/plugin-tags.json	M06	V02	modify/delete	pending	frontend business UI, route, WebApp or localization
 web/models/app.ts	M06	V02	content	pending	frontend business UI, route, WebApp or localization
 web/models/common.ts	M05	V02	content	pending	Console transport, public features or shared frontend contract

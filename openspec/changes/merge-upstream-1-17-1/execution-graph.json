@@ -1088,7 +1088,30 @@
         "web/service/apps.ts",
         "web/service/explore.ts",
         "web/service/use-explore.ts",
-        "web/service/webapp-auth.ts"
+        "web/service/webapp-auth.ts",
+        "web/i18n/ar-TN/extend.json",
+        "web/i18n/de-DE/extend.json",
+        "web/i18n/es-ES/extend.json",
+        "web/i18n/fa-IR/extend.json",
+        "web/i18n/fr-FR/extend.json",
+        "web/i18n/hi-IN/extend.json",
+        "web/i18n/id-ID/extend.json",
+        "web/i18n/it-IT/extend.json",
+        "web/i18n/lo-LA/extend.json",
+        "web/i18n/ja-JP/extend.json",
+        "web/i18n/ko-KR/extend.json",
+        "web/i18n/nl-NL/extend.json",
+        "web/i18n/pl-PL/extend.json",
+        "web/i18n/pt-BR/extend.json",
+        "web/i18n/ro-RO/extend.json",
+        "web/i18n/ru-RU/extend.json",
+        "web/i18n/sl-SI/extend.json",
+        "web/i18n/th-TH/extend.json",
+        "web/i18n/tr-TR/extend.json",
+        "web/i18n/uk-UA/extend.json",
+        "web/i18n/vi-VN/extend.json",
+        "web/i18n/zh-Hant/extend.json",
+        "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
       ],
       "outputs": [
         "evidence/M06/result.json",
@@ -1100,7 +1123,8 @@
           "preflight",
           "12.1a",
           "12.1b",
-          "12.2_analysis"
+          "12.2_analysis",
+          "12.5_analysis"
         ],
         "current_subtask": {
           "id": "12.2a_app_center_repair",
@@ -1171,6 +1195,71 @@
             "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
             "created_from_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
             "dispatch_channel": "codex_project_worktree"
+          },
+          {
+            "id": "12.5a_locale_group_a",
+            "status": "ready_for_implementation",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "dependencies": [
+              "12.5_analysis:passed"
+            ],
+            "registered_paths": [
+              "web/i18n/ar-TN/extend.json",
+              "web/i18n/de-DE/extend.json",
+              "web/i18n/es-ES/extend.json",
+              "web/i18n/fa-IR/extend.json",
+              "web/i18n/fr-FR/extend.json",
+              "web/i18n/hi-IN/extend.json",
+              "web/i18n/id-ID/extend.json",
+              "web/i18n/it-IT/extend.json",
+              "web/i18n/lo-LA/extend.json"
+            ]
+          },
+          {
+            "id": "12.5b_locale_group_b",
+            "status": "ready_for_implementation",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "dependencies": [
+              "12.5_analysis:passed"
+            ],
+            "registered_paths": [
+              "web/i18n/ja-JP/extend.json",
+              "web/i18n/ko-KR/extend.json",
+              "web/i18n/nl-NL/extend.json",
+              "web/i18n/pl-PL/extend.json",
+              "web/i18n/pt-BR/extend.json",
+              "web/i18n/ro-RO/extend.json",
+              "web/i18n/ru-RU/extend.json"
+            ]
+          },
+          {
+            "id": "12.5c_locale_group_c",
+            "status": "ready_for_implementation",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "dependencies": [
+              "12.5_analysis:passed"
+            ],
+            "registered_paths": [
+              "web/i18n/sl-SI/extend.json",
+              "web/i18n/th-TH/extend.json",
+              "web/i18n/tr-TR/extend.json",
+              "web/i18n/uk-UA/extend.json",
+              "web/i18n/vi-VN/extend.json",
+              "web/i18n/zh-Hant/extend.json"
+            ]
+          },
+          {
+            "id": "12.5d_obsolete_secret_key_quota_modal",
+            "status": "blocked_by_dependency",
+            "owner": "M06",
+            "model": "gpt-6-astra",
+            "dependency": "12.3:passed",
+            "registered_paths": [
+              "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
+            ]
           }
         ]
       },
@@ -1187,7 +1276,30 @@
         "web/app/components/apps/__tests__/list.spec.tsx",
         "web/service/explore.spec.ts",
         "web/service/__tests__/use-explore.spec.tsx",
-        "web/app/components/apps/app-card/interactions.tsx"
+        "web/app/components/apps/app-card/interactions.tsx",
+        "web/i18n/ar-TN/extend.json",
+        "web/i18n/de-DE/extend.json",
+        "web/i18n/es-ES/extend.json",
+        "web/i18n/fa-IR/extend.json",
+        "web/i18n/fr-FR/extend.json",
+        "web/i18n/hi-IN/extend.json",
+        "web/i18n/id-ID/extend.json",
+        "web/i18n/it-IT/extend.json",
+        "web/i18n/lo-LA/extend.json",
+        "web/i18n/ja-JP/extend.json",
+        "web/i18n/ko-KR/extend.json",
+        "web/i18n/nl-NL/extend.json",
+        "web/i18n/pl-PL/extend.json",
+        "web/i18n/pt-BR/extend.json",
+        "web/i18n/ro-RO/extend.json",
+        "web/i18n/ru-RU/extend.json",
+        "web/i18n/sl-SI/extend.json",
+        "web/i18n/th-TH/extend.json",
+        "web/i18n/tr-TR/extend.json",
+        "web/i18n/uk-UA/extend.json",
+        "web/i18n/vi-VN/extend.json",
+        "web/i18n/zh-Hant/extend.json",
+        "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
       ],
       "active_subtasks": {
         "12.3_analysis": {
@@ -1289,14 +1401,6 @@
           "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
           "created_from_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
           "dispatch_channel": "codex_project_worktree"
-        },
-        "12.5_analysis": {
-          "status": "in_progress",
-          "model": "gpt-6-sol",
-          "agent": "/root/m06_12_5_analysis",
-          "scope": "Read-only exact path and ownership analysis for M06 12.5: lo-LA extend locale completeness and obsolete Overview/secret-key/category production references.",
-          "registered_paths": [],
-          "write_scope": "read-only; no files may be modified"
         }
       }
     },
