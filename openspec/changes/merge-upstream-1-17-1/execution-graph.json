@@ -1126,21 +1126,27 @@
           "12.2_analysis",
           "12.5_analysis",
           "12.2a_app_center_repair",
-          "12.2c_studio_sync_menu"
+          "12.2c_studio_sync_menu",
+          "12.3_analysis",
+          "12.4_analysis",
+          "12.5a_locale_review"
         ],
         "current_subtask": {
-          "status": "analysis_in_progress",
-          "model": "gpt-6-sol",
-          "scope": "Read-only API-key scope/balance display and login_config exchange-rate data-flow analysis.",
-          "superseded_client_thread_id": "client-new-thread:d4848a36-25f7-444b-8fd1-1f055f2d7947",
-          "thread_id": "01a0eb1c-f509-7f71-961e-2b1fd2978b99",
-          "title": "M06 12.3 API key额度与汇率分析",
-          "created_from_commit": "b42f68b3e39602975c50817f2404ac48b062edb9",
-          "dispatch_channel": "codex_fork_same_directory",
-          "observation": "A fresh read-only Sol task replaced an earlier provisioning request whose thread ID was not exposed; the task is active in a separate conversation.",
-          "evidence": "evidence/M06/result.json#/subtasks/12.3_analysis"
+          "id": "12.5_language_corrections",
+          "status": "conversation_provisioning",
+          "model": "gpt-6-astra",
+          "client_thread_id": "client-new-thread:f971e5f0-0552-49fc-a70a-acc9f8bdd5e2",
+          "title": "M06 12.5 印尼语 P3 修正",
+          "base_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
+          "registered_paths": [
+            "web/i18n/id-ID/extend.json"
+          ],
+          "dispatch_channel": "codex_project_worktree",
+          "scope": "Correct only the two reviewed Indonesian Edit labels in id-ID/extend.json; Polish P2 wording is already fixed in 84805a93186032f84245c01bdbc3ec620c325d63 and is excluded from this implementation. Preserve 135-key order, interpolation, and all unrelated values.",
+          "source_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
+          "evidence": "evidence/M06/result.json#/subtasks/12.5_language_corrections"
         },
-        "next_subtask": "12.5_language_corrections",
+        "next_subtask": "12.5_language_correction_review",
         "parallel_subtasks": [
           {
             "id": "12.2a_app_center_repair",
@@ -1481,7 +1487,7 @@
           },
           {
             "id": "12.5bc_independent_luna_review",
-            "status": "independent_review_in_progress",
+            "status": "follow_up_required",
             "owner": "M06",
             "model": "gpt-6-luna",
             "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
@@ -2052,20 +2058,26 @@
           ]
         },
         "12.5_language_corrections": {
-          "status": "ready",
+          "status": "implemented_pending_independent_review",
           "model": "gpt-6-astra",
+          "agent": "/root/m06_12_5_language_corrections",
           "registered_paths": [
             "web/i18n/id-ID/extend.json",
             "web/i18n/pl-PL/extend.json"
           ],
-          "source_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
-          "dependencies": [
-            "12.5a_locale_group_a",
-            "12.5b_locale_group_b",
-            "12.5c_locale_group_c",
-            "12.5_luna_review"
-          ],
-          "scope": "Correct one P3 Indonesian label issue and one P2 Polish tenant/sandbox safety translation issue reported by independent Luna; preserve key order, placeholders, and unrelated existing values."
+          "source_commits": {
+            "id-ID": "0b360565b4c733660225faecfd337538a0d635c3",
+            "pl-PL": "84805a93186032f84245c01bdbc3ec620c325d63"
+          },
+          "review_task": "/root/m06_12_5_locale_followup_review",
+          "review_status": "in_progress",
+          "scope": "Resolve one P3 Indonesian residual-English finding and one P2 Polish tenant/sandbox terminology finding; preserve placeholders, key order, and security semantics.",
+          "verification": {
+            "node": "24.20.0",
+            "json_key_order_placeholders": "passed for both locales; 135 keys each and localized-values assertions passed",
+            "git_diff_check": "passed",
+            "pnpm_i18n_parity": "not run; pnpm unexpectedly attempted dependency auto-install and was stopped before installation; no manifest/lock changes"
+          }
         }
       }
     },
