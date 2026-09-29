@@ -2366,7 +2366,8 @@
         "web/Dockerfile",
         "web/docker/entrypoint.sh",
         ".github/workflows/**",
-        "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记"
+        "research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记",
+        ".gitlab-ci.yml (registered 13.6 manifest-artifact follow-up only)"
       ],
       "resources": [
         "部署负责人"
@@ -2392,7 +2393,8 @@
         "evidence/M07/pre-analysis.json",
         "evidence/M07/pre-analysis.md",
         "evidence/M07/result.json",
-        "evidence/M07/resumption.json"
+        "evidence/M07/resumption.json",
+        "evidence/M07/13.6-current-review.md"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [
@@ -2413,6 +2415,17 @@
           "13.5"
         ],
         "current_subtask": {
+          "id": "13.6_gitlab_manifest_artifact_transfer",
+          "status": "ready",
+          "owner": "M07",
+          "model": "gpt-6-astra",
+          "registered_paths": [
+            ".gitlab-ci.yml"
+          ],
+          "scope": "Fix unique architecture manifest filenames and explicit GitLab artifact export/download between build and manifest jobs; validate YAML and static transfer contract. Do not claim actual image push or pipeline success."
+        },
+        "next_subtask": "13.6_gitlab_manifest_artifact_transfer",
+        "completed_review": {
           "id": "13.6_source_acceptance_revalidation",
           "status": "review_complete_p2_remediation_pending",
           "model": "gpt-6-sol",
@@ -2459,7 +2472,22 @@
           "review_evidence": "evidence/M07/13.6-independent-review.md",
           "next_subtask": "13.6_gitlab_manifest_artifact_fix"
         },
-        "next_subtask": "13.6_gitlab_manifest_artifact_fix"
+        "parallel_subtasks": [
+          {
+            "id": "13.6_current_review",
+            "status": "completed_with_P2_followup",
+            "owner": "M07",
+            "model": "gpt-6-sol",
+            "thread_id": "01a0eb47-c6b5-7c90-985a-e00b6d53bd6c",
+            "review_target_commit": "8dbd5e6a03e6966446ee413e0eea9bf656c9fb7c",
+            "evidence": "evidence/M07/13.6-current-review.md",
+            "findings": [
+              "P2 .gitlab-ci.yml manifest files have no artifact transfer and collide across architecture jobs",
+              "P2 final result metadata must be reconciled before acceptance",
+              "P3 required JWE deployment secret remains unverified"
+            ]
+          }
+        ]
       },
       "registered_additional_paths": [
         ".github/workflows/build-push.yml",
