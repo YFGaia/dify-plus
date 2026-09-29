@@ -182,7 +182,7 @@
       ]
     },
     "13.4": {
-      "status": "implementation_complete_pending_independent_review",
+      "status": "passed",
       "model": "gpt-6-astra",
       "agent": "/root/m07_13_4_env_examples",
       "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
@@ -415,7 +415,7 @@
         }
       ],
       "startup_gate_implementation": {
-        "status": "implementation_complete_pending_independent_review",
+        "status": "passed",
         "model": "gpt-6-astra",
         "agent": "/root/m07_seed_key_gate",
         "source_commit_before_subtask": "58ae912797e82c09f22b7497481e45f30f425877",
@@ -467,27 +467,52 @@
           "Compose dependency gate does not cover --no-deps, direct container runs, or concurrent Compose projects; operators must initialize and serialize these paths.",
           "No distributed compare-and-set was added; general cross-project concurrency would require a storage-level atomicity change."
         ],
-        "next_action": "Fresh Luna review task has been created for exact implementation commit 1b1ddf4eb3; await provisioning and review findings before acceptance.",
-        "implementation_commit": "1b1ddf4eb3"
+        "next_action": "Accepted after independent Luna review; documented Compose bypass/cross-project serialization boundary remains.",
+        "implementation_commit": "1b1ddf4eb3",
+        "post_implementation_review": {
+          "status": "passed",
+          "reviewer": "independent gpt-6-luna subtask /root/m07_13_4_luna_review",
+          "target_commit": "1b1ddf4eb3a84a903022767d68e466f5bbe82cdb",
+          "scope": "Read-only static review of Compose seed gate, seven consumer dependencies, init_permissions fail-closed behavior, migration guidance, default-disabled Agent v2 and blank token examples.",
+          "findings": [
+            {
+              "priority": "none",
+              "result": "No P1/P2 blockers. init_secret_key gates migration, API, WebSocket, worker, worker-gaia, worker-dataset, and worker_beat."
+            },
+            {
+              "priority": "P3",
+              "result": "--no-deps, direct container starts, and concurrent separate Compose projects bypass or exceed the Compose dependency DAG; operators must initialize first and serialize those paths."
+            }
+          ],
+          "evidence": "evidence/M07/13.4-independent-review.md",
+          "limits": [
+            "No deployment or container run",
+            "No real volume or secret inspection",
+            "Dedicated assertion results are recorded from the implementation task and were not rerun by this reviewer"
+          ]
+        }
       },
       "post_implementation_review": {
-        "status": "in_progress",
-        "model": "gpt-6-luna",
-        "target_commit": "1b1ddf4eb3",
-        "scope": "Read-only review of docker/docker-compose.dify-plus.yaml implementation against the existing storage key helper and exact upstream/fork contracts.",
+        "status": "passed",
+        "reviewer": "independent gpt-6-luna subtask /root/m07_13_4_luna_review",
+        "target_commit": "1b1ddf4eb3a84a903022767d68e466f5bbe82cdb",
+        "scope": "Read-only static review of Compose seed gate, seven consumer dependencies, init_permissions fail-closed behavior, migration guidance, default-disabled Agent v2 and blank token examples.",
+        "findings": [
+          {
+            "priority": "none",
+            "result": "No P1/P2 blockers. init_secret_key gates migration, API, WebSocket, worker, worker-gaia, worker-dataset, and worker_beat."
+          },
+          {
+            "priority": "P3",
+            "result": "--no-deps, direct container starts, and concurrent separate Compose projects bypass or exceed the Compose dependency DAG; operators must initialize first and serialize those paths."
+          }
+        ],
+        "evidence": "evidence/M07/13.4-independent-review.md",
         "limits": [
-          "No containers or image pulls",
-          "No private env or real storage access",
-          "No file modifications or commits"
-        ],
-        "superseded_client_thread_ids": [
-          "client-new-thread:f80411cc-c502-499a-82f0-80c89ebf03ac"
-        ],
-        "provisioning_note": "Fresh same-directory independent review conversation is active; the unreadable client-thread request is superseded.",
-        "superseded_client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
-        "review_thread_id": "01a0eb20-f978-71e3-9dbf-396839a34414",
-        "dispatch_channel": "codex_fork_same_directory",
-        "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778"
+          "No deployment or container run",
+          "No real volume or secret inspection",
+          "Dedicated assertion results are recorded from the implementation task and were not rerun by this reviewer"
+        ]
       }
     },
     "13.5": {
