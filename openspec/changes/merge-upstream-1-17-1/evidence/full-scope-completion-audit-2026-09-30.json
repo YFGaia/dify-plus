@@ -1274,9 +1274,11 @@
     "production-not-authorized": 1
   },
   "current_local_missing": {
-    "local_missing_subcheck_count": 0,
-    "local_missing": [],
-    "external_missing_subcheck_count": 9,
+    "local_missing_subcheck_count": 1,
+    "local_missing": [
+      "O02.generated_agent_run_tool_call_memory_compaction"
+    ],
+    "external_missing_subcheck_count": 8,
     "external_only_scenes": [
       "B01",
       "B03",
@@ -1284,8 +1286,7 @@
       "B08",
       "B09",
       "F04",
-      "D05",
-      "O02"
+      "D05"
     ]
   },
   "external_conditions": [
@@ -1334,7 +1335,7 @@
     "Final resumed generation-acceptance safe evidence/precise fixture cleanup and exact docs-only commit, source/tag unchanged",
     "R02 whole release acceptance retains external/oldinstall/production gates; code-ready tag is not final production signoff"
   ],
-  "completion_claim": "Incomplete whole merge: selected localmatrix requirements closed, external9/8scenes, oldinstall/production still unverified; explicitcleanup approvalblocked and O02 no-model preparation remain",
+  "completion_claim": "Incomplete whole merge: B05/B11/B09 selected subchecks passed; complete O02 Agent generatedtool/memory/compaction localpending, cleanupapprovalblocked, external8/7scenes and oldinstall/production unverified.",
   "enabled_scope_correction": "O02 onceoff disabled passed remains; selected shared collab true requires separate local realenabled checks. Agentmetadata/files and noLLMHumanInput actual passed; modelgeneration not inferred.",
   "external_conditions_evidence": "evidence/external-conditions-2026-09-30.json",
   "remaining_executable_actions": [
@@ -1342,7 +1343,7 @@
     "Exact owned factualdocs/proofs commit with committed release archive validation; user worktree lock excluded"
   ],
   "unverified_conditions": {
-    "external_required": 9,
+    "external_required": 8,
     "external_detail": "evidence/external-conditions-2026-09-30.json",
     "old_install": "A03/V03/V04/V06 originalpriorversion data/backups/retention/downgrade-replay/RTO-RPO facts unavailable per prioruserdeferredscope",
     "production": "D00-D04/O05 authorizedinventory/window/executor/backupthresholds/businesssignoff/observation unavailable; no automaticdeploy/push"
@@ -1355,7 +1356,7 @@
     "factual_record_note": "Docs result commit recorded afterward without embedding selfID."
   },
   "safe_remaining_action_audit": {
-    "current_local_required_missing": 0,
+    "current_local_required_missing": 1,
     "provider_or_price_mutation": "Not authorized to fabricate/copy/configure unknownisolatedcredentials/positiveprices; user reply unavailable",
     "latest_original_UI": "Actualfreshcenter/open/returnpassed, no currentUI blocker",
     "old_install": "Matching priorversion data/snapshots unavailable; fresh/currentclone cannot substitute",
@@ -1387,5 +1388,22 @@
     ],
     "scope": "Only exact3synthetic ownedApps plus exact frozen associated IDs; original App/account/config/provider/prices/keys excluded"
   },
-  "approval_blocked_action": "Cleanup exact3synthetic App associated rows/task envelopes must await human authorization; automaticreview rejected action, no bypass"
+  "approval_blocked_action": "Cleanup exact3synthetic App associated rows/task envelopes must await human authorization; automaticreview rejected action, no bypass",
+  "latest_O02_partial_progress": {
+    "status": "partial_internal_readiness_transport_blocked_approval",
+    "evidence": "evidence/original-generation-runtime/independent-o02-runtime-health-review.json",
+    "services_running": 5,
+    "container_health": 200,
+    "dependency_TCP": 4,
+    "host_active_bindings": 0,
+    "host_owner_gate": "unpassed",
+    "new_Agents": 0,
+    "file_uploads": 0,
+    "model_calls": 0,
+    "required_human_action": "authorize exact sidecarAPI join existingshared accessnetwork and recreate; no bypass"
+  },
+  "current_approval_blocks": [
+    "exact3generationfixture associated cleanup auto-review rejection; human authorization pending",
+    "exactsidecarAPI sharedaccessnetwork join/recreate auto-review rejection; human authorization pending"
+  ]
 }

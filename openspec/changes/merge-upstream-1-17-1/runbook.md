@@ -1,6 +1,6 @@
 # 环境升级与恢复操作包模板
 
-> 本文保留生产环境操作模板，生产环境化定稿及执行未完成。本轮55owned源码修复、独立审查、完整标准Dockerfile HEAD-lock镜像和隔离本地无外部配置required检查已通过。原23000中心曾真实显示/打开缺stats的已安装发布应用，最新HEAD-lock镜像三服务已更新healthy；最新浏览器已在13:52:27Z真实刷新显示/打开/返回通过，锁屏仅历史条件。当前最新组件/克隆绑定与代码留档结果按N06/R02持久记录签收。外部11required条件（SSO、非零模型账务、embedding、generatedAgent）、历史旧库升级/旧版本一致恢复和生产门槛分别保留，见逐项machineledger及external-conditions。
+> 本文保留生产环境操作模板，生产环境化定稿及执行未完成。本轮55owned源码修复、独立审查、完整标准Dockerfile HEAD-lock镜像和隔离本地无外部配置required检查已通过。原23000中心曾真实显示/打开缺stats的已安装发布应用，最新HEAD-lock镜像三服务已更新healthy；最新浏览器已在13:52:27Z真实刷新显示/打开/返回通过，锁屏仅历史条件。当前最新组件/克隆绑定与代码留档结果按N06/R02持久记录签收。当前B05/B11真实原模型验收及B09停止/已完成usage子项已独立通过；完整generatedAgent/tool/memory/compaction仍为本地pending1，外部required现为8项/7场景（SSO/email、非零模型账务/边界/retry、embedding）。3fixture关联cleanup另待明确人类授权；历史旧库升级/旧版本一致恢复和生产门槛分别保留，见逐项machineledger及external-conditions。
 
 ## 1. 实施前须填写的参数
 

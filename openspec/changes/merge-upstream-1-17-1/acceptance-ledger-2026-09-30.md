@@ -1,6 +1,6 @@
 # 当前候选逐场景验收台账
 
-> 当前机器签收：原provider B05实际12组合、B11正确parent链/Memory截断、B09实际停止及已完成节点usage保留子项通过。29场景为16passed/7partial/1pending/4历史deferred/1production；本轮已定义矩阵本地缺口0，外部9required/8场景。仍有明确待动作：3fixture关联清理被自动审核拒绝等待人类授权，O02原有效拓扑/无模型合法配置链准备与预算审计继续；不代表整体可执行工作0。
+> 最新范围：B05实际12矩阵、B11正确parent链/Memory及B09已完成usage停止子项已passed。原模型实际tool能力可用，O02完整generated run/tool call/memory/compaction正式转本地pending1；外部required由机器重算为8项/7场景。cleanup仍blocked-approval，0consumer启动。43e2当时local0/external9仅历史分类，不能再当当前不可执行结论。
 
 审计日期：2026-09-30（Asia/Shanghai）；源码审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39`。逐项当前证据维度见`acceptance-ledger-state-2026-09-30.json`；下表保留本轮起始状态，不能拿起始列代替最新执行结果。源测试、历史运行和当前完整镜像业务验收分别记录。每次实际验收追加单独 evidence 文件及 candidate/tree/image ID或digest、环境摘要、DB heads、脱敏输入、预期/实际输出、时间与执行者；不输出密钥。
 
@@ -151,9 +151,11 @@ Owner角色批次已持久：`evidence/role-permissions-runtime/owner-results.md
 | `D04` | deferred | 0 | 0 |
 | `D05` | partial-current-proof | 0 | D05.high_quality_vector_counts_retrieval_grpc_TLS_config |
 | `O01` | passed | 0 | 0 |
-| `O02` | partial-current-proof | 0 | O02.generated_agent_run_tool_selected_layers |
+| `O02` | partial-current-proof | O02.generated_agent_run_tool_call_memory_compaction | 0 |
 | `O03` | passed | 0 | 0 |
 | `O04` | deferred | 0 | 0 |
 | `O05` | production-not-authorized | 0 | 0 |
 
-原provider实际结果见 `evidence/original-generation-runtime/independent-actual-readback.json` 与独立review。B11正确链3→4→5处理前6/后0，provider prompt未capture。B09 firstpartial UNKNOWN，第二双LLM第一38+8=46已完成usage保留，不代retry/resume/非零收费。cleanup产品3App204/404只删App行，关联与3owned队列待显式授权；automaticreview拒绝0consumer启动，禁止directtask/fork/deletequeue绕过。
+本轮真实生成/retention/停止证据留档43e2；新的O02本地完整范围不得由health/config/JWE/files替代。原control token空、3services absent/DNSfail，但模型tool schema三个true，无新modelcall；5服务sidecar二审四项修订已解决，最后Stub ACL alias修正+quiet后按条件授权无模型启动；真实预算guard为独立后续调用gate。cleanup自动审核拒绝，待exact3人类授权。
+
+O02 本轮实际阶段：5 个专用服务 running、API 容器内部 health200、4 个内部依赖 TCP 可达、内部认证字段相等及原密钥文件 hash 相等布尔成立；主机端口映射仍为空，合法 sidecar owner/tenant 门槛未过。加入原共享 access network 的动作被自动审批拒绝，等待明确人类授权，未执行或换网绕过；Agent0/上传0/模型调用0。文件挂载已采用 owned RW 根加原 privkeys 目录 RO subpath，完整 Agent 工具/记忆/压缩仍本地待验。见 original-generation-runtime/independent-o02-runtime-health-review.json。

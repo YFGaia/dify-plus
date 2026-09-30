@@ -1,0 +1,33 @@
+{
+  "reviewed_at_utc": "2026-09-30T16:34:51.742095+00:00",
+  "timezone": "Asia/Shanghai",
+  "review_kind": "Failure-driven independent exact Compose/storage correction review; no deployment by reviewer",
+  "fragment_sha256": "1accb5e711810e6afa2224c68a08446f22973d919be70ba3d0a888433a4098be",
+  "verdict": "passed owned RW root plus original privkeys directory RO subpath; runtime may apply after exact config/private assertions under root conditional dispatch",
+  "actual_failure": "Previously Docker could not mkdir absent upload_files child target under original whole-volume read-only mount; static quiet config did not prove runtime mounting",
+  "current_layout": {
+    "storage_root": "new owned volume o02_api_storage mounted RW at /app/api/storage",
+    "rsa": "original external named volume, subpath privkeys, mounted RO at /app/api/storage/privkeys",
+    "signing": "original effective internal SECRET_KEY scalar resolved in memory into private0600sidecarenv; no copying persisted signing file or RSA files",
+    "uploads": "FileService upload_files paths write only new owned root",
+    "protected_volume": "no need to create new directory in original storage root"
+  },
+  "source_contracts": [
+    "api/configs/secret_key.py:12 explicit nonempty key takes precedence over storage fallback",
+    "api/extensions/ext_set_secretkey.py:6 resolved key assigned to dify_config and Flask runtime",
+    "api/libs/rsa.py:66 relative privkeys/tenant/private.pem resolved from storage root",
+    "api/services/file_service.py:96 uploaded blob prefix under upload_files"
+  ],
+  "independent_runtime_input": "runtime reports synthetic new-volume mkdir privkeys + actual readonly directory volume-subpath mount successful; persist command/exit/RO and cleanup scope in redacted readback",
+  "startup_conditions": [
+    "exact fragment compose config quiet and private files0600/allowlist",
+    "actual sidecar mount ownrootRW/originalprivkeysRO matches declared volume identities",
+    "effective signing equality boolean and lawful owner/tenant summary200",
+    "original protected app/config/count/quota and key-file equality booleans before/after",
+    "0model invocation; metadata/file creation needs already granted subsequent fixture condition"
+  ],
+  "original_requirement": "complete metadata/files plus generated Agent/tool/memory/compaction remain local acceptance; health/storage static proof alone does not pass full O02",
+  "model_calls": 0,
+  "fixtures_created_by_reviewer": 0,
+  "git_mutation": false
+}

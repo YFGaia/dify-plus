@@ -1,0 +1,8 @@
+{
+  "captured_at_utc": "2026-09-30T16:23:56Z",
+  "original_api_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "persisted_signing_key_present": true,
+  "tenant_private_key_present": true,
+  "upload_files_preexisting": false,
+  "raw_hashes_written_private_only": true
+}

@@ -1,0 +1,79 @@
+{
+  "captured_at_utc": "2026-09-30T16:49:15Z",
+  "fragment_sha256": "520c26d46481e0cf653887a23201558c89b103e0f0bf912e0fbe798620a2c5d9",
+  "compose_project": "difyplus-o02-no-model-20261001",
+  "services": [
+    {
+      "service": "o02_agent_backend",
+      "state": "running",
+      "exit_code": 0,
+      "image_id": "sha256:58ae6b8319ba230fa378e82810bebd9ba66ec3e64b64368ebe24de8225f711e2",
+      "health": null
+    },
+    {
+      "service": "o02_agent_ssrf_proxy",
+      "state": "running",
+      "exit_code": 0,
+      "image_id": "sha256:ce0177cf3a9dd4508c748c70c6ffe63e388a1be4790efd5a0af1565b657f6a36",
+      "health": null
+    },
+    {
+      "service": "o02_api",
+      "state": "running",
+      "exit_code": 0,
+      "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+      "health": null
+    },
+    {
+      "service": "o02_local_sandbox",
+      "state": "running",
+      "exit_code": 0,
+      "image_id": "sha256:8a0712d59c4ffc2043caac9e295a289e67b0af22bb729fb1e8ccf56f904d4be2",
+      "health": null
+    },
+    {
+      "service": "o02_redis_agent",
+      "state": "running",
+      "exit_code": 0,
+      "image_id": "sha256:19e75ce8362e09631372a1dd2cee386bb92da89ee2220ed5fa51a5d703a18d18",
+      "health": null
+    }
+  ],
+  "expected_five_services": true,
+  "api_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "api_network_mode": "difyplus-upstream1171-quota-selftest-20260930_default",
+  "api_container_local_health": {
+    "status": 200,
+    "bytes": 47
+  },
+  "api_active_host_bindings": [],
+  "host_loopback_health_status": 0,
+  "inner_key_matches_loaded_original_api": true,
+  "plugin_key_matches_loaded_original_daemon": true,
+  "agent_api_token_match": true,
+  "sandbox_key_match": true,
+  "effective_secret_matches_original_resolution_source": true,
+  "backend_dependency_tcp_reachability": {
+    "o02_api": true,
+    "local_sandbox": true,
+    "o02_agent_ssrf_proxy": true,
+    "o02_redis_agent": true
+  },
+  "owned_upload_path": {
+    "exists": false,
+    "is_dir": false,
+    "children": 0
+  },
+  "original_fixed_storage_hashes_unchanged": {
+    ".dify_secret_key": true,
+    "privkeys/f3e7ebbc-1757-421b-b63e-7dc7d63bca75/private.pem": true
+  },
+  "original_upload_files_preexisting": false,
+  "original_upload_files_after": false,
+  "migrations_disabled": true,
+  "model_invokes": 0,
+  "agent_fixtures_created": 0,
+  "file_uploads": 0,
+  "worker_or_beat_services": false,
+  "transport_gate_passed": false
+}

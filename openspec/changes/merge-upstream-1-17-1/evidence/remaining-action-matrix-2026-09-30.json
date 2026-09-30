@@ -1,16 +1,16 @@
 {
-  "local_matrix_missing": 0,
-  "external_required": 9,
-  "external_scenes": 8,
+  "local_matrix_missing": 1,
+  "external_required": 8,
+  "external_scenes": 7,
   "source_and_tag_unchanged": true,
   "whole_goal_complete": false,
   "actions": [
     {
       "id": "O02.no_model_original_provider_sidecar_preparation",
-      "status": "plan_only_no_mutation",
+      "status": "blocked_approval_for_exact_shared_access_network_join",
       "executor": "runtime_acceptance static Compose plan; merge_audit contract review; root dispatch",
-      "next_action": "Review four-sidecar same445d API+Backend+Sandbox+dedicatedproxy private network/env plan; no原APIrestart/noqueueworker/no model invocation",
-      "evidence": "evidence/remaining-runtime-feasibility-small-packages-2026-09-30.json"
+      "next_action": "Human exact authorization for sidecarAPI joining existing difyplus-quota-selftest-access and recreate; no workaround. Container-localhealth200 only, publishedhosthealth/owner gate unpassed; continue publicSDK/schema no-modelread analysis",
+      "evidence": "evidence/original-generation-runtime/independent-o02-network-mode-review.json"
     },
     {
       "id": "generation_fixture_cleanup",
@@ -76,11 +76,11 @@
       "unverified_behavior": "Real product high-quality upload/index/vector count/retrieval and selected transport. Installed registry/Qdrant CRUD already locally passed."
     },
     {
-      "id": "O02.generated_agent_run_tool_selected_layers",
-      "status": "unverified_condition",
-      "executor": "root obtains exact configuration/authorization then bounded executor",
-      "minimum_configuration": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
-      "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation."
+      "id": "O02.generated_agent_run_tool_call_memory_compaction",
+      "status": "local_pending",
+      "executor": "runtime/app_center per bounded dispatch; audit independent review",
+      "minimum_configuration": "Existingoriginalmodelactualtoolcapability proved; local5services/internals/legalownedAgent and separately reviewed enforceable forward/tool budgets required; actual compaction trigger/model-settings inheritance to be mapped, not tinytoolturn substitution",
+      "unverified_behavior": "CompletegeneratedAgenttool/memory/compaction +selectedruntimeactual; no-modelpreparation alone insufficient"
     },
     {
       "id": "legacy_upgrade_and_old_version_restore",

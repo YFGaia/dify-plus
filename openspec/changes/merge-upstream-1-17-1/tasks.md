@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 当前事实源为机器执行图、逐项 JSON 台账和完整范围审计。最新标准 HEAD-lock445d 镜像绑定55owned源码及原HEAD842锁，隔离与原23000三服务、最新中心UI/组件及一致快照clone均已有实际证据；源码ee72、code-ready tag指e91、随后交付docs0585保留不变。本轮原租户合法既有模型的B05/B11/B09有界包已执行，待独立safe证据汇总及精确cleanup签收；非零账务/SSO/embedding/Agent等条件逐项保留，不能报告全部合并完成。以下各阶段结果保留当时候选/环境事实，不能将历史当前态当本轮最新状态。
+> 当前事实源为机器执行图、逐项 JSON 台账和完整范围审计。最新标准 HEAD-lock445d 镜像绑定55owned源码及原HEAD842锁，隔离与原23000三服务、最新中心UI/组件及一致快照clone均已有实际证据；源码ee72、code-ready tag指e91、随后交付docs0585保留不变。本轮原租户合法既有模型的B05/B11和B09停止/已完成usage子项已独立签收并于43e2留档；3Apps精确cleanup仍待人类授权。完整Agent生成/工具/memory/compaction现为本地pending，非零账务/SSO/embedding等外部条件逐项保留，不能报告全部合并完成。以下各阶段结果保留当时候选/环境事实，不能将历史当前态当本轮最新状态。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -425,8 +425,15 @@ R02历史交付checkpoint（UI/条件数以当前ledger为准）：源ee72b000�
 - [ ] 35.1 [N05/B05/B11] 原租户三个精确专用Apps复用既有模型；12唯一组合、真实三轮Message/Context/memory截断及独立额度/配置/清理读回。16 generation HTTP硬上限已包含重复拒绝，不追加预算。
 - [x] 35.2 [N05/B09] B05/B11证据保全后复用已建workflow，另行最多2generation POST、1stop、每次8输出/累计16/query1/prompt<512；真实运行尚未终态时stop与独立DB stopped/usage/identity，不将late200或newrerun称resume。收费/配置retry等wholeB09独立未过。
 
-原模型有界包当前独立签收：B11实际parent3→4→5/Memory false6 true0/Console5markers通过；B09原firststop仅控制通过、partial usage UNKNOWN，第二双LLM已完成节点38+8真实保留/run stopped46通过。B05完整细项与3Apps精确cleanup仍待签收，O02原有效topology/budget只读核对不发新模型调用。详见original-generation-runtime/independent-runtime-readback-review.json。
+原模型有界包当前独立签收：B11实际parent3→4→5/Memory false6 true0/Console5markers通过；B09原firststop仅控制通过、partial usage UNKNOWN，第二双LLM已完成节点38+8真实保留/run stopped46通过。B05完整12格及独立身份/拒绝前后计数已签收；3Apps精确cleanup待人类授权。O02完整范围仍本地pending，先5服务无模型启动/内部链读回，不发新模型调用。详见original-generation-runtime/independent-runtime-readback-review.json。
 
 cleanup授权门槛：3个owned Apps产品DELETE204/GET404已执行，但core/fork关联残留未清。短时app_deletion consumer被automatic approval review因破坏性清理缺显式人类授权拒绝，0启动；root已向用户提出exact3fixture范围请求，等待回复，不得directtask/fork事务/deletequeue绕过。当前业务验证证据可签收，cleanup不得写passed。
 
 35.1业务部分已签：12unique矩阵含3拒绝/no生成记录及9success，实际80output；B11正确parent链3→4→5实际Memory false6/true0、Console5markers。因35.1还包含精确fixturecleanup，该复合任务仍未勾选；35.2实际Stop控制及completed-node46usage保留子项通过，wholeB09其他条件未过。
+
+## 36. 原O02已有模型支持后的完整本地验收
+
+- [ ] 36.1 [O02] 审核可逆5服务sidecar、私有内部认证/网络/readonly RSA storage、migrationsfalse/noqueueconsumer，真实no-model health/合法Agent配置/manifest/files；这些准备不替代generatedtools。
+- [ ] 36.2 [O02] 具体真实模型预算guard与tool副作用范围审核后，合法ownedAgent真实generated run/tool call/memory/compaction及selected Home/Workspace/Sandbox终态/readback；不给prompt当硬限、不中断后伪造usage。
+
+O02已正式转localpending，外部机器8required/7scene；43e2当时分类保留历史。源/tag不变，下包实际proof后再精确docs交付。

@@ -1,0 +1,126 @@
+# REVIEW-ONLY Compose fragment: exactly five isolated no-model services.
+# Do not start until audit re-review and coordinator authorization.
+# API image pin: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+# Observed API image ID: sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172
+# Re-inspect Agent image IDs and Compose networks before a later start.
+services:
+  o02_api:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+    profiles: [o02-review-only]
+    env_file:
+      - ${O02_API_ENV_FILE:?0600 explicit API allowlist file required}
+    environment:
+      MODE: api
+      MIGRATION_ENABLED: "false"
+      EXTEND_MIGRATION_ENABLED: "false"
+      # This direct backend link is for health/metadata only; no invoke endpoint is called.
+      AGENT_BACKEND_BASE_URL: http://agent_backend:5050
+      AGENT_BACKEND_API_TOKEN: ${O02_AGENT_API_TOKEN:?local synthetic API token required}
+    ports:
+      - 127.0.0.1:25452:5001
+    volumes:
+      # Owned storage is writable; only the existing RSA key directory is mounted from the original volume, read-only.
+      - o02_api_storage:/app/api/storage
+      - type: volume
+        source: original_api_storage
+        target: /app/api/storage/privkeys
+        read_only: true
+        volume:
+          subpath: privkeys
+    networks:
+      original_default:
+        priority: 100
+      original_ssrf_proxy_network: {}
+      o02_agent_core: {}
+      o02_agent_files:
+        aliases: [api]
+    restart: "no"
+
+  o02_agent_backend:
+    image: langgenius/dify-agent-backend:1.17.1
+    profiles: [o02-review-only]
+    env_file:
+      - ${O02_AGENT_ENV_FILE:?0600 private Agent env file required}
+    environment:
+      DIFY_AGENT_API_TOKEN: ${O02_AGENT_API_TOKEN:?same synthetic token as API sidecar}
+      DIFY_AGENT_INNER_API_URL: http://o02_api:5001
+      DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT: http://local_sandbox:5004
+      DIFY_AGENT_STUB_API_BASE_URL: http://agent_backend:5050/agent-stub
+      DIFY_AGENT_SANDBOX_FILES_BASE_URL: http://api:5001
+      DIFY_AGENT_RUNTIME_BACKEND: local
+      HTTP_PROXY: http://o02_agent_ssrf_proxy:3128
+      HTTPS_PROXY: http://o02_agent_ssrf_proxy:3128
+    depends_on: [o02_local_sandbox, o02_redis_agent, o02_agent_ssrf_proxy]
+    networks:
+      o02_agent_core:
+        aliases: [agent_backend]
+      o02_sandbox_control: {}
+    restart: "no"
+
+  o02_local_sandbox:
+    image: langgenius/dify-agent-local-sandbox:1.17.1
+    profiles: [o02-review-only]
+    env_file:
+      - ${O02_SANDBOX_ENV_FILE:?0600 private sandbox env file required}
+    networks:
+      o02_sandbox_control:
+        aliases: [local_sandbox]
+      o02_sandbox_proxy: {}
+    volumes:
+      - o02_sandbox_home:/home/dify
+      - o02_sandbox_workspace:/workspace
+    restart: "no"
+
+  o02_agent_ssrf_proxy:
+    image: ccr.ccs.tencentyun.com/yfgaia/ubuntu-squid:latest
+    profiles: [o02-review-only]
+    env_file:
+      - ${O02_AGENT_PROXY_ENV_FILE:?reviewed non-secret Agent proxy settings required}
+    entrypoint:
+      - sh
+      - -c
+      - 'cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i "s/\r$$//" /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh'
+    volumes:
+      - ${O02_AGENT_SQUID_CONFIG:?reviewed restricted Agent config required}:/etc/squid/squid.conf.template:ro
+      - ${O02_DOCKER_ROOT:?absolute repository docker path required}/ssrf_proxy/squid-common.conf.template:/etc/squid/dify_common.conf.template:ro
+      - ${O02_DOCKER_ROOT:?absolute repository docker path required}/ssrf_proxy/docker-agent-entrypoint.sh:/docker-entrypoint-mount.sh:ro
+    networks:
+      o02_agent_core:
+        aliases: [agent_ssrf_proxy]
+      o02_agent_files: {}
+      o02_sandbox_proxy: {}
+    restart: "no"
+
+  o02_redis_agent:
+    image: redis:6-alpine
+    profiles: [o02-review-only]
+    volumes:
+      - o02_agent_redis_data:/data
+    networks:
+      - o02_agent_core
+    restart: "no"
+
+volumes:
+  original_api_storage:
+    external: true
+    name: ${O02_ORIGINAL_API_STORAGE_VOLUME:?verified original named volume required}
+  o02_api_storage:
+  o02_agent_redis_data:
+  o02_sandbox_home:
+  o02_sandbox_workspace:
+
+networks:
+  original_default:
+    external: true
+    name: difyplus-upstream1171-quota-selftest-20260930_default
+  original_ssrf_proxy_network:
+    external: true
+    name: difyplus-upstream1171-quota-selftest-20260930_ssrf_proxy_network
+  o02_agent_core:
+    internal: true
+  o02_agent_files:
+    internal: true
+  o02_sandbox_control:
+    internal: true
+  o02_sandbox_proxy:
+    internal: true

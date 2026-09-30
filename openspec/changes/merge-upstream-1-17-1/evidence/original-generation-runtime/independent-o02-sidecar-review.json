@@ -1,0 +1,54 @@
+{
+  "review_kind": "Independent static deployment-proposal contract review; no startup/model/fixture/secret mutation",
+  "input_files": [
+    {
+      "path": "evidence/original-generation-runtime/o02-sidecar-compose.fragment.yaml",
+      "sha256": "a9bb3c708f81939c20e60190854399698c44907e1a9b1a472f81ef1fd228562d"
+    },
+    {
+      "path": "evidence/original-generation-runtime/o02-sidecar-plan.md",
+      "sha256": "426b45446a66fd2e8d2bd4031f92e7cad637d35ea1935bf05b1ab703ae46b082"
+    }
+  ],
+  "verdict": "requires proposal fixes before startup; not production-source defect",
+  "blocking_findings": [
+    {
+      "id": "external-storage-declaration",
+      "problem": "Named originalstorage interpolation used asservicevolumesource without external top-level declaration",
+      "required": "Explicit externalvolume key with resolved actualmounted volume name; config quiet + mount identity assertion"
+    },
+    {
+      "id": "restricted-proxy-startup",
+      "problem": "Agentproxy fragment omitted verified docker-agent-entrypoint and common template/required fields",
+      "required": "Reuse exact reviewed restrictedAgent startupcontract; genericproxy remains unchanged"
+    },
+    {
+      "id": "file-write-boundary",
+      "problem": "Originalstorage RO supports RSA reads but FileService saves upload_files paths, so uploadmustnotrun againstRO",
+      "required": "OwnedRW storage root with originalprivkeys-only RO submount, actualvolume subpath support; no copyingRSA/providercredentials; file fixtures only"
+    },
+    {
+      "id": "sandbox-home-mount",
+      "problem": "Proposed /home/sandbox not actualdefault /home/dify; cannotproveHomepersistence",
+      "required": "Match runtimebackend defaultHome /home/dify andWorkspace /workspace"
+    }
+  ],
+  "documentation_finding": "Five services includes dedicatedRedis, notfour; unify step count",
+  "passed_static_direction": [
+    "Only127.0.0.1:25452 APIpublish, noAgent/Sandbox/Redis/proxyhostpublish",
+    "api alias onlyprivateAgentmesh; o02_api on originalnetwork avoids existing api collision",
+    "MODEapi bothmigrationsfalse and noWorker/beatconsumer",
+    "ProviderModelManager stays originaltenantAPI no providerkeyexport",
+    "No-modelhealth/config/JWE/files doesnotclosefullgeneratedtool/memory/compaction"
+  ],
+  "original_requirement_full": "O02.generated_agent_run_tool_call_memory_compaction remainslocalpending; budgetguard required forfuturegeneratedcall. Currentplan0modelcalls/newAgent/servicesstarted.",
+  "authoritative_contracts": [
+    "api/services/file_service.py:96",
+    "api/libs/rsa.py:66",
+    "dify-agent/src/dify_agent/runtime_backend/profile.py:23",
+    "docker/docker-compose.dify-plus.yaml Agentproxy service parsedfieldnames only",
+    "api/clients/agent_backend/request_builder.py",
+    "api/core/app/apps/agent_app/app_generator.py"
+  ],
+  "awaiting": "Runtime corrected5servicefragment/configquiet+privateallowlistwhiteassertions; rootdispatch onlyafter stableproposal review"
+}

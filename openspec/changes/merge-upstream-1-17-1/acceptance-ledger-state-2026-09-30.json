@@ -1260,7 +1260,7 @@
       "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
       "fresh_runtime_proof": [],
       "current_business_proof": [],
-      "remaining": "O02.generated_agent_run_tool_selected_layers",
+      "remaining": "O02.generated_agent_run_tool_call_memory_compaction",
       "evidence": [
         "evidence/N03/runtime-readiness-2026-09-30.json",
         "evidence/O02/disabled-feature-runtime-2026-09-30.json",
@@ -1269,7 +1269,10 @@
         "evidence/provider-packaging-regression/human-input-runtime.json",
         "evidence/provider-packaging-regression/socketio-enabled-runtime.json",
         "evidence/O02/archive-disabled-independent-runtime.json",
-        "evidence/N10/head-lock-full-image-runtime-2026-09-30.json"
+        "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+        "evidence/original-generation-runtime/o02-sidecar-runtime-health.json",
+        "evidence/original-generation-runtime/independent-o02-runtime-health-review.json",
+        "evidence/original-generation-runtime/independent-o02-network-mode-review.json"
       ],
       "required_subchecks": [
         {
@@ -1348,24 +1351,45 @@
           "required_result": "Legitimate new Agent/version, ten actual file upload/attach/list/preview/download contenthash/delete/manifest restored sameversion andempty; noLLM/no signedURL retained."
         },
         {
-          "id": "O02.generated_agent_run_tool_selected_layers",
-          "status": "blocked-condition",
-          "execution_scope": "external",
-          "executor": "app_center_root_cause product Agent/runtime transport executor",
+          "id": "O02.generated_agent_run_tool_call_memory_compaction",
+          "status": "pending",
+          "execution_scope": "local",
+          "executor": "runtime_acceptance sidecar/guard/network preparation; app_center_root_cause productownedAgent and single generatedcaller after root plan dispatch; merge_audit independent contract/readback",
           "evidence": [
             "evidence/O02/archive-disabled-independent-runtime.json",
-            "evidence/provider-packaging-regression/legal-agent-fixture-result.json"
+            "evidence/provider-packaging-regression/legal-agent-fixture-result.json",
+            "evidence/original-generation-runtime/independent-actual-readback.json",
+            "evidence/remaining-runtime-feasibility-small-packages-2026-09-30.json"
           ],
-          "condition_minimum": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
-          "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation.",
-          "loaded_local_agent_shell_enabled": true
+          "condition_minimum": "Existing original DeepSeek published model has actual tool/multi-tool/stream-tool schema support; local real Agent API sidecar+backend/sandbox/dedicated proxy, private internal auth and enforceable bounded-call guard must be prepared/reviewed. Generatedcall only after specific dispatch; no credential export, no originalAPI/config/App/provider/prices change.",
+          "unverified_behavior": "Complete original selected Agent generated run, actual tool execution, memory/compaction and Home/Workspace/Sandbox readback; health/config/files/JWE alone cannot close whole requirement.",
+          "loaded_local_agent_shell_enabled": true,
+          "reclassified_from": {
+            "id": "O02.generated_agent_run_tool_selected_layers",
+            "scope": "external",
+            "history_commit": "43e2d6a06acc795b1daa1dd4aba0d0b701965d1a",
+            "reason": "Original configured model/tool capability already available; absent local topology and enforceable budget preparation are local implementation work, not permanent external-provider absence."
+          }
         }
       ],
-      "remaining_local": [],
-      "remaining_external": [
-        "O02.generated_agent_run_tool_selected_layers"
+      "remaining_local": [
+        "O02.generated_agent_run_tool_call_memory_compaction"
       ],
-      "scope_note": "The original onceoff disabled branch remains passed. Selected enabled no-model paths are explicit current requirements; actual model-generated Agent flow retains provider condition."
+      "remaining_external": [],
+      "scope_note": "The original onceoff disabled branch remains passed. Selected enabled no-model paths are explicit current requirements; actual model-generated Agent flow retains provider condition.",
+      "current_no_model_sidecar_checkpoint": {
+        "status": "partial_internal_readiness_transport_blocked_approval",
+        "evidence": "evidence/original-generation-runtime/independent-o02-runtime-health-review.json",
+        "services_running": 5,
+        "container_health": 200,
+        "dependency_TCP": 4,
+        "host_active_bindings": 0,
+        "host_owner_gate": "unpassed",
+        "new_Agents": 0,
+        "file_uploads": 0,
+        "model_calls": 0,
+        "required_human_action": "authorize exact sidecarAPI join existingshared accessnetwork and recreate; no bypass"
+      }
     },
     {
       "id": "O03",
@@ -1474,9 +1498,11 @@
     }
   ],
   "completion_summary": {
-    "local_missing_subcheck_count": 0,
-    "local_missing": [],
-    "external_missing_subcheck_count": 9,
+    "local_missing_subcheck_count": 1,
+    "local_missing": [
+      "O02.generated_agent_run_tool_call_memory_compaction"
+    ],
+    "external_missing_subcheck_count": 8,
     "external_only_scenes": [
       "B01",
       "B03",
@@ -1484,8 +1510,7 @@
       "B08",
       "B09",
       "F04",
-      "D05",
-      "O02"
+      "D05"
     ]
   },
   "latest_api_image": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",

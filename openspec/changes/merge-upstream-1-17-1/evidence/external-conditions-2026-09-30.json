@@ -40,11 +40,6 @@
       "id": "D05.high_quality_vector_counts_retrieval_grpc_TLS_config",
       "minimum_configuration": "Authorized embedding provider/model, dimension-matched isolated high-quality dataset and actual selected vector/gRPC/TLS configuration.",
       "unverified_behavior": "Real product high-quality upload/index/vector count/retrieval and selected transport. Installed registry/Qdrant CRUD already locally passed."
-    },
-    {
-      "id": "O02.generated_agent_run_tool_selected_layers",
-      "minimum_configuration": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
-      "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation."
     }
   ],
   "historical_and_production": "A03/V03 actual old deployment inventory and matching old PG/MySQL snapshot/version; V04 old vector upgrade; V06 old-version consistent-point full restore including Redis replay and stated RTO/RPO. D00-D04/O05 authorized production window/single executor/backup thresholds/observation. Fresh/current clone does not replace old-version gates.",
@@ -67,5 +62,21 @@
         "unverified_behavior": "Actual generated authenticated multi-turn retention truncation; ORM context scope fixtures do not prove generated history."
       }
     ]
-  }
+  },
+  "reclassification_history": [
+    {
+      "id": "O02.generated_agent_run_tool_selected_layers",
+      "new_id": "O02.generated_agent_run_tool_call_memory_compaction",
+      "new_scope": "local_pending",
+      "history_commit": "43e2d6a",
+      "reason": "Original model actualtoolcapabilities available; localsidecars/guard and realAgent acceptance required",
+      "previous": [
+        {
+          "id": "O02.generated_agent_run_tool_selected_layers",
+          "minimum_configuration": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
+          "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation."
+        }
+      ]
+    }
+  ]
 }

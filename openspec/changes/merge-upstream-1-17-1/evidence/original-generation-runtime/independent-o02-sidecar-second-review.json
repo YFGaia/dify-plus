@@ -1,0 +1,54 @@
+{
+  "reviewed_at_utc": "2026-09-30T16:13:32.503159+00:00",
+  "timezone": "Asia/Shanghai",
+  "review_kind": "Second independent proposal/source/readback review; no docker startup or model calls",
+  "input_sha256": {
+    "o02-sidecar-compose.fragment.yaml": "3b1e0a11795d62a75098aac4a8083b11fe37707b76813c7844bc04762bd0e88e",
+    "o02-sidecar-plan.md": "eef1c73b96264d3bb071830585a5e962408b538a391876752d32a582f3888f2d",
+    "o02-sidecar-preflight-readback.json": "624aa6d2838ca2b508449ee226a6532a56a12f3834f0bbcf6457f5093642e631"
+  },
+  "verdict": "passed minimal whole-original-storage RO health-only correction after actual Docker nested-mount mkdir/read-only failure",
+  "resolved_first_review_findings": [
+    "external original named-volume declaration bound to observed mount",
+    "restricted Agent proxy entrypoint and both template contracts present",
+    "original root RO plus owned upload_files RW; potential empty parent mountpoint creation explicitly bounded",
+    "sandbox Home /home/dify and Workspace /workspace",
+    "exact five services with direct no-model inner API; no metadata gateway assumption"
+  ],
+  "last_concrete_correction": {
+    "field": "DIFY_AGENT_STUB_API_BASE_URL",
+    "required": "http://agent_backend:5050/agent-stub",
+    "reason": "tracked squid-agent template dstdomain ACL permits agent_backend only; use existing alias, do not broaden ACL",
+    "status": "resolved and actual frozen file re-read"
+  },
+  "configuration_evidence": "runtime reports actual compose config quiet passed with temporary placeholder interpolation plus redacted topology/mount assertions; private env then equality booleans required by dispatch",
+  "startup_scope": [
+    "five named services only; one loopback API publish 25452",
+    "MODE api and both migrations false; no worker/beat/queue consumption",
+    "private allowlist files 0600, synthetic internal tokens only, no provider credential copying",
+    "0 model calls, 0 new Agent/version fixtures, 0 file upload/delete",
+    "original API and existing services unchanged; original DB/app/config/quota readback baseline match",
+    "original storage remains wholly RO; no upload/files mutation in health-only correction; key/App baseline readbacks remain required"
+  ],
+  "later_gates": [
+    "new lawful product fixture/JWE/files and cleanup authorization separate",
+    "complete generated Agent/tool/memory/compaction still local pending",
+    "LLM guard limits actual API forwards, not plugin SDK retry attempts; complete tool budget separate"
+  ],
+  "final_recheck_at_utc": "2026-09-30T16:29:17.676079+00:00",
+  "startup_authorization": "Root explicitly conditionally authorized direct startup after exact proposal and config/private allowlist assertions; no additional user approval requested",
+  "historic_pre_startup_review": {
+    "fragment_sha256": "8c502a0eace34a4478d9e24572884ef771dfd5057b2b6dc8979226a69a6ee4b9",
+    "verdict": "passed exact five-service no-model proposal; coordinator conditional startup authorization dispatched to runtime",
+    "boundary": "static quiet config did not prove nested volume mounting"
+  },
+  "actual_failure_and_followup": {
+    "reported_api_create_exit": 128,
+    "first_broken_transition": "Docker mkdir of absent upload_files mountpoint beneath read-only parent volume",
+    "source_defect": false,
+    "health_only_fix": "remove nested upload mount; whole original storage RO",
+    "startup_permission": "root explicitly authorized direct API health retry at this exact minimal correction",
+    "file_acceptance": "remains local pending; owned RW root plus directory privkeys RO subpath and explicit loaded signing key private reference requires separate actual synthetic mount validation",
+    "no_claim": "Compose static pass alone never proves Docker mounting or live storage isolation"
+  }
+}

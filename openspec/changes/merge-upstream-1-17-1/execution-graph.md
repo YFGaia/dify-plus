@@ -1,6 +1,6 @@
 # 可执行合并 DAG
 
-> 当前机器签收：原provider B05实际12组合、B11正确parent链/Memory截断、B09实际停止及已完成节点usage保留子项通过。29场景为16passed/7partial/1pending/4历史deferred/1production；本轮已定义矩阵本地缺口0，外部9required/8场景。仍有明确待动作：3fixture关联清理被自动审核拒绝等待人类授权，O02原有效拓扑/无模型合法配置链准备与预算审计继续；不代表整体可执行工作0。
+> 最新范围：B05实际12矩阵、B11正确parent链/Memory及B09已完成usage停止子项已passed。原模型实际tool能力可用，O02完整generated run/tool call/memory/compaction正式转本地pending1；外部required由机器重算为8项/7场景。cleanup仍blocked-approval，0consumer启动。43e2当时local0/external9仅历史分类，不能再当当前不可执行结论。
 
 > 历史初次审计状态：原27节点16 passed、2 blocked、9 pending；历史源码候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` 的M08/V01/V02/R01通过有效，但修复源码和运行验收不能整体复用该结论。当前审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39`；28.x已修复空库方言/额度ORM并以旧镜像加精确source overlay验证PG/MySQL，真实DeepSeek返回OK/49 tokens，price0USD未证明扣费。已发布且已安装应用中心遗漏由N01显式修复。完整修复镜像、全部适用真实业务验收与本地恢复由N02–N06持续推进。
 
@@ -756,3 +756,5 @@ N09新增confirmed Context varchar/UUID类型门槛已关闭：源码review/80fo
 最新原入口UI条件已解除：2026-09-30T13:52:27Z真实重新导航刷新卡片、打开同一installed应用标题/输入正常并返回中心，绑定当前445d三服务/47源码hash且无source overlay，见N06/latest-ui-2026-09-30.json与独立review。此前锁屏记录仅历史观察，不能当当前未验条件。当前可执行工作0，剩11外部实际配置/行为与旧库升级/旧版本恢复、生产门槛；tag不移动。
 
 历史可执行范围重分类checkpoint：原租户已有成功调用的模型，B05实际12组合（3拒绝/9生成）及B11真实多轮retention不要求positive pricing，改为本地pending两项；此前隔离provider0不代表原租户不可执行。见`evidence/original-provider-generation-plan-2026-09-30.json`。源码/tag不变，最多16请求含拒绝、无自动重试、每次8输出tokens、累计输出≤128、prompt累计≤4000字符；原配置/密钥/价格不改，before私有基线与精确fixture清理由执行者负责。当前机器汇总本地2、外部9（8场景），尚未完成整体目标。
+
+O02 本轮实际阶段：5 个专用服务 running、API 容器内部 health200、4 个内部依赖 TCP 可达、内部认证字段相等及原密钥文件 hash 相等布尔成立；主机端口映射仍为空，合法 sidecar owner/tenant 门槛未过。加入原共享 access network 的动作被自动审批拒绝，等待明确人类授权，未执行或换网绕过；Agent0/上传0/模型调用0。文件挂载已采用 owned RW 根加原 privkeys 目录 RO subpath，完整 Agent 工具/记忆/压缩仍本地待验。见 original-generation-runtime/independent-o02-runtime-health-review.json。
