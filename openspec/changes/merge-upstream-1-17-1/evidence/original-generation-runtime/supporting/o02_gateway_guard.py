@@ -79,7 +79,9 @@ class GuardState:
             return 403, 'output_cap_denied', None
         if set(params) - set(self.policy['allowed_parameter_names']):
             return 403, 'unreviewed_parameter_denied', None
-        if target['stream'] is not True:
+        # The SDK summary path sends False; the API still returns genuine SSE.
+        # Accept only actual JSON booleans, and forward the body unchanged.
+        if type(target['stream']) is not bool:
             return 400, 'stream_contract_denied', None
         prompts = target['prompt_messages']
         if not isinstance(prompts, list) or not all(isinstance(x, dict) for x in prompts):

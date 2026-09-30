@@ -6641,7 +6641,7 @@
       }
     }
   ],
-  "next_subtask": "N05 O02: reviewed five-service no-model sidecar startup/readback, then separately bounded full Agent/tool/memory/compaction package; exact3fixture cleanup waits human authorization",
+  "next_subtask": "N05 O02: await exact shared-access-network authorization, then actual host/owner gate and one owned Agent metadata/files; independently review generated/tool budget and true >800000-token compaction history requirement. Exact3fixture cleanup awaits separate human authorization.",
   "execution_control": {
     "coordinator_thread_id": "01a0f0e9-cfe5-7cf1-8dd8-0a5cc67c40a9",
     "updated_at": "2026-09-30T16:15:13.457148+00:00",
@@ -6698,7 +6698,7 @@
       }
     ],
     "next_critical_path": [
-      "O02 localpending fullgenerated/tool/memory/compaction: exact sharedaccessnetwork join approval -> actual hosthealth/owner gate -> oneAgent metadata/files -> separately bounded generated/compaction package",
+      "O02 localpending: sharedaccessnetwork authorization -> actual hosthealth/owner -> owned Agent metadata/files -> bounded generated/tool flow; real compaction needs >800000 estimate and >20 safe genuine messages, or an authorized configured smaller-window model. No schema override, fake history or unapproved large input.",
       "User explicit exact3fixturecleanup authorization; no bypass after automaticreview rejectedconsumer",
       "External8required/7scenes: enabledSSO/email, actual positivecharge/limits/retry-accounting and highqualityembedding",
       "Oldinstall/production gates remain prior deferred/separate authorization"

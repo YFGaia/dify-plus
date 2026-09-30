@@ -1,0 +1,44 @@
+{
+  "captured_at_utc": "2026-09-30T17:18:25Z",
+  "scope": "exact original tenant; read-only database/provider metadata and ModelManager schema; no model invocation",
+  "tenant_model_configuration": {
+    "tenant_default_model_records": 1,
+    "tenant_default_models": [
+      {
+        "provider": "langgenius/deepseek/deepseek",
+        "model": "deepseek-flash",
+        "model_type": "llm"
+      }
+    ],
+    "provider_model_records": 0,
+    "provider_model_settings": [
+      {
+        "provider": "langgenius/deepseek/deepseek",
+        "model": "deepseek-v4-pro",
+        "model_type": "llm",
+        "enabled": false
+      },
+      {
+        "provider": "langgenius/deepseek/deepseek",
+        "model": "deepseek-v4-flash-vision-exp",
+        "model_type": "llm",
+        "enabled": false
+      }
+    ],
+    "tenant_default_embedding_records": 0,
+    "dataset_embedding_bindings": 0,
+    "custom_provider_record_count": 1,
+    "custom_provider_credential_present": true
+  },
+  "selected_model_schema": {
+    "provider": "langgenius/deepseek/deepseek",
+    "model": "deepseek-flash",
+    "model_type": "llm",
+    "context_size": 1000000,
+    "max_tokens_min": 1,
+    "max_tokens_max": 393216,
+    "max_tokens_default": 65536,
+    "pricing_fields_present": false
+  },
+  "interpretation": "Only one explicit tenant default LLM model is configured, with no explicit provider-model rows or dataset embedding bindings. A custom provider credential record exists, so this does not establish that no additional catalog model could be available. Pricing metadata is absent from the selected model schema; zero-price prior usage is not evidence of free service or quota billing correctness."
+}

@@ -1,0 +1,35 @@
+{
+  "revision": "v2_strict_boolean_stream",
+  "frozen_at_utc": "2026-09-30T17:14:40.084718+00:00",
+  "previous_checkpoint": "0d3ea0712d676c2b14b840d41bc182387db43676",
+  "owned_paths": [
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/supporting/o02_gateway_guard.py",
+      "sha256": "1b5ca6b04ec845c96d69c68c78a10feca621034fc5ab6738aee7dc4736679e0c"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/supporting/o02_gateway_guard_preflight.py",
+      "sha256": "3c38ee9b41cf0a227773de63e0177049f64b25f758f66d3237709338b9174a00"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-guard-non-model-preflight-v2.json",
+      "sha256": "b232cccbdeda538b793dedc5e2a1e6d751ee0939d3156c37aff2a00604a472bf"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-compaction-static-contract.json",
+      "sha256": "87bbe22d150dab56e1f56751ba889797e7878cf299b8156f4a14ac9faca3a118"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/agent-sidecar-source-plan.md",
+      "sha256": "efb01e506449cee02d56729b219d86ad560bd0fde77974657ac11c4c094bec07"
+    }
+  ],
+  "manifest_path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-guard-v2-source-manifest.json",
+  "old_v1_proof_unchanged": true,
+  "old_v1_proof_sha256": "579bc5a123354d92a5fd49369d28d0db7e271ce39e972704cef5025a71184b1b",
+  "actual_checks_passed": 24,
+  "product_source_or_git_mutations": false,
+  "sidecar_owner_agent_upload_model_network_cleanup_activity": 0,
+  "independent_review": "pending",
+  "next_gate": "shared_access_network_blocked_pending_explicit_human_approval"
+}

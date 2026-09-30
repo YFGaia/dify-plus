@@ -79,7 +79,7 @@
       "id": "O02.generated_agent_run_tool_call_memory_compaction",
       "status": "local_pending",
       "executor": "runtime/app_center per bounded dispatch; audit independent review",
-      "minimum_configuration": "Existingoriginalmodelactualtoolcapability proved; local5services/internals/legalownedAgent and separately reviewed enforceable forward/tool budgets required; actual compaction trigger/model-settings inheritance to be mapped, not tinytoolturn substitution",
+      "minimum_configuration": "Existing original DeepSeek tool capability is available. Human authorization for exact sidecar API shared-access-network join/recreate is pending; five services have container-local readiness but host/owner gate is unpassed. Actual selected model CONTEXT_SIZE=1000000 gives target800000 with proposed cap8, and Summary keep_messages20 requires >20 genuine messages/safe cutoff. Complete compaction needs an authorized already-configured smaller-window model or separately approved real-history/input-scale budget; do not override schema, seed assistant history, or substitute tiny tool/no-op capability. Existing published workflow max_tokens64 is distinct from proposed owned Agent cap8; actual Agent config remains uncreated.",
       "unverified_behavior": "CompletegeneratedAgenttool/memory/compaction +selectedruntimeactual; no-modelpreparation alone insufficient"
     },
     {

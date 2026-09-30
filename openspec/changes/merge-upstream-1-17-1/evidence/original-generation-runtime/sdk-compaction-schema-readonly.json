@@ -1,0 +1,87 @@
+{
+  "scope": "read-only runtime SDK source and original configured model schema; zero model calls, zero resource/config mutation",
+  "runtime": {
+    "agent_backend_image_id": "sha256:58ae6b8319ba230fa378e82810bebd9ba66ec3e64b64368ebe24de8225f711e2",
+    "agent_backend_image_tag": "langgenius/dify-agent-backend:1.17.1",
+    "dify_agent_version": "1.17.1",
+    "pydantic_ai_harness_version": "0.20.0",
+    "pydantic_ai_slim_version": "2.31.0"
+  },
+  "compaction_source": {
+    "summarizing_module_sha256": "3226ed58319d6499625fa430b7fb01e1dccd5bd2492a1563cdb52f73415be301",
+    "summarize_method_sha256": "c3a3dcc39aea95eac59b01a92a3de6f79048bdb1c2e707f006795fdae5c1e733",
+    "tiered_module_sha256": "e0f975e1c2208324c8b5d2d2aa8b51c53278ff029f007f9bf80a604169cade3b",
+    "shared_module_sha256": "914ba1bac99750c5b80683cd6ee770024cdbee75454de9d1ab2983525d104f49",
+    "summarize_uses_self_model_else_ctx_model": true,
+    "summarize_agent_run_stream_override": false,
+    "summarize_agent_run_model_settings_override": false,
+    "active_agent_compaction_configuration_observed": false,
+    "constructor_defaults": {
+      "max_fraction": null,
+      "keep_tokens": null,
+      "keep_messages": 20,
+      "fallback_context_window": 200000
+    },
+    "tiered_target_fraction_default": null
+  },
+  "pydantic_model_settings": {
+    "Agent_run_has_stream_parameter": false,
+    "Agent_run_method_sha256": "39ea55e5cd2e623c56a526f99dcdab1ec77594ba3193f7e5d643fe7e45408792",
+    "Agent_run_module_sha256": "ad2af6e35dc3b23002a98cd5a69462372cbe07b146b492707957bef4db5a2bc4",
+    "Agent_iter_method_sha256": "943550be4cebc30c709359978bfdc105a5d9da304c4f4cebed8d9dacdee2d909",
+    "Agent_iter_module_sha256": "8b7a477f978a8532852fd81e241c78182516bc4975d672d580a5848a76e11eb6",
+    "base_settings": "step_model.settings",
+    "merge_order": [
+      "agent",
+      "capability",
+      "run"
+    ],
+    "inherited_context_model_settings_when_no_overrides": true
+  },
+  "dify_model_adapter": {
+    "module_sha256": "e6e9380739f68330e28e1b1254ee650a81edd93fe76049a4ece0fc5a3e6d6177",
+    "request_method_sha256": "d7ecc09f8b521c0e361d0473de975aee7963195cf4b7a73ed2f8ae8be08f16ae",
+    "request_stream_value": false,
+    "request_stream_method_sha256": "3cbc018cfdf960b75a5ea78c5ef35baf743eb8e78bf06603da31f83bd0bed0db",
+    "request_stream_value_for_streaming_method": true,
+    "prepare_request_method_sha256": "a4d4d7401cbab456f5ae3d52e961ca190a756f06c208e962d9438b40d21dacb9",
+    "settings_mapping_method_sha256": "b5764cdd712343f4e7fd6f9463e8b5a02e66b0adbd32bd57c5a5c85251dcfe8d",
+    "prepare_merges_adapter_settings_with_call_settings": true,
+    "max_tokens_parameter_forwarded_when_present": true
+  },
+  "original_published_model_schema": {
+    "app_id": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+    "tenant_id": "f3e7ebbc-1757-421b-b63e-7dc7d63bca75",
+    "workflow_id": "f8cedf0a-70c5-4464-992b-f62648dee751",
+    "workflow_version_number": 2,
+    "workflow_matches_app_and_tenant": true,
+    "llm_node_count": 1,
+    "provider": "langgenius/deepseek/deepseek",
+    "model": "deepseek-flash",
+    "mode": "chat",
+    "configured_max_tokens": 64,
+    "context_size": 1000000,
+    "schema_max_tokens": {
+      "min": 1,
+      "max": 393216,
+      "default": 65536
+    },
+    "schema_pricing_present": false,
+    "schema_pricing_fields": [],
+    "model_calls": 0,
+    "credential_values_emitted": false
+  },
+  "policy_math_if_configured_not_active": {
+    "context_fraction_trigger_80pct": 800000,
+    "warning": "No active compaction thresholds were observed; values are arithmetic only, not a claim about deployed Agent configuration.",
+    "context_window_remaining_20pct": 200000,
+    "proposed_cap8_target": 800000
+  },
+  "captured_at_utc": "2026-09-30T17:12:07Z",
+  "boundary": {
+    "runtime_scope": "O02 sidecar SDK/source inspection plus original published model schema read; this probe performed zero model calls.",
+    "no_active_compaction_config": "Installed package source and defaults were inspected; no active Agent configuration exists in the sidecar for this fixture, so the hypothetical 80/20 arithmetic is not deployed configuration.",
+    "price_boundary": "Provider ModelManager schema exposes no pricing object/fields; historical O01 zero-price usage is not evidence of free vendor pricing or complete quota accounting.",
+    "model_config_source": "Original App has workflow_id and null app_model_config_id; the exact published workflow matches app and tenant and contains one LLM node. Its configured cap is read from that node."
+  }
+}

@@ -76,6 +76,10 @@ try:
  check('two_forwards_third_denied', [x['status'] for x in responses]==[200,200,429] and Sink.count-before==2 and s.ledger['reserved_forward_slots']==2,statuses=[x['status'] for x in responses],sink_receives=Sink.count-before,slots=s.ledger['reserved_forward_slots'])
  check('raw_stream_and_headers_preserved', all(x['body_sha256']==hashlib.sha256(BODY_BYTES).hexdigest() and x['content_type']=='text/event-stream' and x['no_model_fixture']=='true' for x in responses[:2]),response_sha256=responses[0]['body_sha256'])
  check('original_request_bytes_key_headers_preserved',all(x['transport_key_unchanged'] and x['content_type']=='application/json' for x in Sink.checks[:2]) and [x['body_sha256'] for x in Sink.checks[:2]]==[hashlib.sha256(json.dumps(body(i)).encode()).hexdigest() for i in (1,2)])
+ s_false,g_false=guard('non-stream-sdk-sse');before=Sink.count
+ payload=body(1);payload['target']['stream']=False
+ response=send(g_false,payload);received=Sink.checks[-1]
+ check('false_stream_sdk_request_original_bytes_and_sse_preserved',response['status']==200 and response['content_type']=='text/event-stream' and response['no_model_fixture']=='true' and response['body_sha256']==hashlib.sha256(BODY_BYTES).hexdigest() and Sink.count-before==1 and received['body_sha256']==hashlib.sha256(json.dumps(payload).encode()).hexdigest() and received['transport_key_unchanged'] and s_false.ledger['reserved_forward_slots']==1,status=response['status'],sink_receives=Sink.count-before,slots=s_false.ledger['reserved_forward_slots'],response_sha256=response['body_sha256'],request_bytes_unchanged=True)
  s_progress,g_progress=guard('progressive-stream');Sink.gate.clear()
  c=http.client.HTTPConnection('127.0.0.1',g_progress.server_port,timeout=1)
  try:
@@ -95,6 +99,9 @@ try:
  cases=[]
  for label,change in [('foreign_caller',lambda x:x['caller'].update(user_id=str(uuid.uuid4()))),('foreign_agent',lambda x:x['caller'].update(agent_id=str(uuid.uuid4()))),('different_model',lambda x:x['target'].update(model='unapproved')),('cap_above_eight',lambda x:x['target']['model_parameters'].update(max_tokens=9)),('alternate_token_parameter',lambda x:x['target']['model_parameters'].update(max_completion_tokens=64))]:
   payload=body(1);change(payload);r=send(g,payload);cases.append(r['status']);check(label,r['status']==403 and Sink.count==before,status=r['status'],additional_sink_receives=Sink.count-before)
+ for label,value in [('stream_string_true','true'),('stream_string_false','false'),('stream_integer_one',1),('stream_integer_zero',0),('stream_null',None)]:
+  payload=body(1);payload['target']['stream']=value;r=send(g,payload)
+  check(label+'_zero_forward',r['status']==400 and Sink.count==before and s.ledger['reserved_forward_slots']==0,status=r['status'],additional_sink_receives=Sink.count-before,slots=s.ledger['reserved_forward_slots'])
  r=send(g,body(1),key='invalid-instrument-key');check('wrong_transport_key_zero_forward',r['status']==403 and Sink.count==before,status=r['status'])
  check('negative_requests_do_not_reserve_slots',s.ledger['reserved_forward_slots']==0,slots=s.ledger['reserved_forward_slots'])
  s,g=guard('duplicates');before=Sink.count;r1=send(g,body(1));r2=send(g,body(1));check('duplicate_invocation_not_replayed',r1['status']==200 and r2['status']==409 and Sink.count-before==1 and s.ledger['reserved_forward_slots']==1,statuses=[r1['status'],r2['status']],sink_receives=Sink.count-before)

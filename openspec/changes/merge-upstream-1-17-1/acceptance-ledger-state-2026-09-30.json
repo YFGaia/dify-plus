@@ -1359,9 +1359,12 @@
             "evidence/O02/archive-disabled-independent-runtime.json",
             "evidence/provider-packaging-regression/legal-agent-fixture-result.json",
             "evidence/original-generation-runtime/independent-actual-readback.json",
-            "evidence/remaining-runtime-feasibility-small-packages-2026-09-30.json"
+            "evidence/remaining-runtime-feasibility-small-packages-2026-09-30.json",
+            "evidence/original-generation-runtime/independent-o02-guard-v2-review.json",
+            "evidence/original-generation-runtime/independent-o02-compaction-contract-review.json",
+            "evidence/original-generation-runtime/sdk-compaction-schema-readonly.json"
           ],
-          "condition_minimum": "Existing original DeepSeek published model has actual tool/multi-tool/stream-tool schema support; local real Agent API sidecar+backend/sandbox/dedicated proxy, private internal auth and enforceable bounded-call guard must be prepared/reviewed. Generatedcall only after specific dispatch; no credential export, no originalAPI/config/App/provider/prices change.",
+          "condition_minimum": "Existing original DeepSeek tool capability is available. Human authorization for exact sidecar API shared-access-network join/recreate is pending; five services have container-local readiness but host/owner gate is unpassed. Actual selected model CONTEXT_SIZE=1000000 gives target800000 with proposed cap8, and Summary keep_messages20 requires >20 genuine messages/safe cutoff. Complete compaction needs an authorized already-configured smaller-window model or separately approved real-history/input-scale budget; do not override schema, seed assistant history, or substitute tiny tool/no-op capability. Existing published workflow max_tokens64 is distinct from proposed owned Agent cap8; actual Agent config remains uncreated.",
           "unverified_behavior": "Complete original selected Agent generated run, actual tool execution, memory/compaction and Home/Workspace/Sandbox readback; health/config/files/JWE alone cannot close whole requirement.",
           "loaded_local_agent_shell_enabled": true,
           "reclassified_from": {
@@ -1376,7 +1379,7 @@
         "O02.generated_agent_run_tool_call_memory_compaction"
       ],
       "remaining_external": [],
-      "scope_note": "The original onceoff disabled branch remains passed. Selected enabled no-model paths are explicit current requirements; actual model-generated Agent flow retains provider condition.",
+      "scope_note": "Onceoff disabled and selected enabled no-model historical paths remain passed. Full generated Agent/tool/memory/compaction is local pending: exact network authorization, legitimate new fixture and separately reviewed model/input/tool budgets. Existing model support means provider-zero isolation does not make the whole requirement externally unavailable.",
       "current_no_model_sidecar_checkpoint": {
         "status": "partial_internal_readiness_transport_blocked_approval",
         "evidence": "evidence/original-generation-runtime/independent-o02-runtime-health-review.json",
