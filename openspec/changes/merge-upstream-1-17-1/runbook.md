@@ -1,6 +1,6 @@
 # 环境升级与恢复操作包模板
 
-> 本文保留生产环境操作模板，生产环境化定稿及执行未完成。本轮55owned源码修复、独立审查、完整标准Dockerfile HEAD-lock镜像和隔离本地无外部配置required检查已通过。原23000中心曾真实显示/打开缺stats的已安装发布应用，最新HEAD-lock镜像三服务已更新healthy；最新浏览器刷新因desktop锁屏尚未验，不能称latestUI通过。当前最新组件/克隆绑定与代码留档结果按N06/R02持久记录签收。外部11required条件（SSO、非零模型账务、embedding、generatedAgent）、历史旧库升级/旧版本一致恢复和生产门槛分别保留，见逐项machineledger及external-conditions。
+> 本文保留生产环境操作模板，生产环境化定稿及执行未完成。本轮55owned源码修复、独立审查、完整标准Dockerfile HEAD-lock镜像和隔离本地无外部配置required检查已通过。原23000中心曾真实显示/打开缺stats的已安装发布应用，最新HEAD-lock镜像三服务已更新healthy；最新浏览器已在13:52:27Z真实刷新显示/打开/返回通过，锁屏仅历史条件。当前最新组件/克隆绑定与代码留档结果按N06/R02持久记录签收。外部11required条件（SSO、非零模型账务、embedding、generatedAgent）、历史旧库升级/旧版本一致恢复和生产门槛分别保留，见逐项machineledger及external-conditions。
 
 ## 1. 实施前须填写的参数
 
@@ -139,7 +139,7 @@ R02 的 `fork-merged-1.17.1` 标记已验证源码；D04 的发布记录标记�
 
 更新后真实打开`http://127.0.0.1:23000/explore/apps-center-extend`，此前遗漏的已安装已发布App应显示且可打开；同时确认Socket.IO101/真实点击、用户App和模型配置保持、实际image/hash对应最终candidate，保留回退旧API image/config和数据备份恢复路线。失败保留现场并按已保留锚点恢复，不用新23010结果替代旧入口验收。具体现场命令由执行者从实际完整Compose组合形成，不在此模板猜测/写入密钥。
 
-原23000现场与精确Compose/备份/三服务更新/回退操作包已准备：`evidence/N06/original-23000-inventory.json`、`evidence/N06/original-23000-update-runbook.md`。父追加授权已有workflow worker与API、必要gaia一起使用同一最终image；私有env/WS保持，先新栈受影响N01与N07最新候选验收后执行，不等待无凭据KB/非零计费全矩阵。该准备阶段历史现已完成：原23000实际备份与N08 0567三服务更新、浏览器中心卡片显示/打开已通过；同一静止点隔离PG/plugin/MySQL/storage双clone恢复与API选定读回已通过，持久结果见N06两份runtime JSON。当前N09/N10最新445d三服务已同镜像启动healthy，双heads/zero非terminal/targetqueues-unacked0已读回；最新center组件及clone绑定按最终N06proof签收。此前pre-updateinspect超时且无数值snapshot，不把post-update0当先前静止证明。最新浏览器锁屏未刷新，历史N08UI保留但不冒充latestUI。
+原23000现场与精确Compose/备份/三服务更新/回退操作包已准备：`evidence/N06/original-23000-inventory.json`、`evidence/N06/original-23000-update-runbook.md`。父追加授权已有workflow worker与API、必要gaia一起使用同一最终image；私有env/WS保持，先新栈受影响N01与N07最新候选验收后执行，不等待无凭据KB/非零计费全矩阵。该准备阶段历史现已完成：原23000实际备份与N08 0567三服务更新、浏览器中心卡片显示/打开已通过；同一静止点隔离PG/plugin/MySQL/storage双clone恢复与API选定读回已通过，持久结果见N06两份runtime JSON。当前N09/N10最新445d三服务已同镜像启动healthy，双heads/zero非terminal/targetqueues-unacked0已读回；最新center组件及clone绑定按最终N06proof签收。此前pre-updateinspect超时且无数值snapshot，不把post-update0当先前静止证明。最新445d浏览器刷新/打开/返回已通过，历史N08UI保留。
 
 当前API正式本地releasecandidate采用仓库原 `api/Dockerfile` 与原HEAD锁完成的完整image `difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6` / `sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172`。context SHA为 `3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9`；55ownedsource/test加HEAD原锁，47镜像path（46production源码+锁）全hash一致，9测试按Dockerignore不入镜像。实际449包版本、38provider distributions、32entrypointloads、8traceimports、QdrantCRUD清理均通过。dirty用户锁candidate另保留manifest并版本映射完全一致，seed仅历史辅助。隔离URL localhost，23010/25442/25443绑定`[::1]`，六业务services同immutableimage启动、N09正负scope/HumanInput/真实Socket/合法AgentJWE及配置文件actual检查已通过。
 
@@ -148,3 +148,5 @@ R02 的 `fork-merged-1.17.1` 标记已验证源码；D04 的发布记录标记�
 最终源码与镜像绑定：先验证N09/N10 dirty候选完整defaultgroups及受影响业务；再按HEAD原锁+55owned source生成独立canonical完整镜像，实际defaultgroups安装/38distribution/32vectorentrypoint/8traceimport和包版本对照。保留用户既有dirtylock未stage，原R02显式owned提交与不覆盖留档tag仅在验证后执行。最终releaseimage应绑定实际新sourcecommit及精确lock/context，COMMIT_SHA=base953只表示归档基线，不能标作最终提交；既有镜像通过55sourcehash＋HEAD锁映射最终ownedcodecommit；只补label无需重构建，不将953称最终commit。未变范围按源码/hash/包版本证据复用，实际R02结果/日志可另文档提交，tag指前一个codecommit不force重指。
 
 实际代码留档：source implementation `ee72b000d076449dc0cbd5ccb7fb92c4fb7b017c`，补齐唯一旧M08结构log后的clean code-ready `e91c4d89fc6090ebd339acaf9be5ce853c29f544`；annotated `fork-merged-1.17.1` 指后者不覆盖。两commit55产品source相同，HEAD842锁匹配正式445d镜像，clean普通git archive引用/OpenSpecstrict通过。实际结果与编排检查边界见 `evidence/R02/result.json` 和 `execution.log`；这些事实docs提交不移动tag，不将code-ready标为最新UI/外部/旧版恢复/生产完成。
+
+最新原入口UI条件已解除：2026-09-30T13:52:27Z真实重新导航刷新卡片、打开同一installed应用标题/输入正常并返回中心，绑定当前445d三服务/47源码hash且无source overlay，见N06/latest-ui-2026-09-30.json与独立review。此前锁屏记录仅历史观察，不能当当前未验条件。当前可执行工作0，剩11外部实际配置/行为与旧库升级/旧版本恢复、生产门槛；tag不移动。

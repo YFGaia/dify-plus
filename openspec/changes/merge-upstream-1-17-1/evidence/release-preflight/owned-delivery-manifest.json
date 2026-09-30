@@ -224,12 +224,12 @@
     }
   ],
   "source_count": 55,
-  "planning_evidence_count": 282,
+  "planning_evidence_count": 287,
   "planning_evidence_paths": [
     {
       "path": "docs/dify-plus/1.17.1合并验收记录.md",
-      "sha256": "182ed5713959e4f00bf3618433f674952f524f1d09b427a487dc9edcfeef4f6d",
-      "bytes": 3832,
+      "sha256": "40e68932aa387a2341cce5c597e3e8fb8e299a0073175bfadca39ba20232ba28",
+      "bytes": 4450,
       "ignored": false
     },
     {
@@ -419,9 +419,33 @@
       "ignored": false
     },
     {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/independent-latest-ui-review.json",
+      "sha256": "93220caebb9bc9542a7469999e7f357d7cabb9161ef1bc111e8cb489911c6594",
+      "bytes": 727,
+      "ignored": false
+    },
+    {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
       "sha256": "444e3a2ac171f0f9ef5bc2d65113f10b35a88a26d84a84f48eeab06aebdcbabf",
       "bytes": 2771,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/latest-ui-2026-09-30.json",
+      "sha256": "64bdd40dd9129d91a2037d0d019a11057534e44ebf94bfb4d41890be34495013",
+      "bytes": 2466,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/latest-ui-2026-09-30/apps-center.png",
+      "sha256": "32e3ba3ffcb892c5497e3d555940a38b3768a8123766000a635a1475121b77be",
+      "bytes": 57768,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/latest-ui-2026-09-30/installed-detail.png",
+      "sha256": "9358e4fa39b17b756baa9452ff41b7fd24f8e6a80f808cc2d928bcf055d72bc7",
+      "bytes": 76393,
       "ignored": false
     },
     {
@@ -450,8 +474,8 @@
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/result.json",
-      "sha256": "6b1afb42ab20b70c71d87d076c7089b92eea71a61834b8ba0ce148e90eecb026",
-      "bytes": 781,
+      "sha256": "e57443716e7445423bfd95f2a8636cb3b104cf1ca0539df3315d14df7892eb53",
+      "bytes": 914,
       "ignored": false
     },
     {
@@ -732,14 +756,14 @@
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/R02/execution.log",
-      "sha256": "cc707270c4940f9cd83eb309ba7f97a9f4ad07959a4c05f76fc4ed7baab0bf9b",
-      "bytes": 1302,
+      "sha256": "668a52b9649b703722354752bdece7a0e9586d897879857d9e0f6e81493215b8",
+      "bytes": 1607,
       "ignored": true
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/R02/result.json",
-      "sha256": "ad3f96da51b7192b760f9cc1418a790c6fa74db8aeefb92047d974e11fe0472d",
-      "bytes": 17945,
+      "sha256": "636346a19f1a0ee4c79d20ccc1586c244a9c4dcc64ae6b6c34aeb1e0cbb26309",
+      "bytes": 18255,
       "ignored": false
     },
     {
@@ -1151,6 +1175,12 @@
       "ignored": false
     },
     {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/external-condition-revalidation-2026-09-30.json",
+      "sha256": "b9072c49a47cecd35f3936e8f3e908bb756b31e09c98cf67e9c589a9552d1ee0",
+      "bytes": 693,
+      "ignored": false
+    },
+    {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/external-conditions-2026-09-30.json",
       "sha256": "401721d0adf33de478863b8faa773dc6a4960c75183dc9c99bfa3562140d361e",
       "bytes": 5176,
@@ -1158,8 +1188,8 @@
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/full-scope-completion-audit-2026-09-30.json",
-      "sha256": "cb8d2f79e89a5a93376db819afb55aa91ae04a5f76619d34ef94dbdb73894790",
-      "bytes": 62248,
+      "sha256": "d61ff43c9a91641d133bf60e6b4e06e12f082f8af8f65a5ea528f239c2652a4d",
+      "bytes": 62894,
       "ignored": false
     },
     {
@@ -1890,26 +1920,26 @@
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
-      "sha256": "e5115d43dc72d28c660fc07439fadceb79b2ed863e1b2eeb997179d933305e3a",
-      "bytes": 402513,
+      "sha256": "6f3d9a3364781ee2cbb3590eca9487f95736051e6676ffa11c65daa56934f4b9",
+      "bytes": 403407,
       "ignored": false
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-      "sha256": "29cd16d367725dceaf25609efd884df52f3557e22d1622ba6b97132bf8e9a8a9",
-      "bytes": 59270,
+      "sha256": "50725d73cb7ae5b099c95c749180f8043aa05a928d8eaa714d46968b8207852a",
+      "bytes": 59835,
       "ignored": false
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/runbook.md",
-      "sha256": "03f8a5febcded70b2d594ff3f2cb6f701317ed0c614b2281e047f0a1b94ffd14",
-      "bytes": 21604,
+      "sha256": "ea7586a424a038b78dec718c48e13132614256dbad68047b98c47de7ca87148e",
+      "bytes": 22072,
       "ignored": false
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/tasks.md",
-      "sha256": "a3235570c39dc4162f1f88a35ca2877efeb3bf2e42f58d61dcd8ff45f0c34e1c",
-      "bytes": 87769,
+      "sha256": "f340c4b689a44587c51cc4dc7e2859d53c725e24975b465ca12fc260939e4d19",
+      "bytes": 88143,
       "ignored": false
     },
     {

@@ -1004,7 +1004,9 @@
         "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
         "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
         "evidence/N06/independent-final-delivery-restore-review.json",
-        "evidence/N06/result.json"
+        "evidence/N06/result.json",
+        "evidence/N06/latest-ui-2026-09-30.json",
+        "evidence/N06/independent-latest-ui-review.json"
       ],
       "missing_declared_references": [],
       "acceptance": [
@@ -1030,6 +1032,15 @@
           "status": "passed",
           "evidence": "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
           "boundary": "source/runtime/componentsuccess only; currentUIcondition remains"
+        },
+        "local_delivery_checkpoint": {
+          "status": "passed",
+          "evidence": [
+            "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
+            "evidence/N06/latest-ui-2026-09-30.json",
+            "evidence/R02/result.json"
+          ],
+          "boundary": "Currentfreshrestore/wholelocalhandoff passed; N05external11 and originalV06 priorversion/production distinct."
         }
       }
     },
@@ -1319,12 +1330,11 @@
     "Final scoped commit and nonoverwriting fork-merged-1.17.1 archival tag per originalR02 if parent authorized; tag code-ready only until genuine external/production gates satisfied",
     "Final runbook command/package identities plus current-to-original gate mapping and known conditional/deferred boundaries"
   ],
-  "completion_claim": "All currently executable source/fullimage/localbusiness/component/current-snapshotrestore/cleanup/code-ready archive delivery passed. LatestoriginalUI desktopcondition,11externalchecks,4old-installscenes and production unpassed; goal not complete.",
+  "completion_claim": "All currently executable source/fullimage/localbusiness/currentoriginalUI/component/current-snapshotrestore/cleanup/code-ready delivery passed.11externalchecks,4old-installscenes and production unpassed; goal not complete.",
   "enabled_scope_correction": "O02 onceoff disabled passed remains; selected shared collab true requires separate local realenabled checks. Agentmetadata/files and noLLMHumanInput actual passed; modelgeneration not inferred.",
   "external_conditions_evidence": "evidence/external-conditions-2026-09-30.json",
   "remaining_executable_actions": [],
   "unverified_conditions": {
-    "current_original_UI": "Desktop locked; latest445d browserrefresh/display/open unverified; historicalN08 visible/open and latest445d component not UI proof.",
     "external_required": 11,
     "external_detail": "evidence/external-conditions-2026-09-30.json",
     "old_install": "A03/V03/V04/V06 originalpriorversion data/backups/retention/downgrade-replay/RTO-RPO facts unavailable per prioruserdeferredscope",
@@ -1340,9 +1350,14 @@
   "safe_remaining_action_audit": {
     "current_local_required_missing": 0,
     "provider_or_price_mutation": "Not authorized to fabricate/copy/configure unknownisolatedcredentials/positiveprices; user reply unavailable",
-    "latest_original_UI": "Desktop locked; no safe agentunlock/authfabrication",
+    "latest_original_UI": "Actualfreshcenter/open/returnpassed, no currentUI blocker",
     "old_install": "Matching priorversion data/snapshots unavailable; fresh/currentclone cannot substitute",
     "production": "No authorizedproductioninventory/window/executor/thresholds/signoff; no push/deploy",
     "source_or_runtime_bug_pending": false
+  },
+  "historical_original_UI_condition": "Desktop locked; latest445d browserrefresh/display/open unverified; historicalN08 visible/open and latest445d component not UI proof.",
+  "latest_original_UI_checkpoint": {
+    "status": "passed",
+    "evidence": "evidence/N06/latest-ui-2026-09-30.json"
   }
 }

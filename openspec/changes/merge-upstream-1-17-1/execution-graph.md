@@ -27,7 +27,7 @@ flowchart LR
  N10 --> N06
 ```
 
-当前38节点机器汇总为25 passed /2 blocked /11 pending；历史源码门槛不撤销，新增 N07–N10 记录每次修复的最新候选。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；本地必测子检查已全部通过；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面刷新因desktop锁屏尚未验，不复用历史N08UI称latestUI。原center组件读回和恢复选定HEAD445d绑定已实际通过；源提交ee72b000与历史引用修补e91c4d89已完成，cleanarchive静态检查通过后code-ready tag `fork-merged-1.17.1` 指e91c4d89；R02实际结果/log记录是随后docs提交，不重指tag。外部11子检查（含generated Agent实际run/tool）和旧版本升级/恢复、生产门槛保留；新节点不将原blocked/pending改成虚假passed。
+当前38节点机器汇总为25 passed /2 blocked /11 pending；历史源码门槛不撤销，新增 N07–N10 记录每次修复的最新候选。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；本地必测子检查已全部通过；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面已真实刷新卡片/打开installed/返回通过并绑定445d，锁屏仅历史条件。原center组件读回和恢复选定HEAD445d绑定已实际通过；源提交ee72b000与历史引用修补e91c4d89已完成，cleanarchive静态检查通过后code-ready tag `fork-merged-1.17.1` 指e91c4d89；R02实际结果/log记录是随后docs提交，不重指tag。外部11子检查（含generated Agent实际run/tool）和旧版本升级/恢复、生产门槛保留；新节点不将原blocked/pending改成虚假passed。
 
 ## 依赖图
 
@@ -747,6 +747,8 @@ N02仅消费N01已通过的源码里程碑（六文件manifest、52定向测试�
 
 ## 最新N07候选关闭
 
-15路径完整context `1a805b0e…eecb3d8`、canonical API镜像 `51347867…108619`已满足N07独立源码/完整镜像/同used分页UI编辑读回恢复/Key JSON number、默认-1与7位精度实际验收。N02/N03旧3c历史证据保留；当前交付以N07最新镜像为准。其余本地矩阵和N06原23000/一致恢复仍pending。详见 `evidence/N07/result.json`。
+15路径完整context `1a805b0e…eecb3d8`、canonical API镜像 `51347867…108619`已满足N07独立源码/完整镜像/同used分页UI编辑读回恢复/Key JSON number、默认-1与7位精度实际验收。N02/N03旧3c历史证据保留；当前交付以N07最新镜像为准。该段为N07当时checkpoint；本轮最终本地矩阵/原23000最新UI/一致恢复已通过，其外部条件见当前machineledger。详见 `evidence/N07/result.json`。
 
-N09新增confirmed Context varchar/UUID类型门槛：源码review及80focused通过，canonical新镜像/PGMySQL真实正向与跨租户读删/原23000最新交付仍pending。N08历史passed、N06一致快照两clone/API恢复passed保留。N05/N06最终依赖N09。
+N09新增confirmed Context varchar/UUID类型门槛已关闭：源码review/80focused、完整445d canonicalimage、PGMySQL真实正向与跨租户读删、原23000最新组件/UI均通过。N08历史passed、N06一致快照两clone/API恢复passed保留。N05/N06最终依赖N09。
+
+最新原入口UI条件已解除：2026-09-30T13:52:27Z真实重新导航刷新卡片、打开同一installed应用标题/输入正常并返回中心，绑定当前445d三服务/47源码hash且无source overlay，见N06/latest-ui-2026-09-30.json与独立review。此前锁屏记录仅历史观察，不能当当前未验条件。当前可执行工作0，剩11外部实际配置/行为与旧库升级/旧版本恢复、生产门槛；tag不移动。

@@ -9,3 +9,4 @@ Annotated fork-merged-1.17.1 created only if absent, target e91c4d89fc6090ebd339
 HEADlock445d image bound by55sourcehash+HEAD842lock; COMMIT_SHA953 archivebase only.
 Actualsource/runtime/component/currentrestore passed; latestUI desktopcondition,11external/oldinstall/production unpassed.
 Subsequentcommit sequencing uses check=True. Following docs-only result/log commit leaves tag unchanged, no selfcommit embedded.
+Latest originalUI condition revalidated 2026-09-30T13:52:27Z: freshcenter card→installed title2inputs/noerror→returncenter visible; boundthree445d/source47/nooverlay. IndependentJSON+2PNGreviewpassed. Historicallocked condition closed, tag unchanged. External11/oldinstall/production remain unpassed.

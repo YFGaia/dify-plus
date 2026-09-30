@@ -331,7 +331,7 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 - [ ] 29.5 [N04/Luna] 当前受支持向量库的新安装知识库样本真实入库、检索、删除/重建和文件读回；历史向量升级仍后续单验。
 - [x] 29.6 [N05/Luna] 逐项执行第30节29场景台账，所有适用本地业务/角色回归闭环；具有现有凭据的场景必须实测，外部缺项记录具体可解除条件。
 - [ ] 29.7 [N05/Luna] 真实非零价格模型调用，对账tokens、price、可信账号归因、个人与API key日/月用量/边界，不以0USD或fixture认定扣费通过。
-- [ ] 29.8 [N06/Sol 6.1→Luna] 本地新安装一致备份/恢复、重启和交付操作包可执行；修复/镜像/页面/矩阵证据齐全后收束本地完成结论，历史升级与生产门槛继续保留。
+- [x] 29.8 [N06/Sol 6.1→Luna] 本地新安装一致备份/恢复、重启和交付操作包可执行；修复/镜像/页面/矩阵证据齐全后收束本地完成结论，历史升级与生产门槛继续保留。
 
 - [x] 29.9 [N04/app_center独立双engine] 已实证PG四模型通过、MySQL四模型省略ID均NULL identity FlushError；app_center获授权`api/models/model_extend.py`客户端UUID最小修复及必要focused tests，修后独立两库flush/readback/rollback必须全通过。新model/test路径进入N02最终archive及N03增量完整镜像rebuild，既有六文件freeze仅局部，不靠显式测试ID掩盖。
   - 源码/双库overlay里程碑已通过：60关联tests、两库各4省略+4显式ID/payload回读/rollback空库，独立review无finding；完整image仍待N04。
@@ -415,3 +415,5 @@ O02完整原requirements收尾更正：本地无模型metadata/files/JWE、Human
 最终原candidate子gate：29.4/32.3/33.3源码、标准HEAD-lock445d镜像、独立真实runtime以及原三服务/loadedcenter组件和克隆选定读回通过（N06两份finalproof）。32.3用户中心部分仅componentlist/detail，最新浏览器因desktop锁屏未刷新，不声明latestUI；N06显式currentUIcondition保留，整体29.8/原V06/生产仍未完成。
 
 R02事实：源ee72b000，历史引用docs修补e91c4d89，cleanarchive55source+HEAD842/reference/strict通过；annotated fork-merged-1.17.1指e91c4d89不覆盖。22.4完成，R02整体V03-V06/当前UI/11外部与生产条件未过；后续仅结果日志docscommit不移动tag。原始proof尾空格保留，editable源码/doccheck通过，不能报告包含rawproof的whitespace全通过。
+
+最终UI续验：N06/latest-ui-2026-09-30.json及两PNG在13:52:27Z真实原center刷新→card打开→installed标题/2输入normal→返回center，与三service445d/source47/nooverlay绑定。旧locked条件已关闭，29.8本地新安装恢复/交付全部可执行门槛完成；N06 whole仅因N05外部11required条件仍pending，旧版本V06/生产独立未过。

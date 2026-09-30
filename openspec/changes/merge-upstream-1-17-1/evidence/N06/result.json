@@ -8,11 +8,16 @@
     "evidence/N06/runtime-snapshot-restore-2026-09-30.json",
     "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
     "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
-    "evidence/N06/independent-final-delivery-restore-review.json"
+    "evidence/N06/independent-final-delivery-restore-review.json",
+    "evidence/N06/latest-ui-2026-09-30.json",
+    "evidence/N06/independent-latest-ui-review.json"
   ],
   "remaining_conditions": {
-    "latest_original_UI": "desktop locked, actual currentbrowserrefresh/open unverified",
     "dependencies": "N05 external11 required remaining",
     "oldversion_restore": "OriginalV06 separate actualconsistentpoint/RTO-RPO/Redis required"
+  },
+  "latest_original_UI_checkpoint": {
+    "status": "passed",
+    "evidence": "evidence/N06/latest-ui-2026-09-30.json"
   }
 }

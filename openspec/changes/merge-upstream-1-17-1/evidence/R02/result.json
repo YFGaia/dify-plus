@@ -332,12 +332,19 @@
     "check_not_weakened": true
   },
   "remaining_conditions": {
-    "latest_original_UI": "Desktop locked; latest445d refresh/display/open unverified. HistoricalN08actualUI and latestcomponent separate.",
     "external_required": 11,
     "external_detail": "evidence/external-conditions-2026-09-30.json",
     "old_install": "A03/V03/V04/V06 priorversion inventory/copies/consistentoldrestore includingRedis/RTO-RPO absent/deferred",
     "production": "D00-D04/O05 authorizedwindow/executor/backupthresholds/signoff/observation absent"
   },
   "delivery_record_commit": "This factual docs record is committed later; no embedded selfcommit ID and no tag movement.",
-  "strict_editable_whitespace_evidence": "evidence/R02/editable-whitespace-and-raw-proof-boundary.json"
+  "strict_editable_whitespace_evidence": "evidence/R02/editable-whitespace-and-raw-proof-boundary.json",
+  "historical_UI_condition_at_code_ready_creation": "Desktop locked; latest445d refresh/display/open unverified. HistoricalN08actualUI and latestcomponent separate.",
+  "latest_original_UI_checkpoint": {
+    "status": "passed",
+    "evidence": "evidence/N06/latest-ui-2026-09-30.json",
+    "capture_time": "2026-09-30T13:52:27.195Z",
+    "tag_not_moved": true
+  },
+  "previous_delivery_record_docs_commit": "bdef2fd76fbe14335b0997393e3f71fee68317dc"
 }

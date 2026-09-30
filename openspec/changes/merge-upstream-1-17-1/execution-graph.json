@@ -6191,7 +6191,9 @@
         "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
         "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
         "evidence/N06/independent-final-delivery-restore-review.json",
-        "evidence/N06/result.json"
+        "evidence/N06/result.json",
+        "evidence/N06/latest-ui-2026-09-30.json",
+        "evidence/N06/independent-latest-ui-review.json"
       ],
       "outputs": [
         "evidence/N06/result.json"
@@ -6221,9 +6223,10 @@
           "evidence/N06/original-23000-inventory.json",
           "evidence/N06/original-23000-update-runbook.md"
         ],
-        "status": "historical_UI_passed_latest_component_deployed_UI_refresh_condition",
-        "completion_boundary": "OriginalN08UI visible/open passedhistorically; currentHEAD445d source/runtime/componentlistdetail successful preservingstats0. LatestUIrefresh blockeddesktop remains explicit, originalcriteria wholeN06 not passed.",
-        "actual_evidence": "evidence/N06/original-23000-live-update-and-acceptance-2026-09-30.json"
+        "status": "passed_latestHEAD_source_runtime_component_and_original_UI",
+        "completion_boundary": "LatestHEAD445d originalcard refreshvisible/open/returnactual passed; historicalN08 retained. WholeN06 remains pendingN05 external11, not desktopcondition.",
+        "actual_evidence": "evidence/N06/original-23000-live-update-and-acceptance-2026-09-30.json",
+        "latest_UI_evidence": "evidence/N06/latest-ui-2026-09-30.json"
       },
       "local_snapshot_restore_checkpoint": {
         "status": "passed_consistent_snapshot_two_independent_clones_and_API_readback",
@@ -6235,14 +6238,29 @@
         }
       },
       "final_original_UI_condition": {
-        "status": "blocked_condition_desktop_locked",
-        "minimum": "User unlock existing desktop/browser surface and valid original product session; no fabricated Console credentials/JWT.",
-        "unverified_behavior": "Latest445d original23000 center cards render/open after refresh. Historical N08 original visible/open actual retained; immutable currentcode/DB/component proof can close deployment subcheckpoint, not currentUI assertion."
+        "status": "passed",
+        "evidence": "evidence/N06/latest-ui-2026-09-30.json",
+        "independent_review": "evidence/N06/independent-latest-ui-review.json",
+        "candidate_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172"
       },
       "latest_original_component_deployment_checkpoint": {
         "status": "passed",
         "evidence": "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
         "boundary": "source/runtime/componentsuccess only; currentUIcondition remains"
+      },
+      "historical_original_UI_condition": {
+        "status": "blocked_condition_desktop_locked",
+        "minimum": "User unlock existing desktop/browser surface and valid original product session; no fabricated Console credentials/JWT.",
+        "unverified_behavior": "Latest445d original23000 center cards render/open after refresh. Historical N08 original visible/open actual retained; immutable currentcode/DB/component proof can close deployment subcheckpoint, not currentUI assertion."
+      },
+      "local_delivery_checkpoint": {
+        "status": "passed",
+        "evidence": [
+          "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
+          "evidence/N06/latest-ui-2026-09-30.json",
+          "evidence/R02/result.json"
+        ],
+        "boundary": "Currentfreshrestore/wholelocalhandoff passed; N05external11 and originalV06 priorversion/production distinct."
       }
     },
     {
@@ -6664,14 +6682,13 @@
     "current_dispatches": [
       {
         "task": "merge_audit",
-        "status": "sourceee72 + code-readye91/tag done; factualR02 docsrecord commit finalizing"
+        "status": "LatestUI actualproof accepted; final factualdocs-only closure commit in progress; source/tag unchanged"
       }
     ],
     "next_critical_path": [
-      "Finish factualdocs-only R02 commit; tag remains e91",
-      "LatestoriginalUI requiresdesktopunlock",
-      "11external actualSSO/positivepricing/fullappbilling/embedding/generatedAgent requirements",
-      "Oldinstall V03/V04/V06 actualdata/consistentoldrestore and production D00-D04/O05 authorization/observation"
+      "11external required actualSSO/positivepricing/billing/embedding/generatedAgent configuration and boundedlive acceptance",
+      "Oldinstall A03/V03/V04/V06 actualpriorversion inventory/data/snapshot/Redis replay/RTO-RPO",
+      "Production D00-D04/O05 authorization/window/executor/backupthresholds/signoff/observation"
     ],
     "quality_gates_unchanged": true,
     "coordinator_handoff": {
@@ -6743,7 +6760,7 @@
     "rule": "No all-complete claim while required scene lacks actual evidence or required runtime/image gate is open.",
     "latest_candidate_gate": {
       "node": "N10",
-      "status": "passed_source_artifact_runtime_component_code_ready; UI_external_oldinstall_production_conditions_remaining",
+      "status": "passed_source_image_runtime_component_latest_originalUI_code_ready_delivery; external_oldinstall_production_conditions_remaining",
       "last_accepted_node": "N08",
       "last_accepted_context": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6",
       "last_accepted_api_image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",

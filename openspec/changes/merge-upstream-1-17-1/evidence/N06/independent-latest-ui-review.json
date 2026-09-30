@@ -1,0 +1,12 @@
+{
+  "verdict": "passed",
+  "evidence": "evidence/N06/latest-ui-2026-09-30.json",
+  "review_kind": "Independent JSON assertions and visual review of both stored PNGs",
+  "captured_at": "2026-09-30T13:52:27.195Z",
+  "accepted": "Fresh originalcenter reload targetvisible→sameinstalledroute title/input/noerror→returncenter visible; currentthreeAPI/workflowworker/gaia same445d/source47/nooverlay bound. No new model message or cookie inspection.",
+  "screenshots_reviewed": [
+    "evidence/N06/latest-ui-2026-09-30/apps-center.png",
+    "evidence/N06/latest-ui-2026-09-30/installed-detail.png"
+  ],
+  "historical_condition": "Prior desktoplocked observation was true at earlierrecord/tagcreation but is no longer current."
+}
