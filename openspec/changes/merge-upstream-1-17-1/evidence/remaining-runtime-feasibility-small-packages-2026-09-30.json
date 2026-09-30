@@ -1,0 +1,238 @@
+{
+  "status": "read_only feasibility and coordinator-authorized bounded packages; actual reports require persisted independent proof before acceptance",
+  "source_and_git_mutations": false,
+  "new_model_calls": 0,
+  "current_generation_budget_separate": "Do not consume or expand current B05/B11 cumulative16 request budget. Any next package requires explicit coordinator dispatch and its own counters.",
+  "B09": {
+    "existing_evidence_and_directly_available_path": "Original tenant real configured model; owned workflow created for B05 can provide a legal actor/app/run. Product workflow stop endpoints exist; no new service inherently required for one active-SSE stop attempt.",
+    "paths": [
+      "POST /console/api/apps/{ownedworkflow}/workflows/draft/run",
+      "POST /console/api/apps/{ownedworkflow}/workflow-runs/tasks/{actual_task_id}/stop",
+      "POST /api/workflows/tasks/{actual_task_id}/stop"
+    ],
+    "stop_contract": "Stop200 only acknowledges legacy Redis flag + GraphEngine command. Actual not-yet-terminal workflow must become stopped and DB readback preserve completed LLM node usage and actor/run/task identity. Sending stop after succeeded is not acceptance.",
+    "minimal_independent_budget_proposal": {
+      "successful_generation_attempts_max": 2,
+      "generation_requests_max": 2,
+      "stop_requests_max": 1,
+      "output_cap_each": 8,
+      "total_output_cap": 16,
+      "automatic_retries": false,
+      "execution_not_started": true
+    },
+    "race_boundary": "Observe actual task ID and LLM node_started/first output before workflow_finished, then one stop. If capped model finishes first, record not-tested race and stop package, do not late-stop fake pass or retry indefinitely.",
+    "retry_resume_boundary": "No standalone retry-existing-run route located in current Console/web workflow controllers. A second normal POST creates a new run and must be labelled rerun, not existing-run resume. Node configured retries need a genuine bounded failure, and HumanInput resume does not prove LLM stop/charge preservation by itself. No deliberate bad credentials or artificial production mutation.",
+    "nonzero_charge_gate": "Actual positive-priced charging/currency/boundaries remain separate unavailable configuration; zero price does not prevent stop/status/token checks.",
+    "coordinator_authorized_next_package": {
+      "status": "executed; independent private DB proof read: stopped, first interrupted LLM usage unavailable, pending tracked summary",
+      "generation_post_max": 2,
+      "stop_post_max": 1,
+      "max_output_tokens_each": 8,
+      "total_output_tokens_max": 16,
+      "query_max_characters": 1,
+      "prompt_characters_max": 512,
+      "reuse": "Existing owned B05 workflow only, no new App/graph/provider modifications",
+      "counter_is_separate_from_sealed_B05_B11_16_requests": true,
+      "first_true_stopped_requires_no_second_generation": true,
+      "second_generation": "If explicitly needed, normal new rerun with distinct identity, not resume of stopped run; unknown request status not automatically repeated",
+      "whole_B09_not_closed_by_stop_subcheck": true
+    },
+    "completed_node_usage_package": {
+      "status": "executed; independent private DB proof read: stopped total46=first38+8, second usage unavailable, pending tracked summary",
+      "generation_post_max": 1,
+      "stop_post_max": 1,
+      "llm_nodes": 2,
+      "max_output_tokens_each": 8,
+      "total_output_tokens_max": 16,
+      "prompt_characters_max": 512,
+      "automatic_retries": false,
+      "scope": "Only owned workflow new version, preserve original App/provider/prices/keys",
+      "acceptance": "first LLM succeeded actual usage -> second started while running -> stop -> actual stopped with first usage retained; partial interrupted provider usage remains UNKNOWN",
+      "whole_B09_retry_resume_nonzero_not_passed": true
+    }
+  },
+  "O02": {
+    "model_credential_contract": "Console legitimate Agent ownerchain -> AgentAppGenerator -> real backend -> API-owned AgentLLMInnerService ModelManager -> existing tenant configured provider. Provider keys need not leave tenant API.",
+    "existing_product_path": "POST /console/api/agent/{legitimate_new_agent_id}/chat-messages",
+    "read_only_topology_fact": "Original inventory records worker/API/SSRF/plugin/Web/Redis/PG and migration helpers, no Agent backend/sandbox/dedicated proxy. Later original updates were scoped API/worker/Gaia. Current effective loaded Agent flags/backend reachability still require whitelist runtime boolean probe; original inventory is scoped historical evidence, not assumed latest exhaustive inspect.",
+    "required_white_list_probe": [
+      "AGENT_SHELL_ENABLED boolean",
+      "AGENT_BACKEND_USE_FAKE boolean",
+      "AGENT_BACKEND_BASE_URL configured and corresponds to running service boolean",
+      "AGENT_BACKEND_API_TOKEN nonempty boolean",
+      "actual original model schema tool-call capability boolean"
+    ],
+    "direct_execution_boundary": "Only if selected original real backend and sandbox/tool topology plus legal Agent soul/model capabilities are already ready can a same-tenant legitimate disposable Agent use original provider without exports. Ordinary model success does not establish tool-call support.",
+    "new_configuration_boundary": "If original backend absent, isolated backend currently targets isolated API with no providers. Pointing it at original tenant requires a separately reviewed reversible internal service/network/config plan or new original sidecars with original API-owned inner credentials; never silently copy provider keys to isolated tenant, never bypass tenant claims or fake backend. This is local topology preparation possibility, not solved by zero-provider assumption.",
+    "minimal_budget_proposal": {
+      "one_agent_user_turn_max": 1,
+      "tool_loop_iterations_hard_max": 1,
+      "model_calls_hard_max": 2,
+      "max_output_tokens_each": 8,
+      "total_output_tokens_hard_max": 16,
+      "harmless_tool": "Must be legitimate installed/selected supported zero-side-effect tool; no guessed plugin identity or arbitrary shell command",
+      "provider_support_and_budget_enforcement_must_be_verified_first": true,
+      "execution_not_started": true
+    },
+    "unverified": "Actual selected generated Agent run/tool/Home/Workspace/Sandbox remains unpassed.",
+    "budget_enforcement_gap": {
+      "source": "dify-agent/src/dify_agent/runtime/runner.py",
+      "actual_request_limit": 500,
+      "per_run_two_call_override_found": false,
+      "implication": "Two model calls/16 output proposal is not currently guaranteed by product API; prompt instructions alone are not enforcement. Coordinator must decide bounded selected run/stop plan after loaded topology/model tool schema evidence. No new model call authorized by this analysis."
+    },
+    "reversible_sidecar_proposal": {
+      "status": "proposal only; original effective flags pending runtime bool",
+      "services": [
+        "dedicated agent_backend",
+        "agent_sandbox",
+        "agent_ssrf_proxy"
+      ],
+      "networks": "Attach private sidecar network to original API/plugin_daemon/Redis; no host publishes or DB volumes; separate named Home/workspace/sandbox volumes only",
+      "API_changes_if_missing": "Private override only AGENT_BACKEND_BASE_URL to sidecar internal service and AGENT_BACKEND_API_TOKEN; preserve API immutable image and all existing env/storage/source/no provider changes",
+      "credential_equalities": [
+        "API AGENT_BACKEND_API_TOKEN == backend DIFY_AGENT_API_TOKEN (new synthetic private value)",
+        "backend DIFY_AGENT_INNER_API_KEY == original API loaded INNER_API_KEY_FOR_PLUGIN (existing private value; API plugin guard also requires nonempty loaded PLUGIN_DAEMON_KEY)",
+        "backend DIFY_AGENT_PLUGIN_DAEMON_API_KEY == original plugin daemon loaded SERVER_KEY",
+        "backend DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN == sandbox auth token (new synthetic private value)"
+      ],
+      "backend_required_fields": [
+        "DIFY_AGENT_REDIS_URL (original Redis internal identity)",
+        "DIFY_AGENT_INNER_API_URL (original API internal identity)",
+        "DIFY_AGENT_PLUGIN_DAEMON_URL (original daemon)",
+        "DIFY_AGENT_RUNTIME_BACKEND=local",
+        "DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT",
+        "DIFY_AGENT_SERVER_SECRET_KEY (synthetic)",
+        "DIFY_AGENT_STUB_API_BASE_URL",
+        "DIFY_AGENT_SANDBOX_FILES_BASE_URL"
+      ],
+      "constraints": "Read existing internal credential values only in service/private600 env in memory; never log/export provider credentials; no original App/provider/prices/keys change; no fake backend; inspect chosen exact image loaded settings to avoid aliases not effective",
+      "rollback": "Restore exact prior API private config/image then remove only added sidecar services; preserve original DB/Redis/storage/provider and added named volumes until owned fixture cleanup verified",
+      "original_project_historical_inventory": "difyplus-upstream1171-quota-selftest-20260930 (N06 original inventory; runtime current inspect required)",
+      "placement": "Separate clearly named local verification Compose project with3sidecars, attach exact existing API private-network membership only after runtime white-list inspect; originalAPI URL must resolve originalservice, not isolated acceptance API",
+      "dispatched": false,
+      "no_model_only_gate": "Health + loaded credential-equality boolean + legitimate ownerAgent config/settings/manifest/files endpoint chain; not generatedrun/tool acceptance"
+    },
+    "no_tool_single_request_boundary": {
+      "source_agent_factory": "dify-agent/src/dify_agent/runtime/agent_factory.py",
+      "explicit_retries_argument": false,
+      "installed_sdk_default_retry": 1,
+      "normal_text_no_tools": "A valid text response terminates ordinary successful path, but empty/non-actionable output may trigger retry; shell/config layers may inject tools and structured outputs may validate/retry",
+      "hard_two_call_budget_config_found": false,
+      "implication": "No model call under proposed2call budget until coordinator reviews enforceable request/stop limit. Do not infer one call from no-tools prompt.",
+      "evidence_local_sdk_paths": [
+        "api/.venv/lib/python3.12/site-packages/pydantic_ai/agent/__init__.py",
+        "api/.venv/lib/python3.12/site-packages/pydantic_ai/_agent_graph.py"
+      ]
+    },
+    "owned_Agent_configuration_static_contract": {
+      "max_tokens_path": "AgentSoul.model.model_settings.max_tokens=8 -> AgentAppRuntimeRequestBuilder model_settings -> DifyModel._map_model_settings_to_parameters -> API inner ModelManager invoke model_parameters",
+      "provider_credentials": "Reference existing same-tenant model/provider identity only; no key duplication or export",
+      "optional_empty_arrays": [
+        "tools.dify_tools",
+        "tools.cli_tools",
+        "knowledge.sets",
+        "human.tools"
+      ],
+      "global_flag_is_not_no_tool_guarantee": "AgentBackendRunRequestBuilder uses include_shell=run_input.include_shell OR config_layer_config is not None; AgentApp constructs config layer, so AGENT_SHELL_ENABLED=false alone does not remove shell/home/workspace/sandbox runtime",
+      "source_contracts": [
+        "api/models/agent_config_entities.py",
+        "api/core/app/apps/agent_app/runtime_request_builder.py",
+        "api/clients/agent_backend/request_builder.py",
+        "dify-agent/src/dify_agent/adapters/llm/model.py"
+      ],
+      "no_model_preparation_steps": [
+        "Observe original effective flags/service reachability/model tool capability boolean",
+        "Review exact private sidecar network/config and restore original API override rollback",
+        "Start only approved sidecars and verify real health/backend internal key equality",
+        "Create only legitimate owned Agent via product APIs with same-tenant model settings8, empty optional arrays and exact before/cleanup baseline",
+        "Verify config save/refetch/sameversionmanifest JWE/files no-model contracts against original API; generated Agent tool stays unpassed"
+      ]
+    },
+    "shell_config_premerge_contract_review": {
+      "premerge_fork_head": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+      "path": "api/clients/agent_backend/request_builder.py",
+      "premerge_include_shell": "include_shell OR config_layer_config exists OR drive_config exists",
+      "current_include_shell": "include_shell OR config_layer_config exists",
+      "reason": "Premerge comments and current ConfigLayer shell-backed eager pulls explicitly require same sandbox filesystem; current upstream removed Drive term. Not a confirmed merge regression or standalone no-tools kill-switch",
+      "related_tests": [
+        "api/tests/unit_tests/core/app/apps/agent_app/test_runtime_request_builder.py::test_config_layer_injected",
+        "api/tests/unit_tests/core/app/apps/agent_app/test_runtime_request_builder.py::test_config_layer_present_when_agent_soul_has_no_config_assets"
+      ],
+      "runtime_requested": "No-model legitimate request construction/composition layer presence booleans; no Agent run or new model call"
+    },
+    "actual_original_preflight": {
+      "agent_shell_enabled": true,
+      "agent_backend_use_fake": false,
+      "agent_backend_base_url_configured": true,
+      "agent_backend_api_token_present": false,
+      "configured_backend_tcp_reachable": false,
+      "running_services": {
+        "agent_backend": false,
+        "local_sandbox": false,
+        "agent_ssrf_proxy": false,
+        "generic_ssrf_proxy": true
+      },
+      "existing_published_model_schema": {
+        "workflow_id": "f8cedf0a-70c5-4464-992b-f62648dee751",
+        "unique_llm_node": true,
+        "schema_loaded": true,
+        "tool_call": true,
+        "multi_tool_call": true,
+        "stream_tool_call": true
+      },
+      "model_invocations": 0,
+      "boundary": "The API has shell enabled and a configured Agent backend target, but this project has no running Agent backend or sandbox, no Agent API token, and the configured target is unreachable. Model tool-call schema flags are available; Agent execution itself is not proven.",
+      "network_topology": {
+        "original_api_shares_network_with_generic_ssrf_proxy": true,
+        "original_project_has_agent_backend": false,
+        "original_project_has_local_sandbox": false,
+        "original_project_has_agent_ssrf_proxy": false,
+        "isolated_acceptance_agent_services_present_in_separate_project": true,
+        "isolated_agent_services_share_network_with_original_api": false,
+        "configured_backend_host_dns_resolves": false
+      },
+      "mutation_performed": false
+    },
+    "actual_original_preflight_evidence": "evidence/original-generation-runtime/independent-actual-readback.json",
+    "preferred_no_model_sidecar_plan": {
+      "status": "proposal only; no config/networks/services/Agent fixtures changed",
+      "service_count": 4,
+      "services": [
+        "API verification sidecar same445d",
+        "agent_backend exactverifiedimage",
+        "agent_sandbox selectedlocalruntime",
+        "agent_ssrf_proxy dedicatedscope"
+      ],
+      "original_api_unchanged": true,
+      "original_worker_no_queue_consumer": true,
+      "API_environment": "Reference existingoriginal private runtime env/database/Redis/plugin/storage/SECRET_KEY/internals; override only ownsidecar AGENT_BACKEND_BASE_URL and API_TOKEN to syntheticlocalbackend and explicitmain+extend migrationoff. Never dump/exportproviderkeys. If a field requires read use loaded-container whitelist into600 privateenv, no stdoutvalues.",
+      "storage": "Preserveoriginalbind readback contract; newAgent ownedfile paths isolated/new baseline; no shared cleanup or existingfile mutation",
+      "network": "Newprivateverification network for4services; API sidecar joins exactoriginaldb/plugin/Redis network or selected aliases; do not repoint existingisolated backend or originalAPI",
+      "ports": "No sidecarhost publishes unless required for ordinaryConsoleAPI probes, then oneunique127.0.0.1port; runtime inventory first",
+      "generation_execution_contract": "Actual AgentAppGenerator starts in-process threading.Thread and consumes BackendSSE; no new Celeryworker required for activeAgentturn. Existingusage/deletion background tasks remain separate and must not be consumed broadly.",
+      "no_model_acceptance": [
+        "4servicesloadedhealth",
+        "API existingowner sameTenant permission read200 no authmutation",
+        "Originalmodel schema access bool/internalAgentkey actualequality",
+        "LegitimateownedAgent productcreate/composer saveSettings8/refetch/sameversion manifest200",
+        "CorrectJWE dedicatedstub200/generic403",
+        "Owned54-bytefile attach/list/preview/downloadhash and exactcleanup approval scope"
+      ],
+      "request_budget": "No generatedAgentcallauthorized, runner500/defaultSDKretry1 and mandatoryconfigShell keephard2callproposal unenforced. No sourcechange merelytofitselfselectedbudget."
+    }
+  },
+  "scope_guards": "Keep original App/prices/provider/API keys read-only. Dedicated IDs and private baseline before writes; exact cleanup; no production changes or branch/worktree/tag mutation.",
+  "evidence": [
+    "evidence/O01/original-23000-bounded-plugin-invocation-2026-09-30.json",
+    "evidence/N06/original-23000-inventory.json"
+  ],
+  "source_contracts": [
+    "api/controllers/console/app/workflow.py",
+    "api/controllers/web/workflow.py",
+    "api/services/app_task_service.py",
+    "api/controllers/console/app/completion.py",
+    "api/core/app/apps/agent_app/app_generator.py",
+    "api/services/agent_llm_inner_service.py"
+  ]
+}

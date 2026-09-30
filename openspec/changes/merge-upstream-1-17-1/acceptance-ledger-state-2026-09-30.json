@@ -1,7 +1,7 @@
 {
   "date": "2026-09-30",
   "prior_accepted_context": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
-  "latest_candidate_gate": "N09_N10_bundle_pending_context_UUID_and_default_provider_package_install",
+  "latest_candidate_gate": "N09_N10_latest_HEADlock445d_source_image_affected_runtime_original_delivery_passed",
   "rules": [
     "Counts are per current evidence completeness; readiness/DBheads are partial business proof",
     "Parent observations require dedicated durable result before fullscene pass",
@@ -303,17 +303,21 @@
       "id": "B05",
       "name": "WebApp认证12组合和跨应用边界",
       "scope": "local-current",
-      "current_status": "partial-current-proof",
+      "current_status": "passed",
       "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
       "fresh_runtime_proof": [],
       "current_business_proof": [],
-      "remaining": "B05.off_authenticated_and_anonymous_actual_generation_12_matrix",
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
       "evidence": [
         "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
         "evidence/N08/independent-source-review.json",
         "evidence/N08/runtime-passport-scope-2026-09-30.json",
         "evidence/app-web-auth-regression/app-auth-results.json",
-        "evidence/app-web-auth-regression/local-subchecks.md"
+        "evidence/app-web-auth-regression/local-subchecks.md",
+        "evidence/original-generation-runtime/caller-results.json",
+        "evidence/original-generation-runtime/supplemental-caller-packages.json",
+        "evidence/original-generation-runtime/independent-actual-readback.json",
+        "evidence/original-generation-runtime/independent-runtime-readback-review.json"
       ],
       "required_subchecks": [
         {
@@ -328,14 +332,20 @@
         },
         {
           "id": "B05.off_authenticated_and_anonymous_actual_generation_12_matrix",
-          "status": "blocked-condition",
-          "execution_scope": "external",
+          "status": "passed",
+          "execution_scope": "local",
           "evidence": [
-            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+            "evidence/original-provider-generation-plan-2026-09-30.json",
+            "evidence/original-generation-runtime/caller-results.json",
+            "evidence/original-generation-runtime/supplemental-caller-packages.json",
+            "evidence/original-generation-runtime/independent-actual-readback.json",
+            "evidence/original-generation-runtime/independent-runtime-readback-review.json"
           ],
-          "executor": "merge_audit aggregation; evidence original executor",
-          "condition_minimum": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
-          "unverified_behavior": "Actual required 12 auth/site generation cases for three modes; guards/zero-token workflow do not replace model generation."
+          "executor": "app_center_root_cause product/generation; runtime_acceptance independent readback",
+          "condition_minimum": "Existing authorized original-tenant provider/model with private valid owner product session and bounded exact fixture scope; no positive price required.",
+          "unverified_behavior": "Actual required 12 auth/site generation cases for three modes; guards/zero-token workflow do not replace model generation.",
+          "boundary": "Actual12unique on/off×signed/anonymous×3modes:3distinct401/no generatedrecords,9terminalsuccess cells.3extra401 phaseharness repeats preserved. RealIDs linked/unlinkeddisjoint andownerlinks match, actualinitialpackage80output. Price0/no nonzerocharging claim; cleanup separate approvalblocked."
         },
         {
           "id": "B05.cross_app_identity_scope",
@@ -349,9 +359,7 @@
         }
       ],
       "remaining_local": [],
-      "remaining_external": [
-        "B05.off_authenticated_and_anonymous_actual_generation_12_matrix"
-      ]
+      "remaining_external": []
     },
     {
       "id": "B06",
@@ -526,7 +534,11 @@
         "evidence/N05/workflow-runtime-readback-2026-09-30.json",
         "evidence/N08/independent-manifest-review.json",
         "evidence/O01/gaia-extend-task-delivery-ack-2026-09-30.json",
-        "evidence/workflow-tool-runtime/result.md"
+        "evidence/workflow-tool-runtime/result.md",
+        "evidence/original-generation-runtime/supplemental-caller-packages.json",
+        "evidence/original-generation-runtime/independent-runtime-readback-review.json",
+        "evidence/original-generation-runtime/caller-results.json",
+        "evidence/original-generation-runtime/independent-actual-readback.json"
       ],
       "required_subchecks": [
         {
@@ -567,6 +579,21 @@
             "evidence/O01/gaia-extend-task-delivery-ack-2026-09-30.json"
           ],
           "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B09.active_LLM_stop_and_actual_usage_identity",
+          "status": "passed",
+          "execution_scope": "local",
+          "executor": "app_center_root_cause single caller; runtime_acceptance independent run/usage readback",
+          "evidence": [
+            "evidence/original-generation-runtime/supplemental-caller-packages.json",
+            "evidence/original-generation-runtime/independent-runtime-readback-review.json",
+            "evidence/original-generation-runtime/caller-results.json",
+            "evidence/original-generation-runtime/independent-actual-readback.json"
+          ],
+          "condition_minimum": "Reuse owned original B05 workflow after its proofs preserved, separate max2 generation POST/max1stop/output8 each/total16 hard budget; existing model, no App/graph/provider mutation",
+          "unverified_behavior": "Actual stop while run not terminal; stop200 ack alone insufficient. Real stopped state and completed LLM usage/task/run/actor identity preserved; late success classified race. New rerun is not resume or configured retry.",
+          "boundary": "Actual first run running beforeStop->stopped; its incomplete LLM provider usage UNKNOWN despite storedtotal0. Separate doubleLLM version firstcompleted38+8 preserved; secondstarted thenStop->stopped total46, partialsecondusage UNKNOWN. No existing-run resume/configuredretry/nonzerocharging passed."
         }
       ],
       "remaining_local": [],
@@ -617,18 +644,22 @@
       "id": "B11",
       "name": "retention/匿名context/跨租户权限",
       "scope": "local-current",
-      "current_status": "partial-current-proof",
+      "current_status": "passed",
       "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
       "fresh_runtime_proof": [],
       "current_business_proof": [],
-      "remaining": "B11.authenticated_multiturn_retention_truncation",
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
       "evidence": [
         "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
         "evidence/app-web-auth-regression/existing-config-context-tests.log",
         "evidence/app-web-auth-regression/local-subchecks.md",
         "evidence/app-web-auth-regression/physical-app-extend.json",
         "evidence/app-web-auth-regression/null-auth-http-results.json",
-        "evidence/context-uuid-regression/latest-head-runtime-http-results.json"
+        "evidence/context-uuid-regression/latest-head-runtime-http-results.json",
+        "evidence/original-generation-runtime/supplemental-caller-packages.json",
+        "evidence/original-generation-runtime/independent-runtime-readback-review.json",
+        "evidence/original-generation-runtime/caller-results.json",
+        "evidence/original-generation-runtime/independent-actual-readback.json"
       ],
       "required_subchecks": [
         {
@@ -672,20 +703,23 @@
         },
         {
           "id": "B11.authenticated_multiturn_retention_truncation",
-          "status": "blocked-condition",
-          "execution_scope": "external",
+          "status": "passed",
+          "execution_scope": "local",
           "evidence": [
-            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+            "evidence/original-generation-runtime/supplemental-caller-packages.json",
+            "evidence/original-generation-runtime/independent-runtime-readback-review.json",
+            "evidence/original-generation-runtime/independent-retention-semantics-review.json",
+            "evidence/original-generation-runtime/caller-results.json",
+            "evidence/original-generation-runtime/independent-actual-readback.json"
           ],
-          "executor": "app_center_root_cause",
-          "condition_minimum": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
-          "unverified_behavior": "Actual generated authenticated multi-turn retention truncation; ORM context scope fixtures do not prove generated history."
+          "executor": "app_center_root_cause product/generation; runtime_acceptance independent readback",
+          "condition_minimum": "Existing authorized original-tenant provider/model with private valid owner product session and bounded exact fixture scope; no positive price required.",
+          "unverified_behavior": "Actual generated authenticated multi-turn retention truncation; ORM context scope fixtures do not prove generated history.",
+          "boundary": "Actual generated parent3→4→5, persisted5messages/5validmarkers and retention1 activeconfig; real TokenBufferMemory control false6/true0 and Console2005markers. Initial unlinked requests are recorded harness gap. No provider-prompt capture or nonzerocharge claim."
         }
       ],
       "remaining_local": [],
-      "remaining_external": [
-        "B11.authenticated_multiturn_retention_truncation"
-      ]
+      "remaining_external": []
     },
     {
       "id": "K01",
@@ -1067,7 +1101,9 @@
       "fresh_runtime_proof": [],
       "current_business_proof": [],
       "remaining": "prior explicit userhistoricalupgrade deferral; nocurrentproduction/historyacceptance implied",
-      "evidence": []
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
     },
     {
       "id": "D03",
@@ -1078,7 +1114,9 @@
       "fresh_runtime_proof": [],
       "current_business_proof": [],
       "remaining": "prior explicit userhistoricalupgrade deferral; nocurrentproduction/historyacceptance implied",
-      "evidence": []
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
     },
     {
       "id": "D04",
@@ -1089,7 +1127,9 @@
       "fresh_runtime_proof": [],
       "current_business_proof": [],
       "remaining": "prior explicit userhistoricalupgrade deferral; nocurrentproduction/historyacceptance implied",
-      "evidence": []
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
     },
     {
       "id": "D05",
@@ -1373,7 +1413,9 @@
       "fresh_runtime_proof": [],
       "current_business_proof": [],
       "remaining": "prior explicit userhistoricalupgrade deferral; nocurrentproduction/historyacceptance implied",
-      "evidence": []
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
     },
     {
       "id": "O05",
@@ -1384,12 +1426,14 @@
       "fresh_runtime_proof": [],
       "current_business_proof": [],
       "remaining": "actual productionenvironment/userreleaseauthorization and observationwindow",
-      "evidence": []
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
     }
   ],
   "counts": {
-    "passed": 14,
-    "partial-current-proof": 9,
+    "passed": 16,
+    "partial-current-proof": 7,
     "pending": 1,
     "deferred": 4,
     "production-not-authorized": 1
@@ -1406,13 +1450,11 @@
     },
     {
       "scenes": [
-        "B05",
         "B07",
         "B08",
-        "B09",
-        "B11"
+        "B09"
       ],
-      "condition": "Isolated authorized LLM provider plugin + model endpoint/credentials and explicit nonzero input/output pricing, small spend limit. Missing actual chat/completion/agent/advanced-chat/workflow generation, charged user/token daily/month/balance boundary, currency reconciliation, stop/retry accounting and generated multi-turn retention; zero-token workflows do not satisfy these.",
+      "condition": "Nonzero pricing and bounded authorized spend required for actual charge/limits/currency/stop-retry accounting. B05 generation and B11 retention now local pending against existing original provider.",
       "evidence": "evidence/n05-design/nonzero-billing-acceptance.md"
     },
     {
@@ -1421,9 +1463,34 @@
       ],
       "condition": "After local N10 backend installation gate passes: authorized embedding provider/model/credentials, dimension and any required gRPC/TLS settings. Real high-quality document embed/index/vector counts and query hit unverified. Economy keyword+delete/rebuild passed; provider package defect is local separate gate.",
       "evidence": "evidence/N10/independent-build-source-audit.json"
+    },
+    {
+      "scenes": [
+        "O02"
+      ],
+      "condition": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
+      "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation.",
+      "evidence": "evidence/external-conditions-2026-09-30.json"
     }
   ],
   "completion_summary": {
+    "local_missing_subcheck_count": 0,
+    "local_missing": [],
+    "external_missing_subcheck_count": 9,
+    "external_only_scenes": [
+      "B01",
+      "B03",
+      "B07",
+      "B08",
+      "B09",
+      "F04",
+      "D05",
+      "O02"
+    ]
+  },
+  "latest_api_image": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+  "latest_context": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6",
+  "previous_local_checkpoint_before_original_provider_reassessment": {
     "local_missing_subcheck_count": 0,
     "local_missing": [],
     "external_missing_subcheck_count": 11,
@@ -1439,7 +1506,5 @@
       "D05",
       "O02"
     ]
-  },
-  "latest_api_image": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
-  "latest_context": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6"
+  }
 }

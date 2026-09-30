@@ -1,0 +1,32 @@
+{
+  "review_kind": "read-only source semantics plus genuine premerge object comparison; no live acceptance by this file",
+  "premerge_fork_head": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+  "method_comparison": [
+    {
+      "path": "api/core/app/apps/base_app_runner.py",
+      "method": "add_messages_context",
+      "premerge_sha256": "6c494856a1be6750a0d8d44ed608ff20a61b013c7c67141167638680c6be3784",
+      "current_sha256": "6c494856a1be6750a0d8d44ed608ff20a61b013c7c67141167638680c6be3784",
+      "same_method_bytes": true
+    },
+    {
+      "path": "api/core/memory/token_buffer_memory.py",
+      "method": "messages_context_handling",
+      "premerge_sha256": "fd4b32171523850744d4c987c91a6e6f9f0ace81fe93cf9d1e24eb1953383f17",
+      "current_sha256": "fd4b32171523850744d4c987c91a6e6f9f0ace81fe93cf9d1e24eb1953383f17",
+      "same_method_bytes": true
+    }
+  ],
+  "semantics": "retention1 is the existing segmentation/reset threshold, not an assertion of keeping latest one completed historical message. Marker current message IDs are inserted whenever (prompt message count+2)/2 >1. During future actual history reconstruction assistant.name carries that Message ID, and encountering any marker clears it and all earlier history. Names are cleared.",
+  "three_marker_expectation": "Three real messages may legitimately each get a marker at retention1; number alone is not regression. With all three completed and no files control_registers=false can return six prompt messages, while true after latest marker can return zero. Actual DB/memory proof still required.",
+  "source_execution_timing": "ChatAppRunner first organizes prompt and obtains invocation generator, then re-organizes and writes marker for current message before _handle_invoke_result consumption. Returned component history after third completed message does not capture exact provider payload of third turn.",
+  "acceptance_boundary": "Original B11 requires genuine generated multi-turn truncation, not model answer content. Preserve actual Message/Context ownerchain, actual Memory readback, and explicitly distinguish provider prompt capture absent.",
+  "actual_original_three_round_gap": {
+    "control_registers_false_count_reported": 2,
+    "control_registers_true_count_reported": 0,
+    "parents_all_NULL_reported": true,
+    "conclusion": "Original three same-conversation requests are distinct message threads; not a multi-turn acceptance pass. Existing reset algorithm equivalence does not excuse missing linked-history proof.",
+    "cause": "Fixture lacked prior-message parent linkage, not confirmed production source regression."
+  },
+  "required_true_chain_package": "evidence/original-provider-generation-plan-2026-09-30.json"
+}

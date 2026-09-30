@@ -1,0 +1,16 @@
+{
+  "review_kind": "independent saved caller proof review; transport layer only, not DB final acceptance",
+  "actual_request_count": 16,
+  "reported_terminal_successes": 10,
+  "reported_rejected_attempts_including_duplicates": 6,
+  "unique12_cells_exact": true,
+  "unique3_rejected_status401": true,
+  "unique9_positive_transport200_terminal": true,
+  "recorded_request_hardlimit_ok": true,
+  "prompt_character_recorded_upper_bound": 1746,
+  "no_original_configuration_mutation_reported": true,
+  "no_source_or_git_mutation_reported": true,
+  "credentials_not_included_reported": true,
+  "DB_confirmation_boundary": "Actual output usage/EndUser separation/actor ownerchain/no-row-increase rejects still needs runtime independent safe artifact. Do not treat reported actual_enduser_distinctness pending as passed.",
+  "B11": "Three original same-conversation Messages had NULL parents; therefore unique transport success does not prove multi-turn history. New parent-linked two-call package independently authorized and still pending."
+}

@@ -1,6 +1,8 @@
 # 可执行合并 DAG
 
-> 当前状态：原27节点16 passed、2 blocked、9 pending；历史源码候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` 的M08/V01/V02/R01通过有效，但修复源码和运行验收不能整体复用该结论。当前审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39`；28.x已修复空库方言/额度ORM并以旧镜像加精确source overlay验证PG/MySQL，真实DeepSeek返回OK/49 tokens，price0USD未证明扣费。已发布且已安装应用中心遗漏由N01显式修复。完整修复镜像、全部适用真实业务验收与本地恢复由N02–N06持续推进。
+> 当前机器签收：原provider B05实际12组合、B11正确parent链/Memory截断、B09实际停止及已完成节点usage保留子项通过。29场景为16passed/7partial/1pending/4历史deferred/1production；本轮已定义矩阵本地缺口0，外部9required/8场景。仍有明确待动作：3fixture关联清理被自动审核拒绝等待人类授权，O02原有效拓扑/无模型合法配置链准备与预算审计继续；不代表整体可执行工作0。
+
+> 历史初次审计状态：原27节点16 passed、2 blocked、9 pending；历史源码候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` 的M08/V01/V02/R01通过有效，但修复源码和运行验收不能整体复用该结论。当前审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39`；28.x已修复空库方言/额度ORM并以旧镜像加精确source overlay验证PG/MySQL，真实DeepSeek返回OK/49 tokens，price0USD未证明扣费。已发布且已安装应用中心遗漏由N01显式修复。完整修复镜像、全部适用真实业务验收与本地恢复由N02–N06持续推进。
 
 ## 当前本地新安装完成目标
 
@@ -27,7 +29,7 @@ flowchart LR
  N10 --> N06
 ```
 
-当前38节点机器汇总为25 passed /2 blocked /11 pending；历史源码门槛不撤销，新增 N07–N10 记录每次修复的最新候选。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；本地必测子检查已全部通过；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面已真实刷新卡片/打开installed/返回通过并绑定445d，锁屏仅历史条件。原center组件读回和恢复选定HEAD445d绑定已实际通过；源提交ee72b000与历史引用修补e91c4d89已完成，cleanarchive静态检查通过后code-ready tag `fork-merged-1.17.1` 指e91c4d89；R02实际结果/log记录是随后docs提交，不重指tag。外部11子检查（含generated Agent实际run/tool）和旧版本升级/恢复、生产门槛保留；新节点不将原blocked/pending改成虚假passed。
+当前38节点机器汇总为25 passed /2 blocked /11 pending；历史源码门槛不撤销，新增 N07–N10 记录每次修复的最新候选。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；此前已列本地子集检查通过；后续原provider生成/retention/stop重新列为实际必验；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面已真实刷新卡片/打开installed/返回通过并绑定445d，锁屏仅历史条件。原center组件读回和恢复选定HEAD445d绑定已实际通过；源提交ee72b000与历史引用修补e91c4d89已完成，cleanarchive静态检查通过后code-ready tag `fork-merged-1.17.1` 指e91c4d89；R02实际结果/log记录是随后docs提交，不重指tag。该checkpoint外部11的分类已由后续原provider审计更正；当前精确条件见machineledger，旧版本升级/恢复及生产门槛保留；新节点不将原blocked/pending改成虚假passed。
 
 ## 依赖图
 
@@ -752,3 +754,5 @@ N02仅消费N01已通过的源码里程碑（六文件manifest、52定向测试�
 N09新增confirmed Context varchar/UUID类型门槛已关闭：源码review/80focused、完整445d canonicalimage、PGMySQL真实正向与跨租户读删、原23000最新组件/UI均通过。N08历史passed、N06一致快照两clone/API恢复passed保留。N05/N06最终依赖N09。
 
 最新原入口UI条件已解除：2026-09-30T13:52:27Z真实重新导航刷新卡片、打开同一installed应用标题/输入正常并返回中心，绑定当前445d三服务/47源码hash且无source overlay，见N06/latest-ui-2026-09-30.json与独立review。此前锁屏记录仅历史观察，不能当当前未验条件。当前可执行工作0，剩11外部实际配置/行为与旧库升级/旧版本恢复、生产门槛；tag不移动。
+
+历史可执行范围重分类checkpoint：原租户已有成功调用的模型，B05实际12组合（3拒绝/9生成）及B11真实多轮retention不要求positive pricing，改为本地pending两项；此前隔离provider0不代表原租户不可执行。见`evidence/original-provider-generation-plan-2026-09-30.json`。源码/tag不变，最多16请求含拒绝、无自动重试、每次8输出tokens、累计输出≤128、prompt累计≤4000字符；原配置/密钥/价格不改，before私有基线与精确fixture清理由执行者负责。当前机器汇总本地2、外部9（8场景），尚未完成整体目标。

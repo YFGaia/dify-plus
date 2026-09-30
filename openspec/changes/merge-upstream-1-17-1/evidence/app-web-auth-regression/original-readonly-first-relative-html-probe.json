@@ -1,0 +1,36 @@
+{
+  "read_only": true,
+  "source_changes": false,
+  "created_apps": 0,
+  "model_calls": 0,
+  "checks": [
+    {
+      "surface": "profile",
+      "error_class": "SyntaxError"
+    },
+    {
+      "surface": "workspace",
+      "error_class": "SyntaxError"
+    },
+    {
+      "surface": "permissions",
+      "error_class": "SyntaxError"
+    },
+    {
+      "surface": "money",
+      "error_class": "SyntaxError"
+    },
+    {
+      "surface": "features",
+      "error_class": "SyntaxError"
+    },
+    {
+      "surface": "app",
+      "error_class": "SyntaxError"
+    },
+    {
+      "surface": "workflow",
+      "error_class": "SyntaxError"
+    }
+  ]
+}

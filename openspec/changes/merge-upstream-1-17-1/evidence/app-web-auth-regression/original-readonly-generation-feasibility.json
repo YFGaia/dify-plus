@@ -1,0 +1,65 @@
+{
+  "read_only": true,
+  "source_changes": false,
+  "created_apps": 0,
+  "model_calls": 0,
+  "api_prefix": "http://127.0.0.1:25432/console/api",
+  "checks": [
+    {
+      "surface": "profile",
+      "status": 200,
+      "account_id": "b1d50025-f436-4946-aba9-3f00f6c9a835",
+      "activation_not_exposed_by_profile_schema": true
+    },
+    {
+      "surface": "workspace",
+      "status": 200,
+      "tenant_id": "f3e7ebbc-1757-421b-b63e-7dc7d63bca75",
+      "role": "owner"
+    },
+    {
+      "surface": "permissions",
+      "status": 200,
+      "create_manage": true,
+      "app_edit_default": true,
+      "app_delete_default": true,
+      "app_run_default": true,
+      "app_release_default": true
+    },
+    {
+      "surface": "money",
+      "status": 200,
+      "remaining_positive": true,
+      "numeric_fields_present": true
+    },
+    {
+      "surface": "features",
+      "status": 200,
+      "apps_limit_reached": false
+    },
+    {
+      "surface": "app",
+      "status": 200,
+      "id_matches": true,
+      "mode": "advanced-chat",
+      "site_enabled": true,
+      "api_enabled": true
+    },
+    {
+      "surface": "workflow",
+      "status": 200,
+      "llm_nodes": [
+        {
+          "node_id": "llm",
+          "provider": "langgenius/deepseek/deepseek",
+          "name": "deepseek-flash",
+          "mode": "chat",
+          "completion_params": {
+            "temperature": 0.7,
+            "max_tokens": 64
+          }
+        }
+      ]
+    }
+  ]
+}

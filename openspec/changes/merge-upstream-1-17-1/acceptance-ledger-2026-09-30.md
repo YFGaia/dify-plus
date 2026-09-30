@@ -1,10 +1,14 @@
 # 当前候选逐场景验收台账
 
+> 当前机器签收：原provider B05实际12组合、B11正确parent链/Memory截断、B09实际停止及已完成节点usage保留子项通过。29场景为16passed/7partial/1pending/4历史deferred/1production；本轮已定义矩阵本地缺口0，外部9required/8场景。仍有明确待动作：3fixture关联清理被自动审核拒绝等待人类授权，O02原有效拓扑/无模型合法配置链准备与预算审计继续；不代表整体可执行工作0。
+
 审计日期：2026-09-30（Asia/Shanghai）；源码审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39`。逐项当前证据维度见`acceptance-ledger-state-2026-09-30.json`；下表保留本轮起始状态，不能拿起始列代替最新执行结果。源测试、历史运行和当前完整镜像业务验收分别记录。每次实际验收追加单独 evidence 文件及 candidate/tree/image ID或digest、环境摘要、DB heads、脱敏输入、预期/实际输出、时间与执行者；不输出密钥。
 
 用户异常优先闭环：应用中心现有产品契约仍是 installed apps。已发布且已安装应用缺stats应可见/打开；新App创建正确初始化stats。完整分类/搜索/同步/权限矩阵由F01/F02继续验。
 
-| ID | 场景 | 本轮起始状态 | 范围/解除条件 | 已有证据及限制 | 负责节点 |
+| ID 以下初次审计表仅保留历史来源；当前状态与缺口以末尾机器汇总和顶部说明为准。
+
+| 场景 | 本轮起始状态 | 范围/解除条件 | 已有证据及限制 | 负责节点 |
 | --- | --- | --- | --- | --- | --- |
 | G01 | 全部冲突处置与新宿主 | historical-source-passed; current-snapshot-review-pending | 当前源码 | M00/M08/R01 | N02/N03–N05 |
 | G02 | 四个tag后提交行为保留 | historical-source-passed; current-snapshot-review-pending | 当前源码 | M00/M08/R01 | N02/N03–N05 |
@@ -78,7 +82,7 @@ F01/N01当前fullimageAPI实证已持久：`evidence/N01/published-app-missing-s
 
 Owner角色批次已持久：`evidence/role-permissions-runtime/owner-results.md`。F03 owner入口/直链/6API已过；F04实际10+1分页、两行7位额度编辑/回读、search/clear/size、forward-token与code-control CRUD/cache清理已过。管理员/成员仍运行，same-used稳定tie仍N07，外部integration实际测试缺凭据单列。invitation mismatch403按B01身份子项聚合，不把该证据误当F05工具链通过。
 
-## 最新逐项可执行缺口（机器台账同步）
+## 历史逐项缺口快照（不代表当前状态）
 
 当前完整候选为15路径/4316文件、context `1a805b0e…eecb3d8`，canonical API image `51347867…108619`。本表以每项必要子检查明确缺口；源码静态证明写 `source_verified`，实际API/UI证明写 `passed`，缺provider/model/embedding为条件门槛。旧启动表与历史证据保持原样。
 
@@ -114,7 +118,7 @@ Owner角色批次已持久：`evidence/role-permissions-runtime/owner-results.md
 | `O04` | deferred | — | 历史延期 |
 | `O05` | production-not-authorized | — | 生产未授权 |
 
-机器汇总：{"passed": 4, "partial-current-proof": 8, "pending-current-completion": 12, "deferred": 4, "production-not-authorized": 1}；19个scene有31个本地/源码待验子检查，另外B07只有外部条件。N06新安装恢复与原23000真实交付仍为独立必做门槛。
+历史机器汇总：{"passed": 4, "partial-current-proof": 8, "pending-current-completion": 12, "deferred": 4, "production-not-authorized": 1}；19个scene有31个本地/源码待验子检查，另外B07只有外部条件。N06新安装恢复与原23000真实交付仍为独立必做门槛。
 
 本轮补齐：真实TenantB同资源200 + OwnerA foreign App/Dataset/Key拒绝、bound/unbound service scope、工作流token→run精确join1；K01、B04、B06本轮局部契约全部通过。Context同租户正向500显式N09待完整候选受影响复验，不以foreign404替代正向可用。
 
@@ -128,13 +132,13 @@ Owner角色批次已持久：`evidence/role-permissions-runtime/owner-results.md
 | `B02` | passed | 0 | 0 |
 | `B03` | partial-current-proof | 0 | B03.enabled_provider_callback_state_invite_session_api |
 | `B04` | passed | 0 | 0 |
-| `B05` | partial-current-proof | 0 | B05.off_authenticated_and_anonymous_actual_generation_12_matrix |
+| `B05` | passed | 0 | 0 |
 | `B06` | passed | 0 | 0 |
 | `B07` | pending | 0 | B07.console_explore_webapp_nonzero_usage_actor_RMB_USD_reconcile, B07.anonymous_billing_baseline_separately_recorded |
 | `B08` | partial-current-proof | 0 | B08.five_mode_nonzero_daily_monthly_total_balance_boundary |
 | `B09` | partial-current-proof | 0 | B09.stop_resume_retry_usage_preserved_LLM_attribution |
 | `B10` | passed | 0 | 0 |
-| `B11` | partial-current-proof | 0 | B11.authenticated_multiturn_retention_truncation |
+| `B11` | passed | 0 | 0 |
 | `K01` | passed | 0 | 0 |
 | `F01` | passed | 0 | 0 |
 | `F02` | passed | 0 | 0 |
@@ -152,4 +156,4 @@ Owner角色批次已持久：`evidence/role-permissions-runtime/owner-results.md
 | `O04` | deferred | 0 | 0 |
 | `O05` | production-not-authorized | 0 | 0 |
 
-O02原关闭一次性proof保留；实际shared启用协同、合法Agent metadata/files和HumanInput无LLM必须分别验收。metadata/files及HumanInput暂停提交恢复已passed，签名stubmanifest/真实协同/selected归档门槛按JSON记录，不能由关闭态或WS101替代。
+原provider实际结果见 `evidence/original-generation-runtime/independent-actual-readback.json` 与独立review。B11正确链3→4→5处理前6/后0，provider prompt未capture。B09 firstpartial UNKNOWN，第二双LLM第一38+8=46已完成usage保留，不代retry/resume/非零收费。cleanup产品3App204/404只删App行，关联与3owned队列待显式授权；automaticreview拒绝0consumer启动，禁止directtask/fork/deletequeue绕过。

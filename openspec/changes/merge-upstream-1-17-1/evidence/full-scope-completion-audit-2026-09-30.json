@@ -965,7 +965,8 @@
         "acceptance-ledger-state-2026-09-30.json",
         "acceptance-ledger-2026-09-30.md",
         "evidence/full-scope-completion-audit-2026-09-30.json",
-        "evidence/N05/result.json"
+        "evidence/N05/result.json",
+        "evidence/original-provider-generation-plan-2026-09-30.json"
       ],
       "missing_declared_references": [],
       "acceptance": [
@@ -978,8 +979,8 @@
       ],
       "current_checkpoints": {
         "local_matrix_checkpoint": {
-          "status": "passed",
-          "required_local_missing": 0,
+          "status": "pending_after_existing_original_provider_reassessment",
+          "required_local_missing": 3,
           "ledger": "acceptance-ledger-state-2026-09-30.json",
           "scene_counts": {
             "passed": 14,
@@ -988,9 +989,9 @@
             "deferred": 4,
             "production-not-authorized": 1
           },
-          "external_required_missing": 11,
+          "external_required_missing": 9,
           "conditions": "evidence/external-conditions-2026-09-30.json",
-          "boundary": "Whole N05 stays pending until required external actual behaviors completed; local passes source/image/evidence scoped, currentoriginal finaldeliverystillpending."
+          "boundary": "Prior local subset passed; existing original provider permits B05/B11 plus separately authorized bounded B09 active-stop subcheck. All three current local subchecks pending until actual independent proof; whole N05 also retains9 external requirements."
         }
       }
     },
@@ -1266,8 +1267,8 @@
     }
   ],
   "current_scene_counts": {
-    "passed": 14,
-    "partial-current-proof": 9,
+    "passed": 16,
+    "partial-current-proof": 7,
     "pending": 1,
     "deferred": 4,
     "production-not-authorized": 1
@@ -1275,15 +1276,13 @@
   "current_local_missing": {
     "local_missing_subcheck_count": 0,
     "local_missing": [],
-    "external_missing_subcheck_count": 11,
+    "external_missing_subcheck_count": 9,
     "external_only_scenes": [
       "B01",
       "B03",
-      "B05",
       "B07",
       "B08",
       "B09",
-      "B11",
       "F04",
       "D05",
       "O02"
@@ -1301,13 +1300,11 @@
     },
     {
       "scenes": [
-        "B05",
         "B07",
         "B08",
-        "B09",
-        "B11"
+        "B09"
       ],
-      "condition": "Isolated authorized LLM provider plugin + model endpoint/credentials and explicit nonzero input/output pricing, small spend limit. Missing actual chat/completion/agent/advanced-chat/workflow generation, charged user/token daily/month/balance boundary, currency reconciliation, stop/retry accounting and generated multi-turn retention; zero-token workflows do not satisfy these.",
+      "condition": "Nonzero pricing and bounded authorized spend required for actual charge/limits/currency/stop-retry accounting. B05 generation and B11 retention now local pending against existing original provider.",
       "evidence": "evidence/n05-design/nonzero-billing-acceptance.md"
     },
     {
@@ -1316,6 +1313,14 @@
       ],
       "condition": "After local N10 backend installation gate passes: authorized embedding provider/model/credentials, dimension and any required gRPC/TLS settings. Real high-quality document embed/index/vector counts and query hit unverified. Economy keyword+delete/rebuild passed; provider package defect is local separate gate.",
       "evidence": "evidence/N10/independent-build-source-audit.json"
+    },
+    {
+      "scenes": [
+        "O02"
+      ],
+      "condition": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
+      "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation.",
+      "evidence": "evidence/external-conditions-2026-09-30.json"
     }
   ],
   "historical_requirements": [
@@ -1326,16 +1331,18 @@
     "Explicit target maintenancewindow/operator/changeauthorization, live target immutable images, recoverableconsistent backups and ingress/writefreeze, single migrationexecutor, rollbackcriteria/RTO/RPO and timed observation thresholds"
   ],
   "release_deliverables_remaining": [
-    "Final source+lock/context/canonicalimage closure N09/N10 and safe original23000 readback",
-    "Final scoped commit and nonoverwriting fork-merged-1.17.1 archival tag per originalR02 if parent authorized; tag code-ready only until genuine external/production gates satisfied",
-    "Final runbook command/package identities plus current-to-original gate mapping and known conditional/deferred boundaries"
+    "Final resumed generation-acceptance safe evidence/precise fixture cleanup and exact docs-only commit, source/tag unchanged",
+    "R02 whole release acceptance retains external/oldinstall/production gates; code-ready tag is not final production signoff"
   ],
-  "completion_claim": "All currently executable source/fullimage/localbusiness/currentoriginalUI/component/current-snapshotrestore/cleanup/code-ready delivery passed.11externalchecks,4old-installscenes and production unpassed; goal not complete.",
+  "completion_claim": "Incomplete whole merge: selected localmatrix requirements closed, external9/8scenes, oldinstall/production still unverified; explicitcleanup approvalblocked and O02 no-model preparation remain",
   "enabled_scope_correction": "O02 onceoff disabled passed remains; selected shared collab true requires separate local realenabled checks. Agentmetadata/files and noLLMHumanInput actual passed; modelgeneration not inferred.",
   "external_conditions_evidence": "evidence/external-conditions-2026-09-30.json",
-  "remaining_executable_actions": [],
+  "remaining_executable_actions": [
+    "O02 no-model effective original Agent topology/tool capability/request composition audit and reversible internal sidecar preparation proposal (no Agent model call authorized)",
+    "Exact owned factualdocs/proofs commit with committed release archive validation; user worktree lock excluded"
+  ],
   "unverified_conditions": {
-    "external_required": 11,
+    "external_required": 9,
     "external_detail": "evidence/external-conditions-2026-09-30.json",
     "old_install": "A03/V03/V04/V06 originalpriorversion data/backups/retention/downgrade-replay/RTO-RPO facts unavailable per prioruserdeferredscope",
     "production": "D00-D04/O05 authorizedinventory/window/executor/backupthresholds/businesssignoff/observation unavailable; no automaticdeploy/push"
@@ -1353,11 +1360,32 @@
     "latest_original_UI": "Actualfreshcenter/open/returnpassed, no currentUI blocker",
     "old_install": "Matching priorversion data/snapshots unavailable; fresh/currentclone cannot substitute",
     "production": "No authorizedproductioninventory/window/executor/thresholds/signoff; no push/deploy",
-    "source_or_runtime_bug_pending": false
+    "source_or_runtime_bug_pending": false,
+    "original_existing_provider_branch": "Actual B05 twelvecells/identity/admission80outputs, B11 generated truechain/Memory and B09 stoppedcompleted46usage passed; original configurations/protected App state preserved. Exact cleanup separately approvalblocked.",
+    "Agent_topology_budget": "Runtime effective original backend/tool capability boolean pending; reversible private sidecars no-model preparation may be feasible. Actual runner500/defaultSDKretry1 means proposed2calls not enforced; no Agent model call currently authorized."
   },
   "historical_original_UI_condition": "Desktop locked; latest445d browserrefresh/display/open unverified; historicalN08 visible/open and latest445d component not UI proof.",
   "latest_original_UI_checkpoint": {
     "status": "passed",
     "evidence": "evidence/N06/latest-ui-2026-09-30.json"
-  }
+  },
+  "release_deliverables_completed": [
+    "N09/N10 canonical HEAD842 lock445d source/image/runtime/original delivery",
+    "Sourceee72 + cleanrefrepair e91 nonoverwrite annotatedfork-merged-1.17.1; resultdocsbdef2/latestUIdocs0585",
+    "Safe operating runbook and snapshotclone original-to-current mapping with explicit historical/production boundaries"
+  ],
+  "cleanup_gate": {
+    "status": "blocked-approval",
+    "product_deletion": "Three owned fixture Apps productDELETE204/GET404 already executed; core/fork associated fixture rows remain",
+    "attempted_async_worker_start": false,
+    "automatic_approval_review": "Rejected short app_deletion consumer as destructive cleanup lacking explicit human authorization; zero startup",
+    "pending_user_question": "Coordinator asked user to approve exact3fixture related cleanup; no response is not authorization",
+    "prohibited_workarounds": [
+      "directtask.run",
+      "precise fork ORM deletion",
+      "queue deletion/purge"
+    ],
+    "scope": "Only exact3synthetic ownedApps plus exact frozen associated IDs; original App/account/config/provider/prices/keys excluded"
+  },
+  "approval_blocked_action": "Cleanup exact3synthetic App associated rows/task envelopes must await human authorization; automaticreview rejected action, no bypass"
 }

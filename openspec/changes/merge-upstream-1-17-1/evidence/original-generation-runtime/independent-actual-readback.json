@@ -1,0 +1,184 @@
+{
+  "captured_at_utc": "2026-09-30T15:39:08+00:00",
+  "runtime": {
+    "api_image_tag": "difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6",
+    "api_worker_gaia_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "project": "difyplus-upstream1171-quota-selftest-20260930",
+    "database": "PostgreSQL 15; no schema or migration changes in this batch"
+  },
+  "b05": {
+    "http_attempts": 16,
+    "unique_matrix_cells": 12,
+    "unique_positive_cells": 9,
+    "unique_auth_on_anonymous_rejections": 3,
+    "duplicate_rejection_attempts_due_to_harness_phase_reset": 3,
+    "total_auth_on_anonymous_rejections": 6,
+    "terminal_successes": 10,
+    "automatic_retries": 0,
+    "successful_output_tokens_total": 80,
+    "reported_price_usd": "0.0000000",
+    "workflow_runs": [
+      {
+        "status": "succeeded",
+        "prompt_tokens": 41,
+        "completion_tokens": 8,
+        "total_tokens": 49,
+        "price_usd": "0.0000000"
+      },
+      {
+        "status": "succeeded",
+        "prompt_tokens": 41,
+        "completion_tokens": 8,
+        "total_tokens": 49,
+        "price_usd": "0.0000000"
+      },
+      {
+        "status": "succeeded",
+        "prompt_tokens": 41,
+        "completion_tokens": 8,
+        "total_tokens": 49,
+        "price_usd": "0.0000000"
+      }
+    ],
+    "chat_completion_messages_count": 7,
+    "console_identity_readback": {
+      "signed_and_unlinked_end_user_ids_disjoint": true,
+      "account_linked_end_user_ids_count": 2,
+      "unlinked_end_user_ids_count": 2,
+      "all_account_links_match_synthetic_owner": true
+    },
+    "auth_on_anonymous_no_generation_readback": {
+      "three_fixture_apps_pre_positive_messages_conversations_runs_markers": 0,
+      "after_rejection_batch_messages_conversations_runs_markers": 0,
+      "source_receipt": "/private/tmp/dify-original-generation-acceptance-20260930/after-auth-on-anonymous.private.json"
+    },
+    "billing_boundary": "All observed price was zero USD; this verifies plugin-backed generation but does not prove nonzero billing or quota charging."
+  },
+  "b11": {
+    "app_id": "fbefc3f5-1e0f-42bc-b22b-9e6675b3554e",
+    "conversation_id": "65b8e3b5-2a2d-4f85-9b3b-ff85d0026ff9",
+    "active_and_conversation_config_pointer_match": true,
+    "max_tokens": 8,
+    "conversation_message_count": 5,
+    "context_marker_count": 5,
+    "console_context_get_status": 200,
+    "console_context_returned_markers": 5,
+    "all_markers_map_to_real_messages_in_same_conversation": true,
+    "earlier_three_messages_parent_ids_null": true,
+    "correct_followup_chain_verified": true,
+    "memory_probe": {
+      "marker_hits_latest_thread": 3,
+      "without_marker_handling_prompt_message_count": 6,
+      "with_marker_handling_prompt_message_count": 0,
+      "provider_prompt_capture": false
+    },
+    "boundary": "Actual TokenBufferMemory readback confirms marker-based truncation; no provider-prompt capture. Original three messages were separate parentless threads; only the later two turns form a parent chain."
+  },
+  "b09": {
+    "single_llm_stop": {
+      "status": "stopped",
+      "run_total_tokens": 0,
+      "completed_node_usage_available": false,
+      "partial_usage": "unknown"
+    },
+    "two_llm_stop": {
+      "status": "stopped",
+      "run_total_tokens": 46,
+      "completed_first_node_usage": {
+        "prompt_tokens": 38,
+        "completion_tokens": 8,
+        "total_tokens": 46
+      },
+      "second_node_partial_usage": "unknown",
+      "completed_node_usage_retained_after_stop": true
+    }
+  },
+  "protected_original_state": {
+    "app_id": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+    "app_row_count": 1,
+    "mode": "advanced-chat",
+    "status": "normal",
+    "counts": {
+      "messages": 3,
+      "conversations": 3,
+      "workflow_runs": 3,
+      "app_statistics_extend": 0,
+      "app_extend": 0
+    },
+    "owner_total_quota": "15.0000000",
+    "owner_used_quota": "0.0000000"
+  },
+  "cleanup": {
+    "product_delete_statuses": [
+      204,
+      204,
+      204
+    ],
+    "post_delete_get_statuses": [
+      404,
+      404,
+      404
+    ],
+    "database_residual_counts": {
+      "apps": 0,
+      "app_extend": 3,
+      "app_statistics_extend": 3,
+      "end_users": 6,
+      "end_user_account_joins_extend": 0,
+      "conversations": 5,
+      "messages": 9,
+      "message_context_extend": 6,
+      "workflow_runs": 5,
+      "workflow_node_executions": 14
+    },
+    "app_deletion_queue": {
+      "pending_count": 3,
+      "task_class": "tasks.remove_app_and_related_data_task.remove_app_and_related_data_task",
+      "all_three_tasks_match_only_the_owned_fixture_apps": true,
+      "unmatched_or_foreign_tasks": 0
+    },
+    "consumer_start": "blocked_by_automatic_review",
+    "automatic_review_reason": "Attempt to start the app_deletion-only worker was rejected by automatic review because it would irreversibly remove the three owned test apps and related rows; no process started, no queue message consumed, and no direct task.run or alternate deletion was attempted. Explicit human authorization is pending."
+  },
+  "private_evidence": {
+    "generation_and_context_readback": "/private/tmp/dify-original-generation-acceptance-20260930/final-context-and-stop-readback-20260930T150344Z.private.json",
+    "post_delete_ids_queue_and_protected_rows": "/private/tmp/dify-original-generation-acceptance-20260930/post-cleanup-scoped-readback.private.json",
+    "pre_generation_baseline": "/private/tmp/dify-original-generation-acceptance-20260930/before-fixture-generation.private.json",
+    "product_delete_receipts": "/private/tmp/dify-original-generation-acceptance-20260930/cleanup-product-results.private.json"
+  },
+  "credentials_or_prompt_content_included": false,
+  "source_or_git_modified": false,
+  "o02_loaded_configuration_preflight": {
+    "agent_shell_enabled": true,
+    "agent_backend_use_fake": false,
+    "agent_backend_base_url_configured": true,
+    "agent_backend_api_token_present": false,
+    "configured_backend_tcp_reachable": false,
+    "running_services": {
+      "agent_backend": false,
+      "local_sandbox": false,
+      "agent_ssrf_proxy": false,
+      "generic_ssrf_proxy": true
+    },
+    "existing_published_model_schema": {
+      "workflow_id": "f8cedf0a-70c5-4464-992b-f62648dee751",
+      "unique_llm_node": true,
+      "schema_loaded": true,
+      "tool_call": true,
+      "multi_tool_call": true,
+      "stream_tool_call": true
+    },
+    "model_invocations": 0,
+    "boundary": "The API has shell enabled and a configured Agent backend target, but this project has no running Agent backend or sandbox, no Agent API token, and the configured target is unreachable. Model tool-call schema flags are available; Agent execution itself is not proven.",
+    "network_topology": {
+      "original_api_shares_network_with_generic_ssrf_proxy": true,
+      "original_project_has_agent_backend": false,
+      "original_project_has_local_sandbox": false,
+      "original_project_has_agent_ssrf_proxy": false,
+      "isolated_acceptance_agent_services_present_in_separate_project": true,
+      "isolated_agent_services_share_network_with_original_api": false,
+      "configured_backend_host_dns_resolves": false
+    },
+    "mutation_performed": false
+  }
+}

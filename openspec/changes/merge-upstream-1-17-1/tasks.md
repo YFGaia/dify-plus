@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 当前现场：原 `970b704e` 候选通过 M00–M08/V01/V02/R01 源码门槛；全新安装修复 `9fcc542afb` 已有31项定向检查及独立PG15.12/MySQL8.0.46双链/额度ORM source-overlay证据，真实DeepSeek返回OK/49 tokens且归因正确，内部价格0USD，非零扣费未验。当前审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39` 后续源码须经 N02 重新冻结；完整修复镜像、应用中心实际业务及29场景逐项验收仍未完成。用户报告已发布应用中心遗漏的首个断点为已安装应用缺stats而被INNER JOIN排除，N01实现与52项定向测试、六文件独立源码review已通过，且N01完整镜像/API/真实页面已通过，N07最新分页/Key数字候选镜像已运行，受影响独立现场验收继续推进。原27节点16 passed、2 blocked、9 pending，不能报告合并全部完成；新N00–N07负责本地新安装闭环。历史数据库迁移按既有用户决定后续单验，生产需独立授权。见 [本轮审计](evidence/merge-completion-audit-2026-09-30.md)、[验收台账](acceptance-ledger-2026-09-30.md)。
+> 当前事实源为机器执行图、逐项 JSON 台账和完整范围审计。最新标准 HEAD-lock445d 镜像绑定55owned源码及原HEAD842锁，隔离与原23000三服务、最新中心UI/组件及一致快照clone均已有实际证据；源码ee72、code-ready tag指e91、随后交付docs0585保留不变。本轮原租户合法既有模型的B05/B11/B09有界包已执行，待独立safe证据汇总及精确cleanup签收；非零账务/SSO/embedding/Agent等条件逐项保留，不能报告全部合并完成。以下各阶段结果保留当时候选/环境事实，不能将历史当前态当本轮最新状态。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -406,14 +406,27 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 - [x] 34.3 [O02/app_center] 无LLM Start→HumanInput→End真实暂停、合法form提交、恢复终态及输出读回；禁止邮件。
 - [x] 34.4 [O02/runtime] selected归档flag/edition真实关闭或拒绝；若启用须真实存储归档读回，未授权存储列独立条件。关闭一次性历史proof保留，shared启用未验不可宣称passed。
 
-本轮收尾子任务签收：29.9/29.11见N04实际双engine模型与atomicquota证据及独立review；29.10见workflow-tool-runtime、center-tags-sync-runtime及N07完整镜像分页/数字契约；29.12原N07/N08用户23000已交付证据有效，最新N09/N10候选仍由32.3/33.3单独签收。30.26包含合法Agent metadata/files/JWE manifest200、HumanInput暂停恢复、真实双Socket与选定Community/关闭归档guard，全部本地required检查通过，不宣称LLM Agent生成或Cloud启用归档。32.2实际PG/MySQL rollback与最新HEAD同资源HTTP链通过，原入口最新bundle仍pending32.3。
+历史收尾checkpoint（以下pending描述已被后续候选证据更新）：29.9/29.11见N04实际双engine模型与atomicquota证据及独立review；29.10见workflow-tool-runtime、center-tags-sync-runtime及N07完整镜像分页/数字契约；29.12原N07/N08用户23000已交付证据有效，最新N09/N10候选仍由32.3/33.3单独签收。30.26包含合法Agent metadata/files/JWE manifest200、HumanInput暂停恢复、真实双Socket与选定Community/关闭归档guard，全部本地required检查通过，不宣称LLM Agent生成或Cloud启用归档。32.2实际PG/MySQL rollback与最新HEAD同资源HTTP链通过，原入口最新bundle仍pending32.3。
 
-29.6本地required子检查全部通过且外部10条件逐项明示，见machineledger；不等于29.7非零计费或整体N05完成。30.25已实际完整镜像/queues/migration-off及精确tenant plugin daemon installation身份与正规模型组件45tokens/0USD通过，非ConsoleAppAPI、非个人/APIKey非零扣费证据。
+历史子集checkpoint：29.6当时本地required子检查通过且外部10条件逐项明示，见machineledger；不等于29.7非零计费或整体N05完成。30.25已实际完整镜像/queues/migration-off及精确tenant plugin daemon installation身份与正规模型组件45tokens/0USD通过，非ConsoleAppAPI、非个人/APIKey非零扣费证据。
 
-O02完整原requirements收尾更正：本地无模型metadata/files/JWE、HumanInput、collaboration、selected关闭archive均通过，但真实generated Agent run/tool未验，实测AGENT_SHELL_ENABLED=true。30.26 whole保留未完成；新增外部required O02.generated_agent_run_tool_selected_layers（合法isolated模型/tool支持/小成本budget及Agent配置），不能用配置manifest200替代真实运行。外部现11子项/10场景，本地缺口仍0。
+历史O02范围修正checkpoint：本地无模型metadata/files/JWE、HumanInput、collaboration、selected关闭archive均通过，但真实generated Agent run/tool未验，实测AGENT_SHELL_ENABLED=true。30.26 whole保留未完成；新增外部required O02.generated_agent_run_tool_selected_layers（合法isolated模型/tool支持/小成本budget及Agent配置），不能用配置manifest200替代真实运行。外部现11子项/10场景，本地缺口仍0。
 
-最终原candidate子gate：29.4/32.3/33.3源码、标准HEAD-lock445d镜像、独立真实runtime以及原三服务/loadedcenter组件和克隆选定读回通过（N06两份finalproof）。32.3用户中心部分仅componentlist/detail，最新浏览器因desktop锁屏未刷新，不声明latestUI；N06显式currentUIcondition保留，整体29.8/原V06/生产仍未完成。
+历史最终candidate待UI checkpoint（后续latest-ui证明已关闭）：29.4/32.3/33.3源码、标准HEAD-lock445d镜像、独立真实runtime以及原三服务/loadedcenter组件和克隆选定读回通过（N06两份finalproof）。32.3用户中心部分仅componentlist/detail，最新浏览器因desktop锁屏未刷新，不声明latestUI；N06显式currentUIcondition保留，整体29.8/原V06/生产仍未完成。
 
-R02事实：源ee72b000，历史引用docs修补e91c4d89，cleanarchive55source+HEAD842/reference/strict通过；annotated fork-merged-1.17.1指e91c4d89不覆盖。22.4完成，R02整体V03-V06/当前UI/11外部与生产条件未过；后续仅结果日志docscommit不移动tag。原始proof尾空格保留，editable源码/doccheck通过，不能报告包含rawproof的whitespace全通过。
+R02历史交付checkpoint（UI/条件数以当前ledger为准）：源ee72b000，历史引用docs修补e91c4d89，cleanarchive55source+HEAD842/reference/strict通过；annotated fork-merged-1.17.1指e91c4d89不覆盖。22.4完成，R02整体V03-V06/当前UI/11外部与生产条件未过；后续仅结果日志docscommit不移动tag。原始proof尾空格保留，editable源码/doccheck通过，不能报告包含rawproof的whitespace全通过。
 
-最终UI续验：N06/latest-ui-2026-09-30.json及两PNG在13:52:27Z真实原center刷新→card打开→installed标题/2输入normal→返回center，与三service445d/source47/nooverlay绑定。旧locked条件已关闭，29.8本地新安装恢复/交付全部可执行门槛完成；N06 whole仅因N05外部11required条件仍pending，旧版本V06/生产独立未过。
+历史UI续验checkpoint（该次UI仍有效，后续generation条件重新分类）：N06/latest-ui-2026-09-30.json及两PNG在13:52:27Z真实原center刷新→card打开→installed标题/2输入normal→返回center，与三service445d/source47/nooverlay绑定。旧locked条件已关闭，29.8本地新安装恢复/交付全部可执行门槛完成；N06 whole仅因N05外部11required条件仍pending，旧版本V06/生产独立未过。
+
+历史可执行范围重分类checkpoint：原租户已有成功调用的模型，B05实际12组合（3拒绝/9生成）及B11真实多轮retention不要求positive pricing，改为本地pending两项；此前隔离provider0不代表原租户不可执行。见`evidence/original-provider-generation-plan-2026-09-30.json`。源码/tag不变，最多16请求含拒绝、无自动重试、每次8输出tokens、累计输出≤128、prompt累计≤4000字符；原配置/密钥/价格不改，before私有基线与精确fixture清理由执行者负责。当前机器汇总本地2、外部9（8场景），尚未完成整体目标。
+
+## 35. 原租户既有模型有界补充验收
+
+- [ ] 35.1 [N05/B05/B11] 原租户三个精确专用Apps复用既有模型；12唯一组合、真实三轮Message/Context/memory截断及独立额度/配置/清理读回。16 generation HTTP硬上限已包含重复拒绝，不追加预算。
+- [x] 35.2 [N05/B09] B05/B11证据保全后复用已建workflow，另行最多2generation POST、1stop、每次8输出/累计16/query1/prompt<512；真实运行尚未终态时stop与独立DB stopped/usage/identity，不将late200或newrerun称resume。收费/配置retry等wholeB09独立未过。
+
+原模型有界包当前独立签收：B11实际parent3→4→5/Memory false6 true0/Console5markers通过；B09原firststop仅控制通过、partial usage UNKNOWN，第二双LLM已完成节点38+8真实保留/run stopped46通过。B05完整细项与3Apps精确cleanup仍待签收，O02原有效topology/budget只读核对不发新模型调用。详见original-generation-runtime/independent-runtime-readback-review.json。
+
+cleanup授权门槛：3个owned Apps产品DELETE204/GET404已执行，但core/fork关联残留未清。短时app_deletion consumer被automatic approval review因破坏性清理缺显式人类授权拒绝，0启动；root已向用户提出exact3fixture范围请求，等待回复，不得directtask/fork事务/deletequeue绕过。当前业务验证证据可签收，cleanup不得写passed。
+
+35.1业务部分已签：12unique矩阵含3拒绝/no生成记录及9success，实际80output；B11正确parent链3→4→5实际Memory false6/true0、Console5markers。因35.1还包含精确fixturecleanup，该复合任务仍未勾选；35.2实际Stop控制及completed-node46usage保留子项通过，wholeB09其他条件未过。

@@ -1,71 +1,98 @@
 {
-  "boundary": "Required conditions unpassed; O01 tiny internal component invocation does not substitute priced full-app/key billing.",
-  "requirements": [
+  "local_matrix_missing": 0,
+  "external_required": 9,
+  "external_scenes": 8,
+  "source_and_tag_unchanged": true,
+  "whole_goal_complete": false,
+  "actions": [
+    {
+      "id": "O02.no_model_original_provider_sidecar_preparation",
+      "status": "plan_only_no_mutation",
+      "executor": "runtime_acceptance static Compose plan; merge_audit contract review; root dispatch",
+      "next_action": "Review four-sidecar same445d API+Backend+Sandbox+dedicatedproxy private network/env plan; no原APIrestart/noqueueworker/no model invocation",
+      "evidence": "evidence/remaining-runtime-feasibility-small-packages-2026-09-30.json"
+    },
+    {
+      "id": "generation_fixture_cleanup",
+      "status": "blocked-approval",
+      "executor": "runtime_acceptance queueconsumer only after user explicit approval; app_center exactforkresidue cleanup aftercore0",
+      "next_action": "Wait human approval exact3ownedApps relatedrecords; no directtask/fork/queuepurge bypass",
+      "evidence": "evidence/original-generation-runtime/independent-actual-readback.json"
+    },
     {
       "id": "B01.enabled_external_oauth_account_init",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Authorized real OAuth/SSO client/issuer, registered callback, synthetic provider identity and known invite/registration policy.",
       "unverified_behavior": "Actual enabled callback/state validation, ACTIVE account/membership/quota uniqueness, session and tenant API readback."
     },
     {
       "id": "B03.enabled_provider_callback_state_invite_session_api",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Authorized real OAuth/SSO client/issuer, registered callback, synthetic provider identity and known invite/registration policy.",
       "unverified_behavior": "Actual enabled callback/state validation, ACTIVE account/membership/quota uniqueness, session and tenant API readback."
     },
     {
       "id": "B07.console_explore_webapp_nonzero_usage_actor_RMB_USD_reconcile",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
       "unverified_behavior": "Actual nonzero Console/Explore/WebApp actor/run and USD/RMB reconciliation; anonymous billing separately measured."
     },
     {
       "id": "B07.anonymous_billing_baseline_separately_recorded",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
       "unverified_behavior": "Actual nonzero Console/Explore/WebApp actor/run and USD/RMB reconciliation; anonymous billing separately measured."
     },
     {
       "id": "B08.five_mode_nonzero_daily_monthly_total_balance_boundary",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
       "unverified_behavior": "Five-mode real daily/monthly/account/key boundary charge and rejection; accumulated usage is not lifetime cap."
     },
     {
       "id": "B09.stop_resume_retry_usage_preserved_LLM_attribution",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
       "unverified_behavior": "Real LLM stop/retry/resume terminal state and expected nonzero attribution preserved."
     },
     {
       "id": "F04.enabled_dingtalk_oauth2_email_actual_test",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Authorized DingTalk/OAuth client/callback and explicit synthetic SMTP destination when email enabled. Isolated MAIL_TYPE stays empty until that setup.",
       "unverified_behavior": "Real enabled login callback/session and bounded synthetic email delivery, no production recipient."
     },
     {
       "id": "D05.high_quality_vector_counts_retrieval_grpc_TLS_config",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Authorized embedding provider/model, dimension-matched isolated high-quality dataset and actual selected vector/gRPC/TLS configuration.",
       "unverified_behavior": "Real product high-quality upload/index/vector count/retrieval and selected transport. Installed registry/Qdrant CRUD already locally passed."
     },
     {
       "id": "O02.generated_agent_run_tool_selected_layers",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
       "minimum_configuration": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
       "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation."
+    },
+    {
+      "id": "legacy_upgrade_and_old_version_restore",
+      "status": "deferred_by_prior_user_scope",
+      "executor": "root/executor after actualpriorversioninventory/snapshots",
+      "next_action": "A03/V03 actual old deployment inventory and matching old PG/MySQL snapshot/version; V04 old vector upgrade; V06 old-version consistent-point full restore including Redis replay and stated RTO/RPO. D00-D04/O05 authorized production window/single executor/backup thresholds/observation. Fresh/current clone does not replace old-version gates."
+    },
+    {
+      "id": "production_delivery",
+      "status": "not_authorized",
+      "executor": "production singleexecutor after specific authorization/window/thresholds/signoff",
+      "next_action": "Do not push or deploy automatically"
     }
-  ],
-  "historical_and_production": "A03/V03 actual old deployment inventory and matching old PG/MySQL snapshot/version; V04 old vector upgrade; V06 old-version consistent-point full restore including Redis replay and stated RTO/RPO. D00-D04/O05 authorized production window/single executor/backup thresholds/observation. Fresh/current clone does not replace old-version gates.",
-  "reclassified_local_pending": {
-    "requirements": [
-      "B05.off_authenticated_and_anonymous_actual_generation_12_matrix",
-      "B11.authenticated_multiturn_retention_truncation"
-    ],
-    "reason": "Positive pricing is required only for charge checks, not these auth/generation/retention checks. Original configured provider permits authorized bounded fixtures.",
-    "evidence": "evidence/original-provider-generation-plan-2026-09-30.json",
-    "previous_condition_records": [
-      {
-        "id": "B05.off_authenticated_and_anonymous_actual_generation_12_matrix",
-        "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
-        "unverified_behavior": "Actual required 12 auth/site generation cases for three modes; guards/zero-token workflow do not replace model generation."
-      },
-      {
-        "id": "B11.authenticated_multiturn_retention_truncation",
-        "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
-        "unverified_behavior": "Actual generated authenticated multi-turn retention truncation; ORM context scope fixtures do not prove generated history."
-      }
-    ]
-  }
+  ]
 }
