@@ -1,0 +1,32 @@
+{
+  "reviewed_at_utc": "2026-09-30T17:44:35.761694+00:00",
+  "timezone": "Asia/Shanghai",
+  "evidence": "v4-flash-price-schema-readonly.json",
+  "evidence_sha256": "ff5731f425e58e5d0f404572aa552a8b6ec2f9b943dce5cad0634a7ec1cb8a9f",
+  "review_kind": "Independent safe evidence and exact source-path review, no runtime request/model call/configuration change",
+  "verdict": "Accepted schema-only evidence; no positive-price or invocation/billing proof",
+  "source_checked": [
+    "api/core/model_manager.py ModelInstance.get_model_schema resolves through current model_type_instance.get_model_schema",
+    "api/core/plugin/impl/model.py get_model_schema dispatch/model/schema is separate from invoke_llm dispatch/llm/invoke",
+    "api/core/app/task_pipeline/easy_ui_based_generate_task_pipeline.py persists llm_result.usage token/unit-price/total-price/currency fields; failed/stopped partial usage can involve fallback calculation and remains a separate acceptance boundary"
+  ],
+  "actual_result": {
+    "model": "deepseek-v4-flash",
+    "window": 1000000,
+    "pricing_fields_in_schema": 0,
+    "credential_validation": 0,
+    "LLM_invocation": 0,
+    "runtime_image_matches_current_release445d": true
+  },
+  "unverified": [
+    "Actual v4 invocation usage/charged-price result",
+    "Five-mode positivecharge/boundary/actor/currency reconciliation",
+    "True generatedAgent tool execution/compaction"
+  ],
+  "scope_correction": "Activecatalog2LLM bothwindow1m; no smaller-window model found in that existing provider active catalog. Missing pricing schema/DTO fields do not mean free/zero billing and do not authorize changing prices or invoking another model.",
+  "safe_runtime_actions_without_new_inputs": 0,
+  "authorization_blocks_unchanged": [
+    "Exact sidecar shared-network join/recreate",
+    "Exact3owned fixture associated cleanup"
+  ]
+}
