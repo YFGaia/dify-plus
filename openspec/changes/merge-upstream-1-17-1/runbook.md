@@ -146,3 +146,5 @@ R02 的 `fork-merged-1.17.1` 标记已验证源码；D04 的发布记录标记�
 当前完整交付门槛：N09上下文UUID兼容与N10默认Provider安装独立源码review → 完整锁/context/canonical原Dockerfile镜像 → 同资源正向/foreign scope、provider registry/import与无embedding的隔离Qdrant CRUD → 原23000限定三服务最新镜像及卡片/受影响选定读回。既有备份/一致恢复证据继续有效（schema/data未变）；无新风险不重复整套dump。外部SSO/真实非零模型收费/高质量embedding、旧库破坏性迁移和旧版整套恢复、生产授权/观察分别保留原门槛，不由本地keyword或0token workflow替代。
 
 最终源码与镜像绑定：先验证N09/N10 dirty候选完整defaultgroups及受影响业务；再按HEAD原锁+55owned source生成独立canonical完整镜像，实际defaultgroups安装/38distribution/32vectorentrypoint/8traceimport和包版本对照。保留用户既有dirtylock未stage，原R02显式owned提交与不覆盖留档tag仅在验证后执行。最终releaseimage应绑定实际新sourcecommit及精确lock/context，COMMIT_SHA=base953只表示归档基线，不能标作最终提交；既有镜像通过55sourcehash＋HEAD锁映射最终ownedcodecommit；只补label无需重构建，不将953称最终commit。未变范围按源码/hash/包版本证据复用，实际R02结果/日志可另文档提交，tag指前一个codecommit不force重指。
+
+实际代码留档：source implementation `ee72b000d076449dc0cbd5ccb7fb92c4fb7b017c`，补齐唯一旧M08结构log后的clean code-ready `e91c4d89fc6090ebd339acaf9be5ce853c29f544`；annotated `fork-merged-1.17.1` 指后者不覆盖。两commit55产品source相同，HEAD842锁匹配正式445d镜像，clean普通git archive引用/OpenSpecstrict通过。实际结果与编排检查边界见 `evidence/R02/result.json` 和 `execution.log`；这些事实docs提交不移动tag，不将code-ready标为最新UI/外部/旧版恢复/生产完成。

@@ -5340,6 +5340,8 @@
       ],
       "evidence": [
         "evidence/R02/result.json",
+        "evidence/R02/execution.log",
+        "evidence/R02/result.json",
         "evidence/R02/execution.log"
       ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
@@ -5347,7 +5349,16 @@
       "outputs": [
         "evidence/R02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
-      ]
+      ],
+      "local_code_archive_checkpoint": {
+        "status": "passed",
+        "source_implementation_commit": "ee72b000d076449dc0cbd5ccb7fb92c4fb7b017c",
+        "code_ready_commit": "e91c4d89fc6090ebd339acaf9be5ce853c29f544",
+        "tag": "fork-merged-1.17.1",
+        "result": "evidence/R02/result.json",
+        "execution_log": "evidence/R02/execution.log",
+        "boundary": "OriginalR02 V03-V06 environmentwide criteria unpassed; code-ready not production/latestUI/11external completion."
+      }
     },
     {
       "id": "D00",
@@ -6653,23 +6664,14 @@
     "current_dispatches": [
       {
         "task": "merge_audit",
-        "owner": "sole git mutation + final audit",
-        "status": "All currently executable source/runtime/component/restore checks accepted; exactstage/codecommit/tag + factualdocscommit in progress"
-      },
-      {
-        "task": "app_center_root_cause",
-        "status": "done,55source frozen and exactcleanup passed"
-      },
-      {
-        "task": "runtime_acceptance",
-        "status": "done,final445d component/clone/identity proof persisted"
+        "status": "sourceee72 + code-readye91/tag done; factualR02 docsrecord commit finalizing"
       }
     ],
     "next_critical_path": [
-      "Exact55source+reviewedcurrentdocs/proofs/3historicalinputs stage/index/sourcehash/secret/reference validation",
-      "Ownedcodecommit and nonoverwrite code-readyfork-merged-1.17.1 tag, no push",
-      "Actualcommit/tag/sourceartifactbinding/result/log facts smalldocscommit",
-      "Unverified latestoriginalUI requiresdesktopunlock;11externalconditions and oldinstall/production remain unpassed"
+      "Finish factualdocs-only R02 commit; tag remains e91",
+      "LatestoriginalUI requiresdesktopunlock",
+      "11external actualSSO/positivepricing/fullappbilling/embedding/generatedAgent requirements",
+      "Oldinstall V03/V04/V06 actualdata/consistentoldrestore and production D00-D04/O05 authorization/observation"
     ],
     "quality_gates_unchanged": true,
     "coordinator_handoff": {
@@ -6741,7 +6743,7 @@
     "rule": "No all-complete claim while required scene lacks actual evidence or required runtime/image gate is open.",
     "latest_candidate_gate": {
       "node": "N10",
-      "status": "passed_final_source_image_runtime_component; latestUI_condition_and_scoped_commit_delivery_records_pending",
+      "status": "passed_source_artifact_runtime_component_code_ready; UI_external_oldinstall_production_conditions_remaining",
       "last_accepted_node": "N08",
       "last_accepted_context": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6",
       "last_accepted_api_image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",

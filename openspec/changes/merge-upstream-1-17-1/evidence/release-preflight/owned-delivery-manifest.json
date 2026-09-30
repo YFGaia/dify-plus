@@ -224,12 +224,12 @@
     }
   ],
   "source_count": 55,
-  "planning_evidence_count": 279,
+  "planning_evidence_count": 282,
   "planning_evidence_paths": [
     {
       "path": "docs/dify-plus/1.17.1合并验收记录.md",
-      "sha256": "4beda8383dc2c209f39fb6b434c92f3b4f9fb22695040ed4cbb60391c7ba3be2",
-      "bytes": 3529,
+      "sha256": "182ed5713959e4f00bf3618433f674952f524f1d09b427a487dc9edcfeef4f6d",
+      "bytes": 3832,
       "ignored": false
     },
     {
@@ -719,9 +719,27 @@
       "ignored": false
     },
     {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/R02/editable-whitespace-and-raw-proof-boundary.json",
+      "sha256": "639063ba55506e84fbadd3d01d1c0b2fea4bdef4fd853031261eec7dc47657e9",
+      "bytes": 39610,
+      "ignored": false
+    },
+    {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/R02/execution-plan.md",
       "sha256": "01bf1693d477bc390ea5e34430bb9d527f9fd75e63e7339e42488f4ab072d946",
       "bytes": 3351,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/R02/execution.log",
+      "sha256": "cc707270c4940f9cd83eb309ba7f97a9f4ad07959a4c05f76fc4ed7baab0bf9b",
+      "bytes": 1302,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/R02/result.json",
+      "sha256": "ad3f96da51b7192b760f9cc1418a790c6fa74db8aeefb92047d974e11fe0472d",
+      "bytes": 17945,
       "ignored": false
     },
     {
@@ -1140,8 +1158,8 @@
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/full-scope-completion-audit-2026-09-30.json",
-      "sha256": "29738efeb3941161804a9d8b9b9f7c6e18aafa1e6b7ba6fc618fc59fb94e4ab4",
-      "bytes": 60913,
+      "sha256": "cb8d2f79e89a5a93376db819afb55aa91ae04a5f76619d34ef94dbdb73894790",
+      "bytes": 62248,
       "ignored": false
     },
     {
@@ -1200,8 +1218,8 @@
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/runtime-plan.json",
-      "sha256": "7842227030ac16afc05321f26e59f51225e94972d2e087716948d18b4928e495",
-      "bytes": 6543,
+      "sha256": "8cbd21e931713cf6d5be2d92931ee8de765db45e48323e56a90bcc6e6418945a",
+      "bytes": 6718,
       "ignored": false
     },
     {
@@ -1872,26 +1890,26 @@
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
-      "sha256": "ba21acef44dbbc0bfe08ea34c397fed6e4b315f4c991ab2c6e607468f4a41a0a",
-      "bytes": 402373,
+      "sha256": "e5115d43dc72d28c660fc07439fadceb79b2ed863e1b2eeb997179d933305e3a",
+      "bytes": 402513,
       "ignored": false
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
-      "sha256": "055591493896f69079981ac745bb4aabb154f7c6254a6db6aea5c9acc147432a",
-      "bytes": 59113,
+      "sha256": "29cd16d367725dceaf25609efd884df52f3557e22d1622ba6b97132bf8e9a8a9",
+      "bytes": 59270,
       "ignored": false
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/runbook.md",
-      "sha256": "b09493e664734b3e4de11f698f44e19b899aebe65cc844ef2f00a751f75dc64d",
-      "bytes": 21059,
+      "sha256": "03f8a5febcded70b2d594ff3f2cb6f701317ed0c614b2281e047f0a1b94ffd14",
+      "bytes": 21604,
       "ignored": false
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/tasks.md",
-      "sha256": "1e253edb69fc4a2a97542322aee3db4a6e3faebb166c9e6921298fca1a4ecb16",
-      "bytes": 87374,
+      "sha256": "a3235570c39dc4162f1f88a35ca2877efeb3bf2e42f58d61dcd8ff45f0c34e1c",
+      "bytes": 87769,
       "ignored": false
     },
     {

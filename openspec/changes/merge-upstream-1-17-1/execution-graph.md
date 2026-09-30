@@ -27,7 +27,7 @@ flowchart LR
  N10 --> N06
 ```
 
-当前38节点机器汇总为25 passed /2 blocked /11 pending；历史源码门槛不撤销，新增 N07–N10 记录每次修复的最新候选。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；本地必测子检查已全部通过；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面刷新因desktop锁屏尚未验，不复用历史N08UI称latestUI。原center组件读回和恢复选定HEAD445d绑定已实际通过；提交/tag事实待本轮最后显式留档。外部11子检查（含generated Agent实际run/tool）和旧版本升级/恢复、生产门槛保留；新节点不将原blocked/pending改成虚假passed。
+当前38节点机器汇总为25 passed /2 blocked /11 pending；历史源码门槛不撤销，新增 N07–N10 记录每次修复的最新候选。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；本地必测子检查已全部通过；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面刷新因desktop锁屏尚未验，不复用历史N08UI称latestUI。原center组件读回和恢复选定HEAD445d绑定已实际通过；源提交ee72b000与历史引用修补e91c4d89已完成，cleanarchive静态检查通过后code-ready tag `fork-merged-1.17.1` 指e91c4d89；R02实际结果/log记录是随后docs提交，不重指tag。外部11子检查（含generated Agent实际run/tool）和旧版本升级/恢复、生产门槛保留；新节点不将原blocked/pending改成虚假passed。
 
 ## 依赖图
 

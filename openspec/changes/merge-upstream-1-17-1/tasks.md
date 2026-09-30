@@ -260,7 +260,7 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 - [ ] 22.1 [R02] 核验 M01 已对齐的版本字段，更新十挂点新坐标、运行手册、AGENTS baseline 与所有验证证据；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 22.2 [R02] 修订旧强制WebApp登录/旧migration018/旧前端路径；P4/P6仅标后续重定基线；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 22.3 [R02] 根据 V03–V06 实际结果定稿此前演练使用的环境操作草案，填 runbook 环境表、备份恢复命令、镜像 digest、维护窗口与阈值；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 22.4 [R02] 提交本轮明确路径；code候选通过后生成 fork-merged-1.17.1 留档tag，不覆盖已有tag；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 22.4 [R02] 提交本轮明确路径；code候选通过后生成 fork-merged-1.17.1 留档tag，不覆盖已有tag；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 22.5 [R02] 源码或依赖若在文档收尾变化，返回对应验证节点；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 22.6 [R02] 节点验收：可执行环境包无占位符，演练证据完整；tag对应已验证代码，明确不代表生产已上线；保存绑定版本的证据并更新节点状态。
 
@@ -413,3 +413,5 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 O02完整原requirements收尾更正：本地无模型metadata/files/JWE、HumanInput、collaboration、selected关闭archive均通过，但真实generated Agent run/tool未验，实测AGENT_SHELL_ENABLED=true。30.26 whole保留未完成；新增外部required O02.generated_agent_run_tool_selected_layers（合法isolated模型/tool支持/小成本budget及Agent配置），不能用配置manifest200替代真实运行。外部现11子项/10场景，本地缺口仍0。
 
 最终原candidate子gate：29.4/32.3/33.3源码、标准HEAD-lock445d镜像、独立真实runtime以及原三服务/loadedcenter组件和克隆选定读回通过（N06两份finalproof）。32.3用户中心部分仅componentlist/detail，最新浏览器因desktop锁屏未刷新，不声明latestUI；N06显式currentUIcondition保留，整体29.8/原V06/生产仍未完成。
+
+R02事实：源ee72b000，历史引用docs修补e91c4d89，cleanarchive55source+HEAD842/reference/strict通过；annotated fork-merged-1.17.1指e91c4d89不覆盖。22.4完成，R02整体V03-V06/当前UI/11外部与生产条件未过；后续仅结果日志docscommit不移动tag。原始proof尾空格保留，editable源码/doccheck通过，不能报告包含rawproof的whitespace全通过。

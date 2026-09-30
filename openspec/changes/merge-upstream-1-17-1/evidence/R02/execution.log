@@ -1,0 +1,11 @@
+R02 actual local delivery, 2026-09-30
+Exact334path stage:55source+278docs/proofs+manifest;14ignoredproof logs.
+Initial full raw-including whitespace checkexit2 from captured traceback/browser/patch whitespace; validationrecord not generated, shell nextline still committed. This sequencing error is recorded, not reported as checkpass.
+Actualee72 commit:334path exactexpected,55source+278docs hashes byteequal, editable source/docs whitespace checkexit0. Raw proof bytes retained.
+Source implementation ee72b000d076449dc0cbd5ccb7fb92c4fb7b017c.
+Initial cleanarchive referenceexit1: one preexisting originalM08ignoredstructural.log missing. Exact3docs safe historical repair e91c4d89fc6090ebd339acaf9be5ce853c29f544. Productsource unchanged.
+Final ordinarygit archive:55sourcehash+HEAD842lock/referenceexit0/OpenSpecstrictexit0. No branch/worktree.
+Annotated fork-merged-1.17.1 created only if absent, target e91c4d89fc6090ebd339acaf9be5ce853c29f544. No force/push.
+HEADlock445d image bound by55sourcehash+HEAD842lock; COMMIT_SHA953 archivebase only.
+Actualsource/runtime/component/currentrestore passed; latestUI desktopcondition,11external/oldinstall/production unpassed.
+Subsequentcommit sequencing uses check=True. Following docs-only result/log commit leaves tag unchanged, no selfcommit embedded.
