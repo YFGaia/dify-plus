@@ -1,0 +1,112 @@
+{
+  "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+  "prior_context_manifest_sha256": "1a805b0ebc293f756959609fa21062bf473dac13cc06408b7a3b3a301eecb3d8",
+  "overlay_count": 17,
+  "overlays": [
+    {
+      "path": "api/controllers/console/apikey.py",
+      "sha256": "d7de964844e9adb4e4a6b7befcf25ace3062bc4058624530ccb79978b7eb2ccb"
+    },
+    {
+      "path": "api/events/event_handlers/__init__.py",
+      "sha256": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8"
+    },
+    {
+      "path": "api/events/event_handlers/create_app_statistics_when_app_created_extend.py",
+      "sha256": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba"
+    },
+    {
+      "path": "api/models/model_extend.py",
+      "sha256": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190"
+    },
+    {
+      "path": "api/services/installed_app_service.py",
+      "sha256": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b"
+    },
+    {
+      "path": "api/services/recommended_app_service_extend.py",
+      "sha256": "ccfb4524e7790b740ba10bd484a63b0bbca8756006dcc89a657f0fe997bb9cb8"
+    },
+    {
+      "path": "api/services/system_manage_extend.py",
+      "sha256": "1cf69052a66dc6f681899dffe24d9cd12eee8ab93e88e9825bcef3e881cbd12e"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_apikey_quota_serialization_extend.py",
+      "sha256": "b9880a010b2eccf10b32850a4e7ec701332ed01bbb176a851e5b2af126a9a622"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_system_manage_extend.py",
+      "sha256": "8fc9fd897e8950a7126968731f27539271761a933c5a3f816e7b99ad1af6c6fb"
+    },
+    {
+      "path": "api/tests/unit_tests/events/test_app_statistics_extend.py",
+      "sha256": "856fcf4a6b4ed85c9cef5d2f051e0a19f35be52107c0cffc23d80dcab98d534c"
+    },
+    {
+      "path": "api/tests/unit_tests/models/test_model_extend_uuid_defaults.py",
+      "sha256": "ca89fd7377bf776f5e3da3caa2b617f70179acd06c27c91fad02040dd0f1feb0"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_app_center_extend.py",
+      "sha256": "4e6e1e770a8505f750979598de032602e7b707262fccb315185d57e667a0dae1"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_quota_manage_pagination_extend.py",
+      "sha256": "97145c114e9189237492e0c75fdc456bd708d8aa78fed101c75fd9497a8f298c"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_quota_manage_upsert_extend.py",
+      "sha256": "3d7a0d682f52bbc12fff859ab4c35b7a753d7eadbc3d4dcd68d23a7b1bdab32d"
+    },
+    {
+      "path": "api/uv.lock",
+      "sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57"
+    },
+    {
+      "path": "api/controllers/web/wraps.py",
+      "sha256": "96830ac4c86f7a630412b6586d601bfed9a2fed57b5623a5b86c057b41241f30"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/web/test_webapp_passport_scope_extend.py",
+      "sha256": "6170851117e29b09be05450e49ff184c14ec513f5b5462087479522696ecb3ec"
+    }
+  ],
+  "docker_context": "/private/tmp/difyplus-acceptance-api-20260930/final-context-n08",
+  "context_manifest_sha256": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6",
+  "file_count": 4317,
+  "uv_lock_sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+  "production_dockerfile": "api/Dockerfile",
+  "manifest_algorithm": "SHA256 sorted path + NUL + file SHA256 + LF records",
+  "note": "N07 complete source set plus frozen N08 web-app passport-scope guard and focused regression test; copied into a new context to preserve prior build contexts.",
+  "image": {
+    "tag": "difyplus-acceptance-api:953cf1c-n08-d431d0a6",
+    "id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+    "platform": "linux/arm64",
+    "dockerfile": "api/Dockerfile",
+    "temporary_dependency_seed_used": false
+  },
+  "image_path_verification": {
+    "production_paths_and_lock": {
+      "api/controllers/console/apikey.py": "d7de964844e9adb4e4a6b7befcf25ace3062bc4058624530ccb79978b7eb2ccb",
+      "api/events/event_handlers/__init__.py": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8",
+      "api/events/event_handlers/create_app_statistics_when_app_created_extend.py": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba",
+      "api/models/model_extend.py": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190",
+      "api/services/installed_app_service.py": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b",
+      "api/services/recommended_app_service_extend.py": "ccfb4524e7790b740ba10bd484a63b0bbca8756006dcc89a657f0fe997bb9cb8",
+      "api/services/system_manage_extend.py": "1cf69052a66dc6f681899dffe24d9cd12eee8ab93e88e9825bcef3e881cbd12e",
+      "api/uv.lock": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+      "api/controllers/web/wraps.py": "96830ac4c86f7a630412b6586d601bfed9a2fed57b5623a5b86c057b41241f30"
+    },
+    "all_match_manifest": true,
+    "owned_production_path_count": 8,
+    "lock_file_verified": true,
+    "unit_test_paths_excluded_by_dockerignore": 8,
+    "dify_agent": {
+      "version": "1.17.1",
+      "installed_module": "/app/api/.venv/lib/python3.12/site-packages/dify_agent/__init__.py",
+      "editable": false
+    },
+    "uv_sync": "canonical Dockerfile `uv sync --frozen --no-dev --no-editable`; dependency layers were cache hits"
+  }
+}

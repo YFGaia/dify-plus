@@ -1,0 +1,143 @@
+{
+  "verdict": "passed",
+  "final_http_identity_and_protection": [
+    {
+      "actor": "owner",
+      "status": 200,
+      "tenant_a": true,
+      "expected_role": true
+    },
+    {
+      "case": "shared_socket_audit_app",
+      "status": 200,
+      "id_matches": true
+    },
+    {
+      "case": "human_input_app",
+      "status": 200,
+      "id_matches": true
+    },
+    {
+      "actor": "admin",
+      "status": 200,
+      "tenant_a": true,
+      "expected_role": true
+    }
+  ],
+  "product_delete_async_cases": [
+    {
+      "case": "admin_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "owner_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "agent_before_delete",
+      "manifest_status": 200,
+      "files_status": 200
+    },
+    {
+      "case": "admin_switch_b",
+      "status": 200
+    },
+    {
+      "case": "admin_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "product_delete_b_app",
+      "status": 204
+    },
+    {
+      "case": "deleted_b_app_readback",
+      "status": 404
+    },
+    {
+      "case": "product_delete_b_dataset",
+      "status": 204
+    },
+    {
+      "case": "deleted_b_dataset_readback",
+      "status": 404
+    },
+    {
+      "case": "admin_restore_a",
+      "status": 200
+    },
+    {
+      "case": "admin_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "owner_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "product_delete_agent",
+      "status": 204
+    },
+    {
+      "case": "agent_deleted_readback",
+      "status": 404
+    },
+    {
+      "case": "async_app_cleanup_readback",
+      "all_owned_product_rows_absent": true,
+      "agent_archived_by_product": false
+    }
+  ],
+  "exact_residue_cleanup": {
+    "verdict": "passed",
+    "exact_owned_b_residue_count": 0,
+    "exact_owned_upload_rows": 0,
+    "account_quota_unchanged": true,
+    "quota_baseline_scope": "post-product-deletes to final residue cleanup only; earlier pre-product baseline was not persisted",
+    "initial_a_memberships_restored": true,
+    "failure_transaction_rollback_previously_verified": true,
+    "agent_and_draft_removed_by_product_async_collector": true,
+    "blob_exact_owned_delete_evidence": "owned-upload-blob-cleanup.json",
+    "sql_only_explicit_owned_ids": true,
+    "parse_retry_read_only": true
+  },
+  "blob_cleanup": {
+    "only_exact_owned_upload_key": true,
+    "before_blob_present": true,
+    "after_blob_absent": true,
+    "storage_kind": "opendal",
+    "scheme": "fs"
+  },
+  "source_changes": false,
+  "shared_human_input_and_socket_apps_preserved": true,
+  "original_user_data_and_accounts_not_modified": true,
+  "earlier_helper_failures": [
+    {
+      "kind": "private manifest nested-field schema",
+      "writes": false
+    },
+    {
+      "kind": "heavy migration-app baseline import timeout",
+      "writes": false
+    },
+    {
+      "kind": "draft-existence assertion after successful async product collector",
+      "transaction_rollback_verified": true
+    },
+    {
+      "kind": "multi-line psql JSON parse",
+      "corrected_read_only_retry": true
+    }
+  ],
+  "quota_baseline_limitation": "Only post-product-deletes to final residue phase was persisted and compared. No claim that an unsaved pre-product snapshot proves equality."
+}

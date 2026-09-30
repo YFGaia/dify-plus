@@ -1,0 +1,17 @@
+{
+  "node": "N07",
+  "status": "source_freeze_and_independent_reviews_passed; fullimage_affected_live_pending",
+  "context_manifest_sha256": "1a805b0ebc293f756959609fa21062bf473dac13cc06408b7a3b3a301eecb3d8",
+  "file_count": 4316,
+  "overlay_count": 15,
+  "owned_overlay_count_excluding_preserved_uvlock": 14,
+  "verified_unmodified_base_blobs": 4300,
+  "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+  "all_overlay_hashes_match_current_and_context": true,
+  "reviews": [
+    "evidence/N07/independent-pagination-source-review.json",
+    "evidence/N07/independent-apikey-numeric-source-review.json"
+  ],
+  "historical_source_context3c_intact": "runtime independently recomputed oldcontext3c unchanged; old manifests preserved",
+  "source_behavior_boundary": "only sameused deterministic tie and quotaJSON numeric validation; DBschema/billing/permissions unchanged"
+}

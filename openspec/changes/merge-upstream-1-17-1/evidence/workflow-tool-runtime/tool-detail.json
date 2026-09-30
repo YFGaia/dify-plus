@@ -1,0 +1,92 @@
+{
+  "name": "acceptance_marker_echo_20260930",
+  "label": "Acceptance Marker Echo",
+  "workflow_tool_id": "14965c4b-9654-4ee9-b6df-ea0a61e5c58d",
+  "workflow_app_id": "352b9c1f-e947-45d1-a6d1-55ed148cea2c",
+  "icon": {
+    "background": "#FFEAD5",
+    "content": "\ud83d\udd27"
+  },
+  "description": "Echo a synthetic acceptance marker without external services",
+  "parameters": [
+    {
+      "name": "marker",
+      "description": "Acceptance marker setting",
+      "form": "form"
+    }
+  ],
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "marker": {
+        "type": "string",
+        "description": ""
+      }
+    }
+  },
+  "tool": {
+    "author": "Acceptance Owner",
+    "name": "acceptance_marker_echo_20260930",
+    "label": {
+      "en_US": "Acceptance Marker Echo",
+      "zh_Hans": "Acceptance Marker Echo",
+      "pt_BR": "Acceptance Marker Echo",
+      "ja_JP": "Acceptance Marker Echo"
+    },
+    "description": {
+      "en_US": "Echo a synthetic acceptance marker without external services",
+      "zh_Hans": "Echo a synthetic acceptance marker without external services",
+      "pt_BR": "Echo a synthetic acceptance marker without external services",
+      "ja_JP": "Echo a synthetic acceptance marker without external services"
+    },
+    "parameters": [
+      {
+        "name": "marker",
+        "label": {
+          "en_US": "Acceptance marker",
+          "zh_Hans": "Acceptance marker",
+          "pt_BR": "Acceptance marker",
+          "ja_JP": "Acceptance marker"
+        },
+        "placeholder": {
+          "en_US": "",
+          "zh_Hans": "",
+          "pt_BR": "",
+          "ja_JP": ""
+        },
+        "scope": null,
+        "auto_generate": null,
+        "template": null,
+        "required": true,
+        "default": null,
+        "min": null,
+        "max": null,
+        "precision": null,
+        "options": [],
+        "type": "string",
+        "multiple": false,
+        "human_description": {
+          "en_US": "Acceptance marker setting",
+          "zh_Hans": "Acceptance marker setting",
+          "pt_BR": "Acceptance marker setting",
+          "ja_JP": "Acceptance marker setting"
+        },
+        "form": "form",
+        "llm_description": "Acceptance marker setting",
+        "input_schema": null
+      }
+    ],
+    "labels": [],
+    "output_schema": {
+      "type": "object",
+      "properties": {
+        "marker": {
+          "type": "string",
+          "description": ""
+        }
+      }
+    }
+  },
+  "synced": true,
+  "privacy_policy": ""
+}

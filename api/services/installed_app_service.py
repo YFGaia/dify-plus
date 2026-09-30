@@ -94,6 +94,11 @@ def _filter_rows_by_webapp_auth(
 
 
 class InstalledAppService:
+    @staticmethod
+    def published_app_filter():
+        """Share the installed WebApp availability policy with the fork app center."""
+        return _published_app_filter()
+
     @classmethod
     def get_visible_page(
         cls,

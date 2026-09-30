@@ -1,10 +1,33 @@
 # 可执行合并 DAG
 
-> 当前状态以 execution-graph.json 为准：原候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` 已通过 M08/V01/V02/R01 源码门槛。本轮用户收敛为全新安装；后续源码修复 `9fcc542afb` 已通过31项定向检查、独立PG15.12/MySQL8.0.46双链及额度ORM插入/rollback，验证使用原镜像加精确只读source overlay。本地工作流WebSocket worker及缺失Celery消费者已补齐，遮罩和真实点击恢复；DeepSeek最新请求返回OK、49 tokens、账号归因正确，内部记录价格0USD，正向非零价格扣费未验。旧3条debug任务可逆暂存，未永久删除。详见tasks28.x及evidence/V03、V05。修复发布镜像、其余全新安装业务矩阵仍待执行；历史数据迁移兼容按用户要求后续单独验证，原升级/生产门槛保持未通过。
+> 当前状态：原27节点16 passed、2 blocked、9 pending；历史源码候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` 的M08/V01/V02/R01通过有效，但修复源码和运行验收不能整体复用该结论。当前审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39`；28.x已修复空库方言/额度ORM并以旧镜像加精确source overlay验证PG/MySQL，真实DeepSeek返回OK/49 tokens，price0USD未证明扣费。已发布且已安装应用中心遗漏由N01显式修复。完整修复镜像、全部适用真实业务验收与本地恢复由N02–N06持续推进。
 
-## 本轮全新安装范围与优先项
+## 当前本地新安装完成目标
 
-用户已明确历史数据库迁移兼容后续单独验证，本轮先验全新安装。已创建持续目标及 [执行计划](evidence/continuation-plan-2026-09-30.md)，追加 tasks 28.1–28.4。Sol 6.1 子代理已修复 `127.0.0.1:23000` 卡顿：测试API使用WebSocket worker，101握手、遮罩消失和实际点击通过；证据见 `evidence/V05/28.5-workflow-interaction-recovery.md`。空 MySQL 方言兼容修复和31项定向测试已完成，Luna正在验证新空PostgreSQL/MySQL双链。DeepSeek凭据已由当前tenant数据库计数确认存在，Luna正在进行最小真实调用和额度对账。旧候选的 passed 记录只适用于其原始快照，修改后的迁移候选尚未验收；存量/生产 DAG 门槛保持未通过，不阻塞单独记录本轮的新安装测试结果。
+[本轮逐节点审计](evidence/merge-completion-audit-2026-09-30.md)、[完整29场景台账](acceptance-ledger-2026-09-30.md)与tasks29/30为当前调度入口。历史数据库/旧向量升级和旧版恢复按既有用户决定后续单验；生产授权仍独立。这些延期不能延后当前可执行的用户功能验收。
+
+```mermaid
+flowchart LR
+ N00[审计与台账] --> N01[修复已安装发布应用遗漏]
+ N00 --> N02[冻结候选和受影响源码回归]
+ N01 -. 稳定源码里程碑 .-> N02
+ N02 --> N03[完整镜像和本地容器更新]
+ N03 --> N04[空PG/MySQL与知识库/运行闭环]
+ N04 --> N05[业务权限和非零计费矩阵]
+ N01 --> N05
+ N03 --> N07[额度分页和Key数字契约最新候选]
+ N07 --> N05
+ N05 --> N06[本地恢复和交付包]
+ N07 --> N06
+ N08[签名App scope] --> N09[Context UUID兼容]
+ N09 --> N10[provider完整安装]
+ N09 --> N05
+ N10 --> N05
+ N09 --> N06
+ N10 --> N06
+```
+
+当前38节点机器汇总为25 passed /2 blocked /11 pending；历史源码门槛不撤销，新增 N07–N10 记录每次修复的最新候选。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；本地必测子检查已全部通过；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面刷新因desktop锁屏尚未验，不复用历史N08UI称latestUI。原center组件读回和恢复选定HEAD445d绑定已实际通过；提交/tag事实待本轮最后显式留档。外部11子检查（含generated Agent实际run/tool）和旧版本升级/恢复、生产门槛保留；新节点不将原blocked/pending改成虚假passed。
 
 ## 依赖图
 
@@ -712,3 +735,18 @@ pnpm --dir web build:vinext
 - 任何恢复后的新写入损失按RPO记录，绝不自动删除旧快照
 
 证据：`evidence/D04/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+
+## N00–N06 当前节点
+
+详见execution-graph.json完整steps/acceptance、tasks29和逐场景台账。每次完成绑定当前源码/镜像及实际运行证据；修复代码使受影响证据失效，按hash复用未改变部分。N06通过才可报告已授权本地新安装范围完成；原生产/历史升级尚未通过时不能报告原合并DAG全部完成。
+
+
+N02仅消费N01已通过的源码里程碑（六文件manifest、52定向测试、独立review），不等待依赖新镜像的N01真实页面最终验收；N05汇总要求N01最终通过。避免以源码passed冒充用户页面passed或造成镜像/页面循环等待。
+
+
+## 最新N07候选关闭
+
+15路径完整context `1a805b0e…eecb3d8`、canonical API镜像 `51347867…108619`已满足N07独立源码/完整镜像/同used分页UI编辑读回恢复/Key JSON number、默认-1与7位精度实际验收。N02/N03旧3c历史证据保留；当前交付以N07最新镜像为准。其余本地矩阵和N06原23000/一致恢复仍pending。详见 `evidence/N07/result.json`。
+
+N09新增confirmed Context varchar/UUID类型门槛：源码review及80focused通过，canonical新镜像/PGMySQL真实正向与跨租户读删/原23000最新交付仍pending。N08历史passed、N06一致快照两clone/API恢复passed保留。N05/N06最终依赖N09。

@@ -1,0 +1,13 @@
+{
+  "verdict": "passed",
+  "exact_owned_b_residue_count": 0,
+  "exact_owned_upload_rows": 0,
+  "account_quota_unchanged": true,
+  "quota_baseline_scope": "post-product-deletes to final residue cleanup only; earlier pre-product baseline was not persisted",
+  "initial_a_memberships_restored": true,
+  "failure_transaction_rollback_previously_verified": true,
+  "agent_and_draft_removed_by_product_async_collector": true,
+  "blob_exact_owned_delete_evidence": "owned-upload-blob-cleanup.json",
+  "sql_only_explicit_owned_ids": true,
+  "parse_retry_read_only": true
+}

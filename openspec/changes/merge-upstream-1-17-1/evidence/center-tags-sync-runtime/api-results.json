@@ -1,0 +1,149 @@
+{
+  "scope": "B08 workflow ServiceAPI noLLM run and F01/F02 tags/publish/sync/cancel/refetch actual APIs",
+  "image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/apps/c8af11f7-885a-454b-bcc2-181025ace644/workflows/publish",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/workflows/draft",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/workflows/publish",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "http://localhost:25442/v1/workflows/run",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys/2f73ce94-8dd3-47ad-ab11-0c64d98bc13b",
+      "status": 204
+    },
+    {
+      "method": "GET",
+      "path": "/workspaces/current/summary",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/tags",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/tags",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/tag-bindings",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/sync",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/installed-apps",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/installed-apps?app_id=507d0a6b-9504-4266-8f05-630a50846f2c",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/installed/apps",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/installed-apps?name=Acceptance%20API%20Key",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/workspaces/current/summary",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/sync",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/sync",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/sync",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/explore/apps?language=zh-Hans",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/sync",
+      "status": 200
+    }
+  ],
+  "secrets_printed_or_persisted": false,
+  "service_workflow": {
+    "key_id": "2f73ce94-8dd3-47ad-ab11-0c64d98bc13b",
+    "workflow_run_id": "a4b48e02-6d1a-4200-a164-a02fcf1ad136",
+    "task_id_present": true,
+    "status": "succeeded",
+    "total_tokens": 0,
+    "outputs": {
+      "result": "acceptance-key-workflow-no-llm-20260930"
+    }
+  },
+  "service_key_deleted": true,
+  "owner_summary": {
+    "role": "owner",
+    "admin_extend": true,
+    "tenant_extend": true
+  },
+  "tagged_center": {
+    "categories": [
+      "AcceptanceCategoryA",
+      "AcceptanceCategoryB"
+    ],
+    "installed_ids": [
+      "798a4934-52c1-417c-af13-abf7b53c14bf",
+      "798a4934-52c1-417c-af13-abf7b53c14bf"
+    ],
+    "app_record_count": 2
+  },
+  "actual_installed_name_search": true,
+  "member_summary": {
+    "role": "normal",
+    "admin_extend": false,
+    "tenant_extend": true
+  },
+  "ordinary_member_sync_cancel_denied": true,
+  "cancel_recommended_list_refetch_absent": true,
+  "resync_after_cancel_200": true,
+  "test_script_corrections": "Initial401 canonical cookie export stale, refreshed by sole authwriter; subsequent draft400 used old unsupported environment_variables field (extra forbidden), removed before first successful write; both tooling/fixture errors, no product regression established"
+}

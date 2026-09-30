@@ -1,0 +1,23 @@
+{
+  "realUI": true,
+  "initial": {
+    "status": 200,
+    "auth": true,
+    "site_enabled": true,
+    "retention": null
+  },
+  "disabled": {
+    "status": 200,
+    "auth": true,
+    "site_enabled": false,
+    "retention": null
+  },
+  "restored": {
+    "status": 200,
+    "auth": true,
+    "site_enabled": true,
+    "retention": null
+  },
+  "eachReload": true,
+  "restoredInitialState": true
+}

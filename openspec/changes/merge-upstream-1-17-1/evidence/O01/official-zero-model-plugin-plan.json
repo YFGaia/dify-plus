@@ -1,0 +1,24 @@
+{
+  "status": "source_contract_verified_not_installed_or_executed",
+  "candidate_plugin_id": "langgenius/maths",
+  "official_sources": [
+    "https://github.com/langgenius/dify-official-plugins/tree/main/tools/maths",
+    "https://raw.githubusercontent.com/langgenius/dify-official-plugins/main/tools/maths/manifest.yaml",
+    "https://raw.githubusercontent.com/langgenius/dify-official-plugins/main/tools/maths/provider/maths.yaml",
+    "https://raw.githubusercontent.com/langgenius/dify-official-plugins/main/tools/maths/tools/eval_expression.py",
+    "https://raw.githubusercontent.com/langgenius/dify-official-plugins/main/tools/maths/tools/eval_expression.yaml",
+    "https://raw.githubusercontent.com/langgenius/dify-official-plugins/main/tools/maths/provider/maths.py"
+  ],
+  "verified_contract": "Official tool eval_expression executes local numexpr with expression. Minimal arithmetic1+2 no external credential/model invocation. Manifest model permission alone does not imply operation calls model.",
+  "release_identity_rule": "Use actual official marketplace batch response active/org/name/latest_package_identifier and verified declaration. Do not guess versionhash or install source branch. Baseline existinginstallation must be recorded and only newly-owned fixture removed.",
+  "steps": [
+    "product owner marketplacepackage fetch/install",
+    "actual daemon registry/distribution installationtask identity",
+    "actual Start/Tool/End noLLM execution output3/zero tokens",
+    "uninstall only owned installation and readback absent"
+  ],
+  "acceptance_boundary": "Proves enabled plugin operation/identity for current O01; not modelprovider/embedding/businesscharge proof.",
+  "owner": "app_center product install/workflow; runtime daemon identity; audit contract/review",
+  "credential_validator": "Actual official MathsProvider._validate_credentials no-op; operation uses localNumExpr.",
+  "alternative_authorized_component": "Original real published workflow configuredLLM via ModelManager/ModelInstance/plugin daemon tinycomponentcall; legitimateexistingownerchain/configdecryption stayinsidecontainer. ProvesO01 only, notConsoleAppAPI/B08fee."
+}

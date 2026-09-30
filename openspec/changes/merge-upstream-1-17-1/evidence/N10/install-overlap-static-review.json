@@ -1,0 +1,58 @@
+{
+  "scope": "lock/source static relationship only; actual installed overlapping-module contents/imports pending runtime check",
+  "existing_duplicate_distributions": {
+    "typer": {
+      "current": [
+        "0.16.1"
+      ],
+      "HEAD": [
+        "0.16.1"
+      ],
+      "required_by": [
+        "chromadb",
+        "huggingface-hub",
+        "transformers"
+      ]
+    },
+    "pypandoc-binary": {
+      "current": [
+        "1.17"
+      ],
+      "HEAD": [
+        "1.17"
+      ],
+      "required_by": []
+    },
+    "typer-slim": {
+      "current": [
+        "0.21.2"
+      ],
+      "HEAD": [
+        "0.21.2"
+      ],
+      "required_by": [
+        "spacy",
+        "weasel"
+      ]
+    },
+    "pypandoc": {
+      "current": [
+        "1.17"
+      ],
+      "HEAD": [
+        "1.17"
+      ],
+      "required_by": [
+        "graphon"
+      ]
+    }
+  },
+  "provider_package_discovery": {
+    "count": 38,
+    "find_where": [
+      "src"
+    ],
+    "root_tests_outside_discovery": true
+  },
+  "boundary": "warnings alone neither failure nor assurance of correct imports; runtime must inspect wheel RECORD ownership/content hashes and import identities"
+}

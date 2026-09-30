@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=80.10.2,<81"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "dify-vdb-weaviate"
 version = "0.0.1"

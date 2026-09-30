@@ -1,0 +1,154 @@
+{
+  "date": "2026-09-30",
+  "status": "original_23000_final_n08_candidate_updated_and_application_center_passed",
+  "project": "difyplus-upstream1171-quota-selftest-20260930",
+  "original_url": "http://127.0.0.1:23000/explore/apps-center-extend",
+  "candidate": {
+    "tag": "difyplus-acceptance-api:953cf1c-n07-k01-1a805b0e",
+    "image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619",
+    "platform": "linux/arm64",
+    "source_context_sha256": "1a805b0ebc293f756959609fa21062bf473dac13cc06408b7a3b3a301eecb3d8"
+  },
+  "services_updated": [
+    "api",
+    "worker",
+    "worker-gaia"
+  ],
+  "service_readback": {
+    "api_image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619",
+    "api_health": "healthy",
+    "api_health_response": {
+      "status": "ok",
+      "version": "1.17.1"
+    },
+    "api_mode": "api",
+    "api_migration_enabled": false,
+    "api_websocket_worker_class_preserved": "geventwebsocket.gunicorn.workers.GeventWebSocketWorker",
+    "workflow_worker": {
+      "state": "running",
+      "queues": [
+        "workflow_based_app_execution"
+      ],
+      "migration_enabled": false
+    },
+    "gaia_worker": {
+      "state": "running",
+      "queues": [
+        "extend_high",
+        "extend_low"
+      ],
+      "migration_enabled": false,
+      "host_ports": []
+    },
+    "storage_volume_matches_original_api": true,
+    "database_names_match_original_api": true,
+    "web_database_plugin_redis_and_storage_services_updated": false,
+    "socket_io_websocket_handshake": "open",
+    "original_url_http_status": 307
+  },
+  "application_center": {
+    "card_visible_in_ego_taskspace_9_p1": true,
+    "card_title": "Quota smoke chat",
+    "installed_app_id": "852bfb81-92e9-4f24-8487-e1a64b664391",
+    "app_id": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+    "installed_apps_api_status": 200,
+    "installed_apps_api_count": 1,
+    "card_opened": true,
+    "opened_route": "/installed/852bfb81-92e9-4f24-8487-e1a64b664391",
+    "model_invocation_performed": false
+  },
+  "database_readback": {
+    "actual_databases": [
+      "dify",
+      "dify_plugin"
+    ],
+    "upstream_head": "c3f1a9b2e6d4",
+    "extension_head": "020_workflow_run_account",
+    "accounts": 1,
+    "apps": 1,
+    "installed_apps": 1,
+    "app_statistics_extend_rows": 0,
+    "published_app": {
+      "name": "Quota smoke chat",
+      "mode": "advanced-chat",
+      "status": "normal"
+    },
+    "preexisting_missing_statistics_condition_preserved": true,
+    "runbook_known_hold_queue_length_checked": 0
+  },
+  "rollback_backup": {
+    "private_directory": "/private/tmp/difyplus-original-23000-backup-20260930",
+    "directory_mode": "0700",
+    "file_mode": "0600",
+    "contents": [
+      "two PostgreSQL custom dumps",
+      "original Redis RDB",
+      "original API storage tar",
+      "old API image tar",
+      "four original Compose layers and environment file"
+    ],
+    "checks": {
+      "postgres_dumps_pg_restore_list": "passed",
+      "redis_rdb_check": "passed",
+      "storage_tar_list": "passed",
+      "sha256_manifest": "passed"
+    },
+    "public_backup_hashes": {
+      "dify.dump": "12c474c79084bf624897a3ebcfce98dc85bc19688d9c921fd9514fea2fd814bf",
+      "dify_plugin.dump": "549e74d2ce9356ffedbe992f69be78b59e90a4d6b288b48187a2326ae388016a",
+      "redis-dump.rdb": "d979b97d8940a27ed090251d694e340d6a40cd69f94e67de0372da8b6e1a63c2",
+      "storage.tar.gz": "008879b53b6e5fe0ee7f2d9da0779472960cb862c33db66afc0a51ff94eb90d7",
+      "old-api-image.tar": "d129ea083f36bddde9f6f1f932427bd77568251a1e055a1319c63dc4d3e0b902"
+    },
+    "rollback_image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+    "private_env_hash_deliberately_omitted": true
+  },
+  "remaining_gate": "Source/image N08 and original user URL center issue are closed locally; other matrix gates including provider-dependent embedding/nonzero billing and independent restore validation remain tracked separately.",
+  "final_candidate": {
+    "tag": "difyplus-acceptance-api:953cf1c-n08-d431d0a6",
+    "image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+    "platform": "linux/arm64",
+    "source_context_sha256": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6",
+    "evidence": "../N08/source-build-manifest.json"
+  },
+  "final_service_readback": {
+    "services_updated": [
+      "api",
+      "worker",
+      "worker-gaia"
+    ],
+    "all_same_final_image": true,
+    "api_health_http": 200,
+    "api_health_response": {
+      "status": "ok",
+      "version": "1.17.1"
+    },
+    "websocket_service_recreated": false,
+    "web_container_recreated": false,
+    "databases_redis_plugin_storage_unchanged": true
+  },
+  "final_application_center": {
+    "url": "http://127.0.0.1:23000/explore/apps-center-extend",
+    "taskspace_page": "9/p1",
+    "card_visible": true,
+    "card_title": "Quota smoke chat",
+    "card_opened": true,
+    "opened_route": "/installed/852bfb81-92e9-4f24-8487-e1a64b664391",
+    "loaded_chat_ui": true,
+    "new_model_request_sent": false,
+    "installed_apps_api": {
+      "status": 200,
+      "count": 1,
+      "app_name": "Quota smoke chat"
+    },
+    "browser_returned_to_center": true
+  },
+  "final_database_readback": {
+    "upstream_head": "c3f1a9b2e6d4",
+    "accounts": 1,
+    "apps": 1,
+    "installed_apps": 1,
+    "app_statistics_extend_rows": 0,
+    "preexisting_missing_statistics_condition_preserved": true
+  }
+}

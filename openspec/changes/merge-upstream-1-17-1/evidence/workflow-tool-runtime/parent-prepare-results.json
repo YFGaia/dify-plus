@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/apps",
+    "status": 201
+  },
+  {
+    "path": "/apps/2853c549-8670-4a6d-81e8-866eb1f8f049/workflows/draft",
+    "status": 200
+  },
+  {
+    "path": "/apps/2853c549-8670-4a6d-81e8-866eb1f8f049/workflows/draft",
+    "status": 200
+  },
+  {
+    "path": "/apps/2853c549-8670-4a6d-81e8-866eb1f8f049/workflows/draft/run",
+    "status": 200
+  }
+]

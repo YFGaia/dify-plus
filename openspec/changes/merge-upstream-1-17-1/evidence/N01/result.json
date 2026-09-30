@@ -1,0 +1,10 @@
+{
+  "node": "N01",
+  "status": "passed",
+  "scope": "source +canonical3c actualAPI lifecycle/missingstats visibility +actualbrowser cards/open; F01fullmatrix andoriginal23000N06 separate",
+  "evidence": [
+    "evidence/N01/published-app-missing-stats-runtime-2026-09-30.json",
+    "evidence/role-permissions-runtime/final-role-results.md"
+  ],
+  "auth_observation": "MissingCSRFheader explains reproducedowner401; addingstandardheader returns200. No confirmedsessionrotation defect."
+}

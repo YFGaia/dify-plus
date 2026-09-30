@@ -1,0 +1,159 @@
+{
+  "date": "2026-09-30",
+  "result": "updated_and_healthy; original_application_center_UI_proof_from_N08_retained",
+  "project": "difyplus-upstream1171-quota-selftest-20260930",
+  "original_url": "http://127.0.0.1:23000/explore/apps-center-extend",
+  "candidate": {
+    "tag": "difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6",
+    "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "source_context_sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+    "head_uv_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+    "prod_source_hashes_match": 47,
+    "prod_source_hashes_missing": 0,
+    "prod_source_hashes_mismatched": 0,
+    "source_manifest": "../N10/head-lock-full-image-runtime-2026-09-30.json"
+  },
+  "services_updated": {
+    "api": {
+      "container_id": "db369050442b1eff7231a645ba0ac3f37c02388003bd019c22e8715e23df0225",
+      "running": true,
+      "health": "healthy",
+      "restart_count": 0,
+      "oom_killed": false,
+      "migration_enabled": false,
+      "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+      "named_storage_volume": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage"
+    },
+    "worker": {
+      "container_id": "38cdc84175cf177b919dcdb8d8a68af52dce8bff2999d7dbbdec7eb17539072b",
+      "running": true,
+      "restart_count": 0,
+      "oom_killed": false,
+      "migration_enabled": false,
+      "mode": "worker",
+      "queues": [
+        "workflow_based_app_execution"
+      ],
+      "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+      "named_storage_volume": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage"
+    },
+    "worker-gaia": {
+      "container_id": "f41fc67eaea2924b29d28e5cd3568e09429c6c81fe28dc78ac71314d0abb9079",
+      "running": true,
+      "restart_count": 0,
+      "oom_killed": false,
+      "migration_enabled": false,
+      "mode": "worker",
+      "queues": [
+        "extend_high",
+        "extend_low"
+      ],
+      "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+      "named_storage_volume": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage"
+    }
+  },
+  "http_after_update": {
+    "api_health_port": 25432,
+    "api_health_status": 200,
+    "web_port": 23000,
+    "web_root_status": 307
+  },
+  "database_after_update": {
+    "upstream_head": [
+      "c3f1a9b2e6d4"
+    ],
+    "extension_head": [
+      "020_workflow_run_account"
+    ],
+    "migration_enabled": false,
+    "quota_smoke_chat": {
+      "app_id": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+      "apps": 1,
+      "installed_apps": 1,
+      "app_statistics_extend_rows": 0
+    },
+    "workflow_runs": {
+      "table_present": true,
+      "total": 3,
+      "by_status": [
+        {
+          "status": "succeeded",
+          "count": 3
+        }
+      ],
+      "nonterminal_count": 0
+    }
+  },
+  "broker_after_update": {
+    "redis_db_index": 1,
+    "target_queue_lengths": {
+      "workflow_based_app_execution": 0,
+      "extend_high": 0,
+      "extend_low": 0
+    },
+    "unacked_hash_length": 0,
+    "unacked_index_cardinality": 0,
+    "scope": "post-update snapshot only"
+  },
+  "pre_update_quiescence_evidence": {
+    "celery_active_queues_inspect": "timed_out",
+    "workflow_run_and_broker_numeric_counts_captured_before_update": false,
+    "interpretation": "No pre-update quiescence claim; the post-update counts above are not a substitute."
+  },
+  "rollback": {
+    "backup_directory": "/private/tmp/difyplus-original-23000-backup-20260930",
+    "backup_evidence": "original-23000-live-update-and-acceptance-2026-09-30.json",
+    "rollback_image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+    "original_N08_checkpoint_image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+    "database_restore_performed": false
+  },
+  "application_center": {
+    "prior_actual_UI_card_visible_and_opened": true,
+    "prior_UI_evidence": "original-23000-live-update-and-acceptance-2026-09-30.json",
+    "latest_N10_browser_recheck": "not performed; desktop session locked",
+    "database_published_installed_state_preserved": true,
+    "statistics_rows_remain_zero": true
+  },
+  "compose_override_sha256": "f766280955dabd42d83cf7c38306b79b17a10cd25fc98890eeb6922d74e5e6c5",
+  "application_center_component": {
+    "runtime_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "loaded_module": "/app/api/services/recommended_app_service_extend.py",
+    "loaded_sha256": "a218fb7c088b296e70248b01bd96913b1978fae9622a61d6de5ff31b96517bee",
+    "frozen_n09_manifest": "../context-uuid-regression/latest-source-manifest.json",
+    "frozen_n09_manifest_sha256": "2733b709fa8996f1b0cf41f53fb1d11a8885861615a35beeeeb82b1b687fbdbd",
+    "source_path_hash_matches_frozen_manifest": true,
+    "mounted_api_source_overlay": false,
+    "api_mount_projection": [
+      {
+        "type": "volume",
+        "destination": "/app/api/storage",
+        "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage"
+      }
+    ],
+    "list_component": {
+      "method": "RecommendedAppService.installed_app_list",
+      "status": "success",
+      "tenant_scope": "derived from exact target App row",
+      "result_entries": 1,
+      "target_app_returned_exactly_once": true,
+      "shared_published_filter_passed": true
+    },
+    "detail_component": {
+      "method": "InstalledAppService.get_published_app",
+      "status": "success",
+      "target_detail_found": true,
+      "detail_tenant_matches_app": true,
+      "installation_tenant_matches_app": true,
+      "installation_owner_tenant_matches_app": true
+    },
+    "target": {
+      "app_id": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+      "installed_app_id": "852bfb81-92e9-4f24-8487-e1a64b664391",
+      "title": "Quota smoke chat",
+      "mode": "advanced-chat",
+      "statistics_rows": 0
+    },
+    "authentication_scope": "Internal existing service methods called with actual App tenant; not HTTP authentication proof and not a fabricated JWT",
+    "latest_browser_recheck": "not performed; desktop session locked; prior N08 browser card/open proof retained separately"
+  }
+}

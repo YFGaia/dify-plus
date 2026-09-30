@@ -1,0 +1,182 @@
+{
+  "id": "6b587a78-eee7-4246-8a9e-05184b814e8c",
+  "version": "draft",
+  "graph": {
+    "nodes": [
+      {
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "zIndex": 0,
+        "id": "end",
+        "positionAbsolute": {
+          "x": 638,
+          "y": 100
+        },
+        "data": {
+          "type": "end",
+          "title": "End",
+          "outputs": [
+            {
+              "variable": "marker_text",
+              "value_type": "string",
+              "value_selector": [
+                "tool",
+                "text"
+              ]
+            },
+            {
+              "variable": "marker_json",
+              "value_type": "array[object]",
+              "value_selector": [
+                "tool",
+                "json"
+              ]
+            }
+          ],
+          "selected": false
+        },
+        "position": {
+          "y": 100,
+          "x": 638
+        },
+        "type": "custom",
+        "height": 114,
+        "width": 242,
+        "selected": false
+      },
+      {
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "zIndex": 0,
+        "id": "start",
+        "positionAbsolute": {
+          "x": 30,
+          "y": 100
+        },
+        "data": {
+          "type": "start",
+          "title": "Start",
+          "variables": [],
+          "selected": false
+        },
+        "position": {
+          "y": 100,
+          "x": 30
+        },
+        "type": "custom",
+        "height": 73,
+        "width": 242,
+        "selected": false
+      },
+      {
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "zIndex": 0,
+        "id": "tool",
+        "positionAbsolute": {
+          "x": 334,
+          "y": 100
+        },
+        "data": {
+          "tool_node_version": "2",
+          "tool_parameters": {},
+          "is_team_authorization": true,
+          "tool_configurations": {
+            "marker": {
+              "value": "B09_PARENT_CONFIG_V2",
+              "type": "mixed"
+            }
+          },
+          "title": "Acceptance Marker Echo",
+          "provider_type": "workflow",
+          "provider_id": "14965c4b-9654-4ee9-b6df-ea0a61e5c58d",
+          "type": "tool",
+          "provider_name": "Acceptance Marker Echo",
+          "tool_label": "Acceptance Marker Echo",
+          "tool_name": "acceptance_marker_echo_20260930",
+          "selected": true
+        },
+        "position": {
+          "y": 100,
+          "x": 334
+        },
+        "type": "custom",
+        "height": 88,
+        "selected": true,
+        "width": 242
+      }
+    ],
+    "edges": [
+      {
+        "zIndex": 0,
+        "sourceHandle": "source",
+        "id": "start-tool",
+        "target": "tool",
+        "targetHandle": "target",
+        "type": "custom",
+        "source": "start",
+        "data": {
+          "sourceType": "start",
+          "targetType": "tool",
+          "isInIteration": false,
+          "isInLoop": false,
+          "iteration_id": null,
+          "loop_id": null
+        }
+      },
+      {
+        "zIndex": 0,
+        "sourceHandle": "source",
+        "id": "tool-end",
+        "target": "end",
+        "targetHandle": "target",
+        "type": "custom",
+        "source": "tool",
+        "data": {
+          "sourceType": "tool",
+          "targetType": "end",
+          "isInIteration": false,
+          "isInLoop": false,
+          "iteration_id": null,
+          "loop_id": null
+        }
+      }
+    ],
+    "viewport": {
+      "x": -81.20000000000005,
+      "y": 362.4,
+      "zoom": 0.8
+    }
+  },
+  "inputs": {
+    "sys.files": [],
+    "sys.user_id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+    "sys.app_id": "2853c549-8670-4a6d-81e8-866eb1f8f049",
+    "sys.timestamp": 1790762147,
+    "sys.workflow_id": "996b1f39-41ff-4bc8-a59f-4768849436c6",
+    "sys.workflow_run_id": "6b587a78-eee7-4246-8a9e-05184b814e8c"
+  },
+  "status": "succeeded",
+  "outputs": {
+    "marker_text": "{\"marker\": \"B09_PARENT_CONFIG_V2\"}",
+    "marker_json": [
+      {
+        "marker": "B09_PARENT_CONFIG_V2"
+      }
+    ]
+  },
+  "error": null,
+  "elapsed_time": 0.565564,
+  "total_tokens": 0,
+  "total_steps": 3,
+  "created_by_role": "account",
+  "created_by_account": {
+    "id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+    "name": "Acceptance Owner",
+    "email": "acceptance-owner@example.invalid"
+  },
+  "created_by_end_user": null,
+  "created_at": 1790762147,
+  "finished_at": 1790762148,
+  "exceptions_count": 0
+}

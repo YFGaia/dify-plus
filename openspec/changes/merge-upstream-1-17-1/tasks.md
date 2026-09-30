@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 当前现场：M08/14.19 冻结候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 已通过 V02/16.15 与 R01 源码验收，状态为 code-ready。隔离 PostgreSQL 空库双迁移、API 健康、已登录额度读写及 DeepSeek 插件 `0.0.24` 安装通过；补做的空 MySQL 8.0.46 检查在扩展迁移因 `uuid_generate_v4()` 默认值不兼容而失败。迁移数据风险审计目前只是静态源码检查，无旧库行数据。详见 `evidence/V03/`。真实 LLM 请求待用户在隔离工作区保存密钥后执行。候选仍保留个人 `total_quota/used_quota` 与 API Key 日/月/累计限额分离。18.1–18.5 仍未关闭：A03 实际环境只读盘点未授权，旧库副本/数据审计、镜像供货、向量与目标数据库引擎矩阵未通过；完整 V03 和后续环境/生产门槛未通过。
+> 当前现场：原 `970b704e` 候选通过 M00–M08/V01/V02/R01 源码门槛；全新安装修复 `9fcc542afb` 已有31项定向检查及独立PG15.12/MySQL8.0.46双链/额度ORM source-overlay证据，真实DeepSeek返回OK/49 tokens且归因正确，内部价格0USD，非零扣费未验。当前审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39` 后续源码须经 N02 重新冻结；完整修复镜像、应用中心实际业务及29场景逐项验收仍未完成。用户报告已发布应用中心遗漏的首个断点为已安装应用缺stats而被INNER JOIN排除，N01实现与52项定向测试、六文件独立源码review已通过，且N01完整镜像/API/真实页面已通过，N07最新分页/Key数字候选镜像已运行，受影响独立现场验收继续推进。原27节点16 passed、2 blocked、9 pending，不能报告合并全部完成；新N00–N07负责本地新安装闭环。历史数据库迁移按既有用户决定后续单验，生产需独立授权。见 [本轮审计](evidence/merge-completion-audit-2026-09-30.md)、[验收台账](acceptance-ledger-2026-09-30.md)。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -317,3 +317,99 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 - [x] 28.7 [Sol 6.1→Luna] 补齐缩减测试栈的工作流执行worker：验证异步投递和积压根因，旧测试任务可逆暂存、保留payload，限定队列/并发启动；核对最新一条实际生成和对账结果，不以HTTP200代替执行成功。
 
 > 28.3/28.7：最新请求实际返回 `OK`，49 tokens，workflow/start/llm/answer均succeeded，account join匹配当前管理员。记录价格0 USD，个人用量0/总额15不变；正向非零价格扣费仍未验证。旧3条debug任务完整可逆暂存、无TTL/hash未变，worker只消费最新1条。
+
+
+## 29. 当前源码与本地新安装完成闭环（N00–N06）
+
+> 必须保留用户应用、数据库、模型凭据、文件和可逆暂存任务。当前分支继续工作，不创建新分支或工作树。协调员负责调度；开发和运行验证分别由独立子代理完成。
+
+- [x] 29.0 [N00/Sol 6.1] 审计原27节点及实际证据，区分历史候选、当前源码、source overlay、完整镜像、实际业务及外部门槛，建立29场景逐项台账。
+- [x] 29.1 [N01/Sol 6.1] 修复已发布且已安装应用在应用中心遗漏：`/installed/apps` 对缺失stats容错，并恢复App创建统计行初始化。验收无stats已安装App可见/打开，新App仅一条stats；既有统计/排序/分页/租户边界不变；不把未安装published apps纳入产品契约，不靠回填用户库隐藏故障。源码实现、52项定向测试和独立review已通过，证据`evidence/N01/independent-source-review.json`；完整canonicalimage产品API/newstats唯一/定向缺stats仍可见、真实两卡和missingstats安装URL标题/运行表单已通过；evidence/N01与role-permissions-runtime/final-role-results。原23000用户入口保留N06独立交付。
+- [x] 29.2 [N02/Luna] 对稳定修复快照独立运行源码回归，固定candidate/hash，记录迁移/额度模型与N01实际代码；未变前端按hash复用。12 overlay与4301未改base blob、4314完整context inventory/归档SHA、三项独立review及52/60/27（有重叠）关联tests证据匹配；result/完整manifest持久见`evidence/N02/`。完整image仍N03pending。
+- [x] 29.3 [N03/Sol 6.1→Luna] 构建完整修复API/Web镜像并更新本地隔离容器；保留用户数据/凭据/插件/暂存任务，核对image ID/digest/platform、实际源码hash和真实页面，禁止旧镜像+overlay冒充完整镜像验收。canonical image/7sourcehash/411lock包/双DB heads/API及Web200/WS101/三类workers队列注册ready通过，证据`evidence/N03/runtime-readiness-2026-09-30.json`；业务闭环仍留N01/N04/N05/N06。
+- [x] 29.4 [N04/Luna] 完整镜像PG/MySQL空库双链及额度ORM读写、setup/登录、WebSocket101/真实点击、必要worker/队列/插件闭环。
+- [ ] 29.5 [N04/Luna] 当前受支持向量库的新安装知识库样本真实入库、检索、删除/重建和文件读回；历史向量升级仍后续单验。
+- [x] 29.6 [N05/Luna] 逐项执行第30节29场景台账，所有适用本地业务/角色回归闭环；具有现有凭据的场景必须实测，外部缺项记录具体可解除条件。
+- [ ] 29.7 [N05/Luna] 真实非零价格模型调用，对账tokens、price、可信账号归因、个人与API key日/月用量/边界，不以0USD或fixture认定扣费通过。
+- [ ] 29.8 [N06/Sol 6.1→Luna] 本地新安装一致备份/恢复、重启和交付操作包可执行；修复/镜像/页面/矩阵证据齐全后收束本地完成结论，历史升级与生产门槛继续保留。
+
+- [x] 29.9 [N04/app_center独立双engine] 已实证PG四模型通过、MySQL四模型省略ID均NULL identity FlushError；app_center获授权`api/models/model_extend.py`客户端UUID最小修复及必要focused tests，修后独立两库flush/readback/rollback必须全通过。新model/test路径进入N02最终archive及N03增量完整镜像rebuild，既有六文件freeze仅局部，不靠显式测试ID掩盖。
+  - 源码/双库overlay里程碑已通过：60关联tests、两库各4省略+4显式ID/payload回读/rollback空库，独立review无finding；完整image仍待N04。
+- [x] 29.10 [N05/runtime] 当前已支持的传统workflow工具node实际配置save/refetch/publish/run、tag CRUD与绑定/过滤/缓存刷新、多账号quota跨页编辑/刷新；原3-node LLM/1-row quota/source tests不代替这些子检查。
+
+- [x] 29.11 [N04/F04/Sol 6.1→Luna] `set_user_quota`真实PG/MySQL回归：PG正确、MySQL PostgreSQL OnConflictDoUpdate导致UnsupportedCompilationError。改`api/services/system_manage_extend.py`为方言专用atomic upsert，保留精度/已有used_quota；必要tests与实际两库insert/update/并发/rollback回读经独立review。新service/tests进入N02最终archive/manifest及N03增量完整镜像，当前中间candidate不能签收。
+  - 源码里程碑：27 tests、真实PG/MySQL两种4并发/精度/used/readback/cleanup通过；独立review无finding，3c632717最终12-overlay包含源码和tests。主任务仍待完整image及合法身份UI/API。
+
+- [x] 29.12 [N06/runtime用户原入口交付] 新localhost:23010受影响N01真实API/browser与N07最新稳定source/image验收后，保留原23000旧image/config/DB备份恢复锚点、原WS performance override、用户模型/App配置及凭据/plugin/files/holding任务；仅更新获授权原项目API、已有workflow worker和必要standardgaia至同一verified image，再真实原`http://127.0.0.1:23000/explore/apps-center-extend`已安装发布App显示/打开。不得仅用23010通过宣布用户原异常解决。
+
+- [x] 29.13 [N07/Sol 6.1→Luna] 真实11账户/2页额度编辑发现used_quota同值仅单字段排序导致PG更新后行漂到另一页：既有baseline UX问题，非已证明合并引入。限定get_quota_list增加唯一确定性tie排序/必要tests/独立review；冻结latestsource/context/完整canonical增量image，实测同值多页编辑/refetch、7位精度/used保留及角色边界。N02/N03已通过3c632717保留历史证据，N05/N06最终验收依赖N07新candidate；不扩大新feature。
+
+- [x] 29.14 [N07/K01/Sol 6.1→Luna] 真实AppKey quota GET day/month/used/accumulated返回JSON字符串而生成ApiKeyItem契约number：最小validated numeric merge/真实ORM commit-expire-refetch JSON类型/7dec/null/default/identitytests与review；与稳定分页一起freeze最新context/canonical完整image，独立APIkey lifecycle/数字字段复验，不改用户数据或App key既有unmasked列表契约。
+
+## 30. 29场景逐项验收台账任务
+
+> 详见 `acceptance-ledger-2026-09-30.md`。本节复选框表示当前候选场景验收闭环，不表示历史源码单测；缺少外部条件、用户明确延期或生产授权的场景保留未勾选并写明原因。
+- [x] 30.1 [G01] 全部冲突处置与新宿主：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.2 [G02] 四个tag后提交行为保留：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.3 [B01] setup/邮箱/OAuth/邀请/已有账号额度：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.4 [B02] normalized_email碰撞：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.5 [B03] GitHub/Google/OAuth2/Casdoor/钉钉真实SSO：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.6 [B04] login_config双阶段/SSR/错误与脱敏：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.7 [B05] WebApp认证12组合和跨应用边界：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.8 [B06] 两个开关/environment passport/logout/401：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.9 [B07] Console/Explore/WebApp真实计费与RMB/USD对账：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.10 [B08] Service API五模式与额度边界/租户：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.11 [B09] workflow恢复/停止/retry计费：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.12 [B10] 月初/每日重置和beat队列：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.13 [B11] retention/匿名context/跨租户权限：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.14 [K01] app/dataset/environment key额度与关联：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.15 [F01] 应用中心installed可见/打开/分类/标签/搜索/排序/去重/Home：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.16 [F02] 模板同步/取消/缓存/manager与fork权限：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.17 [F03] 系统管理owner/admin/member入口/URL/API：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.18 [F04] 系统管理额度/集成/forward token/代码执行：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.19 [F05] 当前源码工具链/双构建及真实镜像产物：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.20 [D01] 完整镜像空库双链/账号：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.21 [D02] 历史存量双链：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.22 [D03] 历史破坏Agent变更数据处置：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.23 [D04] 历史模型凭据去重与解密：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.24 [D05] 新安装向量/知识库真实闭环与历史升级分开：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.25 [O01] 镜像/Ingress/队列/自动迁移关闭：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.26 [O02] Agent/协同/归档/Human Input启用或关闭态：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.27 [O03] 通用和Agent SSRF边界：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.28 [O04] 历史整套旧版本恢复；本地新安装恢复另见29.8：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [ ] 30.29 [O05] 生产放行和观察：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+
+## 31. WebApp应用scope验收回归闭环（N08）
+
+- [x] 31.1 [N08] 持久合法A passport+显式B header得到site200/A appid的实际断点；归类scope混淆，不宣称B数据越权。
+- [x] 31.2 [N08] 最小expected appcode/claim guard，保留sameapp与noexplicit兼容；focused tests与独立source review通过。
+- [x] 31.3 [N08] 新完整source/context/lock/canonicalimage冻结，实际A↔B拒绝与sameapp/noexplicit返回正确scope；N05/N06最终交付以本候选为准，保留N07历史passed。
+
+本轮原用户故障交付：`evidence/N06/original-23000-live-update-and-acceptance-2026-09-30.json`真实原23000卡片Quota smoke chat显示/打开，stats仍0且原数据/配置未补写，最终N08 0567镜像3服务一致；原交付与一致快照恢复子门槛通过，N09源码前进后的最新限定交付/readback仍待完成。
+
+## 32. Context UUID兼容验收回归闭环（N09）
+
+- [x] 32.1 [N09] 合法同租户真实Conversation context GET500；PG varchar=UUID类型错误明确。限定投影cast String36，保持完整owner/deleted/read/delete谓词，80focused tests与独立源码review通过。
+- [x] 32.2 [N09] 冻结最新完整context/lock/canonicalimage，实际PG/MySQL同资源读删正向与已存在foreignConversation GET/DELETE拒绝，rollback无用户数据变更。
+- [x] 32.3 [N09] 最新镜像隔离和原23000限定服务更新/健康/用户中心及受影响选定读回；N05/N06最终绑定N09，旧N08passed和一致快照恢复历史保留。
+
+## 33. 默认Provider生产镜像安装回归（N10）
+
+- [x] 33.1 [N10] 独立确认当前完整image distributions/entrypoints为0：既有用户dirty c1d83锁38provider为virtual，而HEAD原锁38均editable；包metadata无build-system使重新resolve为virtual，显式backend是可复现metadata修复。不是HEAD锁同源缺陷或embedding凭据条件。
+- [x] 33.2 [N10] 最小可安装package metadata/必要locked sources修复，检查同类Trace声明入口点，保留用户lock已有依赖决议；开发tests与独立review。
+- [x] 33.3 [N10] Canonical完整image真实distribution/entrypoint/load及隔离Qdrant无embedding CRUD/query/delete，N09+N10最终bundle部署原23000并受影响读回，不声称外部Trace/高质量Embedding业务通过。
+
+## 34. 原O02启用范围修正（不改变源码冻结）
+
+- [x] 34.1 [O02/app_center+runtime] 合法Agent metadata与config files真实产品CRUD/readback及JWE manifest200；不以401代理范围替代业务200，不声称模型运行。
+- [x] 34.2 [O02/runtime] 两认证Socket.IO session合法join/relay/leader/online、真实foreign scope拒绝与disconnect清理；不以WS101替代协同业务。
+- [x] 34.3 [O02/app_center] 无LLM Start→HumanInput→End真实暂停、合法form提交、恢复终态及输出读回；禁止邮件。
+- [x] 34.4 [O02/runtime] selected归档flag/edition真实关闭或拒绝；若启用须真实存储归档读回，未授权存储列独立条件。关闭一次性历史proof保留，shared启用未验不可宣称passed。
+
+本轮收尾子任务签收：29.9/29.11见N04实际双engine模型与atomicquota证据及独立review；29.10见workflow-tool-runtime、center-tags-sync-runtime及N07完整镜像分页/数字契约；29.12原N07/N08用户23000已交付证据有效，最新N09/N10候选仍由32.3/33.3单独签收。30.26包含合法Agent metadata/files/JWE manifest200、HumanInput暂停恢复、真实双Socket与选定Community/关闭归档guard，全部本地required检查通过，不宣称LLM Agent生成或Cloud启用归档。32.2实际PG/MySQL rollback与最新HEAD同资源HTTP链通过，原入口最新bundle仍pending32.3。
+
+29.6本地required子检查全部通过且外部10条件逐项明示，见machineledger；不等于29.7非零计费或整体N05完成。30.25已实际完整镜像/queues/migration-off及精确tenant plugin daemon installation身份与正规模型组件45tokens/0USD通过，非ConsoleAppAPI、非个人/APIKey非零扣费证据。
+
+O02完整原requirements收尾更正：本地无模型metadata/files/JWE、HumanInput、collaboration、selected关闭archive均通过，但真实generated Agent run/tool未验，实测AGENT_SHELL_ENABLED=true。30.26 whole保留未完成；新增外部required O02.generated_agent_run_tool_selected_layers（合法isolated模型/tool支持/小成本budget及Agent配置），不能用配置manifest200替代真实运行。外部现11子项/10场景，本地缺口仍0。
+
+最终原candidate子gate：29.4/32.3/33.3源码、标准HEAD-lock445d镜像、独立真实runtime以及原三服务/loadedcenter组件和克隆选定读回通过（N06两份finalproof）。32.3用户中心部分仅componentlist/detail，最新浏览器因desktop锁屏未刷新，不声明latestUI；N06显式currentUIcondition保留，整体29.8/原V06/生产仍未完成。

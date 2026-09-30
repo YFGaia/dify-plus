@@ -1,0 +1,26 @@
+{
+  "node": "N04",
+  "kind": "independent_read_only_quota_upsert_review",
+  "date": "2026-09-30",
+  "verdict": "No issues found.",
+  "source_sha256": {
+    "api/services/system_manage_extend.py": "9673831d9616cdc85b672dc07743eb1dff18f5499e6a000535080dd557e21588",
+    "api/tests/unit_tests/services/test_quota_manage_upsert_extend.py": "3d7a0d682f52bbc12fff859ab4c35b7a753d7eadbc3d4dcd68d23a7b1bdab32d",
+    "api/tests/unit_tests/controllers/console/test_system_manage_extend.py": "8fc9fd897e8950a7126968731f27539271761a933c5a3f816e7b99ad1af6c6fb"
+  },
+  "reviewed_contracts": [
+    "Actual session bind selects PG ON CONFLICT account_id or MySQL atomic unique-key UPSERT",
+    "Only total_quota changes on conflict; used_quota and identity preserved",
+    "Existing controller admin authorization and system account scope unchanged",
+    "Single commit retained; negative and unsupported dialect reject before writing",
+    "Test CLOUD fixture DEPLOYMENT_EDITION matches current guard"
+  ],
+  "developer_reported_verification": {
+    "targeted_tests": 27,
+    "both_engines": "Actual insert/update, seven-place precision, preserved usage, four concurrent updates and four concurrent first upserts, unique row, cleanup zero passed",
+    "evidence_mode": "Dedicated DB actual service using source overlay; not full-image HTTP/UI"
+  },
+  "reviewer_executed_business_tests": false,
+  "verification_gap": "Full image and authenticated owner/admin/member quota UI/API pending N03/N05.",
+  "manifest_all_12_overlays_match_current_and_final_context": true
+}

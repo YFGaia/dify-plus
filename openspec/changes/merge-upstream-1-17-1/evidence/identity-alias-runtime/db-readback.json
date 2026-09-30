@@ -1,0 +1,15 @@
+{
+  "database": "dify_acceptance",
+  "transaction_read_only": true,
+  "account_count": 12,
+  "every_account_exactly_one_quota_row": true,
+  "alias_account_id": "8fd527aa-fff9-4fcc-847b-9fb28d6f1054",
+  "alias_normalized_email": "difyacceptance20260930alias@gmail.com",
+  "failed_googlemail_alias_account_count": 0,
+  "case_variant_same_account_only": true,
+  "orphan_quota_count": 0,
+  "existing_member_total": "23.1234567",
+  "existing_member_used": "0E-7",
+  "new_alias_initial_total": "15.0000000",
+  "new_alias_initial_used": "0E-7"
+}

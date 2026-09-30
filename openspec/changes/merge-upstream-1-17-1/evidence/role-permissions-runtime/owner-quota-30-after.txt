@@ -1,0 +1,358 @@
+[p2 "Dify" | space "Dify Plus 合并验收应用中心"(9): 2 managed, 0 untracked — p1 "访问点 · Quota smoke chat - Dify", p2* "Dify"]
+root
+  container
+    anchor [ref=1, loc=href:/system-manage-extend/quota-management#main-content, url=http://localhost:23010/system-manage-extend/quota-management#main-content]
+      text "跳转到主要内容"
+    container
+      container
+        container
+          anchor "Dify" [ref=2, loc=css:a[aria-label="Dify"], url=http://localhost:23010/]
+            image
+          button "搜索任何内容" [ref=3, loc=css:button[aria-label="搜索任何内容"]]
+            text "⌘"
+            text "K"
+        button [ref=4]
+          text "A"
+          text "Acceptance Owner's Workspace"
+          text "打开工作空间菜单"
+        container "主菜单"
+          anchor [ref=5, url=http://localhost:23010/]
+            text "主页"
+          anchor [ref=6, loc=href:/explore/apps-center-extend, url=http://localhost:23010/explore/apps-center-extend]
+            text "应用中心"
+          anchor [ref=7, loc=href:/apps, url=http://localhost:23010/apps]
+            text "工作室"
+          anchor [ref=8, loc=href:/datasets, url=http://localhost:23010/datasets]
+            text "知识库"
+          anchor [ref=9, loc=href:/skills, url=http://localhost:23010/skills]
+            text "Skills"
+          anchor [ref=10, loc=href:/integrations/model-provider, url=http://localhost:23010/integrations/model-provider]
+            text "集成"
+          anchor [ref=11, loc=href:/marketplace, url=http://localhost:23010/marketplace]
+            text "Marketplace"
+          anchor [ref=12, url=http://localhost:23010/system-manage-extend/system-integration]
+            text "系统管理"
+      container
+        status "额度"
+          text "额度"
+          container
+            text "已用:"
+            container
+              text "¥"
+              text "0.00"
+            text "/"
+            container
+              text "¥"
+              text "104.25"
+        container
+          button [ref=13]
+            text "A"
+            text "Acceptance Owner"
+            text "账户"
+          button "打开帮助菜单" [ref=14, loc=css:button[aria-label="打开帮助菜单"]]
+            svg_root
+    container [ref=15]
+      container
+        heading
+          text "系统管理"
+        container
+          anchor [ref=16, url=http://localhost:23010/system-manage-extend/system-integration]
+            text "系统集成"
+          anchor [ref=17, loc=href:/system-manage-extend/quota-management, url=http://localhost:23010/system-manage-extend/quota-management]
+            text "用户额度"
+          anchor [ref=18, loc=href:/system-manage-extend/code-execution-control, url=http://localhost:23010/system-manage-extend/code-execution-control]
+            text "代码执行控制"
+      container
+        heading
+          text "用户额度管理"
+        container
+          textbox [ref=19, loc=css:input[placeholder="搜索用户名/邮箱"]]
+            text "搜索用户名/邮箱"
+          button [ref=20]
+            text "查询"
+        table
+          table_row
+            table_cell
+              text "排名"
+            table_cell
+              text "头像"
+            table_cell
+              text "成员"
+            table_cell
+              text "邮箱"
+            table_cell
+              text "已使用配额"
+            table_cell
+              text "总配额"
+            table_cell
+              text "余额"
+            table_cell
+              text "操作"
+          table_row
+            table_cell
+              text "#"
+              text "1"
+            table_cell
+              text "A"
+            table_cell
+              text "Acceptance Owner"
+            table_cell
+              text "acceptance-owner@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=21]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "2"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-admin"
+            table_cell
+              text "acceptance-admin@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=22]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "3"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-02"
+            table_cell
+              text "acceptance-member-02@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=23]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "4"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-03"
+            table_cell
+              text "acceptance-member-03@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=24]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "5"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-04"
+            table_cell
+              text "acceptance-member-04@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=25]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "6"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-05"
+            table_cell
+              text "acceptance-member-05@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=26]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "7"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-06"
+            table_cell
+              text "acceptance-member-06@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=27]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "8"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-07"
+            table_cell
+              text "acceptance-member-07@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=28]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "9"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-08"
+            table_cell
+              text "acceptance-member-08@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              text "15.0000"
+              text "USD"
+            table_cell
+              button [ref=29]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "10"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-01"
+            table_cell
+              text "acceptance-member-01@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "23.1235"
+              text "USD"
+            table_cell
+              text "23.1235"
+              text "USD"
+            table_cell
+              button [ref=30]
+                text "修改额度"
+          table_row
+            table_cell
+              text "#"
+              text "11"
+            table_cell
+              text "A"
+            table_cell
+              text "acceptance-member-09"
+            table_cell
+              text "acceptance-member-09@example.invalid"
+            table_cell
+              text "0.0000"
+              text "USD"
+            table_cell
+              text "35.5679"
+              text "USD"
+            table_cell
+              text "35.5679"
+              text "USD"
+            table_cell
+              button [ref=31]
+                text "修改额度"
+        container
+          container
+            text "每页"
+            combobox [ref=32]
+              text "30"
+            container
+              text "条，共"
+              text "11"
+              text "条"
+          container
+            button [ref=33]
+              text "‹"
+            container
+              text "第"
+              text "1"
+              text "/"
+              text "1"
+              text "页"
+            button [ref=34]
+              text "›"
+  alert
+  region "Notifications"
+    dialog "额度修改成功"
+      heading
+        text "额度修改成功"
+      button "Close notification" [ref=35, loc=css:button[aria-label="Close notification"]]

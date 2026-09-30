@@ -1,0 +1,11 @@
+{
+  "HEAD_package_count": 530,
+  "user_snapshot_package_count": 530,
+  "existing_user_changed_versions": [],
+  "existing_user_additional_packages": [],
+  "existing_user_removed_packages": [],
+  "rule": "These changes precedeN10 and cannot be broadstaged asN10. HEAD only38package source correction needs its own frozen check/install evidence.",
+  "HEAD_provider_sources_editable": 38,
+  "user_snapshot_provider_sources_virtual": 38,
+  "owned_HEAD_provider_source_delta": "empty; HEAD already editable; new metadata only, user lock remains unstaged"
+}

@@ -1,0 +1,28 @@
+{
+  "node": "N05",
+  "status": "pending_required_conditions",
+  "local_executable_status": "passed",
+  "local_required_missing": 0,
+  "evidence": [
+    "acceptance-ledger-state-2026-09-30.json",
+    "acceptance-ledger-2026-09-30.md",
+    "evidence/full-scope-completion-audit-2026-09-30.json"
+  ],
+  "remaining_conditions": {
+    "local_missing_subcheck_count": 0,
+    "local_missing": [],
+    "external_missing_subcheck_count": 11,
+    "external_only_scenes": [
+      "B01",
+      "B03",
+      "B05",
+      "B07",
+      "B08",
+      "B09",
+      "B11",
+      "F04",
+      "D05",
+      "O02"
+    ]
+  }
+}

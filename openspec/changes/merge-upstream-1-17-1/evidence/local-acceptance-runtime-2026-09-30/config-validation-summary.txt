@@ -1,0 +1,8 @@
+Validation-only placeholders; no real secrets or resolved config printed.
+exit=0
+time="2026-09-30T16:13:53+08:00" level=warning msg="The \"CERTBOT_EMAIL\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T16:13:53+08:00" level=warning msg="The \"CERTBOT_DOMAIN\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T16:13:53+08:00" level=warning msg="The \"CERTBOT_EMAIL\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T16:13:53+08:00" level=warning msg="The \"CERTBOT_DOMAIN\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T16:13:53+08:00" level=warning msg="The \"CERTBOT_EMAIL\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T16:13:53+08:00" level=warning msg="The \"CERTBOT_DOMAIN\" variable is not set. Defaulting to a blank string."

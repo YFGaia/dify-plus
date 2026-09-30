@@ -1,0 +1,57 @@
+{
+  "limit": 10,
+  "has_more": false,
+  "data": [
+    {
+      "id": "6b587a78-eee7-4246-8a9e-05184b814e8c",
+      "version": "draft",
+      "status": "succeeded",
+      "elapsed_time": 0.565564,
+      "total_tokens": 0,
+      "total_steps": 3,
+      "created_by_account": {
+        "id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+        "name": "Acceptance Owner",
+        "email": "acceptance-owner@example.invalid"
+      },
+      "created_at": 1790762147,
+      "finished_at": 1790762148,
+      "exceptions_count": 0,
+      "retry_index": null
+    },
+    {
+      "id": "676dbde7-f2f4-4fff-a081-7b0cdb3ee4a6",
+      "version": "draft",
+      "status": "succeeded",
+      "elapsed_time": 0.548451,
+      "total_tokens": 0,
+      "total_steps": 3,
+      "created_by_account": {
+        "id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+        "name": "Acceptance Owner",
+        "email": "acceptance-owner@example.invalid"
+      },
+      "created_at": 1790761665,
+      "finished_at": 1790761665,
+      "exceptions_count": 0,
+      "retry_index": null
+    },
+    {
+      "id": "c240d409-d419-47f2-ac0f-0aab165f30ac",
+      "version": "draft",
+      "status": "succeeded",
+      "elapsed_time": 0.571124,
+      "total_tokens": 0,
+      "total_steps": 3,
+      "created_by_account": {
+        "id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+        "name": "Acceptance Owner",
+        "email": "acceptance-owner@example.invalid"
+      },
+      "created_at": 1790761543,
+      "finished_at": 1790761543,
+      "exceptions_count": 0,
+      "retry_index": null
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "verdict": "No issues found in current byte delta.",
+  "baseline_sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+  "current_sha256": "3d1b58d109585d9498e757734a7fef6a24fa972c8b17128ce12e4019331f7dbc",
+  "only38_provider_package_source_virtual_to_editable": true,
+  "all_other_original_user_bytes_identical": true,
+  "HEAD_source_delta_empty": true,
+  "dependency_package_versions_unchanged": true,
+  "runtime_boundary": "Await developer final freeze and actual HEAD-lock/dirty-lock frozen sync+fullimage. uv lock --check serialization update is not marked passed."
+}

@@ -1,0 +1,84 @@
+{
+  "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "scope": "only authorized B App/Dataset/Tenant and legal O02 Agent/upload fixtures",
+  "cases": [
+    {
+      "case": "admin_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "owner_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "agent_before_delete",
+      "manifest_status": 200,
+      "files_status": 200
+    },
+    {
+      "case": "admin_switch_b",
+      "status": 200
+    },
+    {
+      "case": "admin_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "product_delete_b_app",
+      "status": 204
+    },
+    {
+      "case": "deleted_b_app_readback",
+      "status": 404
+    },
+    {
+      "case": "product_delete_b_dataset",
+      "status": 204
+    },
+    {
+      "case": "deleted_b_dataset_readback",
+      "status": 404
+    },
+    {
+      "case": "admin_restore_a",
+      "status": 200
+    },
+    {
+      "case": "admin_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "owner_valid_summary",
+      "status": 200,
+      "tenant_matches": true,
+      "role_matches": true
+    },
+    {
+      "case": "product_delete_agent",
+      "status": 204
+    },
+    {
+      "case": "agent_deleted_readback",
+      "status": 404
+    },
+    {
+      "case": "async_app_cleanup_readback",
+      "all_owned_product_rows_absent": true,
+      "agent_archived_by_product": false
+    }
+  ],
+  "human_input_and_socket_app_untouched": true,
+  "model_calls": 0,
+  "verdict": "failed",
+  "first_failure_stage": "exact_orm_residue_and_uploaded_file_service_cleanup",
+  "error_class": "RuntimeError",
+  "final_admin_restore_a_status": 200
+}

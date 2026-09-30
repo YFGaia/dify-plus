@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "total": 1,
+  "rows": [
+    {
+      "email": "acceptance-member-01@example.invalid",
+      "total_quota": 23.1234567,
+      "used_quota": 0,
+      "balance": 23.1234567
+    }
+  ]
+}

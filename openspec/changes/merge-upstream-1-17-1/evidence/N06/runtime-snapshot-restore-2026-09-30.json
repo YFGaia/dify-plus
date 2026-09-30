@@ -1,0 +1,138 @@
+{
+  "date": "2026-09-30",
+  "snapshot_point": "2026-09-30 18:31 local; shared acceptance writers frozen during export",
+  "source": "private N06 snapshot directory; all source archive files mode 0600 under mode 0700 directory",
+  "snapshot_archive_sha256": {
+    "dify_acceptance.dump": "de4d55e63b91eb61111d4be7bf12f2af74abc6e5c636415ccd00c675ead3e35d",
+    "dify_acceptance_plugin.dump": "335b7a3a38e136e4d0c2faf6f710a47236b415be43920726ae3bdb6d401c9ef2",
+    "dify_acceptance_mysql.sql": "23028cfd0ba77030d4e45860802de12a268af9c5206cf120649739876b2e4139",
+    "acceptance_storage.tar.gz": "53036057be191c26c3edf8af2780055627ed2dd26195fcee1015625d26e46faf"
+  },
+  "provenance": "Counts/selected rows were not captured against live DB at export time; expected metadata was derived from the snapshot itself by restoring each dump into a separate baseline clone, then compared with an independent restore clone. No future live count used as expected.",
+  "postgresql": {
+    "baseline_snapshot_restore": {
+      "main_head": "c3f1a9b2e6d4",
+      "extension_head": "020_workflow_run_account",
+      "counts": {
+        "accounts": 12,
+        "apps": 8,
+        "installed_apps": 8,
+        "app_statistics_extend": 7,
+        "datasets": 1,
+        "documents": 1,
+        "document_segments": 1,
+        "workflow_runs": 13
+      },
+      "selected": {
+        "owner_present": true,
+        "app_present": true,
+        "installed_app_present": true,
+        "dataset_present": true,
+        "document_present": true,
+        "document_indexing_status": "completed",
+        "document_segments": 1,
+        "latest_successful_workflow": {
+          "status": "succeeded",
+          "steps": 2,
+          "tokens": 0
+        }
+      }
+    },
+    "independent_restore": {
+      "main_head": "c3f1a9b2e6d4",
+      "extension_head": "020_workflow_run_account",
+      "counts": {
+        "accounts": 12,
+        "apps": 8,
+        "installed_apps": 8,
+        "app_statistics_extend": 7,
+        "datasets": 1,
+        "documents": 1,
+        "document_segments": 1,
+        "workflow_runs": 13
+      },
+      "selected": {
+        "owner_present": true,
+        "app_present": true,
+        "installed_app_present": true,
+        "dataset_present": true,
+        "document_present": true,
+        "document_indexing_status": "completed",
+        "document_segments": 1,
+        "latest_successful_workflow": {
+          "status": "succeeded",
+          "steps": 2,
+          "tokens": 0
+        }
+      }
+    },
+    "metadata_equal": true
+  },
+  "plugin_database": {
+    "baseline_public_table_count": 13,
+    "independent_restore_public_table_count": 13,
+    "equal": true
+  },
+  "mysql": {
+    "baseline_snapshot_restore": {
+      "counts": {
+        "apps": 0,
+        "accounts": 0,
+        "datasets": 0,
+        "documents": 0,
+        "workflow_runs": 0,
+        "installed_apps": 0,
+        "document_segments": 0
+      },
+      "main_head": "c3f1a9b2e6d4",
+      "extension_head": "020_workflow_run_account"
+    },
+    "independent_restore": {
+      "counts": {
+        "apps": 0,
+        "accounts": 0,
+        "datasets": 0,
+        "documents": 0,
+        "workflow_runs": 0,
+        "installed_apps": 0,
+        "document_segments": 0
+      },
+      "main_head": "c3f1a9b2e6d4",
+      "extension_head": "020_workflow_run_account"
+    },
+    "metadata_equal": true
+  },
+  "storage": {
+    "file_count": 3,
+    "two_independent_restore_volumes_file_manifest_equal": true,
+    "per_file_digests_not_persisted": true
+  },
+  "api_restore_readback": {
+    "candidate_image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+    "container_state": "running",
+    "health_http": 200,
+    "checks": {
+      "apps": {
+        "status": 200,
+        "total": 8,
+        "selected_present": true
+      },
+      "installed_apps": {
+        "status": 200,
+        "count": 6,
+        "selected_present": true
+      },
+      "datasets": {
+        "status": 200,
+        "total": 1,
+        "selected_present": true
+      },
+      "documents": {
+        "status": 200,
+        "total": 1,
+        "selected_present": true
+      }
+    }
+  },
+  "result": "passed"
+}

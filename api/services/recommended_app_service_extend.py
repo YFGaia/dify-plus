@@ -1,7 +1,7 @@
 import logging
 
 from flask_login import current_user
-from sqlalchemy import select
+from sqlalchemy import String, and_, cast, func, select
 from sqlalchemy.sql import Select
 from werkzeug.exceptions import NotFound
 
@@ -16,6 +16,7 @@ from models.model import (
 )
 from models.model_extend import AppStatisticsExtend  # Extend: App Center
 from services.account_service_extend import TenantExtendService
+from services.installed_app_service import InstalledAppService
 
 logger = logging.getLogger(__name__)
 
@@ -23,21 +24,38 @@ logger = logging.getLogger(__name__)
 class RecommendedAppService:
     @classmethod
     def installed_app_list(cls, tenant_id: str) -> dict:
-        # -------------- start: add category to categories ---------------
-        apps = (
-            db.session.query(App)
-            .join(AppStatisticsExtend, App.id == AppStatisticsExtend.app_id)
-            .filter(App.tenant_id == tenant_id)
-            .order_by(AppStatisticsExtend.number.desc())
-            .all()
+        """List published workspace installations, even before their first use.
+
+        Usage statistics are optional ranking data. Older/imported apps can lack
+        that row, and historical duplicates must not duplicate app-center cards.
+        Keep the installation within the complete workspace/app owner chain.
+        """
+        usage = (
+            select(AppStatisticsExtend.app_id, func.max(AppStatisticsExtend.number).label("number"))
+            .group_by(AppStatisticsExtend.app_id)
+            .subquery()
         )
+        apps = db.session.execute(
+            select(App, InstalledApp)
+            .join(
+                InstalledApp,
+                and_(
+                    InstalledApp.app_id == App.id,
+                    InstalledApp.tenant_id == tenant_id,
+                    InstalledApp.app_owner_tenant_id == App.tenant_id,
+                ),
+            )
+            .outerjoin(usage, App.id == usage.c.app_id)
+            .where(App.tenant_id == tenant_id, InstalledAppService.published_app_filter())
+            .order_by(func.coalesce(usage.c.number, 0).desc(), App.id.asc(), InstalledApp.id.asc())
+        ).all()
         categories = set()
         recommended_apps_result = []
 
-        for app in apps:
-            classList = app.tags
+        for app, installed_app in apps:
+            classList = list(app.tags_with_session(session=db.session))
             description = app.description
-            config = app.app_model_config
+            config = app.app_model_config_with_session(session=db.session)
             # Extend: start Handle apps without tags
             if len(classList) == 0:
                 # Create a simple object with name attribute for "未分类" category
@@ -54,9 +72,6 @@ class RecommendedAppService:
                 category = i.name
                 if i.name != "未分类":
                     categories.add(i.name)
-                installed_app: InstalledApp = (
-                    db.session.query(InstalledApp).filter(InstalledApp.app_id == app.id).first()
-                )
                 recommended_apps_result.append(
                     {
                         "id": installed_app.id,
@@ -171,9 +186,9 @@ class RecommendedAppService:
 
     @staticmethod
     def _context_conversations(*, tenant_id: str, app_id: str, conversation_id: str) -> Select[tuple[str]]:
-        """Keep the entire owner chain on marker reads and writes after authorization."""
+        """Keep the owner chain and match legacy text marker IDs to upstream UUIDs."""
         return (
-            select(Conversation.id)
+            select(cast(Conversation.id, String(36)))
             .join(App, App.id == Conversation.app_id)
             .where(
                 App.tenant_id == tenant_id,

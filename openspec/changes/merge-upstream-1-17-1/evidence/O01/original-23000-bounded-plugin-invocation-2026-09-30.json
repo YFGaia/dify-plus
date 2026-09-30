@@ -1,0 +1,40 @@
+{
+  "date": "2026-09-30",
+  "result": "passed_component_invocation",
+  "runtime": "original 23000 API container running HEAD-lock image",
+  "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "api_container_id": "db369050442b1eff7231a645ba0ac3f37c02388003bd019c22e8715e23df0225",
+  "app_id": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+  "app_mode": "advanced-chat",
+  "published_workflow_link_present": true,
+  "workflow_tenant_matches_app": true,
+  "llm_node_count": 1,
+  "provider": "langgenius/deepseek/deepseek",
+  "model": "deepseek-flash",
+  "invocation_path": "ModelManager.get_model_instance -> ModelInstance.invoke_llm -> configured provider plugin",
+  "max_output_tokens": 8,
+  "success": true,
+  "response_nonempty": true,
+  "usage": {
+    "prompt_tokens": 37,
+    "completion_tokens": 8,
+    "total_tokens": 45,
+    "total_price": "0",
+    "currency": "USD"
+  },
+  "console_api_key_used": false,
+  "model_response_body_recorded": false,
+  "provider_or_price_configuration_changed": false,
+  "scope_note": "Proves one real bounded model-plugin component operation. It does not prove Console API-key usage, workflow billing persistence, or nonzero quota charging.",
+  "plugin_installation": {
+    "tenant_matches_exact_app": true,
+    "provider_plugin_id": "langgenius/deepseek",
+    "plugin_id": "langgenius/deepseek",
+    "version": "0.0.24",
+    "unique_identifier": "langgenius/deepseek:0.0.24@9e12eef09973667f0eaf4f082af883167e1de88740b22e71e71488d020c3778a",
+    "installation_id": "01a0f098-93a2-752e-be0c-66ffed6dddc2",
+    "runtime_type": "local",
+    "daemon_resolution_matches_provider": true,
+    "matching_installations": 1
+  }
+}

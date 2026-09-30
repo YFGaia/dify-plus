@@ -1,0 +1,23 @@
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+============================= test session starts ==============================
+platform darwin -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/liuxingwang/go/src/dify-plus/api
+configfile: pytest.ini
+plugins: mock-3.15.1, cov-7.1.0, Faker-40.38.0, anyio-4.14.1, xdist-3.8.0, timeout-2.4.0, opik-1.11.2, langsmith-0.8.18, env-1.7.0, hypothesis-6.167.1
+timeout: 60.0s
+timeout method: signal
+timeout func_only: False
+collected 140 items / 119 deselected / 21 selected
+
+api/tests/unit_tests/services/test_workflow_service.py ................. [ 80%]
+....                                                                     [100%]
+
+=============================== warnings summary ===============================
+api/core/rag/index_processor/index_processor_base.py:3
+  /Users/liuxingwang/go/src/dify-plus/api/core/rag/index_processor/index_processor_base.py:3: DeprecationWarning: 'cgi' is deprecated and slated for removal in Python 3.13
+    import cgi
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================ 21 passed, 119 deselected, 1 warning in 1.07s =================

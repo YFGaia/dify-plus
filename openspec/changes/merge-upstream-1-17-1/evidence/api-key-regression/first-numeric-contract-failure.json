@@ -1,0 +1,58 @@
+{
+  "scope": "K01/B08 actual fullimage API noLLM syntheticfixtures",
+  "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/account/profile",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/apps",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    }
+  ],
+  "secrets_printed_or_persisted": false,
+  "app_id": "507d0a6b-9504-4266-8f05-630a50846f2c",
+  "default_quota": {
+    "day_limit_quota": -1.0,
+    "month_limit_quota": -1.0,
+    "day_used_quota": 0.0,
+    "month_used_quota": 0.0,
+    "accumulated_quota": 0.0
+  },
+  "app_list_preserves_legacy_full_token_in_memory": true,
+  "app_key_identity_stable_on_list": true,
+  "observed_edited_quota_readback": {
+    "description": "test7dec",
+    "day_limit_quota": "1.1234567",
+    "month_limit_quota": "2.7654321",
+    "day_used_quota": "0E-7",
+    "month_used_quota": "0E-7",
+    "accumulated_quota": "0E-7"
+  },
+  "observed_value_types": {
+    "description": "str",
+    "day_limit_quota": "str",
+    "month_limit_quota": "str",
+    "day_used_quota": "str",
+    "month_used_quota": "str",
+    "accumulated_quota": "str"
+  }
+}

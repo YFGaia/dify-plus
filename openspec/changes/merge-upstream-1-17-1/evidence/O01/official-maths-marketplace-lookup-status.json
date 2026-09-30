@@ -1,0 +1,16 @@
+{
+  "source_contract_verified": "langgenius/dify-official-plugins/tools/maths",
+  "public_release_identity_attempts": [
+    {
+      "method": "POST",
+      "url": "https://marketplace.dify.ai/api/v1/plugins/batch",
+      "status": "HTTPError; not installed; no identifier invented"
+    },
+    {
+      "method": "GET",
+      "url": "https://marketplace.dify.ai/api/v1/dist/plugins/manifest.json",
+      "status": 403
+    }
+  ],
+  "next_action": "Developer tries product API container marketplace/helper official metadata; only install when actual release identity obtained. Baseline installed metadata/daemon diagnostics do not substitute actual plugin operation."
+}

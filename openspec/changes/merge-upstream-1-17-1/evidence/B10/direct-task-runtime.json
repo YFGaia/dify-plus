@@ -1,0 +1,179 @@
+{
+  "scene": "B10",
+  "image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619",
+  "mode": "actual canonical image separate synthetic database direct task.run; no delay/worker/beatclock/mail",
+  "database": "dify_b10_acceptance_20260930",
+  "guards": {
+    "zero_real_accounts": true,
+    "zero_apps": true,
+    "zero_initial_task_tables": true,
+    "database_identity_checked": true
+  },
+  "heads": {
+    "upstream": "c3f1a9b2e6d4",
+    "extend": "020_workflow_run_account"
+  },
+  "frozen_key_ids": [
+    "f62c45fe-503e-4355-80fc-80b95a58b7b7",
+    "111179bb-6ec9-4fd3-8736-f70010874fa1",
+    "8abf8623-47e8-4862-b7d6-a4eb13755761",
+    "ef0312a4-6c98-4d98-8c56-98522b675db9"
+  ],
+  "frozen_account_money_ids": [
+    "793e708f-1ba0-4612-88e8-9d4ca853adcd",
+    "34dc5381-96ce-4949-a8fe-0561925d3a23"
+  ],
+  "before": {
+    "keys": {
+      "f62c45fe-503e-4355-80fc-80b95a58b7b7": {
+        "accumulated_quota": "9.1234567",
+        "day_used_quota": "1.1234567",
+        "month_used_quota": "5.7654321",
+        "day_limit_quota": "-1.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "111179bb-6ec9-4fd3-8736-f70010874fa1": {
+        "accumulated_quota": "10.1234567",
+        "day_used_quota": "2.1234567",
+        "month_used_quota": "6.7654321",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "8abf8623-47e8-4862-b7d6-a4eb13755761": {
+        "accumulated_quota": "11.1234567",
+        "day_used_quota": "3.1234567",
+        "month_used_quota": "7.7654321",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "ef0312a4-6c98-4d98-8c56-98522b675db9": {
+        "accumulated_quota": "12.1234567",
+        "day_used_quota": "4.1234567",
+        "month_used_quota": "8.7654321",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      }
+    },
+    "account_money": {
+      "793e708f-1ba0-4612-88e8-9d4ca853adcd": {
+        "total_quota": "40.1234567",
+        "used_quota": "3.7654321"
+      },
+      "34dc5381-96ce-4949-a8fe-0561925d3a23": {
+        "total_quota": "41.1234567",
+        "used_quota": "4.7654321"
+      }
+    }
+  },
+  "beat": {
+    "schedule.update_api_token_daily_used_quota_task_extend.update_api_token_daily_used_quota_task_extend": {
+      "unique_registration": true,
+      "task_queue": "extend_low",
+      "schedule": "<crontab: 0 0 * * * (m/h/dM/MY/d)>"
+    },
+    "schedule.update_api_token_monthly_used_quota_task_extend.update_api_token_monthly_used_quota_task_extend": {
+      "unique_registration": true,
+      "task_queue": "extend_low",
+      "schedule": "<crontab: 0 0 1 * * (m/h/dM/MY/d)>"
+    },
+    "schedule.update_account_used_quota_extend.update_account_used_quota_extend": {
+      "unique_registration": true,
+      "task_queue": "extend_low",
+      "schedule": "<crontab: 0 0 1 * * (m/h/dM/MY/d)>"
+    }
+  },
+  "daily": {
+    "snapshot_rows": 4,
+    "preusage_snapshot_exact": true,
+    "only_day_reset": true,
+    "readback": {
+      "f62c45fe-503e-4355-80fc-80b95a58b7b7": {
+        "accumulated_quota": "9.1234567",
+        "day_used_quota": "0E-7",
+        "month_used_quota": "5.7654321",
+        "day_limit_quota": "-1.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "111179bb-6ec9-4fd3-8736-f70010874fa1": {
+        "accumulated_quota": "10.1234567",
+        "day_used_quota": "0E-7",
+        "month_used_quota": "6.7654321",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "8abf8623-47e8-4862-b7d6-a4eb13755761": {
+        "accumulated_quota": "11.1234567",
+        "day_used_quota": "0E-7",
+        "month_used_quota": "7.7654321",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "ef0312a4-6c98-4d98-8c56-98522b675db9": {
+        "accumulated_quota": "12.1234567",
+        "day_used_quota": "0E-7",
+        "month_used_quota": "8.7654321",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      }
+    }
+  },
+  "monthly": {
+    "snapshot_rows": 4,
+    "preusage_snapshot_exact": true,
+    "accumulated_not_reset": true,
+    "limits_not_changed": true,
+    "readback": {
+      "f62c45fe-503e-4355-80fc-80b95a58b7b7": {
+        "accumulated_quota": "9.1234567",
+        "day_used_quota": "0E-7",
+        "month_used_quota": "0E-7",
+        "day_limit_quota": "-1.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "111179bb-6ec9-4fd3-8736-f70010874fa1": {
+        "accumulated_quota": "10.1234567",
+        "day_used_quota": "0E-7",
+        "month_used_quota": "0E-7",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "8abf8623-47e8-4862-b7d6-a4eb13755761": {
+        "accumulated_quota": "11.1234567",
+        "day_used_quota": "0E-7",
+        "month_used_quota": "0E-7",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      },
+      "ef0312a4-6c98-4d98-8c56-98522b675db9": {
+        "accumulated_quota": "12.1234567",
+        "day_used_quota": "0E-7",
+        "month_used_quota": "0E-7",
+        "day_limit_quota": "20.0000000",
+        "month_limit_quota": "30.0000000"
+      }
+    }
+  },
+  "account": {
+    "snapshot_rows": 2,
+    "preusage_and_total_snapshot_exact": true,
+    "only_used_reset": true,
+    "readback": {
+      "793e708f-1ba0-4612-88e8-9d4ca853adcd": {
+        "total_quota": "40.1234567",
+        "used_quota": "0E-7"
+      },
+      "34dc5381-96ce-4949-a8fe-0561925d3a23": {
+        "total_quota": "41.1234567",
+        "used_quota": "0E-7"
+      }
+    }
+  },
+  "status": "passed_bounded_task_effects_and_unique_schedule_registration",
+  "periodic_clock_triggered": false,
+  "real_accounts_and_apps_after": 0,
+  "cleanup": {
+    "only_named_synthetic_database_dropped": true,
+    "dropdb_exit_code": 0,
+    "business_db_touched": false
+  }
+}

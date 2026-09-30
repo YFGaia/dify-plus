@@ -1,0 +1,175 @@
+{
+  "id": "09275aa2-3da1-4bc1-b75f-108cf2a5d210",
+  "graph": {
+    "nodes": [
+      {
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "zIndex": 0,
+        "id": "end",
+        "positionAbsolute": {
+          "x": 638,
+          "y": 100
+        },
+        "data": {
+          "type": "end",
+          "title": "End",
+          "outputs": [
+            {
+              "variable": "marker_text",
+              "value_type": "string",
+              "value_selector": [
+                "tool",
+                "text"
+              ]
+            },
+            {
+              "variable": "marker_json",
+              "value_type": "array[object]",
+              "value_selector": [
+                "tool",
+                "json"
+              ]
+            }
+          ],
+          "selected": false
+        },
+        "position": {
+          "y": 100,
+          "x": 638
+        },
+        "type": "custom",
+        "height": 114,
+        "width": 242
+      },
+      {
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "zIndex": 0,
+        "id": "start",
+        "positionAbsolute": {
+          "x": 30,
+          "y": 100
+        },
+        "data": {
+          "type": "start",
+          "title": "Start",
+          "variables": [],
+          "selected": false
+        },
+        "position": {
+          "y": 100,
+          "x": 30
+        },
+        "type": "custom",
+        "height": 73,
+        "width": 242
+      },
+      {
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "zIndex": 0,
+        "id": "tool",
+        "positionAbsolute": {
+          "x": 334,
+          "y": 100
+        },
+        "data": {
+          "tool_node_version": "2",
+          "tool_parameters": {},
+          "is_team_authorization": true,
+          "tool_configurations": {
+            "marker": {
+              "value": "B09_PARENT_CONFIG_V1",
+              "type": "constant"
+            }
+          },
+          "title": "Acceptance Marker Echo",
+          "provider_type": "workflow",
+          "provider_id": "14965c4b-9654-4ee9-b6df-ea0a61e5c58d",
+          "type": "tool",
+          "provider_name": "Acceptance Marker Echo",
+          "tool_label": "Acceptance Marker Echo",
+          "tool_name": "acceptance_marker_echo_20260930",
+          "selected": false
+        },
+        "position": {
+          "y": 100,
+          "x": 334
+        },
+        "type": "custom",
+        "height": 88,
+        "width": 242
+      }
+    ],
+    "edges": [
+      {
+        "zIndex": 0,
+        "sourceHandle": "source",
+        "id": "start-tool",
+        "target": "tool",
+        "targetHandle": "target",
+        "type": "custom",
+        "source": "start",
+        "data": {
+          "sourceType": "start",
+          "targetType": "tool",
+          "isInIteration": false,
+          "isInLoop": false,
+          "iteration_id": null,
+          "loop_id": null
+        }
+      },
+      {
+        "zIndex": 0,
+        "sourceHandle": "source",
+        "id": "tool-end",
+        "target": "end",
+        "targetHandle": "target",
+        "type": "custom",
+        "source": "tool",
+        "data": {
+          "sourceType": "tool",
+          "targetType": "end",
+          "isInIteration": false,
+          "isInLoop": false,
+          "iteration_id": null,
+          "loop_id": null
+        }
+      }
+    ],
+    "viewport": {
+      "x": -81.20000000000005,
+      "y": 362.4,
+      "zoom": 0.8
+    }
+  },
+  "features": {
+    "file_upload": {},
+    "text_to_speech": {
+      "enabled": false,
+      "voice": "",
+      "language": ""
+    },
+    "sensitive_word_avoidance": {
+      "enabled": false
+    }
+  },
+  "hash": "a4d9d01fde74b6d9cf2e8b2da0516e9147f7e4c5d2b21c6bc054f242f804d196",
+  "version": "2026-09-30 09:48:49.353015",
+  "version_number": 1,
+  "marked_name": "",
+  "marked_comment": "",
+  "created_by": {
+    "id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+    "name": "Acceptance Owner",
+    "email": "acceptance-owner@example.invalid"
+  },
+  "created_at": 1790761729,
+  "updated_by": null,
+  "updated_at": 1790761729,
+  "tool_published": false,
+  "environment_variables": [],
+  "conversation_variables": [],
+  "rag_pipeline_variables": []
+}

@@ -1,0 +1,1323 @@
+{
+  "stage": "pre_final_bundle_complete_scope_audit",
+  "date": "2026-09-30",
+  "node_count": 38,
+  "counts": {
+    "passed": 25,
+    "blocked": 2,
+    "pending": 11
+  },
+  "all_original_nodes_and_new_gates": [
+    {
+      "id": "A00",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/A00/result.json",
+        "evidence/A00/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "授权记录明确涵盖动作、分支名称及环境边界"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/A00/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "A01",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/A01/result.json",
+        "evidence/A01/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "完整 SHA 与本分析一致，变化则 A02 重新评估",
+        "无未保存的受影响用户修改；未跟踪路径碰撞已逐项处置"
+      ],
+      "commands": [
+        "git status --short",
+        "git rev-parse HEAD",
+        "git remote get-url upstream",
+        "git tag --points-at HEAD",
+        "git switch -c codex/merge-upstream-1.17.1"
+      ],
+      "outputs": [
+        "evidence/A01/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "A02",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/A02/result.json",
+        "evidence/A02/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "目标确为 8387590ace4a094de812b7847fc6a4c3a27cd52b",
+        "所有冲突唯一归属；所有文件改写需求有 owner"
+      ],
+      "commands": [
+        "git fetch upstream refs/tags/1.17.1:refs/tags/1.17.1",
+        "git rev-parse refs/tags/1.17.1^{commit}",
+        "git merge-base HEAD refs/tags/1.17.1"
+      ],
+      "outputs": [
+        "evidence/A02/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "A03",
+      "recorded_status": "blocked",
+      "scope_interpretation": "historical_deployment_copy_required; fresh_local_counterpart_does_not_close_old_upgrade",
+      "existing_evidence": [
+        "evidence/A03/result.json",
+        "evidence/A03/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/A03/result.json",
+        "evidence/A03/execution.log"
+      ],
+      "acceptance": [
+        "环境清单必填项完成，缺失项标 blocked",
+        "具备可恢复副本与隔离环境方案"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/A03/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "A04",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/A04/result.json",
+        "evidence/A04/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "身份/前端/额度负责人认可同一契约",
+        "不得以旧文件路径代替行为验收"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/A04/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M00",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M00/result.json",
+        "evidence/M00/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "双父 merge commit 第一父为步骤 1 记录的执行前授权分支 HEAD、第二父为固定 target；无未解决索引",
+        "91 个预测冲突与实际冲突逐项核对并有唯一 owner；冲突树采用 upstream 版本或删除，fork 原始内容可从第一父与 A02 台账追溯",
+        "基线明确不可部署，后续适配、M08 候选和验证门槛未被提前判通过"
+      ],
+      "commands": [
+        "git merge --no-commit --no-ff refs/tags/1.17.1",
+        "git diff --name-only --diff-filter=U",
+        "git ls-files -u",
+        "git show --no-patch --format=%P HEAD"
+      ],
+      "outputs": [
+        "evidence/M00/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M01",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M01/result.json",
+        "evidence/M01/execution.log",
+        "evidence/M01/7.5-next-webpack-compatibility.md",
+        "evidence/M01/7.5-pnpm-check.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "依赖变化可解释；无抹除钉钉/pypinyin 等 fork 依赖",
+        "生成物来源明确，工具链版本可复现"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/M01/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M02",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M02/result.json",
+        "evidence/M02/execution.log",
+        "evidence/M02/environment-readiness.json",
+        "evidence/M02/independent-review.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "public/license 分级无泄露",
+        "summary 权限字段真实可读；无旧签名/双重路由"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/M02/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果",
+        "evidence/M02/independent-review.json"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M03",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M03/result.json",
+        "evidence/M03/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "setup/邮箱/OAuth/邀请均有一条正确额度",
+        "公开矩阵与新环境认证契约清晰，禁止复活旧 controller"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/M03/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M04",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M04/pre-analysis.md",
+        "evidence/M04/result.json",
+        "evidence/M04/execution.log",
+        "evidence/M04/handoff.md",
+        "evidence/M04/verified-inputs.json",
+        "evidence/M04/callers.json",
+        "evidence/M04/static-scope.json",
+        "evidence/M04/schema-assertions.json",
+        "evidence/M04/scope-registration.json",
+        "evidence/M04/focused-tests.log",
+        "evidence/M04/lint.log",
+        "evidence/M04/verify.sh",
+        "evidence/M04/verify_static.py",
+        "evidence/M04/plan-checks.log",
+        "evidence/M04/static-checks.log",
+        "evidence/M04/independent-review.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "九项由 M04 实施/复核并有新路径与调用证据；OAuth 引用 M03 证据闭合十项总览",
+        "所有被装饰入口签名兼容；不新增漏扣/重复派发"
+      ],
+      "commands": [
+        "sh openspec/changes/merge-upstream-1-17-1/evidence/M04/verify.sh",
+        "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python openspec/changes/merge-upstream-1-17-1/evidence/M04/verify_static.py"
+      ],
+      "outputs": [
+        "evidence/M04/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M05",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M05/result.json",
+        "evidence/M05/execution.log",
+        "evidence/M05/pre-analysis.md",
+        "evidence/M05/codegen-investigation.json",
+        "evidence/M05/codegen-analysis.md",
+        "evidence/M05/resumption.json",
+        "evidence/M05/11.6-message-contract-generation.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "不恢复已删旧服务成为双源",
+        "SSR 不把 ping 当配置，匿名不读敏感 license；权限位不丢失"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/M05/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M06",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M06/result.json",
+        "evidence/M06/execution.log",
+        "evidence/M06/12.1b-path-registration.md",
+        "evidence/M06/12.6g-verification.md",
+        "evidence/M06/12.6h-verification.md",
+        "evidence/M06/12.6i-validation.md",
+        "evidence/M06/12.6-final-aggregate.md"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "现有 fork 路由都能被新宿主访问",
+        "两个 WebApp Switch 独立；24 语言资源齐全；旧测试迁移到真实新挂点"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/M06/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M07",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M07/ci-analysis.md",
+        "evidence/M07/env-variable-audit-summary.json",
+        "evidence/M07/env-variable-audit.tsv",
+        "evidence/M07/execution.log",
+        "evidence/M07/path-registration.json",
+        "evidence/M07/pre-analysis.json",
+        "evidence/M07/pre-analysis.md",
+        "evidence/M07/result.json",
+        "evidence/M07/resumption.json",
+        "evidence/M07/13.6-current-review.md"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "配置/镜像矩阵可审查；无误用官方 api/web 镜像替代 fork",
+        "fork Compose 不因无文本冲突被漏审"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/M07/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "M08",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+        "evidence/M08/14.18-final-candidate-structural-acceptance.md",
+        "evidence/M08/14.19-final-candidate-structural-acceptance.md"
+      ],
+      "missing_declared_references": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log"
+      ],
+      "acceptance": [
+        "未解决索引为零、冲突标记和孤儿宿主为零",
+        "M00 双父 merge 祖先仍可追溯，M01–M07 各有独立提交；候选源码提交覆盖最终集成修复，十挂点和全部91路径有审查记录"
+      ],
+      "commands": [
+        "git diff --name-only --diff-filter=U",
+        "git diff --check",
+        "git status --short"
+      ],
+      "outputs": [
+        "evidence/M08/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "V01",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/V01/result.json",
+        "evidence/V01/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "单测报告明确用例、commit、结果",
+        "已有债务与新增回归分开；无运行权限或依赖不可用记 blocked"
+      ],
+      "commands": [
+        "uv run --project api python -m compileall -q api",
+        "uv run --project api python -c \"import sys; sys.path.insert(0, 'api'); from app_factory import create_app\"",
+        "uv run --project api pytest api/tests/unit_tests/controllers/console/test_apikey.py api/tests/unit_tests/services/test_account_service.py api/tests/unit_tests/core/app/workflow/test_persistence_layer.py"
+      ],
+      "outputs": [
+        "evidence/V01/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "V02",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/V02/result.json",
+        "evidence/V02/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "Node/pnpm 与锁文件一致，检查与双构建成功",
+        "定向认证与角色矩阵通过；24份extend可加载"
+      ],
+      "commands": [
+        "pnpm install --frozen-lockfile",
+        "pnpm check",
+        "pnpm --dir web lint:tss",
+        "pnpm --dir web i18n:check",
+        "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit features/system-features service/console app/components/app/access-point app/components/api-key",
+        "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project browser app/components/app/access-point app/components/api-key",
+        "pnpm --dir web build",
+        "pnpm --dir web build:vinext"
+      ],
+      "outputs": [
+        "evidence/V02/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "R01",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/R01/result.json",
+        "evidence/R01/execution.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "源码候选可构建，阻断级新增回归清零",
+        "状态明确为 code-ready，仍须环境链"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/R01/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "V03",
+      "recorded_status": "blocked",
+      "scope_interpretation": "historical_deployment_copy_required; fresh_local_counterpart_does_not_close_old_upgrade",
+      "existing_evidence": [
+        "evidence/V03/result.json",
+        "evidence/V03/execution.log",
+        "evidence/V03/local-compose-2026-09-30.md",
+        "evidence/V03/mysql-empty-2026-09-30.md"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "双head为 c3f1a9b2e6d4 / 020_workflow_run_account",
+        "数据差异符合预审、破坏性数据有处置决定、耗时记录"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/V03/result.json",
+        "evidence/V03/mysql-empty-2026-09-30.md",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "V04",
+      "recorded_status": "pending",
+      "scope_interpretation": "historical_deployment_copy_required; fresh_local_counterpart_does_not_close_old_upgrade",
+      "existing_evidence": [
+        "evidence/V04/result.json",
+        "evidence/V04/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/V04/result.json",
+        "evidence/V04/execution.log"
+      ],
+      "acceptance": [
+        "实际数据可写可检索，和基线查询集可比",
+        "恢复路径与耗时有证据；其他向量库分支也必须通过"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/V04/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "V05",
+      "recorded_status": "pending",
+      "scope_interpretation": "real_full_business_acceptance_external_credentials_still_missing; mapped_current29ledger",
+      "existing_evidence": [
+        "evidence/V05/result.json",
+        "evidence/V05/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/V05/result.json",
+        "evidence/V05/execution.log"
+      ],
+      "acceptance": [
+        "矩阵每项有请求/结果/数据库对账证据",
+        "缺真实账号或凭据记blocked，不宣称生产就绪"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/V05/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "V06",
+      "recorded_status": "pending",
+      "scope_interpretation": "historical_deployment_copy_required; fresh_local_counterpart_does_not_close_old_upgrade",
+      "existing_evidence": [
+        "evidence/V06/result.json",
+        "evidence/V06/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/V06/result.json",
+        "evidence/V06/execution.log"
+      ],
+      "acceptance": [
+        "旧版可真实运行，数据来自同一恢复点",
+        "RTO/RPO可接受且无不受控任务重放"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/V06/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "R02",
+      "recorded_status": "pending",
+      "scope_interpretation": "final_documented_release_package/owned_commit_and_nonoverwriting_tag_pending; no production implication",
+      "existing_evidence": [
+        "evidence/R02/result.json",
+        "evidence/R02/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/R02/result.json",
+        "evidence/R02/execution.log"
+      ],
+      "acceptance": [
+        "可执行环境包无占位符，演练证据完整",
+        "tag对应已验证代码，明确不代表生产已上线"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/R02/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "D00",
+      "recorded_status": "pending",
+      "scope_interpretation": "production_authorization_and_target_inventory_required",
+      "existing_evidence": [
+        "evidence/D00/result.json",
+        "evidence/D00/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/D00/result.json",
+        "evidence/D00/execution.log"
+      ],
+      "acceptance": [
+        "取得明确生产执行授权且全部前置通过"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/D00/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "D01",
+      "recorded_status": "pending",
+      "scope_interpretation": "production_authorization_and_target_inventory_required",
+      "existing_evidence": [
+        "evidence/D01/result.json",
+        "evidence/D01/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/D01/result.json",
+        "evidence/D01/execution.log"
+      ],
+      "acceptance": [
+        "写入静止，备份完整可恢复",
+        "在途任务和恢复后重投策略已记录"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/D01/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "D02",
+      "recorded_status": "pending",
+      "scope_interpretation": "production_authorization_and_target_inventory_required",
+      "existing_evidence": [
+        "evidence/D02/result.json",
+        "evidence/D02/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/D02/result.json",
+        "evidence/D02/execution.log"
+      ],
+      "acceptance": [
+        "实际版本/schema/检索与演练一致"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/D02/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "D03",
+      "recorded_status": "pending",
+      "scope_interpretation": "production_authorization_and_target_inventory_required",
+      "existing_evidence": [
+        "evidence/D03/result.json",
+        "evidence/D03/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/D03/result.json",
+        "evidence/D03/execution.log"
+      ],
+      "acceptance": [
+        "双head、数据对账、模型凭据读回满足目标",
+        "所有业务容器自动迁移关闭后才允许启动"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/D03/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "D04",
+      "recorded_status": "pending",
+      "scope_interpretation": "production_authorization_and_target_inventory_required",
+      "existing_evidence": [
+        "evidence/D04/result.json",
+        "evidence/D04/execution.log"
+      ],
+      "missing_declared_references": [
+        "evidence/D04/result.json",
+        "evidence/D04/execution.log"
+      ],
+      "acceptance": [
+        "真实业务负责人签收与观察通过，才标 deployed",
+        "任何恢复后的新写入损失按RPO记录，绝不自动删除旧快照"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/D04/result.json",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "N00",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/merge-completion-audit-2026-09-30.md"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "历史状态与当前范围分开；不得以源码单测替代真实业务"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N00/result.json"
+      ],
+      "current_checkpoints": {}
+    },
+    {
+      "id": "N01",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/N01/independent-source-review.json",
+        "evidence/N01/published-app-missing-stats-runtime-2026-09-30.json",
+        "evidence/role-permissions-runtime/final-role-results.md",
+        "evidence/role-permissions-runtime/center-two-cards.txt",
+        "evidence/role-permissions-runtime/center-missing-stats-open.txt",
+        "evidence/role-permissions-runtime/center-two-cards.png",
+        "evidence/role-permissions-runtime/center-missing-stats-open.png"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "缺stats的已安装已发布应用无需数据回填即返回、显示、打开；新App仅一条stats",
+        "既有统计排序、分页、租户与权限保持；F01/F02全矩阵另归N05"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N01/result.json"
+      ],
+      "current_checkpoints": {
+        "source_checkpoint": {
+          "status": "development_and_independent_source_review_passed; live_page_pending",
+          "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+          "source_manifest_sha256": "d17f6fe5701b56a336b54b097dd20c650059a9d7045f3491e01c202d2224a9d3",
+          "owned_files": {
+            "api/services/installed_app_service.py": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b",
+            "api/services/recommended_app_service_extend.py": "ccfb4524e7790b740ba10bd484a63b0bbca8756006dcc89a657f0fe997bb9cb8",
+            "api/events/event_handlers/__init__.py": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8",
+            "api/events/event_handlers/create_app_statistics_when_app_created_extend.py": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba",
+            "api/tests/unit_tests/events/test_app_statistics_extend.py": "856fcf4a6b4ed85c9cef5d2f051e0a19f35be52107c0cffc23d80dcab98d534c",
+            "api/tests/unit_tests/services/test_app_center_extend.py": "4e6e1e770a8505f750979598de032602e7b707262fccb315185d57e667a0dae1"
+          },
+          "targeted_tests": 52,
+          "evidence": [
+            "evidence/N01/independent-source-review.json",
+            "evidence/N01/independent-source-review.md"
+          ],
+          "rule": "Keep node pending until current complete image and real user page/API acceptance."
+        },
+        "current_full_image_api_checkpoint": {
+          "status": "passed_API_lifecycle_missingstats_and_actualbrowser_show_open_for3c",
+          "evidence": "evidence/N01/published-app-missing-stats-runtime-2026-09-30.json",
+          "api_image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+          "source_reuse_for_latestN07": "installed_app_service/recommended_app_service/eventhandler hashes must remain identical in newimage; finaloriginal23000 stillN06"
+        }
+      }
+    },
+    {
+      "id": "N02",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/N02/result.json",
+        "evidence/N02/source-build-manifest.json",
+        "evidence/N02/context-file-manifest.json",
+        "evidence/N01/independent-source-review.json",
+        "evidence/N04/independent-model-source-review.json",
+        "evidence/N04/independent-quota-upsert-source-review.json",
+        "evidence/app-center-regression/targeted-tests.log",
+        "evidence/model-uuid-regression/targeted-tests.log",
+        "evidence/quota-upsert-regression/targeted-tests.log"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "当前候选包含全部修复且回归零阻断",
+        "旧970b704的R01结论仅作为历史输入，当前candidate明确绑定新源码"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N02/result.json"
+      ],
+      "current_checkpoints": {
+        "input_freeze_checkpoint": {
+          "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+          "product_migration_fix_commit": "9fcc542afb7b794b50aca86b7abd4ecc4f39bea2",
+          "app_center_manifest": "evidence/app-center-regression/source.sha256",
+          "app_center_independent_review": "evidence/N01/independent-source-review.json",
+          "app_center_targeted_tests": 52,
+          "status": "passed_source_freeze_and_independent_reviews_for3c632717; N03canonicalruntime_readiness_passed; latestN07advance_pending",
+          "required_archive_inputs": [
+            "all current relevant tracked source including pre-existing api/uv.lock changes",
+            "all six owned app-center source/test paths including new untracked files",
+            "migration/quota fixes already present in base HEAD",
+            "api/models/model_extend.py new4model client UUID repair and its newly added regression tests after independent dual-engine acceptance",
+            "api/services/system_manage_extend.py dialect-specific atomic quota upsert repair and necessary regression tests after independent acceptance"
+          ],
+          "rule": "Archive and identify current working-tree source; no staging/reset/overwriting existing lock changes; record full source manifest before build.",
+          "four_model_repair_source_sha256": {
+            "api/models/model_extend.py": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190",
+            "api/tests/unit_tests/models/test_model_extend_uuid_defaults.py": "ca89fd7377bf776f5e3da3caa2b617f70179acd06c27c91fad02040dd0f1feb0"
+          },
+          "complete_archive_manifest": "evidence/N02/source-build-manifest.json",
+          "complete_archive_manifest_sha256": "93e4e8e185bccddfc280732022064356debee7830886bf48ac712827883eba62",
+          "final_context_identity": {
+            "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+            "tracked_context_archive_sha256": "48e64b7c27b292308dd1a17bf1f503d5e6584a7241eed466198f62337ab914a2",
+            "context_manifest_sha256": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+            "file_count": 4314
+          },
+          "quota_upsert_source_sha256": {
+            "api/services/system_manage_extend.py": "9673831d9616cdc85b672dc07743eb1dff18f5499e6a000535080dd557e21588",
+            "api/tests/unit_tests/services/test_quota_manage_upsert_extend.py": "3d7a0d682f52bbc12fff859ab4c35b7a753d7eadbc3d4dcd68d23a7b1bdab32d",
+            "api/tests/unit_tests/controllers/console/test_system_manage_extend.py": "8fc9fd897e8950a7126968731f27539271761a933c5a3f816e7b99ad1af6c6fb"
+          },
+          "quota_upsert_independent_review": "evidence/N04/independent-quota-upsert-source-review.json",
+          "quota_upsert_targeted_tests": 27,
+          "archive_overlay_count": 12
+        }
+      }
+    },
+    {
+      "id": "N03",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/N03/canonical-image-verification.json",
+        "evidence/N03/runtime-readiness-2026-09-30.json",
+        "evidence/local-acceptance-runtime-2026-09-30/config-validation-summary.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "完整镜像运行当前修复源码；HTTP200或旧镜像+overlay不能代替",
+        "隔离localhost:23010实际操作；标准必要拓扑/Socket.IO/队列真实证据，原127.0.0.1:23000交付保留N06单独gate"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N03/result.json"
+      ],
+      "current_checkpoints": {
+        "configuration_checkpoint": {
+          "status": "passed_source_locked_canonical_runtime_readiness; localhostIPv6/nginxactualready; latestN07advance_pending",
+          "runtime_plan": "evidence/local-acceptance-runtime-2026-09-30/runtime-plan.json",
+          "overlay": "evidence/local-acceptance-runtime-2026-09-30/compose.acceptance.override.yaml",
+          "overlay_sha256": "3f59f4cb58db83ac1c388c03f22f487aad0ea7da7c426beaa592841a1f31ef18",
+          "config_evidence": "evidence/local-acceptance-runtime-2026-09-30/config-validation-summary.json",
+          "project": "difyplus-acceptance-20260930",
+          "host": "localhost",
+          "middleware_authorization": "parent explicitly authorized runtime owner to start only new project middleware before API image readiness",
+          "secret_values_recorded": false,
+          "rule": "Do not accept N03 from this config validation; actual final image/source/runtime required.",
+          "middleware_report": {
+            "reporter": "runtime_acceptance",
+            "date": "2026-09-30",
+            "services_started": [
+              "db_postgres",
+              "db_mysql",
+              "redis",
+              "qdrant",
+              "sandbox",
+              "ssrf_proxy"
+            ],
+            "versions": {
+              "postgres": "15.12",
+              "mysql": "8.0.46",
+              "redis": "6.2",
+              "qdrant": "v1.8.3"
+            },
+            "health": "PG/MySQL/Redis/Qdrant/sandbox healthy; ssrf_proxy running",
+            "empty_database_guards": "PG0applicationtables; newMySQL schema0tables",
+            "host_ports_published": false,
+            "volumes": "independent new project named volumes",
+            "pending": [],
+            "not_started": [
+              "init_permissions",
+              "init_secret_key",
+              "migration",
+              "migration_mysql",
+              "api",
+              "api_websocket",
+              "web",
+              "plugin_daemon",
+              "worker",
+              "worker-gaia",
+              "worker-dataset",
+              "nginx"
+            ],
+            "private_env_path": "/private/tmp/difyplus-acceptance-api-20260930/acceptance.private.env",
+            "private_env_mode": "0600",
+            "secret_values_read_or_recorded": false
+          },
+          "bind_host": "::1",
+          "host_bind_failure": {
+            "observed": "127.0.0.2 unavailable; localhost only::1 soIPv4bind would fail",
+            "fix": "external localhost with [::1]bindings; runtimeDockerIPv6localhostHTTP200probe passed; noOSalias",
+            "evidence": "evidence/local-acceptance-runtime-2026-09-30/runtime-plan.json"
+          },
+          "nginx_local_adaptation": {
+            "observed": "nginx1.27-alpine has no/bin/bash; shebang exec of copied fork entrypoint failed not found",
+            "change": "same copy/sed/chmod sequence invokes sh explicitly; script static POSIX syntax reviewed",
+            "scope": "acceptance override only; base deployment and product source unchanged",
+            "actual_runtime_result": "pending runtime retry"
+          }
+        },
+        "image_build_checkpoint": {
+          "status": "passed_canonicalbuild_and_actual_runtime_readiness_for3c632717; latestN07advance_pending",
+          "candidate_tag": "difyplus-acceptance-api:953cf1c-uuid-quota-3c632717",
+          "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+          "manifest": "evidence/N02/source-build-manifest.json",
+          "recipe": "evidence/N03/Dockerfile.seeded.txt",
+          "independent_static_review": "evidence/N03/independent-seed-provenance-review.json",
+          "standard_recipe_release_reproducibility": "canonical_repository_Dockerfile_build_passed; private_registry_supply_separate",
+          "reported_checks": {
+            "production_overlay_hashes": "7of7matched;5testpathsDockerignored as expected",
+            "installed_packages": 411,
+            "locked_version_mismatches": 0,
+            "extra_installed_packages": 0,
+            "dify_agent": "current /app/dify-agent noneditable",
+            "runtime_verification_owner": "runtime_acceptance",
+            "durable_provenance_result": "evidence/N03/canonical-image-verification.json"
+          },
+          "canonical_runtime_verification": "evidence/N03/canonical-image-verification.json",
+          "auxiliary_seed_only": {
+            "manifest": "evidence/N03/seed-build-manifest.json",
+            "recipe": "evidence/N03/Dockerfile.seeded.txt",
+            "source_review": "evidence/N03/independent-seed-provenance-review.json"
+          }
+        },
+        "runtime_acceptance_checkpoint": {
+          "status": "passed_full_image_runtime_readiness_only",
+          "evidence": "evidence/N03/runtime-readiness-2026-09-30.json",
+          "web_reuse_rule": "N02 verifies all trackedfrontend/lock unchanged since970bacceptedsource; running unchangedfullWebimage exactIDrecorded",
+          "remaining": "N01 realappcenterscene; N04 actualORM/KB/taskdelivery; N05fullbusiness; N06restore/original23000"
+        }
+      }
+    },
+    {
+      "id": "N04",
+      "recorded_status": "passed",
+      "scope_interpretation": "current_local_plus_explicit_external_or_latestdelivery_conditions",
+      "existing_evidence": [
+        "evidence/N04/fullimage-dualengine-orm-2026-09-30.json",
+        "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+        "evidence/N04/delete-rebuild-economy-runtime-2026-09-30.json",
+        "evidence/O01/gaia-extend-task-delivery-ack-2026-09-30.json",
+        "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+        "evidence/O01/original-23000-bounded-plugin-invocation-2026-09-30.json",
+        "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+        "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
+        "evidence/N06/independent-final-delivery-restore-review.json",
+        "evidence/N04/result.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "两库双head正确且真实setup/额度数据正常",
+        "队列消费、模型插件和真实知识库检索闭环；旧向量升级未因此通过",
+        "四项扩展模型省略ID两库实际读写证据覆盖，不用显式ID或SQLite替代"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N04/result.json"
+      ],
+      "current_checkpoints": {
+        "accepted_checkpoints": {
+          "fresh_dual_heads_models_quota": "passed actual fullimage N08; matching unchanged final source hashes permit reuse, not latestimage native rerun claim",
+          "economy_knowledge_keyword_delete_rebuild": "passed product API/async actual worker and matching sample retrieval",
+          "default_provider_install_and_isolated_Qdrant": "passed N10 HEAD-lock fullimage runtime proof",
+          "remaining": "None within selected freshinstallation gate; external highquality embedding, SSO, nonzero charging and oldversions separate.",
+          "external_boundary": "High-quality embedding/SSO/oldvectorupgrade separate; Economy keyword not high-quality-vector claim",
+          "model_plugin_component_operation_identity": "passed actual originalHEAD445d normal published-model component45tokens/0USD and exactsame-tenant daemoninstallation identity; nonzero fullapp/account/key billing not claimed"
+        }
+      }
+    },
+    {
+      "id": "N05",
+      "recorded_status": "pending",
+      "scope_interpretation": "current_local_plus_explicit_external_or_latestdelivery_conditions",
+      "existing_evidence": [
+        "acceptance-ledger-state-2026-09-30.json",
+        "acceptance-ledger-2026-09-30.md",
+        "evidence/full-scope-completion-audit-2026-09-30.json",
+        "evidence/N05/result.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "每个场景有当前candidate/镜像/输入/实际结果/预期/证据；必测用户功能全部通过",
+        "外部凭据、历史升级、生产项不能虚假passed；无既有凭据的SSO单列blocked"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N05/result.json"
+      ],
+      "current_checkpoints": {
+        "local_matrix_checkpoint": {
+          "status": "passed",
+          "required_local_missing": 0,
+          "ledger": "acceptance-ledger-state-2026-09-30.json",
+          "scene_counts": {
+            "passed": 14,
+            "partial_current_proof_external_only": 10,
+            "historical_deferred": 4,
+            "production": 1
+          },
+          "external_required_missing": 11,
+          "conditions": "evidence/external-conditions-2026-09-30.json",
+          "boundary": "Whole N05 stays pending until required external actual behaviors completed; local passes source/image/evidence scoped, currentoriginal finaldeliverystillpending."
+        }
+      }
+    },
+    {
+      "id": "N06",
+      "recorded_status": "pending",
+      "scope_interpretation": "current_local_plus_explicit_external_or_latestdelivery_conditions",
+      "existing_evidence": [
+        "evidence/N06/original-23000-live-update-and-acceptance-2026-09-30.json",
+        "evidence/N06/runtime-snapshot-restore-2026-09-30.json",
+        "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+        "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
+        "evidence/N06/independent-final-delivery-restore-review.json",
+        "evidence/N06/result.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "本地重启与恢复可执行、样本对账正确；用户页面异常已关闭",
+        "当前完成定义明确；未验旧版本恢复及未获生产授权不能报告全部原DAG完成",
+        "用户原http://127.0.0.1:23000/explore/apps-center-extend实际显示/打开成功；不得用新localhost:23010通过替代原故障交付；不覆盖用户模型/App配置"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N06/result.json"
+      ],
+      "current_checkpoints": {
+        "local_snapshot_restore_checkpoint": {
+          "status": "passed_consistent_snapshot_two_independent_clones_and_API_readback",
+          "evidence": "evidence/N06/runtime-snapshot-restore-2026-09-30.json",
+          "latest_source_advance_boundary": "N09 no schema/data changes; latest image selected health/readback remains before wholeN06 closure",
+          "latest_candidate_binding": {
+            "status": "passed",
+            "evidence": "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json"
+          }
+        },
+        "latest_original_component_deployment_checkpoint": {
+          "status": "passed",
+          "evidence": "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+          "boundary": "source/runtime/componentsuccess only; currentUIcondition remains"
+        }
+      }
+    },
+    {
+      "id": "N07",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/N07/source-freeze-result.json",
+        "evidence/N07/fullimage-runtime-verification-2026-09-30.json",
+        "evidence/N07/independent-pagination-source-review.json",
+        "evidence/N07/independent-apikey-numeric-source-review.json",
+        "evidence/api-key-regression/latest-numeric-key-crud-runtime.json",
+        "evidence/N07/result.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "同值记录分页排序稳定，更新total不因物理行位置换页；并发/precision/used既有行为保持",
+        "独立review与focused tests通过；最新source/context/image身份持久明确",
+        "F04跨页合法角色UI/API复验通过；最终N05/N06及原23000绑定最新candidate",
+        "AppKey创建/编辑/GET额度字段满足number|null响应schema；不是字符串或科学计数法string；原DB7位值不变"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N07/result.json"
+      ],
+      "current_checkpoints": {
+        "source_checkpoints": {
+          "quota_pagination": {
+            "status": "independent_review29tests_and_latest_fullimage_UI_API_passed",
+            "review": "evidence/N07/independent-pagination-source-review.json",
+            "manifest": "evidence/quota-pagination-regression/source.sha256"
+          },
+          "apikey_numeric": {
+            "status": "independent_review27tests_and_latest_independent_API_number_7dec_default_delete_passed",
+            "review": "evidence/N07/independent-apikey-numeric-source-review.json",
+            "manifest": "evidence/apikey-numeric-regression/source.sha256"
+          }
+        }
+      }
+    },
+    {
+      "id": "N08",
+      "recorded_status": "passed",
+      "scope_interpretation": "historical_scoped_passed_source_or_runtime_evidence; unchanged_archived_scope_only",
+      "existing_evidence": [
+        "evidence/N08/independent-source-review.json",
+        "evidence/app-web-auth-regression/before-cross-app.json",
+        "evidence/app-web-auth-regression/source.sha256",
+        "evidence/app-web-auth-regression/targeted-tests.log",
+        "evidence/N08/source-build-manifest.json",
+        "evidence/N08/context-file-manifest.json",
+        "evidence/N08/independent-manifest-review.json",
+        "evidence/N08/runtime-passport-scope-2026-09-30.json",
+        "evidence/N06/original-23000-live-update-and-acceptance-2026-09-30.json",
+        "evidence/N08/result.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "显式appcode与passport claim不一致必须拒绝且不返回另一个App",
+        "sameapp/noexplicit当前合法链路与disabled/auth switches行为保留",
+        "独立源码review/focused tests、最新完整context/image及真实受影响调用证据闭环",
+        "N05/N06最终引用N08最新candidate；旧N07证据不冒充最终"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N08/result.json"
+      ],
+      "current_checkpoints": {
+        "source_checkpoint": {
+          "status": "independent_source_review_and78_targeted_tests_passed",
+          "owned_source_sha256": {
+            "api/controllers/web/wraps.py": "96830ac4c86f7a630412b6586d601bfed9a2fed57b5623a5b86c057b41241f30",
+            "api/tests/unit_tests/controllers/web/test_webapp_passport_scope_extend.py": "6170851117e29b09be05450e49ff184c14ec513f5b5462087479522696ecb3ec"
+          },
+          "evidence": "evidence/N08/independent-source-review.json",
+          "tests": "evidence/app-web-auth-regression/targeted-tests.log"
+        },
+        "candidate_checkpoint": {
+          "status": "independent_complete_source_inventory_and_canonical_fullimage_passed",
+          "source_context": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6",
+          "file_count": 4317,
+          "overlay_count": 17,
+          "image": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+          "review": "evidence/N08/independent-manifest-review.json"
+        },
+        "runtime_checkpoint": {
+          "status": "passed_latest_fullimage_11scope_cases_and_original23000_final_delivery",
+          "evidence": "evidence/N08/runtime-passport-scope-2026-09-30.json"
+        }
+      }
+    },
+    {
+      "id": "N09",
+      "recorded_status": "passed",
+      "scope_interpretation": "confirmed_local_regression_latest_source_image_runtime_delivery_gate_open",
+      "existing_evidence": [
+        "evidence/N09/independent-source-review.json",
+        "evidence/context-uuid-regression/source.sha256",
+        "evidence/context-uuid-regression/targeted-tests.log",
+        "evidence/context-uuid-regression/dual-engine-n09-fullimage-results.json",
+        "evidence/context-uuid-regression/latest-head-runtime-http-results.json",
+        "evidence/context-uuid-regression/cleanup-final-handoff.json",
+        "evidence/N09/cleanup-independent-review.json",
+        "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+        "evidence/N06/independent-final-delivery-restore-review.json",
+        "evidence/N09/result.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "真实同租户context读删可用且已存在foreignConversation拒绝，不以随机404或401替代",
+        "PG/MySQL投影类型兼容/实际transaction rollback，原schema/predicates不变",
+        "独立review/80 focused tests/最新完整canonicalmanifest与受影响readback可追溯",
+        "N05/N06最终绑定N09；既有一致快照恢复无数据变更无需重dump，但最新候选健康/选定读回需要复验"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N09/result.json"
+      ],
+      "current_checkpoints": {
+        "source_checkpoint": {
+          "status": "independent_source_review_and80_focused_tests_passed",
+          "owned_source_sha256": {
+            "api/services/recommended_app_service_extend.py": "a218fb7c088b296e70248b01bd96913b1978fae9622a61d6de5ff31b96517bee",
+            "api/tests/unit_tests/services/test_context_uuid_scope_extend.py": "7efc45c601150b2643ea734f472e1860fb7f81f6f9f21fb2249c6ecb04da7653"
+          },
+          "evidence": "evidence/N09/independent-source-review.json"
+        },
+        "dual_engine_checkpoint": {
+          "status": "passed_preN10_fullimage_scoped_transactions_only",
+          "evidence": "evidence/context-uuid-regression/dual-engine-n09-fullimage-results.json",
+          "boundary": "Final bundled same-resource positive HTTP/foreign GET DELETE and original23000 latest candidate remain pending."
+        },
+        "latest_http_checkpoint": {
+          "status": "passed",
+          "evidence": "evidence/context-uuid-regression/latest-head-runtime-http-results.json",
+          "candidate_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+          "boundary": "10/10 actual HTTP chain and actor restoration; original23000 latest candidate delivery pending."
+        },
+        "cleanup_checkpoint": {
+          "status": "passed_scoped_synthetic_fixture_cleanup",
+          "evidence": "evidence/context-uuid-regression/cleanup-final-handoff.json",
+          "review": "evidence/N09/cleanup-independent-review.json"
+        },
+        "original_deployment_checkpoint": {
+          "status": "passed_actual_service_source_component_boundary",
+          "evidence": "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+          "review": "evidence/N06/independent-final-delivery-restore-review.json",
+          "latest_UI": "blocked_desktop_condition recordedN06, not part of this sourceadvance component checkpoint"
+        }
+      }
+    },
+    {
+      "id": "N10",
+      "recorded_status": "passed",
+      "scope_interpretation": "confirmed_local_regression_latest_source_image_runtime_delivery_gate_open",
+      "existing_evidence": [
+        "evidence/N10/independent-build-source-audit.json",
+        "evidence/N10/independent-source-review.json",
+        "evidence/provider-packaging-regression/latest-source-manifest.json",
+        "evidence/provider-packaging-regression/frozen-sync-results.json",
+        "evidence/provider-packaging-regression/trace-runtime-imports.json",
+        "evidence/N10/independent-final-context-review.json",
+        "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+        "evidence/N10/independent-full-image-runtime-review.json",
+        "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+        "evidence/N06/independent-final-delivery-restore-review.json",
+        "evidence/N10/result.json"
+      ],
+      "missing_declared_references": [],
+      "acceptance": [
+        "uv frozen canonical fullimage includes actual default declared provider distributions and entrypoints",
+        "qdrant registry factory import/load succeeds and harmless isolated vector CRUD/query/delete beforeafter without embedding credentials",
+        "All8 trace distributions installed and representative/direct contracted modules import; actual external tracing integration remains external condition, no fabricated trace entrypoint contract",
+        "source/context/lock/build manifest and latest isolated/original23000 deployment affected readback"
+      ],
+      "commands": [],
+      "outputs": [
+        "evidence/N10/result.json"
+      ],
+      "current_checkpoints": {
+        "source_checkpoint": {
+          "status": "independent_source_review_passed_frozen56_paths",
+          "evidence": "evidence/N10/independent-source-review.json",
+          "source_manifest_sha256": "f048fee1dabe9db512cabc19b1878ce533e191dcb2e065d4ed1fc7e1e2fdc449",
+          "candidate_uvlock_sha256": "3d1b58d109585d9498e757734a7fef6a24fa972c8b17128ce12e4019331f7dbc",
+          "HEAD_lock_staging_required": false
+        },
+        "full_image_checkpoint": {
+          "status": "actual_default_install_contracts_and_isolated_QdrantCRUD_passed_affected_deployment_pending",
+          "evidence": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+          "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+          "source_context_sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+          "proof": [
+            "47 productionpath hashes match",
+            "449 installedversions equal dirtycandidate",
+            "38 provider distributions",
+            "32 actual entrypoint loads",
+            "8 trace imports"
+          ],
+          "boundary": "All scoped completeimage contracts passed; final API/original23000 deployment and sourcecommitbinding pending. Archivebase distinguished."
+        },
+        "canonical_image_checkpoint": {
+          "status": "passed",
+          "evidence": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+          "independent_review": "evidence/N10/independent-full-image-runtime-review.json",
+          "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+          "accepted": "47source/lockhash;38dist/32entryload/8traceimport;449versions parity;actualQdrant CRUD cleanup"
+        },
+        "isolated_runtime_checkpoint": {
+          "status": "passed",
+          "evidence": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+          "accepted": "Six actual services same445d running/restarts0/OOMfalse/health200/workerqueue startup;actualAgentJWE200 schema/scope matches and generic403",
+          "boundary": "Remoteactivequeuesinspect timeout recorded; do not claim that command succeeded. Actual startup/queue delivery proof independent."
+        },
+        "original_deployment_checkpoint": {
+          "status": "passed_actual_service_source_component_boundary",
+          "evidence": "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+          "review": "evidence/N06/independent-final-delivery-restore-review.json",
+          "latest_UI": "blocked_desktop_condition recordedN06, not part of this sourceadvance component checkpoint"
+        }
+      }
+    }
+  ],
+  "current_scene_counts": {
+    "passed": 14,
+    "partial-current-proof": 9,
+    "pending": 1,
+    "deferred": 4,
+    "production-not-authorized": 1
+  },
+  "current_local_missing": {
+    "local_missing_subcheck_count": 0,
+    "local_missing": [],
+    "external_missing_subcheck_count": 11,
+    "external_only_scenes": [
+      "B01",
+      "B03",
+      "B05",
+      "B07",
+      "B08",
+      "B09",
+      "B11",
+      "F04",
+      "D05",
+      "O02"
+    ]
+  },
+  "external_conditions": [
+    {
+      "scenes": [
+        "B01",
+        "B03",
+        "F04"
+      ],
+      "condition": "Authorized enabled-provider configuration and legitimate test actor. OAuth GitHub/Google client ID/secret + callback URL; OAuth2/Casdoor/DingTalk issuer/authorize/token/userinfo and mappings as respective existing contract; actual provider callbacks/account initial quota/system integration readback unverified. Current disabled/error gates passed.",
+      "evidence": "evidence/sso-disabled-runtime/result.json"
+    },
+    {
+      "scenes": [
+        "B05",
+        "B07",
+        "B08",
+        "B09",
+        "B11"
+      ],
+      "condition": "Isolated authorized LLM provider plugin + model endpoint/credentials and explicit nonzero input/output pricing, small spend limit. Missing actual chat/completion/agent/advanced-chat/workflow generation, charged user/token daily/month/balance boundary, currency reconciliation, stop/retry accounting and generated multi-turn retention; zero-token workflows do not satisfy these.",
+      "evidence": "evidence/n05-design/nonzero-billing-acceptance.md"
+    },
+    {
+      "scenes": [
+        "D05"
+      ],
+      "condition": "After local N10 backend installation gate passes: authorized embedding provider/model/credentials, dimension and any required gRPC/TLS settings. Real high-quality document embed/index/vector counts and query hit unverified. Economy keyword+delete/rebuild passed; provider package defect is local separate gate.",
+      "evidence": "evidence/N10/independent-build-source-audit.json"
+    }
+  ],
+  "historical_requirements": [
+    "Actual historical deployed app/plugin main DB consistent snapshots and inventories; old migration17/data deletion/Agent JSON decision; normalizedemail dedup/modelcredential decrypt references; vector engine original version/schema/vector query baseline and minor-upgrade/restore copies",
+    "Actual whole old-version restore from one static point with matching oldimages/heads/credentials/files/vector/Redis replay controls, measured RTO/RPO. Current N06 same-version dual clones do not substitute this."
+  ],
+  "production_requirements": [
+    "Explicit target maintenancewindow/operator/changeauthorization, live target immutable images, recoverableconsistent backups and ingress/writefreeze, single migrationexecutor, rollbackcriteria/RTO/RPO and timed observation thresholds"
+  ],
+  "release_deliverables_remaining": [
+    "Final source+lock/context/canonicalimage closure N09/N10 and safe original23000 readback",
+    "Final scoped commit and nonoverwriting fork-merged-1.17.1 archival tag per originalR02 if parent authorized; tag code-ready only until genuine external/production gates satisfied",
+    "Final runbook command/package identities plus current-to-original gate mapping and known conditional/deferred boundaries"
+  ],
+  "completion_claim": "All currently executable local required/source/fullimage/runtime/component/current-snapshot-restore checks passed. LatestoriginalUI desktopcondition,11externalchecks,4old-installscenes and production unpassed. Exact codecommit/tag/factualrecords in progress; wholegoal incomplete.",
+  "enabled_scope_correction": "O02 onceoff disabled passed remains; selected shared collab true requires separate local realenabled checks. Agentmetadata/files and noLLMHumanInput actual passed; modelgeneration not inferred.",
+  "external_conditions_evidence": "evidence/external-conditions-2026-09-30.json",
+  "remaining_executable_actions": [
+    "Exactowned source/proof/docs scopedcommit and nonoverwrite code-readytag",
+    "Actualcommit/tag/sourceimagebinding/result/log docsrecord commit"
+  ],
+  "unverified_conditions": {
+    "current_original_UI": "Desktop locked; latest445d browserrefresh/display/open unverified; historicalN08 visible/open and latest445d component not UI proof.",
+    "external_required": 11,
+    "external_detail": "evidence/external-conditions-2026-09-30.json",
+    "old_install": "A03/V03/V04/V06 originalpriorversion data/backups/retention/downgrade-replay/RTO-RPO facts unavailable per prioruserdeferredscope",
+    "production": "D00-D04/O05 authorizedinventory/window/executor/backupthresholds/businesssignoff/observation unavailable; no automaticdeploy/push"
+  }
+}

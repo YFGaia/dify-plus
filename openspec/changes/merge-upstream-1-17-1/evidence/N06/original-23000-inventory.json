@@ -1,0 +1,281 @@
+{
+  "date": "2026-09-30",
+  "project": "difyplus-upstream1171-quota-selftest-20260930",
+  "method": "read-only Docker ps and inspect; no exec, no env secrets persisted, no mutation",
+  "services": [
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-worker-1",
+      "service": "worker",
+      "state": "running",
+      "image_tag": "difyplus-smoke-api:970b704e351f",
+      "image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml,/private/tmp/difyplus-performance-20260930/override-performance.yaml,/private/tmp/difyplus-performance-20260930/override-worker.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "6fe5d90e608582d92a02a5a1f619e8f7a438bf6dc0cacd2be6a541a79b06c363",
+      "ports": {},
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage",
+          "source": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage/_data",
+          "destination": "/app/api/storage",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {
+        "CELERY_QUEUES": "workflow_based_app_execution",
+        "MIGRATION_ENABLED": "false",
+        "SERVER_WORKER_AMOUNT": "1",
+        "SERVER_WORKER_CONNECTIONS": "10",
+        "SERVER_WORKER_CLASS": "gevent",
+        "CELERY_WORKER_QUEUES": "workflow_based_app_execution",
+        "MODE": "worker"
+      }
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-api-1",
+      "service": "api",
+      "state": "running",
+      "image_tag": "difyplus-smoke-api:970b704e351f",
+      "image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml,/private/tmp/difyplus-performance-20260930/override-performance.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "16d4966a484d1db26e03ef055898ac991ae188fc90c4ab6d6bafb03399651b60",
+      "ports": {
+        "5001/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "25432"
+          }
+        ]
+      },
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage",
+          "source": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage/_data",
+          "destination": "/app/api/storage",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {
+        "SERVER_WORKER_CONNECTIONS": "100",
+        "SERVER_WORKER_AMOUNT": "1",
+        "SERVER_WORKER_CLASS": "geventwebsocket.gunicorn.workers.GeventWebSocketWorker",
+        "MIGRATION_ENABLED": "false",
+        "MODE": "api"
+      }
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-ssrf_proxy-1",
+      "service": "ssrf_proxy",
+      "state": "running",
+      "image_tag": "ubuntu/squid:latest",
+      "image_id": "sha256:92e87e3cef4fb1d85e861c1f2efb8c6ae7d10589db3dde2f0168a52283a1ca3f",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "ac937973bb60a481bb523211c0ab28d3ab158002a336527893c9d1da556a3452",
+      "ports": {},
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/liuxingwang/go/src/dify-plus/docker/ssrf_proxy/docker-entrypoint.sh",
+          "destination": "/docker-entrypoint-mount.sh",
+          "rw": true
+        },
+        {
+          "type": "volume",
+          "name": "09cf89698e2bfe5b1d8d9731f444553a8a466de7f77ccd36d2bd037d5d672a13",
+          "source": "/var/lib/docker/volumes/09cf89698e2bfe5b1d8d9731f444553a8a466de7f77ccd36d2bd037d5d672a13/_data",
+          "destination": "/var/log/squid",
+          "rw": true
+        },
+        {
+          "type": "volume",
+          "name": "493d5a761fdc211547c8eadd6c2951e64619d5a52384aaa3d4a85cb76b070337",
+          "source": "/var/lib/docker/volumes/493d5a761fdc211547c8eadd6c2951e64619d5a52384aaa3d4a85cb76b070337/_data",
+          "destination": "/var/spool/squid",
+          "rw": true
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/liuxingwang/go/src/dify-plus/docker/ssrf_proxy/squid.conf.template",
+          "destination": "/etc/squid/squid.conf.template",
+          "rw": true
+        },
+        {
+          "type": "bind",
+          "name": null,
+          "source": "/Users/liuxingwang/go/src/dify-plus/docker/ssrf_proxy/squid-common.conf.template",
+          "destination": "/etc/squid/dify_common.conf.template",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {}
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-plugin_daemon-1",
+      "service": "plugin_daemon",
+      "state": "running",
+      "image_tag": "langgenius/dify-plugin-daemon:0.6.10-local",
+      "image_id": "sha256:b67a1850529b5778e9a0ac8deae0545fba62d16b133ffabf83de998d3782cfa8",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "278620b0fef69e7742a2342434658c9277ff89394ec0e34e585aa98d6a0d4698",
+      "ports": {},
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_plugin_storage",
+          "source": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_plugin_storage/_data",
+          "destination": "/app/storage",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {
+        "SERVER_WORKER_CONNECTIONS": "10",
+        "SERVER_WORKER_CLASS": "gevent",
+        "MIGRATION_ENABLED": "false",
+        "SERVER_WORKER_AMOUNT": "1"
+      }
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-web-1",
+      "service": "web",
+      "state": "running",
+      "image_tag": "difyplus-smoke-web:970b704e351f",
+      "image_id": "sha256:412b2cad11badfcfa25a3e19490aa329059245c7c07842b9c7d0230eeb4c8569",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "04304058f45ef5c99d5552abb9e37864c9c580fb282ba0e5b88ac26ea101e2b9",
+      "ports": {
+        "3000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "23000"
+          }
+        ]
+      },
+      "mounts": [],
+      "nonsecret_runtime_options": {}
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-migration-1",
+      "service": "migration",
+      "state": "exited",
+      "image_tag": "difyplus-smoke-api:970b704e351f",
+      "image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "09e64511972faedbd36867025be95c75ce599783febddf7244b73d013cd2eeb7",
+      "ports": {},
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage",
+          "source": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage/_data",
+          "destination": "/app/api/storage",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {
+        "MIGRATION_ENABLED": "false",
+        "SERVER_WORKER_CLASS": "gevent",
+        "SERVER_WORKER_AMOUNT": "1",
+        "SERVER_WORKER_CONNECTIONS": "10",
+        "MODE": "migration"
+      }
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-init_secret_key-1",
+      "service": "init_secret_key",
+      "state": "exited",
+      "image_tag": "difyplus-smoke-api:970b704e351f",
+      "image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "38efeb64b1adf78bc69f94c39b9f80a89246d839eac21cc4be101949b98c680f",
+      "ports": {},
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage",
+          "source": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage/_data",
+          "destination": "/app/api/storage",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {
+        "SERVER_WORKER_AMOUNT": "1",
+        "MIGRATION_ENABLED": "false",
+        "SERVER_WORKER_CONNECTIONS": "10",
+        "SERVER_WORKER_CLASS": "gevent"
+      }
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-redis-1",
+      "service": "redis",
+      "state": "running",
+      "image_tag": "ccr.ccs.tencentyun.com/yfgaia/redis:6-alpine",
+      "image_id": "sha256:5710bebadadc7eda48ac436ad3cf3a26a9366a58422702fe7ddeacff29b6b434",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "c671122c3ffb5e3dbeee5e1d6d5492c9a92180589d4306cec4646cff0063d0ee",
+      "ports": {},
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_redis",
+          "source": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_redis/_data",
+          "destination": "/data",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {}
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-init_permissions-1",
+      "service": "init_permissions",
+      "state": "exited",
+      "image_tag": "busybox:latest",
+      "image_id": "sha256:d2482869a6b838d3b4c9cad0c8085c06277909482771eb525d298fc3a7d07927",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "f07956e1cb427b84ae46f8a06ad0c0f8feca2c6b49576e394021c77fe2a9c9e4",
+      "ports": {},
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage",
+          "source": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage/_data",
+          "destination": "/app/api/storage",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {}
+    },
+    {
+      "container": "difyplus-upstream1171-quota-selftest-20260930-db_postgres-1",
+      "service": "db_postgres",
+      "state": "running",
+      "image_tag": "ccr.ccs.tencentyun.com/yfgaia/postgres:15-alpine",
+      "image_id": "sha256:df80e414108a5ca1912c6c4e5f83d43653ef2affd01f7a9b55993333f3caf162",
+      "compose_files": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml,/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "working_dir": "/Users/liuxingwang/go/src/dify-plus/docker",
+      "compose_config_hash": "328490ab911a967b5fcbdb3e9af5899da159d0d35c247fe058b160a0440223a3",
+      "ports": {},
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_postgres",
+          "source": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_postgres/_data",
+          "destination": "/var/lib/postgresql/data",
+          "rw": true
+        }
+      ],
+      "nonsecret_runtime_options": {}
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from extensions.ext_database import db
 
 from .types import StringUUID
@@ -12,7 +14,7 @@ class EndUserAccountJoinsExtend(db.Model):
         db.Index("end_user_account_joins_end_user_id_app_id_idx", "end_user_id", "app_id"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     end_user_id = db.Column(StringUUID, nullable=False)
     account_id = db.Column(StringUUID, nullable=False)
     app_id = db.Column(StringUUID, nullable=False)
@@ -28,7 +30,7 @@ class AppExtend(db.Model):
         db.Index("app_extend_id_app_id_idx", "app_id"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     app_id = db.Column(StringUUID, nullable=False)
     retention_number = db.Column(db.Integer, nullable=True)
     # WebApp 访问认证开关：NULL/True = 访问需登录 Console（fork 默认行为），False = 允许匿名访问。
@@ -48,7 +50,7 @@ class MessageContextExtend(db.Model):
         db.Index("message_context_created_at_idx", "created_at"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     created_at = db.Column(db.DateTime, nullable=False, server_default=db.text("CURRENT_TIMESTAMP(0)"))
     conversation_id = db.Column(db.String(36), nullable=True)
     message_id = db.Column(db.String(36), nullable=False)
@@ -65,7 +67,7 @@ class AppStatisticsExtend(db.Model):
         db.Index("app_statistics_extend_app_id_idx", "app_id"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     app_id = db.Column(StringUUID, nullable=False)
     number = db.Column(db.Integer, nullable=False, default=0)
 

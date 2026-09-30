@@ -1,0 +1,338 @@
+--- a/api/uv.lock
++++ b/api/uv.lock
+@@ -1950,7 +1950,7 @@
+ [[package]]
+ name = "dify-trace-aliyun"
+ version = "0.0.1"
+-source = { virtual = "providers/trace/trace-aliyun" }
++source = { editable = "providers/trace/trace-aliyun" }
+ dependencies = [
+     { name = "opentelemetry-api", marker = "python_full_version == '3.12.*'" },
+     { name = "opentelemetry-exporter-otlp-proto-grpc", marker = "python_full_version == '3.12.*'" },
+@@ -1969,7 +1969,7 @@
+ [[package]]
+ name = "dify-trace-arize-phoenix"
+ version = "0.0.1"
+-source = { virtual = "providers/trace/trace-arize-phoenix" }
++source = { editable = "providers/trace/trace-arize-phoenix" }
+ dependencies = [
+     { name = "arize-phoenix-otel", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -1980,7 +1980,7 @@
+ [[package]]
+ name = "dify-trace-langfuse"
+ version = "0.0.1"
+-source = { virtual = "providers/trace/trace-langfuse" }
++source = { editable = "providers/trace/trace-langfuse" }
+ dependencies = [
+     { name = "langfuse", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -1991,7 +1991,7 @@
+ [[package]]
+ name = "dify-trace-langsmith"
+ version = "0.0.1"
+-source = { virtual = "providers/trace/trace-langsmith" }
++source = { editable = "providers/trace/trace-langsmith" }
+ dependencies = [
+     { name = "langsmith", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2002,7 +2002,7 @@
+ [[package]]
+ name = "dify-trace-mlflow"
+ version = "0.0.1"
+-source = { virtual = "providers/trace/trace-mlflow" }
++source = { editable = "providers/trace/trace-mlflow" }
+ dependencies = [
+     { name = "mlflow-skinny", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2013,7 +2013,7 @@
+ [[package]]
+ name = "dify-trace-opik"
+ version = "0.0.1"
+-source = { virtual = "providers/trace/trace-opik" }
++source = { editable = "providers/trace/trace-opik" }
+ dependencies = [
+     { name = "opik", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2024,7 +2024,7 @@
+ [[package]]
+ name = "dify-trace-tencent"
+ version = "0.0.1"
+-source = { virtual = "providers/trace/trace-tencent" }
++source = { editable = "providers/trace/trace-tencent" }
+ dependencies = [
+     { name = "opentelemetry-api", marker = "python_full_version == '3.12.*'" },
+     { name = "opentelemetry-exporter-otlp-proto-grpc", marker = "python_full_version == '3.12.*'" },
+@@ -2043,7 +2043,7 @@
+ [[package]]
+ name = "dify-trace-weave"
+ version = "0.0.1"
+-source = { virtual = "providers/trace/trace-weave" }
++source = { editable = "providers/trace/trace-weave" }
+ dependencies = [
+     { name = "weave", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2054,7 +2054,7 @@
+ [[package]]
+ name = "dify-vdb-alibabacloud-mysql"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-alibabacloud-mysql" }
++source = { editable = "providers/vdb/vdb-alibabacloud-mysql" }
+ dependencies = [
+     { name = "mysql-connector-python", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2065,7 +2065,7 @@
+ [[package]]
+ name = "dify-vdb-analyticdb"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-analyticdb" }
++source = { editable = "providers/vdb/vdb-analyticdb" }
+ dependencies = [
+     { name = "alibabacloud-gpdb20160503", marker = "python_full_version == '3.12.*'" },
+     { name = "alibabacloud-tea-openapi", marker = "python_full_version == '3.12.*'" },
+@@ -2082,7 +2082,7 @@
+ [[package]]
+ name = "dify-vdb-baidu"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-baidu" }
++source = { editable = "providers/vdb/vdb-baidu" }
+ dependencies = [
+     { name = "pymochow", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2093,7 +2093,7 @@
+ [[package]]
+ name = "dify-vdb-chroma"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-chroma" }
++source = { editable = "providers/vdb/vdb-chroma" }
+ dependencies = [
+     { name = "chromadb", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2104,7 +2104,7 @@
+ [[package]]
+ name = "dify-vdb-clickzetta"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-clickzetta" }
++source = { editable = "providers/vdb/vdb-clickzetta" }
+ dependencies = [
+     { name = "clickzetta-connector-python", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2115,7 +2115,7 @@
+ [[package]]
+ name = "dify-vdb-couchbase"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-couchbase" }
++source = { editable = "providers/vdb/vdb-couchbase" }
+ dependencies = [
+     { name = "couchbase", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2126,7 +2126,7 @@
+ [[package]]
+ name = "dify-vdb-elasticsearch"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-elasticsearch" }
++source = { editable = "providers/vdb/vdb-elasticsearch" }
+ dependencies = [
+     { name = "elasticsearch", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2137,7 +2137,7 @@
+ [[package]]
+ name = "dify-vdb-hologres"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-hologres" }
++source = { editable = "providers/vdb/vdb-hologres" }
+ dependencies = [
+     { name = "holo-search-sdk", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2148,7 +2148,7 @@
+ [[package]]
+ name = "dify-vdb-huawei-cloud"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-huawei-cloud" }
++source = { editable = "providers/vdb/vdb-huawei-cloud" }
+ dependencies = [
+     { name = "elasticsearch", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2159,7 +2159,7 @@
+ [[package]]
+ name = "dify-vdb-iris"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-iris" }
++source = { editable = "providers/vdb/vdb-iris" }
+ dependencies = [
+     { name = "intersystems-irispython", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2170,7 +2170,7 @@
+ [[package]]
+ name = "dify-vdb-lindorm"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-lindorm" }
++source = { editable = "providers/vdb/vdb-lindorm" }
+ dependencies = [
+     { name = "opensearch-py", marker = "python_full_version == '3.12.*'" },
+     { name = "tenacity", marker = "python_full_version == '3.12.*'" },
+@@ -2185,7 +2185,7 @@
+ [[package]]
+ name = "dify-vdb-matrixone"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-matrixone" }
++source = { editable = "providers/vdb/vdb-matrixone" }
+ dependencies = [
+     { name = "mo-vector", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2196,7 +2196,7 @@
+ [[package]]
+ name = "dify-vdb-milvus"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-milvus" }
++source = { editable = "providers/vdb/vdb-milvus" }
+ dependencies = [
+     { name = "pymilvus", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2207,7 +2207,7 @@
+ [[package]]
+ name = "dify-vdb-myscale"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-myscale" }
++source = { editable = "providers/vdb/vdb-myscale" }
+ dependencies = [
+     { name = "clickhouse-connect", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2218,7 +2218,7 @@
+ [[package]]
+ name = "dify-vdb-oceanbase"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-oceanbase" }
++source = { editable = "providers/vdb/vdb-oceanbase" }
+ dependencies = [
+     { name = "mysql-connector-python", marker = "python_full_version == '3.12.*'" },
+     { name = "pyobvector", marker = "python_full_version == '3.12.*'" },
+@@ -2233,12 +2233,12 @@
+ [[package]]
+ name = "dify-vdb-opengauss"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-opengauss" }
++source = { editable = "providers/vdb/vdb-opengauss" }
+ 
+ [[package]]
+ name = "dify-vdb-opensearch"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-opensearch" }
++source = { editable = "providers/vdb/vdb-opensearch" }
+ dependencies = [
+     { name = "opensearch-py", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2249,7 +2249,7 @@
+ [[package]]
+ name = "dify-vdb-oracle"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-oracle" }
++source = { editable = "providers/vdb/vdb-oracle" }
+ dependencies = [
+     { name = "oracledb", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2260,7 +2260,7 @@
+ [[package]]
+ name = "dify-vdb-pgvecto-rs"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-pgvecto-rs" }
++source = { editable = "providers/vdb/vdb-pgvecto-rs" }
+ dependencies = [
+     { name = "pgvecto-rs", extra = ["sqlalchemy"], marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2271,7 +2271,7 @@
+ [[package]]
+ name = "dify-vdb-pgvector"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-pgvector" }
++source = { editable = "providers/vdb/vdb-pgvector" }
+ dependencies = [
+     { name = "pgvector", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2282,7 +2282,7 @@
+ [[package]]
+ name = "dify-vdb-qdrant"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-qdrant" }
++source = { editable = "providers/vdb/vdb-qdrant" }
+ dependencies = [
+     { name = "qdrant-client", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2293,12 +2293,12 @@
+ [[package]]
+ name = "dify-vdb-relyt"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-relyt" }
++source = { editable = "providers/vdb/vdb-relyt" }
+ 
+ [[package]]
+ name = "dify-vdb-tablestore"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-tablestore" }
++source = { editable = "providers/vdb/vdb-tablestore" }
+ dependencies = [
+     { name = "tablestore", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2309,7 +2309,7 @@
+ [[package]]
+ name = "dify-vdb-tencent"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-tencent" }
++source = { editable = "providers/vdb/vdb-tencent" }
+ dependencies = [
+     { name = "tcvectordb", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2320,7 +2320,7 @@
+ [[package]]
+ name = "dify-vdb-tidb-on-qdrant"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-tidb-on-qdrant" }
++source = { editable = "providers/vdb/vdb-tidb-on-qdrant" }
+ dependencies = [
+     { name = "qdrant-client", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2331,7 +2331,7 @@
+ [[package]]
+ name = "dify-vdb-tidb-vector"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-tidb-vector" }
++source = { editable = "providers/vdb/vdb-tidb-vector" }
+ dependencies = [
+     { name = "tidb-vector", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2342,7 +2342,7 @@
+ [[package]]
+ name = "dify-vdb-upstash"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-upstash" }
++source = { editable = "providers/vdb/vdb-upstash" }
+ dependencies = [
+     { name = "upstash-vector", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2353,7 +2353,7 @@
+ [[package]]
+ name = "dify-vdb-vastbase"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-vastbase" }
++source = { editable = "providers/vdb/vdb-vastbase" }
+ dependencies = [
+     { name = "pyobvector", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2364,7 +2364,7 @@
+ [[package]]
+ name = "dify-vdb-vikingdb"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-vikingdb" }
++source = { editable = "providers/vdb/vdb-vikingdb" }
+ dependencies = [
+     { name = "volcengine-compat", marker = "python_full_version == '3.12.*'" },
+ ]
+@@ -2375,7 +2375,7 @@
+ [[package]]
+ name = "dify-vdb-weaviate"
+ version = "0.0.1"
+-source = { virtual = "providers/vdb/vdb-weaviate" }
++source = { editable = "providers/vdb/vdb-weaviate" }
+ dependencies = [
+     { name = "weaviate-client", marker = "python_full_version == '3.12.*'" },
+ ]

@@ -425,7 +425,7 @@ class QuotaManageService:
     @staticmethod
     def get_quota_list(page: int, page_size: int, keyword: str = "") -> dict:
         """
-        分页查询用户额度列表，按已使用配额从高到低排序。
+        分页查询用户额度列表，按已使用配额从高到低、同值按账户 ID 稳定排序。
         keyword 非空时按 accounts.name 或 accounts.email 模糊搜索。
         """
         from sqlalchemy import or_
@@ -437,7 +437,9 @@ class QuotaManageService:
         page_size = max(1, min(100, page_size))
         offset = (page - 1) * page_size
 
-        query = db.session.query(AccountMoneyExtend).order_by(AccountMoneyExtend.used_quota.desc())
+        query = db.session.query(AccountMoneyExtend).order_by(
+            AccountMoneyExtend.used_quota.desc(), AccountMoneyExtend.account_id.asc()
+        )
 
         # keyword 过滤：先从 accounts 查匹配 account_id，再筛选
         if keyword and keyword.strip():
@@ -490,7 +492,9 @@ class QuotaManageService:
         """
         设置指定用户的总额度（UPSERT）。
         若 account_money_extend 无记录则自动创建。
+        两种部署数据库使用各自的原子 UPSERT；已有消费额保持不变。
         """
+        from sqlalchemy.dialects.mysql import insert as mysql_insert
         from sqlalchemy.dialects.postgresql import insert as pg_insert
 
         from models.account_money_extend import AccountMoneyExtend
@@ -498,13 +502,20 @@ class QuotaManageService:
         if quota < 0:
             raise ValueError("quota 不能为负数")
 
-        stmt = (
-            pg_insert(AccountMoneyExtend)
-            .values(account_id=account_id, total_quota=quota, used_quota=0)
-            .on_conflict_do_update(
-                index_elements=["account_id"],
-                set_={"total_quota": quota},
+        dialect = db.session.get_bind().dialect.name
+        values = {"account_id": account_id, "total_quota": quota, "used_quota": 0}
+        if dialect in {"mysql", "mariadb"}:
+            stmt = mysql_insert(AccountMoneyExtend).values(**values).on_duplicate_key_update(total_quota=quota)
+        elif dialect == "postgresql":
+            stmt = (
+                pg_insert(AccountMoneyExtend)
+                .values(**values)
+                .on_conflict_do_update(
+                    index_elements=["account_id"],
+                    set_={"total_quota": quota},
+                )
             )
-        )
+        else:
+            raise ValueError(f"Unsupported quota database dialect: {dialect}")
         db.session.execute(stmt)
         db.session.commit()

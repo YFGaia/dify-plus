@@ -1,0 +1,75 @@
+{
+  "fixture_origin": "legal Console App/draft/debug; actual CONSOLE form recipient; no ORM form creation",
+  "model_calls": 0,
+  "form_token_or_configuration_values_stored_in_evidence": false,
+  "app_id": "34b5dbce-5223-4207-8ca7-e6ef10ecb06f",
+  "workflow_run_id": "1e3ccfaa-853c-4ac1-ab66-ecf51db1be3e",
+  "first_harness_boundary": "Initial include_state_snapshot=true subscription closed on existing paused snapshot before async worker completed. Actual final run readback succeeded/0; subsequent finished-event stream succeeded. Not a source defect.",
+  "results": [
+    {
+      "case": "create_workflow",
+      "status": 201
+    },
+    {
+      "case": "save_draft",
+      "status": 200
+    },
+    {
+      "case": "draft_refetch",
+      "status": 200,
+      "node_types": [
+        "start",
+        "human-input",
+        "end"
+      ]
+    },
+    {
+      "case": "publish",
+      "status": 200
+    },
+    {
+      "case": "debug_start",
+      "status": 200
+    },
+    {
+      "case": "actual_pause",
+      "paused": true,
+      "event_names": [
+        "workflow_started",
+        "node_started",
+        "node_finished",
+        "node_started",
+        "human_input_required",
+        "workflow_paused"
+      ],
+      "form_token_present": true,
+      "run_id_present": true
+    },
+    {
+      "case": "console_form_read",
+      "status": 200
+    },
+    {
+      "case": "console_form_submit_accept",
+      "status": 200
+    },
+    {
+      "case": "resume_stream",
+      "status": 200
+    },
+    {
+      "case": "resume_finished_event_readback",
+      "status": 200,
+      "event_names": [
+        "workflow_finished"
+      ],
+      "final_status": "succeeded"
+    },
+    {
+      "case": "run_final_readback",
+      "status": 200,
+      "run_status": "succeeded",
+      "total_tokens": 0
+    }
+  ]
+}

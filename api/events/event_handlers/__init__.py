@@ -1,5 +1,8 @@
 from .clean_when_dataset_deleted import handle as handle_clean_when_dataset_deleted
 from .clean_when_document_deleted import handle as handle_clean_when_document_deleted
+from .create_app_statistics_when_app_created_extend import (
+    handle as handle_create_app_statistics_when_app_created_extend,
+)
 from .create_document_index import handle as handle_create_document_index
 from .create_installed_app_when_app_created import handle as handle_create_installed_app_when_app_created
 from .create_site_record_when_app_created import handle as handle_create_site_record_when_app_created
@@ -33,6 +36,7 @@ from .update_provider_when_message_created import handle as handle_update_provid
 __all__ = [
     "handle_clean_when_dataset_deleted",
     "handle_clean_when_document_deleted",
+    "handle_create_app_statistics_when_app_created_extend",
     "handle_create_document_index",
     "handle_create_installed_app_when_app_created",
     "handle_create_site_record_when_app_created",

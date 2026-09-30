@@ -1,0 +1,9 @@
+{"engine": "mysql", "model": "AppStatisticsExtend", "omitted_id": true, "before_rows": 0, "flush": "passed", "readback": "passed", "uuidv4": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "EndUserAccountJoinsExtend", "omitted_id": true, "before_rows": 0, "flush": "passed", "readback": "passed", "uuidv4": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "AppExtend", "omitted_id": true, "before_rows": 0, "flush": "passed", "readback": "passed", "uuidv4": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "MessageContextExtend", "omitted_id": true, "before_rows": 0, "flush": "passed", "readback": "passed", "uuidv4": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "overall": "passed"}
+{"engine": "mysql", "model": "AppStatisticsExtend", "explicit_id": true, "id_preserved": true, "payload_readback": "passed", "before_rows": 0, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "EndUserAccountJoinsExtend", "explicit_id": true, "id_preserved": true, "payload_readback": "passed", "before_rows": 0, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "AppExtend", "explicit_id": true, "id_preserved": true, "payload_readback": "passed", "before_rows": 0, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "MessageContextExtend", "explicit_id": true, "id_preserved": true, "payload_readback": "passed", "before_rows": 0, "after_rollback_rows": 0, "rollback_preserved_count": true}

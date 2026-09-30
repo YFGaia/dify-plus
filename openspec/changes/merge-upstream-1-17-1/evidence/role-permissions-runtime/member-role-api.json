@@ -1,0 +1,39 @@
+{
+  "workspace": {
+    "status": 200,
+    "role": "normal"
+  },
+  "reads": {
+    "/system-manage-extend/quota-management?page=1&page_size=10": {
+      "status": 403,
+      "code": "forbidden"
+    },
+    "/system-manage-extend/integration/dingtalk": {
+      "status": 403,
+      "code": "forbidden"
+    },
+    "/system-manage-extend/integration/oauth2": {
+      "status": 403,
+      "code": "forbidden"
+    },
+    "/system-manage-extend/forward-tokens": {
+      "status": 403,
+      "code": "forbidden"
+    },
+    "/system-manage-extend/code-execution-control": {
+      "status": 403,
+      "code": "forbidden"
+    }
+  },
+  "quota_write": {
+    "status": 403,
+    "code": "forbidden"
+  },
+  "personal_money": {
+    "status": 200,
+    "data": {
+      "total_quota": 23.1234567,
+      "used_quota": 0
+    }
+  }
+}

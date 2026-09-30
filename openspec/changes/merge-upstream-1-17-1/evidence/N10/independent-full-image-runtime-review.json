@@ -1,0 +1,19 @@
+{
+  "verdict": "No issues found.",
+  "scope": "Read-only independent durable runtime proof review; executor performed actual Docker/Qdrant checks",
+  "context_review": "evidence/N10/independent-final-context-review.json",
+  "runtime_evidence": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+  "accepted_actual_checks": [
+    "47 image path hashes including HEADlock",
+    "38 provider distributions",
+    "32 declared actual entrypoint loads",
+    "8 actual trace imports",
+    "449 installedversions map equal preserved dirtycandidate",
+    "Qdrant factory registry import, actual collectioncreate/upsert/readback/point1to0/delete/absence/ownedcollections0",
+    "probeexit0 OOMfalse",
+    "Six actual isolated services running sameHEAD445d, restart0/OOMfalse/health200 and queue startup ready",
+    "Actual AgentJWE manifest200 scope/schema/Agent/version/kind match, generic403;effective loaded inner key matches"
+  ],
+  "boundary": "Actual disabled/selected and isolated contracts accepted, no externalvector embedding/tracing provider business. Original23000 final rollout and clone selected binding still pending; archivebase953 not finalownedcommit.",
+  "archive_base_commit": "953cf1c1ef88258197c72b98e89fcd1dab85ac39"
+}

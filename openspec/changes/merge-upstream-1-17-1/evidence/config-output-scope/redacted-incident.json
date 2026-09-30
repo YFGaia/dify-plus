@@ -1,0 +1,153 @@
+{
+  "scope": "config output incident 2026-09-30",
+  "reported_command": "rg -n -A45 tracked docker/docker-compose.dify-plus.yaml services range1286-1455",
+  "classification": "repository Compose default declarations disclosed in transient tool output; no private env/custom runtime values were read by reported command",
+  "fields": [
+    {
+      "service": "local_sandbox",
+      "field": "SHELLCTL_AUTH_TOKEN",
+      "line": 1290,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "agent_backend",
+      "field": "DIFY_AGENT_PLUGIN_DAEMON_API_KEY",
+      "line": 1316,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "agent_backend",
+      "field": "DIFY_AGENT_INNER_API_KEY",
+      "line": 1318,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "agent_backend",
+      "field": "DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN",
+      "line": 1321,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "agent_backend",
+      "field": "DIFY_AGENT_SERVER_SECRET_KEY",
+      "line": 1328,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "agent_backend",
+      "field": "DIFY_AGENT_API_TOKEN",
+      "line": 1329,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "SERVER_KEY",
+      "line": 1356,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "DIFY_INNER_API_KEY",
+      "line": 1360,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "AWS_ACCESS_KEY",
+      "line": 1380,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "AWS_SECRET_KEY",
+      "line": 1381,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "TENCENT_COS_SECRET_KEY",
+      "line": 1385,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "ALIYUN_OSS_ACCESS_KEY_ID",
+      "line": 1390,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "ALIYUN_OSS_ACCESS_KEY_SECRET",
+      "line": 1391,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "VOLCENGINE_TOS_ACCESS_KEY",
+      "line": 1395,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    },
+    {
+      "service": "plugin_daemon",
+      "field": "VOLCENGINE_TOS_SECRET_KEY",
+      "line": 1396,
+      "nonempty_literal": true,
+      "same_literal_declaration_in_HEAD": true,
+      "contains_compose_substitution": true,
+      "source_kind": "tracked Compose default/substitution declaration; no privateenv resolution"
+    }
+  ],
+  "values_not_retained_in_this_evidence": true,
+  "no_rotation_or_config_mutation": true,
+  "caveat": "Source-default classification does not establish whether a deployed environment overrides or reuses these defaults; no deployed credential audit performed.",
+  "followup_incident": {
+    "source": "tracked docker/docker-compose.dify-plus.yaml same public baseline fallback constants",
+    "operation": "read-only rg on exact credential field names accidentally included source-line defaults",
+    "private_env_read": false,
+    "user_custom_value_observed": false,
+    "values_persisted_in_evidence": false,
+    "remediation": "No reprint/rotation/config mutation. Stop compose text outputs; use AST/structured field-name and boolean equality probes only."
+  }
+}

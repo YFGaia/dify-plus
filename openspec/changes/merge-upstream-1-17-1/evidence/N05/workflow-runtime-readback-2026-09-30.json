@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-30",
+  "scope": "isolated synthetic Start-to-End workflow runtime; no model node or provider call",
+  "service": {
+    "api": "http://localhost:25442",
+    "api_image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429"
+  },
+  "app": {
+    "id": "c8af11f7-885a-454b-bcc2-181025ace644",
+    "installed_id": "e0cbad51-01b3-4918-9b76-941ad7b32a4c",
+    "owner_owned_synthetic": true
+  },
+  "fixture_validation": {
+    "initial_source_variable_type": "text",
+    "first_real_run": "failed before any node executed; API returned VariableEntity enum validation error because text is invalid",
+    "correction": "product draft-save changed only synthetic Start variable type to text-input and product publish succeeded"
+  },
+  "real_run": {
+    "request": "POST /console/api/apps/{app_id}/workflows/draft/run with synthetic marker input",
+    "http_status": 200,
+    "sse_events": [
+      "workflow_started",
+      "text_chunk",
+      "node_started",
+      "node_finished",
+      "node_started",
+      "node_finished",
+      "workflow_finished"
+    ],
+    "workflow_run_id": "1766592f-f00c-4f0e-a043-4f6e29c89d87",
+    "task_id_received": true,
+    "status": "succeeded",
+    "total_steps": 2,
+    "total_tokens": 0,
+    "outputs": {
+      "result": "acceptance-success-no-llm-2026-09-30"
+    },
+    "workflow_run_detail_status": 200,
+    "node_executions_status": 200,
+    "node_executions": [
+      {
+        "node_id": "start",
+        "status": "succeeded"
+      },
+      {
+        "node_id": "end",
+        "status": "succeeded"
+      }
+    ],
+    "node_outputs_snapshot_status": 200
+  },
+  "published_vs_draft": {
+    "draft_save_status": 200,
+    "draft_only_change": "Start variable label temporarily changed from marker to draft-only-marker",
+    "draft_readback": "draft-only-marker",
+    "published_readback_after_draft_save": "marker",
+    "published_unchanged": true,
+    "draft_restored_from_published_status": 200,
+    "draft_restored_equals_published": true
+  },
+  "provider_availability": {
+    "summary_status": 200,
+    "configured_model_count": 0,
+    "configured_embedding_model_count": 0,
+    "credentials_or_values_recorded": false
+  },
+  "user_23000_data_modified": false
+}

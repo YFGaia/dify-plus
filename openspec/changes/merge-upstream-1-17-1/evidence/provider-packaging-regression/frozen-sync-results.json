@@ -1,0 +1,31 @@
+{
+  "uv_version": "0.8.9",
+  "HEAD_original_lock_check": {
+    "exit_code": 0,
+    "resolved_line": "Resolved 530 packages in 12ms"
+  },
+  "HEAD_default_groups_frozen_dry_run": {
+    "exit_code": 0,
+    "actual_install": false,
+    "phase": "complete install plan, no environment mutation"
+  },
+  "HEAD_frozen_qdrant_group_sync": {
+    "exit_code": 0,
+    "installed_distribution": "dify-vdb-qdrant==0.0.1",
+    "entrypoints": 1,
+    "boundary": "Qdrant group actual installation only; full default groups actual image not claimed"
+  },
+  "user_dirty_preserved_lock_check": {
+    "exit_code": 1,
+    "needs_serialization_update": true,
+    "not_claimed_pass": true,
+    "resolved_line": "Resolved 530 packages in 196ms"
+  },
+  "user_dirty_preserved_frozen_qdrant_group_sync": {
+    "exit_code": 0,
+    "installed_distribution": "dify-vdb-qdrant==0.0.1",
+    "entrypoints": 1,
+    "boundary": "Qdrant group actual installation only; full default groups actual image pending runtime"
+  },
+  "complete_default_groups_actual_install": "pending canonical image"
+}

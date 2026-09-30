@@ -1,0 +1,130 @@
+{
+  "status": "N03passed fullimage runtime readiness; authorized fresh business matrix underway",
+  "project": "difyplus-acceptance-20260930",
+  "host": "localhost",
+  "reason": "localhost browser cookies isolated from original127.0.0.1:23000; actual local resolverIPv6::1, dedicated DockerIPv6probe passed; noOSalias",
+  "ports": {
+    "nginx_web": 23010,
+    "api_direct": 25442,
+    "websocket_direct": 25443
+  },
+  "origins": {
+    "web": "http://localhost:23010",
+    "api_direct": "http://localhost:25442",
+    "socket_browser": "ws://localhost:23010",
+    "socket_direct": "ws://localhost:25443"
+  },
+  "compose_base": "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml",
+  "compose_overlay": "/Users/liuxingwang/go/src/dify-plus/openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/compose.acceptance.override.yaml",
+  "compose_project_directory": "/Users/liuxingwang/go/src/dify-plus/docker",
+  "active_profiles": [
+    "collaboration",
+    "qdrant",
+    "acceptance-mysql"
+  ],
+  "middleware_services": [
+    "db_postgres",
+    "db_mysql",
+    "redis",
+    "qdrant",
+    "ssrf_proxy",
+    "sandbox"
+  ],
+  "init_services": [
+    "init_permissions",
+    "init_secret_key"
+  ],
+  "migration_services": [
+    "migration",
+    "migration_mysql"
+  ],
+  "business_services": [
+    "api",
+    "api_websocket",
+    "web",
+    "plugin_daemon",
+    "worker",
+    "worker-gaia",
+    "worker-dataset",
+    "nginx"
+  ],
+  "beat_policy": "worker_beat is acceptance-beat profile, start only for isolated reset/schedule tests after baseline snapshot",
+  "volumes": [
+    "acceptance_storage",
+    "acceptance_postgres",
+    "acceptance_mysql",
+    "acceptance_redis",
+    "acceptance_plugin",
+    "acceptance_qdrant",
+    "acceptance_sandbox",
+    "acceptance_nginx_conf"
+  ],
+  "database_ports_published": false,
+  "existing_user_stack": "127.0.0.1:23000 unchanged; no shared volumes/queues",
+  "private_env_policy": "dedicated private env outside tracked files; onlyLOCAL_ACCEPTANCE_* required variables; do not print resolved config/env/key values",
+  "candidate_api_image_expected_tag": "difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6",
+  "candidate_api_image_ready": true,
+  "final_archive_manifest": "/private/tmp/difyplus-acceptance-api-20260930/final-build-manifest.json",
+  "candidate_image_gate": "fullimage available; actual isolated/original finalservice gates pending",
+  "non_goal": "No production or historical old-library migration accepted; registry supply still separately recorded",
+  "email_policy": "MAIL_TYPE empty explicitly; no outgoing email; isolated account domain example.invalid; email-provider enabled-flow acceptance stays pending without safe mail sink/config",
+  "compose_overlay_sha256": "f766280955dabd42d83cf7c38306b79b17a10cd25fc98890eeb6922d74e5e6c5",
+  "runtime_owner_report": "Runtime deployed HEADlock445d to isolated API/workers/WS; latest samecontext/foreignreaddelete/AgentJWE200 and O02 socket/HumanInput/files/readback actual passed. Original23000 final bundle and O01 pending.",
+  "intermediate_api_image_expected_tag": "difyplus-acceptance-api:953cf1c-appcenter-uuidfix-0197f7ba",
+  "candidate_context_manifest_sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+  "candidate_archive_overlay_count": 56,
+  "candidate_build_mode": "standard api/Dockerfile frozen originalHEADlock plus55ownedsource overlays; sourcecommitlabel archivebase only",
+  "candidate_api_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "candidate_api_image_readiness": "HEADlock445d deployed isolated actual N09HTTP/AgentStub/O02 enabledpaths accepted; originalfinaldelivery pending",
+  "seed_recipe_review": "evidence/N03/independent-seed-provenance-review.json",
+  "bind_host": "::1",
+  "host_resolution_preflight": {
+    "method": "runtime actualDockerprobe [::1]:23099:80 thencurl localhost200 remote::1; probe stopped",
+    "IPv6_addresses": [
+      "::1"
+    ],
+    "IPv6_publish_intended": true,
+    "IPv4_publish_intended": false,
+    "business_connectivity": "runtime owner verifies actual browser/API reachability"
+  },
+  "seed_auxiliary_image_tag": "difyplus-acceptance-api:953cf1c-uuid-quota-seed-3c632717",
+  "nginx_local_image_adaptation": {
+    "observed": "nginx1.27-alpine has no/bin/bash; shebang exec of copied fork entrypoint failed not found",
+    "change": "same copy/sed/chmod sequence invokes sh explicitly; script static POSIX syntax reviewed",
+    "scope": "acceptance override only; base deployment and product source unchanged",
+    "actual_runtime_result": "nginx running; frontend200 andWS101 recorded"
+  },
+  "canonical_image_verification": "evidence/N08/source-build-manifest.json",
+  "runtime_readiness_evidence": "evidence/N03/runtime-readiness-2026-09-30.json",
+  "latest_pending_source_manifest": "evidence/provider-packaging-regression/latest-source-manifest.json",
+  "latest_pending_context_sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+  "latest_pending_overlay_count": 56,
+  "latest_pending_context_file_count": 4318,
+  "candidate_context_accepted_running": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+  "latest_candidate_image_ready": true,
+  "prior_accepted_candidate": {
+    "context": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+    "api_image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+    "evidence": "evidence/N03/runtime-readiness-2026-09-30.json"
+  },
+  "prior_accepted_N07_candidate": {
+    "source_context": "1a805b0e",
+    "image": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619",
+    "evidence": "evidence/N07/result.json"
+  },
+  "final_release_image_binding": {
+    "archive_base_commit": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+    "owned_source_count": 55,
+    "lock_origin": "original committed HEAD api/uv.lock",
+    "lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+    "final_source_commit": "pending scoped commit after final runtime gates",
+    "COMMIT_SHA_label_interpretation": "archive base until explicit final sourcecommit binding recorded"
+  },
+  "agent_effective_inner_key_contract": {
+    "AgentField": "DIFY_AGENT_INNER_API_KEY",
+    "APIloadedField": "INNER_API_KEY_FOR_PLUGIN",
+    "privateAlias": "LOCAL_ACCEPTANCE_PLUGIN_INNER_KEY",
+    "runtime_equality_verified": true,
+    "evidence": "../N10/head-lock-full-image-runtime-2026-09-30.json"
+  }
+}

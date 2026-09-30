@@ -1,0 +1,110 @@
+[
+  {
+    "case": "missing",
+    "status": 403,
+    "code": "forbidden"
+  },
+  {
+    "case": "bootstrap",
+    "status": 200,
+    "ok": true,
+    "cache_control": "no-store",
+    "httponly": true,
+    "same_site_lax": true
+  },
+  {
+    "case": "cookie",
+    "status": 200,
+    "keys": [
+      "deployment_edition",
+      "enable_app_deploy",
+      "sso_enforced_for_signin",
+      "sso_enforced_for_signin_protocol",
+      "enable_marketplace",
+      "enable_email_code_login",
+      "enable_email_password_login",
+      "enable_social_oauth_login",
+      "enable_collaboration_mode",
+      "is_allow_register",
+      "is_email_setup",
+      "license",
+      "branding",
+      "webapp_auth",
+      "plugin_installation_permission",
+      "enable_change_email",
+      "enable_creators_platform",
+      "enable_explore_banner",
+      "enable_learn_app",
+      "enable_step_by_step_tour",
+      "rbac_enabled",
+      "knowledge_fs_enabled",
+      "is_custom_auth2",
+      "is_custom_auth2_logout",
+      "ding_talk_client_id",
+      "ding_talk_corp_id",
+      "ding_talk",
+      "rmb_to_usd_rate"
+    ],
+    "cache_control": "no-store",
+    "privacy_keys_excluded": true
+  },
+  {
+    "case": "header",
+    "status": 200,
+    "keys": [
+      "deployment_edition",
+      "enable_app_deploy",
+      "sso_enforced_for_signin",
+      "sso_enforced_for_signin_protocol",
+      "enable_marketplace",
+      "enable_email_code_login",
+      "enable_email_password_login",
+      "enable_social_oauth_login",
+      "enable_collaboration_mode",
+      "is_allow_register",
+      "is_email_setup",
+      "license",
+      "branding",
+      "webapp_auth",
+      "plugin_installation_permission",
+      "enable_change_email",
+      "enable_creators_platform",
+      "enable_explore_banner",
+      "enable_learn_app",
+      "enable_step_by_step_tour",
+      "rbac_enabled",
+      "knowledge_fs_enabled",
+      "is_custom_auth2",
+      "is_custom_auth2_logout",
+      "ding_talk_client_id",
+      "ding_talk_corp_id",
+      "ding_talk",
+      "rmb_to_usd_rate"
+    ],
+    "cache_control": "no-store",
+    "privacy_keys_excluded": true
+  },
+  {
+    "case": "bad_signature",
+    "status": 403,
+    "code": "forbidden"
+  },
+  {
+    "case": "wrong_ip",
+    "status": 403,
+    "code": "forbidden"
+  },
+  {
+    "case": "public_features",
+    "status": 200,
+    "login_only_keys_excluded": true
+  },
+  {
+    "case": "SSR_signin_http",
+    "status": 200,
+    "cache_control": "private, no-cache, no-store, max-age=0, must-revalidate",
+    "content_type": "text/html; charset=utf-8",
+    "html_present": true,
+    "not_login_config_ping_response": true
+  }
+]

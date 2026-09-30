@@ -1,0 +1,61 @@
+{
+  "original_dirty_sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+  "final_dirty_candidate_sha256": "3d1b58d109585d9498e757734a7fef6a24fa972c8b17128ce12e4019331f7dbc",
+  "changed_packages": [
+    "dify-trace-aliyun",
+    "dify-trace-arize-phoenix",
+    "dify-trace-langfuse",
+    "dify-trace-langsmith",
+    "dify-trace-mlflow",
+    "dify-trace-opik",
+    "dify-trace-tencent",
+    "dify-trace-weave",
+    "dify-vdb-alibabacloud-mysql",
+    "dify-vdb-analyticdb",
+    "dify-vdb-baidu",
+    "dify-vdb-chroma",
+    "dify-vdb-clickzetta",
+    "dify-vdb-couchbase",
+    "dify-vdb-elasticsearch",
+    "dify-vdb-hologres",
+    "dify-vdb-huawei-cloud",
+    "dify-vdb-iris",
+    "dify-vdb-lindorm",
+    "dify-vdb-matrixone",
+    "dify-vdb-milvus",
+    "dify-vdb-myscale",
+    "dify-vdb-oceanbase",
+    "dify-vdb-opengauss",
+    "dify-vdb-opensearch",
+    "dify-vdb-oracle",
+    "dify-vdb-pgvecto-rs",
+    "dify-vdb-pgvector",
+    "dify-vdb-qdrant",
+    "dify-vdb-relyt",
+    "dify-vdb-tablestore",
+    "dify-vdb-tencent",
+    "dify-vdb-tidb-on-qdrant",
+    "dify-vdb-tidb-vector",
+    "dify-vdb-upstash",
+    "dify-vdb-vastbase",
+    "dify-vdb-vikingdb",
+    "dify-vdb-weaviate"
+  ],
+  "changed_fields_only": [
+    "source"
+  ],
+  "non_provider_bytes_retained": true,
+  "HEAD_provider_sources_already_editable": true,
+  "owned_HEAD_lock_patch_empty": true,
+  "uv_version": "0.8.9",
+  "lock_check": "needs_update_due_to_older_lock_serialization_not_claimed_pass",
+  "discarded_regeneration": {
+    "package_count": 530,
+    "changed_package_count": 530,
+    "changed_versions": [],
+    "top_fields": [
+      "requires-python",
+      "resolution-markers"
+    ]
+  }
+}

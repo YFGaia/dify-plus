@@ -1,0 +1,1 @@
+{"engine": "postgresql", "operation": "actual_service_set_user_quota", "insert": "passed", "precision_readback": "passed", "update": "passed", "preserves_used_quota": true, "unique_balance": true, "cleanup_restored_empty_tables": true}

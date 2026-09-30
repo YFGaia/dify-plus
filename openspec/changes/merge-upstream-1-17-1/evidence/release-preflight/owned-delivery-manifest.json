@@ -1,0 +1,1921 @@
+{
+  "stage": "prepared_not_staged_not_final_runtime",
+  "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+  "source_paths": [
+    {
+      "path": "api/controllers/console/apikey.py",
+      "sha256": "d7de964844e9adb4e4a6b7befcf25ace3062bc4058624530ccb79978b7eb2ccb"
+    },
+    {
+      "path": "api/events/event_handlers/__init__.py",
+      "sha256": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8"
+    },
+    {
+      "path": "api/events/event_handlers/create_app_statistics_when_app_created_extend.py",
+      "sha256": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba"
+    },
+    {
+      "path": "api/models/model_extend.py",
+      "sha256": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190"
+    },
+    {
+      "path": "api/services/installed_app_service.py",
+      "sha256": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b"
+    },
+    {
+      "path": "api/services/recommended_app_service_extend.py",
+      "sha256": "a218fb7c088b296e70248b01bd96913b1978fae9622a61d6de5ff31b96517bee"
+    },
+    {
+      "path": "api/services/system_manage_extend.py",
+      "sha256": "1cf69052a66dc6f681899dffe24d9cd12eee8ab93e88e9825bcef3e881cbd12e"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_apikey_quota_serialization_extend.py",
+      "sha256": "b9880a010b2eccf10b32850a4e7ec701332ed01bbb176a851e5b2af126a9a622"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_system_manage_extend.py",
+      "sha256": "8fc9fd897e8950a7126968731f27539271761a933c5a3f816e7b99ad1af6c6fb"
+    },
+    {
+      "path": "api/tests/unit_tests/events/test_app_statistics_extend.py",
+      "sha256": "856fcf4a6b4ed85c9cef5d2f051e0a19f35be52107c0cffc23d80dcab98d534c"
+    },
+    {
+      "path": "api/tests/unit_tests/models/test_model_extend_uuid_defaults.py",
+      "sha256": "ca89fd7377bf776f5e3da3caa2b617f70179acd06c27c91fad02040dd0f1feb0"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_app_center_extend.py",
+      "sha256": "4e6e1e770a8505f750979598de032602e7b707262fccb315185d57e667a0dae1"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_quota_manage_pagination_extend.py",
+      "sha256": "97145c114e9189237492e0c75fdc456bd708d8aa78fed101c75fd9497a8f298c"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_quota_manage_upsert_extend.py",
+      "sha256": "3d7a0d682f52bbc12fff859ab4c35b7a753d7eadbc3d4dcd68d23a7b1bdab32d"
+    },
+    {
+      "path": "api/controllers/web/wraps.py",
+      "sha256": "96830ac4c86f7a630412b6586d601bfed9a2fed57b5623a5b86c057b41241f30"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/web/test_webapp_passport_scope_extend.py",
+      "sha256": "6170851117e29b09be05450e49ff184c14ec513f5b5462087479522696ecb3ec"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_context_uuid_scope_extend.py",
+      "sha256": "7efc45c601150b2643ea734f472e1860fb7f81f6f9f21fb2249c6ecb04da7653"
+    },
+    {
+      "path": "api/providers/trace/trace-aliyun/pyproject.toml",
+      "sha256": "c3031c7dcb52cfd0f4fecfebe279d3405f3a1da2ceb33e3e66eb98701ba78013"
+    },
+    {
+      "path": "api/providers/trace/trace-arize-phoenix/pyproject.toml",
+      "sha256": "0967b301b1a4f0529de0edd1a42def47aa8e857ff9ff171a1b400a622b810f3c"
+    },
+    {
+      "path": "api/providers/trace/trace-langfuse/pyproject.toml",
+      "sha256": "b469e5335d0802ccf801d5c3c87f79ffdad86327bf9a924f25bf7e0f378ee2a0"
+    },
+    {
+      "path": "api/providers/trace/trace-langsmith/pyproject.toml",
+      "sha256": "c768501ec33e2627c937e226162335ee17631b1ecf7f2346cd038d87cbf40f77"
+    },
+    {
+      "path": "api/providers/trace/trace-mlflow/pyproject.toml",
+      "sha256": "b7677449f03cdb7ad0fc31e461480d2112a60083d47d839983560d8866f3b880"
+    },
+    {
+      "path": "api/providers/trace/trace-opik/pyproject.toml",
+      "sha256": "bdb3b31cbb02c0ba4144492a5a7edad3457894e2762388ede2de0a34a88a08df"
+    },
+    {
+      "path": "api/providers/trace/trace-tencent/pyproject.toml",
+      "sha256": "ea12d4cc87bf7a37f8ba24848164089755fd7081881e0cd9aba546a08b924185"
+    },
+    {
+      "path": "api/providers/trace/trace-weave/pyproject.toml",
+      "sha256": "b2512675f79266e1267654ad1010be546918ac5560e6857295481b3c96b9061a"
+    },
+    {
+      "path": "api/providers/vdb/vdb-alibabacloud-mysql/pyproject.toml",
+      "sha256": "b81810813bf5f18077f87b7deeb82fdacc60ae96fe30163ea32f1f4d28c3d70f"
+    },
+    {
+      "path": "api/providers/vdb/vdb-analyticdb/pyproject.toml",
+      "sha256": "c997948e609ca9928385f1bab1cdd2f076779a8f7356bf67da2d92b3131bb417"
+    },
+    {
+      "path": "api/providers/vdb/vdb-baidu/pyproject.toml",
+      "sha256": "47eea7f63863218938650ffbd99fd6a34aa6c7ffbe6fb8e192f0b84fe70ae053"
+    },
+    {
+      "path": "api/providers/vdb/vdb-chroma/pyproject.toml",
+      "sha256": "6affd006b91287e569cdc42b5da4174ac1d21d6cb7fd5718dafd089636e935e8"
+    },
+    {
+      "path": "api/providers/vdb/vdb-clickzetta/pyproject.toml",
+      "sha256": "0475e174df9a1bf45cd7f688b43c645a1340edb707268e8ce336da174543b94d"
+    },
+    {
+      "path": "api/providers/vdb/vdb-couchbase/pyproject.toml",
+      "sha256": "3c08c536cfe0be6522b08d5ae61a7f9c161effc8bc38ef1c8c5cf9e845ada9dd"
+    },
+    {
+      "path": "api/providers/vdb/vdb-elasticsearch/pyproject.toml",
+      "sha256": "438d468b9414c401ee51ff6a47b1fb04c738b4e4a0f54808ef9184d9478b4d8a"
+    },
+    {
+      "path": "api/providers/vdb/vdb-hologres/pyproject.toml",
+      "sha256": "6f305e46f3e24b2889ded2a2a85bdf126c71547486d79a792be6c70dbe3d274d"
+    },
+    {
+      "path": "api/providers/vdb/vdb-huawei-cloud/pyproject.toml",
+      "sha256": "a63655c3c25cb66b8ee14bacc7f2201152bebef20668a9d7bafeb080b82e5f5b"
+    },
+    {
+      "path": "api/providers/vdb/vdb-iris/pyproject.toml",
+      "sha256": "3b67518a58f4354a9d07b59096245c277ea781429e1c1b5a88c895dc7a556008"
+    },
+    {
+      "path": "api/providers/vdb/vdb-lindorm/pyproject.toml",
+      "sha256": "fe806264a3636825abc9ecd901df04471018c46e0be3b53affe07aa98dcddc0e"
+    },
+    {
+      "path": "api/providers/vdb/vdb-matrixone/pyproject.toml",
+      "sha256": "8701ac155520065595732828b814008e7179ad54d4a8a923a3908ac7923b6c6d"
+    },
+    {
+      "path": "api/providers/vdb/vdb-milvus/pyproject.toml",
+      "sha256": "41b672c658372bb460e132a8eac5a3e96acee85d3fc89b43332e4144909ce640"
+    },
+    {
+      "path": "api/providers/vdb/vdb-myscale/pyproject.toml",
+      "sha256": "9dc223d0f13b40da281ed75b9417883d1c90c131c86f3a917c675b923aa5a585"
+    },
+    {
+      "path": "api/providers/vdb/vdb-oceanbase/pyproject.toml",
+      "sha256": "9e5e7b57985c8bfa0f66ae494bc8a7f95b853d91751d8fa150a6a34631066077"
+    },
+    {
+      "path": "api/providers/vdb/vdb-opengauss/pyproject.toml",
+      "sha256": "89aef22c6accbdd423f5d359fbc6439c3f216e88d6b386c1ae3f386dd23bf40f"
+    },
+    {
+      "path": "api/providers/vdb/vdb-opensearch/pyproject.toml",
+      "sha256": "ad9383de64cbeb6f9e538e843f8d4a760cd779245560c0d093b3fa96e34a89e4"
+    },
+    {
+      "path": "api/providers/vdb/vdb-oracle/pyproject.toml",
+      "sha256": "553aa4383f3764d67a4712591ebf1ed9005509cf0e21f15257ecf8f5e4aefeba"
+    },
+    {
+      "path": "api/providers/vdb/vdb-pgvecto-rs/pyproject.toml",
+      "sha256": "bb1661fa5e453292bb927358c5025aa957512afe829649633bfe5463b55051c9"
+    },
+    {
+      "path": "api/providers/vdb/vdb-pgvector/pyproject.toml",
+      "sha256": "763a1512bee7227ce16c489c3e770943090de44546e83daf576f56bd59cca5e1"
+    },
+    {
+      "path": "api/providers/vdb/vdb-qdrant/pyproject.toml",
+      "sha256": "a6de7ebef76859f63f9420c88fdf32a30a99ad38901bfcded1428e1387cec057"
+    },
+    {
+      "path": "api/providers/vdb/vdb-relyt/pyproject.toml",
+      "sha256": "ab8366014cd366444956b9f6ba136c1dd7960359b728b1df83a634fc4f747d90"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tablestore/pyproject.toml",
+      "sha256": "8e7e61beddf4a79bf1f02d7425d6b21aa0d1553377b590b77c16933c61150f21"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tencent/pyproject.toml",
+      "sha256": "9ebf1bbdb448a076ce4ce66ffb23a084a6feb31b8f7fa7c5b1f0ab1fc2b2a071"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tidb-on-qdrant/pyproject.toml",
+      "sha256": "938bd7810f22c73904e4cef0e46a596ba1330f0339f797d89180e8b180ca147e"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tidb-vector/pyproject.toml",
+      "sha256": "65634197bdae5bafb167a8d914d67ed37ad026c61bbf95f7baabc76a4aebb1c7"
+    },
+    {
+      "path": "api/providers/vdb/vdb-upstash/pyproject.toml",
+      "sha256": "6bdff08c418d6938c1dbb6cfb365b663606aedbeacb3c08cfe49e75b4d2478c2"
+    },
+    {
+      "path": "api/providers/vdb/vdb-vastbase/pyproject.toml",
+      "sha256": "ee8b8821e8581b62166698a81319ca792843a0f5529634326c298c23e694c982"
+    },
+    {
+      "path": "api/providers/vdb/vdb-vikingdb/pyproject.toml",
+      "sha256": "ad805e9217801e5dac1f79f97b0f97f713e17752e11658cfed8f72e86136e852"
+    },
+    {
+      "path": "api/providers/vdb/vdb-weaviate/pyproject.toml",
+      "sha256": "462d5ae12bd55cc56ac86ecd4d78221ad6dcf4b5aed5f066df04192ef43e9fb3"
+    }
+  ],
+  "source_count": 55,
+  "planning_evidence_count": 278,
+  "planning_evidence_paths": [
+    {
+      "path": "docs/dify-plus/1.17.1合并验收记录.md",
+      "sha256": "4beda8383dc2c209f39fb6b434c92f3b4f9fb22695040ed4cbb60391c7ba3be2",
+      "bytes": 3529,
+      "ignored": false
+    },
+    {
+      "path": "docs/dify-plus/README.md",
+      "sha256": "3811ab196ea3af3f59a7c439b62ebee43bea8342540eb7cf60099142ef868e2b",
+      "bytes": 4722,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/acceptance-ledger-2026-09-30.md",
+      "sha256": "1dc29b4a79018c9de2407dd6ba216a4f2b9f123f8c179994a5a665d0a44d99b3",
+      "bytes": 21155,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/acceptance-ledger-state-2026-09-30.json",
+      "sha256": "e1daf67f2f726210d696769e70d822a5aa89ac361bb7aa6cd3ed0d7f131081f7",
+      "bytes": 65709,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/B10/direct-task-runtime.json",
+      "sha256": "3e36ce9ccbabca1017186643d8c3859facd370fcdf6332d28382b5200db4e82b",
+      "bytes": 5939,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/B10/direct-task-runtime.stdout.log",
+      "sha256": "b0ef5e5e49e6b9c3e2aca09b1dc8a36da70b7b50476deab9555998f613cd8a1a",
+      "bytes": 5903,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/B10/extend-migrations.log",
+      "sha256": "31a9fa91565e4f181f5005f4416eb396c8957d3051d07d8391dbb46e9301222a",
+      "bytes": 3422,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/B10/probe.py",
+      "sha256": "87104726c4913eb4ab7575e90da84374ab6a69d21abc07eb6276a9921fac29e5",
+      "bytes": 5582,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.19-final-candidate-structural-acceptance.md",
+      "sha256": "a90d5f3a852aa276fb1baf697882c6c8e589fae857e456c024bcd98eb21b16f2",
+      "bytes": 4216,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N01/independent-source-review.json",
+      "sha256": "4c21e79e89f1bbc6df2afb91e3959ab75750869b441ae4e78465643d9ed96b40",
+      "bytes": 3037,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N01/independent-source-review.md",
+      "sha256": "f34d053c61493dc9960c05df3f7c76fcf3f8a1260577fdb4ebfcf18ba7d4a408",
+      "bytes": 763,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N01/published-app-missing-stats-runtime-2026-09-30.json",
+      "sha256": "5eb70ad6761ec74d4f9a550a3dd6b5f427d832100de1530ca2481c256f70e9f7",
+      "bytes": 2232,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N01/result.json",
+      "sha256": "96c74187d77552cebd713924a18c051a768e4d215cdd55f1049f1816306bbe41",
+      "bytes": 486,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N02/context-file-manifest.json",
+      "sha256": "676fe69d180e546a107521282511e5d08eae5969aea2d1fe1c1ce8ea5dfbe1ee",
+      "bytes": 698158,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N02/result.json",
+      "sha256": "b947a5593ae554bff80da17cae9ed2949812d9c34ef1e79cb3893321f4ac9719",
+      "bytes": 4102,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N02/source-build-manifest.json",
+      "sha256": "93e4e8e185bccddfc280732022064356debee7830886bf48ac712827883eba62",
+      "bytes": 2478,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N03/Dockerfile.seeded.txt",
+      "sha256": "88843339d307860c2acf2a6fb3cb0e186c8252273a86ca598bc7ccf9fbdf4d20",
+      "bytes": 4596,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N03/canonical-image-verification.json",
+      "sha256": "1ccd771174b375e60bdbe886424b46f7549898ecc0668650b0272e9beba73eee",
+      "bytes": 2167,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N03/independent-seed-provenance-review.json",
+      "sha256": "90d22bb19c2d661dce0ee35ffaaa21a8a3f83a1d13e2f8e772c8505301f2906d",
+      "bytes": 1296,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N03/result.json",
+      "sha256": "3f26fdf1db4e7d2de45a733518c6950399beb4355a0882b4dee840ddbf0c6825",
+      "bytes": 397,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N03/runtime-readiness-2026-09-30.json",
+      "sha256": "d8e469c1a1adeb1dcc16af59b6c1d2db3931c479aa52880178ad8c3843590d5c",
+      "bytes": 5632,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N03/seed-build-manifest.json",
+      "sha256": "07ffe30f603352bbcaf0b3957c433144e9cb2923fadbdf340657103ae59e6132",
+      "bytes": 2029,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N04/delete-rebuild-economy-runtime-2026-09-30.json",
+      "sha256": "3bf1149fa2d0a30f2f58f1f81362a98039a41414bf97f005295326e0385c5dac",
+      "bytes": 1135,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+      "sha256": "ad359b6acd7646e98d8e2837d238b0eb9e7bb04bc1d7de360269211fbd1815b1",
+      "bytes": 1862,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N04/fullimage-dualengine-orm-2026-09-30.json",
+      "sha256": "9ef7f56d55c5611bc9a79514503e1a04dba85753531404f1b0f1181aeac2b196",
+      "bytes": 6869,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N04/independent-model-source-review.json",
+      "sha256": "a2332c946ccfa94ee20f439f64c51a38d9da7efe36ce0173376cd452d4bd9c95",
+      "bytes": 1529,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N04/independent-quota-upsert-source-review.json",
+      "sha256": "96f0f55d8b8b100abb86bcd374971e65a7d2061fb5af9529a9742832a7b06d8d",
+      "bytes": 1551,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N04/result.json",
+      "sha256": "c6629e831ba7c205eb8fda982170ac0fdf61fa45889193148bb20a320ff6f013",
+      "bytes": 1524,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N05/result.json",
+      "sha256": "decb7e6e07535752f20f2e04612f2c7e978d6cdfc8136eca3b249228ee8b9c59",
+      "bytes": 604,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N05/workflow-runtime-readback-2026-09-30.json",
+      "sha256": "28068653c2d3d8a9e01e31fe60a15f461672c5783e6ad86554e0126573673409",
+      "bytes": 2238,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/independent-final-delivery-restore-review.json",
+      "sha256": "6132109fa85294d31c22f307435d58ae8ad622ff912a63a091fe80a9588f8855",
+      "bytes": 1947,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
+      "sha256": "444e3a2ac171f0f9ef5bc2d65113f10b35a88a26d84a84f48eeab06aebdcbabf",
+      "bytes": 2771,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/original-23000-inventory.json",
+      "sha256": "77ab69d152ffeccd819d5ba206fb3d5e688f6e0cf9ff82fd6ee77b141e33d675",
+      "bytes": 12966,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/original-23000-live-update-and-acceptance-2026-09-30.json",
+      "sha256": "61883d8045a540641128da3965c6b0243ad9059707b832fff92a9e8a20ac7768",
+      "bytes": 5483,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+      "sha256": "53c3437f5801bdfb06191fe08bf6c78464851dcdc51832262ddcef548e430014",
+      "bytes": 6350,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/original-23000-update-runbook.md",
+      "sha256": "e02878b158fbd86015a4c0959e88d224fb73f8fe862107aec23495f7fea7cad2",
+      "bytes": 7471,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/result.json",
+      "sha256": "6b1afb42ab20b70c71d87d076c7089b92eea71a61834b8ba0ce148e90eecb026",
+      "bytes": 781,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N06/runtime-snapshot-restore-2026-09-30.json",
+      "sha256": "bdc46aa3a11557cb6859ed9bc6cb85f37a9e767979dad7ca4adcb142291e25d6",
+      "bytes": 4188,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N07/context-file-manifest.json",
+      "sha256": "8bcfa34cf8284edb4ff0f92fe9b809384966490dbb48b98d2803a6de6f700b29",
+      "bytes": 698520,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N07/fullimage-runtime-verification-2026-09-30.json",
+      "sha256": "2ae7ed5c87daf6d4089d03fae6fbc5fa50ff3c960decd934f80b0a14a90fae95",
+      "bytes": 3637,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N07/independent-apikey-numeric-source-review.json",
+      "sha256": "60c5c000310d1b59c27972b2cd091ce6fd1c95c3248c935dfa649249b5daf0d8",
+      "bytes": 1175,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N07/independent-pagination-source-review.json",
+      "sha256": "6863088197a55883de1d1e1161a292aa853c9f1b62bc036cb39e502ea5bf77c9",
+      "bytes": 1012,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N07/result.json",
+      "sha256": "eaebd1093692205d6f5b241d76dfe2cf781e6cee38e98c9682aedd2fdbe7e1bf",
+      "bytes": 1119,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N07/source-build-manifest.json",
+      "sha256": "a58f51dd2bf460a4d67371b18af8d893dba737f7998d2a30346aef824e75d528",
+      "bytes": 3368,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N07/source-freeze-result.json",
+      "sha256": "fe7f19bdb9d30d8054d7fe3ac02f958b6f5af46ad2edfb524affbc719c588b3f",
+      "bytes": 877,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N08/context-file-manifest.json",
+      "sha256": "2b6f1d6021f7524cb0ef4ce3fa820aeeb0045e3aab9fef0875a621af3be0469c",
+      "bytes": 698699,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N08/independent-manifest-review.json",
+      "sha256": "b39fd66c0bc2150da657276486153bfb5154fd7761088bf9465f86633a99b9fb",
+      "bytes": 682,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N08/independent-source-review.json",
+      "sha256": "c950c5e8baae17ac49e96f077670277b6c29bf799095322bc59e2b0ff3877a52",
+      "bytes": 1413,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N08/result.json",
+      "sha256": "ff214f3428562dd1d6efe976265ccb39cb4f6736d9b56523cd772cfb1b6e7691",
+      "bytes": 1184,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N08/runtime-passport-scope-2026-09-30.json",
+      "sha256": "4585c720fb2e807448f5d227d4ace7097a4bbbb04dd1b1eea7b350ecc47338a6",
+      "bytes": 2151,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N08/source-build-manifest.json",
+      "sha256": "0002b223b6802bc4ce77b388531927271f857a7d80345527ab54c34eed7c27e0",
+      "bytes": 5415,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N09/cleanup-independent-review.json",
+      "sha256": "b72be7b167877431878f079e9043a7891875a9ab3e48f70ae75cb5f80b9cbc27",
+      "bytes": 645,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N09/context-build-manifest.json",
+      "sha256": "dbbc5f86e004eeeb6577d804affcb1c0d8607dcffb20e277870aa4a410047869",
+      "bytes": 4836,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N09/context-file-manifest.json",
+      "sha256": "1f85f94b49a999ac5f78217df701143056a141323500db98dcd6c43ce25f1e9a",
+      "bytes": 698868,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N09/independent-source-review.json",
+      "sha256": "f695ad19e6cedf3131bb61dfa94e4751046951711f3791b9b8a6db03a0102f4e",
+      "bytes": 1097,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N09/result.json",
+      "sha256": "8103e1371f4a6cf9736e1999bd573a928a2ff5fe78ac915bf7052991a92f1e9f",
+      "bytes": 1370,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/declared-vector-entrypoint-static-inventory.json",
+      "sha256": "c2df460f749aba4d7b160685202fa9744fc6ec5e20c30363472e66024f531ce7",
+      "bytes": 4777,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/dirty-context-file-manifest.json",
+      "sha256": "3d0cc9170ccb4ae907cf8d53bcbcdee6a5bd66674a1371899877d2a8d5557ce9",
+      "bytes": 698868,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+      "sha256": "075ad4cd099e7c2d14386260202fc5822b1162e6eea64e68938a54617d42a0fb",
+      "bytes": 12784,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/headlock-context-file-manifest.json",
+      "sha256": "df9038d3c2180d6c4c65458dfcb3e1808716c810ed6b6a289acfe6d557b07342",
+      "bytes": 698868,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/independent-build-source-audit.json",
+      "sha256": "daad154f30898220312a50909f88e1da630176f5cfb30b1f3feb4ead7b7be74e",
+      "bytes": 3110,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/independent-final-context-review.json",
+      "sha256": "a607b2592819c08396f873a0aa915713e9ff34edab66734242e85485d4bf169a",
+      "bytes": 1456,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/independent-full-image-runtime-review.json",
+      "sha256": "6e413766d04cc2a0a791e6c1ba60ba77b9e6ab86e5280ff02673c087bf1574cc",
+      "bytes": 1242,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/independent-lock-delta-review.json",
+      "sha256": "511e4219c9dca039085e75c1891f84d6ddaac1a56cf12f3a8a2dbe907d6075d7",
+      "bytes": 600,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/independent-source-review.json",
+      "sha256": "4928aff9a89711d7f6cc05012dcabb963a466445cdb8066dc677cf5ed842984e",
+      "bytes": 1958,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/install-overlap-static-review.json",
+      "sha256": "fac1c76b62f1443372a14f3fd00be88ccc8c3f4f45302b659159e0c6f32ae483",
+      "bytes": 1158,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/package-metadata-preflight.json",
+      "sha256": "836e463b883a44003a3a19a901dd6461f28d737eeae045f5eb16211c280a268b",
+      "bytes": 11383,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/provider-wheel-content-review.json",
+      "sha256": "7c8585c9919af228e6712f1f415142bc3be8e61a76aa5d730107b1fdec78bb1e",
+      "bytes": 5257,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/N10/result.json",
+      "sha256": "ab7d0875b096fd79c4b92736c076501c843678dce3ff704c9fe25d03ff504b81",
+      "bytes": 1441,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O01/gaia-extend-task-delivery-ack-2026-09-30.json",
+      "sha256": "4e3fc57113aeda95f95d0fa864ab5aaa659a3bd6272245cc2e7f55e1aa86d726",
+      "bytes": 1474,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O01/official-maths-marketplace-lookup-status.json",
+      "sha256": "b10731a2d35c010af29ae020403e21a215e48a3d72fdd745eff45876ee4fa4da",
+      "bytes": 666,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O01/official-zero-model-plugin-plan.json",
+      "sha256": "bc858fe2887ca8b6740f67deaef24736589a88a361f637654e72d54657610350",
+      "bytes": 2169,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O01/original-23000-bounded-plugin-invocation-2026-09-30.json",
+      "sha256": "837f529c5107134fe413e50ebe44d95b42fd0558f80a9fe7342a73eec53b9a0c",
+      "bytes": 1687,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O02/agent-stub-first-transition-audit.json",
+      "sha256": "006c7eced45dfe3ec440991a054625234218fcd062b2d806a95fba2a83ab17b8",
+      "bytes": 1982,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O02/archive-disabled-independent-runtime.json",
+      "sha256": "348d0a54cd67654e395e5eabfa5ac2b81aff112d742df86f40cad60d15c8fee3",
+      "bytes": 1794,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O02/disabled-feature-runtime-2026-09-30.json",
+      "sha256": "aae5af2a8583c52f5c9f2aefbb0a0f14bfbcfc7530f86511b62bfcb3f396ad01",
+      "bytes": 884,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O02/enabled-local-contract-plan.json",
+      "sha256": "6df7d4eda93cc3d9d32aa9408448e502735d5f8c86d4f6c885549d381237e6c4",
+      "bytes": 2492,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O02/independent-product-readback.json",
+      "sha256": "0c4a07bd79f754afb4e24beff2e0ced3488c9d7bf8b8928835d4f9502ab27a28",
+      "bytes": 697,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O03/agent-ssrf-proxy-runtime-2026-09-30.json",
+      "sha256": "a0aef1ad3a7ba918caef9c66cfe7f4f15756304079d2f431ba34037f23c0bba0",
+      "bytes": 2914,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/O03/generic-ssrf-proxy-runtime-2026-09-30.json",
+      "sha256": "b6cb9cc82270624de0575ed9d084df358c3c544a7429273cf6546e56d7b690e6",
+      "bytes": 945,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/R02/delivery-package-preparation.json",
+      "sha256": "0e8fab8b797dc74700ba97f9084c3d661f68331311434194ced67373fa535a58",
+      "bytes": 2488,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/R02/execution-plan.md",
+      "sha256": "01bf1693d477bc390ea5e34430bb9d527f9fd75e63e7339e42488f4ab072d946",
+      "bytes": 3351,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/V03/local-compose-2026-09-30.md",
+      "sha256": "aa67b438961b4f8a8cfb7fe9072e6a88d8de222d6b69e6e8c0d1d8592fa4c188",
+      "bytes": 11630,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/V03/mysql-empty-2026-09-30.md",
+      "sha256": "012b0b25c02ac62832007bebcc17c5dbd1daca7eb662268f120766eef849c91d",
+      "bytes": 7021,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/api-key-regression/cross-tenant-key-runtime.json",
+      "sha256": "8376de8706ebd7672794c60ecbe389c7c8592f1e6b4decd554c1ad5fe0ef4719",
+      "bytes": 4144,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/api-key-regression/first-numeric-contract-failure.json",
+      "sha256": "892ad31f880d53cbb3f40636049a908461a564fc4e6cb782d8cc1e4a383ed627",
+      "bytes": 1541,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/api-key-regression/key-static-contract.json",
+      "sha256": "c0247d262ed07690dac28f3d7288bc33cbdd3557a6430a66648fd2c0a99f3926",
+      "bytes": 1261,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/api-key-regression/latest-numeric-key-crud-runtime.json",
+      "sha256": "0ed81e01c984a88f324ba4bf5b7a97e4946bc3892e8acae731e8f2555dc2f61c",
+      "bytes": 4701,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/api-key-regression/latest-role-and-zero-limit-runtime.json",
+      "sha256": "f85cac9f26657462735814053e792ec12e1ba81b9c3f3a2e370a0ee40200ca1b",
+      "bytes": 2617,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/apikey-numeric-regression/final-overlay.sha256",
+      "sha256": "53badab8cafc75154ea9d527245941c216a276a64bb5ef888327135d64066300",
+      "bytes": 1684,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/apikey-numeric-regression/implementation.md",
+      "sha256": "19f34fbf9f24215d59bacc5a8b6f7d7ad636f6d5b1ef9646616a2adc984e2ff6",
+      "bytes": 1812,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/apikey-numeric-regression/source.sha256",
+      "sha256": "f2ef5697936074300bf310f788b140ce7b3dee42f97ac134b0d9c2af216a2998",
+      "bytes": 249,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/apikey-numeric-regression/targeted-tests.log",
+      "sha256": "8309d549be5473c091886b90114d412953921de04ae6468acb71bd29911776d1",
+      "bytes": 2024,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-center-regression/implementation.md",
+      "sha256": "15b41f164304698e30814fbedec3ee596b24dbb5c82a0982a8d47efb283829d5",
+      "bytes": 5192,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-center-regression/source.sha256",
+      "sha256": "d17f6fe5701b56a336b54b097dd20c650059a9d7045f3491e01c202d2224a9d3",
+      "bytes": 708,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-center-regression/targeted-tests.log",
+      "sha256": "ac0d47eedfb42b386c27b3f5cfbf00696c5e0e04eb76b320f977e43ba5067932",
+      "bytes": 2252,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/app-auth-results.json",
+      "sha256": "4d37e57ed1f7051c6103baac8526a7f1482df4c1f9e45114c90090bd4909cbda",
+      "bytes": 2410,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/before-cross-app.json",
+      "sha256": "170a0c461aa098e374ab856a444d64ea517e3568234e20262ee29b4259951e91",
+      "bytes": 1040,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/browser-login-config-results.json",
+      "sha256": "69c7cdddb37cd3886294b60921830dd7fa2ded3dc7884551a2533a49f63d543a",
+      "bytes": 2386,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/environment-results.json",
+      "sha256": "f23a7410f14d0a7a53af61feac4b8ad432385e9a0308f5476013af79ac4cf294",
+      "bytes": 505,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/evidence-files.sha256",
+      "sha256": "08a1fdca9a33ee5f03e08b59e013700a8749912febb3964e8b27c15b4654b9e4",
+      "bytes": 1644,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/existing-config-context-tests.log",
+      "sha256": "a042e6997ce00c000b1ef2acfb108af4aba26b040eee25f711f32eae38f94830",
+      "bytes": 2172,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/existing-web-contract-tests.log",
+      "sha256": "6352006b3c8ab553c4f0d1ef0ebcd47ca41ac756667274ed17c8e2cddad2348d",
+      "bytes": 392,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/first-fixture-failure.log",
+      "sha256": "d565b9e51ba0266dcad41db2820054162beef1c86d955e3189948897ad878d8b",
+      "bytes": 301921,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/implementation.md",
+      "sha256": "30da8bb4194cf0174c873896e303fbe37151a1b3e7ecfd620715ea584ec2c263",
+      "bytes": 4010,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/local-subchecks.md",
+      "sha256": "526ff591b587adeb8b93975ec718e151f1e6936f1cd5fa35821c6d0e595e523b",
+      "bytes": 6735,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/login-config-results.json",
+      "sha256": "4bef1d0ac1bb71a0bdfe7a778611e651d82d368fbfd19ea49895a4c269558686",
+      "bytes": 2627,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/null-auth-http-results.json",
+      "sha256": "d42dcef795f3da966b453fab163d28fa7ab51b248c2ccd7a29aaf85f6b4009a7",
+      "bytes": 252,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/physical-app-extend.json",
+      "sha256": "27d84fbbac5f6cf13334fd46a69065c033d47693e01d3e1e6de612cbd43075bd",
+      "bytes": 516,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/readonly-contract-source.sha256",
+      "sha256": "7f659a4964075c2db02949c87d171713081bf0515bedaad7af1fc20a9d075384",
+      "bytes": 616,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/remaining-acceptance-handoff.md",
+      "sha256": "5f71b69b154318de9edcda72f9dcddfbe141a967c051c08bb4df750896205cb9",
+      "bytes": 5095,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/source.sha256",
+      "sha256": "0eb36d200582336cd33d21cdc4353f7cddddbfbcb43ccb687a9ba77e06e94697",
+      "bytes": 235,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/targeted-tests.log",
+      "sha256": "c900e799ab88adde4de1560df61d865994d38616e4cd5ddbbb5a36f5cb772d2a",
+      "bytes": 4967,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/tool-output-incident.md",
+      "sha256": "2858c77ad036770a42a69bbe3afb8a13d8cce77b3d0cfc2f320888e9c08aa937",
+      "bytes": 1599,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/ui-auth-toggle-results.json",
+      "sha256": "38521e5b0b527abddde241377a929f98007cf4fcff22103976ec7bdc1e9b790e",
+      "bytes": 361,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/ui-site-toggle-results.json",
+      "sha256": "d21f3aedc4bec2ea81687607f0b8ed2e6291f0b4fc0247ceb0c4877d6ad1b025",
+      "bytes": 393,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/after-unsync-menu.txt",
+      "sha256": "7d7ec4be0bad63f6f7bfd1769d0d06e4503b98542d5b34ad4edf77c31d93f0f4",
+      "bytes": 8961,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/api-results.json",
+      "sha256": "1c554e06a2968951f4351e361cf3cf57168295706dff49249898f5eec5802bc1",
+      "bytes": 3916,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/before-unsync-menu.txt",
+      "sha256": "eef1479364a4d1633814c71acb10df9fbbde61806957fe6398c3f3fe3007b1b9",
+      "bytes": 8738,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/category-A-snapshot.txt",
+      "sha256": "350fa2abd71f8ee14c5729f243701251593580e562b6a3e32e6fb2f3a32a7c5c",
+      "bytes": 6324,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/center-all-snapshot.txt",
+      "sha256": "c375bcd30fd61db273d7ae5d9ee5d66b1b5ef3845ddbc870496c0818e393a0e1",
+      "bytes": 8113,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/db-readback.json",
+      "sha256": "bdfb1f3c856c967b10befcd2f4d2752ce5faa4447c2ada9ef2fc15e9dcc8a971",
+      "bytes": 653,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/final-center-cards.json",
+      "sha256": "01addebe460e1bb4745920fcdf7dcd21a00b5356285fb6cf8b3d4afd678cd084",
+      "bytes": 853,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/home-after-resync.txt",
+      "sha256": "117c107dcea8c688be1147b81abd856c891e73e7b0d88c4d9a772c06f69acc14",
+      "bytes": 11937,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/home-after-unsync.txt",
+      "sha256": "d15659df30e3bad2f8878c7cf17bf1c048bbf5a8e26b6d3f112d6409dee365e7",
+      "bytes": 11493,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/home-resync-reload.txt",
+      "sha256": "4446772c53fbd5217154a6427b81de9a6cdda873127da57a52c024a4a7526ac1",
+      "bytes": 8133,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/home-snapshot.txt",
+      "sha256": "5297fb7a45edad7eb578c8f10bd6de88e48ff2654669b13314436769668ad1e9",
+      "bytes": 11379,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/search-casefold-snapshot.txt",
+      "sha256": "e02bcce02029b70f98d4de420c11d02dd4c22d3bf0dc8c0f256bd9517701c89b",
+      "bytes": 6432,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/search-empty-snapshot.txt",
+      "sha256": "b51400b8cdc4b7d90d55fba1f67a4ce4482f0556a2719e2c61321b4612ad04c1",
+      "bytes": 6200,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/tag-A-snapshot.txt",
+      "sha256": "8f321dcc6b2fc091c30b38df3be4e766f23c2033decb065fbe96776efaf6c739",
+      "bytes": 6760,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/center-tags-sync-runtime/ui-results.json",
+      "sha256": "af52386e41d1af6b90e423e9c5b80bf45ce4b316e18d44bd4091718ced39c66f",
+      "bytes": 1348,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/config-output-scope/agent-private-config-contract.json",
+      "sha256": "dd8d2bbdad65ff52c97f5d5db36dc12256185654f26e656568cd21efebe22b05",
+      "bytes": 3713,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/config-output-scope/redacted-incident.json",
+      "sha256": "611760a49d755b2f1cff7656d2cd2dcf49db3b0e6a1c7ccb1c8675ccc590e5cd",
+      "bytes": 6078,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/before-http-failure.json",
+      "sha256": "72a7563bb9cded39e253c34fc19b07835a1e07c4bb233dda23c6cb76e147ea97",
+      "bytes": 581,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/cleanup-final-handoff.json",
+      "sha256": "33ce864ae7c25ad8de6384a63810f8dcd6e7547b6e7cb9f07ada1659301dec31",
+      "bytes": 3550,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/dual-engine-n09-fullimage-results.json",
+      "sha256": "f411ebdb3b0a93855646c9419c272f3a504f823c99e6e16fa73d6acecbdfa438",
+      "bytes": 1140,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/first-probe-fixture-failure.json",
+      "sha256": "bc014804f65b70f00f3af2adedae42e610aa448863b4549fa7b3ab8c2cae22da",
+      "bytes": 335,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/fixture-owner-chain.json",
+      "sha256": "553c541fdd9aeb3ec16775c597e783da7fb420d1044f94c031cb9c45035182ce",
+      "bytes": 1274,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/implementation.md",
+      "sha256": "616fe76398f54ba0ac4faefe28e112967ae86ceae3e3d36e2d80a2e3b19c96ab",
+      "bytes": 4056,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/latest-head-runtime-http-results.json",
+      "sha256": "807927fbfa44d2937495b1ec7d0521e67d7ebc2ec9e5d58b7ba40d6cc5bb2b11",
+      "bytes": 2724,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/latest-source-manifest.json",
+      "sha256": "2733b709fa8996f1b0cf41f53fb1d11a8885861615a35beeeeb82b1b687fbdbd",
+      "bytes": 3321,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/owned-fixtures-cleanup.json",
+      "sha256": "d042375efdcb4027be29c42f8d84ca8e965e8f51dced9bef1dfcff08f22ec12a",
+      "bytes": 1899,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/owned-residue-cleanup-final.json",
+      "sha256": "ff437528d7c54cad9fb231d09f19f0a14c699227112a0a7066e385468819e568",
+      "bytes": 565,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/owned-upload-blob-cleanup.json",
+      "sha256": "fb592a53433ae8a30e0e2de27e6051a13d2f7dbe533533d878623c89f3bd354a",
+      "bytes": 149,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/probe-dual-engine.py",
+      "sha256": "3855e45e17893b2f6152ffd7d8648b00dd0b51386dcb573b4a974b901e8c7d25",
+      "bytes": 3949,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/source.sha256",
+      "sha256": "b235ee07f0173090137db7c0cb11d48df2e5e85d664ff540c031c52a353ef63f",
+      "bytes": 243,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/context-uuid-regression/targeted-tests.log",
+      "sha256": "3a4007e0f7ce7b6376c4ae982de4ab2d0f47711005810c54e424fc5518a7b2b4",
+      "bytes": 2492,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/continuation-plan-2026-09-30.md",
+      "sha256": "2b0526e3a7c02d22aee29c6ab475218fe7b05a1e793efc7e2b48244f4a7cf305",
+      "bytes": 4747,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/coverage-holes-2026-09-30.md",
+      "sha256": "c12ab0deef6f06b1092fb261910698eb2e00ad93ad8a84b6b49267189e9b3422",
+      "bytes": 3643,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/current-graph-reference-check.py",
+      "sha256": "c071aaba20e89cfc93d8f6b7c3af6ea003443bee8b918e059313b56b282c3fbf",
+      "bytes": 5918,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/external-conditions-2026-09-30.json",
+      "sha256": "401721d0adf33de478863b8faa773dc6a4960c75183dc9c99bfa3562140d361e",
+      "bytes": 5176,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/full-scope-completion-audit-2026-09-30.json",
+      "sha256": "29738efeb3941161804a9d8b9b9f7c6e18aafa1e6b7ba6fc618fc59fb94e4ab4",
+      "bytes": 60913,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/identity-alias-runtime/api-results.json",
+      "sha256": "4d47bd0d9cbd74065caf0e9a1bd28a9ee22dafb2aacaa03c48a9e0d4c85fbafe",
+      "bytes": 1591,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/identity-alias-runtime/db-readback.json",
+      "sha256": "1f6234783016bbe131b1a8b6bffc618562ca8c3851ab9e96dcf94a229e3c562e",
+      "bytes": 539,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-batches-2026-09-30.md",
+      "sha256": "52d7946e1e9653e50514f48caa4b27e98a36393aef2e04cc1f445e5f71003592",
+      "bytes": 10097,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/README.md",
+      "sha256": "c890d56bbcf887d3737913300d7ca5c0e32a5242ab891008753a3a9b394025aa",
+      "bytes": 5352,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/compose.acceptance.override.yaml",
+      "sha256": "f766280955dabd42d83cf7c38306b79b17a10cd25fc98890eeb6922d74e5e6c5",
+      "bytes": 16948,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/compose.sh",
+      "sha256": "d321e035304b387db6785e7f72ca5442011dd181492427007860b3e7c689bbf8",
+      "bytes": 936,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/config-validation-summary.json",
+      "sha256": "82cb138658396216ae37f00eca3a174a5cb24166f9bb91c7873703599f1b6ee4",
+      "bytes": 1352,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/config-validation-summary.txt",
+      "sha256": "47d25d8806ed5fbb77e9d256e67a68ccbc695ba8d31428c5774d64912a10f9f1",
+      "bytes": 840,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/private.env.template",
+      "sha256": "bb4ecc0a599fcf03a2fbc08a223a5c9b195b682345e9f83c92e1cd0d0e4555ff",
+      "bytes": 984,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/runtime-plan.json",
+      "sha256": "7842227030ac16afc05321f26e59f51225e94972d2e087716948d18b4928e495",
+      "bytes": 6543,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/local-acceptance-runtime-2026-09-30/validate-config.py",
+      "sha256": "b514cd9e15c256a76ca237cffed0606d78dae8fd12340c783d525363d5cba332",
+      "bytes": 4452,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/merge-completion-audit-2026-09-30.md",
+      "sha256": "d5b13ce9cab8ef72cbb0b3b08ad6ebd8ba82f4ccccd509d01d2a0dd2f4cb25b3",
+      "bytes": 7841,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/merge-completion-audit-summary-2026-09-30.json",
+      "sha256": "9309961d2b24e0847257f3985c26b9f58407ab5a21ab819336483db9d0ef5cf1",
+      "bytes": 1174,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/implementation.md",
+      "sha256": "60db07cd9f64550b796c65d8ad15dabba339ac1c4a9c94752a00e8786b58a15f",
+      "bytes": 4646,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/mysql-after.jsonl",
+      "sha256": "bed676fd2f9da691240a16fc2cdd69622eb135ee1643d1d5ae4bb218a540075b",
+      "bytes": 1675,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/mysql-before.jsonl",
+      "sha256": "1b685be77bb465fa4dd4bcdebfac3f09b2d8ff9c3fff382c992d2f9101190b31",
+      "bytes": 918,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/postgres-after.jsonl",
+      "sha256": "b0154e89371b0fb382937fbb209705f653331c720feb5cc6716f75bc64e0bc43",
+      "bytes": 1720,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/postgres-before.jsonl",
+      "sha256": "bcc13015d99dffd870434cdd7a6e6be06039111a92af0a4026d2e188fb761468",
+      "bytes": 891,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/probe-after.py",
+      "sha256": "1e8eee69f2fafe7e2f448b0b29e83121ad7523cf41794b8a276f7c067064a410",
+      "bytes": 3805,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/probe-before.py",
+      "sha256": "d2c6238b9e678726ea2a6b8826f737a463216ebaa5bd9db45dbb9cc59c09bfc9",
+      "bytes": 2506,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/source.sha256",
+      "sha256": "82f4ab6cbd39dca28acf74ecdc13607b7224675a050691d85b93f9448e855a80",
+      "bytes": 222,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/model-uuid-regression/targeted-tests.log",
+      "sha256": "49cef9ed853ceb2c1989eed63aad9506abea97d223799ea1433b8b49ab09bffe",
+      "bytes": 2332,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/n05-design/nonzero-billing-acceptance.md",
+      "sha256": "cee95ad948de0dcd1d6526db188f73665607a51e7c3ad2ea49cd921425282ed9",
+      "bytes": 4910,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/n05-design/worker-queue-topology.md",
+      "sha256": "93865f4c62e3139786d10cbb45e77d6513b9d65205849983d36e2107664bded3",
+      "bytes": 1536,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/agent-config-files-runtime.json",
+      "sha256": "fb3113f47343c264cd0e5f7790715e5e8ac27566b2b2d6afc4df2a80926b681d",
+      "bytes": 1045,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/fixtures-ready-before-latest-runtime.json",
+      "sha256": "d538c2bfa38bf9c86740372c13a34475ec61e51bb0c30b8b878f15b9b7590db8",
+      "bytes": 318,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/frozen-sync-results.json",
+      "sha256": "33bb4046ee5f7ae122933628bd8a59b3a8afa8dff0ac7d55c8e40cc755cd45b1",
+      "bytes": 1059,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/head-only-provider-source.patch",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/human-input-after-snapshot.json",
+      "sha256": "ef6fd568c721d8f7d173fc63092cf37620d67d551ca92047d89a67d7169b36b5",
+      "bytes": 200,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/human-input-runtime.json",
+      "sha256": "c5d84c97c37a6bb724fb0cf50c59d96ccdce0fd3fcb845f3163e99a71ff368d7",
+      "bytes": 1804,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/implementation.md",
+      "sha256": "264b13e5c188439f4ac9d194fa8efa9482353b02b9b2e26836ab787672bd0374",
+      "bytes": 2413,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/latest-head-agent-manifest-readback.json",
+      "sha256": "a89e3262cc72c3078c91f8d7192e1c46a6023b09c29504c79b21e9d66324c8b1",
+      "bytes": 201,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/latest-source-manifest.json",
+      "sha256": "f048fee1dabe9db512cabc19b1878ce533e191dcb2e065d4ed1fc7e1e2fdc449",
+      "bytes": 10174,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/legal-agent-fixture-result.json",
+      "sha256": "edccf6fbfb24e7982e093b821a9f98721769571b2f351119f21cca0575b414fe",
+      "bytes": 468,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/lock-semantic-comparison.json",
+      "sha256": "5dd16f6447d8d2bd0ca2782c0cb0a688c973e705f84b96910e99e621c8e6e423",
+      "bytes": 1688,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/official-maths-container-probe.json",
+      "sha256": "0e76f2b90ec7f6853b9c294eb58807e67332af6e18775a254989daf7095eb927",
+      "bytes": 184,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/official-maths-marketplace-probe.json",
+      "sha256": "8326d2573df1596e5991c569987068ec47309f4cc2f5ff0d8d0c69ca16da81c3",
+      "bytes": 139,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/owned-lock-delta.patch",
+      "sha256": "fee69e3734145a12bc8efab9f20962dfd0f71e0380c55cb783da0e733b7111cb",
+      "bytes": 11287,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/package-load-results.json",
+      "sha256": "67630fcc5b08f0a082038b80b8d2a11f18e37e5a6cd80b40dda094c047896dbd",
+      "bytes": 768,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/socketio-enabled-runtime.json",
+      "sha256": "b529ce67281a753702ba2ad697f0ade5837c7c720df43322e9b5c35425c31e38",
+      "bytes": 1628,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/source.sha256",
+      "sha256": "8b6ecd957d004b59059885b7c1fc7c94ae054bae84a886cb9d553d2cc7a3bd06",
+      "bytes": 6429,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/trace-runtime-imports.json",
+      "sha256": "3cd68b5fa5e63aaf9b3fa0db18627e13eed4549337f4f826b8bef3ce50ccec54",
+      "bytes": 772,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/provider-packaging-regression/wheel-build-results.json",
+      "sha256": "53ea1a5b50b84f1b2ab1168a345993ec3f91a62c0d2aa27c3b90bfe6345657b4",
+      "bytes": 7349,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-pagination-regression/implementation.md",
+      "sha256": "9981c70d5c64a192551c426d3602fc08042c97f02ab3a272384faf4401b232c2",
+      "bytes": 1588,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-pagination-regression/source.sha256",
+      "sha256": "d8841d56f0efab1b57a6105100307dc5ed3a4e0c4cdac20693cb76ced602322a",
+      "bytes": 238,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-pagination-regression/targeted-tests.log",
+      "sha256": "05254824179d9da90cae93876ca7ec1f45d9f52d7a4aecd7939bd616ce9ba082",
+      "bytes": 2172,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/implementation.md",
+      "sha256": "1c12336cf706d557099d474ca3825225ec93d666b11a809480934a117c4a4f94",
+      "bytes": 4672,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/mysql-after.jsonl",
+      "sha256": "0b293a658218cc4ab72f1404d7ade04c29630a3c33d81b2680f9f673a7645cd1",
+      "bytes": 393,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/mysql-before.jsonl",
+      "sha256": "a306636643401bbac3129bd1252c2f5aeb9da97c8dcf3fb65f3aec7ef021b6b0",
+      "bytes": 484,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/postgres-after.jsonl",
+      "sha256": "ba259bf0c74b6eb30ac82183165d946248c42e91f2c6e4e1a9864b181f096d47",
+      "bytes": 398,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/postgres-before.jsonl",
+      "sha256": "bc30fb0a98642fbc9a641dfbf3b7ed8714635f59f780eadb0f924d6485989197",
+      "bytes": 236,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/probe-after.py",
+      "sha256": "3a29d7a2d93c65de74280dad6b129c566ae0eb8c29c2aaf8383f6729549e1fa5",
+      "bytes": 4212,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/probe-before.py",
+      "sha256": "b6873682f1125323deae275e3daf3595ee2ed8a51ff24c809a51423de067d850",
+      "bytes": 2773,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/source.sha256",
+      "sha256": "560e866a1644fcabdd4606da208ed452cfa4698965c856cddfd5a8d60dc2df3d",
+      "bytes": 370,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/static-checks.json",
+      "sha256": "2d75fc8cc167d2802bd8470eb361154453c2261ceab4e9a915bebe4e72d27d15",
+      "bytes": 683,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/quota-upsert-regression/targeted-tests.log",
+      "sha256": "5e08f05d8f7d7a9cff39fb3dc567e75ead6bb14b4af54769a1192b94ebaecca2",
+      "bytes": 2092,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/release-preflight/commit-tag-inventory.json",
+      "sha256": "0fe160ae9eae0d54f0645bfaa5a16877babb922c5af38ea895a0cdd457f2d292",
+      "bytes": 5132,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/release-preflight/credential-redaction-scan.json",
+      "sha256": "05bfccf30f126a13df27dd979359bfab9d90edb6074d67567aa77b0c6662f4c3",
+      "bytes": 718,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/release-preflight/extended-redaction-scan.json",
+      "sha256": "ca001cd6f1b7baab704903b9183c2740016c6a24bc6ae84f96aa6855d7af73cd",
+      "bytes": 160,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/release-preflight/historical-input-review.json",
+      "sha256": "a11291a8c70ebc46fef7c11abd632c987d0d4f6922a053230ba32db01030f014",
+      "bytes": 4746,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/release-preflight/lock-boundary-semantic-inventory.json",
+      "sha256": "2496907d48ecc2c5394ab206441e4e40b0bd1e5e47d73c1ea86d41dc635fe12d",
+      "bytes": 551,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-design/preparation.md",
+      "sha256": "14c8c8b6bf10631cc9cf7ac0bec711fbb1e4bbd87f669d4c38f2e10710a5fa67",
+      "bytes": 4786,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/admin-direct-quota.txt",
+      "sha256": "bc3e32667b5894c908ab2a0ef327281ee0d4e857de8cb25fb5f2eb51c4f9a192",
+      "bytes": 1645,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/admin-role-api.json",
+      "sha256": "0fbb660b3a852518e6f37145778a0e1b0e0ef49d838c6b19c5f46aace9485e4c",
+      "bytes": 1524,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/center-missing-stats-open.png",
+      "sha256": "5ad51ce00c8c95ac1d02a5f2d499df03ab9d8cf74d5327b15e3bca60ba697847",
+      "bytes": 81097,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/center-missing-stats-open.txt",
+      "sha256": "f127f837c5685ebac8977f7f6feba6c9342f65f666c2692d8e15c33cf0ee76e1",
+      "bytes": 4233,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/center-two-cards.png",
+      "sha256": "a4a5050306ad82f130dea87f3de486e6223eac40b7915957620bb5dd18de5267",
+      "bytes": 69435,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/center-two-cards.txt",
+      "sha256": "b8cfef6e691994553ffa2cbf012af2425cb35b44ca4c76156f8cd7116edefc09",
+      "bytes": 4302,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/final-role-results.md",
+      "sha256": "f54144b70cc8f325440df2cb5ba19d3536408264d894e5155e34ab9d066aec4c",
+      "bytes": 3951,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/initial-quota-summary.json",
+      "sha256": "5c1bbebb1b9f670eea7f7f1f6b2029bdacf49b1b15581db426e5514b3f13a445",
+      "bytes": 1967,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/member-denied-write-owner-readback.json",
+      "sha256": "7132a61ed932a2e889fb02bd17fa39d6e8c5b12f8b60a2c40e743890da7bdf4b",
+      "bytes": 158,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/member-direct-quota.txt",
+      "sha256": "902ff12d9f774c2ab64bb36f7ab73960c7482d165f6db0e18333403e34ba2aa4",
+      "bytes": 1649,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/member-role-api.json",
+      "sha256": "b35fafe8b6b5ca0ed8b15736a4171e2d6ea7c3b03c7efc42f33e0e59572f098f",
+      "bytes": 809,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-bootstrap-summary.json",
+      "sha256": "11e1289859fb0d99f93380590ea696525a33a32c637912466304610f237e45e8",
+      "bytes": 542,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-control-and-auth-negative.json",
+      "sha256": "028790d0d020e3030b655fda291bf2791908627001af8a233a9ef1998d679878",
+      "bytes": 1020,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-page1-edit.json",
+      "sha256": "58be2b8239617200ec9d1d5353574aa3eab0e161d3c94d5423410b49ebab8a37",
+      "bytes": 201,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-page2-edit.json",
+      "sha256": "8cbf0eec010e3b1cc3f6c6a319d418a0ac5a547f28cc052fb80032e9c09594ab",
+      "bytes": 354,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-quota-30-after.txt",
+      "sha256": "a6101f35461c7705b6e1bce8d54b7c9ef84ea6e0749900fb6b583ec064237a19",
+      "bytes": 10858,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-quota-page1-before.txt",
+      "sha256": "c5f7f8280ca5a860733c0df4652f6f7cee958fcf9be234b6a50eb1868f2d2709",
+      "bytes": 10085,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-quota-page2-after.txt",
+      "sha256": "a135c6f5a5244fe7884342e55422a1d9f17d2a3fce5673325d908246db13dbcc",
+      "bytes": 4873,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-quota-page2-before.txt",
+      "sha256": "109f2bc90d218bd96ecca2f5ae5114c4194d1ccfad45a5eb023fed1b1a91c6c5",
+      "bytes": 4873,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-results.md",
+      "sha256": "e89019be5d83eb807c05b292a7e641bd322896fcd7b0c6b6b522ef8088fd4788",
+      "bytes": 4577,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-role-api.json",
+      "sha256": "bb80cefdc751ee6e4179c5562d11f2998879868bea504afb46aaf7dd72ef01d9",
+      "bytes": 2326,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/role-permissions-runtime/owner-search-edit-after.txt",
+      "sha256": "1c59b452e1bdd3c20c6d8d52052ad21fcb2b87f83ca6bf9fbb663adb54cab83d",
+      "bytes": 4885,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/sso-disabled-runtime/result.json",
+      "sha256": "03a33c047835a4a83ad6edf56d4daf5e2cb9fe5182c3fd56e1b9181626ca0f2e",
+      "bytes": 1607,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-design/acceptance-preparation.md",
+      "sha256": "47f1d6a80395695efda70ce923e071e7fad48ff195b03e2d2dd465f3b26f6aef",
+      "bytes": 9466,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-design/inspected-source.sha256",
+      "sha256": "d897300b61241fccad152c49a8d6502c6ac6f606c1e81d99f0d84e8407585f33",
+      "bytes": 758,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-design/save-publish-tests.log",
+      "sha256": "b9b9e30427da4f89a62fd6d3771d1695325fe4f8567b9b0be77b714b319f1a18",
+      "bytes": 1458,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-design/tool-contract-tests.log",
+      "sha256": "8e06ee766a865e9de619240281232ea2e074d6c59efc53a48c56db302ff42be4",
+      "bytes": 2526,
+      "ignored": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/child-draft-run.txt",
+      "sha256": "14784ee549c91930bac765e27ac4fa28ad1ea636e6d6c73131f9fd1faacebb77",
+      "bytes": 3504,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/child-draft.json",
+      "sha256": "9101d84e8f0010da4521e23ff68f49a4c90cf808bc635fce29291075d835324b",
+      "bytes": 2424,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/editor-debug-result-v1.txt",
+      "sha256": "0be1a9859f8ee30e3dbfd55128603a3c009c4cd9915c15efb835b187f48df6df",
+      "bytes": 6433,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/editor-debug-result-v2.txt",
+      "sha256": "d0c7255f6893203eb09d76f2d9254ad92c8c0def0088d641704c45f634ee5ed9",
+      "bytes": 6827,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/editor-debug-v1.txt",
+      "sha256": "82855473b3991aa2c9d3dbf06427005cf1de561dabaa71a28d009e70966df20a",
+      "bytes": 6646,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/editor-publish-v1.txt",
+      "sha256": "6fc812c6cdb883be2502bbdb1de961648e3245b81c35620bde68b01efdadf686",
+      "bytes": 8111,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/editor-publish-v2.txt",
+      "sha256": "4ff686ed1fd4f35b5df82e8d1af3bc8af6cf15e792e7b5cb3c1b5bfb3eeb000d",
+      "bytes": 8381,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/editor-restored-config-v2.txt",
+      "sha256": "de73ea71017b9466bd721dd58945e90d6c7e0896bc8bb2bab1b4a202b102281b",
+      "bytes": 8625,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/editor-tool-config-v1.txt",
+      "sha256": "a3da80860e707fa38aad8a6b74601f082a6865234d5662d7481b2ca36dd7de29",
+      "bytes": 8462,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/editor-v2-before-debug.txt",
+      "sha256": "6be630ce5da1f04fa97bfba892b061ecce5f7696cd88c4f72627e18ed9102ee8",
+      "bytes": 8955,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/files.sha256",
+      "sha256": "350f485fa76bd0ea51c3477aa6bfbe0e17716a4bf3a3b51e1926d7e721245a0a",
+      "bytes": 2886,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/fixtures.json",
+      "sha256": "0a8e43993f01332f768a3c5c3dc1869171c0398615f4fb76735e5932bc5df61c",
+      "bytes": 172,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-draft-after-ui-debug.json",
+      "sha256": "77aa3f6439e37b6272975d3969a26282c4a959651cd95e91b947e25bc241cc10",
+      "bytes": 4205,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-draft-after-ui-edit.json",
+      "sha256": "77aa3f6439e37b6272975d3969a26282c4a959651cd95e91b947e25bc241cc10",
+      "bytes": 4205,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-draft-run-v1.txt",
+      "sha256": "6753c0ed180505021b77437ca7ca9d4da4661cea499f689938874afb0f6edd61",
+      "bytes": 5643,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-draft-stable-after-v2-edit.json",
+      "sha256": "92ddc29442f4cc983708a1086e6d9e3e912b8d86deecd751b7af963cfc7d1379",
+      "bytes": 4399,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-draft-v1.json",
+      "sha256": "57a916a10d825071d0b0e4ffdfddc3c1077682f2ef18dce16743aae416650b0c",
+      "bytes": 3624,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-prepare-results.json",
+      "sha256": "7f7d0da39217692b7af3ffa9281a46a7172971f1fc1d3c158b6bd85035f82152",
+      "bytes": 357,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-publish-after-ui-debug.json",
+      "sha256": "997210b4df4d0830c65b661c150740210eb9096c8102311a567d53f084138261",
+      "bytes": 4210,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-publish-after-ui-edit.json",
+      "sha256": "997210b4df4d0830c65b661c150740210eb9096c8102311a567d53f084138261",
+      "bytes": 4210,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-publish-stable-after-v2-edit.json",
+      "sha256": "997210b4df4d0830c65b661c150740210eb9096c8102311a567d53f084138261",
+      "bytes": 4210,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-published-v2.json",
+      "sha256": "8c71353da621a39da1db5a7c239041d08f45e5091991205c5340689b730970ab",
+      "bytes": 4233,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-run-676dbde7-f2f4-4fff-a081-7b0cdb3ee4a6.json",
+      "sha256": "c12684ebf3f6dac6e101f2abacc26bd07e19c92267c4de224df9a8d26e687a05",
+      "bytes": 4447,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-run-6b587a78-eee7-4246-8a9e-05184b814e8c.json",
+      "sha256": "50a9cd6f0fa4737d475cd4aab181e2aefe19675f13fe9e9e40c526c07f4da912",
+      "bytes": 4465,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/parent-runs.json",
+      "sha256": "0ddfb1494cce560701068f6970109225be9ea956a3b280335d1f3366b6bc20f6",
+      "bytes": 1560,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/prepare-results.json",
+      "sha256": "bc24c4c423b8cdd31237c6e524df2e304b20d6743c7c60c867a8b2af64647f6a",
+      "bytes": 593,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/published-webapp-v1.txt",
+      "sha256": "0b5728cc00e91de4d0d21b18ee0edf2fcd422129efa701864212d3eefde2c59e",
+      "bytes": 1861,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/published-webapp-v2.png",
+      "sha256": "efbed023fd0e92eb78fba5816846d3ae22fd97292715cbe4cfc9846af32bbc06",
+      "bytes": 59626,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/published-webapp-v2.txt",
+      "sha256": "5360781a8ffdaf1f31100e1c822e54ec2101dc8a83ec7a7837c7b89905db7cf4",
+      "bytes": 1861,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/result.md",
+      "sha256": "c58e50d59f2da38c01a9a26fdae9691d26c946aa53a5821648165c890ce9bed3",
+      "bytes": 3780,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/save-publication-separation.json",
+      "sha256": "45d62bf6a8ebf33e0ad4c0720d6fa737d8fc940451f71ab8ee7390f18b2cbe34",
+      "bytes": 278,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/workflow-tool-runtime/tool-detail.json",
+      "sha256": "7529bcb0540fd68d7a2c409605d1df51dbca9b16b7f5413d149fb7bfcfa243d3",
+      "bytes": 2514,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+      "sha256": "ba21acef44dbbc0bfe08ea34c397fed6e4b315f4c991ab2c6e607468f4a41a0a",
+      "bytes": 402373,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+      "sha256": "055591493896f69079981ac745bb4aabb154f7c6254a6db6aea5c9acc147432a",
+      "bytes": 59113,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/runbook.md",
+      "sha256": "b09493e664734b3e4de11f698f44e19b899aebe65cc844ef2f00a751f75dc64d",
+      "bytes": 21059,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/tasks.md",
+      "sha256": "1e253edb69fc4a2a97542322aee3db4a6e3faebb166c9e6921298fca1a4ecb16",
+      "bytes": 87374,
+      "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+      "sha256": "af2fc94deeab3d79e32ba09144bf4b9b739a6272bb536cb490e42cec17f17550",
+      "bytes": 8757,
+      "ignored": false
+    }
+  ],
+  "self_manifest_path": "openspec/changes/merge-upstream-1-17-1/evidence/release-preflight/owned-delivery-manifest.json",
+  "exclude_preexisting_unowned": [],
+  "retained_historical_inputs": [
+    "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.19-final-candidate-structural-acceptance.md",
+    "openspec/changes/merge-upstream-1-17-1/evidence/V03/local-compose-2026-09-30.md",
+    "openspec/changes/merge-upstream-1-17-1/evidence/V03/mysql-empty-2026-09-30.md"
+  ],
+  "historical_input_review": "evidence/release-preflight/historical-input-review.json",
+  "excluded_unrelated": [
+    "api/uv.lock userfull overlay remains unstaged",
+    "pnpm-lock.yaml",
+    "other OpenSpec changes",
+    "skill/config agent directories",
+    "private snapshots/env/sessions",
+    "wheel/cache/build products"
+  ],
+  "safety_scan": {
+    "jwt_flags_paths": [],
+    "bearer_literal_flags": [],
+    "private_filename_flags": [],
+    "limits": "Pattern scan is bounded; source constants are not private runtime values. Synthetic role UI snapshots contain only test accounts/apps/quota; PNG ownership manually reviewed in role batch. Private backup paths referenced as metadata only."
+  },
+  "gate": "Executor must refresh hashes/list after final bundle and check index explicit paths; no broad stage; ignored proof logs require exact add -f only after redaction review."
+}

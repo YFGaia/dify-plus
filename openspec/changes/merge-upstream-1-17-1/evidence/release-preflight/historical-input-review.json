@@ -1,0 +1,110 @@
+{
+  "scope": "Exact3 parent-authorized original graph inputs; no other unrelated paths",
+  "files": [
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.19-final-candidate-structural-acceptance.md",
+      "origin": "Preexisting untracked merge-upstream-1-17-1 historical input; original graph M08/V03 reference. Parent authorized retain without editing or revalidating historical verdict.",
+      "sha256": "a90d5f3a852aa276fb1baf697882c6c8e589fae857e456c024bcd98eb21b16f2",
+      "bytes": 4216,
+      "referenced_object_types": [
+        {
+          "object": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+          "git_type": "commit"
+        },
+        {
+          "object": "47a18cacdeaa775d6afef6f8817ed6a2556ccffd",
+          "git_type": "blob"
+        },
+        {
+          "object": "681e5802d9e07a18e914b576f1bdfd256ed070aa",
+          "git_type": "blob"
+        },
+        {
+          "object": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+          "git_type": "commit"
+        },
+        {
+          "object": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+          "git_type": "tree"
+        },
+        {
+          "object": "948fefb69ae87abefa7e91a13968213696b3e310",
+          "git_type": "commit"
+        },
+        {
+          "object": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+          "git_type": "commit"
+        },
+        {
+          "object": "b17761ed0166e8ef49474da418b95a9462adbb9c",
+          "git_type": "commit"
+        },
+        {
+          "object": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+          "git_type": "tree"
+        },
+        {
+          "object": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+          "git_type": "commit"
+        },
+        {
+          "object": "d3906ed2b06bd6ad43550968191c774c329ef396",
+          "git_type": "tree"
+        }
+      ],
+      "redaction_scan": {
+        "jwt": 0,
+        "bearer_value": 0,
+        "credential_assignment_lines": 0
+      },
+      "content_review": "M08 structural candidate/tree/blob evidence; V03 isolated synthetic old Compose/provider package and empty MySQL/static migration boundaries, explicit no secret inspection statements; local app/test IDs and private-config path references only, no credential values.",
+      "retention_verdict": "approved_historical_input_unchanged_no_current_runtime_reclassification"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/V03/local-compose-2026-09-30.md",
+      "origin": "Preexisting untracked merge-upstream-1-17-1 historical input; original graph M08/V03 reference. Parent authorized retain without editing or revalidating historical verdict.",
+      "sha256": "aa67b438961b4f8a8cfb7fe9072e6a88d8de222d6b69e6e8c0d1d8592fa4c188",
+      "bytes": 11630,
+      "referenced_object_types": [
+        {
+          "object": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+          "git_type": "commit"
+        },
+        {
+          "object": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+          "git_type": "tree"
+        }
+      ],
+      "redaction_scan": {
+        "jwt": 0,
+        "bearer_value": 0,
+        "credential_assignment_lines": 0
+      },
+      "content_review": "M08 structural candidate/tree/blob evidence; V03 isolated synthetic old Compose/provider package and empty MySQL/static migration boundaries, explicit no secret inspection statements; local app/test IDs and private-config path references only, no credential values.",
+      "retention_verdict": "approved_historical_input_unchanged_no_current_runtime_reclassification"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/V03/mysql-empty-2026-09-30.md",
+      "origin": "Preexisting untracked merge-upstream-1-17-1 historical input; original graph M08/V03 reference. Parent authorized retain without editing or revalidating historical verdict.",
+      "sha256": "012b0b25c02ac62832007bebcc17c5dbd1daca7eb662268f120766eef849c91d",
+      "bytes": 7021,
+      "referenced_object_types": [
+        {
+          "object": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+          "git_type": "commit"
+        },
+        {
+          "object": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+          "git_type": "tree"
+        }
+      ],
+      "redaction_scan": {
+        "jwt": 0,
+        "bearer_value": 0,
+        "credential_assignment_lines": 0
+      },
+      "content_review": "M08 structural candidate/tree/blob evidence; V03 isolated synthetic old Compose/provider package and empty MySQL/static migration boundaries, explicit no secret inspection statements; local app/test IDs and private-config path references only, no credential values.",
+      "retention_verdict": "approved_historical_input_unchanged_no_current_runtime_reclassification"
+    }
+  ]
+}

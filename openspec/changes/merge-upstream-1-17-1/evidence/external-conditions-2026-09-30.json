@@ -1,0 +1,61 @@
+{
+  "boundary": "Required conditions unpassed; O01 tiny internal component invocation does not substitute priced full-app/key billing.",
+  "requirements": [
+    {
+      "id": "B01.enabled_external_oauth_account_init",
+      "minimum_configuration": "Authorized real OAuth/SSO client/issuer, registered callback, synthetic provider identity and known invite/registration policy.",
+      "unverified_behavior": "Actual enabled callback/state validation, ACTIVE account/membership/quota uniqueness, session and tenant API readback."
+    },
+    {
+      "id": "B03.enabled_provider_callback_state_invite_session_api",
+      "minimum_configuration": "Authorized real OAuth/SSO client/issuer, registered callback, synthetic provider identity and known invite/registration policy.",
+      "unverified_behavior": "Actual enabled callback/state validation, ACTIVE account/membership/quota uniqueness, session and tenant API readback."
+    },
+    {
+      "id": "B05.off_authenticated_and_anonymous_actual_generation_12_matrix",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Actual required 12 auth/site generation cases for three modes; guards/zero-token workflow do not replace model generation."
+    },
+    {
+      "id": "B07.console_explore_webapp_nonzero_usage_actor_RMB_USD_reconcile",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Actual nonzero Console/Explore/WebApp actor/run and USD/RMB reconciliation; anonymous billing separately measured."
+    },
+    {
+      "id": "B07.anonymous_billing_baseline_separately_recorded",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Actual nonzero Console/Explore/WebApp actor/run and USD/RMB reconciliation; anonymous billing separately measured."
+    },
+    {
+      "id": "B08.five_mode_nonzero_daily_monthly_total_balance_boundary",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Five-mode real daily/monthly/account/key boundary charge and rejection; accumulated usage is not lifetime cap."
+    },
+    {
+      "id": "B09.stop_resume_retry_usage_preserved_LLM_attribution",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Real LLM stop/retry/resume terminal state and expected nonzero attribution preserved."
+    },
+    {
+      "id": "B11.authenticated_multiturn_retention_truncation",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Actual generated authenticated multi-turn retention truncation; ORM context scope fixtures do not prove generated history."
+    },
+    {
+      "id": "F04.enabled_dingtalk_oauth2_email_actual_test",
+      "minimum_configuration": "Authorized DingTalk/OAuth client/callback and explicit synthetic SMTP destination when email enabled. Isolated MAIL_TYPE stays empty until that setup.",
+      "unverified_behavior": "Real enabled login callback/session and bounded synthetic email delivery, no production recipient."
+    },
+    {
+      "id": "D05.high_quality_vector_counts_retrieval_grpc_TLS_config",
+      "minimum_configuration": "Authorized embedding provider/model, dimension-matched isolated high-quality dataset and actual selected vector/gRPC/TLS configuration.",
+      "unverified_behavior": "Real product high-quality upload/index/vector count/retrieval and selected transport. Installed registry/Qdrant CRUD already locally passed."
+    },
+    {
+      "id": "O02.generated_agent_run_tool_selected_layers",
+      "minimum_configuration": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
+      "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation."
+    }
+  ],
+  "historical_and_production": "A03/V03 actual old deployment inventory and matching old PG/MySQL snapshot/version; V04 old vector upgrade; V06 old-version consistent-point full restore including Redis replay and stated RTO/RPO. D00-D04/O05 authorized production window/single executor/backup thresholds/observation. Fresh/current clone does not replace old-version gates."
+}

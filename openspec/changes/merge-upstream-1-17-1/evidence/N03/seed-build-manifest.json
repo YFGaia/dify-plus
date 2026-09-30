@@ -1,0 +1,33 @@
+{
+  "mode": "temporary local acceptance dependency seed build; not repository Dockerfile and not production release reproducibility pass",
+  "source_dockerfile": "/Users/liuxingwang/go/src/dify-plus/api/Dockerfile",
+  "source_dockerfile_sha256": "f9b36ba4db88a20eed93a31c7ee148c104dee5265cb08820129510e9c84f70c9",
+  "temporary_dockerfile": "/private/tmp/difyplus-acceptance-api-20260930/Dockerfile.seeded",
+  "temporary_dockerfile_sha256": "88843339d307860c2acf2a6fb3cb0e186c8252273a86ca598bc7ccf9fbdf4d20",
+  "seed_image": "difyplus-smoke-api:970b704e351f",
+  "seed_image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+  "seed_platform": "linux/arm64",
+  "seed_python": "3.12.14",
+  "seed_installed_packages": 449,
+  "seed_installed_exact_current_locked_versions": 449,
+  "seed_installed_mismatches": 0,
+  "old_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+  "current_lock_sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+  "lock_comparison": {
+    "package_names_versions_same": "530/530",
+    "sdist_hash_same": "530/530",
+    "wheel_hash_sets_same": "527/530",
+    "changed_packages": [
+      "pycryptodome",
+      "pydantic-core",
+      "jiter"
+    ],
+    "old_package_versions_changed": 0
+  },
+  "sync_command": "uv sync --frozen --no-dev --no-editable --reinstall-package dify-agent",
+  "current_context_manifest_sha256": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+  "current_context": "/private/tmp/difyplus-acceptance-api-20260930/final-context",
+  "candidate_image_tag": "difyplus-acceptance-api:953cf1c-uuid-quota-seed-3c632717",
+  "build_arg_commit_sha": "acceptance-3c632717-seeded",
+  "provenance": "dify-agent installed direct_url was file:///app/dify-agent editable=false in seed; temporary Dockerfile copies current dify-agent sources before sync and forces reinstall from current path; production stage copies complete current API source from context after seeded dependency resolution"
+}

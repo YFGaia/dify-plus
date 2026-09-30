@@ -1,0 +1,44 @@
+{
+  "baseline_matches_current": true,
+  "preexisting_findings": [
+    {
+      "code": "ARG002",
+      "row": 56
+    },
+    {
+      "code": "ARG002",
+      "row": 70
+    },
+    {
+      "code": "ARG002",
+      "row": 86
+    },
+    {
+      "code": "ARG002",
+      "row": 94
+    },
+    {
+      "code": "ARG002",
+      "row": 116
+    },
+    {
+      "code": "ARG002",
+      "row": 134
+    },
+    {
+      "code": "ARG002",
+      "row": 140
+    },
+    {
+      "code": "ARG002",
+      "row": 155
+    },
+    {
+      "code": "ARG002",
+      "row": 171
+    }
+  ],
+  "new_implementation_and_test_lint": "passed",
+  "new_implementation_and_test_format": "passed",
+  "owned_diff_check": "passed"
+}

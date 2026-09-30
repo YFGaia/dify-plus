@@ -27,6 +27,7 @@
 
 ### 1.17.1 当前合并记录
 
+- [1.17.1 合并验收记录](./1.17.1合并验收记录.md)（本次真实源码、镜像、本地交付与未满足条件）
 - [合并规划 - upstream 1.17.1](./合并规划-upstream-1.17.1.md)（原始规划快照；实时进度以[执行图](../../openspec/changes/merge-upstream-1-17-1/execution-graph.md)为准）
 - [升级与回归操作包](../../openspec/changes/merge-upstream-1-17-1/runbook.md)（含双迁移链、环境门槛和恢复步骤）
 

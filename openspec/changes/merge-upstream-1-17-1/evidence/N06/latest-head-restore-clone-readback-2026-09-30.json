@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-30",
+  "result": "passed_latest_head_restore_clone_readback",
+  "source_snapshot_evidence": "runtime-snapshot-restore-2026-09-30.json",
+  "snapshot_point": "same existing 2026-09-30 18:31 local snapshot; no redump",
+  "candidate": {
+    "tag": "difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6",
+    "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "context_sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+    "main_head": "c3f1a9b2e6d4",
+    "extension_head": "020_workflow_run_account"
+  },
+  "clone_api": {
+    "container_name": "difyplus-n06-restore-api-head-20260930",
+    "container_id": "2cb19bb4a38ff42bb6f26643873ac47a10e3a63b81081b5aec3efc9276be6d35",
+    "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "running": true,
+    "health_http": 200,
+    "restart_count": 0,
+    "oom_killed": false,
+    "migration_enabled": false,
+    "host_bind": "[::1]:25444",
+    "old_N08_clone_preserved_stopped": true,
+    "old_N08_image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d"
+  },
+  "data_binding": {
+    "database_is_separate_from_primary_acceptance_database": true,
+    "dedicated_storage_volume": "n06_restore_storage_20260930",
+    "storage_volume_file_count": 3,
+    "source_bind_mounts": false,
+    "candidate_api_storage_mount": "same dedicated restored volume"
+  },
+  "same_snapshot_database_readback": {
+    "main_head": "c3f1a9b2e6d4",
+    "extension_head": "020_workflow_run_account",
+    "counts": {
+      "accounts": 12,
+      "apps": 8,
+      "installed_apps": 8,
+      "app_statistics_extend": 7,
+      "datasets": 1,
+      "documents": 1,
+      "document_segments": 1,
+      "workflow_runs": 13
+    },
+    "counts_match_snapshot_baseline": true,
+    "expected_counts_provenance": "snapshot archive restored into baseline and independent clones earlier; these are same-snapshot expectations, not current main-database counts"
+  },
+  "authenticated_latest_api_readback": {
+    "host": "localhost:25444",
+    "synthetic_owner_summary_status": 200,
+    "snapshot_owner_tenant_matches": true,
+    "role": "owner",
+    "apps_list_status": 200,
+    "apps_total": 8,
+    "datasets_list_status": 200,
+    "datasets_total": 1,
+    "documents_list_status": 200,
+    "documents_total": 1,
+    "document_segments_list_status": 200,
+    "document_segments_total": 1,
+    "selected_document_indexing_status": "completed"
+  },
+  "limitations": {
+    "installed_app_endpoint_shape": "returns category/recommended metadata; aggregate installed_apps count verified directly in same-snapshot readback",
+    "original_Quota_smoke_chat_app_is_not_part_of_this_independent_restore_snapshot": true
+  }
+}

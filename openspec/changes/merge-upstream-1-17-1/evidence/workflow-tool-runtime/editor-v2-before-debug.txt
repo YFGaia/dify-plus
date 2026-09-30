@@ -1,0 +1,205 @@
+[p2 "Dify" | space "Dify Plus 合并验收应用中心"(9): 2 managed, 0 untracked — p1 "访问点 · Quota smoke chat - Dify", p2* "Dify"]
+root
+  container
+    anchor [ref=1, loc=href:/app/2853c549-8670-4a6d-81e8-866eb1f8f049/workflow#main-content, url=http://localhost:23010/app/2853c549-8670-4a6d-81e8-866eb1f8f049/workflow#main-content]
+      text "跳转到主要内容"
+    container
+      container
+        container
+          container
+            anchor "主页" [ref=2, loc=css:a[aria-label="主页"], url=http://localhost:23010/]
+            text "/"
+            anchor [ref=3, loc=href:/apps, url=http://localhost:23010/apps]
+              text "工作室"
+          button "搜索任何内容" [ref=4, loc=css:button[aria-label="搜索任何内容"]]
+          button "收起侧边栏" [ref=5, loc=css:button[aria-label="收起侧边栏"]]
+            svg_root
+        container
+          container
+            text "🔧"
+            container
+              container
+                text "Acceptance Workflow Tool Parent 2026-09-30"
+                button "Acceptance Workflow Tool Parent 2026-09-30 的更多操作" [ref=6, loc=css:button[aria-label="Acceptance Workflow Tool Parent 2026-09-30 的更多操作"]]
+              text "工作流"
+          container
+            anchor [ref=7, loc=href:/app/2853c549-8670-4a6d-81e8-866eb1f8f049/workflow, url=http://localhost:23010/app/2853c549-8670-4a6d-81e8-866eb1f8f049/workflow]
+              text "编排"
+            anchor [ref=8, loc=href:/app/2853c549-8670-4a6d-81e8-866eb1f8f049/access-point, url=http://localhost:23010/app/2853c549-8670-4a6d-81e8-866eb1f8f049/access-point]
+              text "访问点"
+            anchor [ref=9, loc=href:/app/2853c549-8670-4a6d-81e8-866eb1f8f049/logs, url=http://localhost:23010/app/2853c549-8670-4a6d-81e8-866eb1f8f049/logs]
+              text "日志"
+            anchor [ref=10, loc=href:/app/2853c549-8670-4a6d-81e8-866eb1f8f049/overview, url=http://localhost:23010/app/2853c549-8670-4a6d-81e8-866eb1f8f049/overview]
+              text "监测"
+      container
+        button [ref=11]
+          text "A"
+          text "Acceptance Owner"
+          text "账户"
+        button "打开帮助菜单" [ref=12, loc=css:button[aria-label="打开帮助菜单"]]
+    container [ref=13]
+      container
+        container
+          button "添加节点" [ref=14]
+          button "添加注释" [ref=15, loc=css:button[aria-label="添加注释"]]
+          button "指针模式" [ref=16, loc=css:button[aria-label="指针模式"]]
+          button "手模式" [ref=17, loc=css:button[aria-label="手模式"]]
+          button "评论模式" [ref=18, loc=css:button[aria-label="评论模式"]]
+          button "整理节点" [ref=19, loc=css:button[aria-label="整理节点"]]
+          button "更多操作" [ref=20]
+        container
+          container
+            button "撤销" [ref=21, loc=css:button[aria-label="撤销"]]
+            button "重做" [ref=22, loc=css:button[aria-label="重做"]]
+            button "变更历史" [ref=23, loc=css:button[aria-label="变更历史"]]
+          container
+            text "查看缓存"
+            text "清除"
+          container
+            image "React Flow mini map"
+            container
+              button "缩小" [ref=24, loc=css:button[aria-label="缩小"]]
+              button [ref=25]
+                text "80"
+                text "%"
+              button "放大" [ref=26, loc=css:button[aria-label="放大"]]
+        container
+          status "工作流保存状态"
+            container
+              text "自动保存"
+              text "17:49:25"
+            text "·"
+            container
+              text "已发布"
+              text "1 分钟前"
+          button [ref=27]
+            text "滚动至选中节点"
+          container
+            container
+              text "A"
+              text "A"
+            container
+              button [ref=28]
+                text "测试运行"
+                container
+                  text "⌥"
+                  text "R"
+              button "查看运行历史" [ref=29, loc=css:button[aria-label="查看运行历史"]]
+              button "检查清单" [ref=30, loc=css:button[aria-label="检查清单"]]
+            container
+              button "环境变量" [ref=31, loc=css:button[aria-label="环境变量"]]
+              button "系统变量" [ref=32, loc=css:button[aria-label="系统变量"]]
+            button [ref=33]
+              text "发布"
+            button "版本历史" [ref=34, loc=css:button[aria-label="版本历史"]]
+        container [ref=35]
+          splitter "节点配置面板" [ref=36]
+          container
+            container
+              container
+                text "🔧"
+                textbox [ref=37, loc=css:input[placeholder="添加标题..."]]
+                  text "Acceptance Marker Echo"
+                container
+                  button "运行此步骤" [ref=38, loc=css:button[aria-label="运行此步骤"]]
+                    svg_root
+                  anchor "查看帮助文档" [ref=39, loc=css:a[aria-label="查看帮助文档"], url=https://docs.dify.ai/zh/self-host/use-dify/nodes/tools]
+                  button "更多" [ref=40]
+                  button "关闭" [ref=41, loc=css:button[aria-label="关闭"]]
+                    svg_root
+              textbox [ref=42, loc=css:textarea[placeholder="添加描述..."]]
+                text "添加描述..."
+              tablist
+                tab [ref=43]
+                  text "设置"
+                tab [ref=44]
+                  text "上次运行"
+            tabpanel "设置" [ref=45, loc=role:tabpanel[name="设置"]]
+              container
+                container
+                  button [ref=46]
+                    text "设置"
+                  container
+                    container
+                      container
+                        text "Acceptance marker"
+                        text "*"
+                      text "Acceptance marker setting"
+                    textfield [ref=47]
+                      paragraph
+                        text "B09_PARENT_CONFIG_V2"
+                button [ref=48]
+                  text "输出变量"
+              container
+                text "失败时重试"
+                switch "失败时重试" [ref=49]
+                checkbox [ref=50]
+              container
+                button [ref=51]
+                  text "异常处理"
+                button "配置异常处理策略，当节点发生异常时触发。" [ref=52, loc=css:button[aria-label="配置异常处理策略，当节点发生异常时触发。"]]
+                button [ref=53]
+                  text "无"
+                  svg_root
+              container
+                text "下一步"
+                text "添加此工作流程中的下一个节点"
+                container
+                  text "🔧"
+                  svg_root
+                  container
+                    container
+                      svg_root
+                      text "End"
+                    button [ref=54]
+                      svg_root
+                      text "添加并行节点"
+        container
+          container
+            svg_root
+            button "添加节点" [ref=55]
+            button "添加节点" [ref=56]
+            button [ref=57]
+              button "添加节点" [ref=58]
+              button "End" [ref=59, loc=css:button[aria-label="End"]]
+                svg_root
+                text "END"
+              container
+                container
+                  svg_root
+                  text "Acceptance Marker Echo"
+                  text "/"
+                  svg_root
+                  text "text"
+                  text "String"
+                container
+                  svg_root
+                  text "Acceptance Marker Echo"
+                  text "/"
+                  svg_root
+                  text "json"
+                  text "Array[object]"
+            button [ref=60]
+              text "开始"
+              container
+                button "添加节点" [ref=61]
+                button "Start" [ref=62, loc=css:button[aria-label="Start"]]
+                  text "START"
+            button [ref=63]
+              button "添加节点" [ref=64]
+              button "更多" [ref=65]
+              button "Acceptance Marker Echo" [ref=66, loc=css:button[aria-label="Acceptance Marker Echo"]]
+                text "🔧"
+                text "ACCEPTANCE MARKER ECHO"
+              container
+                text "MARKER"
+                text "B09_PARENT_CONFIG_V2"
+          svg_root
+          anchor "React Flow attribution" [ref=67, loc=css:a[aria-label="React Flow attribution"], url=https://reactflow.dev/]
+            text "React Flow"
+      status
+        text "同步数据中，只需几秒钟。"
+  alert
+  region "Notifications"
+  listbox "Typeahead menu"
+  listbox "Typeahead menu"

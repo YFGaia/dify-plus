@@ -45,7 +45,7 @@ def admin_account(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
     account.is_authenticated = True
     account.is_admin_or_owner = True
 
-    monkeypatch.setattr(wraps_module.dify_config, "EDITION", "CLOUD")
+    monkeypatch.setattr(wraps_module.dify_config, "DEPLOYMENT_EDITION", "CLOUD")
     monkeypatch.setattr("libs.login.dify_config.LOGIN_DISABLED", True)
     monkeypatch.setattr(wraps_module, "current_account_with_tenant", lambda: (account, "tenant-123"))
     monkeypatch.setattr(controller_module, "current_user", account)

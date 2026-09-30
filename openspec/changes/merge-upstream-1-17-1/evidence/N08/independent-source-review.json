@@ -1,0 +1,23 @@
+{
+  "node": "N08",
+  "reviewer": "merge_audit independent read-only backend review",
+  "verdict": "No issues found.",
+  "source_sha256": {
+    "api/controllers/web/wraps.py": "96830ac4c86f7a630412b6586d601bfed9a2fed57b5623a5b86c057b41241f30",
+    "api/tests/unit_tests/controllers/web/test_webapp_passport_scope_extend.py": "6170851117e29b09be05450e49ff184c14ec513f5b5462087479522696ecb3ec"
+  },
+  "scope": "Only docstring, capture query/header explicitcodes before overwrite, compare each nonempty explicitcode to verified signed app_code before ORM/Enterprise",
+  "checks": {
+    "verified_signature_before_scope_compare": true,
+    "scope_mismatch_rejected_before_ORM": true,
+    "error401_baseHTTPexception_notcaught_Unauthorized_fallback": true,
+    "query_and_header_both_checked_prevent_conflict_bypass": true,
+    "sameapp_cookie_query_header_noexplicit_legacy_preserved": true,
+    "source_outside_three_added_statements_AST_identical_HEAD": true,
+    "realSignedJWT_SQLite_3modepositive_and_bidirectional_negative_tests": true,
+    "enterpriseFalseTrue_negative_assert_no_create_session_or_get_app_id": true,
+    "missing_badSignature_current_reject_test": true
+  },
+  "developer_tests": "78 passed2.36s; targeted-tests.log",
+  "runtime_boundary": "No actual latest image/passport acceptance claimed by source review; N08 image/A\u2194B positive-negative/original23000 remain separate required gates"
+}

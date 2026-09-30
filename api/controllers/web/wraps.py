@@ -45,7 +45,13 @@ def validate_jwt_token[**P, R](
 
 
 def decode_jwt_token(app_code: str | None = None, user_id: str | None = None) -> tuple[App, EndUser]:
+    """Resolve a signed passport within any explicitly requested app scope.
+
+    Login-status callers supply the query code; protected resources use the
+    header. Header-only passports without either code retain their legacy scope.
+    """
     webapp_auth_enabled = SystemFeatureService.is_webapp_auth_enabled()
+    requested_app_codes = (app_code, request.headers.get(HEADER_NAME_APP_CODE))
     if not app_code:
         app_code = str(request.headers.get(HEADER_NAME_APP_CODE))
     try:
@@ -54,6 +60,8 @@ def decode_jwt_token(app_code: str | None = None, user_id: str | None = None) ->
             raise Unauthorized("App token is missing.")
         decoded = PassportService().verify(tk)
         app_code = decoded.get("app_code")
+        if any(code and code != app_code for code in requested_app_codes):
+            raise WebAppAuthAccessDeniedError("App token does not match the requested app.")
         app_id = decoded.get("app_id")
         with session_factory.create_session() as session:
             app_model = session.scalar(select(App).where(App.id == app_id))

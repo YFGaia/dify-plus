@@ -1,0 +1,18 @@
+{
+  "realUI": true,
+  "reload": true,
+  "afterTrue": {
+    "status": 200,
+    "auth": true,
+    "site_enabled": true,
+    "retention": null
+  },
+  "afterFalse": {
+    "status": 200,
+    "auth": false,
+    "site_enabled": true,
+    "retention": null
+  },
+  "restoredInitialFalse": true,
+  "toolError": "first probe reused expired canonical; no source failure"
+}

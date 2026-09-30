@@ -1,0 +1,243 @@
+[p2 "主页 - Dify" | space "Dify Plus 合并验收应用中心"(9): 2 managed, 0 untracked — p1 "Dify", p2* "主页 - Dify"]
+root
+  container
+    container
+      container
+        container
+          anchor "Dify" [ref=1, loc=css:a[aria-label="Dify"], url=http://localhost:23010/]
+            image
+          button "搜索任何内容" [ref=2, loc=css:button[aria-label="搜索任何内容"]]
+            text "⌘"
+            text "K"
+        button [ref=3]
+          text "A"
+          text "Acceptance Owner's Workspace"
+        container "主菜单"
+          anchor [ref=4, url=http://localhost:23010/]
+            text "主页"
+          anchor [ref=5, loc=href:/explore/apps-center-extend, url=http://localhost:23010/explore/apps-center-extend]
+            text "应用中心"
+          anchor [ref=6, url=http://localhost:23010/apps]
+            text "工作室"
+          anchor [ref=7, loc=href:/datasets, url=http://localhost:23010/datasets]
+            text "知识库"
+          anchor [ref=8, loc=href:/skills, url=http://localhost:23010/skills]
+            text "Skills"
+          anchor [ref=9, loc=href:/integrations/model-provider, url=http://localhost:23010/integrations/model-provider]
+            text "集成"
+          anchor [ref=10, loc=href:/marketplace, url=http://localhost:23010/marketplace]
+            text "Marketplace"
+          anchor [ref=11, loc=href:/system-manage-extend/system-integration, url=http://localhost:23010/system-manage-extend/system-integration]
+            text "系统管理"
+        container
+          button [ref=12]
+            text "WEB APPS"
+          button "搜索" [ref=13, loc=css:button[aria-label="搜索"]]
+          navigation "WEB APPS" [ref=14, loc=role:navigation[name="WEB APPS"]]
+            unordered_list
+              list_item
+                anchor [ref=15, loc=href:/installed/6255692c-ac7e-4aef-906a-41374d7a6a57, url=http://localhost:23010/installed/6255692c-ac7e-4aef-906a-41374d7a6a57]
+                  text "🔧"
+                  text "Acceptance Workflow Tool Parent 2026-09-30"
+                button "Acceptance Workflow Tool Parent 2026-09-30 的更多操作" [ref=16, loc=css:button[aria-label="Acceptance Workflow Tool Parent 2026-09-30 的更多操作"]]
+              list_item
+                anchor [ref=17, loc=href:/installed/798a4934-52c1-417c-af13-abf7b53c14bf, url=http://localhost:23010/installed/798a4934-52c1-417c-af13-abf7b53c14bf]
+                  text "🔑"
+                  text "Acceptance API Key 20260930"
+                button "Acceptance API Key 20260930 的更多操作" [ref=18, loc=css:button[aria-label="Acceptance API Key 20260930 的更多操作"]]
+              list_item
+                anchor [ref=19, loc=href:/installed/a4024226-ed85-4ddf-a9f4-f9ae996a1824, url=http://localhost:23010/installed/a4024226-ed85-4ddf-a9f4-f9ae996a1824]
+                  text "🔐"
+                  text "Acceptance Web Auth chat 2026-09-30"
+                button "Acceptance Web Auth chat 2026-09-30 的更多操作" [ref=20, loc=css:button[aria-label="Acceptance Web Auth chat 2026-09-30 的更多操作"]]
+              list_item
+                anchor [ref=21, loc=href:/installed/ccac822b-7502-403b-a9bc-ce02e7898128, url=http://localhost:23010/installed/ccac822b-7502-403b-a9bc-ce02e7898128]
+                  text "🔧"
+                  text "Acceptance Workflow Tool Child 2026-09-30"
+                button "Acceptance Workflow Tool Child 2026-09-30 的更多操作" [ref=22, loc=css:button[aria-label="Acceptance Workflow Tool Child 2026-09-30 的更多操作"]]
+              list_item
+                anchor [ref=23, loc=href:/installed/e0cbad51-01b3-4918-9b76-941ad7b32a4c, url=http://localhost:23010/installed/e0cbad51-01b3-4918-9b76-941ad7b32a4c]
+                  text "🤖"
+                  text "Acceptance Center Published With Stats 2026-09-30"
+                button "Acceptance Center Published With Stats 2026-09-30 的更多操作" [ref=24, loc=css:button[aria-label="Acceptance Center Published With Stats 2026-09-30 的更多操作"]]
+              list_item
+                anchor [ref=25, loc=href:/installed/edfc85c1-c7d4-4f14-a64c-0009ded90b65, url=http://localhost:23010/installed/edfc85c1-c7d4-4f14-a64c-0009ded90b65]
+                  text "🤖"
+                  text "Acceptance Center Published Missing Stats 2026-09-30"
+                button "Acceptance Center Published Missing Stats 2026-09-30 的更多操作" [ref=26, loc=css:button[aria-label="Acceptance Center Published Missing Stats 2026-09-30 的更多操作"]]
+              list_item
+                anchor [ref=27, loc=href:/installed/f30b5504-ca96-46fa-8e12-63a2b49050e1, url=http://localhost:23010/installed/f30b5504-ca96-46fa-8e12-63a2b49050e1]
+                  text "🔐"
+                  text "Acceptance Web Auth completion 2026-09-30"
+                button "Acceptance Web Auth completion 2026-09-30 的更多操作" [ref=28, loc=css:button[aria-label="Acceptance Web Auth completion 2026-09-30 的更多操作"]]
+      container
+        status "额度"
+          text "额度"
+          container
+            text "已用:"
+            container
+              text "¥"
+              text "0.00"
+            text "/"
+            container
+              text "¥"
+              text "104.25"
+        container
+          button [ref=29]
+            text "A"
+            text "Acceptance Owner"
+          button "打开帮助菜单" [ref=30, loc=css:button[aria-label="打开帮助菜单"]]
+            svg_root
+    container [ref=31]
+      container
+        heading
+          text "欢迎回来，Acceptance Owner 👋"
+        paragraph
+          text "也许……下一个好点子，就从这里开始。"
+      container "最近"
+        container
+          heading
+            text "最近"
+          anchor [ref=32, url=http://localhost:23010/apps]
+            text "探索工作室"
+        container
+          container
+            anchor "Acceptance Workflow Tool Child 2026-09-30 工作流" [ref=33, url=http://localhost:23010/app/352b9c1f-e947-45d1-a6d1-55ed148cea2c/workflow]
+            container
+              text "🔧"
+              svg_root
+            container
+              heading
+                text "Acceptance Workflow Tool Child 2026-09-30"
+              container
+                text "Acceptance Owner"
+                text "·"
+                text "19 分钟前编辑"
+          container
+            anchor "Acceptance API Key 20260930 工作流" [ref=34, url=http://localhost:23010/app/507d0a6b-9504-4266-8f05-630a50846f2c/workflow]
+            container
+              text "🔑"
+              svg_root
+            container
+              heading
+                text "Acceptance API Key 20260930"
+              container
+                text "Acceptance Owner"
+                text "·"
+                text "25 分钟前编辑"
+          container
+            anchor "Acceptance Web Auth workflow 2026-09-30 工作流" [ref=35, url=http://localhost:23010/app/467aa2f3-139e-49b8-8683-d9d595e0acf2/workflow]
+            container
+              text "🔐"
+              svg_root
+            container
+              heading
+                text "Acceptance Web Auth workflow 2026-09-30"
+              container
+                text "Acceptance Owner"
+                text "·"
+                text "1 小时前编辑"
+          container
+            anchor "Acceptance Web Auth chat 2026-09-30 聊天助手" [ref=36, url=http://localhost:23010/app/d5ad5804-7921-41d4-9b48-816da837f4e3/configuration]
+            container
+              text "🔐"
+              svg_root
+            container
+              heading
+                text "Acceptance Web Auth chat 2026-09-30"
+              container
+                text "Acceptance Owner"
+                text "·"
+                text "1 小时前编辑"
+          container
+            anchor "Acceptance Web Auth completion 2026-09-30 文本生成" [ref=37, url=http://localhost:23010/app/14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1/configuration]
+            container
+              text "🔐"
+              svg_root
+            container
+              heading
+                text "Acceptance Web Auth completion 2026-09-30"
+              container
+                text "Acceptance Owner"
+                text "·"
+                text "1 小时前编辑"
+          container
+            anchor "Acceptance Workflow Tool Parent 2026-09-30 工作流" [ref=38, url=http://localhost:23010/app/2853c549-8670-4a6d-81e8-866eb1f8f049/workflow]
+            container
+              text "🔧"
+              svg_root
+            container
+              heading
+                text "Acceptance Workflow Tool Parent 2026-09-30"
+              container
+                text "Acceptance Owner"
+                text "·"
+                text "1 小时前编辑"
+          container
+            anchor "Acceptance Center Published With Stats 2026-09-30 工作流" [ref=39, url=http://localhost:23010/app/c8af11f7-885a-454b-bcc2-181025ace644/workflow]
+            container
+              text "🤖"
+              svg_root
+            container
+              heading
+                text "Acceptance Center Published With Stats 2026-09-30"
+              container
+                text "Acceptance Owner"
+                text "·"
+                text "2 小时前编辑"
+          container
+            anchor "Acceptance Center Published Missing Stats 2026-09-30 工作流" [ref=40, url=http://localhost:23010/app/d69912a8-cbfc-4690-b334-9ac13d81bac1/workflow]
+            container
+              text "🤖"
+              svg_root
+            container
+              heading
+                text "Acceptance Center Published Missing Stats 2026-09-30"
+              container
+                text "Acceptance Owner"
+                text "·"
+                text "2 小时前编辑"
+      container
+        container
+          heading
+            text "模板"
+          anchor [ref=41, loc=href:https://marketplace.dify.ai/templates, url=https://marketplace.dify.ai/templates]
+            text "查看更多"
+        container
+          radiogroup "分类"
+            radiobutton [ref=42]
+              text "所有"
+            radiobutton [ref=43]
+              text "AcceptanceCategoryA"
+            radiobutton [ref=44]
+              text "AcceptanceCategoryB"
+          searchbox "搜索" [ref=45, loc=css:input[name="query"]]
+            text "搜索"
+      container "模板"
+        container
+          button "Acceptance Center Published With Stats 2026-09-30" [ref=46]
+          container
+            container
+              text "🤖"
+              svg_root
+            container
+              text "Acceptance Center Published With Stats 2026-09-30"
+              text "工作流"
+        container
+          button "Acceptance Center Published Missing Stats 2026-09-30" [ref=47]
+          container
+            container
+              text "🤖"
+              svg_root
+            container
+              text "Acceptance Center Published Missing Stats 2026-09-30"
+              text "工作流"
+        container
+          button "Acceptance API Key 20260930" [ref=48]
+          container
+            container
+              text "🔑"
+              svg_root
+            container
+              text "Acceptance API Key 20260930"
+              text "工作流"

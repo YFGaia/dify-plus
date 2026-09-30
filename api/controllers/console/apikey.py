@@ -90,10 +90,12 @@ DEFAULT_QUOTA_EXTEND = {
 def _merge_token_with_quota_extend(token: ApiToken, quota: ApiTokenMoneyExtend | None) -> ApiKeyItem:
     # Attribute reads reload expired ORM rows after commit. Never merge quota.id
     # or quota timestamps into the token's identity/lifecycle fields.
-    item = ApiKeyItem.model_validate(token, from_attributes=True)
-    for name, default in DEFAULT_QUOTA_EXTEND.items():
-        setattr(item, name, getattr(quota, name) if quota is not None else default)
-    return item
+    token_data = ApiKeyItem.model_validate(token, from_attributes=True).model_dump()
+    quota_data = {
+        name: getattr(quota, name) if quota is not None else default for name, default in DEFAULT_QUOTA_EXTEND.items()
+    }
+    # Validate after merging so ORM Numeric/Decimal values honor the float response contract.
+    return ApiKeyItem.model_validate({**token_data, **quota_data})
 
 
 class ApiKeyList(ResponseModel):

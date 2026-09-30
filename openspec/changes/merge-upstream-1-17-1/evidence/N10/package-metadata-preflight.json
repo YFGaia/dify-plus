@@ -1,0 +1,273 @@
+{
+  "stage": "pre-freeze independent readonly preflight",
+  "package_count": 38,
+  "rows": [
+    {
+      "path": "api/providers/vdb/vdb-vastbase/pyproject.toml",
+      "sha256": "ee8b8821e8581b62166698a81319ca792843a0f5529634326c298c23e694c982",
+      "project_name": "dify-vdb-vastbase",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-opengauss/pyproject.toml",
+      "sha256": "89aef22c6accbdd423f5d359fbc6439c3f216e88d6b386c1ae3f386dd23bf40f",
+      "project_name": "dify-vdb-opengauss",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-relyt/pyproject.toml",
+      "sha256": "ab8366014cd366444956b9f6ba136c1dd7960359b728b1df83a634fc4f747d90",
+      "project_name": "dify-vdb-relyt",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-hologres/pyproject.toml",
+      "sha256": "6f305e46f3e24b2889ded2a2a85bdf126c71547486d79a792be6c70dbe3d274d",
+      "project_name": "dify-vdb-hologres",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-oceanbase/pyproject.toml",
+      "sha256": "9e5e7b57985c8bfa0f66ae494bc8a7f95b853d91751d8fa150a6a34631066077",
+      "project_name": "dify-vdb-oceanbase",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-elasticsearch/pyproject.toml",
+      "sha256": "438d468b9414c401ee51ff6a47b1fb04c738b4e4a0f54808ef9184d9478b4d8a",
+      "project_name": "dify-vdb-elasticsearch",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tidb-on-qdrant/pyproject.toml",
+      "sha256": "938bd7810f22c73904e4cef0e46a596ba1330f0339f797d89180e8b180ca147e",
+      "project_name": "dify-vdb-tidb-on-qdrant",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tablestore/pyproject.toml",
+      "sha256": "8e7e61beddf4a79bf1f02d7425d6b21aa0d1553377b590b77c16933c61150f21",
+      "project_name": "dify-vdb-tablestore",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-chroma/pyproject.toml",
+      "sha256": "6affd006b91287e569cdc42b5da4174ac1d21d6cb7fd5718dafd089636e935e8",
+      "project_name": "dify-vdb-chroma",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-oracle/pyproject.toml",
+      "sha256": "553aa4383f3764d67a4712591ebf1ed9005509cf0e21f15257ecf8f5e4aefeba",
+      "project_name": "dify-vdb-oracle",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-baidu/pyproject.toml",
+      "sha256": "47eea7f63863218938650ffbd99fd6a34aa6c7ffbe6fb8e192f0b84fe70ae053",
+      "project_name": "dify-vdb-baidu",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tidb-vector/pyproject.toml",
+      "sha256": "65634197bdae5bafb167a8d914d67ed37ad026c61bbf95f7baabc76a4aebb1c7",
+      "project_name": "dify-vdb-tidb-vector",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-analyticdb/pyproject.toml",
+      "sha256": "c997948e609ca9928385f1bab1cdd2f076779a8f7356bf67da2d92b3131bb417",
+      "project_name": "dify-vdb-analyticdb",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-pgvector/pyproject.toml",
+      "sha256": "763a1512bee7227ce16c489c3e770943090de44546e83daf576f56bd59cca5e1",
+      "project_name": "dify-vdb-pgvector",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-vikingdb/pyproject.toml",
+      "sha256": "ad805e9217801e5dac1f79f97b0f97f713e17752e11658cfed8f72e86136e852",
+      "project_name": "dify-vdb-vikingdb",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-alibabacloud-mysql/pyproject.toml",
+      "sha256": "b81810813bf5f18077f87b7deeb82fdacc60ae96fe30163ea32f1f4d28c3d70f",
+      "project_name": "dify-vdb-alibabacloud-mysql",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-qdrant/pyproject.toml",
+      "sha256": "a6de7ebef76859f63f9420c88fdf32a30a99ad38901bfcded1428e1387cec057",
+      "project_name": "dify-vdb-qdrant",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-myscale/pyproject.toml",
+      "sha256": "9dc223d0f13b40da281ed75b9417883d1c90c131c86f3a917c675b923aa5a585",
+      "project_name": "dify-vdb-myscale",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-couchbase/pyproject.toml",
+      "sha256": "3c08c536cfe0be6522b08d5ae61a7f9c161effc8bc38ef1c8c5cf9e845ada9dd",
+      "project_name": "dify-vdb-couchbase",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-matrixone/pyproject.toml",
+      "sha256": "8701ac155520065595732828b814008e7179ad54d4a8a923a3908ac7923b6c6d",
+      "project_name": "dify-vdb-matrixone",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tencent/pyproject.toml",
+      "sha256": "9ebf1bbdb448a076ce4ce66ffb23a084a6feb31b8f7fa7c5b1f0ab1fc2b2a071",
+      "project_name": "dify-vdb-tencent",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-clickzetta/pyproject.toml",
+      "sha256": "0475e174df9a1bf45cd7f688b43c645a1340edb707268e8ce336da174543b94d",
+      "project_name": "dify-vdb-clickzetta",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-huawei-cloud/pyproject.toml",
+      "sha256": "a63655c3c25cb66b8ee14bacc7f2201152bebef20668a9d7bafeb080b82e5f5b",
+      "project_name": "dify-vdb-huawei-cloud",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-opensearch/pyproject.toml",
+      "sha256": "ad9383de64cbeb6f9e538e843f8d4a760cd779245560c0d093b3fa96e34a89e4",
+      "project_name": "dify-vdb-opensearch",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-pgvecto-rs/pyproject.toml",
+      "sha256": "bb1661fa5e453292bb927358c5025aa957512afe829649633bfe5463b55051c9",
+      "project_name": "dify-vdb-pgvecto-rs",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-lindorm/pyproject.toml",
+      "sha256": "fe806264a3636825abc9ecd901df04471018c46e0be3b53affe07aa98dcddc0e",
+      "project_name": "dify-vdb-lindorm",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-weaviate/pyproject.toml",
+      "sha256": "462d5ae12bd55cc56ac86ecd4d78221ad6dcf4b5aed5f066df04192ef43e9fb3",
+      "project_name": "dify-vdb-weaviate",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-upstash/pyproject.toml",
+      "sha256": "6bdff08c418d6938c1dbb6cfb365b663606aedbeacb3c08cfe49e75b4d2478c2",
+      "project_name": "dify-vdb-upstash",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-milvus/pyproject.toml",
+      "sha256": "41b672c658372bb460e132a8eac5a3e96acee85d3fc89b43332e4144909ce640",
+      "project_name": "dify-vdb-milvus",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/vdb/vdb-iris/pyproject.toml",
+      "sha256": "3b67518a58f4354a9d07b59096245c277ea781429e1c1b5a88c895dc7a556008",
+      "project_name": "dify-vdb-iris",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "vdb"
+    },
+    {
+      "path": "api/providers/trace/trace-langsmith/pyproject.toml",
+      "sha256": "c768501ec33e2627c937e226162335ee17631b1ecf7f2346cd038d87cbf40f77",
+      "project_name": "dify-trace-langsmith",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "trace"
+    },
+    {
+      "path": "api/providers/trace/trace-langfuse/pyproject.toml",
+      "sha256": "b469e5335d0802ccf801d5c3c87f79ffdad86327bf9a924f25bf7e0f378ee2a0",
+      "project_name": "dify-trace-langfuse",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "trace"
+    },
+    {
+      "path": "api/providers/trace/trace-opik/pyproject.toml",
+      "sha256": "bdb3b31cbb02c0ba4144492a5a7edad3457894e2762388ede2de0a34a88a08df",
+      "project_name": "dify-trace-opik",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "trace"
+    },
+    {
+      "path": "api/providers/trace/trace-tencent/pyproject.toml",
+      "sha256": "ea12d4cc87bf7a37f8ba24848164089755fd7081881e0cd9aba546a08b924185",
+      "project_name": "dify-trace-tencent",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "trace"
+    },
+    {
+      "path": "api/providers/trace/trace-aliyun/pyproject.toml",
+      "sha256": "c3031c7dcb52cfd0f4fecfebe279d3405f3a1da2ceb33e3e66eb98701ba78013",
+      "project_name": "dify-trace-aliyun",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "trace"
+    },
+    {
+      "path": "api/providers/trace/trace-weave/pyproject.toml",
+      "sha256": "b2512675f79266e1267654ad1010be546918ac5560e6857295481b3c96b9061a",
+      "project_name": "dify-trace-weave",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "trace"
+    },
+    {
+      "path": "api/providers/trace/trace-arize-phoenix/pyproject.toml",
+      "sha256": "0967b301b1a4f0529de0edd1a42def47aa8e857ff9ff171a1b400a622b810f3c",
+      "project_name": "dify-trace-arize-phoenix",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "trace"
+    },
+    {
+      "path": "api/providers/trace/trace-mlflow/pyproject.toml",
+      "sha256": "b7677449f03cdb7ad0fc31e461480d2112a60083d47d839983560d8866f3b880",
+      "project_name": "dify-trace-mlflow",
+      "existing_dependency_src_entrypoint_metadata_unchanged": true,
+      "kind": "trace"
+    }
+  ],
+  "runtime_boundary": "No distribution install/import/entrypoint/Qdrant actual result inferred"
+}

@@ -1,0 +1,40 @@
+{
+  "node": "N01",
+  "kind": "independent_read_only_source_review",
+  "date": "2026-09-30",
+  "reviewer": "merge_audit",
+  "review_skill": "backend-code-review",
+  "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+  "candidate_status": "six owned paths frozen as uncommitted changes; coordinator must freeze full source candidate before image",
+  "verdict": "No issues found.",
+  "findings": [],
+  "source_sha256": {
+    "api/services/installed_app_service.py": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b",
+    "api/services/recommended_app_service_extend.py": "ccfb4524e7790b740ba10bd484a63b0bbca8756006dcc89a657f0fe997bb9cb8",
+    "api/events/event_handlers/__init__.py": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8",
+    "api/events/event_handlers/create_app_statistics_when_app_created_extend.py": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba",
+    "api/tests/unit_tests/events/test_app_statistics_extend.py": "856fcf4a6b4ed85c9cef5d2f051e0a19f35be52107c0cffc23d80dcab98d534c",
+    "api/tests/unit_tests/services/test_app_center_extend.py": "4e6e1e770a8505f750979598de032602e7b707262fccb315185d57e667a0dae1"
+  },
+  "manifest_sha256": "d17f6fe5701b56a336b54b097dd20c650059a9d7045f3491e01c202d2224a9d3",
+  "reviewed_contracts": [
+    "Complete App.tenant_id/current workspace + InstalledApp.tenant_id + app_owner_tenant_id owner chain; no cross-workspace installation chosen",
+    "Shared upstream published_app_filter reused; draft/deleted publish targets/Agent excluded consistently with installed WebApp opening; no uninstalled published app expansion",
+    "Usage rows optional; absent rows remain visible at0usage; duplicate usage rows grouped byapp_id; deterministic app/installation IDs",
+    "tags/app model config read through current session and tenant-owned tag method",
+    "App statistics handler registered through events.event_handlers imported byext_import_modules",
+    "Ordinary AppService.create_app and DSL import/copy signal callsites reviewed; caller session UUID insert/flush, repeat existing-row check; no handler commit and no claimed upstream transaction-order redesign",
+    "Creation tests cover registered receiver, repeat signal invocation, caller rollback, existingusage preservation; SQL tests cover3published modes, absent/zero/duplicate stats, unavailable targets and owner chain"
+  ],
+  "developer_test_evidence": {
+    "observed_log": "/private/tmp/dify-app-center-targeted-20260930.log",
+    "passed": 52,
+    "warnings": 2,
+    "seconds": 2.78,
+    "independently_rerun": false,
+    "permanent_log": "evidence/app-center-regression/targeted-tests.log"
+  },
+  "verification_gap": "Real current-image page/API acceptance and PostgreSQL/MySQL full-image event callsites remain N03-N05; SQLite/direct-handler focused tests do not prove all runtime transactions.",
+  "permanent_developer_manifest": "evidence/app-center-regression/source.sha256",
+  "implementation_evidence": "evidence/app-center-regression/implementation.md"
+}

@@ -1,0 +1,155 @@
+{
+  "scope": "K01/B08 true tenant A-B resource guards with valid identities and same-resource positives; F02 manager/fork summary",
+  "image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/workspaces/current/summary",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/apps/644081fd-d6e4-4c15-87d2-019449df0368/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/d8c46657-4207-4449-89c9-349d19093e3a",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/apps/644081fd-d6e4-4c15-87d2-019449df0368/sync",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/apps/644081fd-d6e4-4c15-87d2-019449df0368/sync",
+      "status": 403
+    },
+    {
+      "method": "DELETE",
+      "path": "/datasets/api-keys/ea99c0bc-1a07-4038-b569-96515ee54854",
+      "status": 204
+    },
+    {
+      "method": "POST",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "http://localhost:25442/v1/datasets",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "http://localhost:25442/v1/datasets/d8c46657-4207-4449-89c9-349d19093e3a",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "http://localhost:25442/v1/datasets/e52228b7-c590-466b-bb33-854927ac1ad2",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "http://localhost:25442/v1/datasets",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "http://localhost:25442/v1/datasets/e52228b7-c590-466b-bb33-854927ac1ad2",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/workspaces/current/summary",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/apps/644081fd-d6e4-4c15-87d2-019449df0368/api-keys",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/apps/644081fd-d6e4-4c15-87d2-019449df0368/api-keys",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/d8c46657-4207-4449-89c9-349d19093e3a",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/datasets/api-keys",
+      "status": 400
+    },
+    {
+      "method": "DELETE",
+      "path": "/datasets/api-keys/6dfa3af1-4e5f-402d-815a-4d8ccbaafec9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/datasets/api-keys/6dfa3af1-4e5f-402d-815a-4d8ccbaafec9",
+      "status": 204
+    },
+    {
+      "method": "DELETE",
+      "path": "/datasets/api-keys/f3a518cf-5b01-4bb8-818b-a48ddd75211f",
+      "status": 204
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 200
+    }
+  ],
+  "secrets_printed_or_persisted": false,
+  "fixture_origin": "TenantB complete explicit ORM negativefixture because installed createworkspace flagfalse; valid admin owner membership, App/Dataset legit productcreated; no UI tenantcreation or model generation claim",
+  "B_owner_summary": {
+    "role": "owner",
+    "admin_extend": false,
+    "tenant_extend": false
+  },
+  "B_manager_but_no_fork_permission_sync_cancel_denied": true,
+  "B_service_key_scope": {
+    "bound_sameB_detail200": true,
+    "bound_list403_contract": true,
+    "bound_real_A_resource403": true,
+    "unbound_B_list_contains_B_not_A": true,
+    "unbound_real_A_resource404": true
+  },
+  "ownerA_currenttenant_unchanged": true,
+  "A_foreign_app_and_dataset_key_guards": {
+    "real_B_app_keys_GET_POST404": true,
+    "foreign_B_dataset_detail_rejected": true,
+    "foreign_B_binding400": true,
+    "known_existing_B_key_DELETE404": true,
+    "A_key_list_not_leaked_or_changed": true
+  },
+  "own_temp_B_keys_deleted_after_denial_readback": true
+}

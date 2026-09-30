@@ -1,0 +1,7 @@
+{
+  "only_exact_owned_upload_key": true,
+  "before_blob_present": true,
+  "after_blob_absent": true,
+  "storage_kind": "opendal",
+  "scheme": "fs"
+}

@@ -1,0 +1,25 @@
+{
+  "profile": {
+    "status": 200,
+    "id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+    "email": "acceptance-owner@example.invalid",
+    "name": "Acceptance Owner"
+  },
+  "workspace": {
+    "status": 200,
+    "id": "f12143c1-4eab-48ec-92cf-0b4fb1f051d2",
+    "name": "Acceptance Owner's Workspace",
+    "role": "owner"
+  },
+  "money": {
+    "status": 200,
+    "total": 15,
+    "used": 0
+  },
+  "features": {
+    "status": 200,
+    "is_email_setup": false,
+    "enable_email_password_login": true,
+    "deployment_edition": "COMMUNITY"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "scope": "isolated acceptance synthetic internal credentials only; never original23000/external provider credentials",
+  "private_storage": "mode0600 private env; no credential values in evidence",
+  "mapping": [
+    {
+      "private_field": "DIFY_AGENT_SHELLCTL_AUTH_TOKEN",
+      "services": {
+        "local_sandbox": "SHELLCTL_AUTH_TOKEN"
+      },
+      "same_value_as": "DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN"
+    },
+    {
+      "private_field": "DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN",
+      "services": {
+        "agent_backend": "DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN"
+      },
+      "format": "nonempty highentropy local auth token; optional DIFY_AGENT_SHELLCTL_AUTH_TOKEN alias matches"
+    },
+    {
+      "private_field": "DIFY_AGENT_SERVER_SECRET_KEY",
+      "services": {
+        "agent_backend": "DIFY_AGENT_SERVER_SECRET_KEY"
+      },
+      "format": "strict unpadded urlsafe base64 of exactly32random bytes;43characters"
+    },
+    {
+      "private_field": "DIFY_AGENT_API_TOKEN",
+      "services": {
+        "agent_backend": "DIFY_AGENT_API_TOKEN"
+      },
+      "format": "independent highentropy token; API AGENT_BACKEND_API_TOKEN must match only when enabling API caller, not needed for proxy unauthenticated GET scope"
+    },
+    {
+      "private_field": "LOCAL_ACCEPTANCE_PLUGIN_INNER_KEY",
+      "services": {
+        "api": "INNER_API_KEY_FOR_PLUGIN",
+        "agent_backend": "DIFY_AGENT_INNER_API_KEY"
+      },
+      "format": "Effective loaded API config field is INNER_API_KEY_FOR_PLUGIN; acceptance explicit alias maps same synthetic private value to Agent. Actual loaded equality and authenticated manifest200 verified; PLUGIN_DIFY_INNER_API_KEY is only base input alias and was not effective configproof."
+    },
+    {
+      "private_field": "DIFY_AGENT_PLUGIN_DAEMON_API_KEY",
+      "services": {
+        "agent_backend": "DIFY_AGENT_PLUGIN_DAEMON_API_KEY"
+      },
+      "format": "reuse isolated private LOCAL_ACCEPTANCE_PLUGIN_DAEMON_KEY mapped by acceptance overlay to plugin_daemon SERVER_KEY; base PLUGIN_DAEMON_KEY is overridden and cannot be assumed"
+    }
+  ],
+  "nonsecret_runtime_fields": {
+    "DIFY_AGENT_RUNTIME_BACKEND": "local",
+    "DIFY_AGENT_LOCAL_SANDBOX_ENDPOINT": "http://local_sandbox:5004",
+    "DIFY_AGENT_STUB_API_BASE_URL": "http://agent_backend:5050/agent-stub",
+    "DIFY_AGENT_SANDBOX_FILES_BASE_URL": "http://api:5001"
+  },
+  "safe_probe_classes": {
+    "agent_proxy_allow": [
+      "agent_backend /agent-stub/config/manifest (actual route; withoutAuthorization expects application401, not configuration success)",
+      "api /files/test (prefix probe; app404 not file business success)"
+    ],
+    "agent_proxy_deny": [
+      "agent_backend nonstub health/index",
+      "api /health",
+      "metadata linklocal address"
+    ],
+    "generic_proxy_must_still_deny": [
+      "same private agentstub/files paths"
+    ]
+  },
+  "proof_boundary": "Application401/404 on proxy-allowed route proves transport reaches application, not authenticated business success; Squid403 is deny. Do not retain bodies or complete environment config.",
+  "source_contracts": [
+    "docker/ssrf_proxy/squid-agent.conf.template",
+    "dify-agent/src/dify_agent/server/settings.py",
+    "dify-agent/src/dify_agent/agent_stub/server/tokens/agent_stub.py",
+    "dify-agent/src/dify_agent/runtime_backend/profile.py"
+  ],
+  "overlay_precedence_verified": true,
+  "legacy_test_path_note": "docker SSRF shell test /agent-stub/config is mock prefix target, not existing current Agent configuration route. Its app404 was a probe-path mismatch, not confirmed business regression.",
+  "latest_authenticated_business_proof": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json"
+}

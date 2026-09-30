@@ -1,0 +1,56 @@
+{
+  "canonical_build": {
+    "dockerfile": "api/Dockerfile",
+    "tag": "difyplus-acceptance-api:953cf1c-uuid-quota-3c632717",
+    "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+    "platform": "linux/arm64",
+    "buildx_details": "docker-desktop://dashboard/build/desktop-linux/desktop-linux/jlhz4aq4ft64czucm9ilzsm1s",
+    "temporary_dependency_seed_used": false
+  },
+  "context_manifest_sha256": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+  "context_file_count": 4314,
+  "overlay_count_in_context": 12,
+  "production_source_overlays_in_image": 7,
+  "production_source_overlay_hashes_match": true,
+  "tests_excluded_by_dockerignore": 5,
+  "uv_lock_sha256_in_image": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+  "installed_distribution_count": 411,
+  "installed_locked_version_mismatches": 0,
+  "installed_distributions_not_in_lock": 0,
+  "dify_agent": {
+    "version": "1.17.1",
+    "source": "file:///app/dify-agent",
+    "editable": false
+  },
+  "overlay_files": [
+    {
+      "path": "api/services/installed_app_service.py",
+      "sha256": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b"
+    },
+    {
+      "path": "api/services/recommended_app_service_extend.py",
+      "sha256": "ccfb4524e7790b740ba10bd484a63b0bbca8756006dcc89a657f0fe997bb9cb8"
+    },
+    {
+      "path": "api/events/event_handlers/__init__.py",
+      "sha256": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8"
+    },
+    {
+      "path": "api/events/event_handlers/create_app_statistics_when_app_created_extend.py",
+      "sha256": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba"
+    },
+    {
+      "path": "api/models/model_extend.py",
+      "sha256": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190"
+    },
+    {
+      "path": "api/uv.lock",
+      "sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57"
+    },
+    {
+      "path": "api/services/system_manage_extend.py",
+      "sha256": "9673831d9616cdc85b672dc07743eb1dff18f5499e6a000535080dd557e21588"
+    }
+  ],
+  "private_env_value_printed": false
+}

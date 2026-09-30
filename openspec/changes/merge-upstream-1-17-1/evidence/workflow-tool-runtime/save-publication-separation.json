@@ -1,0 +1,16 @@
+{
+  "draft": {
+    "marker": {
+      "value": "B09_PARENT_CONFIG_V2",
+      "type": "mixed"
+    },
+    "version": "draft"
+  },
+  "publish": {
+    "marker": {
+      "value": "B09_PARENT_CONFIG_V1",
+      "type": "constant"
+    },
+    "version": "2026-09-30 09:48:49.353015"
+  }
+}

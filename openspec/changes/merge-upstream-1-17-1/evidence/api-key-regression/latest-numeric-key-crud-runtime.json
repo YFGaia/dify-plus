@@ -1,0 +1,177 @@
+{
+  "scope": "K01 latest fullimage independent API noLLM",
+  "candidate_context": "1a805b0ebc293f756959609fa21062bf473dac13cc06408b7a3b3a301eecb3d8",
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/account/profile",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 400
+    },
+    {
+      "method": "PUT",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/datasets",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/datasets/api-keys",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/datasets/api-keys",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/datasets/api-keys/648104ef-dd71-498b-b6c9-71c3f8598396",
+      "status": 204
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/datasets/api-keys/2fbf746c-74e2-4476-8083-177131b8e940",
+      "status": 204
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/datasets/35329252-c6d6-4958-a925-165ca24cd8d6",
+      "status": 204
+    },
+    {
+      "method": "DELETE",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys/9ccef050-e1e4-4d51-ae47-c859dc55af79",
+      "status": 204
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys/f33804b9-8d54-4fde-b1dd-9db2835d91a5",
+      "status": 204
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    }
+  ],
+  "secrets_printed_or_persisted": false,
+  "existing_7decimal_readback": {
+    "day_limit_quota": 1.1234567,
+    "month_limit_quota": 2.7654321,
+    "day_used_quota": 0.0,
+    "month_used_quota": 0.0,
+    "accumulated_quota": 0.0
+  },
+  "numeric_types": {
+    "day_limit_quota": "float",
+    "month_limit_quota": "float",
+    "day_used_quota": "float",
+    "month_used_quota": "float",
+    "accumulated_quota": "float"
+  },
+  "put_get_7decimal": {
+    "day_limit_quota": 3.1234567,
+    "month_limit_quota": 4.7654321,
+    "day_used_quota": 0.0,
+    "month_used_quota": 0.0,
+    "accumulated_quota": 0.0
+  },
+  "default_minus1_and_usage0_numbers": true,
+  "app_legacy_full_token_preserved_in_memory": true,
+  "dataset_bound": {
+    "scope_readback": [
+      "35329252-c6d6-4958-a925-165ca24cd8d6"
+    ],
+    "masked_full_secret_unequal": true,
+    "deduplicated": true
+  },
+  "dataset_True_delete_absent": true,
+  "dataset_unbound": {
+    "scope_readback": [],
+    "masked_full_secret_unequal": true,
+    "deduplicated": true
+  },
+  "dataset_False_delete_absent": true,
+  "own_dataset_fixture_deleted": true,
+  "both_app_keys_delete_absent": true,
+  "limits_real_charge_gate": "not exercised: no configured nonzero model; accumulated is counter not lifetime cap",
+  "image_tag": "difyplus-acceptance-api:953cf1c-n07-k01-1a805b0e",
+  "image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619",
+  "timestamp_utc": "2026-09-30T09:55:30.200741+00:00",
+  "role_scope": "owner only live; cross-role/cross-tenant evidence not asserted",
+  "environment_key_scope": "no supported editable quota contract; static/UI check remains"
+}

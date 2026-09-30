@@ -1,0 +1,245 @@
+{
+  "date": "2026-09-30",
+  "candidate": {
+    "tag": "difyplus-acceptance-api:953cf1c-n08-d431d0a6",
+    "image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+    "context_sha256": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6"
+  },
+  "database_overrides": {
+    "postgresql": "acceptance_n04_orm_pg_20260930",
+    "mysql": "acceptance_n04_orm_mysql_20260930"
+  },
+  "heads": {
+    "postgresql": {
+      "main": "c3f1a9b2e6d4",
+      "extension": "020_workflow_run_account"
+    },
+    "mysql": {
+      "main": "c3f1a9b2e6d4",
+      "extension": "020_workflow_run_account"
+    }
+  },
+  "model_uuid_probes": {
+    "pg": [
+      {
+        "engine": "postgresql",
+        "model": "AppStatisticsExtend",
+        "omitted_id": true,
+        "before_rows": 0,
+        "flush": "passed",
+        "readback": "passed",
+        "uuidv4": true,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "postgresql",
+        "model": "EndUserAccountJoinsExtend",
+        "omitted_id": true,
+        "before_rows": 0,
+        "flush": "passed",
+        "readback": "passed",
+        "uuidv4": true,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "postgresql",
+        "model": "AppExtend",
+        "omitted_id": true,
+        "before_rows": 0,
+        "flush": "passed",
+        "readback": "passed",
+        "uuidv4": true,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "postgresql",
+        "model": "MessageContextExtend",
+        "omitted_id": true,
+        "before_rows": 0,
+        "flush": "passed",
+        "readback": "passed",
+        "uuidv4": true,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "postgresql",
+        "model": "AppStatisticsExtend",
+        "explicit_id": true,
+        "id_preserved": true,
+        "payload_readback": "passed",
+        "before_rows": 0,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "postgresql",
+        "model": "EndUserAccountJoinsExtend",
+        "explicit_id": true,
+        "id_preserved": true,
+        "payload_readback": "passed",
+        "before_rows": 0,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "postgresql",
+        "model": "AppExtend",
+        "explicit_id": true,
+        "id_preserved": true,
+        "payload_readback": "passed",
+        "before_rows": 0,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "postgresql",
+        "model": "MessageContextExtend",
+        "explicit_id": true,
+        "id_preserved": true,
+        "payload_readback": "passed",
+        "before_rows": 0,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      }
+    ],
+    "mysql": [
+      {
+        "engine": "mysql",
+        "model": "AppStatisticsExtend",
+        "omitted_id": true,
+        "before_rows": 0,
+        "flush": "passed",
+        "readback": "passed",
+        "uuidv4": true,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "mysql",
+        "model": "EndUserAccountJoinsExtend",
+        "omitted_id": true,
+        "before_rows": 0,
+        "flush": "passed",
+        "readback": "passed",
+        "uuidv4": true,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "mysql",
+        "model": "AppExtend",
+        "omitted_id": true,
+        "before_rows": 0,
+        "flush": "passed",
+        "readback": "passed",
+        "uuidv4": true,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "mysql",
+        "model": "MessageContextExtend",
+        "omitted_id": true,
+        "before_rows": 0,
+        "flush": "passed",
+        "readback": "passed",
+        "uuidv4": true,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "mysql",
+        "model": "AppStatisticsExtend",
+        "explicit_id": true,
+        "id_preserved": true,
+        "payload_readback": "passed",
+        "before_rows": 0,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "mysql",
+        "model": "EndUserAccountJoinsExtend",
+        "explicit_id": true,
+        "id_preserved": true,
+        "payload_readback": "passed",
+        "before_rows": 0,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "mysql",
+        "model": "AppExtend",
+        "explicit_id": true,
+        "id_preserved": true,
+        "payload_readback": "passed",
+        "before_rows": 0,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      },
+      {
+        "engine": "mysql",
+        "model": "MessageContextExtend",
+        "explicit_id": true,
+        "id_preserved": true,
+        "payload_readback": "passed",
+        "before_rows": 0,
+        "after_rollback_rows": 0,
+        "rollback_preserved_count": true
+      }
+    ]
+  },
+  "quota_upsert_probes": {
+    "pg": {
+      "engine": "postgresql",
+      "operation": "actual_service_set_user_quota",
+      "insert": "passed",
+      "precision_readback": "passed",
+      "update": "passed",
+      "preserves_used_quota": true,
+      "unique_balance": true,
+      "four_concurrent_updates": "passed",
+      "concurrent_preserves_used_quota": true,
+      "four_concurrent_missing_row_upserts": "passed",
+      "concurrent_unique_balance": true,
+      "cleanup_restored_empty_tables": true
+    },
+    "mysql": {
+      "engine": "mysql",
+      "operation": "actual_service_set_user_quota",
+      "insert": "passed",
+      "precision_readback": "passed",
+      "update": "passed",
+      "preserves_used_quota": true,
+      "unique_balance": true,
+      "four_concurrent_updates": "passed",
+      "concurrent_preserves_used_quota": true,
+      "four_concurrent_missing_row_upserts": "passed",
+      "concurrent_unique_balance": true,
+      "cleanup_restored_empty_tables": true
+    }
+  },
+  "rollback_readback": {
+    "pg": {
+      "account_rows": 0,
+      "app_statistics_extend_rows": 0,
+      "end_user_account_joins_extend_rows": 0,
+      "app_extend_rows": 0,
+      "message_context_extend_rows": 0,
+      "account_money_extend_rows": 0
+    },
+    "mysql": {
+      "account_rows": 0,
+      "app_statistics_extend_rows": 0,
+      "end_user_account_joins_extend_rows": 0,
+      "app_extend_rows": 0,
+      "message_context_extend_rows": 0,
+      "account_money_extend_rows": 0
+    }
+  },
+  "result": "passed"
+}

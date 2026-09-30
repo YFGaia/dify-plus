@@ -1,0 +1,19 @@
+{
+  "node": "N07",
+  "kind": "independent_readonly_apikey_numeric_merge_review",
+  "verdict": "No issues found.",
+  "source_sha256": {
+    "api/controllers/console/apikey.py": "d7de964844e9adb4e4a6b7befcf25ace3062bc4058624530ccb79978b7eb2ccb",
+    "api/tests/unit_tests/controllers/console/test_apikey_quota_serialization_extend.py": "b9880a010b2eccf10b32850a4e7ec701332ed01bbb176a851e5b2af126a9a622"
+  },
+  "scope": "Only _merge_token_with_quota_extend; existing token model validation retained then merged quota dict validated through sameApiKeyItem",
+  "reviewed_contracts": [
+    "ORMDecimal coerced to declaredfloat aftermerge; optionalNone preserved",
+    "Explicit quota allowlist excludesquotaid/timestamps/token/appresourceidentity",
+    "No DBwrite, quota limit semantics, permission, masking, cache or billing path altered",
+    "RealSQLite productionmodels commit/expire/refetch test invokes unwrappedGET and assertsJSONnumber/missingdefaults/nullableNone/7decDBDecimal unchanged"
+  ],
+  "developer_reported_tests": 27,
+  "reviewer_reran_tests": false,
+  "remaining": "latestcanonicalimage and independent actualK01GET/create/edit/default/deletion/permissions"
+}

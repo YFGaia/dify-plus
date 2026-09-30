@@ -1,0 +1,42 @@
+{
+  "status": "confirmed_isolated_config_mismatch_repaired_actual_manifest_passed",
+  "actual_backend_image_id": "sha256:58ae6b8319ba230fa378e82810bebd9ba66ec3e64b64368ebe24de8225f711e2",
+  "actual_module_path": "/app/api/.venv/lib/python3.12/site-packages/dify_agent/agent_stub/server/agent_stub_config.py",
+  "actual_module_sha256": "f4dbc0f857badc0f662540e51ce0467993251c598a07151408a5e8e425a1ad6b",
+  "actual_readonly_source_findings": {
+    "manifest_route": "/inner/api/agent-config/{execution_context.agent_id}/manifest",
+    "agent_id_semantics": "Agent.id from legitimate signed execution context, not App.id",
+    "query_fields": [
+      "tenant_id",
+      "user_id",
+      "config_version_id",
+      "config_version_kind"
+    ],
+    "auth_header": "X-Inner-Api-Key",
+    "url_construction": "inner_api_url.rstrip slash plus route"
+  },
+  "runtime_public_url_fields": {
+    "scheme": "http",
+    "hostname": "api",
+    "port": 5001,
+    "path": "",
+    "userinfo_present": false,
+    "query_present": false
+  },
+  "api_wrapper": {
+    "source": "api/controllers/inner_api/wraps.py::plugin_inner_api_only",
+    "empty_plugin_daemon_key": "404",
+    "wrong_inner_key": "404",
+    "loaded_config_key_field": "INNER_API_KEY_FOR_PLUGIN",
+    "compose_input_alias_not_loaded_field": "PLUGIN_DIFY_INNER_API_KEY",
+    "acceptance_actual_field_alias": "LOCAL_ACCEPTANCE_PLUGIN_INNER_KEY"
+  },
+  "observed_response": {
+    "dedicated_proxy_status": 404,
+    "safe_error_code": "not_found",
+    "generic_proxy_status": 403
+  },
+  "conclusion": "ActualAPI wrapper secret is INNER_API_KEY_FOR_PLUGIN. Agent had only base-compose fallback for different input alias. Isolated explicit map to LOCAL_ACCEPTANCE_PLUGIN_INNER_KEY repaired first failing auth transition. Valid JWE dedicatedproxy200 with actualAgent/version/kind match and generic403. No new sourcebug.",
+  "secrets_recorded": false,
+  "runtime_closure_evidence": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json"
+}

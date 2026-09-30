@@ -1,0 +1,13 @@
+{
+  "kind": "independent_readonly_quota_tie_review",
+  "verdict": "No issues found.",
+  "source_sha256": {
+    "api/services/system_manage_extend.py": "1cf69052a66dc6f681899dffe24d9cd12eee8ab93e88e9825bcef3e881cbd12e",
+    "api/tests/unit_tests/services/test_quota_manage_pagination_extend.py": "97145c114e9189237492e0c75fdc456bd708d8aa78fed101c75fd9497a8f298c"
+  },
+  "scope": "Only deterministic usedDESC/account_idASC tie and docstring differ from priorreviewed967source; exact restorationhashmatched",
+  "database_contract": "AccountMoney account_id unique; used primary order/nullbehavior/filter/count/offset/ranking unchanged; no schema/dialectupsert modifications",
+  "test_scope": "Real SQLite production Account/AccountMoney models12reverseinserted rows, uniqueused row,10/2pages,7dec totalmutation/refetch/usage/filter;29focusedpassed reported",
+  "reviewer_reran_tests": false,
+  "remaining": "canonicalincrementalimage+actualPG/UIpagination; APIkeynumbercontract now alsoN07 latestcandidate scope"
+}

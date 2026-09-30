@@ -1,0 +1,35 @@
+{
+  "candidate_image": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+  "verdict": "passed",
+  "actual_checks": {
+    "category_A_only_own_card": true,
+    "tag_A_only_own_card": true,
+    "all_category_duplicate_rows_single_card": true,
+    "casefold_name_search_own_card": true,
+    "unmatched_search_empty_list": true,
+    "UI_order_matches_actual_API_first_row_dedup_order": true,
+    "default_home_path_preserved": true,
+    "explicit_center_route_preserved": true,
+    "UI_unsync_menu_updates_and_home_template_disappears": true,
+    "UI_resync_home_template_restored_after_reload": true,
+    "own_app_original_synced_state_restored": true
+  },
+  "sort_boundary": "usage DESC and deterministic ID ties from frozen backend; actual current API order and UI order exact after dedup. No new frontend sort feature.",
+  "fixtures": "only own App/tags mutations; no owner auth/tenant mutation",
+  "card_count": 7,
+  "api_expanded_row_count": 8,
+  "token_model_calls": 0,
+  "evidence": [
+    "category-A-snapshot.txt",
+    "tag-A-snapshot.txt",
+    "search-casefold-snapshot.txt",
+    "search-empty-snapshot.txt",
+    "home-snapshot.txt",
+    "before-unsync-menu.txt",
+    "after-unsync-menu.txt",
+    "home-after-unsync.txt",
+    "home-after-resync.txt",
+    "home-resync-reload.txt",
+    "final-center-cards.json"
+  ]
+}

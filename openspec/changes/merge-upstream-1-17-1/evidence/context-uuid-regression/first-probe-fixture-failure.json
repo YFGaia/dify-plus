@@ -1,0 +1,11 @@
+{
+  "image": "difyplus-acceptance-api:953cf1c-n09-83263107",
+  "engines": [
+    "postgresql",
+    "mysql"
+  ],
+  "error_type": "ModuleNotFoundError",
+  "module": "app_factory",
+  "cause": "/tmp probe script sys.path lacks /app/api; harness import path only",
+  "correction": "Docker PYTHONPATH=/app/api; production source unchanged"
+}
