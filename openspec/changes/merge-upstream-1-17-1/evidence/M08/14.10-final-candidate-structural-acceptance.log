@@ -1,0 +1,26 @@
+M08/14.10 structural acceptance
+candidate=95101d76b955481ce6c9519596aeea426680fa71
+tree=ec530d435c3e8ac6697dcecb8f10cb1c584d42e6
+parent=97f94625d2d51fe1780f69aaecce5a56d3073db4
+
+git rev-parse HEAD HEAD^{tree} HEAD^ -> candidate/tree/parent matched
+git diff --cached --check -> exit 0 before commit
+git diff --quiet HEAD; git diff --cached --quiet -> exit 0 after commit
+git ls-files -u -> 0 entries
+git rev-list --parents -n 1 948fefb69ae87abefa7e91a13968213696b3e310 -> parents b17761ed0166e8ef49474da418b95a9462adbb9c and 8387590ace4a094de812b7847fc6a4c3a27cd52b
+git merge-base --is-ancestor <M00 and each M01-M07 implementation SHA> <candidate> -> exit 0 for M00 and all 42 M01-M07 commits
+source-inventory conflict_paths vs M00 resolutions -> 91/91 unique paths, exact set match
+conflict-ownership.tsv -> all 91 original paths resolved; every listed final host exists in candidate tree; missing=0
+candidate product-source conflict marker scan -> no hits
+14.1 ten billing/OAuth source anchors -> 10/10 present
+Web legacy references fetchUserMoney/common-extend -> no hits
+personal quota model/controller fields and route -> present
+API Key daily/monthly model, Console CRUD, and Service API admission checks -> present
+git rev-parse <candidate>:api -> 895c0be99faafa5314806ddb2c0553c6062c7f67, identical to V01-applicable API subtree
+V01 focused API suite reuse -> 160 passed, 0 failed; no rerun
+M08/14.7 quota modal browser evidence reuse -> same spec SHA, 2 passed; no rerun
+
+vp fmt --check <14.10 report, M08 result, execution-graph.json, execution-graph.md, tasks.md> -> exit 0
+openspec validate merge-upstream-1-17-1 --strict -> exit 0 (Change is valid)
+
+Result: passed. V02 remains the next gate; this result does not claim frontend, deployment, or production acceptance.

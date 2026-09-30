@@ -106,5 +106,14 @@
       "content_review": "M08 structural candidate/tree/blob evidence; V03 isolated synthetic old Compose/provider package and empty MySQL/static migration boundaries, explicit no secret inspection statements; local app/test IDs and private-config path references only, no credential values.",
       "retention_verdict": "approved_historical_input_unchanged_no_current_runtime_reclassification"
     }
-  ]
+  ],
+  "clean_archive_missing_historical_log": {
+    "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+    "sha256": "6e3ca51aa5858e41d1b9c7505995f814676276ba1f4e53328c089b5997afb2b3",
+    "bytes": 1781,
+    "origin": "OriginalM08 passed-node directreference; existingignored structuralGit/OpenSpec command summary only. Candidate95101/tree/parent independentlymatch existinggitobjects.",
+    "secret_flags": 0,
+    "historical_verdict_unchanged": true,
+    "clean_archive_initial_failure": "ee72b archive missing this exactignoredfile; no product/source/hashfailure"
+  }
 }

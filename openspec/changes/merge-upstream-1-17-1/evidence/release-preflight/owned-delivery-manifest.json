@@ -224,7 +224,7 @@
     }
   ],
   "source_count": 55,
-  "planning_evidence_count": 278,
+  "planning_evidence_count": 279,
   "planning_evidence_paths": [
     {
       "path": "docs/dify-plus/1.17.1合并验收记录.md",
@@ -273,6 +273,12 @@
       "sha256": "87104726c4913eb4ab7575e90da84374ab6a69d21abc07eb6276a9921fac29e5",
       "bytes": 5582,
       "ignored": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log",
+      "sha256": "6e3ca51aa5858e41d1b9c7505995f814676276ba1f4e53328c089b5997afb2b3",
+      "bytes": 1781,
+      "ignored": true
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.19-final-candidate-structural-acceptance.md",
@@ -1494,8 +1500,8 @@
     },
     {
       "path": "openspec/changes/merge-upstream-1-17-1/evidence/release-preflight/historical-input-review.json",
-      "sha256": "a11291a8c70ebc46fef7c11abd632c987d0d4f6922a053230ba32db01030f014",
-      "bytes": 4746,
+      "sha256": "6c1f2db586647f6c04589917581de20b9840b88013e292801479a33b0b1290ad",
+      "bytes": 5375,
       "ignored": false
     },
     {
