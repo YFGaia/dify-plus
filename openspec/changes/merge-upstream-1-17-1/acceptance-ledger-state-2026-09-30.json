@@ -305,8 +305,12 @@
       "scope": "local-current",
       "current_status": "passed",
       "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
-      "fresh_runtime_proof": [],
-      "current_business_proof": [],
+      "fresh_runtime_proof": [
+        "Original API full HEAD-lock release image445d; original model/price/credentials untouched; independent-actual-readback.json records scoped product/DB/runtime observations. No new verification by this projection update."
+      ],
+      "current_business_proof": [
+        "Actual three-mode auth12unique cells:3auth-on anonymous rejection cells with no generated records and9positive terminal responses;3duplicate rejection probes explicitly preserved as harness history, not additional unique coverage. Initial package16HTTP/6reject/10terminalsuccess with independent actual output80; signed and anonymous EndUser separation proved. No positive-price accounting claim."
+      ],
       "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
       "evidence": [
         "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
@@ -523,10 +527,11 @@
       "scope": "local-current",
       "current_status": "partial-current-proof",
       "source_static_proof": "Current fullsource unchanged workflow node quota task blob versus fixedmergebase, except separately reviewed quota/key/scope paths; current real no-model workflows/nestedTool + gaia dispatch/ack. Nonzero retry billing remains external, no new idempotency claim.",
-      "fresh_runtime_proof": [],
+      "fresh_runtime_proof": [
+        "Original API full HEAD-lock release image445d; original model/price/credentials untouched; independent-actual-readback.json records scoped product/DB/runtime observations. No new verification by this projection update."
+      ],
       "current_business_proof": [
-        "Real no-model StartEnd workflow succeeded; details/nodes outputs and draftvs published readback passed; LLM stop/retry charges not claimed",
-        "Latest1a8 real Toolv2 keyboard autosave/refetch/reload/debug/publish/WebApp V2 text+json; zero tokens, not LLM charge"
+        "Historical no-model StartEnd and native ToolV2 save/refetch/reload/publish/run passed. Later actual running LLM stop produced stopped terminal; interrupted usage remains unknown. Separate doubleLLM run: first completed38input+8output=46usage retained, secondstarted thenstopped, run total46 and second partial providerusage unknown. Existing-run resume/configuredretry/nonzerocharge remain unverified."
       ],
       "remaining": "B09.stop_resume_retry_usage_preserved_LLM_attribution",
       "evidence": [
@@ -646,8 +651,12 @@
       "scope": "local-current",
       "current_status": "passed",
       "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
-      "fresh_runtime_proof": [],
-      "current_business_proof": [],
+      "fresh_runtime_proof": [
+        "Original API full HEAD-lock release image445d; original model/price/credentials untouched; independent-actual-readback.json records scoped product/DB/runtime observations. No new verification by this projection update."
+      ],
+      "current_business_proof": [
+        "Actual three initial same-conversation messages had null parent links and did not prove continuous history; preserved as fixture limitation. Correct supplemental parent3->4->5 chain generated two actual8-token outputs; five marker IDs and legitimate Console context GET200 match real messages. TokenBufferMemory false=6messages/3pairs vs true=0 matches existing reset contract; provider prompt was not captured."
+      ],
       "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
       "evidence": [
         "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",

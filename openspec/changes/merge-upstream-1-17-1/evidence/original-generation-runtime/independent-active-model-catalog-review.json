@@ -1,0 +1,25 @@
+{
+  "reviewed_at_utc": "2026-09-30T17:35:58.048129+00:00",
+  "timezone": "Asia/Shanghai",
+  "evidence": "active-model-catalog-readonly.json",
+  "evidence_sha256": "60e1291e82a67fccb8635dacc75014929198405f20146177c8d9f9852c3a15fc",
+  "review_kind": "Independent safe JSON/source contract review, no runtime/model/resource request",
+  "actual_runtime_image": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "accepted_scope": [
+    "Exact original Tenant and existing DeepSeek provider catalog only",
+    "COMMUNITY/hosting enabled0 means hosted trial initialization write branch unexecuted; no custom-model rows to initialize",
+    "Existing provider credential presence is not zero custom-model credential row presence; no credential copied or emitted",
+    "Active catalog2LLM differs from explicit default1/published oneLLM node; bothFlash variants have context1m",
+    "Activeembedding0; catalog pricing field absence is a DTO boundary, notzero price or proof of no pricing elsewhere",
+    "No credential validation, provider/model invocation or configuration mutation by this probe"
+  ],
+  "conclusion": "No observed existing active smaller-window/embedding configuration unblocks pending gates; full scope remains incomplete",
+  "remaining_safe_runtime_actions_without_new_authorization_or_configuration": 0,
+  "remaining_documentation_action": "Exact reviewed current projection/catalog/fullscope checkpoint; does not perform acceptance",
+  "human_authorization_blocks": [
+    "Exact sidecarAPI shared accessnetwork join/recreate",
+    "Exact3synthetic generation-fixture associated cleanup"
+  ],
+  "unverified_financial_scope": "No positiveprice/quota/two-sided currency reconciliation proof; prioractualzero cost usage remains bounded component/generation evidence",
+  "compaction_scope": "No activeAgent created/configured; proposedcap8 formula target800000 and >20safe genuinehistory. Currenttiny instrument budget cannot prove realcompaction, no fakehistory/schemaoverride authorized."
+}

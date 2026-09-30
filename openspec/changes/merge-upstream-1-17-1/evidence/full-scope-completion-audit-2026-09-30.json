@@ -1,5 +1,5 @@
 {
-  "stage": "pre_final_bundle_complete_scope_audit",
+  "stage": "post_v2_gateway_and_original_generation_current_full_scope_audit",
   "date": "2026-09-30",
   "node_count": 38,
   "counts": {
@@ -25,7 +25,10 @@
         "evidence/A00/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "A01",
@@ -51,7 +54,12 @@
         "evidence/A01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "A00"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "A02",
@@ -75,7 +83,12 @@
         "evidence/A02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "A01"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "A03",
@@ -98,7 +111,10 @@
         "evidence/A03/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "A04",
@@ -118,7 +134,12 @@
         "evidence/A04/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "A02"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M00",
@@ -144,7 +165,12 @@
         "evidence/M00/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "A04"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M01",
@@ -166,7 +192,12 @@
         "evidence/M01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M00"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M02",
@@ -189,7 +220,12 @@
         "本节点 steps 对应文件/环境变更及验收结果",
         "evidence/M02/independent-review.json"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M01"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M03",
@@ -209,7 +245,12 @@
         "evidence/M03/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M02"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M04",
@@ -246,7 +287,12 @@
         "evidence/M04/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M03"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M05",
@@ -271,7 +317,12 @@
         "evidence/M05/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M03"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M06",
@@ -296,7 +347,13 @@
         "evidence/M06/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M04",
+        "M05"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M07",
@@ -324,7 +381,12 @@
         "evidence/M07/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M01"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "M08",
@@ -340,13 +402,7 @@
         "evidence/M08/14.18-final-candidate-structural-acceptance.md",
         "evidence/M08/14.19-final-candidate-structural-acceptance.md"
       ],
-      "missing_declared_references": [
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.md",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-path-manifest.json",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.9-v02-formatter-debt-remediation.log",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.md",
-        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.10-final-candidate-structural-acceptance.log"
-      ],
+      "missing_declared_references": [],
       "acceptance": [
         "未解决索引为零、冲突标记和孤儿宿主为零",
         "M00 双父 merge 祖先仍可追溯，M01–M07 各有独立提交；候选源码提交覆盖最终集成修复，十挂点和全部91路径有审查记录"
@@ -360,7 +416,17 @@
         "evidence/M08/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M02",
+        "M03",
+        "M04",
+        "M05",
+        "M06",
+        "M07"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "V01",
@@ -384,7 +450,12 @@
         "evidence/V01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M08"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "V02",
@@ -413,7 +484,12 @@
         "evidence/V02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "M08"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "R01",
@@ -433,7 +509,13 @@
         "evidence/R01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "V01",
+        "V02"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "V03",
@@ -456,7 +538,13 @@
         "evidence/V03/mysql-empty-2026-09-30.md",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "R01",
+        "A03"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "V04",
@@ -479,7 +567,12 @@
         "evidence/V04/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "V03"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "V05",
@@ -502,7 +595,13 @@
         "evidence/V05/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "V03",
+        "V04"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "V06",
@@ -525,7 +624,12 @@
         "evidence/V06/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "V05"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "R02",
@@ -537,10 +641,7 @@
         "evidence/R02/result.json",
         "evidence/R02/execution.log"
       ],
-      "missing_declared_references": [
-        "evidence/R02/result.json",
-        "evidence/R02/execution.log"
-      ],
+      "missing_declared_references": [],
       "acceptance": [
         "可执行环境包无占位符，演练证据完整",
         "tag对应已验证代码，明确不代表生产已上线"
@@ -560,7 +661,22 @@
           "execution_log": "evidence/R02/execution.log",
           "boundary": "OriginalR02 V03-V06 environmentwide criteria unpassed; code-ready not production/latestUI/11external completion."
         }
-      }
+      },
+      "dependencies": [
+        "V06"
+      ],
+      "current_checkpoint_fields": {
+        "local_code_archive_checkpoint": {
+          "status": "passed",
+          "source_implementation_commit": "ee72b000d076449dc0cbd5ccb7fb92c4fb7b017c",
+          "code_ready_commit": "e91c4d89fc6090ebd339acaf9be5ce853c29f544",
+          "tag": "fork-merged-1.17.1",
+          "result": "evidence/R02/result.json",
+          "execution_log": "evidence/R02/execution.log",
+          "boundary": "OriginalR02 V03-V06 environmentwide criteria unpassed; code-ready not production/latestUI/11external completion."
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "D00",
@@ -582,7 +698,12 @@
         "evidence/D00/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "R02"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "D01",
@@ -605,7 +726,12 @@
         "evidence/D01/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "D00"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "D02",
@@ -627,7 +753,12 @@
         "evidence/D02/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "D01"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "D03",
@@ -650,7 +781,12 @@
         "evidence/D03/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "D02"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "D04",
@@ -673,7 +809,12 @@
         "evidence/D04/result.json",
         "本节点 steps 对应文件/环境变更及验收结果"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [
+        "D03"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N00",
@@ -690,7 +831,10 @@
       "outputs": [
         "evidence/N00/result.json"
       ],
-      "current_checkpoints": {}
+      "current_checkpoints": {},
+      "dependencies": [],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N01",
@@ -740,7 +884,38 @@
           "api_image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
           "source_reuse_for_latestN07": "installed_app_service/recommended_app_service/eventhandler hashes must remain identical in newimage; finaloriginal23000 stillN06"
         }
-      }
+      },
+      "dependencies": [
+        "N00"
+      ],
+      "current_checkpoint_fields": {
+        "source_checkpoint": {
+          "status": "development_and_independent_source_review_passed; live_page_pending",
+          "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+          "source_manifest_sha256": "d17f6fe5701b56a336b54b097dd20c650059a9d7045f3491e01c202d2224a9d3",
+          "owned_files": {
+            "api/services/installed_app_service.py": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b",
+            "api/services/recommended_app_service_extend.py": "ccfb4524e7790b740ba10bd484a63b0bbca8756006dcc89a657f0fe997bb9cb8",
+            "api/events/event_handlers/__init__.py": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8",
+            "api/events/event_handlers/create_app_statistics_when_app_created_extend.py": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba",
+            "api/tests/unit_tests/events/test_app_statistics_extend.py": "856fcf4a6b4ed85c9cef5d2f051e0a19f35be52107c0cffc23d80dcab98d534c",
+            "api/tests/unit_tests/services/test_app_center_extend.py": "4e6e1e770a8505f750979598de032602e7b707262fccb315185d57e667a0dae1"
+          },
+          "targeted_tests": 52,
+          "evidence": [
+            "evidence/N01/independent-source-review.json",
+            "evidence/N01/independent-source-review.md"
+          ],
+          "rule": "Keep node pending until current complete image and real user page/API acceptance."
+        },
+        "current_full_image_api_checkpoint": {
+          "status": "passed_API_lifecycle_missingstats_and_actualbrowser_show_open_for3c",
+          "evidence": "evidence/N01/published-app-missing-stats-runtime-2026-09-30.json",
+          "api_image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+          "source_reuse_for_latestN07": "installed_app_service/recommended_app_service/eventhandler hashes must remain identical in newimage; finaloriginal23000 stillN06"
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N02",
@@ -803,7 +978,49 @@
           "quota_upsert_targeted_tests": 27,
           "archive_overlay_count": 12
         }
-      }
+      },
+      "dependencies": [
+        "N00"
+      ],
+      "current_checkpoint_fields": {
+        "input_freeze_checkpoint": {
+          "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+          "product_migration_fix_commit": "9fcc542afb7b794b50aca86b7abd4ecc4f39bea2",
+          "app_center_manifest": "evidence/app-center-regression/source.sha256",
+          "app_center_independent_review": "evidence/N01/independent-source-review.json",
+          "app_center_targeted_tests": 52,
+          "status": "passed_source_freeze_and_independent_reviews_for3c632717; N03canonicalruntime_readiness_passed; latestN07advance_pending",
+          "required_archive_inputs": [
+            "all current relevant tracked source including pre-existing api/uv.lock changes",
+            "all six owned app-center source/test paths including new untracked files",
+            "migration/quota fixes already present in base HEAD",
+            "api/models/model_extend.py new4model client UUID repair and its newly added regression tests after independent dual-engine acceptance",
+            "api/services/system_manage_extend.py dialect-specific atomic quota upsert repair and necessary regression tests after independent acceptance"
+          ],
+          "rule": "Archive and identify current working-tree source; no staging/reset/overwriting existing lock changes; record full source manifest before build.",
+          "four_model_repair_source_sha256": {
+            "api/models/model_extend.py": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190",
+            "api/tests/unit_tests/models/test_model_extend_uuid_defaults.py": "ca89fd7377bf776f5e3da3caa2b617f70179acd06c27c91fad02040dd0f1feb0"
+          },
+          "complete_archive_manifest": "evidence/N02/source-build-manifest.json",
+          "complete_archive_manifest_sha256": "93e4e8e185bccddfc280732022064356debee7830886bf48ac712827883eba62",
+          "final_context_identity": {
+            "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+            "tracked_context_archive_sha256": "48e64b7c27b292308dd1a17bf1f503d5e6584a7241eed466198f62337ab914a2",
+            "context_manifest_sha256": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+            "file_count": 4314
+          },
+          "quota_upsert_source_sha256": {
+            "api/services/system_manage_extend.py": "9673831d9616cdc85b672dc07743eb1dff18f5499e6a000535080dd557e21588",
+            "api/tests/unit_tests/services/test_quota_manage_upsert_extend.py": "3d7a0d682f52bbc12fff859ab4c35b7a753d7eadbc3d4dcd68d23a7b1bdab32d",
+            "api/tests/unit_tests/controllers/console/test_system_manage_extend.py": "8fc9fd897e8950a7126968731f27539271761a933c5a3f816e7b99ad1af6c6fb"
+          },
+          "quota_upsert_independent_review": "evidence/N04/independent-quota-upsert-source-review.json",
+          "quota_upsert_targeted_tests": 27,
+          "archive_overlay_count": 12
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N03",
@@ -918,7 +1135,107 @@
           "web_reuse_rule": "N02 verifies all trackedfrontend/lock unchanged since970bacceptedsource; running unchangedfullWebimage exactIDrecorded",
           "remaining": "N01 realappcenterscene; N04 actualORM/KB/taskdelivery; N05fullbusiness; N06restore/original23000"
         }
-      }
+      },
+      "dependencies": [
+        "N02"
+      ],
+      "current_checkpoint_fields": {
+        "configuration_checkpoint": {
+          "status": "passed_source_locked_canonical_runtime_readiness; localhostIPv6/nginxactualready; latestN07advance_pending",
+          "runtime_plan": "evidence/local-acceptance-runtime-2026-09-30/runtime-plan.json",
+          "overlay": "evidence/local-acceptance-runtime-2026-09-30/compose.acceptance.override.yaml",
+          "overlay_sha256": "3f59f4cb58db83ac1c388c03f22f487aad0ea7da7c426beaa592841a1f31ef18",
+          "config_evidence": "evidence/local-acceptance-runtime-2026-09-30/config-validation-summary.json",
+          "project": "difyplus-acceptance-20260930",
+          "host": "localhost",
+          "middleware_authorization": "parent explicitly authorized runtime owner to start only new project middleware before API image readiness",
+          "secret_values_recorded": false,
+          "rule": "Do not accept N03 from this config validation; actual final image/source/runtime required.",
+          "middleware_report": {
+            "reporter": "runtime_acceptance",
+            "date": "2026-09-30",
+            "services_started": [
+              "db_postgres",
+              "db_mysql",
+              "redis",
+              "qdrant",
+              "sandbox",
+              "ssrf_proxy"
+            ],
+            "versions": {
+              "postgres": "15.12",
+              "mysql": "8.0.46",
+              "redis": "6.2",
+              "qdrant": "v1.8.3"
+            },
+            "health": "PG/MySQL/Redis/Qdrant/sandbox healthy; ssrf_proxy running",
+            "empty_database_guards": "PG0applicationtables; newMySQL schema0tables",
+            "host_ports_published": false,
+            "volumes": "independent new project named volumes",
+            "pending": [],
+            "not_started": [
+              "init_permissions",
+              "init_secret_key",
+              "migration",
+              "migration_mysql",
+              "api",
+              "api_websocket",
+              "web",
+              "plugin_daemon",
+              "worker",
+              "worker-gaia",
+              "worker-dataset",
+              "nginx"
+            ],
+            "private_env_path": "/private/tmp/difyplus-acceptance-api-20260930/acceptance.private.env",
+            "private_env_mode": "0600",
+            "secret_values_read_or_recorded": false
+          },
+          "bind_host": "::1",
+          "host_bind_failure": {
+            "observed": "127.0.0.2 unavailable; localhost only::1 soIPv4bind would fail",
+            "fix": "external localhost with [::1]bindings; runtimeDockerIPv6localhostHTTP200probe passed; noOSalias",
+            "evidence": "evidence/local-acceptance-runtime-2026-09-30/runtime-plan.json"
+          },
+          "nginx_local_adaptation": {
+            "observed": "nginx1.27-alpine has no/bin/bash; shebang exec of copied fork entrypoint failed not found",
+            "change": "same copy/sed/chmod sequence invokes sh explicitly; script static POSIX syntax reviewed",
+            "scope": "acceptance override only; base deployment and product source unchanged",
+            "actual_runtime_result": "pending runtime retry"
+          }
+        },
+        "image_build_checkpoint": {
+          "status": "passed_canonicalbuild_and_actual_runtime_readiness_for3c632717; latestN07advance_pending",
+          "candidate_tag": "difyplus-acceptance-api:953cf1c-uuid-quota-3c632717",
+          "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+          "manifest": "evidence/N02/source-build-manifest.json",
+          "recipe": "evidence/N03/Dockerfile.seeded.txt",
+          "independent_static_review": "evidence/N03/independent-seed-provenance-review.json",
+          "standard_recipe_release_reproducibility": "canonical_repository_Dockerfile_build_passed; private_registry_supply_separate",
+          "reported_checks": {
+            "production_overlay_hashes": "7of7matched;5testpathsDockerignored as expected",
+            "installed_packages": 411,
+            "locked_version_mismatches": 0,
+            "extra_installed_packages": 0,
+            "dify_agent": "current /app/dify-agent noneditable",
+            "runtime_verification_owner": "runtime_acceptance",
+            "durable_provenance_result": "evidence/N03/canonical-image-verification.json"
+          },
+          "canonical_runtime_verification": "evidence/N03/canonical-image-verification.json",
+          "auxiliary_seed_only": {
+            "manifest": "evidence/N03/seed-build-manifest.json",
+            "recipe": "evidence/N03/Dockerfile.seeded.txt",
+            "source_review": "evidence/N03/independent-seed-provenance-review.json"
+          }
+        },
+        "runtime_acceptance_checkpoint": {
+          "status": "passed_full_image_runtime_readiness_only",
+          "evidence": "evidence/N03/runtime-readiness-2026-09-30.json",
+          "web_reuse_rule": "N02 verifies all trackedfrontend/lock unchanged since970bacceptedsource; running unchangedfullWebimage exactIDrecorded",
+          "remaining": "N01 realappcenterscene; N04 actualORM/KB/taskdelivery; N05fullbusiness; N06restore/original23000"
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N04",
@@ -955,7 +1272,12 @@
           "external_boundary": "High-quality embedding/SSO/oldvectorupgrade separate; Economy keyword not high-quality-vector claim",
           "model_plugin_component_operation_identity": "passed actual originalHEAD445d normal published-model component45tokens/0USD and exactsame-tenant daemoninstallation identity; nonzero fullapp/account/key billing not claimed"
         }
-      }
+      },
+      "dependencies": [
+        "N03"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N05",
@@ -993,7 +1315,34 @@
           "conditions": "evidence/external-conditions-2026-09-30.json",
           "boundary": "Prior local subset passed; existing original provider permits B05/B11 plus separately authorized bounded B09 active-stop subcheck. All three current local subchecks pending until actual independent proof; whole N05 also retains9 external requirements."
         }
-      }
+      },
+      "dependencies": [
+        "N03",
+        "N04",
+        "N01",
+        "N07",
+        "N08",
+        "N09",
+        "N10"
+      ],
+      "current_checkpoint_fields": {
+        "local_matrix_checkpoint": {
+          "status": "pending_full_O02_generated_agent_acceptance",
+          "required_local_missing": 1,
+          "ledger": "acceptance-ledger-state-2026-09-30.json",
+          "scene_counts": {
+            "passed": 16,
+            "partial-current-proof": 7,
+            "pending": 1,
+            "deferred": 4,
+            "production-not-authorized": 1
+          },
+          "external_required_missing": 8,
+          "conditions": "evidence/external-conditions-2026-09-30.json",
+          "boundary": "B05/B11 actual original-provider matrix and linked-memory acceptance passed; B09 stop/completed-node usage subcheck passed with partial-provider usage unknown. O02 full generated Agent/tool/memory/compaction remains local pending. Whole N05 also retains8 external requirements."
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N06",
@@ -1043,7 +1392,40 @@
           ],
           "boundary": "Currentfreshrestore/wholelocalhandoff passed; N05external11 and originalV06 priorversion/production distinct."
         }
-      }
+      },
+      "dependencies": [
+        "N05",
+        "N07",
+        "N08",
+        "N09",
+        "N10"
+      ],
+      "current_checkpoint_fields": {
+        "local_snapshot_restore_checkpoint": {
+          "status": "passed_consistent_snapshot_two_independent_clones_and_API_readback",
+          "evidence": "evidence/N06/runtime-snapshot-restore-2026-09-30.json",
+          "latest_source_advance_boundary": "N09 no schema/data changes; latest image selected health/readback remains before wholeN06 closure",
+          "latest_candidate_binding": {
+            "status": "passed",
+            "evidence": "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json"
+          }
+        },
+        "latest_original_component_deployment_checkpoint": {
+          "status": "passed",
+          "evidence": "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+          "boundary": "source/runtime/componentsuccess only; currentUIcondition remains"
+        },
+        "local_delivery_checkpoint": {
+          "status": "passed",
+          "evidence": [
+            "evidence/N06/latest-head-restore-clone-readback-2026-09-30.json",
+            "evidence/N06/latest-ui-2026-09-30.json",
+            "evidence/R02/result.json"
+          ],
+          "boundary": "Original center latest UI/current snapshot restore/code-ready delivery passed; N05 now has two executable generation/retention checks and nine external conditions; legacy/production independent."
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N07",
@@ -1081,7 +1463,12 @@
             "manifest": "evidence/apikey-numeric-regression/source.sha256"
           }
         }
-      }
+      },
+      "dependencies": [
+        "N03"
+      ],
+      "current_checkpoint_fields": {},
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N08",
@@ -1132,7 +1519,34 @@
           "status": "passed_latest_fullimage_11scope_cases_and_original23000_final_delivery",
           "evidence": "evidence/N08/runtime-passport-scope-2026-09-30.json"
         }
-      }
+      },
+      "dependencies": [
+        "N07"
+      ],
+      "current_checkpoint_fields": {
+        "source_checkpoint": {
+          "status": "independent_source_review_and78_targeted_tests_passed",
+          "owned_source_sha256": {
+            "api/controllers/web/wraps.py": "96830ac4c86f7a630412b6586d601bfed9a2fed57b5623a5b86c057b41241f30",
+            "api/tests/unit_tests/controllers/web/test_webapp_passport_scope_extend.py": "6170851117e29b09be05450e49ff184c14ec513f5b5462087479522696ecb3ec"
+          },
+          "evidence": "evidence/N08/independent-source-review.json",
+          "tests": "evidence/app-web-auth-regression/targeted-tests.log"
+        },
+        "candidate_checkpoint": {
+          "status": "independent_complete_source_inventory_and_canonical_fullimage_passed",
+          "source_context": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6",
+          "file_count": 4317,
+          "overlay_count": 17,
+          "image": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+          "review": "evidence/N08/independent-manifest-review.json"
+        },
+        "runtime_checkpoint": {
+          "status": "passed_latest_fullimage_11scope_cases_and_original23000_final_delivery",
+          "evidence": "evidence/N08/runtime-passport-scope-2026-09-30.json"
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N09",
@@ -1192,7 +1606,43 @@
           "review": "evidence/N06/independent-final-delivery-restore-review.json",
           "latest_UI": "blocked_desktop_condition recordedN06, not part of this sourceadvance component checkpoint"
         }
-      }
+      },
+      "dependencies": [
+        "N08"
+      ],
+      "current_checkpoint_fields": {
+        "source_checkpoint": {
+          "status": "independent_source_review_and80_focused_tests_passed",
+          "owned_source_sha256": {
+            "api/services/recommended_app_service_extend.py": "a218fb7c088b296e70248b01bd96913b1978fae9622a61d6de5ff31b96517bee",
+            "api/tests/unit_tests/services/test_context_uuid_scope_extend.py": "7efc45c601150b2643ea734f472e1860fb7f81f6f9f21fb2249c6ecb04da7653"
+          },
+          "evidence": "evidence/N09/independent-source-review.json"
+        },
+        "dual_engine_checkpoint": {
+          "status": "passed_preN10_fullimage_scoped_transactions_only",
+          "evidence": "evidence/context-uuid-regression/dual-engine-n09-fullimage-results.json",
+          "boundary": "Final bundled same-resource positive HTTP/foreign GET DELETE and original23000 latest candidate remain pending."
+        },
+        "latest_http_checkpoint": {
+          "status": "passed",
+          "evidence": "evidence/context-uuid-regression/latest-head-runtime-http-results.json",
+          "candidate_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+          "boundary": "10/10 actual HTTP chain and actor restoration; original23000 latest candidate delivery pending."
+        },
+        "cleanup_checkpoint": {
+          "status": "passed_scoped_synthetic_fixture_cleanup",
+          "evidence": "evidence/context-uuid-regression/cleanup-final-handoff.json",
+          "review": "evidence/N09/cleanup-independent-review.json"
+        },
+        "original_deployment_checkpoint": {
+          "status": "passed_actual_service_source_component_boundary",
+          "evidence": "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+          "review": "evidence/N06/independent-final-delivery-restore-review.json",
+          "latest_UI": "blocked_desktop_condition recordedN06, not part of this sourceadvance component checkpoint"
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     },
     {
       "id": "N10",
@@ -1263,7 +1713,53 @@
           "review": "evidence/N06/independent-final-delivery-restore-review.json",
           "latest_UI": "blocked_desktop_condition recordedN06, not part of this sourceadvance component checkpoint"
         }
-      }
+      },
+      "dependencies": [
+        "N09"
+      ],
+      "current_checkpoint_fields": {
+        "source_checkpoint": {
+          "status": "independent_source_review_passed_frozen56_paths",
+          "evidence": "evidence/N10/independent-source-review.json",
+          "source_manifest_sha256": "f048fee1dabe9db512cabc19b1878ce533e191dcb2e065d4ed1fc7e1e2fdc449",
+          "candidate_uvlock_sha256": "3d1b58d109585d9498e757734a7fef6a24fa972c8b17128ce12e4019331f7dbc",
+          "HEAD_lock_staging_required": false
+        },
+        "full_image_checkpoint": {
+          "status": "actual_default_install_contracts_and_isolated_QdrantCRUD_passed_affected_deployment_pending",
+          "evidence": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+          "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+          "source_context_sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+          "proof": [
+            "47 productionpath hashes match",
+            "449 installedversions equal dirtycandidate",
+            "38 provider distributions",
+            "32 actual entrypoint loads",
+            "8 trace imports"
+          ],
+          "boundary": "All scoped completeimage contracts passed; final API/original23000 deployment and sourcecommitbinding pending. Archivebase distinguished."
+        },
+        "canonical_image_checkpoint": {
+          "status": "passed",
+          "evidence": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+          "independent_review": "evidence/N10/independent-full-image-runtime-review.json",
+          "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+          "accepted": "47source/lockhash;38dist/32entryload/8traceimport;449versions parity;actualQdrant CRUD cleanup"
+        },
+        "isolated_runtime_checkpoint": {
+          "status": "passed",
+          "evidence": "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+          "accepted": "Six actual services same445d running/restarts0/OOMfalse/health200/workerqueue startup;actualAgentJWE200 schema/scope matches and generic403",
+          "boundary": "Remoteactivequeuesinspect timeout recorded; do not claim that command succeeded. Actual startup/queue delivery proof independent."
+        },
+        "original_deployment_checkpoint": {
+          "status": "passed_actual_service_source_component_boundary",
+          "evidence": "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+          "review": "evidence/N06/independent-final-delivery-restore-review.json",
+          "latest_UI": "blocked_desktop_condition recordedN06, not part of this sourceadvance component checkpoint"
+        }
+      },
+      "historical_source_commands_are_not_current_runtime_acceptance": true
     }
   ],
   "current_scene_counts": {
@@ -1273,22 +1769,9 @@
     "deferred": 4,
     "production-not-authorized": 1
   },
-  "current_local_missing": {
-    "local_missing_subcheck_count": 1,
-    "local_missing": [
-      "O02.generated_agent_run_tool_call_memory_compaction"
-    ],
-    "external_missing_subcheck_count": 8,
-    "external_only_scenes": [
-      "B01",
-      "B03",
-      "B07",
-      "B08",
-      "B09",
-      "F04",
-      "D05"
-    ]
-  },
+  "current_local_missing": [
+    "O02.generated_agent_run_tool_call_memory_compaction"
+  ],
   "external_conditions": [
     {
       "scenes": [
@@ -1332,16 +1815,13 @@
     "Explicit target maintenancewindow/operator/changeauthorization, live target immutable images, recoverableconsistent backups and ingress/writefreeze, single migrationexecutor, rollbackcriteria/RTO/RPO and timed observation thresholds"
   ],
   "release_deliverables_remaining": [
-    "Final resumed generation-acceptance safe evidence/precise fixture cleanup and exact docs-only commit, source/tag unchanged",
-    "R02 whole release acceptance retains external/oldinstall/production gates; code-ready tag is not final production signoff"
+    "Exact3owned fixture cleanup awaits human authorization; queue/residue evidence preserved.",
+    "Whole R02 depends on V06 prior-version restore; code-ready tag/docs delivered, not production signoff."
   ],
-  "completion_claim": "Incomplete whole merge: B05/B11/B09 selected subchecks passed; complete O02 Agent generatedtool/memory/compaction localpending, cleanupapprovalblocked, external8/7scenes and oldinstall/production unverified.",
+  "completion_claim": "Not complete:38 original/additional nodes reviewed at declared scope; current source/runtime milestones do not replace whole business, prior-version upgrade/restore or production requirements.",
   "enabled_scope_correction": "O02 onceoff disabled passed remains; selected shared collab true requires separate local realenabled checks. Agentmetadata/files and noLLMHumanInput actual passed; modelgeneration not inferred.",
   "external_conditions_evidence": "evidence/external-conditions-2026-09-30.json",
-  "remaining_executable_actions": [
-    "O02 no-model effective original Agent topology/tool capability/request composition audit and reversible internal sidecar preparation proposal (no Agent model call authorized)",
-    "Exact owned factualdocs/proofs commit with committed release archive validation; user worktree lock excluded"
-  ],
+  "remaining_executable_actions": [],
   "unverified_conditions": {
     "external_required": 8,
     "external_detail": "evidence/external-conditions-2026-09-30.json",
@@ -1357,13 +1837,16 @@
   },
   "safe_remaining_action_audit": {
     "current_local_required_missing": 1,
-    "provider_or_price_mutation": "Not authorized to fabricate/copy/configure unknownisolatedcredentials/positiveprices; user reply unavailable",
+    "provider_or_price_mutation": "Actual exactTenant enabled DeepSeekcatalog2LLM, bothwindow1m; explicitdefault1/publishedoneLLM differ. Activeembedding0. Catalogpricingfieldnotexposed, notzero-price proof. No othervalidprovider/hostingenabled or active smallerwindow observed, no credentialvalidation/invoke/writes.",
     "latest_original_UI": "Actualfreshcenter/open/returnpassed, no currentUI blocker",
     "old_install": "Matching priorversion data/snapshots unavailable; fresh/currentclone cannot substitute",
     "production": "No authorizedproductioninventory/window/executor/thresholds/signoff; no push/deploy",
     "source_or_runtime_bug_pending": false,
     "original_existing_provider_branch": "Actual B05 twelvecells/identity/admission80outputs, B11 generated truechain/Memory and B09 stoppedcompleted46usage passed; original configurations/protected App state preserved. Exact cleanup separately approvalblocked.",
-    "Agent_topology_budget": "Runtime effective original backend/tool capability boolean pending; reversible private sidecars no-model preparation may be feasible. Actual runner500/defaultSDKretry1 means proposed2calls not enforced; no Agent model call currently authorized."
+    "Agent_topology_budget": "5services internal ready/hostmapping0; exact access join/recreate auto-review rejected, approval pending. v2real24nonmodel bool/SSE accepted;2APIforward slots notvendorretry/tool limits. Proposedcap8/window1m formula target800k + >20 safe genuinehistory; no activeAgent/realcompaction. This O02 package0model/Agent/upload.",
+    "final_documentation_checkpoint": "a676 exact15docs/proof/instrument commit and actualarchive refs0/strict0. B05/B11/B09 scene descriptions synchronized to already accepted actual proofs; no new acceptance.",
+    "active_catalog_evidence": "evidence/original-generation-runtime/independent-active-model-catalog-review.json",
+    "remaining_safe_runtime_actions_without_human_authorization_or_new_configuration": 0
   },
   "historical_original_UI_condition": "Desktop locked; latest445d browserrefresh/display/open unverified; historicalN08 visible/open and latest445d component not UI proof.",
   "latest_original_UI_checkpoint": {
@@ -1373,7 +1856,8 @@
   "release_deliverables_completed": [
     "N09/N10 canonical HEAD842 lock445d source/image/runtime/original delivery",
     "Sourceee72 + cleanrefrepair e91 nonoverwrite annotatedfork-merged-1.17.1; resultdocsbdef2/latestUIdocs0585",
-    "Safe operating runbook and snapshotclone original-to-current mapping with explicit historical/production boundaries"
+    "Safe operating runbook and snapshotclone original-to-current mapping with explicit historical/production boundaries",
+    "O02 readiness0d3ea and strictbool v2/nonmodel24/deployedSDK+schema a676: actualcommitted archive refs/strict passed;source55/HEAD842/tag unchanged"
   ],
   "cleanup_gate": {
     "status": "blocked-approval",
@@ -1403,7 +1887,26 @@
     "required_human_action": "authorize exact sidecarAPI join existingshared accessnetwork and recreate; no bypass"
   },
   "current_approval_blocks": [
-    "exact3generationfixture associated cleanup auto-review rejection; human authorization pending",
-    "exactsidecarAPI sharedaccessnetwork join/recreate auto-review rejection; human authorization pending"
-  ]
+    "Exact3generationfixture associated cleanup rejected; explicit human approval pending,0consumer/direct cleanup/queuepurge",
+    "ExactsidecarAPI existing sharedaccessnetwork join/recreate rejected; explicit human approval pending,0join/recreate/bypass"
+  ],
+  "reviewed_at_utc": "2026-09-30T17:29:18.624785+00:00",
+  "timezone": "Asia/Shanghai",
+  "final_authoritative_current_business_proofs": {
+    "B05": "16sealed HTTP6reject/10success80actualoutput;12uniqueauthcells/9positive;deniedcells0records;EndUser identity proved.",
+    "B11": "Correctparent3->4->5 twoactual8tokenresponses,5markersConsoleGET200,Memoryfalse6/true0;initialNULLparent/unobservedproviderprompt retained.",
+    "B09": "Stopped plus completedfirst38+8=46 retained;secondusageUNKNOWN;resume/retry/nonzerocharge unpassed.",
+    "O02": "Readiness/instrument/deployed-source/schema only;generatedtool/compaction pending."
+  },
+  "remaining_documentation_checkpoint": "Current exact factualdocs final projection/catalog/38node review only; no new runtime activity",
+  "current_terminal_assessment": {
+    "whole_goal_complete": false,
+    "all_local_scenarios_passed": false,
+    "unverified_local_required": 1,
+    "external_required": 8,
+    "legacy_or_production_conditions_remain": true,
+    "safe_runtime_actions_without_new_inputs": 0,
+    "impasse_basis": "Two exact denied actions require unanswered human authorization; actualactivecatalog contains no observed existing smallwindow/embedding/positivebilling proof. Nonzero financial, enabledOAuth/SMTP, actualpriorversion/production requirements require concrete userconfiguration/environment/budget. No repeated runtime probes or unsafe workaround is necessary. Root owns goal status decision.",
+    "current_source_and_release": "Source55 frozen/e91 tag andHEAD842 image445d binding remain; current worktree userlock/Casdoor/SSRF changes excluded."
+  }
 }

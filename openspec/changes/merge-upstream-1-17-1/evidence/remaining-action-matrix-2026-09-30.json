@@ -9,7 +9,7 @@
       "id": "O02.no_model_original_provider_sidecar_preparation",
       "status": "blocked_approval_for_exact_shared_access_network_join",
       "executor": "runtime_acceptance static Compose plan; merge_audit contract review; root dispatch",
-      "next_action": "Human exact authorization for sidecarAPI joining existing difyplus-quota-selftest-access and recreate; no workaround. Container-localhealth200 only, publishedhosthealth/owner gate unpassed; continue publicSDK/schema no-modelread analysis",
+      "next_action": "Exact shared-network human authorization -> actual host/owner gate; SDK/schema/activecatalog/instrument no-model review is complete. No unapproved network/host/relay/internal-owner workaround.",
       "evidence": "evidence/original-generation-runtime/independent-o02-network-mode-review.json"
     },
     {
@@ -94,5 +94,7 @@
       "executor": "production singleexecutor after specific authorization/window/thresholds/signoff",
       "next_action": "Do not push or deploy automatically"
     }
-  ]
+  ],
+  "active_model_catalog_evidence": "evidence/original-generation-runtime/independent-active-model-catalog-review.json",
+  "safe_runtime_actions_without_new_authorization_or_configuration": 0
 }

@@ -1,0 +1,50 @@
+{
+  "captured_at_utc": "2026-09-30T17:32:46Z",
+  "runtime": {
+    "container": "difyplus-upstream1171-quota-selftest-20260930-api-1",
+    "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "deployment_edition": "COMMUNITY"
+  },
+  "source_contract": {
+    "service_method": "ModelProviderService.get_models_by_provider",
+    "provider_scope_only": "langgenius/deepseek/deepseek",
+    "enabled_hosting_provider_count": 0,
+    "custom_model_record_count": 0,
+    "custom_model_credential_record_count": 0,
+    "credential_validation_called": false,
+    "model_invoke_called": false,
+    "pricing_response_field_exposed": false,
+    "pricing_boundary": "The provider model list does not expose pricing; false means absent from this response, not zero price or proof that no pricing exists elsewhere."
+  },
+  "preflight": {
+    "valid_provider_record_count": 1,
+    "valid_target_provider_record_count": 1,
+    "database_write_risk": "The only get_configurations write branch initializes hosted trial provider rows; COMMUNITY hosting map has zero enabled providers, so that branch did not execute."
+  },
+  "catalog": {
+    "active_model_count": 2,
+    "active_llm_count": 2,
+    "active_embedding_count": 0,
+    "models": [
+      {
+        "provider": "langgenius/deepseek/deepseek",
+        "model": "deepseek-flash",
+        "model_type": "llm",
+        "status": "active",
+        "context_size": 1000000,
+        "price_metadata_present": false,
+        "pricing_field_exposed_by_model_list": false
+      },
+      {
+        "provider": "langgenius/deepseek/deepseek",
+        "model": "deepseek-v4-flash",
+        "model_type": "llm",
+        "status": "active",
+        "context_size": 1000000,
+        "price_metadata_present": false,
+        "pricing_field_exposed_by_model_list": false
+      }
+    ]
+  },
+  "scope_note": "Active status is the ModelProviderService catalog status derived from existing provider configuration and model settings. No credential validation, model invocation, model/provider configuration write, or other-provider model result was requested or recorded."
+}
