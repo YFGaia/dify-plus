@@ -21,13 +21,15 @@ depends_on = None
 
 def upgrade():
     conn = op.get_bind()
+    # MySQL requires an expression default; keep PostgreSQL UUIDv4 generation unchanged.
+    uuid_default = sa.text("(UUID())") if conn.dialect.name == "mysql" else sa.text("uuid_generate_v4()")
     inspector = Inspector.from_engine(conn)
     tables = inspector.get_table_names()
 
     if "app_extend" not in tables:
         op.create_table(
             "app_extend",
-            sa.Column("id", types.StringUUID(), server_default=sa.text("uuid_generate_v4()"), nullable=False),
+            sa.Column("id", types.StringUUID(), server_default=uuid_default, nullable=False),
             sa.Column("app_id", types.StringUUID(), nullable=False),
             sa.Column("retention_number", sa.Integer(), nullable=True),
             sa.PrimaryKeyConstraint("id", name="app_extend_joins_pkey"),

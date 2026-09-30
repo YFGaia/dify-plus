@@ -39,10 +39,11 @@ def upgrade():
     if "recommended_category_extend" not in tables or "recommended_apps_category_join_extend" not in tables:
         return
 
+    category_column = conn.dialect.identifier_preparer.quote_identifier("table")
     rows = conn.execute(
         sa.text(
-            """
-            SELECT j.recommended_id AS recommended_id, c."table" AS category
+            f"""
+            SELECT j.recommended_id AS recommended_id, c.{category_column} AS category
             FROM recommended_apps_category_join_extend j
             JOIN recommended_category_extend c ON c.id = j.category_id
             """

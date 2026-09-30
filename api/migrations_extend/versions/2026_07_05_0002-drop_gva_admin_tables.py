@@ -76,9 +76,11 @@ GVA_TABLES_TO_DROP: list[str] = [
 
 def upgrade():
     conn = op.get_bind()
+    quote = conn.dialect.identifier_preparer.quote_identifier
+    cascade = "" if conn.dialect.name == "mysql" else " CASCADE"
     for table in GVA_TABLES_TO_DROP:
         # IF EXISTS：全新部署从未运行过 GVA，表不存在属正常
-        conn.execute(sa.text(f'DROP TABLE IF EXISTS "{table}" CASCADE'))
+        conn.execute(sa.text(f"DROP TABLE IF EXISTS {quote(table)}{cascade}"))
 
 
 def downgrade():

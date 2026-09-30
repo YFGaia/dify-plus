@@ -24,13 +24,15 @@ depends_on = None
 
 def upgrade():
     conn = op.get_bind()
+    # MySQL requires an expression default; keep PostgreSQL UUIDv4 generation unchanged.
+    uuid_default = sa.text("(UUID())") if conn.dialect.name == "mysql" else sa.text("uuid_generate_v4()")
     inspector = Inspector.from_engine(conn)
     tables = inspector.get_table_names()
 
     if "code_execution_control_extend" not in tables:
         op.create_table(
             "code_execution_control_extend",
-            sa.Column("id", types.StringUUID(), server_default=sa.text("uuid_generate_v4()"), nullable=False),
+            sa.Column("id", types.StringUUID(), server_default=uuid_default, nullable=False),
             sa.Column("email", sa.String(255), nullable=False),
             sa.Column("created_by", types.StringUUID(), nullable=True),
             sa.Column("created_at", sa.DateTime(), server_default=sa.text("CURRENT_TIMESTAMP(0)"), nullable=False),

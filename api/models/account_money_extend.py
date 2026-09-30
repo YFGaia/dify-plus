@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from extensions.ext_database import db
 
 from .types import StringUUID
@@ -10,7 +12,7 @@ class AccountMoneyExtend(db.Model):
         db.UniqueConstraint("account_id", name="idx_account_money_account_id_unique"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     account_id = db.Column(StringUUID, nullable=False)
     total_quota = db.Column(db.Numeric(16, 7))
     used_quota = db.Column(db.Numeric(16, 7))
@@ -26,7 +28,7 @@ class AccountLayoverRecordExtend(db.Model):
         db.Index("idx_account_layover_record_forwarding_id", "forwarding_id"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     account_id = db.Column(StringUUID, nullable=False)
     forwarding_id = db.Column(StringUUID, nullable=False)
     money = db.Column(db.Numeric(16, 7))

@@ -1,0 +1,5 @@
+result=SUPPLEMENTARY_PASS_NOT_OMITTED_ID_ACCEPTANCE
+engine=MySQL 8.0.46
+check=synthetic ORM insert/read with explicit synthetic UUID primary keys; transaction rolled back
+account_money_extend.id=1a359d12-d614-4067-9033-d0014bc9aca6
+api_token_money_extend.id=d7c6c9ca-7d71-480b-9f3c-b9e0e8891e9f

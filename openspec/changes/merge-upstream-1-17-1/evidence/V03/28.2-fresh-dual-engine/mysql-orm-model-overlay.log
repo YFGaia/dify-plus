@@ -1,0 +1,36 @@
+time="2026-09-30T14:46:27+08:00" level=warning msg="The \"CERTBOT_EMAIL\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T14:46:27+08:00" level=warning msg="The \"CERTBOT_DOMAIN\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T14:46:27+08:00" level=warning msg="The \"SECRET_KEY\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T14:46:27+08:00" level=warning msg="Found orphan containers ([difyplus-verify-mysql-20260930-migration-run-c85f54cf2539 difyplus-verify-mysql-20260930-migration-run-4e8b081c4875 difyplus-verify-mysql-20260930-migration-corrected difyplus-verify-mysql-20260930-migration]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/etl_core/trans_comp/trans_json.py:76: SyntaxWarning: invalid escape sequence '\.'
+  :param include_path: path to expand and include. regex string to match from begin. using '|' for multiple ones. default is all. e.g. r"data\.k1", all sub-keys in data.k1 will be included.
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:128: SyntaxWarning: invalid escape sequence '\*'
+  :param file_pattern: the log file name pattern, e.g \*.LOG , access.log
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:463: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:542: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:627: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:723: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:815: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:901: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logger_hanlder.py:230: SyntaxWarning: invalid escape sequence '\s'
+  p2 = u'(?!{0})([\u4e00-\u9fa5\u0800-\u4e00\\w\\.\\-]+)\\s*{0}\\s*"\s*([^"]+?)\s*"'
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+SYNTHETIC_ORM_INSERT_READ_OK account_money_extend.id=7d48085d-9847-4ac0-99fb-d4507a68607e api_token_money_extend.id=3dfbe613-d2de-41c9-aa60-11a4dac100c5; quota fields round-tripped
+orm_exit=0

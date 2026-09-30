@@ -1,0 +1,6 @@
+result=FAIL
+engine=MySQL 8.0.46
+check=synthetic ORM insert with id omitted, matching application constructor behavior
+exception=sqlalchemy.orm.exc.FlushError: Instance ApiTokenMoneyExtend has a NULL identity key
+transaction=rollback in finally; no synthetic row persisted
+interpretation=source model declares server_default uuid_generate_v4(), while MySQL DDL uses UUID(); MySQL DB default itself separately tested in mysql-synthetic-defaults.txt; do not count omitted-ID ORM acceptance until model overlay rerun

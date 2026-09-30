@@ -1,0 +1,15 @@
+engine=MySQL 8.0.46 linux/arm64
+project=difyplus-verify-mysql-20260930
+versions_manifest_sha256=ccd43abd29650fa05543d3a367a83b1f20a7d44c0e54452e77f4f20e67cb51d7
+api_image_id=sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b
+mysql_image_id=sha256:b7e118f56c5963e079252e0d6e2978c9c010eb7fc7aaaec100e367796b5dd08f
+schema_overlay=20 .py files only, read-only mount at /app/api/migrations_extend/versions
+first_attempt=pre-DDL harness authentication failure 1045; readonly table count was 0; migration synthetic password empty while DB root password nonempty; equality booleans retained, no DDL
+recovery=temporary mode-0600 synthetic Compose env and overlay aligned migration DB password; standard migration run once after corrected auth
+base_head=c3f1a9b2e6d4
+extension_head=020_workflow_run_account
+migration_result=PASS
+uuid_defaults_readback=17 extension id columns; uuid() defaults observed except sequence-backed system_integration_extend.id
+mysql_orm_omitted_id=FAIL; SQLAlchemy FlushError ApiTokenMoneyExtend NULL identity key; failed transaction rolled back; do not count ORM as passed
+mysql_orm_explicit_ids=supplementary PASS only; synthetic quota values round-tripped and transaction rolled back; not acceptance for omitted-ID semantics
+server_uuid_defaults=PASS; separate two-row synthetic SQL insert/select/ROLLBACK returned server-generated IDs; results in mysql-synthetic-defaults.txt

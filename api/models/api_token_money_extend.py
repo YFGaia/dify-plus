@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from extensions.ext_database import db
 
 from .types import StringUUID
@@ -10,7 +12,7 @@ class ApiTokenMoneyExtend(db.Model):
         db.Index("api_tokens_money_app_token_id_idx", "app_token_id"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     app_token_id = db.Column(StringUUID, nullable=True)  # 密钥ID
     accumulated_quota = db.Column(db.Numeric(16, 7))  # 已使用额度（累计不归零）
     day_used_quota = db.Column(db.Numeric(16, 7))  # 当天使用额度（定时脚本每日更新）
@@ -31,7 +33,7 @@ class ApiTokenMoneyDailyStatExtend(db.Model):
         db.Index("idx_api_token_money_daily_stat_app_token_id", "app_token_id"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     app_token_id = db.Column(StringUUID, nullable=False)
     accumulated_quota = db.Column(db.Numeric(16, 7))  # 已使用额度（累计不归零）
     day_used_quota = db.Column(db.Numeric(16, 7))  # 当天使用额度（定时脚本每日更新）
@@ -49,7 +51,7 @@ class ApiTokenMoneyMonthlyStatExtend(db.Model):
         db.Index("idx_api_token_money_monthly_stat_app_token_id", "app_token_id"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     app_token_id = db.Column(StringUUID, nullable=False)
     accumulated_quota = db.Column(db.Numeric(16, 7))  # 已使用额度（累计不归零）
     month_used_quota = db.Column(db.Numeric(16, 7))  # 当月使用额度（定时脚本每月更新）
@@ -68,7 +70,7 @@ class ApiTokenMessageJoinsExtend(db.Model):
         db.Index("api_token_message_joins_extend_record_id_idx", "record_id"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    id = db.Column(StringUUID, default=lambda: str(uuid4()), server_default=db.text("uuid_generate_v4()"))
     app_token_id = db.Column(StringUUID, nullable=True)  # 密钥ID
     record_id = db.Column(StringUUID, nullable=True)  # 关联记录ID
     app_mode = db.Column(db.String(255), nullable=True)  # 应用类型

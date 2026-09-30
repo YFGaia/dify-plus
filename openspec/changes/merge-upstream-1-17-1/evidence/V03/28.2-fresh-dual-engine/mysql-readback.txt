@@ -1,0 +1,21 @@
+base_head=c3f1a9b2e6d4
+extension_head=020_workflow_run_account
+server_version=8.0.46
+UUID id defaults for extension tables:
+account_layover_record_extend|uuid()
+account_money_extend|uuid()
+account_money_monthly_stat_extend|uuid()
+api_token_message_joins_extend|uuid()
+api_token_money_daily_stat_extend|uuid()
+api_token_money_extend|uuid()
+api_token_money_monthly_stat_extend|uuid()
+app_extend|uuid()
+app_statistics_extend|uuid()
+code_execution_control_extend|uuid()
+end_user_account_joins_extend|uuid()
+forwarding_address_extend|uuid()
+forwarding_extend|uuid()
+message_context_extend|uuid()
+model_sync_config_extend|uuid()
+system_integration_extend|NULL
+tenant_model_sync_extend|uuid()

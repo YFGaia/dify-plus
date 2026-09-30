@@ -1,0 +1,2 @@
+account_money_extend	f6717488-bc99-11f1-ae1c-d6bd1aaf7cde	f67169fb-bc99-11f1-ae1c-d6bd1aaf7cde	12.5000000	1.2500000
+api_token_money_extend	f6718ec8-bc99-11f1-ae1c-d6bd1aaf7cde	f67189e3-bc99-11f1-ae1c-d6bd1aaf7cde	2.0000000	5.0000000

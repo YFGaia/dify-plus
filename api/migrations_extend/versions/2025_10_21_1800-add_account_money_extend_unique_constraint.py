@@ -25,16 +25,32 @@ def upgrade():
 
     if "account_money_extend" in tables:
         # 首先删除重复数据，只保留每个account_id中updated_at最大的记录
-        conn.execute(
-            sa.text("""
+        if conn.dialect.name == "mysql":
+            # The windowed derived table avoids MySQL's target-table restriction.
+            # Match PostgreSQL DESC's NULL ordering; resolve timestamp ties by id.
+            deduplicate_sql = """
+                DELETE FROM account_money_extend
+                WHERE id IN (
+                    SELECT id FROM (
+                        SELECT id, ROW_NUMBER() OVER (
+                            PARTITION BY account_id
+                            ORDER BY (updated_at IS NULL) DESC, updated_at DESC, id DESC
+                        ) AS row_num
+                        FROM account_money_extend
+                    ) AS ranked
+                    WHERE row_num > 1
+                )
+            """
+        else:
+            deduplicate_sql = """
             DELETE FROM account_money_extend 
             WHERE id NOT IN (
                 SELECT DISTINCT ON (account_id) id 
                 FROM account_money_extend 
                 ORDER BY account_id, updated_at DESC
             )
-        """)
-        )
+            """
+        conn.execute(sa.text(deduplicate_sql))
 
         # 删除现有的普通索引
         with op.batch_alter_table("account_money_extend", schema=None) as batch_op:

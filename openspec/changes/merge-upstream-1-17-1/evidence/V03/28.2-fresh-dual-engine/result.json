@@ -1,0 +1,183 @@
+{
+  "result": "independent migration acceptance with read-only source overlays",
+  "as_of": "2026-09-30 Asia/Shanghai",
+  "scope": "Local candidate API image plus exact migration source overlay; follow-up ORM source overlay. This is not a rebuilt or published release image.",
+  "host": {
+    "docker_engine": "28.2.2",
+    "compose": "v2.36.2-desktop.1",
+    "architecture": "aarch64"
+  },
+  "candidate": {
+    "api_image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+    "api_image_platform": "linux/arm64",
+    "versions_manifest_sha256": "ccd43abd29650fa05543d3a367a83b1f20a7d44c0e54452e77f4f20e67cb51d7",
+    "versions_files": "20 sorted *.py files, frozen read-only"
+  },
+  "model_overlay": {
+    "manifest_sha256": "63a4819a6b316ddd4ad54b4a6edbe2de9db817c3a12616b263a7238ba5e81988",
+    "files": {
+      "account_money_extend.py": "15fc8540874015d21b4ecd2df6d5d5c815805bc0bcb7e7ce8d83f3506707c714",
+      "api_token_money_extend.py": "c4fbac65df991a52ab23bfe1c677034b9a70e47c8507e04128fa47663f60cc26"
+    },
+    "mounts": "two individual source files, read-only; API image unchanged"
+  },
+  "isolation": {
+    "postgres_project": "difyplus-verify-postgres-20260930",
+    "postgres_network": "difyplus-verify-postgres-20260930_default",
+    "postgres_network_internal": true,
+    "postgres_db_volume": "difyplus-verify-postgres-20260930_verify_pg_data",
+    "postgres_app_storage_volume": "difyplus-verify-postgres-20260930_verify_pg_app_storage",
+    "postgres_db_image_id": "sha256:df80e414108a5ca1912c6c4e5f83d43653ef2affd01f7a9b55993333f3caf162",
+    "mysql_project": "difyplus-verify-mysql-20260930",
+    "mysql_network": "difyplus-verify-mysql-20260930_default",
+    "mysql_network_internal": true,
+    "mysql_db_volume": "difyplus-verify-mysql-20260930_verify_mysql_data",
+    "mysql_app_storage_volume": "difyplus-verify-mysql-20260930_verify_mysql_app_storage",
+    "mysql_db_image_id": "sha256:b7e118f56c5963e079252e0d6e2978c9c010eb7fc7aaaec100e367796b5dd08f",
+    "database_published_ports": [],
+    "database_host_bind_mounts": [],
+    "api_migration_bind_mounts_read_only": true,
+    "db_containers_stopped": true,
+    "volumes_preserved": true
+  },
+  "migration": {
+    "postgres": {
+      "engine_version": "PostgreSQL 15.12",
+      "first_attempt": "setup failure: base chain reached c3f1a9b2e6d4; extension app startup failed because standard init_permissions/init_secret_key jobs were skipped. Not a source migration failure.",
+      "recovery": "standard init jobs on dedicated app-storage volume, generated key presence checked as boolean only; continued extension chain only, did not rerun base chain",
+      "exit_code": 0,
+      "base_head": "c3f1a9b2e6d4",
+      "extension_head": "020_workflow_run_account",
+      "extension_id_defaults": {
+        "account_layover_record_extend": "uuid_generate_v4()",
+        "account_money_extend": "uuid_generate_v4()",
+        "account_money_monthly_stat_extend": "uuid_generate_v4()",
+        "api_token_message_joins_extend": "uuid_generate_v4()",
+        "api_token_money_daily_stat_extend": "uuid_generate_v4()",
+        "api_token_money_extend": "uuid_generate_v4()",
+        "api_token_money_monthly_stat_extend": "uuid_generate_v4()",
+        "app_extend": "uuid_generate_v4()",
+        "app_statistics_extend": "uuid_generate_v4()",
+        "code_execution_control_extend": "uuid_generate_v4()",
+        "end_user_account_joins_extend": "uuid_generate_v4()",
+        "forwarding_address_extend": "uuid_generate_v4()",
+        "forwarding_extend": "uuid_generate_v4()",
+        "message_context_extend": "uuid_generate_v4()",
+        "model_sync_config_extend": "uuid_generate_v4()",
+        "system_integration_extend": "nextval('system_integration_extend_id_seq'::regclass)",
+        "tenant_model_sync_extend": "uuid_generate_v4()"
+      }
+    },
+    "mysql": {
+      "engine_version": "MySQL 8.0.46",
+      "first_attempt": "pre-DDL setup authentication failure 1045; read-only table count 0; migration password was blank while DB root password was nonblank.",
+      "recovery": "temporary mode-0600 local synthetic env and overlay aligned migration DB password; standard init jobs completed; standard migration ran once",
+      "exit_code": 0,
+      "base_head": "c3f1a9b2e6d4",
+      "extension_head": "020_workflow_run_account",
+      "extension_id_defaults": {
+        "account_layover_record_extend": "uuid()",
+        "account_money_extend": "uuid()",
+        "account_money_monthly_stat_extend": "uuid()",
+        "api_token_message_joins_extend": "uuid()",
+        "api_token_money_daily_stat_extend": "uuid()",
+        "api_token_money_extend": "uuid()",
+        "api_token_money_monthly_stat_extend": "uuid()",
+        "app_extend": "uuid()",
+        "app_statistics_extend": "uuid()",
+        "code_execution_control_extend": "uuid()",
+        "end_user_account_joins_extend": "uuid()",
+        "forwarding_address_extend": "uuid()",
+        "forwarding_extend": "uuid()",
+        "message_context_extend": "uuid()",
+        "model_sync_config_extend": "uuid()",
+        "system_integration_extend": "NULL",
+        "tenant_model_sync_extend": "uuid()"
+      }
+    }
+  },
+  "orm": {
+    "postgres_versions_only_overlay_omitted_id": {
+      "result": "PASS",
+      "account_money_extend_id": "18ece00f-a75c-4f9e-8f5c-e1b557ff2d32",
+      "api_token_money_extend_id": "6b940098-dccd-47db-8038-c31db380ee4f",
+      "quota_fields_round_tripped": true,
+      "transaction": "rolled back"
+    },
+    "mysql_versions_only_overlay_omitted_id": {
+      "result": "FAIL",
+      "failure": "SQLAlchemy FlushError: ApiTokenMoneyExtend had a NULL identity key with model server_default uuid_generate_v4()",
+      "transaction": "rolled back"
+    },
+    "mysql_versions_only_overlay_explicit_id": {
+      "result": "SUPPLEMENTARY_PASS_NOT_OMITTED_ID_ACCEPTANCE",
+      "account_money_extend_id": "1a359d12-d614-4067-9033-d0014bc9aca6",
+      "api_token_money_extend_id": "d7c6c9ca-7d71-480b-9f3c-b9e0e8891e9f",
+      "transaction": "rolled back"
+    },
+    "mysql_sql_uuid_default_transaction": {
+      "result": "PASS",
+      "account_money_extend_generated_id": "f6717488-bc99-11f1-ae1c-d6bd1aaf7cde",
+      "api_token_money_extend_generated_id": "f6718ec8-bc99-11f1-ae1c-d6bd1aaf7cde",
+      "transaction": "rolled back"
+    },
+    "model_overlay_omitted_id": {
+      "result": "PASS on PostgreSQL and MySQL",
+      "models": {
+        "account_money_extend.py": "15fc8540874015d21b4ecd2df6d5d5c815805bc0bcb7e7ce8d83f3506707c714",
+        "api_token_money_extend.py": "c4fbac65df991a52ab23bfe1c677034b9a70e47c8507e04128fa47663f60cc26"
+      },
+      "postgres_account_money_extend_id": "1f52c170-f8ef-458f-bbfc-d26f2c4b433d",
+      "postgres_api_token_money_extend_id": "b345c301-3373-45fa-93e5-3193c577b1ad",
+      "mysql_account_money_extend_id": "7d48085d-9847-4ac0-99fb-d4507a68607e",
+      "mysql_api_token_money_extend_id": "3dfbe613-d2de-41c9-aa60-11a4dac100c5",
+      "quota_fields_round_tripped": true,
+      "transaction": "rolled back",
+      "migrations_rerun": false
+    }
+  },
+  "data_boundary": "Only synthetic ORM/SQL rows were inserted; every transaction was rolled back. No business rows or key contents were read.",
+  "evidence_files": [
+    "postgres-result.txt",
+    "postgres-readback.txt",
+    "postgres-extend-only.log",
+    "postgres-runtime-boundary.txt",
+    "postgres-network.txt",
+    "postgres-volumes.txt",
+    "postgres-orm-model-overlay.log",
+    "mysql-result.txt",
+    "mysql-readback.txt",
+    "mysql-migration.log",
+    "mysql-first-attempt-auth-failure.log",
+    "mysql-synthetic-defaults.txt",
+    "mysql-orm-omitted-id.txt",
+    "mysql-orm-explicit-id-supplementary.txt",
+    "mysql-orm-model-overlay.log",
+    "mysql-runtime-boundary.txt",
+    "mysql-network.txt",
+    "mysql-volumes.txt",
+    "preflight.txt",
+    "freeze-check.txt",
+    "models-freeze-check.txt",
+    "models.manifest.sha256",
+    "overlay-hashes.txt"
+  ],
+  "harness_setup_failures": [
+    {
+      "stage": "initial preflight",
+      "result": "permission denied to Docker socket under default sandbox; rerun succeeded through authorized require_escalated; no container action occurred"
+    },
+    {
+      "stage": "first PostgreSQL migration invocation",
+      "result": "standard dependency jobs were skipped; base chain reached c3f1a9b2e6d4, extension app startup could not persist secret key; recovered by standard init jobs and extension-only continuation, no base rerun"
+    },
+    {
+      "stage": "first MySQL migration invocation",
+      "result": "1045 authentication failure before DDL; read-only table count was zero; corrected only synthetic harness credentials and then ran standard migration once"
+    }
+  ],
+  "source_orm_failure_before_model_overlay": {
+    "engine": "MySQL 8.0.46",
+    "result": "omitted-ID ORM FlushError for ApiTokenMoneyExtend NULL identity key; transaction rolled back; model overlay then passed same omitted-ID check"
+  }
+}

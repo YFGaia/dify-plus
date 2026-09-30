@@ -1,0 +1,11 @@
+engine=PostgreSQL 15.12 linux/arm64
+project=difyplus-verify-postgres-20260930
+versions_manifest_sha256=ccd43abd29650fa05543d3a367a83b1f20a7d44c0e54452e77f4f20e67cb51d7
+api_image_id=sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b
+schema_overlay=20 .py files only, read-only mount at /app/api/migrations_extend/versions
+initial_harness_attempt=setup_failure; base chain reached c3f1a9b2e6d4; extension app startup failed because init_permissions/init_secret_key had been skipped; no extension version row; exact failure log retained
+recovery=standard init_permissions + init_secret_key on project-scoped verify_pg_app_storage; generated_key_present=true; continued extension chain only; did not rerun base upgrade
+base_head=c3f1a9b2e6d4
+extension_head=020_workflow_run_account
+migration_result=PASS
+synthetic_orm_omitted_id=PASS; account_money_extend.id=18ece00f-a75c-4f9e-8f5c-e1b557ff2d32; api_token_money_extend.id=6b940098-dccd-47db-8038-c31db380ee4f; quota values round-tripped; transaction rolled back

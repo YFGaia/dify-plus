@@ -31,14 +31,18 @@ depends_on = None
 
 def upgrade():
     conn = op.get_bind()
+    quote = conn.dialect.identifier_preparer.quote_identifier
     # IF EXISTS：全新部署从未建过 fork 分类表
-    conn.execute(sa.text('DROP TABLE IF EXISTS "recommended_apps_category_join_extend"'))
-    conn.execute(sa.text('DROP TABLE IF EXISTS "recommended_category_extend"'))
+    conn.execute(sa.text(f"DROP TABLE IF EXISTS {quote('recommended_apps_category_join_extend')}"))
+    conn.execute(sa.text(f"DROP TABLE IF EXISTS {quote('recommended_category_extend')}"))
 
 
 def downgrade():
     # 仅重建空表结构（迁移自包含，用裸 SQL 而非应用模型）；数据恢复依赖快照备份
     conn = op.get_bind()
+    if conn.dialect.name == "mysql":
+        _downgrade_mysql(conn)
+        return
     conn.execute(
         sa.text(
             """
@@ -78,3 +82,31 @@ def downgrade():
             'ON "recommended_apps_category_join_extend" (category_id)'
         )
     )
+
+
+def _downgrade_mysql(conn):
+    # Match revision 002 without PostgreSQL UUID types or CREATE INDEX IF NOT EXISTS.
+    metadata = sa.MetaData()
+    category = sa.Table(
+        "recommended_category_extend",
+        metadata,
+        sa.Column("id", sa.CHAR(36), server_default=sa.text("(UUID())"), nullable=False),
+        sa.Column("table", sa.String(255), nullable=False),
+        sa.Column("tag_id", sa.CHAR(36)),
+        sa.PrimaryKeyConstraint("id", name="category_extend_id_pkey"),
+    )
+    joins = sa.Table(
+        "recommended_apps_category_join_extend",
+        metadata,
+        sa.Column("id", sa.CHAR(36), server_default=sa.text("(UUID())"), nullable=False),
+        sa.Column("recommended_id", sa.CHAR(36), nullable=False),
+        sa.Column("category_id", sa.CHAR(36), nullable=False),
+        sa.PrimaryKeyConstraint("id", name="recommended_apps_category_id_pkey"),
+    )
+    for table, indexes in (
+        (category, (("idx_extend_table", "table"), ("idx_extend_tag_bind_tag_id", "tag_id"))),
+        (joins, (("idx_recommended_id", "recommended_id"), ("idx_recommended_category_id", "category_id"))),
+    ):
+        table.create(conn, checkfirst=True)
+        for index_name, column_name in indexes:
+            sa.Index(index_name, table.c[column_name]).create(conn, checkfirst=True)

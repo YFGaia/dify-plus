@@ -1,0 +1,21 @@
+base_head=c3f1a9b2e6d4
+extension_head=020_workflow_run_account
+server_version=PostgreSQL 15.12 on aarch64-unknown-linux-musl
+UUID id defaults for extension tables:
+account_layover_record_extend|uuid_generate_v4()
+account_money_extend|uuid_generate_v4()
+account_money_monthly_stat_extend|uuid_generate_v4()
+api_token_message_joins_extend|uuid_generate_v4()
+api_token_money_daily_stat_extend|uuid_generate_v4()
+api_token_money_extend|uuid_generate_v4()
+api_token_money_monthly_stat_extend|uuid_generate_v4()
+app_extend|uuid_generate_v4()
+app_statistics_extend|uuid_generate_v4()
+code_execution_control_extend|uuid_generate_v4()
+end_user_account_joins_extend|uuid_generate_v4()
+forwarding_address_extend|uuid_generate_v4()
+forwarding_extend|uuid_generate_v4()
+message_context_extend|uuid_generate_v4()
+model_sync_config_extend|uuid_generate_v4()
+system_integration_extend|nextval('system_integration_extend_id_seq'::regclass)
+tenant_model_sync_extend|uuid_generate_v4()
