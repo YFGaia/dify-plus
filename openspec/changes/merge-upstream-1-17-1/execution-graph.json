@@ -649,6 +649,16 @@
           "tested_head": "615efae14dcff1d02ea51d5c4b61e403df76ec5b",
           "evidence": "evidence/M04/independent-review.json"
         }
+      },
+      "fresh_install_followup": {
+        "task": "28.6",
+        "status": "passed_scope_limited",
+        "write_scope": [
+          "api/models/account_money_extend.py",
+          "api/models/api_token_money_extend.py"
+        ],
+        "commit": "9fcc542afb7b794b50aca86b7abd4ecc4f39bea2",
+        "evidence": "evidence/M04/28.6-mysql-quota-orm.md"
       }
     },
     {
@@ -2446,6 +2456,16 @@
           "scope": "Read-only current-commit revalidation of M07 13.6 acceptance, including prior finding freshness after 13.4 source/docs changes; audit Compose/image matrix, fork-private API/Web tags, unmerged/no-conflict Compose paths, CI supply separation, and evidence limits.",
           "evidence": "evidence/M07/result.json#/subtasks/13.6/follow_up_revalidation"
         }
+      },
+      "fresh_install_followup": {
+        "task": "28.1",
+        "status": "passed_scope_limited",
+        "write_scope": [
+          "api/migrations_extend/versions/**",
+          "api/tests/unit_tests/migrations/test_extend_mysql_compatibility.py"
+        ],
+        "commit": "9fcc542afb7b794b50aca86b7abd4ecc4f39bea2",
+        "evidence": "evidence/M07/28.1-mysql-fresh-install-compatibility.md"
       }
     },
     {
@@ -4694,11 +4714,26 @@
         "双head为 c3f1a9b2e6d4 / 020_workflow_run_account",
         "数据差异符合预审、破坏性数据有处置决定、耗时记录"
       ],
-      "evidence": ["evidence/V03/result.json", "evidence/V03/execution.log"],
+      "evidence": [
+        "evidence/V03/result.json",
+        "evidence/V03/execution.log",
+        "evidence/V03/local-compose-2026-09-30.md",
+        "evidence/V03/mysql-empty-2026-09-30.md"
+      ],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": ["evidence/V03/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
-      "blocked_reason": "R01 is code-ready, but A03 remains blocked pending explicit authorization for read-only access to the actual deployment and business data; V03 requires both R01 and A03."
+      "outputs": [
+        "evidence/V03/result.json",
+        "evidence/V03/mysql-empty-2026-09-30.md",
+        "本节点 steps 对应文件/环境变更及验收结果"
+      ],
+      "blocked_reason": "R01 is code-ready. Supplemental local evidence records a successful empty PostgreSQL migration/quota workflow and a failed empty MySQL 8.0.46 initial extension migration (error 3770: uuid_generate_v4() is disallowed as a default). A static source scan found the same literal in 12 later extension migration files, not runtime-tested on MySQL. A03 remains blocked pending authorization for read-only access to the actual deployment/business data; old-copy migration/data audit, published image provenance, vector acceptance, and the target/supported-engine matrix remain open. Static migration inspection is not old-data acceptance.",
+      "fresh_install_followup": {
+        "tasks": ["28.2"],
+        "status": "passed_scope_limited",
+        "evidence": "evidence/V03/28.2-fresh-dual-engine/result.json",
+        "historical_migration_scope": "deferred_by_user"
+      }
     },
     {
       "id": "V04",
@@ -4765,7 +4800,17 @@
       "evidence": ["evidence/V05/result.json", "evidence/V05/execution.log"],
       "failure_route": "停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。",
       "owned_conflict_paths": [],
-      "outputs": ["evidence/V05/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
+      "outputs": ["evidence/V05/result.json", "本节点 steps 对应文件/环境变更及验收结果"],
+      "fresh_install_followup": {
+        "tasks": ["28.3", "28.5", "28.7"],
+        "status": "passed_model_response_and_runtime_recovery; positive_charge_not_verified",
+        "evidence": [
+          "evidence/V05/28.5-workflow-interaction-recovery.md",
+          "evidence/V05/28.7-worker-runtime-recovery.md",
+          "evidence/V05/28.3-deepseek-real-call.json"
+        ],
+        "full_matrix": "pending"
+      }
     },
     {
       "id": "V06",
@@ -4983,10 +5028,10 @@
       "outputs": ["evidence/D04/result.json", "本节点 steps 对应文件/环境变更及验收结果"]
     }
   ],
-  "next_subtask": "A03/authorized_read_only_environment_inventory",
+  "next_subtask": "fresh_install/rebuilt_candidate_images_and_remaining_business_matrix",
   "execution_control": {
-    "coordinator_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
-    "updated_at": "2026-09-29",
+    "coordinator_thread_id": "01a0f0e9-cfe5-7cf1-8dd8-0a5cc67c40a9",
+    "updated_at": "2026-09-30",
     "evidence": "evidence/scheduling-optimization.md",
     "rules": [
       "Only the coordinator owns execution-graph, result metadata, tasks, Git index and commits.",
@@ -5022,21 +5067,46 @@
       {
         "thread_id": "01a0eb21-61a6-7ad1-b2aa-b74eb261c9c2",
         "dispatch_status": "retired",
-        "observed_runtime_status": "active_stop_requested_user_action_pending"
+        "observed_runtime_status": "idle"
       }
     ],
     "current_dispatches": [],
     "next_critical_path": [
-      "V02/16.15 passed on exact candidate 970b704e351f8b98d1f0450e5dd50734b5d21e8c / tree ccb16e6692f53c68fe13e2ca51036649c707735d; R01 17.1-17.3 passed as code-ready.",
-      "A03 is blocked because actual deployment/business-data read-only access is not authorized. V03 requires R01 and A03 and cannot begin until A03 is authorized and completed.",
-      "V03-V06 and R02 remain unstarted. D00-D04 require the separate explicit production authorization path; no deployment or production readiness is claimed."
+      "Local workflow interaction and single-worker consumer recovery passed; latest DeepSeek request returned OK with49 tokens and trusted current-account attribution. Internal recorded price0USD, positive-charge test remains open.",
+      "Fresh database source compatibility followup committed as9fcc542afb; independent PG15.12/MySQL8.0.46 dual heads and omitted-ID quota ORM passed on exact source overlays. New complete API image build/runtime is a remaining gate.",
+      "User deferred historical migration compatibility. Original A03/old-copy portions of V03/V04/V06 retain their unaccepted status and do not count as fresh-install acceptance.",
+      "Next fresh-install work: build and run exact repaired candidate images; complete vector/knowledge-base and remaining role/API-key/business matrix. No production release authorization or acceptance is inferred."
     ],
     "quality_gates_unchanged": true,
     "coordinator_handoff": {
-      "previous_thread_id": "01a0ebc5-51b2-7e50-8e0b-5aad1931eb16",
-      "previous_thread_status": "idle",
-      "current_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
-      "reason": "The prior scheduling task closed after M06; the user continued the merge objective in this active task."
+      "previous_thread_id": "01a0ec07-75c3-7eb3-a3b7-174d5622f8b5",
+      "current_thread_id": "01a0f0e9-cfe5-7cf1-8dd8-0a5cc67c40a9",
+      "reason": "User requested continued implementation and test verification with existing DeepSeek credentials."
+    },
+    "continuation_plan": "evidence/continuation-plan-2026-09-30.md",
+    "scope_decision": {
+      "date": "2026-09-30",
+      "requested_scope": "fresh_install_only",
+      "historical_migration": "deferred_by_user",
+      "priority": "resolve localhost:23000 UI performance before live provider test",
+      "deepseek_workspace_url": "http://127.0.0.1:23000/app/d7af1af0-d92f-4d78-bbfa-8802de395199/workflow"
+    },
+    "new_install_validation": {
+      "source_followup_manifest_sha256": "ccd43abd29650fa05543d3a367a83b1f20a7d44c0e54452e77f4f20e67cb51d7",
+      "source_test_count": 31,
+      "source_status": "development_checks_passed",
+      "independent_runtime_status": "passed: PostgreSQL15.12/MySQL8.0.46 dual heads and omitted-ID quota ORM insert/read/rollback on exact migration+model source overlays",
+      "provider_credential_presence": "confirmed_by_read_only_current_tenant_counts",
+      "ui_root_cause": "workflow sync overlay intercepts clicks while socket.io requests hit non-WebSocket gevent API worker",
+      "ui_repair_status": "passed: WS101; overlay absent; close/select clicks succeeded; independent provider test running",
+      "provider_test_status": "passed_real_return: OK; 49 tokens; workflow and3 nodes succeeded; internal recorded_price0USD and personal quota unchanged; positive-charge path unverified",
+      "independent_runtime_evidence": "evidence/V03/28.2-fresh-dual-engine/result.json",
+      "source_followup_commit": "9fcc542afb7b794b50aca86b7abd4ecc4f39bea2",
+      "source_followup_tree": "160d0f83f22b2717b7ff57fc3479712c867b958a",
+      "validation_scope": "31 dialect tests; independent fresh PG/MySQL dual chains and personal/API-token quota ORM; prior frontend evidence remains tied to unchanged files; full release gates not asserted",
+      "provider_worker_evidence": "evidence/V05/28.7-worker-runtime-recovery.md",
+      "old_debug_jobs": "3 raw Celery envelopes reversibly retained in holding queue, no TTL, hashes preserved; latest job consumed once",
+      "provider_test_evidence": "evidence/V05/28.3-deepseek-real-call.json"
     }
   }
 }

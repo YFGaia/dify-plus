@@ -1,0 +1,148 @@
+{
+  "date": "2026-09-30",
+  "timezone": "Asia/Shanghai",
+  "web_origin": "http://127.0.0.1:23000",
+  "api_host_port": "127.0.0.1:25432",
+  "ego_task_space_id": 3,
+  "ego_task_space_name": "Dify Plus quota self-test",
+  "app_name": "Quota smoke chat",
+  "app_id": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+  "provider": "DeepSeek",
+  "provider_package_version": "0.0.24",
+  "provider_list_requests": {
+    "web_origin_status": 404,
+    "direct_loopback_api_status": 401,
+    "response_body_printed": false,
+    "request_headers_or_tokens_printed": false,
+    "sanitized_provider_list_fields_read": false
+  },
+  "database_counts_current_test_tenant": {
+    "current_tenant_match": 1,
+    "providers_deepseek": 1,
+    "provider_credentials_deepseek": 1,
+    "provider_model_credentials_deepseek": 0,
+    "provider_credential_link_rows": 1,
+    "valid_deepseek_provider_rows": 1,
+    "secret_columns_selected": false,
+    "credentials_decrypted": false
+  },
+  "prior_ui_only_add_api_key_inference": "corrected; it does not establish absence because current-tenant DB has a linked credential row",
+  "current_credential_usable": "not read as provider-list summary field; effective usability demonstrated by succeeded real model run",
+  "current_credential_id_exists": "not read",
+  "available_credentials_count": "not read",
+  "account_baseline": {
+    "account_label": "Quota Smoke Admin",
+    "used_quota_usd": "0.0000",
+    "total_quota_usd": "15.0000",
+    "balance_usd": "15.0000",
+    "header_display_used_cny": "0.00",
+    "header_display_total_cny": "104.25"
+  },
+  "draft_llm_model": "DeepSeek V4.1 Flash",
+  "provider_call_attempted": true,
+  "provider_response": {
+    "observed": true,
+    "answer_after_stripping_internal_think_tag": "OK",
+    "tokens": 49,
+    "local_total_price_usd": "0"
+  },
+  "run_status": "succeeded",
+  "post_call_usage_or_billing": "49 tokens; local total price 0 USD; personal quota unchanged; nonzero debit not proven",
+  "sensitive_values_collected": false,
+  "source_or_execution_graph_modified": false,
+  "final_call_state": "succeeded after workflow-only consumer consumed the single retained run",
+  "model_name": "DeepSeek V4.1 Flash",
+  "test_prompt": "仅回复 OK。",
+  "draft_test_parameters": {
+    "max_tokens": 64,
+    "thinking": false
+  },
+  "run_requests": [
+    {
+      "transport": "fetch",
+      "method": "POST",
+      "pathname": "/console/api/apps/d7af1af0-d92f-4d78-bbfa-8802de395199/workflows/draft",
+      "status": 200,
+      "duration_ms": 44,
+      "purpose": "draft save"
+    },
+    {
+      "transport": "fetch",
+      "method": "POST",
+      "pathname": "/console/api/apps/d7af1af0-d92f-4d78-bbfa-8802de395199/advanced-chat/workflows/draft/run",
+      "status": 200,
+      "duration_ms": 13,
+      "purpose": "debug run accepted"
+    }
+  ],
+  "socket_io": {
+    "pathname": "/socket.io/",
+    "sent_frames": 1,
+    "received_frames": 1,
+    "frame_contents_recorded": false
+  },
+  "preview_still_running": "not established; final persisted run succeeded; retained workflow page preview panel is closed",
+  "assistant_response": "OK (after stripping internal <think> tag; think text not recorded in this report)",
+  "model_tokens_cost": {
+    "tokens": 49,
+    "local_total_price_usd": "0"
+  },
+  "prior_uninstrumented_attempts": {
+    "first": "no reply or persisted app run/message/usage observed",
+    "second": "manually stopped after no persisted usage; UI AbortError"
+  },
+  "celery_worker_consumption": "succeeded; workflow-only consumer consumed the single accepted run",
+  "credentials_or_headers_recorded": false,
+  "workflow_run_id": "df57753d-2a9c-4728-891a-bc4b971aaf37",
+  "celery_task_id": "1241f757-8440-42ac-945c-6485f4a38aeb",
+  "workflow_run": {
+    "status": "succeeded",
+    "total_tokens": 49,
+    "elapsed_seconds": 1.182074,
+    "error_present": false
+  },
+  "llm_node": {
+    "status": "succeeded",
+    "model_selected": "DeepSeek V4.1 Flash",
+    "tokens": 49,
+    "total_price": "0",
+    "currency": "USD",
+    "created_by_matches_test_account": true
+  },
+  "message_record": {
+    "status": "normal",
+    "prompt_tokens": 34,
+    "answer_tokens": 15,
+    "total_price": "0.0000000",
+    "currency": "USD",
+    "provider_response_latency_seconds": 1.2779459590092301,
+    "answer_after_stripping_internal_think_tag": "OK",
+    "internal_think_tag_present": true,
+    "think_text_recorded": false,
+    "error_present": false,
+    "from_account_matches_test_account": true
+  },
+  "workflow_run_account_matches_test_account": true,
+  "account_quota_before_usd": "0.0000000",
+  "account_quota_after_usd": "0.0000000",
+  "account_total_quota_usd": "15.0000000",
+  "message_provider_and_model_fields": "empty",
+  "preview_visible_final_response": "not shown in the retained UI after old stream timeout; persisted run/message are result evidence",
+  "nonzero_cost_debit_proven": false,
+  "api_key_level_billing_attribution_proven": false,
+  "v03_v05_all_nodes_passed": false,
+  "provider_list_summary_fields": {
+    "current_credential_usable": "not read",
+    "current_credential_id_exists": "not read",
+    "available_credentials_count": "not read"
+  },
+  "effective_deepseek_credential_usability": "confirmed by succeeded real model run with 49 tokens",
+  "upstream_service_free_proven": false,
+  "retained_browser_page": {
+    "task_space_id": 3,
+    "page": "p3",
+    "url": "http://127.0.0.1:23000/app/d7af1af0-d92f-4d78-bbfa-8802de395199/workflow",
+    "preview_final_response_visible": false,
+    "workflow_page_retained_for_user": true
+  }
+}

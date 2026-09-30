@@ -1,6 +1,10 @@
 # 可执行合并 DAG
 
-> 当前状态以 execution-graph.json 为准：候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 已通过 M08/14.19、V02/16.15 与 R01，状态为 code-ready。候选包含上游 1.17.1，额度账户余额与 API Key 日/月/累计限额边界保留；Next 和 Vinext 均构建成功，额度管理路由在两种构建输出中得到核验。当前没有活动子任务。A03 实际环境只读盘点仍因缺授权而阻塞；V03-V06、R02 与生产节点尚未执行。
+> 当前状态以 execution-graph.json 为准：原候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` 已通过 M08/V01/V02/R01 源码门槛。本轮用户收敛为全新安装；后续源码修复 `9fcc542afb` 已通过31项定向检查、独立PG15.12/MySQL8.0.46双链及额度ORM插入/rollback，验证使用原镜像加精确只读source overlay。本地工作流WebSocket worker及缺失Celery消费者已补齐，遮罩和真实点击恢复；DeepSeek最新请求返回OK、49 tokens、账号归因正确，内部记录价格0USD，正向非零价格扣费未验。旧3条debug任务可逆暂存，未永久删除。详见tasks28.x及evidence/V03、V05。修复发布镜像、其余全新安装业务矩阵仍待执行；历史数据迁移兼容按用户要求后续单独验证，原升级/生产门槛保持未通过。
+
+## 本轮全新安装范围与优先项
+
+用户已明确历史数据库迁移兼容后续单独验证，本轮先验全新安装。已创建持续目标及 [执行计划](evidence/continuation-plan-2026-09-30.md)，追加 tasks 28.1–28.4。Sol 6.1 子代理已修复 `127.0.0.1:23000` 卡顿：测试API使用WebSocket worker，101握手、遮罩消失和实际点击通过；证据见 `evidence/V05/28.5-workflow-interaction-recovery.md`。空 MySQL 方言兼容修复和31项定向测试已完成，Luna正在验证新空PostgreSQL/MySQL双链。DeepSeek凭据已由当前tenant数据库计数确认存在，Luna正在进行最小真实调用和额度对账。旧候选的 passed 记录只适用于其原始快照，修改后的迁移候选尚未验收；存量/生产 DAG 门槛保持未通过，不阻塞单独记录本轮的新安装测试结果。
 
 ## 依赖图
 
@@ -516,7 +520,7 @@ pnpm --dir web build:vinext
 
 ## V03 · 目标镜像、空库与存量双链演练
 
-- 状态：blocked；R01 已 code-ready，A03 实际环境只读盘点尚未获授权，故 V03 双库演练不能启动。
+- 状态：blocked；R01 已 code-ready。隔离 PostgreSQL 空库双迁移和额度 UI 读写通过；空 MySQL 8.0.46 扩展迁移在 `06b18b329024` 以 error 3770 (`uuid_generate_v4()` 默认值不支持) 失败。静态扫描还发现 12 个后续扩展迁移文件含同一默认表达式，尚未在 MySQL 运行。A03 实际环境只读盘点尚未获授权，旧库数据审计、镜像供货、向量及目标数据库引擎矩阵也未完成。详见 `evidence/V03/result.json`、`execution.log`、`local-compose-2026-09-30.md`、`mysql-empty-2026-09-30.md`。
 - 前置：R01, A03；负责人：数据与容器验证负责人；建议模型：Luna/high。
 - 授权：`implementation_isolated_runtime`；资源锁：`heavy_compute, test_database`。
 - 写入范围：隔离镜像/副本/迁移记录。

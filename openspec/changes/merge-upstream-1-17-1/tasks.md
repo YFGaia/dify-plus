@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 当前现场：M08/14.19 冻结候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 已通过 V02/16.15 与 R01 源码验收，状态为 code-ready。全仓 check、默认 Next 和 Vinext 均 exit 0；额度管理路由已在两种构建产物中核实，个人 `total_quota/used_quota` 与 API Key 日/月/累计限额分离。A03 实际环境只读盘点仍因缺少授权而阻塞；V03 及后续环境/生产门槛未执行。
+> 当前现场：M08/14.19 冻结候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 已通过 V02/16.15 与 R01 源码验收，状态为 code-ready。隔离 PostgreSQL 空库双迁移、API 健康、已登录额度读写及 DeepSeek 插件 `0.0.24` 安装通过；补做的空 MySQL 8.0.46 检查在扩展迁移因 `uuid_generate_v4()` 默认值不兼容而失败。迁移数据风险审计目前只是静态源码检查，无旧库行数据。详见 `evidence/V03/`。真实 LLM 请求待用户在隔离工作区保存密钥后执行。候选仍保留个人 `total_quota/used_quota` 与 API Key 日/月/累计限额分离。18.1–18.5 仍未关闭：A03 实际环境只读盘点未授权，旧库副本/数据审计、镜像供货、向量与目标数据库引擎矩阵未通过；完整 V03 和后续环境/生产门槛未通过。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -223,6 +223,8 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 
 ## 18. V03 目标镜像、空库与存量双链演练（前置：R01, A03）
 
+> 补充证据不替代以下验收项：空 PostgreSQL Compose 双迁移、API/Web 运行、额度 UI 读写及 DeepSeek 插件 `0.0.24` 安装见 `evidence/V03/local-compose-2026-09-30.md`；空 MySQL 8.0.46 在扩展迁移以 error 3770 失败，静态迁移风险审计和具体 blocker 见 `evidence/V03/mysql-empty-2026-09-30.md`。此前密钥UI不可见和MySQL失败属于旧候选checkpoint；本轮28.x已确认凭据存在、真实返回OK并完成修复后的PG/MySQL空库双链和额度ORM。下列18.1–18.5原有存量/供货门槛仍按各自范围保持未通过，不能由全新安装补充证据整体勾选。
+
 - [ ] 18.1 [V03] 先准备环境专属 override/备份恢复命令草案；构建固定候选 fork 镜像并核对 digest、平台与供货，把实际 digest 固定到隔离 override，复核无生产存储/队列连接后才开始演练；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 18.2 [V03] 空库从零两链；实际旧库副本主链再extend，记录17迁移与两head；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 18.3 [V03] 审计Agent删表/JSON、normalized email、模型去重/凭据引用与可解密；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
@@ -296,3 +298,22 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 - [ ] 27.3 [D04] 按窗口监控5xx/登录/扣费偏差/任务堆积/检索；超阈值封入口并整套恢复；核验：在 `evidence/D04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 27.4 [D04] 保存最终时间线、版本和结果；旧快照保留期结束另行处理；核验：在 `evidence/D04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
 - [ ] 27.5 [D04] 节点验收：真实业务负责人签收与观察通过，才标 deployed；任何恢复后的新写入损失按RPO记录，绝不自动删除旧快照；保存绑定版本的证据并更新节点状态。
+
+## 28. 全新安装补充验收（用户 2026-09-30 收敛范围）
+
+> 本轮优先全新安装；历史数据迁移兼容后续单独验证。28.x 不替代原 DAG 的存量迁移、旧向量升级、整套恢复或生产放行。源码变化须重新绑定受影响候选及验收。
+
+- [x] 28.1 [M07/Sol 6.1] 修复空 MySQL 扩展链的 UUID 默认值及后续 PostgreSQL 专用 SQL；保留 PostgreSQL 行为、revision 链和自动 ID，新增定向跨方言回归。只改登记的 migration versions 与 `api/tests/unit_tests/migrations/test_extend_mysql_compatibility.py`。
+- [x] 28.2 [V03/Luna] 在精确 versions 哈希快照上，以新空 PostgreSQL/MySQL 隔离库执行主链再扩展链，并读回双 head、默认值、合成插入；保留旧失败现场。镜像+source overlay 明确标注，不视为发布镜像。
+- [x] 28.3 [V05/Luna supplemental B07] 确认用户现有测试工作区的可用 DeepSeek 凭据，执行最小真实模型请求，核对响应、运行状态、token/cost、个人用量与可信归因；不得输出密钥。
+- [x] 28.4 [协调者] 冻结本轮明确路径修复候选、同步图/tasks/证据，复验受影响源文件，给出全新安装已通过与未验证清单。历史迁移与生产门禁保持后续独立范围。
+
+- [x] 28.5 [Sol 6.1；Luna 将随 28.3 独立复验] 定位并修复本地工作流页面卡顿；记录普通请求耗时、WebSocket 同步断点及修复后交互证据，保留数据库/模型凭据与全部测试数据。
+
+- [x] 28.6 [M04/Sol 6.1→Luna] 修复 MySQL 双链通过后实际 ORM 额度行省略ID插入的 NULL identity 错误：个人额度与API Key额度模型增加客户端UUIDv4默认，保持server默认/schema；同一空库以精确模型overlay重跑省略ID插入/rollback，不用显式测试ID绕过故障。
+
+> 28.1/28.2/28.6 修复及独立证据已按47条精确路径提交 `9fcc542afb`；原有 `api/uv.lock` 与其他工作区修改未包含。验证为已有镜像+精确source overlay；修复发布镜像和完整全新安装业务矩阵仍需后续验证。
+
+- [x] 28.7 [Sol 6.1→Luna] 补齐缩减测试栈的工作流执行worker：验证异步投递和积压根因，旧测试任务可逆暂存、保留payload，限定队列/并发启动；核对最新一条实际生成和对账结果，不以HTTP200代替执行成功。
+
+> 28.3/28.7：最新请求实际返回 `OK`，49 tokens，workflow/start/llm/answer均succeeded，account join匹配当前管理员。记录价格0 USD，个人用量0/总额15不变；正向非零价格扣费仍未验证。旧3条debug任务完整可逆暂存、无TTL/hash未变，worker只消费最新1条。

@@ -1,6 +1,6 @@
 # 环境升级与恢复操作包模板
 
-> 本文命令尚未执行。A03 准备环境草案、V03 固定镜像与命令进行演练，R02 定稿后，D00 获得生产授权才可用于生产。服务启动由获授权的运维执行者负责；遵循 `api/AGENTS.md` 对 agent 不主动启动长期服务的限制。当前任务没有运行任何应用测试、容器或迁移。
+> 本文仍是生产环境操作模板，尚未完成环境化定稿。2026-09-30 已对精确候选执行隔离的本机 Compose 空库演练：PostgreSQL 双迁移、API/Web、管理员额度读写和 DeepSeek 插件 `0.0.24` 安装通过；补做的 MySQL 8.0.46 检查在扩展迁移因 `uuid_generate_v4()` 默认值不兼容而失败。静态迁移审计未读取旧库数据。真实 LLM 请求与额度读回待用户在隔离工作区保存密钥后继续。证据见 `evidence/V03/`。这些演练未连接真实部署或业务数据，不替代 A03、旧库副本/数据审计、镜像供货、向量与目标数据库引擎矩阵，也不构成生产验收。生产命令尚未执行；服务启动由获授权的运维执行者负责，并遵循 `api/AGENTS.md` 的服务启动限制。
 
 ## 1. 实施前须填写的参数
 
@@ -104,3 +104,11 @@ dc=(docker compose --env-file "$DIFY_ENV_FILE" -p "$DIFY_PROJECT" -f "$DIFY_COMP
 D04 先启目标 API/Web 与必要受控 worker/队列，beat/trigger 保持暂停；再在受控入口做 [验证矩阵](verification-matrix.md) 生产 smoke：登录/权限、模型调用和真实扣费、工作流、知识库检索、文件、插件、关键 worker 队列。通过后按部署单开放入口、其余任务消费和调度并观察约定窗口。失败后的恢复步骤也需验证业务，不能仅看容器 healthy。
 
 R02 的 `fork-merged-1.17.1` 标记已验证源码；D04 的发布记录标记生产实际镜像与时间。当前 OpenSpec 不自动归档，后续按用户完成范围另行处理。旧快照与镜像清理由保留策略单独执行。
+
+## 本轮全新安装自测：工作流 WebSocket 入口
+
+2026-09-30 用户指定先验全新安装，历史数据兼容后续独立验证。本地缩减自测栈曾将浏览器 Socket.IO 指向普通 gevent API，未启动专用 `api_websocket`，导致工作流同步遮罩持续拦截点击。REST健康不能替代工作流同步验收。
+
+本测试项目已通过最后一层 override `/private/tmp/difyplus-performance-20260930/override-performance.yaml` 将单API worker设为 `geventwebsocket.gunicorn.workers.GeventWebSocketWorker`，连接数100，仅重建API、保留数据库/存储/插件。再次启动这个测试项目须保留该override；省略它会恢复原故障配置。真实握手101、遮罩消失、关闭面板和选择LLM节点均通过；证据见 `evidence/V05/28.5-workflow-interaction-recovery.md`。
+
+标准部署继续使用现有 `collaboration` profile、专用 `api_websocket` 与 nginx Socket.IO 路由；本单API临时修复不是标准生产拓扑验收。全新部署至少核对浏览器实际Socket.IO目标、worker类、101握手与编辑器真实点击，不能仅测端口或HTTP200。

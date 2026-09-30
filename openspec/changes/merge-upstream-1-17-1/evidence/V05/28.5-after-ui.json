@@ -1,0 +1,15 @@
+{
+  "closePanelMs": 1102,
+  "openNodeMs": 1082,
+  "state": {
+    "syncStatus": false,
+    "panelTitle": "LLM",
+    "buttonTarget": "关闭",
+    "longTasks": [
+      {
+        "start": 137870,
+        "duration": 59
+      }
+    ]
+  }
+}
