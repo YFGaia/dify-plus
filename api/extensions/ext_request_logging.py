@@ -13,6 +13,18 @@ from core.helper.trace_id_helper import get_trace_id_from_otel_context
 logger = logging.getLogger(__name__)
 
 
+def _is_casdoor_path(path: str) -> bool:
+    """Keep credential-bearing Casdoor bodies out of request and response logs."""
+    return any(
+        path == prefix or path.startswith(prefix + "/")
+        for prefix in (
+            "/console/api/system-manage-extend/integration/casdoor",
+            "/console/api/auth/casdoor",
+            "/console/api/account/casdoor-identity",
+        )
+    )
+
+
 def _is_content_type_json(content_type: str) -> bool:
     if not content_type:
         return False
@@ -29,7 +41,7 @@ def _log_request_started(_sender, **_extra):
         return
 
     request = flask.request
-    if not (_is_content_type_json(request.content_type) and request.data):
+    if _is_casdoor_path(request.path) or not (_is_content_type_json(request.content_type) and request.data):
         logger.debug("Received Request %s -> %s", request.method, request.path)
         return
     try:
@@ -82,7 +94,7 @@ def _log_request_finished(_sender, response, **_extra):
     if not logger.isEnabledFor(logging.DEBUG):
         return
 
-    if not _is_content_type_json(response.content_type):
+    if (has_ctx and _is_casdoor_path(req_path)) or not _is_content_type_json(response.content_type):
         logger.debug("Response %s %s", response.status, response.content_type)
         return
 

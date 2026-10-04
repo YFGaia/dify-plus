@@ -12,9 +12,9 @@ from services.entities.account_activation_entities import AccountInvitation, Acc
 
 def _persist_invitation_state(session: Session) -> tuple[Account, Tenant]:
     account = Account(name="Invited", email="invitee@example.com", status=AccountStatus.PENDING)
-    account.id = "account-1"
+    account.id = "00000000-0000-4000-8000-000000000001"
     tenant = Tenant(name="Workspace")
-    tenant.id = "workspace-1"
+    tenant.id = "00000000-0000-4000-8000-000000000002"
     session.add_all([account, tenant])
     session.commit()
     return account, tenant
@@ -22,10 +22,10 @@ def _persist_invitation_state(session: Session) -> tuple[Account, Tenant]:
 
 def _invitation() -> AccountInvitation:
     return AccountInvitation(
-        account_id="account-1",
+        account_id="00000000-0000-4000-8000-000000000001",
         account_email="invitee@example.com",
         account_status="pending",
-        workspace_id="workspace-1",
+        workspace_id="00000000-0000-4000-8000-000000000002",
         workspace_name="Workspace",
         role="admin",
         requires_setup=True,
@@ -43,9 +43,9 @@ class TestResolveInvitation:
 
         result = repository.resolve(
             InvitationToken(
-                account_id="account-1",
+                account_id="00000000-0000-4000-8000-000000000001",
                 email="invitee@example.com",
-                workspace_id="workspace-1",
+                workspace_id="00000000-0000-4000-8000-000000000002",
                 role="admin",
                 requires_setup=True,
             )
@@ -63,9 +63,9 @@ class TestResolveInvitation:
 
         result = repository.resolve(
             InvitationToken(
-                account_id="different-account",
+                account_id="00000000-0000-4000-8000-000000000004",
                 email="invitee@example.com",
-                workspace_id="workspace-1",
+                workspace_id="00000000-0000-4000-8000-000000000002",
             )
         )
 
@@ -107,7 +107,7 @@ class TestPersistActivation:
     ) -> None:
         account, _ = _persist_invitation_state(sqlite_session)
         other_tenant = Tenant(name="Other Workspace")
-        other_tenant.id = "workspace-2"
+        other_tenant.id = "00000000-0000-4000-8000-000000000003"
         sqlite_session.add(other_tenant)
         sqlite_session.flush()
         sqlite_session.add(
@@ -130,7 +130,7 @@ class TestPersistActivation:
         assert result is not None
         assert result.membership_created is True
         sqlite_session.expire_all()
-        persisted_account = sqlite_session.get(Account, "account-1")
+        persisted_account = sqlite_session.get(Account, "00000000-0000-4000-8000-000000000001")
         assert persisted_account is not None
         assert persisted_account.name == "John Doe"
         assert persisted_account.interface_language == "en-US"
@@ -141,12 +141,12 @@ class TestPersistActivation:
 
         memberships = sqlite_session.scalars(
             select(TenantAccountJoin)
-            .where(TenantAccountJoin.account_id == "account-1")
+            .where(TenantAccountJoin.account_id == "00000000-0000-4000-8000-000000000001")
             .order_by(TenantAccountJoin.tenant_id)
         ).all()
         assert [(membership.tenant_id, membership.role, membership.current) for membership in memberships] == [
-            ("workspace-1", TenantAccountRole.ADMIN, True),
-            ("workspace-2", TenantAccountRole.NORMAL, False),
+            ("00000000-0000-4000-8000-000000000002", TenantAccountRole.ADMIN, True),
+            ("00000000-0000-4000-8000-000000000003", TenantAccountRole.NORMAL, False),
         ]
         assert memberships[0].last_opened_at is not None
 

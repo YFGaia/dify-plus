@@ -15,13 +15,22 @@ files.
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import hashlib
 import hmac
+import ipaddress
+import logging
+import math
 import re
+import threading
 import time
 import urllib.parse
-from dataclasses import dataclass
+from collections.abc import Callable
+from contextlib import ExitStack
+from contextvars import ContextVar
+from dataclasses import dataclass, field
+from importlib.metadata import version
 from typing import Any, Literal
 
 import httpx
@@ -343,3 +352,253 @@ def _build_response(
 
 
 graphon_remote_file_fetcher = GraphonRemoteFileFetcher()
+
+
+_SENSITIVE_FILE_LIMIT = 2 * 1024 * 1024
+_sensitive_file_request: ContextVar[bool] = ContextVar("sensitive_file_request", default=False)
+_sensitive_filter_lock = threading.Lock()
+_sensitive_filter_installed = False
+_SENSITIVE_HTTP_LOGGERS = (
+    "httpx",
+    "httpcore.connection",
+    "httpcore.proxy",
+    "httpcore.http11",
+    "httpcore.http2",
+    "httpcore.socks",
+)
+
+
+class _SensitiveFileLogFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return not _sensitive_file_request.get()
+
+
+def _install_sensitive_file_log_filter() -> None:
+    """Permanent emitter filters; ordinary concurrent requests retain their logs."""
+    global _sensitive_filter_installed
+    with _sensitive_filter_lock:
+        if not _sensitive_filter_installed:
+            sensitive_filter = _SensitiveFileLogFilter()
+            for name in _SENSITIVE_HTTP_LOGGERS:
+                logging.getLogger(name).addFilter(sensitive_filter)
+            _sensitive_filter_installed = True
+
+
+@dataclass(frozen=True, slots=True)
+class BoundedExternalFile:
+    """Closed outcome, with no remote metadata or exception objects.
+
+    ``confirmed`` describes local cleanup by the original deadline owner, never
+    remote business termination. A cancelled or unknown outcome requires the
+    caller to stop; it must not retry. Content is deliberately absent from repr.
+    """
+
+    status: Literal["ok", "rejected", "failed", "cancelled", "unknown"]
+    reason: Literal[
+        "ok",
+        "invalid_arguments",
+        "expired",
+        "proxy_required",
+        "privacy_unsupported",
+        "runtime_unsupported",
+        "invalid_url",
+        "local_origin",
+        "supplier_failed",
+        "http_status",
+        "encoded_response",
+        "too_large",
+        "proxy_denied",
+        "request_failed",
+        "cancelled",
+        "termination_unconfirmed",
+    ]
+    termination: Literal["confirmed", "unconfirmed"] = "confirmed"
+    content: bytes = field(default=b"", repr=False)
+
+
+def _sensitive_file_url_allowed(value: object) -> bool:
+    """Conservative HTTPS syntax matching avatar admission; no DNS assertion."""
+    try:
+        if (
+            type(value) is not str
+            or not value
+            or len(value.encode("utf-8")) > 4096
+            or any(ord(c) <= 32 or ord(c) == 127 for c in value)
+            or "\\" in value
+            or re.search(r"%(?![0-9a-fA-F]{2})", value)
+        ):
+            return False
+        parsed = urllib.parse.urlsplit(value)
+        host = parsed.hostname
+        decoded = urllib.parse.unquote(value, errors="strict")
+        if (
+            parsed.scheme != "https"
+            or not host
+            or "%" in host
+            or parsed.username is not None
+            or parsed.password is not None
+            or "#" in value
+            or parsed.port not in (None, 443)
+            or len(parsed.path.encode("utf-8")) > 2048
+            or any(ord(c) < 32 or ord(c) == 127 for c in decoded)
+            or "\\" in decoded
+        ):
+            return False
+        try:
+            address = ipaddress.ip_address(host)
+        except ValueError:
+            return (
+                host.isascii()
+                and len(host) <= 253
+                and "." in host
+                and not host.endswith((".localhost", ".local", ".internal"))
+                and all(re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?", x) for x in host.split("."))
+                and not host.split(".")[-1].isdigit()
+            )
+        return address.is_global and not (address.is_multicast or address.is_reserved or address.is_unspecified)
+    except (ValueError, UnicodeError):
+        return False
+
+
+def _sensitive_file_transfer(
+    url_supplier: Callable[[], str], expires_at: float
+) -> tuple[BoundedExternalFile, Literal["interrupt", "exit"] | None]:
+    """Must run entirely inside all private contexts, including exception catches."""
+    url = None
+    response = None
+    supplied = False
+    try:
+        if time.monotonic() >= expires_at:
+            return BoundedExternalFile("rejected", "expired"), None
+        url = url_supplier()
+        supplied = True
+        if not _sensitive_file_url_allowed(url):
+            return BoundedExternalFile("rejected", "invalid_url"), None
+        if _is_dify_file_origin(urllib.parse.urlparse(url)):
+            return BoundedExternalFile("rejected", "local_origin"), None
+        # No signed-file resolution, caller options, cookies, authorization or
+        # arbitrary Host. The original transport still owns trace propagation.
+        response = ssrf_proxy.make_request_with_deadline(
+            "GET",
+            url,
+            deadline=expires_at,
+            request_timeout=15.0,
+            max_response_bytes=_SENSITIVE_FILE_LIMIT,
+            headers={"Accept-Encoding": "identity"},
+        )
+        if response.status_code != 200:
+            return BoundedExternalFile("rejected", "http_status"), None
+        return BoundedExternalFile("ok", "ok", content=response.content), None
+    except ssrf_proxy.RequestTerminationUnconfirmedError:
+        return BoundedExternalFile("unknown", "termination_unconfirmed", "unconfirmed"), None
+    except ssrf_proxy.RequestDeadlineExceededError:
+        return BoundedExternalFile("failed", "expired"), None
+    except ssrf_proxy.ResponseTooLargeError:
+        return BoundedExternalFile("rejected", "too_large"), None
+    except ssrf_proxy.UnsupportedResponseEncodingError:
+        return BoundedExternalFile("rejected", "encoded_response"), None
+    except ssrf_proxy.ToolSSRFError:
+        return BoundedExternalFile("rejected", "proxy_denied"), None
+    except asyncio.CancelledError:
+        # The original async owner finishes cleanup before propagating this;
+        # cleanup failure instead raises RequestTerminationUnconfirmedError.
+        return BoundedExternalFile("cancelled", "cancelled"), None
+    except KeyboardInterrupt:
+        return BoundedExternalFile("unknown", "termination_unconfirmed", "unconfirmed"), "interrupt"
+    except SystemExit:
+        return BoundedExternalFile("unknown", "termination_unconfirmed", "unconfirmed"), "exit"
+    except Exception:
+        return BoundedExternalFile("failed", "request_failed" if supplied else "supplier_failed"), None
+    finally:
+        # Best-effort reference reduction before restoring inherited SDK scopes;
+        # this is neither memory erasure nor proof of physical cancellation.
+        url = response = url_supplier = None
+
+
+def fetch_bounded_external_file(url_supplier: Callable[[], str], expires_at: float) -> BoundedExternalFile:
+    """Fetch one sensitive external file through the original bounded SSRF owner.
+
+    ``expires_at`` is a finite absolute monotonic deadline. The supplier must
+    decrypt synchronously without external I/O; its work cannot be preempted.
+    Arguments, supported runtime, configured proxy and local privacy contexts
+    are checked before invoking it. The HTTP/cleanup budget is at most 15s and
+    also bounded by that deadline; the original stream enforces 2MiB before append.
+
+    Normal errors and cancellation return only fixed closed outcomes. Stop on
+    cancelled/unknown. Interpreter shutdown and keyboard interruption propagate
+    as NEW sanitized signals outside the original exception and private scopes;
+    their original args/code/traceback are intentionally not exported. This does
+    not prove proxy-side log privacy, DNS safety or physical socket termination
+    beyond what the original deadline owner actually confirms.
+    """
+    if not callable(url_supplier) or type(expires_at) not in (float, int):
+        return BoundedExternalFile("rejected", "invalid_arguments")
+    try:
+        if not math.isfinite(expires_at):
+            return BoundedExternalFile("rejected", "invalid_arguments")
+    except OverflowError:
+        return BoundedExternalFile("rejected", "invalid_arguments")
+    if expires_at <= time.monotonic():
+        return BoundedExternalFile("rejected", "expired")
+    if not (dify_config.SSRF_PROXY_ALL_URL or (dify_config.SSRF_PROXY_HTTP_URL and dify_config.SSRF_PROXY_HTTPS_URL)):
+        return BoundedExternalFile("rejected", "proxy_required")
+    if ssrf_proxy._DEADLINE_RUNTIME_VERSIONS != ("0.28.1", "1.0.9", "4.14.1"):
+        return BoundedExternalFile("rejected", "runtime_unsupported")
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        pass
+    else:
+        return BoundedExternalFile("rejected", "runtime_unsupported")
+
+    outcome = BoundedExternalFile("rejected", "privacy_unsupported")
+    signal = None
+    token = _sensitive_file_request.set(True)
+    try:
+        # Pin the inspected APIs. Missing/incompatible SDKs fail before decrypt,
+        # without changing the behavior of the legacy remote-file API.
+        if version("sentry-sdk") != "2.57.0" or version("opentelemetry-instrumentation") != "0.65b0":
+            return outcome
+        import sentry_sdk
+        from opentelemetry.instrumentation.utils import suppress_http_instrumentation
+        from sentry_sdk.client import BaseClient
+        from sentry_sdk.scope import use_isolation_scope, use_scope
+
+        class PrivateClient(BaseClient):
+            def is_active(self) -> bool:
+                # Avoid Scope.get_client's fallback to a recording global client.
+                # All capture/get_integration behavior is inherited no-op.
+                return True
+
+        private_client = PrivateClient()
+        _install_sensitive_file_log_filter()
+        with ExitStack() as contexts:
+            contexts.enter_context(suppress_http_instrumentation())
+            # Scope(client=...) / set_client() also writes global SDK attributes
+            # in this installed SDK. Bind only the NEW scopes' public client slot.
+            isolation = sentry_sdk.Scope()
+            current = sentry_sdk.Scope()
+            isolation.client = current.client = private_client
+            contexts.enter_context(use_isolation_scope(isolation))
+            contexts.enter_context(use_scope(current))
+            if sentry_sdk.get_client() is not private_client or current.span is not None or isolation.span is not None:
+                return outcome
+            outcome, signal = _sensitive_file_transfer(url_supplier, expires_at)
+            url_supplier = None
+            # A supplier may add private breadcrumbs/extras to these fresh
+            # scopes. Do not retain those scopes in a later shutdown traceback.
+            current = isolation = None
+    except Exception:
+        # Context setup failure happens before decryption. A context teardown
+        # failure after transfer must not turn uncertain privacy into success.
+        outcome = BoundedExternalFile("unknown", "privacy_unsupported", "unconfirmed")
+    finally:
+        url_supplier = None
+        _sensitive_file_request.reset(token)
+    # These raises are outside every except block: from None alone would still
+    # leave the original sensitive exception in __context__.
+    if signal == "interrupt":
+        raise KeyboardInterrupt("sensitive file request interrupted")
+    if signal == "exit":
+        raise SystemExit(1)
+    return outcome

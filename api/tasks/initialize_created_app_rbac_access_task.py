@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from celery import shared_task
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from configs import dify_config
 from extensions.ext_database import db
@@ -42,7 +43,9 @@ class _WhitelistResourceKind[ItemT]:
         enterprise_rbac_service.ReplaceUserAccessPoliciesResponse,
     ]
 
-    def iter_id_batches(self, tenant_id: str, batch_size: int) -> Iterator[list[str]]:
+    def iter_id_batches(
+        self, tenant_id: str, batch_size: int, *, session: Session | None = None
+    ) -> Iterator[list[str]]:
         last_id: str | None = None
         while True:
             stmt = (
@@ -53,7 +56,10 @@ class _WhitelistResourceKind[ItemT]:
             )
             if last_id:
                 stmt = stmt.where(self.model.id > last_id)
-            ids = [str(resource_id) for resource_id in db.session().scalars(stmt).all()]
+            ids = [
+                str(resource_id)
+                for resource_id in (session if session is not None else db.session()).scalars(stmt).all()
+            ]
             if not ids:
                 return
             yield ids

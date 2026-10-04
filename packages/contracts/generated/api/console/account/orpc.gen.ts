@@ -5,6 +5,8 @@ import * as z from 'zod'
 import {
   zGetAccountAvatarQuery,
   zGetAccountAvatarResponse,
+  zGetAccountCasdoorIdentityQuery,
+  zGetAccountCasdoorIdentityResponse,
   zGetAccountDeleteVerifyResponse,
   zGetAccountEducationAutocompleteQuery,
   zGetAccountEducationAutocompleteResponse,
@@ -81,6 +83,21 @@ export const post = oc
 export const avatar = {
   get,
   post,
+}
+
+export const get2 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getAccountCasdoorIdentity',
+    path: '/account/casdoor-identity',
+    tags: ['console'],
+  })
+  .input(z.object({ query: zGetAccountCasdoorIdentityQuery.optional() }))
+  .output(zGetAccountCasdoorIdentityResponse)
+
+export const casdoorIdentity = {
+  get: get2,
 }
 
 export const post2 = oc
@@ -161,7 +178,7 @@ export const feedback = {
   post: post6,
 }
 
-export const get2 = oc
+export const get3 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -172,7 +189,7 @@ export const get2 = oc
   .output(zGetAccountDeleteVerifyResponse)
 
 export const verify = {
-  get: get2,
+  get: get3,
 }
 
 export const post7 = oc
@@ -192,7 +209,7 @@ export const delete_ = {
   verify,
 }
 
-export const get3 = oc
+export const get4 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -204,10 +221,10 @@ export const get3 = oc
   .output(zGetAccountEducationAutocompleteResponse)
 
 export const autocomplete = {
-  get: get3,
+  get: get4,
 }
 
-export const get4 = oc
+export const get5 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -218,10 +235,10 @@ export const get4 = oc
   .output(zGetAccountEducationVerifyResponse)
 
 export const verify2 = {
-  get: get4,
+  get: get5,
 }
 
-export const get5 = oc
+export const get6 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -243,7 +260,7 @@ export const post8 = oc
   .output(zPostAccountEducationResponse)
 
 export const education = {
-  get: get5,
+  get: get6,
   post: post8,
   autocomplete,
   verify: verify2,
@@ -264,7 +281,7 @@ export const init = {
   post: post9,
 }
 
-export const get6 = oc
+export const get7 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -275,7 +292,7 @@ export const get6 = oc
   .output(zGetAccountIntegratesResponse)
 
 export const integrates = {
-  get: get6,
+  get: get7,
 }
 
 /**
@@ -322,7 +339,7 @@ export const interfaceTheme = {
   post: post11,
 }
 
-export const get7 = oc
+export const get8 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -333,7 +350,7 @@ export const get7 = oc
   .output(zGetAccountMoneyResponse)
 
 export const money = {
-  get: get7,
+  get: get8,
 }
 
 /**
@@ -373,7 +390,7 @@ export const password = {
   post: post13,
 }
 
-export const get8 = oc
+export const get9 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -395,7 +412,7 @@ export const patch = oc
   .output(zPatchAccountProfileResponse)
 
 export const profile = {
-  get: get8,
+  get: get9,
   patch,
 }
 
@@ -423,6 +440,7 @@ export const timezone = {
 
 export const account = {
   avatar,
+  casdoorIdentity,
   changeEmail,
   delete: delete_,
   education,

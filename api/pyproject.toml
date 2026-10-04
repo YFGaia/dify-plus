@@ -50,7 +50,14 @@ dependencies = [
     "json-repair==0.60.1",
     # Fork-specific dependencies (dify-plus extensions)
     "alibabacloud_dingtalk>=2.1.99",  # DingTalk login integration
+    # casdoor 1.17.2 omits Requires-Dist; declare its imports at existing lock versions.
+    "aiohttp==3.14.3",
+    "casdoor==1.17.2",
+    "cryptography==50.0.0",
+    "PyJWT==2.13.0",
     "pypinyin~=0.53.0",               # Chinese pinyin conversion for DingTalk account names
+    "requests==2.34.2",
+    "yarl==1.23.0",
 ]
 # Before adding new dependency, consider place it in
 # alphabet order (a-z) and suitable group.

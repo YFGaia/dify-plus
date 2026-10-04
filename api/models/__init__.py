@@ -31,6 +31,16 @@ from .agent import (
     WorkflowAgentNodeBinding,
 )
 from .api_based_extension import APIBasedExtension, APIBasedExtensionPoint
+from .casdoor_extend import (
+    CasdoorAuditExtend,
+    CasdoorConfigRevisionExtend,
+    CasdoorIdentityExtend,
+    CasdoorIntegrationExtend,
+    CasdoorManagedMembershipExtend,
+    CasdoorNamespaceExtend,
+    CasdoorSyncIntentExtend,
+    CasdoorValidationExtend,
+)
 from .comment import (
     WorkflowComment,
     WorkflowCommentMention,
@@ -66,6 +76,7 @@ from .enums import (
 )
 from .execution_extra_content import ExecutionExtraContent, HumanInputContent
 from .human_input import HumanInputForm, HumanInputFormUploadFile, HumanInputFormUploadToken
+from .invitation_authority_extend import InvitationAuthorityIssuanceExtend, InvitationAuthorityLifecycleExtend
 from .model import (
     AccountTrialAppRecord,
     ApiRequest,
@@ -197,6 +208,14 @@ __all__ = [
     "AppTriggerStatus",
     "AppTriggerType",
     "BuiltinToolProvider",
+    "CasdoorAuditExtend",
+    "CasdoorConfigRevisionExtend",
+    "CasdoorIdentityExtend",
+    "CasdoorIntegrationExtend",
+    "CasdoorManagedMembershipExtend",
+    "CasdoorNamespaceExtend",
+    "CasdoorSyncIntentExtend",
+    "CasdoorValidationExtend",
     "CeleryTask",
     "CeleryTaskSet",
     "Conversation",
@@ -233,6 +252,8 @@ __all__ = [
     "HumanInputFormUploadToken",
     "IconType",
     "InstalledApp",
+    "InvitationAuthorityIssuanceExtend",
+    "InvitationAuthorityLifecycleExtend",
     "InvitationCode",
     "LoadBalancingModelConfig",
     "Message",

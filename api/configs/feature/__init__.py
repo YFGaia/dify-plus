@@ -1394,6 +1394,14 @@ class CeleryBeatConfig(BaseSettings):
 
 
 class CeleryScheduleTasksConfig(BaseSettings):
+    ENABLE_CASDOOR_AVATAR_INITIAL_RECOVERY_TASK: bool = Field(
+        description="Enable bounded initial Casdoor avatar outbox recovery",
+        default=False,
+    )
+    CASDOOR_AVATAR_INITIAL_RECOVERY_INTERVAL_SECONDS: PositiveInt = Field(
+        description="Initial Casdoor avatar recovery polling interval in seconds",
+        default=30,
+    )
     ENABLE_CONVERSATION_CLEANUP_TASK: bool = Field(
         description="Enable periodic recovery of soft-deleted conversation cleanup",
         default=True,

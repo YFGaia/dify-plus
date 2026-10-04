@@ -4,6 +4,24 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}/console/api` | (string & {})
 }
 
+export type CasdoorDisplayResponse = {
+  button_text?: string
+  enabled?: boolean
+  start_path?: '/console/api/auth/casdoor/login'
+}
+
+export type CasdoorResultResponse = {
+  code: CasdoorErrorCode
+  correlation_id: string
+  retry_allowed: boolean
+}
+
+export type CasdoorRestrictedResultResponse = {
+  code: 'authorization_pending' | 'role_snapshot_unknown' | 'workspace_unavailable'
+  correlation_id: string
+  retry_allowed: false
+}
+
 export type DatasourceProviderAuthListResponse = {
   result: Array<DatasourceProviderAuthResponse>
 }
@@ -50,6 +68,18 @@ export type DatasourceUpdateNamePayload = {
   credential_id: string
   name: string
 }
+
+export type CasdoorErrorCode =
+  | 'authorization_pending'
+  | 'config_conflict'
+  | 'identity_conflict'
+  | 'invalid_transaction'
+  | 'invitation_mismatch'
+  | 'not_configured'
+  | 'provider_unavailable'
+  | 'remote_account_disabled'
+  | 'role_snapshot_unknown'
+  | 'workspace_unavailable'
 
 export type DatasourceProviderAuthResponse = {
   author: string
@@ -134,6 +164,69 @@ export type ProviderConfigType =
   | 'secret-input'
   | 'select'
   | 'text-input'
+
+export type GetAuthCasdoorDisplayData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/auth/casdoor/display'
+}
+
+export type GetAuthCasdoorDisplayErrors = {
+  400: CasdoorResultResponse
+  409: CasdoorResultResponse
+  503: CasdoorResultResponse
+}
+
+export type GetAuthCasdoorDisplayError =
+  GetAuthCasdoorDisplayErrors[keyof GetAuthCasdoorDisplayErrors]
+
+export type GetAuthCasdoorDisplayResponses = {
+  200: CasdoorDisplayResponse
+}
+
+export type GetAuthCasdoorDisplayResponse =
+  GetAuthCasdoorDisplayResponses[keyof GetAuthCasdoorDisplayResponses]
+
+export type HeadCasdoorDisplayApiData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/auth/casdoor/display'
+}
+
+export type HeadCasdoorDisplayApiErrors = {
+  405: CasdoorResultResponse
+}
+
+export type HeadCasdoorDisplayApiError =
+  HeadCasdoorDisplayApiErrors[keyof HeadCasdoorDisplayApiErrors]
+
+export type GetAuthCasdoorResultData = {
+  body?: never
+  path?: never
+  query: {
+    handoff: string
+  }
+  url: '/auth/casdoor/result'
+}
+
+export type GetAuthCasdoorResultErrors = {
+  400: CasdoorResultResponse
+  403: CasdoorResultResponse
+  409: CasdoorResultResponse
+  429: CasdoorResultResponse
+  503: CasdoorResultResponse
+}
+
+export type GetAuthCasdoorResultError = GetAuthCasdoorResultErrors[keyof GetAuthCasdoorResultErrors]
+
+export type GetAuthCasdoorResultResponses = {
+  200: CasdoorRestrictedResultResponse
+}
+
+export type GetAuthCasdoorResultResponse =
+  GetAuthCasdoorResultResponses[keyof GetAuthCasdoorResultResponses]
 
 export type GetAuthPluginDatasourceDefaultListData = {
   body?: never

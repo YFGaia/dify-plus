@@ -5,6 +5,9 @@ import * as z from 'zod'
 import {
   zDeleteAuthPluginDatasourceByProviderIdCustomClientPath,
   zDeleteAuthPluginDatasourceByProviderIdCustomClientResponse,
+  zGetAuthCasdoorDisplayResponse,
+  zGetAuthCasdoorResultQuery,
+  zGetAuthCasdoorResultResponse,
   zGetAuthPluginDatasourceByProviderIdPath,
   zGetAuthPluginDatasourceByProviderIdResponse,
   zGetAuthPluginDatasourceDefaultListResponse,
@@ -33,6 +36,49 @@ export const get = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
+    operationId: 'getAuthCasdoorDisplay',
+    path: '/auth/casdoor/display',
+    tags: ['console'],
+  })
+  .output(zGetAuthCasdoorDisplayResponse)
+
+export const head = oc.route({
+  inputStructure: 'detailed',
+  method: 'HEAD',
+  operationId: 'head_casdoor_display_api',
+  path: '/auth/casdoor/display',
+  tags: ['console'],
+})
+
+export const display = {
+  get,
+  head,
+}
+
+export const get2 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getAuthCasdoorResult',
+    path: '/auth/casdoor/result',
+    tags: ['console'],
+  })
+  .input(z.object({ query: zGetAuthCasdoorResultQuery }))
+  .output(zGetAuthCasdoorResultResponse)
+
+export const result = {
+  get: get2,
+}
+
+export const casdoor = {
+  display,
+  result,
+}
+
+export const get3 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
     operationId: 'getAuthPluginDatasourceDefaultList',
     path: '/auth/plugin/datasource/default-list',
     tags: ['console'],
@@ -40,10 +86,10 @@ export const get = oc
   .output(zGetAuthPluginDatasourceDefaultListResponse)
 
 export const defaultList = {
-  get,
+  get: get3,
 }
 
-export const get2 = oc
+export const get4 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -54,7 +100,7 @@ export const get2 = oc
   .output(zGetAuthPluginDatasourceListResponse)
 
 export const list = {
-  get: get2,
+  get: get4,
 }
 
 export const delete_ = oc
@@ -170,7 +216,7 @@ export const updateName = {
   post: post5,
 }
 
-export const get3 = oc
+export const get5 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -198,7 +244,7 @@ export const post6 = oc
   .output(zPostAuthPluginDatasourceByProviderIdResponse)
 
 export const byProviderId = {
-  get: get3,
+  get: get5,
   post: post6,
   customClient,
   default: default_,
@@ -218,6 +264,7 @@ export const plugin = {
 }
 
 export const auth = {
+  casdoor,
   plugin,
 }
 

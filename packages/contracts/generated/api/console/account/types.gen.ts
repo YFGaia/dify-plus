@@ -27,6 +27,28 @@ export type AccountResponse = {
   timezone?: string | null
 }
 
+export type CasdoorSelfIdentityStatusResponse = {
+  actions: CasdoorSelfActionsResponse
+  binding: 'linked' | 'unlinked'
+  current_membership_has_more: boolean
+  current_membership_next: string | null
+  current_memberships: Array<CasdoorSelfCurrentMembershipResponse>
+  identities: Array<CasdoorSelfIdentityResponse>
+  identity_has_more: boolean
+  identity_next: string | null
+  membership_has_more: boolean
+  membership_next: string | null
+  memberships: Array<CasdoorSelfMembershipResponse>
+}
+
+export type CasdoorSelfErrorResponse = {
+  code:
+    | 'casdoor_self_invalid_query'
+    | 'casdoor_self_read_conflict'
+    | 'casdoor_self_request_rejected'
+    | 'casdoor_self_unavailable'
+}
+
 export type ChangeEmailSendPayload = {
   email: string
   language?: string | null
@@ -141,11 +163,96 @@ export type AccountTimezonePayload = {
   timezone: string
 }
 
+export type CasdoorSelfActionsResponse = {
+  adopt: false
+  link: false
+  logout: false
+  reauthenticate: false
+  release: false
+  retry: false
+  unlink: false
+}
+
+export type CasdoorSelfCurrentMembershipResponse = {
+  id: string | null
+  join_presence: 'absent' | 'present' | 'unknown'
+  local_role: 'admin' | 'dataset_operator' | 'editor' | 'normal' | 'owner' | null
+  remote_actual_state: 'unknown'
+  state: 'history_present' | 'unknown' | 'unmanaged'
+  workspace_id: string | null
+}
+
+export type CasdoorSelfIdentityResponse = {
+  activity: 'active' | 'inactive' | 'unknown'
+  avatar_status: 'unknown'
+  email: CasdoorSelfEmailResponse
+  id: string | null
+  lifecycle: 'active' | 'archived' | 'fencing' | 'unknown'
+  masked_identifier: '********'
+  name: CasdoorSelfNameResponse
+  namespace_id: string | null
+  organization: string | null
+  profile_consistency: 'consistent' | 'historical' | 'unknown'
+  sync_generation: number | null
+}
+
+export type CasdoorSelfMembershipResponse = {
+  consistency: 'historical' | 'stale' | 'unknown'
+  id: string | null
+  identity_id: string | null
+  join_presence: 'absent' | 'present' | 'unknown'
+  local_role: 'admin' | 'dataset_operator' | 'editor' | 'normal' | 'owner' | null
+  namespace_id: string | null
+  recorded_finalization: 'finalized' | 'manual_recovery' | 'pending' | null
+  recorded_ownership: 'local_override' | 'managed' | 'released' | null
+  recorded_source: 'adopt' | 'fallback' | 'mapping' | null
+  remote_actual_state: 'unknown'
+  state:
+    | 'absent_unknown'
+    | 'controlled_withdrawal'
+    | 'historical'
+    | 'local_override'
+    | 'recorded_managed'
+    | 'tombstone'
+    | 'unknown'
+    | 'unmanaged'
+  tombstone: boolean | null
+  workspace_id: string | null
+}
+
 export type AccountIntegrateResponse = {
   created_at?: number | null
   is_bound: boolean
   link?: string | null
   provider: string
+}
+
+export type CasdoorSelfEmailResponse = {
+  current_differs: boolean | null
+  last_differs: boolean | null
+  last_status: 'different' | 'invalid' | 'same' | 'unavailable' | null
+  verified: boolean | null
+}
+
+export type CasdoorSelfNameResponse = {
+  baseline_generation: number | null
+  current_local_differs_from_last_applied: boolean | null
+  last_reason:
+    | 'ambiguous_profile_attempt'
+    | 'created_baseline'
+    | 'disabled'
+    | 'empty_remote_name'
+    | 'filled_empty'
+    | 'local_name_present'
+    | 'local_override'
+    | 'managed_update'
+    | 'same_name'
+    | 'stale_profile_attempt'
+    | 'unowned_local_name'
+    | null
+  last_status: 'applied' | 'disabled' | 'local_override' | 'skipped' | 'unchanged' | null
+  last_sync_at: string | null
+  recorded_generation: number | null
 }
 
 export type AccountResponseWritable = {
@@ -189,6 +296,34 @@ export type PostAccountAvatarResponses = {
 }
 
 export type PostAccountAvatarResponse = PostAccountAvatarResponses[keyof PostAccountAvatarResponses]
+
+export type GetAccountCasdoorIdentityData = {
+  body?: never
+  path?: never
+  query?: {
+    current_membership_after?: string
+    identity_after?: string
+    limit?: number
+    membership_after?: string
+  }
+  url: '/account/casdoor-identity'
+}
+
+export type GetAccountCasdoorIdentityErrors = {
+  400: CasdoorSelfErrorResponse
+  409: CasdoorSelfErrorResponse
+  503: CasdoorSelfErrorResponse
+}
+
+export type GetAccountCasdoorIdentityError =
+  GetAccountCasdoorIdentityErrors[keyof GetAccountCasdoorIdentityErrors]
+
+export type GetAccountCasdoorIdentityResponses = {
+  200: CasdoorSelfIdentityStatusResponse
+}
+
+export type GetAccountCasdoorIdentityResponse =
+  GetAccountCasdoorIdentityResponses[keyof GetAccountCasdoorIdentityResponses]
 
 export type PostAccountChangeEmailData = {
   body: ChangeEmailSendPayload

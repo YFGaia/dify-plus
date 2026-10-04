@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from configs import dify_config
 from core.db.session_factory import session_factory
 from models import App, Dataset, TenantAccountJoin, TenantAccountRole
+from repositories.invitation_authority_repository_extend import InvitationAuthorityRepository
 from services.enterprise.base import EnterpriseRequest
 
 T = TypeVar("T")
@@ -2129,6 +2130,7 @@ class RBACService:
                 if not target_member_join:
                     raise ValueError("Member not in tenant.")
 
+                changed_joins: list[TenantAccountJoin] = []
                 if tenant_role == TenantAccountRole.OWNER:
                     current_owner_join = session.scalar(
                         select(TenantAccountJoin).where(
@@ -2138,8 +2140,18 @@ class RBACService:
                     )
                     if current_owner_join and current_owner_join.account_id != member_account_id:
                         current_owner_join.role = TenantAccountRole.NORMAL
+                        changed_joins.append(current_owner_join)
 
-                target_member_join.role = tenant_role
+                if target_member_join.role != tenant_role:
+                    target_member_join.role = tenant_role
+                    changed_joins.append(target_member_join)
+                if changed_joins:
+                    session.flush(changed_joins)
+                    authority = InvitationAuthorityRepository()
+                    for changed_join in changed_joins:
+                        authority.record_membership_role_change(
+                            session, account_id=changed_join.account_id, workspace_id=changed_join.tenant_id
+                        )
                 session.commit()
 
                 return _legacy_member_roles_response(tenant_id, member_account_id, tenant_role)

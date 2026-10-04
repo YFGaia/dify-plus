@@ -17,6 +17,7 @@ import PremiumBadge from '@/app/components/base/premium-badge'
 import Collapse from '@/app/components/header/account-setting/collapse'
 import { validPassword } from '@/config'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
+import EnterpriseIdentityPanel from '@/features/casdoor/identity-status'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { updateUserProfile } from '@/service/common'
 import { consoleQuery } from '@/service/console'
@@ -52,8 +53,19 @@ export default function AccountPage() {
   // Cache is hydrated by CommonLayoutHydrationBoundary; this hits cache synchronously.
   const { data: userProfileResp } = useSuspenseQuery(userProfileQueryOptions())
   const userProfile = userProfileResp.profile
-  const mutateUserProfile = () =>
-    queryClient.invalidateQueries({ queryKey: userProfileQueryOptions().queryKey })
+  const mutateUserProfile = () => {
+    const profileInvalidation = queryClient.invalidateQueries({
+      queryKey: userProfileQueryOptions().queryKey,
+    })
+    try {
+      void queryClient
+        .invalidateQueries({ queryKey: consoleQuery.account.casdoorIdentity.get.key() })
+        .catch(() => {})
+    } catch {
+      // Optional identity refresh must not change the existing profile save contract.
+    }
+    return profileInvalidation
+  }
   const { data: enableEducationPlan } = useQuery(
     consoleQuery.features.get.queryOptions({
       select: (features) => features.education.enabled,
@@ -240,6 +252,7 @@ export default function AccountPage() {
           </Button>
         </div>
       )}
+      <EnterpriseIdentityPanel key={userProfile.id} />
       <div className="mb-6 border border-divider-subtle" />
       <div className="mb-8">
         <div className={titleClassName}>

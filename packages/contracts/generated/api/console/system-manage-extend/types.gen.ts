@@ -4,6 +4,167 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}/console/api` | (string & {})
 }
 
+export type CasdoorConfigurationResponse = {
+  active?: CasdoorRevisionResponse | null
+  active_revision_id?: string | null
+  draft?: CasdoorRevisionResponse | null
+  draft_revision_id?: string | null
+  enabled?: boolean
+  etag?: number
+}
+
+export type CasdoorManagementErrorResponse = {
+  code: string
+  correlation_id: string
+  message?: 'Casdoor management request failed.'
+  reason?: 'deployment_proof_missing' | 'live_test_not_wired' | null
+}
+
+export type CasdoorSaveConfigurationPayload = {
+  configuration: CasdoorConfiguration
+  etag: number
+  secret?: null
+}
+
+export type CasdoorRevisionPayload = {
+  etag: number
+  revision_id: string
+}
+
+export type CasdoorClearSecretPayload = {
+  etag: number
+  revision_id: string
+}
+
+export type CasdoorDisablePayload = {
+  etag: number
+}
+
+export type CasdoorDisableResponse = {
+  configuration: CasdoorConfigurationResponse
+  reconciliation_required: boolean
+}
+
+export type CasdoorPermissionsResponse = {
+  can_manage_casdoor: boolean
+}
+
+export type CasdoorTestLoginResponse = {
+  reason: 'deployment_proof_missing' | 'live_test_not_wired'
+  status: 'blocked'
+}
+
+export type CasdoorStaticValidationResponse = {
+  certificate_summaries: Array<CasdoorCertificateSummaryResponse>
+  checked_at: string
+  etag: number
+  kind?: 'static'
+  revision_id: string
+  static_only?: true
+  status?: 'passed'
+}
+
+export type CasdoorWorkspacesResponse = {
+  earliest_created_ambiguous: boolean
+  earliest_created_workspace: CasdoorWorkspaceSelectionResponse | null
+  has_more: boolean
+  limit: number
+  page: number
+  total: number
+  workspaces: Array<CasdoorWorkspaceSelectionResponse>
+}
+
+export type CasdoorRevisionResponse = {
+  certificate_summaries?: Array<CasdoorCertificateSummaryResponse>
+  configuration: CasdoorConfiguration
+  namespace_id: string
+  revision_id: string
+  secret_configured: boolean
+  validation?: Array<CasdoorValidationSummaryResponse>
+}
+
+export type CasdoorConfiguration = {
+  application: string
+  avatar_mode?: 'fill_empty' | 'managed'
+  avatar_sync?: boolean
+  backend_api_url: string
+  browser_frontend_url: string
+  button_text?: string
+  certificates?: Array<PublicCertificatePolicy>
+  client_id: string
+  default_normal_fallback?: true
+  default_workspace_id: string
+  expected_issuer: string
+  name_sync?: 'fill_empty' | 'managed' | 'off'
+  organization: string
+  rp_logout?: boolean
+  schema_version?: 1
+  scope?: 'openid email profile'
+  self_unlink?: boolean
+  workspace_mappings?: Array<WorkspaceRoleMapping>
+}
+
+export type CasdoorCertificateSummaryResponse = {
+  accept_until: string
+  fingerprint: string
+  kid?: string | null
+  not_before: string
+}
+
+export type CasdoorWorkspaceSelectionResponse = {
+  available: boolean
+  created_at: string
+  name: string
+  workspace_id: string
+}
+
+export type CasdoorValidationSummaryResponse = {
+  checked_at?: string | null
+  code?: CasdoorErrorCode | null
+  correlation_id?: string | null
+  expires_at?: string | null
+  kind: 'diagnostic' | 'validation'
+  revision_id: string
+  status: 'expired' | 'failed' | 'not_run' | 'passed' | 'unknown'
+}
+
+export type PublicCertificatePolicy = {
+  accept_until: string
+  kid?: string | null
+  not_before: string
+  pem: string
+}
+
+export type WorkspaceRoleMapping = {
+  admin?: RoleRef | null
+  editor?: RoleRef | null
+  normal?: RoleRef | null
+  workspace_id: string
+}
+
+export type CasdoorErrorCode =
+  | 'authorization_pending'
+  | 'config_conflict'
+  | 'identity_conflict'
+  | 'invalid_transaction'
+  | 'invitation_mismatch'
+  | 'not_configured'
+  | 'provider_unavailable'
+  | 'remote_account_disabled'
+  | 'role_snapshot_unknown'
+  | 'workspace_unavailable'
+
+export type RoleRef = {
+  name: string
+  organization: string
+}
+
+export type CasdoorSaveConfigurationPayloadWritable = {
+  configuration: CasdoorConfiguration
+  etag: number
+  secret?: string | null
+}
+
 export type GetSystemManageExtendForwardTokensData = {
   body?: never
   path?: never
@@ -53,6 +214,225 @@ export type DeleteSystemManageExtendForwardTokensBySeqResponses = {
 
 export type DeleteSystemManageExtendForwardTokensBySeqResponse =
   DeleteSystemManageExtendForwardTokensBySeqResponses[keyof DeleteSystemManageExtendForwardTokensBySeqResponses]
+
+export type GetSystemManageExtendIntegrationCasdoorData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/casdoor'
+}
+
+export type GetSystemManageExtendIntegrationCasdoorErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type GetSystemManageExtendIntegrationCasdoorError =
+  GetSystemManageExtendIntegrationCasdoorErrors[keyof GetSystemManageExtendIntegrationCasdoorErrors]
+
+export type GetSystemManageExtendIntegrationCasdoorResponses = {
+  200: CasdoorConfigurationResponse
+}
+
+export type GetSystemManageExtendIntegrationCasdoorResponse =
+  GetSystemManageExtendIntegrationCasdoorResponses[keyof GetSystemManageExtendIntegrationCasdoorResponses]
+
+export type PutSystemManageExtendIntegrationCasdoorData = {
+  body: CasdoorSaveConfigurationPayloadWritable
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/casdoor'
+}
+
+export type PutSystemManageExtendIntegrationCasdoorErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type PutSystemManageExtendIntegrationCasdoorError =
+  PutSystemManageExtendIntegrationCasdoorErrors[keyof PutSystemManageExtendIntegrationCasdoorErrors]
+
+export type PutSystemManageExtendIntegrationCasdoorResponses = {
+  200: CasdoorConfigurationResponse
+}
+
+export type PutSystemManageExtendIntegrationCasdoorResponse =
+  PutSystemManageExtendIntegrationCasdoorResponses[keyof PutSystemManageExtendIntegrationCasdoorResponses]
+
+export type PostSystemManageExtendIntegrationCasdoorActivateData = {
+  body: CasdoorRevisionPayload
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/casdoor/activate'
+}
+
+export type PostSystemManageExtendIntegrationCasdoorActivateErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorActivateError =
+  PostSystemManageExtendIntegrationCasdoorActivateErrors[keyof PostSystemManageExtendIntegrationCasdoorActivateErrors]
+
+export type PostSystemManageExtendIntegrationCasdoorActivateResponses = {
+  200: CasdoorConfigurationResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorActivateResponse =
+  PostSystemManageExtendIntegrationCasdoorActivateResponses[keyof PostSystemManageExtendIntegrationCasdoorActivateResponses]
+
+export type PostSystemManageExtendIntegrationCasdoorClearSecretData = {
+  body: CasdoorClearSecretPayload
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/casdoor/clear-secret'
+}
+
+export type PostSystemManageExtendIntegrationCasdoorClearSecretErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorClearSecretError =
+  PostSystemManageExtendIntegrationCasdoorClearSecretErrors[keyof PostSystemManageExtendIntegrationCasdoorClearSecretErrors]
+
+export type PostSystemManageExtendIntegrationCasdoorClearSecretResponses = {
+  200: CasdoorConfigurationResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorClearSecretResponse =
+  PostSystemManageExtendIntegrationCasdoorClearSecretResponses[keyof PostSystemManageExtendIntegrationCasdoorClearSecretResponses]
+
+export type PostSystemManageExtendIntegrationCasdoorDisableData = {
+  body: CasdoorDisablePayload
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/casdoor/disable'
+}
+
+export type PostSystemManageExtendIntegrationCasdoorDisableErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorDisableError =
+  PostSystemManageExtendIntegrationCasdoorDisableErrors[keyof PostSystemManageExtendIntegrationCasdoorDisableErrors]
+
+export type PostSystemManageExtendIntegrationCasdoorDisableResponses = {
+  200: CasdoorDisableResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorDisableResponse =
+  PostSystemManageExtendIntegrationCasdoorDisableResponses[keyof PostSystemManageExtendIntegrationCasdoorDisableResponses]
+
+export type GetSystemManageExtendIntegrationCasdoorPermissionsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/casdoor/permissions'
+}
+
+export type GetSystemManageExtendIntegrationCasdoorPermissionsErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type GetSystemManageExtendIntegrationCasdoorPermissionsError =
+  GetSystemManageExtendIntegrationCasdoorPermissionsErrors[keyof GetSystemManageExtendIntegrationCasdoorPermissionsErrors]
+
+export type GetSystemManageExtendIntegrationCasdoorPermissionsResponses = {
+  200: CasdoorPermissionsResponse
+}
+
+export type GetSystemManageExtendIntegrationCasdoorPermissionsResponse =
+  GetSystemManageExtendIntegrationCasdoorPermissionsResponses[keyof GetSystemManageExtendIntegrationCasdoorPermissionsResponses]
+
+export type PostSystemManageExtendIntegrationCasdoorTestLoginData = {
+  body: CasdoorRevisionPayload
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/casdoor/test-login'
+}
+
+export type PostSystemManageExtendIntegrationCasdoorTestLoginErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorTestLoginError =
+  PostSystemManageExtendIntegrationCasdoorTestLoginErrors[keyof PostSystemManageExtendIntegrationCasdoorTestLoginErrors]
+
+export type PostSystemManageExtendIntegrationCasdoorTestLoginResponses = {
+  200: CasdoorTestLoginResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorTestLoginResponse =
+  PostSystemManageExtendIntegrationCasdoorTestLoginResponses[keyof PostSystemManageExtendIntegrationCasdoorTestLoginResponses]
+
+export type PostSystemManageExtendIntegrationCasdoorValidateData = {
+  body: CasdoorRevisionPayload
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/casdoor/validate'
+}
+
+export type PostSystemManageExtendIntegrationCasdoorValidateErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorValidateError =
+  PostSystemManageExtendIntegrationCasdoorValidateErrors[keyof PostSystemManageExtendIntegrationCasdoorValidateErrors]
+
+export type PostSystemManageExtendIntegrationCasdoorValidateResponses = {
+  200: CasdoorStaticValidationResponse
+}
+
+export type PostSystemManageExtendIntegrationCasdoorValidateResponse =
+  PostSystemManageExtendIntegrationCasdoorValidateResponses[keyof PostSystemManageExtendIntegrationCasdoorValidateResponses]
+
+export type GetSystemManageExtendIntegrationCasdoorWorkspacesData = {
+  body?: never
+  path?: never
+  query?: {
+    limit?: number
+    page?: number
+  }
+  url: '/system-manage-extend/integration/casdoor/workspaces'
+}
+
+export type GetSystemManageExtendIntegrationCasdoorWorkspacesErrors = {
+  400: CasdoorManagementErrorResponse
+  403: CasdoorManagementErrorResponse
+  409: CasdoorManagementErrorResponse
+  500: CasdoorManagementErrorResponse
+}
+
+export type GetSystemManageExtendIntegrationCasdoorWorkspacesError =
+  GetSystemManageExtendIntegrationCasdoorWorkspacesErrors[keyof GetSystemManageExtendIntegrationCasdoorWorkspacesErrors]
+
+export type GetSystemManageExtendIntegrationCasdoorWorkspacesResponses = {
+  200: CasdoorWorkspacesResponse
+}
+
+export type GetSystemManageExtendIntegrationCasdoorWorkspacesResponse =
+  GetSystemManageExtendIntegrationCasdoorWorkspacesResponses[keyof GetSystemManageExtendIntegrationCasdoorWorkspacesResponses]
 
 export type GetSystemManageExtendIntegrationDingtalkData = {
   body?: never

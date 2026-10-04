@@ -10,11 +10,19 @@ file URLs can be resolved through DB + storage before falling back to this SSRF
 client.
 """
 
+import asyncio
 import logging
+import math
 import time
+from functools import partial
+from importlib.metadata import version
 from typing import Any
 
+import anyio
+import httpcore
 import httpx
+from httpcore._backends.anyio import AnyIOBackend, AnyIOStream
+from httpcore._backends.auto import AutoBackend
 from pydantic import TypeAdapter, ValidationError
 
 from configs import dify_config
@@ -39,6 +47,7 @@ _SSRF_CLIENT_LIMITS = httpx.Limits(
     max_keepalive_connections=dify_config.SSRF_POOL_MAX_KEEPALIVE_CONNECTIONS,
     keepalive_expiry=dify_config.SSRF_POOL_KEEPALIVE_EXPIRY,
 )
+_DEADLINE_RUNTIME_VERSIONS = (httpx.__version__, httpcore.__version__, version("anyio"))
 
 
 class MaxRetriesExceededError(ValueError):
@@ -63,6 +72,46 @@ class UnsupportedResponseEncodingError(ResponseLimitError):
     """Raised when response encoding prevents safe decoded-size enforcement."""
 
     pass
+
+
+class RequestDeadlineExceededError(TimeoutError):
+    """A bounded request was cancelled at its absolute monotonic deadline."""
+
+
+class RequestTerminationUnconfirmedError(RequestDeadlineExceededError):
+    """Client resource termination could not be confirmed; callers must fail closed.
+
+    Do not issue another request or mint a session in the same operation. This
+    describes client resources, never proof of remote business termination.
+    """
+
+    code = "termination_unconfirmed"
+    termination_confirmed = False
+
+
+class _DeadlineNetworkBackend(httpcore.AsyncNetworkBackend):
+    """Observe sockets without changing the existing backend's network policy."""
+
+    def __init__(self, backend: httpcore.AsyncNetworkBackend, streams: list[httpcore.AsyncNetworkStream]):
+        self.backend = backend
+        self.streams = streams
+
+    async def connect_tcp(self, *args: Any, **kwargs: Any) -> httpcore.AsyncNetworkStream:
+        stream = await self.backend.connect_tcp(*args, **kwargs)
+        self.streams.append(stream)
+        if not isinstance(stream, AnyIOStream) or not isinstance(
+            getattr(getattr(stream, "_stream", None), "_transport", None), asyncio.Transport
+        ):
+            raise RequestTerminationUnconfirmedError("unsupported network stream termination adapter")
+        return stream
+
+    async def connect_unix_socket(self, *args: Any, **kwargs: Any) -> httpcore.AsyncNetworkStream:
+        stream = await self.backend.connect_unix_socket(*args, **kwargs)
+        self.streams.append(stream)
+        return stream
+
+    async def sleep(self, seconds: float) -> None:
+        await self.backend.sleep(seconds)
 
 
 request_error = httpx.RequestError
@@ -318,6 +367,255 @@ def buffer_response(response: httpx.Response, *, max_response_bytes: int) -> htt
         )
     finally:
         response.close()
+
+
+def _build_deadline_ssrf_client() -> httpx.AsyncClient:
+    """Use the existing SSRF proxy selection with verified, non-retrying transports.
+
+    A request owns its async client so cancellation can close all its connections;
+    async clients must not be shared across the synchronous adapter's event loops.
+    This does not change the legacy client's pooling, headers or proxy defaults.
+    """
+    if _DEADLINE_RUNTIME_VERSIONS != ("0.28.1", "1.0.9", "4.14.1"):
+        raise RequestTerminationUnconfirmedError("deadline transport runtime requires verification")
+    options: dict[str, Any] = {"verify": True, "follow_redirects": False, "limits": _SSRF_CLIENT_LIMITS}
+    if dify_config.SSRF_PROXY_ALL_URL:
+        options["proxy"] = dify_config.SSRF_PROXY_ALL_URL
+    elif dify_config.SSRF_PROXY_HTTP_URL and dify_config.SSRF_PROXY_HTTPS_URL:
+        options["mounts"] = {
+            scheme: httpx.AsyncHTTPTransport(proxy=proxy, verify=True, retries=0, limits=_SSRF_CLIENT_LIMITS)
+            for scheme, proxy in (
+                ("http://", dify_config.SSRF_PROXY_HTTP_URL),
+                ("https://", dify_config.SSRF_PROXY_HTTPS_URL),
+            )
+        }
+    client = httpx.AsyncClient(**options)
+    streams: list[httpcore.AsyncNetworkStream] = []
+    # HTTPX 0.28 / HTTPCore owner boundary: partial TLS setup is not yet in the
+    # pool's connection object. Track the original TCP stream before start_tls.
+    for transport in [client._transport, *client._mounts.values()]:
+        if transport is None:
+            continue
+        pool = getattr(transport, "_pool", None)
+        backend = getattr(pool, "_network_backend", None)
+        if isinstance(backend, AutoBackend | AnyIOBackend):
+            pool._network_backend = _DeadlineNetworkBackend(backend, streams)
+        else:
+            client.__dict__["_deadline_backend_supported"] = False
+    client.__dict__["_deadline_network_streams"] = streams
+    return client
+
+
+async def _close_deadline_resources(
+    response: httpx.Response | None, client: httpx.AsyncClient | None, *, expires_at: float
+) -> None:
+    """Abort standard sockets synchronously, then close within the same budget.
+
+    AnyIO's asyncio SocketStream owns an asyncio transport. Aborting it also
+    covers TCP streams stranded during a cancelled TLS handshake, before
+    HTTPCore has stored its HTTP connection. Unsupported backend shapes fail
+    closed rather than claiming termination. No background cleanup task exists.
+    """
+    failures: list[BaseException] = []
+    sockets: list[Any] = []
+    for stream in getattr(client, "_deadline_network_streams", []):
+        transport = getattr(getattr(stream, "_stream", None), "_transport", None)
+        if not isinstance(transport, asyncio.Transport):
+            failures.append(RuntimeError("unsupported socket termination adapter"))
+            continue
+        try:
+            raw_socket = stream.get_extra_info("socket")
+            if raw_socket is None:
+                failures.append(RuntimeError("socket close proof is unavailable"))
+            else:
+                sockets.append(raw_socket)
+            transport.abort()
+            if not transport.is_closing():
+                failures.append(RuntimeError("socket abort was not confirmed"))
+        except Exception as e:
+            failures.append(e)
+    if sockets:
+        remaining = expires_at - time.monotonic()
+        if remaining <= 0:
+            failures.append(TimeoutError("socket close proof budget exhausted"))
+        else:
+            try:
+                async with asyncio.timeout(remaining):
+                    # asyncio abort queues connection_lost, which closes the FD.
+                    await asyncio.sleep(0)
+                if any(raw_socket.fileno() != -1 for raw_socket in sockets):
+                    failures.append(RuntimeError("socket descriptor close was not confirmed"))
+            except (Exception, asyncio.CancelledError) as e:
+                failures.append(e)
+    resources = [resource for resource in (response, client) if resource is not None]
+    loop = asyncio.get_running_loop()
+    for index, resource in enumerate(resources):
+        remaining = expires_at - time.monotonic()
+        if remaining <= 0:
+            failures.append(TimeoutError("resource close budget exhausted"))
+            continue
+        # Preserve a client-close window if response-close stalls.
+        close_budget = remaining / (len(resources) - index)
+        try:
+            async with asyncio.timeout_at(loop.time() + close_budget):
+                await resource.aclose()
+            if time.monotonic() >= expires_at:
+                failures.append(TimeoutError("resource close exceeded deadline"))
+        except (Exception, asyncio.CancelledError) as e:
+            failures.append(e)
+    if failures:
+        raise RequestTerminationUnconfirmedError("client request termination is unconfirmed") from failures[0]
+
+
+async def async_make_request_with_deadline(
+    method: str,
+    url: str,
+    *,
+    deadline: float,
+    max_response_bytes: int,
+    request_timeout: float = 15.0,
+    **kwargs: Any,
+) -> httpx.Response:
+    """Cancel and close one bounded SSRF request before returning buffered bytes.
+
+    ``deadline`` is an absolute ``time.monotonic()`` timestamp shared by the
+    caller's whole operation (e.g. callback start + 45 seconds). Each request
+    additionally has at most 15 seconds, including response and resource cleanup.
+    Connect is capped at 3 seconds and read/write/pool at 10 seconds. Unlike an
+    inactivity timeout, the cancellation scope stops an indefinitely dripping
+    response. Cancellation also propagates from an enclosing async caller.
+
+    TLS verification, zero retries and no redirects are fixed. Existing trace
+    and explicit Host header handling are reused. Only identity encoding is
+    accepted, bytes are bounded before JSON parsing, and all response/client
+    resources are closed on success, rejection, timeout or caller cancellation.
+    This API supports the asyncio backend only. It reserves up to 250ms (20%
+    of short budgets) for cleanup, aborts observed standard sockets and awaits
+    close within the same absolute budget. Unconfirmed cleanup fails closed;
+    callers must stop the whole operation rather than dispatch or mint sessions.
+    No request or cleanup runs in a background task after this function returns.
+    Synchronous setup cannot be preempted, so budget is checked again before
+    dispatch and before returning any successful response.
+    """
+    started_at = time.monotonic()
+    if not math.isfinite(deadline):
+        raise ValueError("deadline must be a finite monotonic timestamp")
+    if not math.isfinite(request_timeout) or not 0 < request_timeout <= 15:
+        raise ValueError("request_timeout must be positive and at most 15 seconds")
+    if isinstance(max_response_bytes, bool) or not isinstance(max_response_bytes, int) or max_response_bytes <= 0:
+        raise ValueError("max_response_bytes must be a positive integer")
+    expires_at = min(deadline, started_at + request_timeout)
+    if expires_at <= started_at:
+        raise RequestDeadlineExceededError("request deadline has expired")
+    for option, required in (
+        ("max_retries", 0),
+        ("ssl_verify", True),
+        ("follow_redirects", False),
+        ("allow_redirects", False),
+    ):
+        if option in kwargs and (type(kwargs[option]) is not type(required) or kwargs.pop(option) != required):
+            raise ValueError(f"{option} cannot override the bounded request policy")
+    for option in ("timeout", "stream_response", "verify", "extensions"):
+        if option in kwargs:
+            raise ValueError(f"{option} cannot override the bounded request policy")
+    try:
+        headers = _HEADERS_ADAPTER.validate_python(kwargs.get("headers") or {})
+    except ValidationError as e:
+        raise ValueError("headers must be a mapping of string keys to string values") from e
+    headers = _inject_trace_headers(headers)
+    host = _get_user_provided_host_header(headers)
+    headers = {key: value for key, value in headers.items() if key.lower() != "host"}
+    if host is not None:
+        headers["host"] = host
+    kwargs["headers"] = headers
+    auth = kwargs.pop("auth", httpx.USE_CLIENT_DEFAULT)
+    response: httpx.Response | None = None
+    client: httpx.AsyncClient | None = None
+    loop = asyncio.get_running_loop()
+    io_expires_at = expires_at - min(0.25, (expires_at - started_at) * 0.2)
+    try:
+        try:
+            async with asyncio.timeout_at(loop.time() + max(0, io_expires_at - time.monotonic())):
+                client = _build_deadline_ssrf_client()
+                if client.__dict__.get("_deadline_backend_supported") is False:
+                    raise RequestTerminationUnconfirmedError("unsupported client termination adapter")
+                remaining = io_expires_at - time.monotonic()
+                if remaining <= 0:
+                    raise RequestDeadlineExceededError("request deadline has expired")
+                kwargs["timeout"] = httpx.Timeout(
+                    connect=min(3.0, remaining),
+                    read=min(10.0, remaining),
+                    write=min(10.0, remaining),
+                    pool=min(10.0, remaining),
+                )
+                request = client.build_request(method, url, **kwargs)
+                if time.monotonic() >= io_expires_at:
+                    raise RequestDeadlineExceededError("request deadline has expired before dispatch")
+                response = await client.send(request, stream=True, auth=auth, follow_redirects=False)
+                if response.status_code in (401, 403) and any(
+                    "squid" in response.headers.get(name, "").lower() for name in ("server", "via")
+                ):
+                    raise ToolSSRFError("Destination was blocked by the configured SSRF protection")
+                encoding = response.headers.get("content-encoding", "identity").strip().lower()
+                if encoding not in {"", "identity"}:
+                    raise UnsupportedResponseEncodingError("response encoding cannot be safely bounded")
+                content = bytearray()
+                if not isinstance(response.stream, httpx.AsyncByteStream):
+                    raise RequestTerminationUnconfirmedError("unsupported response stream adapter")
+                # Direct raw stream iteration avoids aiter_raw's implicit close
+                # outside our separately budgeted and tracked cleanup phase.
+                async for chunk in response.stream:
+                    if len(content) + len(chunk) > max_response_bytes:
+                        raise ResponseTooLargeError(f"response exceeded {max_response_bytes} bytes")
+                    content.extend(chunk)
+                buffered = httpx.Response(
+                    response.status_code,
+                    headers={
+                        name: value
+                        for name, value in response.headers.items()
+                        if name.lower() not in {"content-encoding", "content-length", "transfer-encoding"}
+                    },
+                    content=bytes(content),
+                    request=request,
+                    extensions=response.extensions,
+                    default_encoding=response.default_encoding,
+                )
+        except RequestTerminationUnconfirmedError:
+            raise
+        except TimeoutError as e:
+            raise RequestDeadlineExceededError("request deadline exceeded") from e
+    finally:
+        await _close_deadline_resources(response, client, expires_at=expires_at)
+    if time.monotonic() >= expires_at:
+        raise RequestDeadlineExceededError("request deadline exceeded before returning response")
+    return buffered
+
+
+def make_request_with_deadline(
+    method: str,
+    url: str,
+    *,
+    deadline: float,
+    max_response_bytes: int,
+    request_timeout: float = 15.0,
+    **kwargs: Any,
+) -> httpx.Response:
+    """Synchronous adapter; async callers must await the async API instead.
+
+    Runs cancellation and cleanup to completion in this thread. It does not use
+    a background worker or return while a timed-out request is still executing.
+    """
+    return anyio.run(
+        partial(
+            async_make_request_with_deadline,
+            method,
+            url,
+            deadline=deadline,
+            max_response_bytes=max_response_bytes,
+            request_timeout=request_timeout,
+            **kwargs,
+        )
+    )
 
 
 def get(url: str, max_retries: int = SSRF_DEFAULT_MAX_RETRIES, **kwargs: Any) -> httpx.Response:

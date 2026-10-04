@@ -35,6 +35,18 @@ export const zAccountResponse = z.object({
 })
 
 /**
+ * CasdoorSelfErrorResponse
+ */
+export const zCasdoorSelfErrorResponse = z.object({
+  code: z.enum([
+    'casdoor_self_invalid_query',
+    'casdoor_self_read_conflict',
+    'casdoor_self_request_rejected',
+    'casdoor_self_unavailable',
+  ]),
+})
+
+/**
  * ChangeEmailSendPayload
  */
 export const zChangeEmailSendPayload = z.object({
@@ -210,6 +222,59 @@ export const zAccountTimezonePayload = z.object({
 })
 
 /**
+ * CasdoorSelfActionsResponse
+ */
+export const zCasdoorSelfActionsResponse = z.object({
+  adopt: z.literal(false),
+  link: z.literal(false),
+  logout: z.literal(false),
+  reauthenticate: z.literal(false),
+  release: z.literal(false),
+  retry: z.literal(false),
+  unlink: z.literal(false),
+})
+
+/**
+ * CasdoorSelfCurrentMembershipResponse
+ */
+export const zCasdoorSelfCurrentMembershipResponse = z.object({
+  id: z.string().nullable(),
+  join_presence: z.enum(['absent', 'present', 'unknown']),
+  local_role: z.enum(['admin', 'dataset_operator', 'editor', 'normal', 'owner']).nullable(),
+  remote_actual_state: z.literal('unknown'),
+  state: z.enum(['history_present', 'unknown', 'unmanaged']),
+  workspace_id: z.string().nullable(),
+})
+
+/**
+ * CasdoorSelfMembershipResponse
+ */
+export const zCasdoorSelfMembershipResponse = z.object({
+  consistency: z.enum(['historical', 'stale', 'unknown']),
+  id: z.string().nullable(),
+  identity_id: z.string().nullable(),
+  join_presence: z.enum(['absent', 'present', 'unknown']),
+  local_role: z.enum(['admin', 'dataset_operator', 'editor', 'normal', 'owner']).nullable(),
+  namespace_id: z.string().nullable(),
+  recorded_finalization: z.enum(['finalized', 'manual_recovery', 'pending']).nullable(),
+  recorded_ownership: z.enum(['local_override', 'managed', 'released']).nullable(),
+  recorded_source: z.enum(['adopt', 'fallback', 'mapping']).nullable(),
+  remote_actual_state: z.literal('unknown'),
+  state: z.enum([
+    'absent_unknown',
+    'controlled_withdrawal',
+    'historical',
+    'local_override',
+    'recorded_managed',
+    'tombstone',
+    'unknown',
+    'unmanaged',
+  ]),
+  tombstone: z.boolean().nullable(),
+  workspace_id: z.string().nullable(),
+})
+
+/**
  * AccountIntegrateResponse
  */
 export const zAccountIntegrateResponse = z.object({
@@ -224,6 +289,76 @@ export const zAccountIntegrateResponse = z.object({
  */
 export const zAccountIntegrateListResponse = z.object({
   data: z.array(zAccountIntegrateResponse),
+})
+
+/**
+ * CasdoorSelfEmailResponse
+ */
+export const zCasdoorSelfEmailResponse = z.object({
+  current_differs: z.boolean().nullable(),
+  last_differs: z.boolean().nullable(),
+  last_status: z.enum(['different', 'invalid', 'same', 'unavailable']).nullable(),
+  verified: z.boolean().nullable(),
+})
+
+/**
+ * CasdoorSelfNameResponse
+ */
+export const zCasdoorSelfNameResponse = z.object({
+  baseline_generation: z.int().nullable(),
+  current_local_differs_from_last_applied: z.boolean().nullable(),
+  last_reason: z
+    .enum([
+      'ambiguous_profile_attempt',
+      'created_baseline',
+      'disabled',
+      'empty_remote_name',
+      'filled_empty',
+      'local_name_present',
+      'local_override',
+      'managed_update',
+      'same_name',
+      'stale_profile_attempt',
+      'unowned_local_name',
+    ])
+    .nullable(),
+  last_status: z.enum(['applied', 'disabled', 'local_override', 'skipped', 'unchanged']).nullable(),
+  last_sync_at: z.string().nullable(),
+  recorded_generation: z.int().nullable(),
+})
+
+/**
+ * CasdoorSelfIdentityResponse
+ */
+export const zCasdoorSelfIdentityResponse = z.object({
+  activity: z.enum(['active', 'inactive', 'unknown']),
+  avatar_status: z.literal('unknown'),
+  email: zCasdoorSelfEmailResponse,
+  id: z.string().nullable(),
+  lifecycle: z.enum(['active', 'archived', 'fencing', 'unknown']),
+  masked_identifier: z.literal('********'),
+  name: zCasdoorSelfNameResponse,
+  namespace_id: z.string().nullable(),
+  organization: z.string().max(255).nullable(),
+  profile_consistency: z.enum(['consistent', 'historical', 'unknown']),
+  sync_generation: z.int().nullable(),
+})
+
+/**
+ * CasdoorSelfIdentityStatusResponse
+ */
+export const zCasdoorSelfIdentityStatusResponse = z.object({
+  actions: zCasdoorSelfActionsResponse,
+  binding: z.enum(['linked', 'unlinked']),
+  current_membership_has_more: z.boolean(),
+  current_membership_next: z.string().nullable(),
+  current_memberships: z.array(zCasdoorSelfCurrentMembershipResponse),
+  identities: z.array(zCasdoorSelfIdentityResponse),
+  identity_has_more: z.boolean(),
+  identity_next: z.string().nullable(),
+  membership_has_more: z.boolean(),
+  membership_next: z.string().nullable(),
+  memberships: z.array(zCasdoorSelfMembershipResponse),
 })
 
 /**
@@ -258,6 +393,18 @@ export const zPostAccountAvatarBody = zAccountAvatarPayload
  * Success
  */
 export const zPostAccountAvatarResponse = zAccountResponse
+
+export const zGetAccountCasdoorIdentityQuery = z.object({
+  current_membership_after: z.uuid().optional(),
+  identity_after: z.uuid().optional(),
+  limit: z.int().gte(1).lte(50).optional().default(20),
+  membership_after: z.uuid().optional(),
+})
+
+/**
+ * Private local observations
+ */
+export const zGetAccountCasdoorIdentityResponse = zCasdoorSelfIdentityStatusResponse
 
 export const zPostAccountChangeEmailBody = zChangeEmailSendPayload
 

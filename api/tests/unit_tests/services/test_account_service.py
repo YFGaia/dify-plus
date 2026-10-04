@@ -1,7 +1,7 @@
 import json
 from collections.abc import Callable, Iterator, Sequence
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 from uuid import UUID
 
 import pytest
@@ -1172,7 +1172,7 @@ class TestTenantService:
             target_join = self._add_tenant_account_join(
                 service_session,
                 tenant,
-                "member-789",
+                "00000000-0000-4000-8000-000000000101",
                 TenantAccountRole.NORMAL,
             )
             self._add_tenant_account_join(
@@ -1185,7 +1185,9 @@ class TestTenantService:
             target_join_id = target_join.id
             service_session.commit()
 
-            mock_member = TestAccountAssociatedDataFactory.create_account_mock(account_id="member-789")
+            mock_member = TestAccountAssociatedDataFactory.create_account_mock(
+                account_id="00000000-0000-4000-8000-000000000101"
+            )
             mock_operator = TestAccountAssociatedDataFactory.create_account_mock(account_id="operator-123")
 
             TenantService.update_member_role(
@@ -1307,7 +1309,9 @@ class TestTenantService:
             tenant = Tenant(name="Test Workspace")
             service_session.add(tenant)
             service_session.flush()
-            mock_member = TestAccountAssociatedDataFactory.create_account_mock(account_id="member-789")
+            mock_member = TestAccountAssociatedDataFactory.create_account_mock(
+                account_id="00000000-0000-4000-8000-000000000101"
+            )
             mock_operator = TestAccountAssociatedDataFactory.create_account_mock(account_id="operator-123")
             target_join = self._add_tenant_account_join(
                 service_session, tenant, mock_member.id, TenantAccountRole.ADMIN
@@ -2135,7 +2139,7 @@ class TestRegisterService:
                     patch("services.account_service.TenantService.check_member_permission") as mock_check_permission,
                     patch("services.account_service.TenantService.create_tenant_member") as mock_create_member,
                     patch("services.account_service.TenantService.switch_tenant") as mock_switch_tenant,
-                    patch("services.account_service.RegisterService.generate_invite_token") as mock_generate_token,
+                    patch("services.account_service.InvitationIssuer.issue") as mock_generate_token,
                 ):
                     mock_generate_token.return_value = "invite-token-123"
 
@@ -2185,7 +2189,7 @@ class TestRegisterService:
                     patch("services.account_service.TenantService.check_member_permission") as mock_check_permission,
                     patch("services.account_service.TenantService.create_tenant_member") as mock_create_member,
                     patch("services.account_service.TenantService.switch_tenant") as mock_switch_tenant,
-                    patch("services.account_service.RegisterService.generate_invite_token") as mock_generate_token,
+                    patch("services.account_service.InvitationIssuer.issue") as mock_generate_token,
                 ):
                     mock_generate_token.return_value = "invite-token-abc"
 
@@ -2224,7 +2228,13 @@ class TestRegisterService:
                     )
                     mock_switch_tenant.assert_called_once_with(mock_new_account, mock_tenant.id, session=sqlite_session)
                     mock_generate_token.assert_called_once_with(
-                        mock_tenant, mock_new_account, "normal", requires_setup=True
+                        mock_tenant,
+                        mock_new_account,
+                        "normal",
+                        requires_setup=True,
+                        actor_id=mock_inviter.id,
+                        session=sqlite_session,
+                        redis=ANY,
                     )
                     mock_task_dependencies.delay.assert_called_once()
 
@@ -2250,7 +2260,7 @@ class TestRegisterService:
             with (
                 patch("services.account_service.TenantService.check_member_permission") as mock_check_permission,
                 patch("services.account_service.TenantService.create_tenant_member") as mock_create_member,
-                patch("services.account_service.RegisterService.generate_invite_token") as mock_generate_token,
+                patch("services.account_service.InvitationIssuer.issue") as mock_generate_token,
             ):
                 mock_generate_token.return_value = "invite-token-123"
 
@@ -2274,7 +2284,13 @@ class TestRegisterService:
                     operator_account_id=mock_inviter.id,
                 )
                 mock_generate_token.assert_called_once_with(
-                    mock_tenant, mock_existing_account, "normal", requires_setup=True
+                    mock_tenant,
+                    mock_existing_account,
+                    "normal",
+                    requires_setup=True,
+                    actor_id=mock_inviter.id,
+                    session=sqlite_session,
+                    redis=ANY,
                 )
                 mock_task_dependencies.delay.assert_called_once()
                 mock_lookup.assert_called_once_with("existing@example.com", session=sqlite_session)
@@ -2297,7 +2313,7 @@ class TestRegisterService:
             with (
                 patch("services.account_service.TenantService.check_member_permission") as mock_check_permission,
                 patch("services.account_service.TenantService.create_tenant_member") as mock_create_member,
-                patch("services.account_service.RegisterService.generate_invite_token") as mock_generate_token,
+                patch("services.account_service.InvitationIssuer.issue") as mock_generate_token,
             ):
                 mock_generate_token.return_value = "invite-token-123"
 
@@ -2320,7 +2336,13 @@ class TestRegisterService:
                 )
                 mock_create_member.assert_not_called()
                 mock_generate_token.assert_called_once_with(
-                    mock_tenant, mock_existing_account, "admin", requires_setup=False
+                    mock_tenant,
+                    mock_existing_account,
+                    "admin",
+                    requires_setup=False,
+                    actor_id=mock_inviter.id,
+                    session=sqlite_session,
+                    redis=ANY,
                 )
                 mock_task_dependencies.delay.assert_called_once()
 
@@ -2402,7 +2424,7 @@ class TestRegisterService:
                 patch("services.account_service.TenantService.check_member_permission"),
                 patch("services.account_service.TenantService.create_tenant_member") as mock_create_member,
                 patch("services.account_service.TenantService.switch_tenant"),
-                patch("services.account_service.RegisterService.generate_invite_token", return_value="rbac-token"),
+                patch("services.account_service.InvitationIssuer.issue", return_value="rbac-token"),
                 patch("services.account_service.RBACService") as mock_rbac_service,
             ):
                 mock_register.return_value = mock_new_account
@@ -2453,7 +2475,7 @@ class TestRegisterService:
             with (
                 patch("services.account_service.TenantService.check_member_permission"),
                 patch("services.account_service.TenantService.create_tenant_member") as mock_create_member,
-                patch("services.account_service.RegisterService.generate_invite_token", return_value="rbac-token"),
+                patch("services.account_service.InvitationIssuer.issue", return_value="rbac-token"),
                 patch("services.account_service.RBACService") as mock_rbac_service,
             ):
                 result = RegisterService.invite_new_member(
@@ -2555,7 +2577,7 @@ class TestRegisterService:
                 patch("services.account_service.TenantService.check_member_permission"),
                 patch("services.account_service.TenantService.create_tenant_member") as mock_create_member,
                 patch("services.account_service.TenantService.switch_tenant"),
-                patch("services.account_service.RegisterService.generate_invite_token", return_value="legacy-token"),
+                patch("services.account_service.InvitationIssuer.issue", return_value="legacy-token"),
                 patch("services.account_service.RBACService") as mock_rbac_service,
             ):
                 mock_register.return_value = mock_new_account

@@ -206,3 +206,33 @@ def test_sync_joined_workspace_member_rbac_access_task_appends_auto_included_res
     assert [item.agent_id for item in agent_call["data"]] == ["agent-1"]
     assert agent_call["data"][0].account_ids == ["member-1"]
     assert agent_call["data"][0].policy_id == task_module.APP_RBAC_DEFAULT_ACCESS_POLICY_ID
+
+
+@pytest.mark.parametrize("explicit", [False, True])
+def test_resource_enumerator_session_seam_preserves_query_pages(monkeypatch, explicit):
+    import tasks.initialize_created_app_rbac_access_task as task_module
+
+    sessions = [MagicMock(), MagicMock(), MagicMock()]
+    pages = [["a", "b"], ["c"], []]
+    for session, page in zip(sessions, pages, strict=True):
+        session.scalars.return_value.all.return_value = page
+    ambient = MagicMock(side_effect=sessions)
+    monkeypatch.setattr(task_module.db, "session", ambient)
+    supplied = MagicMock()
+    supplied.scalars.side_effect = [session.scalars.return_value for session in sessions]
+    iterator = task_module._WHITELIST_RESOURCE_KINDS[0].iter_id_batches(
+        "tenant", 2, **({"session": supplied} if explicit else {})
+    )
+    assert ambient.call_count == 0
+    assert list(iterator) == pages[:2]
+    assert ambient.call_count == (0 if explicit else 3)
+    calls = supplied.scalars.call_args_list if explicit else [s.scalars.call_args for s in sessions]
+    for index, call in enumerate(calls):
+        statement = call.args[0]
+        sql = str(statement)
+        assert "apps.tenant_id =" in sql and "ORDER BY apps.id ASC" in sql and "LIMIT" in sql
+        assert ("apps.id >" in sql) == (index > 0)
+        assert statement.compile().params["tenant_id_1"] == "tenant"
+        assert statement.compile().params["param_1"] == 2
+    assert calls[1].args[0].compile().params["id_1"] == "b"
+    assert calls[2].args[0].compile().params["id_1"] == "c"

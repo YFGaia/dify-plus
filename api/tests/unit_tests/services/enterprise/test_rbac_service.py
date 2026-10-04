@@ -982,14 +982,22 @@ class TestMemberRoles:
         self, mock_send: MagicMock, sqlite_session: Session, config_overrides
     ):
         config_overrides(RBAC_ENABLED=False)
-        target_join = TenantAccountJoin(tenant_id="tenant-1", account_id="acct-2", role=svc.TenantAccountRole.NORMAL)
+        target_join = TenantAccountJoin(
+            tenant_id="00000000-0000-4000-8000-000000000201",
+            account_id="00000000-0000-4000-8000-000000000202",
+            role=svc.TenantAccountRole.NORMAL,
+        )
         sqlite_session.add(target_join)
         sqlite_session.commit()
         target_join_id = target_join.id
         engine = sqlite_session.get_bind()
 
         out = svc.RBACService.MemberRoles.replace(
-            "tenant-1", "acct-1", "acct-2", role_ids=["editor"], session=sqlite_session
+            "00000000-0000-4000-8000-000000000201",
+            "acct-1",
+            "00000000-0000-4000-8000-000000000202",
+            role_ids=["editor"],
+            session=sqlite_session,
         )
 
         mock_send.assert_not_called()
@@ -1002,7 +1010,7 @@ class TestMemberRoles:
             )
             assert persisted_join is not None
             assert persisted_join.role == svc.TenantAccountRole.EDITOR
-        assert out.account_id == "acct-2"
+        assert out.account_id == "00000000-0000-4000-8000-000000000202"
         assert out.roles[0].id == "editor"
         assert "app.acl.preview" in out.roles[0].permission_keys
 
@@ -1010,25 +1018,37 @@ class TestMemberRoles:
         self, mock_send: MagicMock, sqlite_session: Session, config_overrides
     ):
         config_overrides(RBAC_ENABLED=False)
-        target_join = TenantAccountJoin(tenant_id="tenant-1", account_id="acct-2", role=svc.TenantAccountRole.NORMAL)
-        owner_join = TenantAccountJoin(tenant_id="tenant-1", account_id="acct-owner", role=svc.TenantAccountRole.OWNER)
+        target_join = TenantAccountJoin(
+            tenant_id="00000000-0000-4000-8000-000000000201",
+            account_id="00000000-0000-4000-8000-000000000202",
+            role=svc.TenantAccountRole.NORMAL,
+        )
+        owner_join = TenantAccountJoin(
+            tenant_id="00000000-0000-4000-8000-000000000201",
+            account_id="00000000-0000-4000-8000-000000000203",
+            role=svc.TenantAccountRole.OWNER,
+        )
         sqlite_session.add_all([target_join, owner_join])
         sqlite_session.commit()
 
         out = svc.RBACService.MemberRoles.replace(
-            "tenant-1", "acct-1", "acct-2", role_ids=["owner"], session=sqlite_session
+            "00000000-0000-4000-8000-000000000201",
+            "acct-1",
+            "00000000-0000-4000-8000-000000000202",
+            role_ids=["owner"],
+            session=sqlite_session,
         )
 
         mock_send.assert_not_called()
         persisted_joins = {
             join.account_id: join.role
             for join in sqlite_session.scalars(
-                select(TenantAccountJoin).where(TenantAccountJoin.tenant_id == "tenant-1")
+                select(TenantAccountJoin).where(TenantAccountJoin.tenant_id == "00000000-0000-4000-8000-000000000201")
             )
         }
         assert persisted_joins == {
-            "acct-2": svc.TenantAccountRole.OWNER,
-            "acct-owner": svc.TenantAccountRole.NORMAL,
+            "00000000-0000-4000-8000-000000000202": svc.TenantAccountRole.OWNER,
+            "00000000-0000-4000-8000-000000000203": svc.TenantAccountRole.NORMAL,
         }
         assert out.roles[0].id == "owner"
 

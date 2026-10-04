@@ -9,6 +9,7 @@ import { consoleBrowserLink } from './browser'
 import { createConsoleQuery } from './query-policies'
 
 export type ConsoleClientContext = TanstackQueryOperationContext & {
+  beforeCasdoorResultRequest?: () => void
   keepalive?: boolean
   silent?: boolean
 }

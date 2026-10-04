@@ -3,6 +3,242 @@
 import * as z from 'zod'
 
 /**
+ * CasdoorManagementErrorResponse
+ */
+export const zCasdoorManagementErrorResponse = z.object({
+  code: z.string(),
+  correlation_id: z.uuid(),
+  message: z
+    .literal('Casdoor management request failed.')
+    .optional()
+    .default('Casdoor management request failed.'),
+  reason: z.enum(['deployment_proof_missing', 'live_test_not_wired']).nullish(),
+})
+
+/**
+ * CasdoorRevisionPayload
+ */
+export const zCasdoorRevisionPayload = z.object({
+  etag: z.int().gte(0),
+  revision_id: z.uuid(),
+})
+
+/**
+ * CasdoorClearSecretPayload
+ *
+ * Explicit draft-only action; empty Secret in save means retain, not clear.
+ */
+export const zCasdoorClearSecretPayload = z.object({
+  etag: z.int().gte(0),
+  revision_id: z.uuid(),
+})
+
+/**
+ * CasdoorDisablePayload
+ */
+export const zCasdoorDisablePayload = z.object({
+  etag: z.int().gte(0),
+})
+
+/**
+ * CasdoorPermissionsResponse
+ */
+export const zCasdoorPermissionsResponse = z.object({
+  can_manage_casdoor: z.boolean(),
+})
+
+/**
+ * CasdoorTestLoginResponse
+ */
+export const zCasdoorTestLoginResponse = z.object({
+  reason: z.enum(['deployment_proof_missing', 'live_test_not_wired']),
+  status: z.literal('blocked'),
+})
+
+/**
+ * CasdoorCertificateSummaryResponse
+ */
+export const zCasdoorCertificateSummaryResponse = z.object({
+  accept_until: z.iso.datetime(),
+  fingerprint: z.string().regex(/^[0-9a-f]{64}$/),
+  kid: z.string().min(1).max(128).nullish(),
+  not_before: z.iso.datetime(),
+})
+
+/**
+ * CasdoorStaticValidationResponse
+ */
+export const zCasdoorStaticValidationResponse = z.object({
+  certificate_summaries: z.array(zCasdoorCertificateSummaryResponse).min(1).max(2),
+  checked_at: z.iso.datetime(),
+  etag: z.int().gte(0),
+  kind: z.literal('static').optional().default('static'),
+  revision_id: z.uuid(),
+  static_only: z.literal(true).optional().default(true),
+  status: z.literal('passed').optional().default('passed'),
+})
+
+/**
+ * CasdoorWorkspaceSelectionResponse
+ *
+ * Management selector adds persisted creation evidence to the workspace DTO.
+ */
+export const zCasdoorWorkspaceSelectionResponse = z.object({
+  available: z.boolean(),
+  created_at: z.iso.datetime(),
+  name: z.string().max(255),
+  workspace_id: z.uuid(),
+})
+
+/**
+ * CasdoorWorkspacesResponse
+ */
+export const zCasdoorWorkspacesResponse = z.object({
+  earliest_created_ambiguous: z.boolean(),
+  earliest_created_workspace: zCasdoorWorkspaceSelectionResponse.nullable(),
+  has_more: z.boolean(),
+  limit: z.int().gte(1).lte(100),
+  page: z.int().gte(1),
+  total: z.int().gte(0),
+  workspaces: z.array(zCasdoorWorkspaceSelectionResponse),
+})
+
+/**
+ * PublicCertificatePolicy
+ *
+ * Public pin declaration only; cryptographic authenticity is owned by I02.
+ */
+export const zPublicCertificatePolicy = z.object({
+  accept_until: z.iso.datetime(),
+  kid: z.string().min(1).max(128).nullish(),
+  not_before: z.iso.datetime(),
+  pem: z.string().min(1).max(16384),
+})
+
+/**
+ * CasdoorErrorCode
+ */
+export const zCasdoorErrorCode = z.enum([
+  'authorization_pending',
+  'config_conflict',
+  'identity_conflict',
+  'invalid_transaction',
+  'invitation_mismatch',
+  'not_configured',
+  'provider_unavailable',
+  'remote_account_disabled',
+  'role_snapshot_unknown',
+  'workspace_unavailable',
+])
+
+/**
+ * CasdoorValidationSummaryResponse
+ */
+export const zCasdoorValidationSummaryResponse = z.object({
+  checked_at: z.iso.datetime().nullish(),
+  code: zCasdoorErrorCode.nullish(),
+  correlation_id: z.uuid().nullish(),
+  expires_at: z.iso.datetime().nullish(),
+  kind: z.enum(['diagnostic', 'validation']),
+  revision_id: z.uuid(),
+  status: z.enum(['expired', 'failed', 'not_run', 'passed', 'unknown']),
+})
+
+/**
+ * RoleRef
+ *
+ * Two exact strings; names are never split, normalized or case-folded.
+ */
+export const zRoleRef = z.object({
+  name: z.string().min(1).max(255),
+  organization: z.string().min(1).max(255),
+})
+
+/**
+ * WorkspaceRoleMapping
+ */
+export const zWorkspaceRoleMapping = z.object({
+  admin: zRoleRef.nullish(),
+  editor: zRoleRef.nullish(),
+  normal: zRoleRef.nullish(),
+  workspace_id: z.uuid(),
+})
+
+/**
+ * CasdoorConfiguration
+ */
+export const zCasdoorConfiguration = z.object({
+  application: z.string().min(1).max(255),
+  avatar_mode: z.enum(['fill_empty', 'managed']).optional().default('fill_empty'),
+  avatar_sync: z.boolean().optional().default(false),
+  backend_api_url: z.string().min(1).max(2048),
+  browser_frontend_url: z.string().min(1).max(2048),
+  button_text: z.string().min(1).max(120).optional().default('Casdoor'),
+  certificates: z.array(zPublicCertificatePolicy).max(2).optional().default([]),
+  client_id: z.string().min(1).max(255),
+  default_normal_fallback: z.literal(true).optional().default(true),
+  default_workspace_id: z.uuid(),
+  expected_issuer: z.string().min(1).max(2048),
+  name_sync: z.enum(['fill_empty', 'managed', 'off']).optional().default('fill_empty'),
+  organization: z.string().min(1).max(255),
+  rp_logout: z.boolean().optional().default(false),
+  schema_version: z.literal(1).optional().default(1),
+  scope: z.literal('openid email profile').optional().default('openid email profile'),
+  self_unlink: z.boolean().optional().default(false),
+  workspace_mappings: z.array(zWorkspaceRoleMapping).max(100).optional().default([]),
+})
+
+/**
+ * CasdoorSaveConfigurationPayload
+ */
+export const zCasdoorSaveConfigurationPayload = z.object({
+  configuration: zCasdoorConfiguration,
+  etag: z.int().gte(0),
+  secret: z.null().optional(),
+})
+
+/**
+ * CasdoorRevisionResponse
+ */
+export const zCasdoorRevisionResponse = z.object({
+  certificate_summaries: z.array(zCasdoorCertificateSummaryResponse).max(2).optional().default([]),
+  configuration: zCasdoorConfiguration,
+  namespace_id: z.uuid(),
+  revision_id: z.uuid(),
+  secret_configured: z.boolean(),
+  validation: z.array(zCasdoorValidationSummaryResponse).max(2).optional().default([]),
+})
+
+/**
+ * CasdoorConfigurationResponse
+ */
+export const zCasdoorConfigurationResponse = z.object({
+  active: zCasdoorRevisionResponse.nullish(),
+  active_revision_id: z.uuid().nullish(),
+  draft: zCasdoorRevisionResponse.nullish(),
+  draft_revision_id: z.uuid().nullish(),
+  enabled: z.boolean().optional().default(false),
+  etag: z.int().gte(0).optional().default(0),
+})
+
+/**
+ * CasdoorDisableResponse
+ */
+export const zCasdoorDisableResponse = z.object({
+  configuration: zCasdoorConfigurationResponse,
+  reconciliation_required: z.boolean(),
+})
+
+/**
+ * CasdoorSaveConfigurationPayload
+ */
+export const zCasdoorSaveConfigurationPayloadWritable = z.object({
+  configuration: zCasdoorConfiguration,
+  etag: z.int().gte(0),
+  secret: z.string().nullish(),
+})
+
+/**
  * Success
  */
 export const zGetSystemManageExtendForwardTokensResponse = z.record(z.string(), z.unknown())
@@ -20,6 +256,72 @@ export const zDeleteSystemManageExtendForwardTokensBySeqPath = z.object({
  * Success
  */
 export const zDeleteSystemManageExtendForwardTokensBySeqResponse = z.record(z.string(), z.unknown())
+
+/**
+ * Configuration
+ */
+export const zGetSystemManageExtendIntegrationCasdoorResponse = zCasdoorConfigurationResponse
+
+export const zPutSystemManageExtendIntegrationCasdoorBody = zCasdoorSaveConfigurationPayloadWritable
+
+/**
+ * New immutable draft
+ */
+export const zPutSystemManageExtendIntegrationCasdoorResponse = zCasdoorConfigurationResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorActivateBody = zCasdoorRevisionPayload
+
+/**
+ * Activated configuration
+ */
+export const zPostSystemManageExtendIntegrationCasdoorActivateResponse =
+  zCasdoorConfigurationResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorClearSecretBody = zCasdoorClearSecretPayload
+
+/**
+ * Draft Secret cleared
+ */
+export const zPostSystemManageExtendIntegrationCasdoorClearSecretResponse =
+  zCasdoorConfigurationResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorDisableBody = zCasdoorDisablePayload
+
+/**
+ * Casdoor disabled and namespace fenced
+ */
+export const zPostSystemManageExtendIntegrationCasdoorDisableResponse = zCasdoorDisableResponse
+
+/**
+ * Current account permission
+ */
+export const zGetSystemManageExtendIntegrationCasdoorPermissionsResponse =
+  zCasdoorPermissionsResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorTestLoginBody = zCasdoorRevisionPayload
+
+/**
+ * Draft login test blocked by missing real proof
+ */
+export const zPostSystemManageExtendIntegrationCasdoorTestLoginResponse = zCasdoorTestLoginResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorValidateBody = zCasdoorRevisionPayload
+
+/**
+ * Local static checks only
+ */
+export const zPostSystemManageExtendIntegrationCasdoorValidateResponse =
+  zCasdoorStaticValidationResponse
+
+export const zGetSystemManageExtendIntegrationCasdoorWorkspacesQuery = z.object({
+  limit: z.int().gte(1).lte(100).optional().default(50),
+  page: z.int().gte(1).optional().default(1),
+})
+
+/**
+ * Global workspace selection
+ */
+export const zGetSystemManageExtendIntegrationCasdoorWorkspacesResponse = zCasdoorWorkspacesResponse
 
 /**
  * Success

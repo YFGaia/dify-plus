@@ -5,6 +5,11 @@ from pydantic_settings import BaseSettings
 
 
 class ExtendInfo(BaseSettings):
+    CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS: str = Field(
+        description="Comma-separated exact local account UUIDs allowed to manage only Casdoor; empty denies access.",
+        default="",
+    )
+
     OAUTH2_CLIENT_ID: str | None = Field(
         description="OA client id for OAuth",
         default=None,

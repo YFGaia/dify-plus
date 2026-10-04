@@ -3,6 +3,29 @@
 import * as z from 'zod'
 
 /**
+ * CasdoorDisplayResponse
+ */
+export const zCasdoorDisplayResponse = z.object({
+  button_text: z.string().min(1).max(120).optional().default('Casdoor'),
+  enabled: z.boolean().optional().default(false),
+  start_path: z
+    .literal('/console/api/auth/casdoor/login')
+    .optional()
+    .default('/console/api/auth/casdoor/login'),
+})
+
+/**
+ * CasdoorRestrictedResultResponse
+ *
+ * Anonymous, consumed display result; never a session or retry grant.
+ */
+export const zCasdoorRestrictedResultResponse = z.object({
+  code: z.enum(['authorization_pending', 'role_snapshot_unknown', 'workspace_unavailable']),
+  correlation_id: z.uuid(),
+  retry_allowed: z.literal(false),
+})
+
+/**
  * DatasourceCredentialPayload
  */
 export const zDatasourceCredentialPayload = z.object({
@@ -54,6 +77,31 @@ export const zDatasourceCredentialUpdatePayload = z.object({
 export const zDatasourceUpdateNamePayload = z.object({
   credential_id: z.string(),
   name: z.string().max(100),
+})
+
+/**
+ * CasdoorErrorCode
+ */
+export const zCasdoorErrorCode = z.enum([
+  'authorization_pending',
+  'config_conflict',
+  'identity_conflict',
+  'invalid_transaction',
+  'invitation_mismatch',
+  'not_configured',
+  'provider_unavailable',
+  'remote_account_disabled',
+  'role_snapshot_unknown',
+  'workspace_unavailable',
+])
+
+/**
+ * CasdoorResultResponse
+ */
+export const zCasdoorResultResponse = z.object({
+  code: zCasdoorErrorCode,
+  correlation_id: z.uuid(),
+  retry_allowed: z.boolean(),
 })
 
 /**
@@ -185,6 +233,23 @@ export const zDatasourceProviderAuthResponse = z.object({
 export const zDatasourceProviderAuthListResponse = z.object({
   result: z.array(zDatasourceProviderAuthResponse),
 })
+
+/**
+ * Public display metadata
+ */
+export const zGetAuthCasdoorDisplayResponse = zCasdoorDisplayResponse
+
+export const zGetAuthCasdoorResultQuery = z.object({
+  handoff: z
+    .string()
+    .length(43)
+    .regex(/^[A-Za-z0-9_-]{43}$/),
+})
+
+/**
+ * Consumed display result
+ */
+export const zGetAuthCasdoorResultResponse = zCasdoorRestrictedResultResponse
 
 /**
  * Default datasource credentials retrieved successfully

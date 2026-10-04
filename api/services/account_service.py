@@ -11,12 +11,13 @@ import logging
 import secrets
 import uuid
 from collections.abc import Iterator
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from typing import Any, NotRequired, TypedDict
 
 from pydantic import BaseModel, TypeAdapter, ValidationError
-from sqlalchemy import Row, delete, func, select, update
+from sqlalchemy import Row, delete, func, inspect, select, update
 from sqlalchemy.orm import Session
 from werkzeug.exceptions import Unauthorized
 
@@ -48,6 +49,7 @@ from models.account import (
 from models.account_money_extend import AccountMoneyExtend
 from models.dataset import Dataset
 from models.model import App, DifySetup
+from repositories.invitation_authority_repository_extend import InvitationAuthorityRepository
 from services.account_email import normalize_email
 from services.account_forgot_password_service import (
     FORGOT_PASSWORD_SEND_RATE_LIMIT_MAX_ATTEMPTS,
@@ -81,6 +83,7 @@ from services.errors.account import (
     SeatsLimitExceededError,
 )
 from services.errors.workspace import WorkSpaceNotAllowedCreateError, WorkspacesLimitExceededError
+from services.invitation_issuance_service_extend import InvitationIssuer
 from services.plugin.plugin_auto_upgrade_service import PluginAutoUpgradeService
 from services.system_feature_service import SystemFeatureService
 from services.telemetry_service import CommunityTelemetryService
@@ -113,6 +116,21 @@ _invitation_adapter: TypeAdapter[InvitationData] = TypeAdapter(InvitationData)
 logger = logging.getLogger(__name__)
 
 _change_email_token_adapter: TypeAdapter[ChangeEmailTokenData] = TypeAdapter(ChangeEmailTokenData)
+
+
+@dataclass(frozen=True)
+class _PreparedAccountCreation:
+    """Internal receipt from the shared creation checks, never a transport input.
+
+    Keep the prepared account unchanged and persist it within the same bounded
+    provisioning attempt. Provider authorization is the caller's responsibility.
+    """
+
+    account: Account
+    account_id: str
+    email: str
+    normalized_email: str
+    _consumed: bool = field(default=False, init=False, repr=False)
 
 
 class EnterpriseWorkspaceMemberAccountNotFoundError(Exception):
@@ -426,6 +444,43 @@ class AccountService:
         if check_normalized_email:
             AccountService.ensure_registration_email_available(email, session=session)
 
+        prepared = AccountService.prepare_account_creation(
+            email=email,
+            name=name,
+            interface_language=interface_language,
+            password=password,
+            interface_theme=interface_theme,
+            timezone=timezone,
+            ip_address=ip_address,
+        )
+
+        try:
+            account = AccountService.persist_account_creation(prepared, session=session)
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        return account
+
+    @staticmethod
+    def prepare_account_creation(
+        email: str,
+        name: str,
+        interface_language: str,
+        password: str | None = None,
+        interface_theme: str = "light",
+        timezone: str | None = None,
+        ip_address: str | None = None,
+    ) -> _PreparedAccountCreation:
+        """Check shared eligibility and prepare fields before a caller's write UoW.
+
+        The caller must first authorize its registration policy. Legacy public
+        registration does so in ``create_account``; a separate provider policy
+        must call this owner rather than impersonating installation with is_setup.
+        Licensed seats and cloud freeze checks are always applied here, including
+        for an independently authorized provider. They may perform external I/O,
+        so prepare before opening the bounded provisioning write transaction.
+        """
         # A licensed seat is one Account row, deployment-wide; joining an existing
         # account into another workspace does not pass through here and costs no seat.
         # get_license() carries the full license payload that server-side enforcement needs;
@@ -464,10 +519,11 @@ class AccountService:
         if timezone is not None:
             resolved_timezone = validate_timezone(timezone)
 
+        normalized_email = normalize_email(email)
         account = Account(
             name=name,
             email=email,
-            normalized_email=normalize_email(email),
+            normalized_email=normalized_email,
             password=password_to_set,
             password_salt=salt_to_set,
             interface_language=interface_language,
@@ -476,14 +532,37 @@ class AccountService:
             last_login_ip=ip_address,
         )
 
-        try:
-            session.add(account)
-            session.flush()
-            ensure_account_quota_extend(account.id, session=session)
-            session.commit()
-        except Exception:
-            session.rollback()
-            raise
+        return _PreparedAccountCreation(
+            account, account_id=account.id, email=account.email, normalized_email=normalized_email
+        )
+
+    @staticmethod
+    def persist_account_creation(prepared: _PreparedAccountCreation, *, session: Session) -> Account:
+        """Add a prepared account and initial quota in the caller-owned transaction.
+
+        Accept only the internal result of ``prepare_account_creation``; callers
+        must not construct receipts or change its account after shared checks.
+        No commit, rollback, event, activation, workspace or external I/O occurs
+        here. A provisioning caller can atomically add identity and intents, and
+        owns rollback if any later write fails. Existing quota is never reset.
+        """
+        if not isinstance(prepared, _PreparedAccountCreation):
+            raise TypeError("Account creation requires an internal prepared receipt.")
+        account = prepared.account
+        if (
+            prepared._consumed
+            or not inspect(account).transient
+            or account.id != prepared.account_id
+            or account.email != prepared.email
+            or account.normalized_email != prepared.normalized_email
+        ):
+            raise ValueError("Account creation requires an unchanged fresh preparation.")
+        # An attempt cannot be replayed after rollback or reused across requests;
+        # retrying must run the shared eligibility owner again.
+        object.__setattr__(prepared, "_consumed", True)
+        session.add(account)
+        session.flush()
+        ensure_account_quota_extend(account.id, session=session)
         return account
 
     @staticmethod
@@ -536,10 +615,15 @@ class AccountService:
         return account
 
     @staticmethod
-    def update_login_info(account: Account, session: Session, *, ip_address: str):
-        """Update last login time and ip"""
+    def persist_login_info(account: Account, *, ip_address: str) -> None:
+        """Assign login metadata; the caller owns flush and commit."""
         account.last_login_at = naive_utc_now()
         account.last_login_ip = ip_address
+
+    @staticmethod
+    def update_login_info(account: Account, session: Session, *, ip_address: str):
+        """Update last login time and ip"""
+        AccountService.persist_login_info(account, ip_address=ip_address)
         session.add(account)
         session.commit()
 
@@ -1017,6 +1101,14 @@ class AccountService:
         return session.scalar(select(Account).where(Account.email == email).limit(1)) is None
 
 
+@dataclass(frozen=True)
+class _PersistedTenantMember:
+    """Internal write result; post-commit effects remain with the caller."""
+
+    join: TenantAccountJoin
+    membership_created: bool
+
+
 class TenantService:
     @staticmethod
     def create_tenant(
@@ -1136,29 +1228,12 @@ class TenantService:
         operator_account_id: str | None = None,
     ) -> TenantAccountJoin:
         """Create tenant member"""
-        if role == TenantAccountRole.OWNER:
-            if TenantService.has_roles(tenant, [TenantAccountRole.OWNER], session=session):
-                logger.error("Tenant %s has already an owner.", tenant.id)
-                raise Exception("Tenant already has an owner.")
-
-        ta = session.scalar(
-            select(TenantAccountJoin)
-            .where(TenantAccountJoin.tenant_id == tenant.id, TenantAccountJoin.account_id == account.id)
-            .limit(1)
-        )
-        if ta:
-            ta.role = TenantAccountRole(role)
-            membership_created = False
-        else:
-            ta = TenantAccountJoin(tenant_id=tenant.id, account_id=account.id, role=TenantAccountRole(role))
-            session.add(ta)
-            membership_created = True
-
+        result = TenantService.persist_tenant_member(tenant, account, session, role)
         session.commit()
         if dify_config.DEPLOYMENT_EDITION == DeploymentEdition.CLOUD:
             BillingService.clean_billing_info_cache(tenant.id)
         if (
-            membership_created
+            result.membership_created
             and dify_config.RBAC_ENABLED
             and TenantAccountRole(role) != TenantAccountRole.OWNER
             and account.status != AccountStatus.PENDING
@@ -1170,7 +1245,61 @@ class TenantService:
                 str(account.id),
                 operator_account_id=operator_account_id,
             )
-        return ta
+        return result.join
+
+    @staticmethod
+    def persist_tenant_member(
+        tenant: Tenant,
+        account: Account,
+        session: Session,
+        role: str = "normal",
+    ) -> _PersistedTenantMember:
+        """Flush a membership write in the caller-owned transaction.
+
+        Preserve the legacy owner uniqueness check and existing-role update.
+        A new Join or a changed existing role advances invitation lifecycle in
+        the same transaction after its flush. Same-role re-entry is inert.
+        The caller must authorize admission and any change to an existing
+        membership before invoking this shared persistence owner. A Casdoor
+        caller must validate fresh workspace and managed/owner state first;
+        with RBAC enabled it persists a normal join and lets the separate role
+        owner perform remote authorization after commit.
+
+        No commit, rollback, cache, event, task, workspace creation or external
+        I/O occurs here. The returned creation flag lets the legacy public
+        caller retain its existing post-commit effects; Casdoor finalization
+        belongs to its durable intent owner.
+        """
+        if role == TenantAccountRole.OWNER:
+            if TenantService.has_roles(tenant, [TenantAccountRole.OWNER], session=session):
+                logger.error("Tenant %s has already an owner.", tenant.id)
+                raise Exception("Tenant already has an owner.")
+
+        ta = session.scalar(
+            select(TenantAccountJoin)
+            .where(TenantAccountJoin.tenant_id == tenant.id, TenantAccountJoin.account_id == account.id)
+            .limit(1)
+        )
+        role_changed = False
+        if ta:
+            requested_role = TenantAccountRole(role)
+            role_changed = ta.role != requested_role
+            ta.role = requested_role
+            membership_created = False
+        else:
+            ta = TenantAccountJoin(tenant_id=tenant.id, account_id=account.id, role=TenantAccountRole(role))
+            session.add(ta)
+            membership_created = True
+        session.flush()
+        if membership_created:
+            InvitationAuthorityRepository().record_membership_creation(
+                session, account_id=account.id, workspace_id=tenant.id
+            )
+        elif role_changed:
+            InvitationAuthorityRepository().record_membership_role_change(
+                session, account_id=account.id, workspace_id=tenant.id
+            )
+        return _PersistedTenantMember(join=ta, membership_created=membership_created)
 
     @staticmethod
     def join_enterprise_workspace_member(
@@ -1550,23 +1679,7 @@ class TenantService:
         if owner_id is None:
             raise ValueError(f"Workspace owner not found for tenant {tenant.id}.")
 
-        session.execute(
-            update(App)
-            .where(
-                App.tenant_id == tenant.id,
-                App.maintainer == account_id,
-            )
-            .values(maintainer=owner_id)
-        )
-        session.execute(
-            update(Dataset)
-            .where(
-                Dataset.tenant_id == tenant.id,
-                Dataset.maintainer == account_id,
-            )
-            .values(maintainer=owner_id)
-        )
-        session.delete(ta)
+        TenantService._persist_member_removal_effect(tenant, account_id, ta, owner_id, session=session)
 
         # Clean up orphaned pending accounts (invited but never activated)
         should_delete_account = False
@@ -1611,6 +1724,38 @@ class TenantService:
             RBACService.MemberRoles.delete_rbac_bindings(tenant_id=tenant.id, account_id=account_id)
 
     @staticmethod
+    def _persist_member_removal_effect(
+        tenant: Tenant, account_id: str, join: TenantAccountJoin, owner_id: str, *, session: Session
+    ) -> None:
+        """Withdraw invitations, reassign resources, and delete the authorized membership.
+
+        The caller resolves and authorizes the member and owner, and owns the
+        transaction and all account cleanup and post-commit effects.
+        Invitation authority schema revision 023 is required; repository failures
+        abort removal before resource reassignment or membership deletion.
+        """
+        InvitationAuthorityRepository().set_lifecycle_state(
+            session, account_id=account_id, workspace_id=tenant.id, state="withdrawn"
+        )
+        session.execute(
+            update(App)
+            .where(
+                App.tenant_id == tenant.id,
+                App.maintainer == account_id,
+            )
+            .values(maintainer=owner_id)
+        )
+        session.execute(
+            update(Dataset)
+            .where(
+                Dataset.tenant_id == tenant.id,
+                Dataset.maintainer == account_id,
+            )
+            .values(maintainer=owner_id)
+        )
+        session.delete(join)
+
+    @staticmethod
     def update_member_role(tenant: Tenant, member: Account, new_role: str, operator: Account, *, session: Session):
         """Update member role"""
         TenantService.check_member_permission(tenant, operator, member, "update", session=session)
@@ -1633,6 +1778,7 @@ class TenantService:
         if target_member_join.role == new_role:
             raise RoleAlreadyAssignedError("The provided role is already assigned to the member.")
 
+        local_role_changes: dict[str, TenantAccountJoin] = {}
         if new_role == "owner":
             if dify_config.RBAC_ENABLED:
                 old_owner_id = AccountService.get_rbac_workspace_owner_account_id(
@@ -1667,6 +1813,8 @@ class TenantService:
             )
             if current_owner_join:
                 current_owner_join.role = TenantAccountRole.NORMAL
+                if not dify_config.RBAC_ENABLED:
+                    local_role_changes[current_owner_join.account_id] = current_owner_join
 
         # Update the role of the target member
         if dify_config.RBAC_ENABLED:
@@ -1686,6 +1834,12 @@ class TenantService:
                 target_member_join.role = new_tenant_role
         else:
             target_member_join.role = new_tenant_role
+            local_role_changes[target_member_join.account_id] = target_member_join
+            session.flush(list(local_role_changes.values()))
+            for changed_account_id in local_role_changes:
+                InvitationAuthorityRepository().record_membership_role_change(
+                    session, account_id=changed_account_id, workspace_id=tenant.id
+                )
         session.commit()
 
     @staticmethod
@@ -1917,7 +2071,15 @@ class RegisterService:
                 session=session,
             )
 
-        token = cls.generate_invite_token(tenant, account, role, requires_setup=requires_setup)
+        token = InvitationIssuer.issue(
+            tenant,
+            account,
+            role,
+            requires_setup=requires_setup,
+            actor_id=inviter.id,
+            session=session,
+            redis=redis_client,
+        )
         language = account.interface_language or "en-US"
 
         # send email

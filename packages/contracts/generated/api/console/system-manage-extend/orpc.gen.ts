@@ -6,17 +6,33 @@ import {
   zDeleteSystemManageExtendForwardTokensBySeqPath,
   zDeleteSystemManageExtendForwardTokensBySeqResponse,
   zGetSystemManageExtendForwardTokensResponse,
+  zGetSystemManageExtendIntegrationCasdoorPermissionsResponse,
+  zGetSystemManageExtendIntegrationCasdoorResponse,
+  zGetSystemManageExtendIntegrationCasdoorWorkspacesQuery,
+  zGetSystemManageExtendIntegrationCasdoorWorkspacesResponse,
   zGetSystemManageExtendIntegrationDingtalkResponse,
   zGetSystemManageExtendIntegrationDingtalkTestResponse,
   zGetSystemManageExtendIntegrationOauth2Response,
   zGetSystemManageExtendQuotaManagementResponse,
   zPostSystemManageExtendForwardTokensResponse,
+  zPostSystemManageExtendIntegrationCasdoorActivateBody,
+  zPostSystemManageExtendIntegrationCasdoorActivateResponse,
+  zPostSystemManageExtendIntegrationCasdoorClearSecretBody,
+  zPostSystemManageExtendIntegrationCasdoorClearSecretResponse,
+  zPostSystemManageExtendIntegrationCasdoorDisableBody,
+  zPostSystemManageExtendIntegrationCasdoorDisableResponse,
+  zPostSystemManageExtendIntegrationCasdoorTestLoginBody,
+  zPostSystemManageExtendIntegrationCasdoorTestLoginResponse,
+  zPostSystemManageExtendIntegrationCasdoorValidateBody,
+  zPostSystemManageExtendIntegrationCasdoorValidateResponse,
   zPostSystemManageExtendIntegrationDingtalkResponse,
   zPostSystemManageExtendIntegrationDingtalkTestCallbackResponse,
   zPostSystemManageExtendIntegrationEmailApiTestResponse,
   zPostSystemManageExtendIntegrationOauth2Response,
   zPostSystemManageExtendIntegrationOauth2TestResponse,
   zPostSystemManageExtendQuotaManagementSetResponse,
+  zPutSystemManageExtendIntegrationCasdoorBody,
+  zPutSystemManageExtendIntegrationCasdoorResponse,
 } from './zod.gen'
 
 /**
@@ -72,10 +88,147 @@ export const forwardTokens = {
   bySeq,
 }
 
+export const post2 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationCasdoorActivate',
+    path: '/system-manage-extend/integration/casdoor/activate',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationCasdoorActivateBody }))
+  .output(zPostSystemManageExtendIntegrationCasdoorActivateResponse)
+
+export const activate = {
+  post: post2,
+}
+
+export const post3 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationCasdoorClearSecret',
+    path: '/system-manage-extend/integration/casdoor/clear-secret',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationCasdoorClearSecretBody }))
+  .output(zPostSystemManageExtendIntegrationCasdoorClearSecretResponse)
+
+export const clearSecret = {
+  post: post3,
+}
+
+export const post4 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationCasdoorDisable',
+    path: '/system-manage-extend/integration/casdoor/disable',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationCasdoorDisableBody }))
+  .output(zPostSystemManageExtendIntegrationCasdoorDisableResponse)
+
+export const disable = {
+  post: post4,
+}
+
+export const get2 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getSystemManageExtendIntegrationCasdoorPermissions',
+    path: '/system-manage-extend/integration/casdoor/permissions',
+    tags: ['console'],
+  })
+  .output(zGetSystemManageExtendIntegrationCasdoorPermissionsResponse)
+
+export const permissions = {
+  get: get2,
+}
+
+export const post5 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationCasdoorTestLogin',
+    path: '/system-manage-extend/integration/casdoor/test-login',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationCasdoorTestLoginBody }))
+  .output(zPostSystemManageExtendIntegrationCasdoorTestLoginResponse)
+
+export const testLogin = {
+  post: post5,
+}
+
+export const post6 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationCasdoorValidate',
+    path: '/system-manage-extend/integration/casdoor/validate',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationCasdoorValidateBody }))
+  .output(zPostSystemManageExtendIntegrationCasdoorValidateResponse)
+
+export const validate = {
+  post: post6,
+}
+
+export const get3 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getSystemManageExtendIntegrationCasdoorWorkspaces',
+    path: '/system-manage-extend/integration/casdoor/workspaces',
+    tags: ['console'],
+  })
+  .input(z.object({ query: zGetSystemManageExtendIntegrationCasdoorWorkspacesQuery.optional() }))
+  .output(zGetSystemManageExtendIntegrationCasdoorWorkspacesResponse)
+
+export const workspaces = {
+  get: get3,
+}
+
+export const get4 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getSystemManageExtendIntegrationCasdoor',
+    path: '/system-manage-extend/integration/casdoor',
+    tags: ['console'],
+  })
+  .output(zGetSystemManageExtendIntegrationCasdoorResponse)
+
+export const put = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'PUT',
+    operationId: 'putSystemManageExtendIntegrationCasdoor',
+    path: '/system-manage-extend/integration/casdoor',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPutSystemManageExtendIntegrationCasdoorBody }))
+  .output(zPutSystemManageExtendIntegrationCasdoorResponse)
+
+export const casdoor = {
+  get: get4,
+  put,
+  activate,
+  clearSecret,
+  disable,
+  permissions,
+  testLogin,
+  validate,
+  workspaces,
+}
+
 /**
  * 测试钉钉 AppKey/AppSecret 是否有效
  */
-export const get2 = oc
+export const get5 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -87,13 +240,13 @@ export const get2 = oc
   .output(zGetSystemManageExtendIntegrationDingtalkTestResponse)
 
 export const test = {
-  get: get2,
+  get: get5,
 }
 
 /**
  * 处理钉钉测试回调
  */
-export const post2 = oc
+export const post7 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -105,13 +258,13 @@ export const post2 = oc
   .output(zPostSystemManageExtendIntegrationDingtalkTestCallbackResponse)
 
 export const testCallback = {
-  post: post2,
+  post: post7,
 }
 
 /**
  * 获取钉钉配置
  */
-export const get3 = oc
+export const get6 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -125,7 +278,7 @@ export const get3 = oc
 /**
  * 保存钉钉配置
  */
-export const post3 = oc
+export const post8 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -137,8 +290,8 @@ export const post3 = oc
   .output(zPostSystemManageExtendIntegrationDingtalkResponse)
 
 export const dingtalk = {
-  get: get3,
-  post: post3,
+  get: get6,
+  post: post8,
   test,
   testCallback,
 }
@@ -146,7 +299,7 @@ export const dingtalk = {
 /**
  * 测试邮箱 API 连通性
  */
-export const post4 = oc
+export const post9 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -158,7 +311,7 @@ export const post4 = oc
   .output(zPostSystemManageExtendIntegrationEmailApiTestResponse)
 
 export const test2 = {
-  post: post4,
+  post: post9,
 }
 
 export const emailApi = {
@@ -168,7 +321,7 @@ export const emailApi = {
 /**
  * 测试 OAuth2 连接
  */
-export const post5 = oc
+export const post10 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -180,13 +333,13 @@ export const post5 = oc
   .output(zPostSystemManageExtendIntegrationOauth2TestResponse)
 
 export const test3 = {
-  post: post5,
+  post: post10,
 }
 
 /**
  * 获取 OAuth2 配置
  */
-export const get4 = oc
+export const get7 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -200,7 +353,7 @@ export const get4 = oc
 /**
  * 保存 OAuth2 配置
  */
-export const post6 = oc
+export const post11 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -212,12 +365,13 @@ export const post6 = oc
   .output(zPostSystemManageExtendIntegrationOauth2Response)
 
 export const oauth2 = {
-  get: get4,
-  post: post6,
+  get: get7,
+  post: post11,
   test: test3,
 }
 
 export const integration = {
+  casdoor,
   dingtalk,
   emailApi,
   oauth2,
@@ -226,7 +380,7 @@ export const integration = {
 /**
  * 设置指定用户的总额度（UPSERT）
  */
-export const post7 = oc
+export const post12 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -238,13 +392,13 @@ export const post7 = oc
   .output(zPostSystemManageExtendQuotaManagementSetResponse)
 
 export const set = {
-  post: post7,
+  post: post12,
 }
 
 /**
  * 获取用户额度分页列表，支持按 name/email 搜索
  */
-export const get5 = oc
+export const get8 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -256,7 +410,7 @@ export const get5 = oc
   .output(zGetSystemManageExtendQuotaManagementResponse)
 
 export const quotaManagement = {
-  get: get5,
+  get: get8,
   set,
 }
 

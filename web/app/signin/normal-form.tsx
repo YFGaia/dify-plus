@@ -6,6 +6,8 @@ import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isLegacyBase401, userProfileQueryOptions } from '@/features/account-profile/client'
+import { casdoorDisplayQueryOptions } from '@/features/casdoor/signin/client'
+import CasdoorSigninEntry from '@/features/casdoor/signin/entry'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import Link from '@/next/link'
 import { useRouter, useSearchParams } from '@/next/navigation'
@@ -51,6 +53,12 @@ function NormalForm() {
   const [selectedAuthType, setSelectedAuthType] = useState<AuthType | null>(null)
 
   const isInviteLink = Boolean(inviteToken && inviteToken !== 'null')
+  const casdoorDisplay = useQuery(casdoorDisplayQueryOptions(!isInviteLink))
+  const hasCasdoor =
+    !isInviteLink &&
+    casdoorDisplay.isSuccess &&
+    !casdoorDisplay.isFetching &&
+    casdoorDisplay.data.enabled === true
   const {
     data: invitationCheckResp,
     isPending: isInviteCheckLoading,
@@ -87,10 +95,14 @@ function NormalForm() {
       : selectedAuthType === 'code' && hasEmailCodeLogin
         ? 'code'
         : defaultAuthType
-  const showORLine = (hasSocialLogin || hasSsoLogin) && hasEmailLogin
+  const showORLine = (hasSocialLogin || hasSsoLogin || hasCasdoor) && hasEmailLogin
   const noLoginMethodsConfigured =
     !hasSocialLogin && !hasEmailCodeLogin && !hasEmailPasswordLogin && !hasSsoLogin
-  const allMethodsAreDisabled = noLoginMethodsConfigured || isInviteCheckError
+  const allMethodsAreDisabled =
+    (noLoginMethodsConfigured &&
+      !hasCasdoor &&
+      (isInviteLink || (casdoorDisplay.isSuccess && !casdoorDisplay.isFetching))) ||
+    isInviteCheckError
   const shouldRedirectLoggedInUser = isLoggedIn && (!isInviteLink || isInvitationForCurrentAccount)
   const isLoading =
     isCheckLoading || shouldRedirectLoggedInUser || (isInviteLink && isInviteCheckLoading)
@@ -212,6 +224,7 @@ function NormalForm() {
         )}
         <div className="relative">
           <div className="mt-6 flex flex-col gap-3">
+            {!isInviteLink && <CasdoorSigninEntry query={casdoorDisplay} />}
             {hasSocialLogin && <SocialAuth />}
             {hasSsoLogin && (
               <div className="w-full">

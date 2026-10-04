@@ -28,6 +28,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.tmp/
 MANIFEST
 
 # PyInstaller
@@ -35,6 +36,12 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+.agents
+.claude
+.cursor
+.gemini
+.github
+openspec
 
 # Installer logs
 pip-log.txt

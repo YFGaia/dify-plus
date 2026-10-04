@@ -264,6 +264,27 @@ vi.mock('@/service/console', async (importOriginal) => {
   const workspacesQueryKey = ['console', 'workspaces', 'get'] as const
   const consoleQuery = new Proxy(actual.consoleQuery, {
     get(target, prop, receiver) {
+      if (prop === 'systemManageExtend') {
+        const integration = actual.consoleQuery.systemManageExtend.integration
+        const permissionGet = integration.casdoor.permissions.get
+        return {
+          integration: {
+            ...integration,
+            casdoor: {
+              ...integration.casdoor,
+              permissions: {
+                get: {
+                  ...permissionGet,
+                  queryOptions: (options?: object) => ({
+                    ...permissionGet.queryOptions(options),
+                    queryFn: async () => ({ can_manage_casdoor: false }),
+                  }),
+                },
+              },
+            },
+          },
+        }
+      }
       if (prop === 'account') {
         return new Proxy(actual.consoleQuery.account, {
           get(account, property, accountReceiver) {
@@ -613,6 +634,10 @@ const renderMainNav = (
   } = {},
 ) => {
   const queryClient = createConsoleQueryClient()
+  queryClient.setQueryData(
+    consoleQuery.systemManageExtend.integration.casdoor.permissions.get.queryKey(),
+    { can_manage_casdoor: false },
+  )
   const currentConsoleState = mockConsoleState.current ?? consoleState
   mockConsoleState.current = currentConsoleState
   queryClient.setQueryData(

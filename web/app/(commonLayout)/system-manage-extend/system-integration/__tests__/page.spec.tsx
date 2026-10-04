@@ -1,7 +1,18 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { NuqsTestingAdapter } from 'nuqs/adapters/testing'
 import { describe, expect, it, vi } from 'vite-plus/test'
+import { renderWithConsoleQuery } from '@/test/console/query-data'
 import SystemIntegrationPage from '../page'
+
+vi.mock('@/service/base', () => ({ request: () => new Promise(() => {}) }))
+
+const renderPage = () =>
+  renderWithConsoleQuery(
+    <NuqsTestingAdapter hasMemory>
+      <SystemIntegrationPage />
+    </NuqsTestingAdapter>,
+  )
 
 // The page owns tab selection; each child owns its configuration and service calls.
 vi.mock('../dingtalk-config', () => ({
@@ -22,7 +33,7 @@ vi.mock('../forward-token-list', () => ({
 
 describe('SystemIntegrationPage', () => {
   it('shows only DingTalk content by default', () => {
-    render(<SystemIntegrationPage />)
+    renderPage()
 
     expect(screen.getByText('DingTalk configuration content')).toBeVisible()
     expect(screen.queryByText('OAuth2 configuration content')).not.toBeInTheDocument()
@@ -32,7 +43,7 @@ describe('SystemIntegrationPage', () => {
 
   it('replaces the content when switching tabs and returning to DingTalk', async () => {
     const user = userEvent.setup()
-    render(<SystemIntegrationPage />)
+    renderPage()
 
     await user.click(screen.getByRole('button', { name: /oauth2\.title$/ }))
 

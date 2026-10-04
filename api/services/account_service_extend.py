@@ -4,13 +4,20 @@ from extensions.ext_database import db
 from models.account import Account, Tenant, TenantAccountJoin, TenantAccountRole, TenantStatus
 from models.provider import Provider, ProviderModel
 from models.tenant_model_sync_extend import ModelSyncConfigExtend, TenantModelSyncExtend
+from repositories.invitation_authority_repository_extend import InvitationAuthorityRepository
 
 
 class TenantExtendService:
     @staticmethod
     def create_default_tenant_member_if_not_exist(tenant_id: str, account_id: str, role: str = "normal") -> bool:
+        """Commit a new default Join and its lifecycle together, or return False.
+
+        Failures propagate; the caller/request teardown owns Session cleanup.
+        Earlier account or workspace registration commits are outside this write.
+        """
+        session = db.session()
         available_ta = (
-            db.session.query(TenantAccountJoin)
+            session.query(TenantAccountJoin)
             .filter_by(account_id=account_id, tenant_id=tenant_id)
             .order_by(TenantAccountJoin.id.asc())
             .first()
@@ -20,8 +27,12 @@ class TenantExtendService:
             return False
 
         ta = TenantAccountJoin(tenant_id=tenant_id, account_id=account_id, role=role, current=True)
-        db.session.add(ta)
-        db.session.commit()
+        session.add(ta)
+        session.flush([ta])
+        InvitationAuthorityRepository().record_membership_creation(
+            session, account_id=account_id, workspace_id=tenant_id
+        )
+        session.commit()
         return True
 
     @staticmethod

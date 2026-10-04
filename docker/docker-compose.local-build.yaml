@@ -12,28 +12,31 @@
 
 services:
   api:
-    image: dify-plus-api:1.16.0-local
+    image: dify-plus-api:casdoor-live-20261003
     build:
       context: ..
       dockerfile: api/Dockerfile
 
   api_websocket:
-    image: dify-plus-api:1.16.0-local
+    image: dify-plus-api:casdoor-live-20261003
 
   worker:
-    image: dify-plus-api:1.16.0-local
+    image: dify-plus-api:casdoor-live-20261003
 
   worker-gaia:
-    image: dify-plus-api:1.16.0-local
+    image: dify-plus-api:casdoor-live-20261003
 
   worker-dataset:
-    image: dify-plus-api:1.16.0-local
+    image: dify-plus-api:casdoor-live-20261003
 
   worker_beat:
-    image: dify-plus-api:1.16.0-local
+    image: dify-plus-api:casdoor-live-20261003
+
+  migration:
+    image: dify-plus-api:casdoor-live-20261003
 
   web:
-    image: dify-plus-web:1.16.0-local
+    image: dify-plus-web:casdoor-live-20261003
     build:
       context: ..
       dockerfile: web/Dockerfile

@@ -2,14 +2,18 @@ import base64
 import hashlib
 import os
 import uuid
+import zlib
 from collections.abc import Generator, Sequence  # Changed Iterator to Generator
 from contextlib import contextmanager, suppress
+from dataclasses import dataclass, field
+from io import BytesIO
 from tempfile import NamedTemporaryFile
 from typing import Literal
 from zipfile import ZIP_DEFLATED, ZipFile
 
+from PIL import Image, features
 from sqlalchemy import Engine, select
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session, SessionTransactionOrigin, sessionmaker
 from werkzeug.exceptions import NotFound
 
 from configs import dify_config
@@ -35,6 +39,250 @@ from .errors.file import BlockedFileExtensionError, FileNotExistsError, FileTooL
 PREVIEW_WORDS_LIMIT = 3000
 
 
+_AVATAR_LIMIT = 2 * 1024 * 1024
+
+
+@dataclass(frozen=True, slots=True)
+class AvatarReservation:
+    """Structural reference only; R must reconstruct and recheck database authority."""
+
+    intent_id: str
+    attempt_id: str
+    file_id: str
+    account_id: str
+    tenant_id: str
+    storage_key: str
+
+
+@dataclass(frozen=True, slots=True)
+class NormalizedAvatar:
+    content: bytes = field(repr=False)
+    sha3_256: str
+    width: int
+    height: int
+
+
+@dataclass(frozen=True, slots=True)
+class AvatarNormalization:
+    code: Literal["normalized", "invalid_image", "unsupported_image_codec"]
+    image: NormalizedAvatar | None = field(default=None, repr=False)
+
+
+@dataclass(frozen=True, slots=True)
+class AvatarFileInsert:
+    code: Literal["inserted", "invalid_input", "invalid_transaction", "insert_failed"]
+    upload_file: UploadFile | None = field(default=None, repr=False)
+
+
+class _AvatarPNGWriter:
+    """Sequential PNG sink: refuse an oversized write before retaining any of it."""
+
+    def __init__(self):
+        self.data = bytearray()
+
+    def write(self, chunk: bytes) -> int:
+        if not isinstance(chunk, bytes) or len(chunk) > _AVATAR_LIMIT - len(self.data):
+            raise ValueError("invalid_image")
+        self.data.extend(chunk)
+        return len(chunk)
+
+    def flush(self) -> None:
+        pass
+
+    def close(self) -> None:
+        self.data.clear()
+
+
+def _avatar_dimensions(width: int, height: int) -> tuple[int, int]:
+    if not (0 < width <= 4096 and 0 < height <= 4096 and width * height <= 16_777_216):
+        raise ValueError("invalid_image")
+    # Reject before Pillow's warning path without changing its shared warning configuration.
+    if Image.MAX_IMAGE_PIXELS is not None and width * height > Image.MAX_IMAGE_PIXELS:
+        raise ValueError("invalid_image")
+    return width, height
+
+
+def _avatar_png_header(content: bytes) -> tuple[int, int]:
+    offset = 8
+    dimensions = None
+    has_data = False
+    while offset < len(content):
+        if offset + 12 > len(content):
+            raise ValueError("invalid_image")
+        length = int.from_bytes(content[offset : offset + 4], "big")
+        end = offset + 12 + length
+        if end > len(content):
+            raise ValueError("invalid_image")
+        kind = content[offset + 4 : offset + 8]
+        payload = content[offset + 8 : end - 4]
+        if zlib.crc32(kind + payload) != int.from_bytes(content[end - 4 : end], "big"):
+            raise ValueError("invalid_image")
+        if dimensions is None and kind != b"IHDR":
+            raise ValueError("invalid_image")
+        if kind in (b"acTL", b"fcTL", b"fdAT"):
+            raise ValueError("invalid_image")
+        if kind == b"IHDR":
+            if dimensions is not None or length != 13:
+                raise ValueError("invalid_image")
+            dimensions = _avatar_dimensions(int.from_bytes(payload[:4], "big"), int.from_bytes(payload[4:8], "big"))
+        if kind == b"IDAT":
+            has_data = True
+        if kind == b"IEND":
+            if length or not has_data or end != len(content) or dimensions is None:
+                raise ValueError("invalid_image")
+            return dimensions
+        offset = end
+    raise ValueError("invalid_image")
+
+
+def _avatar_jpeg_header(content: bytes) -> tuple[int, int]:
+    offset = 2
+    dimensions = None
+    in_scan = False
+    has_scan = False
+    # Every iteration consumes bytes; the outer input cap bounds the marker scan.
+    while offset < len(content):
+        if content[offset] != 0xFF:
+            if not in_scan:
+                raise ValueError("invalid_image")
+            offset += 1
+            continue
+        offset += 1
+        while offset < len(content) and content[offset] == 0xFF:
+            offset += 1
+        if offset == len(content):
+            raise ValueError("invalid_image")
+        marker = content[offset]
+        offset += 1
+        if in_scan and (marker == 0 or 0xD0 <= marker <= 0xD7):
+            continue
+        if marker == 0xD9:
+            if offset != len(content) or dimensions is None or not has_scan:
+                raise ValueError("invalid_image")
+            return dimensions
+        in_scan = False
+        if marker in (0, 0xD8, 0x01) or 0xD0 <= marker <= 0xD7 or offset + 2 > len(content):
+            raise ValueError("invalid_image")
+        length = int.from_bytes(content[offset : offset + 2], "big")
+        end = offset + length
+        if length < 2 or end > len(content):
+            raise ValueError("invalid_image")
+        payload = content[offset + 2 : end]
+        if marker == 0xE2 and payload.startswith(b"MPF\0"):
+            raise ValueError("invalid_image")
+        if marker in (0xC0, 0xC1, 0xC2):
+            if dimensions is not None or len(payload) < 6:
+                raise ValueError("invalid_image")
+            dimensions = _avatar_dimensions(int.from_bytes(payload[3:5], "big"), int.from_bytes(payload[1:3], "big"))
+        elif 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
+            raise ValueError("invalid_image")
+        if marker == 0xDA:
+            if dimensions is None:
+                raise ValueError("invalid_image")
+            has_scan = in_scan = True
+        offset = end
+    raise ValueError("invalid_image")
+
+
+def _avatar_webp_header(content: bytes) -> tuple[int, int]:
+    if len(content) < 20 or int.from_bytes(content[4:8], "little") + 8 != len(content):
+        raise ValueError("invalid_image")
+    offset = 12
+    canvas = None
+    dimensions = None
+    while offset < len(content):
+        if offset + 8 > len(content):
+            raise ValueError("invalid_image")
+        kind = content[offset : offset + 4]
+        length = int.from_bytes(content[offset + 4 : offset + 8], "little")
+        end = offset + 8 + length
+        padded_end = end + (length & 1)
+        if padded_end > len(content) or (length & 1 and content[end] != 0):
+            raise ValueError("invalid_image")
+        payload = content[offset + 8 : end]
+        if kind in (b"ANIM", b"ANMF"):
+            raise ValueError("invalid_image")
+        if kind == b"VP8X":
+            if offset != 12 or length != 10 or payload[0] & 0xC3 or payload[1:4] != b"\0\0\0":
+                raise ValueError("invalid_image")
+            canvas = _avatar_dimensions(
+                1 + int.from_bytes(payload[4:7], "little"), 1 + int.from_bytes(payload[7:10], "little")
+            )
+        if kind in (b"VP8 ", b"VP8L"):
+            if dimensions is not None:
+                raise ValueError("invalid_image")
+            if kind == b"VP8 ":
+                if length < 10 or payload[0] & 1 or payload[3:6] != b"\x9d\x01\x2a":
+                    raise ValueError("invalid_image")
+                dimensions = _avatar_dimensions(
+                    int.from_bytes(payload[6:8], "little") & 0x3FFF,
+                    int.from_bytes(payload[8:10], "little") & 0x3FFF,
+                )
+            else:
+                if length < 5 or payload[0] != 0x2F or payload[4] & 0xE0:
+                    raise ValueError("invalid_image")
+                bits = int.from_bytes(payload[1:5], "little")
+                dimensions = _avatar_dimensions(1 + (bits & 0x3FFF), 1 + ((bits >> 14) & 0x3FFF))
+        offset = padded_end
+    if dimensions is None or (canvas is not None and canvas != dimensions):
+        raise ValueError("invalid_image")
+    return dimensions
+
+
+def _avatar_header(content: bytes) -> tuple[str, tuple[int, int]]:
+    if type(content) is not bytes or not 0 < len(content) <= _AVATAR_LIMIT:
+        raise ValueError("invalid_image")
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "PNG", _avatar_png_header(content)
+    if content.startswith(b"\xff\xd8"):
+        return "JPEG", _avatar_jpeg_header(content)
+    if content.startswith(b"RIFF") and content[8:12] == b"WEBP":
+        return "WEBP", _avatar_webp_header(content)
+    raise ValueError("invalid_image")
+
+
+def _avatar_valid_reservation(reservation: AvatarReservation) -> bool:
+    if type(reservation) is not AvatarReservation or type(reservation.storage_key) is not str:
+        return False
+    try:
+        values = (
+            reservation.intent_id,
+            reservation.attempt_id,
+            reservation.file_id,
+            reservation.account_id,
+            reservation.tenant_id,
+        )
+        if any(type(value) is not str or str(uuid.UUID(value)) != value for value in values):
+            return False
+        return reservation.storage_key == (
+            f"casdoor-avatar/{reservation.intent_id}/{reservation.attempt_id}/{reservation.file_id}.png"
+        )
+    except (ValueError, TypeError, AttributeError):
+        return False
+
+
+def _avatar_valid_normalized(normalized: NormalizedAvatar) -> bool:
+    if type(normalized) is not NormalizedAvatar:
+        return False
+    # Check internal normalization invariants without decoding inside the attachment root.
+    try:
+        content = normalized.content
+        if type(normalized.width) is not int or type(normalized.height) is not int:
+            return False
+        if _avatar_header(content) != ("PNG", (normalized.width, normalized.height)):
+            return False
+        if content[24:29] not in (b"\x08\x02\0\0\0", b"\x08\x06\0\0\0"):
+            return False
+        offset = 8
+        while offset < len(content):
+            if content[offset + 4 : offset + 8] not in (b"IHDR", b"IDAT", b"IEND"):
+                return False
+            offset += 12 + int.from_bytes(content[offset : offset + 4], "big")
+        return type(normalized.sha3_256) is str and hashlib.sha3_256(content).hexdigest() == normalized.sha3_256
+    except Exception:
+        return False
+
+
 class FileService:
     _session_maker: sessionmaker[Session]
 
@@ -46,6 +294,127 @@ class FileService:
                 self._session_maker = session_factory
             case _:
                 raise AssertionError("must be a sessionmaker or an Engine.")
+
+    @staticmethod
+    def normalize_avatar_image(content: bytes) -> AvatarNormalization:
+        """Decode only bounded, single-frame PNG/JPEG/WebP and discard all source metadata."""
+        try:
+            detected, dimensions = _avatar_header(content)
+            codec = {"PNG": "zlib", "JPEG": "jpg", "WEBP": "webp"}[detected]
+            if not features.check(codec) or not features.check("zlib"):
+                return AvatarNormalization("unsupported_image_codec")
+            with BytesIO(content) as source, Image.open(source) as probe:
+                if probe.format != detected or probe.size != dimensions or getattr(probe, "n_frames", 1) != 1:
+                    return AvatarNormalization("invalid_image")
+                probe.verify()
+            with BytesIO(content) as source, Image.open(source) as decoded:
+                if decoded.format != detected or decoded.size != dimensions or getattr(decoded, "n_frames", 1) != 1:
+                    return AvatarNormalization("invalid_image")
+                decoded.load()
+                mode = "RGBA" if "A" in decoded.getbands() or "transparency" in decoded.info else "RGB"
+                with decoded.convert(mode) as converted, Image.frombytes(
+                    mode, dimensions, converted.tobytes()
+                ) as clean:
+                    writer = _AvatarPNGWriter()
+                    try:
+                        clean.save(writer, format="PNG")
+                        output = bytes(writer.data)
+                    finally:
+                        writer.close()
+            return AvatarNormalization(
+                "normalized", NormalizedAvatar(output, hashlib.sha3_256(output).hexdigest(), *dimensions)
+            )
+        except Exception:
+            return AvatarNormalization("invalid_image")
+
+    @staticmethod
+    def store_reserved_avatar(
+        reservation: AvatarReservation, normalized: NormalizedAvatar
+    ) -> Literal["stored", "invalid_input", "storage_unknown"]:
+        """Stage outside SQL transactions, after R commits its reservation and releases locks.
+
+        Full readback proves bytes, not a cancellable storage deadline. Any ambiguous outcome
+        remains unknown for R/T reconciliation; this helper never retries or deletes.
+        """
+        if not _avatar_valid_reservation(reservation) or not _avatar_valid_normalized(normalized):
+            return "invalid_input"
+        stream = None
+        result: Literal["stored", "storage_unknown"] = "storage_unknown"
+        try:
+            storage.save(reservation.storage_key, normalized.content)
+            stream = storage.load_stream(reservation.storage_key)
+            if not callable(getattr(stream, "close", None)) or iter(stream) is not stream:
+                return "storage_unknown"
+            digest = hashlib.sha3_256()
+            size = 0
+            # Each nonempty bytes chunk consumes at least one of the <=2MiB budget.
+            for chunk in stream:
+                if type(chunk) is not bytes or not chunk or len(chunk) > len(normalized.content) - size:
+                    break
+                size += len(chunk)
+                digest.update(chunk)
+            else:
+                if size == len(normalized.content) and digest.hexdigest() == normalized.sha3_256:
+                    result = "stored"
+        except Exception:
+            result = "storage_unknown"
+        finally:
+            if stream is not None:
+                try:
+                    stream.close()
+                except Exception:
+                    result = "storage_unknown"
+        return result
+
+    @staticmethod
+    def insert_reserved_avatar(
+        session: Session, reservation: AvatarReservation, normalized: NormalizedAvatar
+    ) -> AvatarFileInsert:
+        """Add/flush only, after R rechecks full authority, lease, membership and avatar baseline.
+
+        R owns attachment, audit, commit and rollback, including rollback on insert_failed.
+        No storage or signed URL operation occurs inside this caller-owned root transaction.
+        """
+        if not _avatar_valid_reservation(reservation) or not _avatar_valid_normalized(normalized):
+            return AvatarFileInsert("invalid_input")
+        if not isinstance(session, Session):
+            return AvatarFileInsert("invalid_transaction")
+        transaction = session.get_transaction()
+        if (
+            transaction is None
+            or not transaction.is_active
+            or not session.is_active
+            or transaction.origin is not SessionTransactionOrigin.BEGIN
+            or session.in_nested_transaction()
+            or session.new
+            or session.dirty
+            or session.deleted
+        ):
+            return AvatarFileInsert("invalid_transaction")
+        try:
+            upload_file = UploadFile(
+                tenant_id=reservation.tenant_id,
+                storage_type=StorageType(dify_config.STORAGE_TYPE),
+                key=reservation.storage_key,
+                name="avatar.png",
+                size=len(normalized.content),
+                extension="png",
+                mime_type="image/png",
+                created_by_role=CreatorUserRole.ACCOUNT,
+                created_by=reservation.account_id,
+                created_at=naive_utc_now(),
+                used=True,
+                used_by=reservation.account_id,
+                used_at=naive_utc_now(),
+                hash=normalized.sha3_256,
+                source_url="",
+            )
+            upload_file.id = reservation.file_id
+            session.add(upload_file)
+            session.flush([upload_file])
+            return AvatarFileInsert("inserted", upload_file)
+        except Exception:
+            return AvatarFileInsert("insert_failed")
 
     def upload_file(
         self,

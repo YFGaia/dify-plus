@@ -1068,8 +1068,35 @@ export const sseGeneratorPost = (
     .catch(fail)
 }
 
+function isPrivateCasdoorIdentityRequest(
+  url: string,
+  options: RequestInit,
+  otherOptions?: IOtherOptions,
+) {
+  try {
+    const originalRequest = otherOptions?.request
+    if (
+      !otherOptions?.fetchCompat ||
+      otherOptions.isPublicAPI ||
+      otherOptions.isMarketplaceAPI ||
+      !(originalRequest instanceof Request) ||
+      originalRequest.method !== 'GET' ||
+      (options.method !== undefined && options.method !== 'GET')
+    )
+      return false
+    const prefix = new URL(API_PREFIX, window.location.origin)
+    const expectedPath = `${prefix.pathname.replace(/\/$/, '')}/account/casdoor-identity`
+    return [new URL(url, window.location.origin), new URL(originalRequest.url)].every(
+      (target) => target.origin === prefix.origin && target.pathname === expectedPath,
+    )
+  } catch {
+    return false
+  }
+}
+
 // base request
 export const request = async <T>(url: string, options = {}, otherOptions?: IOtherOptions) => {
+  const privateCasdoorIdentity = isPrivateCasdoorIdentityRequest(url, options, otherOptions)
   try {
     const otherOptionsForBaseFetch = otherOptions || {}
     const { isPublicAPI = false, silent } = otherOptionsForBaseFetch
@@ -1125,7 +1152,11 @@ export const request = async <T>(url: string, options = {}, otherOptions?: IOthe
       }
 
       // refresh token
-      const [refreshErr] = await asyncRunSafe(refreshAccessTokenOrReLogin(TIME_OUT))
+      const [refreshErr] = await asyncRunSafe(
+        privateCasdoorIdentity
+          ? refreshAccessTokenOrReLogin(TIME_OUT, otherOptionsForBaseFetch.request)
+          : refreshAccessTokenOrReLogin(TIME_OUT),
+      )
       if (refreshErr === null) return baseFetch<T>(url, options, otherOptionsForBaseFetch)
       // /device is the device-flow chooser; logged-out is a valid state
       // there. Redirecting to /signin loses the user_code context and
@@ -1146,7 +1177,7 @@ export const request = async <T>(url: string, options = {}, otherOptions?: IOthe
       return Promise.reject(err)
     }
   } catch (error) {
-    console.error(error)
+    if (!privateCasdoorIdentity) console.error(error)
     return Promise.reject(error)
   }
 }

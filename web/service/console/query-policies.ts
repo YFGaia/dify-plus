@@ -13,6 +13,104 @@ export function createConsoleQuery(consoleClient: ConsoleClient) {
   const consoleQuery: RouterUtils<ConsoleClient> = createTanstackQueryUtils(consoleClient, {
     path: ['console'],
     experimental_defaults: {
+      systemManageExtend: {
+        integration: {
+          casdoor: {
+            put: {
+              mutationOptions: {
+                // Secret belongs only to the current mutation input, never a query result.
+                gcTime: 0,
+                networkMode: 'always',
+                retry: false,
+                onSettled: (_data, error, _variables, _result, context) => {
+                  if (error) return
+                  return Promise.all([
+                    context.client.invalidateQueries({
+                      queryKey: consoleQuery.systemManageExtend.integration.casdoor.get.key(),
+                    }),
+                    context.client.invalidateQueries({
+                      queryKey:
+                        consoleQuery.systemManageExtend.integration.casdoor.validate.post.key(),
+                    }),
+                  ])
+                },
+              },
+            },
+            clearSecret: {
+              post: {
+                mutationOptions: {
+                  gcTime: 0,
+                  networkMode: 'always',
+                  retry: false,
+                  onSettled: (_data, error, _variables, _result, context) => {
+                    if (error) return
+                    return Promise.all([
+                      context.client.invalidateQueries({
+                        queryKey: consoleQuery.systemManageExtend.integration.casdoor.get.key(),
+                      }),
+                      context.client.invalidateQueries({
+                        queryKey:
+                          consoleQuery.systemManageExtend.integration.casdoor.validate.post.key(),
+                      }),
+                    ])
+                  },
+                },
+              },
+            },
+            disable: {
+              post: {
+                mutationOptions: {
+                  gcTime: 0,
+                  networkMode: 'always',
+                  retry: false,
+                  onSettled: (_data, error, _variables, _result, context) => {
+                    if (error) return
+                    return Promise.all([
+                      context.client.invalidateQueries({
+                        queryKey: consoleQuery.systemManageExtend.integration.casdoor.get.key(),
+                      }),
+                      context.client.invalidateQueries({
+                        queryKey: consoleQuery.auth.casdoor.display.get.key(),
+                      }),
+                    ])
+                  },
+                },
+              },
+            },
+            activate: {
+              post: {
+                mutationOptions: {
+                  gcTime: 0,
+                  networkMode: 'always',
+                  retry: false,
+                  onSettled: (_data, error, _variables, _result, context) => {
+                    if (error) return
+                    return Promise.all([
+                      context.client.invalidateQueries({
+                        queryKey: consoleQuery.systemManageExtend.integration.casdoor.get.key(),
+                      }),
+                      context.client.invalidateQueries({
+                        queryKey: consoleQuery.auth.casdoor.display.get.key(),
+                      }),
+                    ])
+                  },
+                },
+              },
+            },
+            testLogin: {
+              post: {
+                mutationOptions: { gcTime: 0, networkMode: 'always', retry: false },
+              },
+            },
+            validate: {
+              post: {
+                // A local static result grants no activation or enabled-state update.
+                mutationOptions: { gcTime: 0, networkMode: 'always', retry: false },
+              },
+            },
+          },
+        },
+      },
       workspaces: {
         current: {
           rbac: {
@@ -112,6 +210,11 @@ export function createConsoleQuery(consoleClient: ConsoleClient) {
         },
       },
       account: {
+        casdoorIdentity: {
+          get: {
+            queryOptions: { context: { silent: true }, retry: false, staleTime: 0, gcTime: 0 },
+          },
+        },
         education: {
           get: {
             queryOptions: {
@@ -138,6 +241,9 @@ export function createConsoleQuery(consoleClient: ConsoleClient) {
               onSuccess: async (_data, _variables, _onMutateResult, context) => {
                 await context.client.invalidateQueries({
                   queryKey: consoleQuery.account.profile.get.key(),
+                })
+                await context.client.invalidateQueries({
+                  queryKey: consoleQuery.account.casdoorIdentity.get.key(),
                 })
               },
             },

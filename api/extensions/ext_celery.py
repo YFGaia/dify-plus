@@ -38,6 +38,10 @@ class CeleryBeatScheduleEntry(TypedDict):
     schedule: crontab | timedelta
 
 
+class CasdoorAvatarBeatScheduleEntry(CeleryBeatScheduleEntry):
+    options: dict[str, Any]
+
+
 def _enqueue_initial_community_telemetry_heartbeat(sender: Any, **_: Any) -> None:
     task_name = "community_telemetry.send_heartbeat"
     if "community_telemetry_heartbeat" not in sender.app.conf.beat_schedule:
@@ -166,6 +170,7 @@ def init_app(app: DifyApp) -> Celery:
     setup_workflow_warm_shutdown_handler()
 
     imports = [
+        "tasks.casdoor_avatar_initial_task_extend",
         "tasks.app_generate",  # workflow-based app execution (streaming workflow/advanced-chat)
         "tasks.async_workflow_tasks",  # trigger workers
         "tasks.collect_agent_resources_task",  # retired Agent resource collection
@@ -183,6 +188,14 @@ def init_app(app: DifyApp) -> Celery:
 
     # if you add a new task, please add the switch to CeleryScheduleTasksConfig
     beat_schedule: dict[str, CeleryBeatScheduleEntry] = {}
+    if dify_config.ENABLE_CASDOOR_AVATAR_INITIAL_RECOVERY_TASK:
+        imports.append("tasks.casdoor_avatar_recovery_task_extend")
+        avatar_schedule: CasdoorAvatarBeatScheduleEntry = {
+            "task": "tasks.casdoor_avatar_recovery_task_extend.dispatch_casdoor_avatar_initial_pending",
+            "schedule": timedelta(seconds=dify_config.CASDOOR_AVATAR_INITIAL_RECOVERY_INTERVAL_SECONDS),
+            "options": {"queue": "extend_low", "retry": False, "ignore_result": True},
+        }
+        beat_schedule["casdoor_avatar_initial_recovery"] = avatar_schedule
     if dify_config.ENABLE_CONVERSATION_CLEANUP_TASK:
         imports.append("tasks.delete_conversation_task")
         beat_schedule["conversation_cleanup_sweeper"] = {

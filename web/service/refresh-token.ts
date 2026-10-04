@@ -27,8 +27,22 @@ const isRefreshingSignAvailable = function (delta: number) {
   return nowTime - Number.parseInt(lastTime) <= delta
 }
 
+function isPrivateCasdoorIdentityRequest(request?: Request) {
+  try {
+    if (!(request instanceof Request) || request.method !== 'GET') return false
+    const prefix = new URL(API_PREFIX, window.location.origin)
+    const target = new URL(request.url)
+    return (
+      target.origin === prefix.origin &&
+      target.pathname === `${prefix.pathname.replace(/\/$/, '')}/account/casdoor-identity`
+    )
+  } catch {
+    return false
+  }
+}
+
 // only one request can send
-async function getNewAccessToken(timeout: number): Promise<void> {
+async function getNewAccessToken(timeout: number, privateCasdoorIdentity = false): Promise<void> {
   try {
     const isRefreshingSign = globalThis.localStorage.getItem(LOCAL_STORAGE_KEY)
     if (
@@ -58,12 +72,18 @@ async function getNewAccessToken(timeout: number): Promise<void> {
         }),
       )
       if (error) {
+        if (privateCasdoorIdentity) throw error
         return Promise.reject(error)
       } else {
-        if (ret.status === 401) return Promise.reject(ret)
+        if (ret.status === 401) {
+          if (privateCasdoorIdentity) throw ret
+          return Promise.reject(ret)
+        }
       }
     }
   } catch (error) {
+    // Throwing avoids an orphan rejection if finally also fails to release the lock.
+    if (privateCasdoorIdentity) throw error
     console.error(error)
     return Promise.reject(error)
   } finally {
@@ -80,16 +100,27 @@ function releaseRefreshLock() {
   globalThis.removeEventListener('beforeunload', releaseRefreshLock)
 }
 
-export async function refreshAccessTokenOrReLogin(timeout: number) {
+export async function refreshAccessTokenOrReLogin(timeout: number, originatingRequest?: Request) {
   if (!isClient) return Promise.reject(new Error('refresh token is client-only'))
+  const privateCasdoorIdentity = isPrivateCasdoorIdentityRequest(originatingRequest)
 
   return Promise.race([
     new Promise<void>((resolve, reject) =>
       setTimeout(() => {
+        if (privateCasdoorIdentity) {
+          try {
+            releaseRefreshLock()
+          } catch (error) {
+            reject(error)
+            return
+          }
+          reject(new Error('request timeout'))
+          return
+        }
         releaseRefreshLock()
         reject(new Error('request timeout'))
       }, timeout),
     ),
-    getNewAccessToken(timeout),
+    getNewAccessToken(timeout, privateCasdoorIdentity),
   ])
 }

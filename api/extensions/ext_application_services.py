@@ -17,6 +17,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from configs import dify_config
 from constants.dsl_version import CURRENT_APP_DSL_VERSION
 from constants.languages import languages
+from core.casdoor.permissions import CasdoorManagementPolicy
+from core.casdoor.redis_runtime import CasdoorRedisRuntimeFactory
 from core.db.session_factory import get_session_maker
 from core.helper.ssrf_proxy import ssrf_proxy
 from core.schemas.schema_manager import SchemaManager
@@ -149,6 +151,11 @@ from services.auth.data_source_api_key_auth_gateways import (
 from services.auth.data_source_api_key_auth_service import DataSourceApiKeyAuthService
 from services.billing_portal_service import BillingPortalService
 from services.billing_service import BillingService
+from services.casdoor_avatar_consumer_service_extend import CasdoorAvatarConsumerService
+from services.casdoor_avatar_dispatch_service_extend import CasdoorAvatarDispatchService
+from services.casdoor_configuration_service_extend import CasdoorConfigurationService
+from services.casdoor_local_http_service_extend import CasdoorLocalHttpService
+from services.casdoor_self_identity_service_extend import CasdoorSelfIdentityService
 from services.compliance_download_service import ComplianceDownloadService
 from services.data_source_oauth_service import DataSourceOAuthService, InvalidDataSourceOAuthProviderError
 from services.enterprise.enterprise_service import EnterpriseService
@@ -293,6 +300,11 @@ class ApplicationServices:
     web_passport: WebPassportService
     tags: TagApplicationService
     workflow_statistics: WorkflowStatisticQueryService
+    casdoor_configuration: CasdoorConfigurationService
+    casdoor_local_http: CasdoorLocalHttpService
+    casdoor_self_identity: CasdoorSelfIdentityService
+    casdoor_avatar_consumer: CasdoorAvatarConsumerService
+    casdoor_avatar_dispatch: CasdoorAvatarDispatchService
 
     def resolve_data_source_oauth(self, provider: str) -> DataSourceOAuthService:
         service = self.data_source_oauth.get(provider)
@@ -450,6 +462,14 @@ def build_application_services(
         session_maker=database_client
     )
     return ApplicationServices(
+        casdoor_configuration=(
+            casdoor_configuration := CasdoorConfigurationService(
+                session_factory=database_client,
+                management_policy=CasdoorManagementPolicy.from_deployment(dify_config.CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS),
+                secret_key=dify_config.SECRET_KEY,
+                rbac_enabled=dify_config.RBAC_ENABLED,
+            )
+        ),
         accounts=AccountServices(
             access=AccountAccessService(
                 accounts=accounts,
@@ -590,19 +610,21 @@ def build_application_services(
             ),
             profile=AccountProfileService(accounts=accounts),
         ),
-        account_activation=AccountActivationService(
-            tokens=invitation_tokens,
-            accounts=activation_accounts,
-            workspace_policy=DeploymentWorkspaceInvitePolicy(),
-            eligibility=BillingAccountActivationEligibility(
-                enabled=deployment_edition == DeploymentEdition.CLOUD,
-            ),
-            membership_cache=BillingWorkspaceMembershipCache(
-                enabled=deployment_edition == DeploymentEdition.CLOUD,
-            ),
-            member_access_sync=RBACWorkspaceMemberAccessSync(
-                enabled=dify_config.RBAC_ENABLED,
-            ),
+        account_activation=(
+            account_activation := AccountActivationService(
+                tokens=invitation_tokens,
+                accounts=activation_accounts,
+                workspace_policy=DeploymentWorkspaceInvitePolicy(),
+                eligibility=BillingAccountActivationEligibility(
+                    enabled=deployment_edition == DeploymentEdition.CLOUD,
+                ),
+                membership_cache=BillingWorkspaceMembershipCache(
+                    enabled=deployment_edition == DeploymentEdition.CLOUD,
+                ),
+                member_access_sync=RBACWorkspaceMemberAccessSync(
+                    enabled=dify_config.RBAC_ENABLED,
+                ),
+            )
         ),
         app_definitions=AppDefinitionQueryService(
             definitions=app_definition_repository,
@@ -759,7 +781,39 @@ def build_application_services(
                 session_maker=database_client,
             ),
         ),
+        casdoor_self_identity=CasdoorSelfIdentityService(
+            session_factory=database_client,
+            rbac_enabled=dify_config.RBAC_ENABLED,
+        ),
+        casdoor_local_http=CasdoorLocalHttpService(
+            session_factory=database_client,
+            configuration_service=casdoor_configuration,
+            account_activation=account_activation,
+            redis_client=redis,
+            settings=dify_config,
+            redis_runtime_factory=CasdoorRedisRuntimeFactory(dify_config),
+        ),
+        casdoor_avatar_dispatch=CasdoorAvatarDispatchService(
+            session_factory=database_client,
+            configuration_service=casdoor_configuration,
+            now=utc_now,
+            publish=_publish_casdoor_avatar_initial,
+        ),
+        casdoor_avatar_consumer=CasdoorAvatarConsumerService(
+            session_factory=database_client,
+            configuration_service=casdoor_configuration,
+            now=utc_now,
+            monotonic=time.monotonic,
+        ),
     )
+
+
+def _publish_casdoor_avatar_initial(intent_id: str) -> None:
+    # Resolve only inside the running FlaskTask, without opening SQL or broker at startup.
+    from tasks.casdoor_avatar_initial_task_extend import consume_casdoor_avatar_initial_task
+
+    task = current_app.extensions["celery"].tasks[consume_casdoor_avatar_initial_task.name]
+    task.apply_async(args=(intent_id,), queue="extend_low", retry=False, ignore_result=True)
 
 
 def init_app(app: Flask) -> None:

@@ -3,6 +3,7 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { useRouter, useSearchParams } from '@/next/navigation'
+import { consoleQuery } from '@/service/console'
 import { renderWithConsoleQuery as render } from '@/test/console/query-data'
 import NormalForm from '../normal-form'
 
@@ -74,10 +75,25 @@ const nonInviteQueryResult = {
 const mockQueryResults = (
   profileResult: ReturnType<typeof useQuery>,
   inviteResult: ReturnType<typeof useQuery>,
+  displayResult = {
+    isPending: false,
+    isFetching: false,
+    isError: false,
+    isSuccess: true,
+    data: { enabled: false, button_text: 'Casdoor', start_path: '/console/api/auth/casdoor/login' },
+  },
 ) => {
   mockUseQuery.mockImplementation((options) => {
     const queryKey = options.queryKey as readonly unknown[]
-    return (queryKey[0] === 'account' ? profileResult : inviteResult) as ReturnType<typeof useQuery>
+    const key = JSON.stringify(queryKey)
+    if (key === JSON.stringify(['account', 'profile'])) return profileResult
+    const inviteToken = decodeURIComponent(
+      vi.mocked(useSearchParams).getMockImplementation()?.().get('invite_token') || '',
+    )
+    if (key === JSON.stringify(['signin', 'invite-check', inviteToken])) return inviteResult
+    if (key === JSON.stringify(consoleQuery.auth.casdoor.display.get.queryOptions().queryKey))
+      return displayResult as unknown as ReturnType<typeof useQuery>
+    throw new Error(`Unexpected query key: ${key}`)
   })
 }
 
