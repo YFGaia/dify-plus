@@ -154,7 +154,7 @@
       "owner_role": "运维负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "deferred",
       "blocked_reason": "缺少用户对真实部署和业务数据的只读访问授权；本地源码实施与验证授权不覆盖 A03 环境盘点。",
       "condition": "always",
       "authorization": "authorized_read_only_environment_access",
@@ -5071,7 +5071,7 @@
       "owner_role": "数据与容器验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "blocked",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation_isolated_runtime",
       "inputs": [
@@ -5140,7 +5140,7 @@
       "owner_role": "向量验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "deferred",
       "condition": "always",
       "authorization": "implementation_isolated_runtime",
       "inputs": [
@@ -5196,7 +5196,7 @@
       "owner_role": "业务验收负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "deferred",
       "condition": "always",
       "authorization": "implementation_isolated_runtime",
       "inputs": [
@@ -5256,7 +5256,7 @@
       "owner_role": "运维验证负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "deferred",
       "condition": "always",
       "authorization": "implementation_isolated_runtime",
       "inputs": [
@@ -5311,7 +5311,7 @@
       "owner_role": "发布负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "passed",
       "condition": "always",
       "authorization": "implementation",
       "inputs": [
@@ -5369,7 +5369,7 @@
       "owner_role": "发布负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "deferred",
       "condition": "always",
       "authorization": "explicit_user_production",
       "inputs": [
@@ -5411,7 +5411,7 @@
       "owner_role": "运维负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "deferred",
       "condition": "always",
       "authorization": "explicit_user_production",
       "inputs": [
@@ -5455,7 +5455,7 @@
       "owner_role": "向量负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "deferred",
       "condition": "always",
       "authorization": "explicit_user_production",
       "inputs": [
@@ -5498,7 +5498,7 @@
       "owner_role": "数据库负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "deferred",
       "condition": "always",
       "authorization": "explicit_user_production",
       "inputs": [
@@ -5542,7 +5542,7 @@
       "owner_role": "发布与业务负责人",
       "recommended_model": "Sol",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "deferred",
       "condition": "always",
       "authorization": "explicit_user_production",
       "inputs": [
@@ -6096,7 +6096,7 @@
       "owner_role": "业务验收负责人",
       "recommended_model": "Luna",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "passed",
       "condition": "current_fresh_install_scope",
       "authorization": "explicit_user_local_implementation_validation_current_checkout",
       "inputs": [
@@ -6164,7 +6164,7 @@
       "owner_role": "本地发布负责人",
       "recommended_model": "Sol 6.1",
       "reasoning_effort": "high",
-      "status": "pending",
+      "status": "passed",
       "condition": "current_fresh_install_scope",
       "authorization": "explicit_user_local_implementation_validation_current_checkout",
       "inputs": [

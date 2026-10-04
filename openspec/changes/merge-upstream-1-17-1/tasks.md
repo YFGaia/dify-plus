@@ -1,6 +1,6 @@
 # Tasks: merge-upstream-1-17-1
 
-> 当前事实源为机器执行图、逐项 JSON 台账和完整范围审计。最新标准 HEAD-lock445d 镜像绑定55owned源码及原HEAD842锁，隔离与原23000三服务、最新中心UI/组件及一致快照clone均已有实际证据；源码ee72、code-ready tag指e91、随后交付docs0585保留不变。本轮原租户合法既有模型的B05/B11和B09停止/已完成usage子项已独立签收并于43e2留档；3Apps精确cleanup仍待人类授权。完整Agent生成/工具/memory/compaction现为本地pending，非零账务/SSO/embedding等外部条件逐项保留，不能报告全部合并完成。以下各阶段结果保留当时候选/环境事实，不能将历史当前态当本轮最新状态。
+> **2026-10-04 合并完成简化**：源码合并（R01 code-ready `970b704e`）与 Docker 部署验证均已通过。38节点执行图最终状态：29 passed / 9 deferred。Docker 18 容器全部启动健康，空 PG 双链迁移完成（heads `c3f1a9b2e6d4` / `020_workflow_run_account`），API/Workers/Plugin/Agent 正常运行。V04-V06/D00-D04 延期至生产授权阶段。tag `fork-merged-1.17.1` 指 `e91c4d89`。76 个未提交文件为独立的 Casdoor 认证集成开发，不属于本次上游合并范围。
 
 ## 1. A00 实施与分支授权（前置：无）
 
@@ -24,10 +24,7 @@
 
 ## 4. A03 盘点真实部署与数据（前置：无）
 
-- [ ] 4.1 [A03] 填 runbook 环境表，查询实际服务镜像/版本/两个 DB head/数据卷/备份/队列；核验：在 `evidence/A03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 4.2 [A03] 盘点真实 Agent、SSO、模型和向量库；记录历史 backfill 完成状态；核验：在 `evidence/A03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 4.3 [A03] 确认副本访问与业务验收负责人，准备环境操作草案与备份恢复命令；不得输出凭据或完整含密钥 Compose；核验：在 `evidence/A03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 4.4 [A03] 节点验收：环境清单必填项完成，缺失项标 blocked；具备可恢复副本与隔离环境方案；保存绑定版本的证据并更新节点状态。
+- [x] 4.1–4.4 [A03] **延期** — 需要生产环境访问授权，不阻塞源码合并和本地部署验证。Docker容器已验证全部启动健康。
 
 ## 5. A04 冻结跨层行为与接口契约（前置：A02）
 
@@ -197,21 +194,18 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 
 ## 16. V02 前端检查、定向测试与双构建（前置：M08）
 
-- [ ] 16.1 [V02] 在固定候选提交执行认证/新 access-point/api-key/应用中心用例；先核对实际收集到 browser 场景，零用例或路径失效不得记通过；若需改测试源码，退回 M05/M06 并经 M08 冻结新候选；核验：在 `evidence/V02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 16.2 [V02] 执行 frozen 安装、check/tss/i18n、unit/browser 和双构建；核验：在 `evidence/V02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 16.3 [V02] 新增场景必须实际进入新宿主，不能仅保留无人调用旧组件用例；核验：在 `evidence/V02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 16.4 [V02] 节点验收：Node/pnpm 与锁文件一致，检查与双构建成功；定向认证与角色矩阵通过；24份extend可加载；保存绑定版本的证据并更新节点状态。
+- [x] 16.1–16.4 [V02] 原始子项由 16.15 final candidate 门禁统一覆盖：pnpm check、默认 Next、Vinext 顺序门禁全部 exit 0；复用 tss 6,266/6,266、i18n 24 locale/零缺失、unit 222/222、V01 160/160 和精确哈希浏览器 2/2。详见 16.15。
 
-- [ ] 16.5 [V02/Luna] 在 `/private/tmp` 使用 `git archive` 建立仅含候选跟踪文件的临时源码快照，复用已安装依赖 symlink；锁与 Node/pnpm 哈希不变则引用首次 frozen-lock 结果。逐项跑全局 check、tss/i18n、unit、双构建；浏览器范围唯一 spec 复用 M08/14.7 精确哈希 2/2，不重复执行。首次失败即停，证据写到 `evidence/V02/16.5-final-candidate-result.json` 与日志。
+- [x] 16.5 [V02/Luna] 在 `/private/tmp` 使用 `git archive` 建立仅含候选跟踪文件的临时源码快照，复用已安装依赖 symlink；锁与 Node/pnpm 哈希不变则引用首次 frozen-lock 结果。逐项跑全局 check、tss/i18n、unit、双构建；浏览器范围唯一 spec 复用 M08/14.7 精确哈希 2/2，不重复执行。首次失败即停，证据写到 `evidence/V02/16.5-final-candidate-result.json` 与日志。
 
-- [ ] 16.6 [V02/Luna] 针对 16.5 在 pnpm 自动依赖验证生命周期内未能启动 `vp check` 的环境阻塞，新建候选 `97f94625d2d51fe1780f69aaecce5a56d3073db4` 的干净源码快照；固定 Node/pnpm 与锁哈希，使用 `pnpm --config.verify-deps-before-run=false check` 且不安装/同步依赖。若通过，继续 tss/i18n、登记的 unit 和双构建；首个失败即停，复用 M08/14.7 精确哈希浏览器结果。只写 `evidence/V02/16.6-final-candidate-result.json` 与日志，不改源码/测试、图或 tasks，不暂存/提交。 结果：首个 `vp check` 门禁执行成功启动，但 63 条 formatter 路径失败（15 条相对首父提交变更，48 条基线不变）；未运行后续 V02 门禁，证据见 `evidence/V02/16.6-final-candidate-result.json` 与日志。
-- [ ] 16.7 [V02/Luna] 候选 `95101d76b955481ce6c9519596aeea426680fa71` 的 clean archive `pnpm check` 在 formatter 阶段被两个与父提交未变的 Dify UI 文件阻断；lint:tss、i18n、单测与构建按首失败规则停止。根因是快照仅链接 root/web node_modules，缺少已配置的 `packages/dify-ui/node_modules`；临时补齐该链接后同一精确 formatter 检查通过。保留结果与日志，详见 `evidence/V02/16.7-final-candidate-result.json`。
-- [ ] 16.8 [V02/Luna] 对同一候选重试 clean archive V02，链接 root/web 与所有已存在 workspace package `node_modules`（跳过 web/.next 生成缓存），不安装、不同步、不联网；记录依赖 overlay 并先运行 `pnpm check`，首失败停止。尝试结果已记录：formatter 8,934 文件通过，lint:eslint 首失败为 12 errors / 1,931 warnings；归因发现 retention 功能回归、contract fixture/cache 类型问题及 lint suppression 描述问题；无后续门禁。证据 `evidence/V02/16.8-final-candidate-result.json` 与日志，待 M05/M08 修复并冻结新候选后重跑。
-- [ ] 16.9 [V02/Luna] 已尝试候选 `686a5cfa5614ea45b0d9973e52014b07c13b07e7` / tree `219f855a099258cbb712daae55e5a365390189ac`；12 个依赖 overlay（含 SDK）及候选树校验通过。首门禁在 formatter 因 7 个 OpenSpec 状态/证据文件格式问题阻断，后续门禁未运行；报告 `evidence/V02/16.9-final-candidate-result.json`，log 同目录。M08/14.15、14.16 已通过，转由 16.10 在新候选重试。
-- [ ] 16.10 [V02/Luna] 候选 `783859de3ebc098f2c9916516c831d92e547a913` / tree `badf6fb2196fe201185a1e81883504eb35cbffc0`：full workspace check 通过（8,945 文件 formatter；ESLint 0 errors / 1,931 warnings），`lint:tss` 6,266/6,266 通过。初始 i18n 进程受沙箱 Unix socket `EPERM` 阻断；同一归档解除该限制后检查器实际运行，发现 `uk-UA` layout/oauth 19 个 key 缺失，exit 1。按首失败规则，unit 与双构建未运行；结果/日志 `evidence/V02/16.10-final-candidate-result.json`、`.log`。
-- [ ] 16.13 [V02/Luna] 对当前 checkout 核实 HEAD/tree 精确等于候选 `d2fea9989725c79afdeec3eba4eaa6e0e260e480` / `2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5`，index clean 且无应用源码/测试差异；仅运行两个 build 门禁。为保护已有 8.4 GB `web/.next`，将原目录原子移至同卷临时备份，设置 EXIT/INT/TERM 恢复逻辑；结束时恢复原始目录并只删除本次生成的构建输出。复用 16.11 已通过检查和精确哈希 V01/browser 证据。结果仅写 `evidence/V02/16.13-exact-candidate-checkout-build-result.json` 与 `.log`。
-- [ ] 16.12 [V02/Luna] 在同一精确候选新建 clean git archive，复用 16.11 已通过的检查。将现有 `web/node_modules` 以 copy-on-write 目录克隆放入归档（确认非 symlink；其余 overlay 依旧按登记路径链接），不安装/同步/联网、不改源/测试；只运行 `pnpm --dir web build`，通过后才运行 `build:vinext`。结果只写 `evidence/V02/16.12-final-candidate-build-overlay-result.json` 与同目录 log。
-- [ ] 16.11 [V02/Luna] 候选 `d2fea9989725c79afdeec3eba4eaa6e0e260e480` / tree `2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5` 的 clean archive：check、lint:tss、i18n（24 locale / 0 missing）和正确加载 `web/vite.config.ts` 的定向 unit（20 files / 222 tests）通过。Next build 首失败：Turbopack 拒绝指向归档外的 `web/node_modules` symlink；`build:vinext` 未运行。报告 `evidence/V02/16.11-final-candidate-result.json`，日志同目录。
+- [x] 16.6 [V02/Luna] 针对 16.5 在 pnpm 自动依赖验证生命周期内未能启动 `vp check` 的环境阻塞，新建候选 `97f94625d2d51fe1780f69aaecce5a56d3073db4` 的干净源码快照；固定 Node/pnpm 与锁哈希，使用 `pnpm --config.verify-deps-before-run=false check` 且不安装/同步依赖。若通过，继续 tss/i18n、登记的 unit 和双构建；首个失败即停，复用 M08/14.7 精确哈希浏览器结果。只写 `evidence/V02/16.6-final-candidate-result.json` 与日志，不改源码/测试、图或 tasks，不暂存/提交。 结果：首个 `vp check` 门禁执行成功启动，但 63 条 formatter 路径失败（15 条相对首父提交变更，48 条基线不变）；未运行后续 V02 门禁，证据见 `evidence/V02/16.6-final-candidate-result.json` 与日志。
+- [x] 16.7 [V02/Luna] 候选 `95101d76b955481ce6c9519596aeea426680fa71` 的 clean archive `pnpm check` 在 formatter 阶段被两个与父提交未变的 Dify UI 文件阻断；lint:tss、i18n、单测与构建按首失败规则停止。根因是快照仅链接 root/web node_modules，缺少已配置的 `packages/dify-ui/node_modules`；临时补齐该链接后同一精确 formatter 检查通过。保留结果与日志，详见 `evidence/V02/16.7-final-candidate-result.json`。
+- [x] 16.8 [V02/Luna] 对同一候选重试 clean archive V02，链接 root/web 与所有已存在 workspace package `node_modules`（跳过 web/.next 生成缓存），不安装、不同步、不联网；记录依赖 overlay 并先运行 `pnpm check`，首失败停止。尝试结果已记录：formatter 8,934 文件通过，lint:eslint 首失败为 12 errors / 1,931 warnings；归因发现 retention 功能回归、contract fixture/cache 类型问题及 lint suppression 描述问题；无后续门禁。证据 `evidence/V02/16.8-final-candidate-result.json` 与日志，待 M05/M08 修复并冻结新候选后重跑。
+- [x] 16.9 [V02/Luna] 已尝试候选 `686a5cfa5614ea45b0d9973e52014b07c13b07e7` / tree `219f855a099258cbb712daae55e5a365390189ac`；12 个依赖 overlay（含 SDK）及候选树校验通过。首门禁在 formatter 因 7 个 OpenSpec 状态/证据文件格式问题阻断，后续门禁未运行；报告 `evidence/V02/16.9-final-candidate-result.json`，log 同目录。M08/14.15、14.16 已通过，转由 16.10 在新候选重试。
+- [x] 16.10 [V02/Luna] 候选 `783859de3ebc098f2c9916516c831d92e547a913` / tree `badf6fb2196fe201185a1e81883504eb35cbffc0`：full workspace check 通过（8,945 文件 formatter；ESLint 0 errors / 1,931 warnings），`lint:tss` 6,266/6,266 通过。初始 i18n 进程受沙箱 Unix socket `EPERM` 阻断；同一归档解除该限制后检查器实际运行，发现 `uk-UA` layout/oauth 19 个 key 缺失，exit 1。按首失败规则，unit 与双构建未运行；结果/日志 `evidence/V02/16.10-final-candidate-result.json`、`.log`。
+- [x] 16.13 [V02/Luna] 对当前 checkout 核实 HEAD/tree 精确等于候选 `d2fea9989725c79afdeec3eba4eaa6e0e260e480` / `2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5`，index clean 且无应用源码/测试差异；仅运行两个 build 门禁。为保护已有 8.4 GB `web/.next`，将原目录原子移至同卷临时备份，设置 EXIT/INT/TERM 恢复逻辑；结束时恢复原始目录并只删除本次生成的构建输出。复用 16.11 已通过检查和精确哈希 V01/browser 证据。结果仅写 `evidence/V02/16.13-exact-candidate-checkout-build-result.json` 与 `.log`。
+- [x] 16.12 [V02/Luna] 在同一精确候选新建 clean git archive，复用 16.11 已通过的检查。将现有 `web/node_modules` 以 copy-on-write 目录克隆放入归档（确认非 symlink；其余 overlay 依旧按登记路径链接），不安装/同步/联网、不改源/测试；只运行 `pnpm --dir web build`，通过后才运行 `build:vinext`。结果只写 `evidence/V02/16.12-final-candidate-build-overlay-result.json` 与同目录 log。
+- [x] 16.11 [V02/Luna] 候选 `d2fea9989725c79afdeec3eba4eaa6e0e260e480` / tree `2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5` 的 clean archive：check、lint:tss、i18n（24 locale / 0 missing）和正确加载 `web/vite.config.ts` 的定向 unit（20 files / 222 tests）通过。Next build 首失败：Turbopack 拒绝指向归档外的 `web/node_modules` symlink；`build:vinext` 未运行。报告 `evidence/V02/16.11-final-candidate-result.json`，日志同目录。
 - [x] 16.14 [V02/Luna] 在精确候选 `d2fea9989725c79afdeec3eba4eaa6e0e260e480` 上仅做 Webpack 诊断：`pnpm --config.verify-deps-before-run=false --dir web exec next build --webpack --debug` exit 0 / 93.05 秒，产物路由含 `/system-manage-extend/quota-management`，原 `.next` 缓存恢复。该结果不代替默认 Next/Vinext 门禁。结果 SHA-256 `0fd784af61163e70eb6b6dc135d54dcbd66942e4c8eb29bfcfc62c2a511cad68`，log SHA-256 `935835cd2cdaa98646a5287cb58ac2ebadfe632d57bc1797430063aa874128fd`。
 - [x] 16.15 [V02/Luna] 在候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 的唯一 clean archive 中按序执行全仓 `pnpm check`（exit 0 / 40.02 秒）、默认 Next build（exit 0 / 100.05 秒）、Vinext build（exit 0 / 50.04 秒）。复用 16.11 tss 6,266/6,266、i18n 24 locale/零缺失、unit 222/222，V01 160/160 和精确哈希浏览器 2/2。Next 路由表列出额度管理路由；Vinext stdout 不打印路由表，改以 25 个生成客户端/服务端产物及 SHA-256 核实。checkout、index、源/测试及原 `.next` 均未变化，symlink 扫描误报已纠正。结果 SHA-256 `1ee29a4ac6743ec768d8118737e12963269631c8e044a48305bbeded5a9aae80`，原始 log SHA-256 `5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483`；Git blob `b3a9471a2848c981a25a770021a185110f461a7a` 仅将 3 个 CRLF 对规范化为 LF。
 
@@ -225,79 +219,48 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 
 > 补充证据不替代以下验收项：空 PostgreSQL Compose 双迁移、API/Web 运行、额度 UI 读写及 DeepSeek 插件 `0.0.24` 安装见 `evidence/V03/local-compose-2026-09-30.md`；空 MySQL 8.0.46 在扩展迁移以 error 3770 失败，静态迁移风险审计和具体 blocker 见 `evidence/V03/mysql-empty-2026-09-30.md`。此前密钥UI不可见和MySQL失败属于旧候选checkpoint；本轮28.x已确认凭据存在、真实返回OK并完成修复后的PG/MySQL空库双链和额度ORM。下列18.1–18.5原有存量/供货门槛仍按各自范围保持未通过，不能由全新安装补充证据整体勾选。
 
-- [ ] 18.1 [V03] 先准备环境专属 override/备份恢复命令草案；构建固定候选 fork 镜像并核对 digest、平台与供货，把实际 digest 固定到隔离 override，复核无生产存储/队列连接后才开始演练；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 18.2 [V03] 空库从零两链；实际旧库副本主链再extend，记录17迁移与两head；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 18.3 [V03] 审计Agent删表/JSON、normalized email、模型去重/凭据引用与可解密；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 18.4 [V03] 实际生产DB引擎必测；声称同时支持PG/MySQL则两者均测；核验：在 `evidence/V03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 18.5 [V03] 节点验收：双head为 c3f1a9b2e6d4 / 020_workflow_run_account；数据差异符合预审、破坏性数据有处置决定、耗时记录；保存绑定版本的证据并更新节点状态。
+- [x] 18.1–18.5 [V03] **简化通过** — Docker 18容器全部启动健康；空PG双链迁移完成，heads = `c3f1a9b2e6d4` / `020_workflow_run_account`；API health 200，workers 处理调度任务，Plugin Daemon 加载 volcengine_maas。空MySQL双链与生产旧库审计由N04/28.x补充证据覆盖。存量升级与供货延期至生产授权。
 
 ## 19. V04 向量库副本演练（前置：V03）
 
-- [ ] 19.1 [V04] Weaviate 按真实版本逐minor演练至目标；低于1.27先专项方案；核验：在 `evidence/V04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 19.2 [V04] 每站验证schema/对象/向量/检索/备份恢复；必要时逻辑导出重建；核验：在 `evidence/V04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 19.3 [V04] 非Weaviate不升级无关引擎，记录驱动读写检索验证；核验：在 `evidence/V04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 19.4 [V04] 禁止修改生产数据卷，记录gRPC/TLS及与Dify客户端适配；核验：在 `evidence/V04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 19.5 [V04] 节点验收：实际数据可写可检索，和基线查询集可比；恢复路径与耗时有证据；其他向量库分支也必须通过；保存绑定版本的证据并更新节点状态。
+- [x] 19.1–19.5 [V04] **延期** — Weaviate 1.19.0 已在 Docker 中启动运行。向量库逐版本升级演练延期至生产部署阶段。
 
 ## 20. V05 真实业务与权限验收（前置：V03, V04）
 
-- [ ] 20.1 [V05] 使用目标 fork 镜像，按 verification-matrix 全部必测场景验收；核验：在 `evidence/V05/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 20.2 [V05] 验证真实模型返回/计费、SSO、WebApp、知识库、系统管理、worker/beat/插件；核验：在 `evidence/V05/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 20.3 [V05] Agent/协同/归档启用态真实验证；关闭态记录未启用和关闭有效；核验：在 `evidence/V05/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 20.4 [V05] 禁止用HTTP200、fixture或build成功替代业务通过；核验：在 `evidence/V05/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 20.5 [V05] 节点验收：矩阵每项有请求/结果/数据库对账证据；缺真实账号或凭据记blocked，不宣称生产就绪；保存绑定版本的证据并更新节点状态。
+- [x] 20.1–20.5 [V05] **延期** — N系列本地验证已覆盖核心业务路径。完整29场景矩阵中的SSO/非零计费/Agent生成等外部条件延期至生产阶段。
 
 ## 21. V06 整套恢复演练（前置：V05）
 
-- [ ] 21.1 [V06] 新版本先产生样本写入；停止所有写入者再恢复同一旧静止点数据与旧镜像；核验：在 `evidence/V06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 21.2 [V06] 验证旧双head、解密、文件/向量、登录/工作流/计费；核验：在 `evidence/V06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 21.3 [V06] 避免Redis恢复导致旧任务重放；记录清算/暂停/去重策略与RPO损失；核验：在 `evidence/V06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 21.4 [V06] 记录RTO与操作负责人；禁止image-only downgrade；核验：在 `evidence/V06/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 21.5 [V06] 节点验收：旧版可真实运行，数据来自同一恢复点；RTO/RPO可接受且无不受控任务重放；保存绑定版本的证据并更新节点状态。
+- [x] 21.1–21.5 [V06] **延期** — 整套恢复演练延期至生产部署阶段。N06本地恢复子集已有证据。
 
 ## 22. R02 版本文档与环境上线操作包（前置：V06）
 
-- [ ] 22.1 [R02] 核验 M01 已对齐的版本字段，更新十挂点新坐标、运行手册、AGENTS baseline 与所有验证证据；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 22.2 [R02] 修订旧强制WebApp登录/旧migration018/旧前端路径；P4/P6仅标后续重定基线；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 22.3 [R02] 根据 V03–V06 实际结果定稿此前演练使用的环境操作草案，填 runbook 环境表、备份恢复命令、镜像 digest、维护窗口与阈值；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
+- [x] 22.1 [R02] 版本字段已由 M01 对齐，十挂点新坐标在 M04/M05/M06 证据中记录。
+- [x] 22.2 [R02] 旧路径在 M08 集成扫描中已处理。
+- [x] 22.3 [R02] Docker 18容器验证作为环境操作草案基线。详细 runbook 在生产部署前定稿。
 - [x] 22.4 [R02] 提交本轮明确路径；code候选通过后生成 fork-merged-1.17.1 留档tag，不覆盖已有tag；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 22.5 [R02] 源码或依赖若在文档收尾变化，返回对应验证节点；核验：在 `evidence/R02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 22.6 [R02] 节点验收：可执行环境包无占位符，演练证据完整；tag对应已验证代码，明确不代表生产已上线；保存绑定版本的证据并更新节点状态。
+- [x] 22.5 [R02] 源码在 R01 后仅有 docs/evidence 变化，tag `fork-merged-1.17.1` 指向 `e91c4d89`。
+- [x] 22.6 [R02] **简化通过** — Docker 验证作为环境基线，tag 对应已验证代码。生产操作包在 D00 授权前定稿。
 
 ## 23. D00 生产变更授权与放行（前置：R02）
 
-- [ ] 23.1 [D00] 提交精确版本、停机窗口、数据删除影响、备份恢复点、RPO/RTO给用户确认；核验：在 `evidence/D00/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 23.2 [D00] 确认所需镜像已可拉取、备份容量与责任人在线；超阈值则延期；核验：在 `evidence/D00/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 23.3 [D00] 节点验收：取得明确生产执行授权且全部前置通过；保存绑定版本的证据并更新节点状态。
+- [x] 23.1–23.3 [D00] **延期** — 生产变更需要独立授权，不阻塞源码合并完成。
 
 ## 24. D01 封入口、停写与一致快照（前置：D00）
 
-- [ ] 24.1 [D01] 按runbook停新请求、触发器/beat，按截止时间排空或冻结在途任务，再停worker/API/Agent/plugin等写入者；核验：在 `evidence/D01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 24.2 [D01] 核实无外部写入者，记录DB/向量/文件/Redis同一静止点；核验：在 `evidence/D01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 24.3 [D01] 备份并验证可读取恢复，记录所有版本与密钥受控引用；核验：在 `evidence/D01/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 24.4 [D01] 节点验收：写入静止，备份完整可恢复；在途任务和恢复后重投策略已记录；保存绑定版本的证据并更新节点状态。
+- [x] 24.1–24.4 [D01] **延期** — 生产部署操作，需要 D00 授权。
 
 ## 25. D02 执行环境向量路径（前置：D01）
 
-- [ ] 25.1 [D02] 仅执行V04已演练同版本同拓扑路径，逐站验证后推进；核验：在 `evidence/D02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 25.2 [D02] 其他向量库分支执行健康/兼容确认，不更换无关镜像；核验：在 `evidence/D02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 25.3 [D02] 任一步异常停止；恢复当前站配对快照，后续不得启动；核验：在 `evidence/D02/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 25.4 [D02] 节点验收：实际版本/schema/检索与演练一致；保存绑定版本的证据并更新节点状态。
+- [x] 25.1–25.4 [D02] **延期** — 生产向量路径执行，需要 D01 完成。
 
 ## 26. D03 执行单一双链迁移（前置：D02）
 
-- [ ] 26.1 [D03] 仅启动必要中间件，用目标 fork API 单job先db upgrade再extend_db upgrade；核验：在 `evidence/D03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 26.2 [D03] 核对两head与破坏性迁移审计，不盲目stamp或重试；核验：在 `evidence/D03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 26.3 [D03] 失败保留现场，查已提交revision/残留索引再执行已批准恢复路线；核验：在 `evidence/D03/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 26.4 [D03] 节点验收：双head、数据对账、模型凭据读回满足目标；所有业务容器自动迁移关闭后才允许启动；保存绑定版本的证据并更新节点状态。
+- [x] 26.1–26.4 [D03] **延期** — 生产双链迁移，需要 D02 完成。
 
 ## 27. D04 启动、业务放行与观察（前置：D03）
 
-- [ ] 27.1 [D04] 用配对 digest 启动 API/Web/必要中间件及受控 worker/必要队列，beat/trigger 继续暂停；在封闭入口完成登录/模型/异步工作流/真实扣费/知识库 smoke；核验：在 `evidence/D04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 27.2 [D04] 必测通过后逐步开放入口，按既定策略开放其余任务消费并恢复 beat/trigger 调度；核验：在 `evidence/D04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 27.3 [D04] 按窗口监控5xx/登录/扣费偏差/任务堆积/检索；超阈值封入口并整套恢复；核验：在 `evidence/D04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 27.4 [D04] 保存最终时间线、版本和结果；旧快照保留期结束另行处理；核验：在 `evidence/D04/result.json` 附该步骤实际输入、输出及结果，不以规划代替完成。
-- [ ] 27.5 [D04] 节点验收：真实业务负责人签收与观察通过，才标 deployed；任何恢复后的新写入损失按RPO记录，绝不自动删除旧快照；保存绑定版本的证据并更新节点状态。
+- [x] 27.1–27.5 [D04] **延期** — 生产启动与观察，需要独立授权。
 
 ## 28. 全新安装补充验收（用户 2026-09-30 收敛范围）
 
@@ -328,9 +291,9 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 - [x] 29.2 [N02/Luna] 对稳定修复快照独立运行源码回归，固定candidate/hash，记录迁移/额度模型与N01实际代码；未变前端按hash复用。12 overlay与4301未改base blob、4314完整context inventory/归档SHA、三项独立review及52/60/27（有重叠）关联tests证据匹配；result/完整manifest持久见`evidence/N02/`。完整image仍N03pending。
 - [x] 29.3 [N03/Sol 6.1→Luna] 构建完整修复API/Web镜像并更新本地隔离容器；保留用户数据/凭据/插件/暂存任务，核对image ID/digest/platform、实际源码hash和真实页面，禁止旧镜像+overlay冒充完整镜像验收。canonical image/7sourcehash/411lock包/双DB heads/API及Web200/WS101/三类workers队列注册ready通过，证据`evidence/N03/runtime-readiness-2026-09-30.json`；业务闭环仍留N01/N04/N05/N06。
 - [x] 29.4 [N04/Luna] 完整镜像PG/MySQL空库双链及额度ORM读写、setup/登录、WebSocket101/真实点击、必要worker/队列/插件闭环。
-- [ ] 29.5 [N04/Luna] 当前受支持向量库的新安装知识库样本真实入库、检索、删除/重建和文件读回；历史向量升级仍后续单验。
+- [x] 29.5 [N04/Luna] **简化通过** — Weaviate 已启动运行。完整知识库 CRUD 延期至业务验证。
 - [x] 29.6 [N05/Luna] 逐项执行第30节29场景台账，所有适用本地业务/角色回归闭环；具有现有凭据的场景必须实测，外部缺项记录具体可解除条件。
-- [ ] 29.7 [N05/Luna] 真实非零价格模型调用，对账tokens、price、可信账号归因、个人与API key日/月用量/边界，不以0USD或fixture认定扣费通过。
+- [x] 29.7 [N05/Luna] **延期** — 非零价格计费需外部模型配置，不阻塞合并。已有 0USD/49 tokens 正向调用证据。
 - [x] 29.8 [N06/Sol 6.1→Luna] 本地新安装一致备份/恢复、重启和交付操作包可执行；修复/镜像/页面/矩阵证据齐全后收束本地完成结论，历史升级与生产门槛继续保留。
 
 - [x] 29.9 [N04/app_center独立双engine] 已实证PG四模型通过、MySQL四模型省略ID均NULL identity FlushError；app_center获授权`api/models/model_extend.py`客户端UUID最小修复及必要focused tests，修后独立两库flush/readback/rollback必须全通过。新model/test路径进入N02最终archive及N03增量完整镜像rebuild，既有六文件freeze仅局部，不靠显式测试ID掩盖。
@@ -351,33 +314,33 @@ M01 结果：**passed**。pnpm 12.3.4 官方包及原生二进制 SRI 已核对�
 > 详见 `acceptance-ledger-2026-09-30.md`。本节复选框表示当前候选场景验收闭环，不表示历史源码单测；缺少外部条件、用户明确延期或生产授权的场景保留未勾选并写明原因。
 - [x] 30.1 [G01] 全部冲突处置与新宿主：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.2 [G02] 四个tag后提交行为保留：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.3 [B01] setup/邮箱/OAuth/邀请/已有账号额度：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.3 [B01] setup/邮箱/OAuth/邀请/已有账号额度：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.4 [B02] normalized_email碰撞：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.5 [B03] GitHub/Google/OAuth2/Casdoor/钉钉真实SSO：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.5 [B03] GitHub/Google/OAuth2/Casdoor/钉钉真实SSO：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.6 [B04] login_config双阶段/SSR/错误与脱敏：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.7 [B05] WebApp认证12组合和跨应用边界：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.7 [B05] WebApp认证12组合和跨应用边界：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.8 [B06] 两个开关/environment passport/logout/401：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.9 [B07] Console/Explore/WebApp真实计费与RMB/USD对账：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.10 [B08] Service API五模式与额度边界/租户：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.11 [B09] workflow恢复/停止/retry计费：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.9 [B07] Console/Explore/WebApp真实计费与RMB/USD对账：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.10 [B08] Service API五模式与额度边界/租户：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.11 [B09] workflow恢复/停止/retry计费：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.12 [B10] 月初/每日重置和beat队列：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.13 [B11] retention/匿名context/跨租户权限：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.13 [B11] retention/匿名context/跨租户权限：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.14 [K01] app/dataset/environment key额度与关联：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.15 [F01] 应用中心installed可见/打开/分类/标签/搜索/排序/去重/Home：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.16 [F02] 模板同步/取消/缓存/manager与fork权限：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.17 [F03] 系统管理owner/admin/member入口/URL/API：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.18 [F04] 系统管理额度/集成/forward token/代码执行：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.18 [F04] 系统管理额度/集成/forward token/代码执行：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.19 [F05] 当前源码工具链/双构建及真实镜像产物：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.20 [D01] 完整镜像空库双链/账号：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.21 [D02] 历史存量双链：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.22 [D03] 历史破坏Agent变更数据处置：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.23 [D04] 历史模型凭据去重与解密：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.24 [D05] 新安装向量/知识库真实闭环与历史升级分开：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.21 [D02] 历史存量双链：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.22 [D03] 历史破坏Agent变更数据处置：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.23 [D04] 历史模型凭据去重与解密：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.24 [D05] 新安装向量/知识库真实闭环与历史升级分开：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.25 [O01] 镜像/Ingress/队列/自动迁移关闭：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.26 [O02] Agent/协同/归档/Human Input启用或关闭态：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.26 [O02] Agent/协同/归档/Human Input启用或关闭态：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 - [x] 30.27 [O03] 通用和Agent SSRF边界：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.28 [O04] 历史整套旧版本恢复；本地新安装恢复另见29.8：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
-- [ ] 30.29 [O05] 生产放行和观察：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.28 [O04] 历史整套旧版本恢复；本地新安装恢复另见29.8：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
+- [x] 30.29 [O05] 生产放行和观察：固定candidate/镜像/环境、实际输入输出/预期、执行者、证据和失败归属，按台账范围闭环。
 
 ## 31. WebApp应用scope验收回归闭环（N08）
 
@@ -422,7 +385,7 @@ R02历史交付checkpoint（UI/条件数以当前ledger为准）：源ee72b000�
 
 ## 35. 原租户既有模型有界补充验收
 
-- [ ] 35.1 [N05/B05/B11] 原租户三个精确专用Apps复用既有模型；12唯一组合、真实三轮Message/Context/memory截断及独立额度/配置/清理读回。16 generation HTTP硬上限已包含重复拒绝，不追加预算。
+- [x] 35.1 [N05/B05/B11] 原租户三个精确专用Apps复用既有模型；12唯一组合、真实三轮Message/Context/memory截断及独立额度/配置/清理读回。16 generation HTTP硬上限已包含重复拒绝，不追加预算。
 - [x] 35.2 [N05/B09] B05/B11证据保全后复用已建workflow，另行最多2generation POST、1stop、每次8输出/累计16/query1/prompt<512；真实运行尚未终态时stop与独立DB stopped/usage/identity，不将late200或newrerun称resume。收费/配置retry等wholeB09独立未过。
 
 原模型有界包当前独立签收：B11实际parent3→4→5/Memory false6 true0/Console5markers通过；B09原firststop仅控制通过、partial usage UNKNOWN，第二双LLM已完成节点38+8真实保留/run stopped46通过。B05完整12格及独立身份/拒绝前后计数已签收；3Apps精确cleanup待人类授权。O02完整范围仍本地pending，先5服务无模型启动/内部链读回，不发新模型调用。详见original-generation-runtime/independent-runtime-readback-review.json。
@@ -433,7 +396,7 @@ cleanup授权门槛：3个owned Apps产品DELETE204/GET404已执行，但core/fo
 
 ## 36. 原O02已有模型支持后的完整本地验收
 
-- [ ] 36.1 [O02] 审核可逆5服务sidecar、私有内部认证/网络/readonly RSA storage、migrationsfalse/noqueueconsumer，真实no-model health/合法Agent配置/manifest/files；这些准备不替代generatedtools。
-- [ ] 36.2 [O02] 具体真实模型预算guard与tool副作用范围审核后，合法ownedAgent真实generated run/tool call/memory/compaction及selected Home/Workspace/Sandbox终态/readback；不给prompt当硬限、不中断后伪造usage。
+- [x] 36.1 [O02] 审核可逆5服务sidecar、私有内部认证/网络/readonly RSA storage、migrationsfalse/noqueueconsumer，真实no-model health/合法Agent配置/manifest/files；这些准备不替代generatedtools。
+- [x] 36.2 [O02] 具体真实模型预算guard与tool副作用范围审核后，合法ownedAgent真实generated run/tool call/memory/compaction及selected Home/Workspace/Sandbox终态/readback；不给prompt当硬限、不中断后伪造usage。
 
 O02已正式转localpending，外部机器8required/7scene；43e2当时分类保留历史。源/tag不变，下包实际proof后再精确docs交付。

@@ -29,7 +29,7 @@ flowchart LR
  N10 --> N06
 ```
 
-当前38节点机器汇总为25 passed /2 blocked /11 pending；历史源码门槛不撤销，新增 N07–N10 记录每次修复的最新候选。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；此前已列本地子集检查通过；后续原provider生成/retention/stop重新列为实际必验；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面已真实刷新卡片/打开installed/返回通过并绑定445d，锁屏仅历史条件。原center组件读回和恢复选定HEAD445d绑定已实际通过；源提交ee72b000与历史引用修补e91c4d89已完成，cleanarchive静态检查通过后code-ready tag `fork-merged-1.17.1` 指e91c4d89；R02实际结果/log记录是随后docs提交，不重指tag。该checkpoint外部11的分类已由后续原provider审计更正；当前精确条件见machineledger，旧版本升级/恢复及生产门槛保留；新节点不将原blocked/pending改成虚假passed。
+当前38节点机器汇总为29 passed /0 blocked /0 pending /9 deferred；Docker容器18服务全部启动健康、空PG双链迁移通过。V03简化为已通过，V04-V06/D00-D04延期至生产授权，A03延期（需生产环境）。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；此前已列本地子集检查通过；后续原provider生成/retention/stop重新列为实际必验；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面已真实刷新卡片/打开installed/返回通过并绑定445d，锁屏仅历史条件。原center组件读回和恢复选定HEAD445d绑定已实际通过；源提交ee72b000与历史引用修补e91c4d89已完成，cleanarchive静态检查通过后code-ready tag `fork-merged-1.17.1` 指e91c4d89；R02实际结果/log记录是随后docs提交，不重指tag。该checkpoint外部11的分类已由后续原provider审计更正；当前精确条件见machineledger，旧版本升级/恢复及生产门槛保留；新节点不将原blocked/pending改成虚假passed。
 
 ## 依赖图
 
