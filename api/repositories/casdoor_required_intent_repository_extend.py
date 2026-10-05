@@ -23,7 +23,9 @@ class CasdoorRequiredIntentRepository:
     def __init__(self, session: Session) -> None:
         self._session = session
 
-    def read_locked(self, account_id: UUID, workspace_id: UUID, *, invitation_guard: object | None = None) -> tuple:
+    def read_locked(
+        self, account_id: UUID, workspace_id: UUID, *, invitation_guard: object | None = None, _ordinary_guard=None
+    ) -> tuple:
         """Return zero or one scalar ID rows, preserving LOCAL preparation state.
 
         Exact UUID inputs are internal scope data, never an authorization receipt.
@@ -48,10 +50,16 @@ class CasdoorRequiredIntentRepository:
             History.account_id == str(account_id), History.workspace_id == str(workspace_id)
         )
         excluded = None
+        if invitation_guard is not None and _ordinary_guard is not None:
+            raise CasdoorRequiredIntentConflict()
         if invitation_guard is not None:
             from repositories.casdoor_invited_login_guard_repository_extend import _invitation_exclusion
 
             excluded = _invitation_exclusion(invitation_guard, self._session, account_id, workspace_id)
+        if _ordinary_guard is not None:
+            from repositories.casdoor_terminal_local_invitation_repository_extend import _ordinary_terminal_exclusion
+
+            excluded = _ordinary_terminal_exclusion(_ordinary_guard, self._session, account_id, workspace_id)
         with self._session.no_autoflush:
             statement = sa.select(Intent.id).where(
                 Intent.kind != CasdoorIntentKind.PROFILE_AVATAR,

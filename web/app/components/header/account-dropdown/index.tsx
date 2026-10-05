@@ -9,6 +9,7 @@ import {
 import { useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 import { resetUser } from '@/app/components/base/amplitude/utils'
+import { parseLogoutDestination } from '@/features/casdoor/logout/navigation'
 import { useRouter } from '@/next/navigation'
 import { useLogout } from '@/service/use-common'
 import { MainNavMenuContent } from './main-nav-menu-content'
@@ -37,11 +38,18 @@ export default function AccountDropdown({ trigger }: AccountDropdownProps) {
   const { mutateAsync: logout } = useLogout()
 
   const handleLogout = async () => {
-    await logout()
+    let result
+    try {
+      result = await logout({})
+    } catch {
+      return
+    }
     resetUser()
     // Tokens are now stored in cookies and cleared by backend
 
-    router.push('/signin')
+    const destination = parseLogoutDestination(result)
+    if (destination) window.location.assign(destination)
+    else router.push('/signin')
   }
 
   return (

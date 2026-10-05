@@ -41,6 +41,11 @@ const fixture = (): GetAccountCasdoorIdentityResponse => ({
     {
       activity: 'inactive',
       avatar_status: 'unknown',
+      avatar_recorded_at: null,
+      avatar_last_reason: null,
+      avatar_recorded_generation: null,
+      avatar_consistency: 'unknown',
+      avatar_current_local_differs_from_last_applied: null,
       email: { current_differs: null, last_differs: null, last_status: null, verified: null },
       id,
       lifecycle: 'archived',
@@ -225,6 +230,11 @@ describe('authenticated self strict before cache', () => {
   it.each([
     ['identities.0', 'masked_identifier', sentinel],
     ['identities.0', 'avatar_status', 'available'],
+    ['identities.0', 'avatar_status', 'synced'],
+    ['identities.0', 'avatar_last_reason', sentinel],
+    ['identities.0', 'avatar_consistency', 'online'],
+    ['identities.0', 'avatar_recorded_generation', -1],
+    ['identities.0', 'avatar_recorded_at', 'x'.repeat(41)],
     ['memberships.0', 'remote_actual_state', 'active'],
     ['current_memberships.0', 'remote_actual_state', 'active'],
     ['identities.0', 'organization', 'x'.repeat(256)],

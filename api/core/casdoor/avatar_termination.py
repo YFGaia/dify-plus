@@ -273,3 +273,233 @@ def _consume_pre_storage(capability, attempt):
         raise ValueError("avatar_termination_invalid")
     state.stage = "consumed"
     return binding
+
+
+_STORE_OWNER = FileService.store_reserved_avatar
+_CLEANUP_FILE_OWNER = FileService._cleanup_reserved_avatar
+_normal_storage = WeakKeyDictionary()
+_cleanup_declarations = WeakKeyDictionary()
+_cleanup_permits = WeakKeyDictionary()
+_cleanup_observations = WeakKeyDictionary()
+
+
+class _AvatarCleanupDeclaration:
+    __slots__ = ("__weakref__",)
+
+    def __new__(cls):
+        raise TypeError("avatar_cleanup_private")
+
+
+class _AvatarCleanupPermit:
+    __slots__ = ("__weakref__",)
+
+    def __new__(cls):
+        raise TypeError("avatar_cleanup_private")
+
+
+class _AvatarCleanupObservation:
+    __slots__ = ("__weakref__",)
+
+    def __new__(cls):
+        raise TypeError("avatar_cleanup_private")
+
+
+@dataclass(frozen=True, repr=False)
+class _AvatarCleanupBinding:
+    attempt: object
+    source: object
+    reservation: object
+    proof_ref: object
+    sha3_256: str
+    size: int
+
+
+@dataclass(repr=False)
+class _NormalStorageObservation:
+    binding: object
+    domain: object
+    invocation: object
+    attached: object = None
+    consumer: object = None
+    declared: bool = False
+
+
+def _store_avatar_observed(tracker, reservation, normalized, budget):
+    """Call original normal store once; record only timely exact native fs success."""
+    from core.casdoor.avatar_cleanup_provider import _native_avatar_domain
+
+    state = _state(tracker)
+    if state.stage != "normalized" or state.result.image is not normalized or reservation != state.claim.reservation:
+        raise ValueError("avatar_cleanup_invalid")
+    domain = _native_avatar_domain()
+    owner = FileService.store_reserved_avatar
+    _enter_avatar_storage(tracker)
+    result = owner(reservation, normalized)
+    budget.check()
+    if (
+        result == "stored"
+        and owner is _STORE_OWNER
+        and domain is not None
+        and _native_avatar_domain() is domain
+        and state.invocation.signal is None
+    ):
+        _normal_storage[tracker] = _NormalStorageObservation(
+            _AvatarCleanupBinding(
+                state.claim.attempt,
+                state.claim.source,
+                reservation,
+                uuid4(),
+                normalized.sha3_256,
+                len(normalized.content),
+            ),
+            domain,
+            state.invocation,
+        )
+    return result
+
+
+def _attach_avatar_observed(tracker, consumer, attempt, normalized, budget):
+    """Observe the actual original SQL root, including its independent rollback/close."""
+    from services.casdoor_avatar_consumer_service_extend import CasdoorAvatarConsumerService, _AVATAR_ROOT_OWNER
+
+    state = _state(tracker)
+    if (
+        type(consumer) is not CasdoorAvatarConsumerService
+        or consumer._root.__func__ is not _AVATAR_ROOT_OWNER
+        or attempt is not state.claim.attempt
+    ):
+        raise ValueError("avatar_cleanup_invalid")
+    result = consumer._root(
+        state.invocation, lambda repo: repo.recheck_and_attach(attempt, normalized, now=budget.check()), write=True
+    )
+    observation = _normal_storage.get(tracker)
+    if observation is not None:
+        observation.attached = result
+        observation.consumer = consumer
+    return result
+
+
+def _consume_avatar_cleanup(declaration):
+    """Identity consumed once, including failed SQL; a parsed audit cannot recreate it."""
+    if type(declaration) is not _AvatarCleanupDeclaration:
+        raise ValueError("avatar_cleanup_invalid")
+    registered = _cleanup_declarations.pop(declaration, None)
+    if registered is None:
+        raise ValueError("avatar_cleanup_invalid")
+    tracker, observation = registered
+    state = _state(tracker())
+    if (
+        state.invocation is not observation.invocation
+        or _normal_storage.get(tracker()) is not observation
+        or not observation.declared
+    ):
+        raise ValueError("avatar_cleanup_invalid")
+    return observation.binding
+
+
+def _consume_avatar_cleanup_io(permit):
+    from core.casdoor.avatar_cleanup_provider import _native_avatar_domain
+
+    if type(permit) is not _AvatarCleanupPermit:
+        raise ValueError("avatar_cleanup_invalid")
+    registered = _cleanup_permits.pop(permit, None)
+    if registered is None:
+        raise ValueError("avatar_cleanup_invalid")
+    tracker, observation, record = registered
+    state = _state(tracker())
+    if (
+        state.invocation is not observation.invocation
+        or _native_avatar_domain() is not observation.domain
+        or record.reservation != observation.binding.reservation
+    ):
+        raise ValueError("avatar_cleanup_invalid")
+    return observation.domain, record
+
+
+def _observe_avatar_cleanup_deleted(domain, record):
+    """Only original private FileService owner can seal successful native absence."""
+    import inspect
+    from core.casdoor.avatar_cleanup_provider import _native_avatar_domain
+
+    frame = inspect.currentframe()
+    try:
+        if frame.f_back.f_code is not _CLEANUP_FILE_OWNER.__code__ or _native_avatar_domain() is not domain:
+            raise ValueError("avatar_cleanup_invalid")
+    finally:
+        del frame
+    result = object.__new__(_AvatarCleanupObservation)
+    _cleanup_observations[result] = record
+    return result
+
+
+def _consume_avatar_cleanup_observation(observation):
+    if type(observation) is not _AvatarCleanupObservation:
+        raise ValueError("avatar_cleanup_invalid")
+    record = _cleanup_observations.pop(observation, None)
+    if record is None:
+        raise ValueError("avatar_cleanup_invalid")
+    return record
+
+
+def _run_avatar_cleanup(tracker, consumer, budget):
+    """Actual original closed roots precede one-use I/O; no SQL-derived permit issuer."""
+    from core.casdoor.avatar_cleanup_provider import _native_avatar_domain
+    from services.casdoor_avatar_consumer_service_extend import CasdoorAvatarConsumerService, _AVATAR_ROOT_OWNER
+
+    observation = _normal_storage.get(tracker) if tracker is not None else None
+    if observation is None:
+        return False
+    state = _state(tracker)
+    attached = observation.attached
+    if (
+        type(consumer) is not CasdoorAvatarConsumerService
+        or observation.consumer is not consumer
+        or consumer._root.__func__ is not _AVATAR_ROOT_OWNER
+        or attached is None
+        or not attached.failed
+        or attached.commit_attempted
+        or attached.committed
+        or not attached.clean
+        or state.invocation.signal is not None
+        or observation.declared
+        or _native_avatar_domain() is not observation.domain
+        or FileService._cleanup_reserved_avatar is not _CLEANUP_FILE_OWNER
+    ):
+        return False
+    terminal_known = False
+    try:
+        budget.check()
+        observation.declared = True
+        declaration = object.__new__(_AvatarCleanupDeclaration)
+        _cleanup_declarations[declaration] = (ref(tracker), observation)
+        terminal = consumer._root(
+            state.invocation, lambda repo: repo._prepare_avatar_cleanup(declaration, now=budget.check()), write=True
+        )
+        if not (
+            terminal.committed
+            and terminal.commit_attempted
+            and terminal.clean
+            and not terminal.failed
+            and state.invocation.signal is None
+        ):
+            return False
+        record = terminal.value
+        reread = consumer._root(
+            state.invocation, lambda repo: repo._read_avatar_cleanup_closed(record, now=budget.check())
+        )
+        if reread.failed or not reread.clean or reread.value is not True or state.invocation.signal is not None:
+            return False
+        terminal_known = True
+        budget.check()
+        if _native_avatar_domain() is not observation.domain:
+            return True
+        permit = object.__new__(_AvatarCleanupPermit)
+        _cleanup_permits[permit] = (ref(tracker), observation, record)
+        deleted = FileService._cleanup_reserved_avatar(permit)
+        if deleted is not None and state.invocation.signal is None:
+            consumer._root(
+                state.invocation, lambda repo: repo._complete_avatar_cleanup(deleted, now=budget.check()), write=True
+            )
+    except BaseException as error:
+        state.invocation.latch(error)
+    return terminal_known

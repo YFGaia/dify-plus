@@ -1,6 +1,10 @@
 # Please do not directly edit this file. Instead, modify the .env variables related to NGINX configuration.
 
 server {
+    # Native error messages include raw request lines and Referer, even before
+    # location matching. Suppress request-context errors for HTTP and HTTPS;
+    # retain safe access status records and the main process notice log.
+    error_log /dev/null;
     listen ${NGINX_PORT};
     server_name ${NGINX_SERVER_NAME};
     resolver 127.0.0.11 valid=30s ipv6=off;

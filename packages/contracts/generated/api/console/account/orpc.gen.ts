@@ -5,6 +5,7 @@ import * as z from 'zod'
 import {
   zGetAccountAvatarQuery,
   zGetAccountAvatarResponse,
+  zGetAccountCasdoorIdentityActionsResponse,
   zGetAccountCasdoorIdentityQuery,
   zGetAccountCasdoorIdentityResponse,
   zGetAccountDeleteVerifyResponse,
@@ -19,6 +20,12 @@ import {
   zPatchAccountProfileResponse,
   zPostAccountAvatarBody,
   zPostAccountAvatarResponse,
+  zPostAccountCasdoorIdentityLinkBody,
+  zPostAccountCasdoorIdentityLinkResponse,
+  zPostAccountCasdoorIdentityReauthenticateBody,
+  zPostAccountCasdoorIdentityReauthenticateResponse,
+  zPostAccountCasdoorIdentityUnlinkBody,
+  zPostAccountCasdoorIdentityUnlinkResponse,
   zPostAccountChangeEmailBody,
   zPostAccountChangeEmailCheckEmailUniqueBody,
   zPostAccountChangeEmailCheckEmailUniqueResponse,
@@ -89,6 +96,65 @@ export const get2 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
+    operationId: 'getAccountCasdoorIdentityActions',
+    path: '/account/casdoor-identity/actions',
+    tags: ['console'],
+  })
+  .output(zGetAccountCasdoorIdentityActionsResponse)
+
+export const actions = {
+  get: get2,
+}
+
+export const post2 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postAccountCasdoorIdentityLink',
+    path: '/account/casdoor-identity/link',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostAccountCasdoorIdentityLinkBody }))
+  .output(zPostAccountCasdoorIdentityLinkResponse)
+
+export const link = {
+  post: post2,
+}
+
+export const post3 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postAccountCasdoorIdentityReauthenticate',
+    path: '/account/casdoor-identity/reauthenticate',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostAccountCasdoorIdentityReauthenticateBody }))
+  .output(zPostAccountCasdoorIdentityReauthenticateResponse)
+
+export const reauthenticate = {
+  post: post3,
+}
+
+export const post4 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postAccountCasdoorIdentityUnlink',
+    path: '/account/casdoor-identity/unlink',
+    tags: ['console'],
+  })
+  .input(z.object({ body: zPostAccountCasdoorIdentityUnlinkBody }))
+  .output(zPostAccountCasdoorIdentityUnlinkResponse)
+
+export const unlink = {
+  post: post4,
+}
+
+export const get3 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
     operationId: 'getAccountCasdoorIdentity',
     path: '/account/casdoor-identity',
     tags: ['console'],
@@ -97,10 +163,14 @@ export const get2 = oc
   .output(zGetAccountCasdoorIdentityResponse)
 
 export const casdoorIdentity = {
-  get: get2,
+  get: get3,
+  actions,
+  link,
+  reauthenticate,
+  unlink,
 }
 
-export const post2 = oc
+export const post5 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -112,10 +182,10 @@ export const post2 = oc
   .output(zPostAccountChangeEmailCheckEmailUniqueResponse)
 
 export const checkEmailUnique = {
-  post: post2,
+  post: post5,
 }
 
-export const post3 = oc
+export const post6 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -127,10 +197,10 @@ export const post3 = oc
   .output(zPostAccountChangeEmailResetResponse)
 
 export const reset = {
-  post: post3,
+  post: post6,
 }
 
-export const post4 = oc
+export const post7 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -142,10 +212,10 @@ export const post4 = oc
   .output(zPostAccountChangeEmailValidityResponse)
 
 export const validity = {
-  post: post4,
+  post: post7,
 }
 
-export const post5 = oc
+export const post8 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -157,13 +227,13 @@ export const post5 = oc
   .output(zPostAccountChangeEmailResponse)
 
 export const changeEmail = {
-  post: post5,
+  post: post8,
   checkEmailUnique,
   reset,
   validity,
 }
 
-export const post6 = oc
+export const post9 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -175,10 +245,10 @@ export const post6 = oc
   .output(zPostAccountDeleteFeedbackResponse)
 
 export const feedback = {
-  post: post6,
+  post: post9,
 }
 
-export const get3 = oc
+export const get4 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -189,10 +259,10 @@ export const get3 = oc
   .output(zGetAccountDeleteVerifyResponse)
 
 export const verify = {
-  get: get3,
+  get: get4,
 }
 
-export const post7 = oc
+export const post10 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -204,12 +274,12 @@ export const post7 = oc
   .output(zPostAccountDeleteResponse)
 
 export const delete_ = {
-  post: post7,
+  post: post10,
   feedback,
   verify,
 }
 
-export const get4 = oc
+export const get5 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -221,10 +291,10 @@ export const get4 = oc
   .output(zGetAccountEducationAutocompleteResponse)
 
 export const autocomplete = {
-  get: get4,
+  get: get5,
 }
 
-export const get5 = oc
+export const get6 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -235,10 +305,10 @@ export const get5 = oc
   .output(zGetAccountEducationVerifyResponse)
 
 export const verify2 = {
-  get: get5,
+  get: get6,
 }
 
-export const get6 = oc
+export const get7 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -248,7 +318,7 @@ export const get6 = oc
   })
   .output(zGetAccountEducationResponse)
 
-export const post8 = oc
+export const post11 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -260,13 +330,13 @@ export const post8 = oc
   .output(zPostAccountEducationResponse)
 
 export const education = {
-  get: get6,
-  post: post8,
+  get: get7,
+  post: post11,
   autocomplete,
   verify: verify2,
 }
 
-export const post9 = oc
+export const post12 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -278,10 +348,10 @@ export const post9 = oc
   .output(zPostAccountInitResponse)
 
 export const init = {
-  post: post9,
+  post: post12,
 }
 
-export const get7 = oc
+export const get8 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -292,7 +362,7 @@ export const get7 = oc
   .output(zGetAccountIntegratesResponse)
 
 export const integrates = {
-  get: get7,
+  get: get8,
 }
 
 /**
@@ -300,7 +370,7 @@ export const integrates = {
  *
  * @deprecated
  */
-export const post10 = oc
+export const post13 = oc
   .route({
     deprecated: true,
     description: 'Deprecated. Use PATCH /account/profile instead.',
@@ -314,7 +384,7 @@ export const post10 = oc
   .output(zPostAccountInterfaceLanguageResponse)
 
 export const interfaceLanguage = {
-  post: post10,
+  post: post13,
 }
 
 /**
@@ -322,7 +392,7 @@ export const interfaceLanguage = {
  *
  * @deprecated
  */
-export const post11 = oc
+export const post14 = oc
   .route({
     deprecated: true,
     description: 'Deprecated. Use PATCH /account/profile instead.',
@@ -336,10 +406,10 @@ export const post11 = oc
   .output(zPostAccountInterfaceThemeResponse)
 
 export const interfaceTheme = {
-  post: post11,
+  post: post14,
 }
 
-export const get8 = oc
+export const get9 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -350,7 +420,7 @@ export const get8 = oc
   .output(zGetAccountMoneyResponse)
 
 export const money = {
-  get: get8,
+  get: get9,
 }
 
 /**
@@ -358,7 +428,7 @@ export const money = {
  *
  * @deprecated
  */
-export const post12 = oc
+export const post15 = oc
   .route({
     deprecated: true,
     description: 'Deprecated. Use PATCH /account/profile instead.',
@@ -372,10 +442,10 @@ export const post12 = oc
   .output(zPostAccountNameResponse)
 
 export const name = {
-  post: post12,
+  post: post15,
 }
 
-export const post13 = oc
+export const post16 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -387,10 +457,10 @@ export const post13 = oc
   .output(zPostAccountPasswordResponse)
 
 export const password = {
-  post: post13,
+  post: post16,
 }
 
-export const get9 = oc
+export const get10 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -412,7 +482,7 @@ export const patch = oc
   .output(zPatchAccountProfileResponse)
 
 export const profile = {
-  get: get9,
+  get: get10,
   patch,
 }
 
@@ -421,7 +491,7 @@ export const profile = {
  *
  * @deprecated
  */
-export const post14 = oc
+export const post17 = oc
   .route({
     deprecated: true,
     description: 'Deprecated. Use PATCH /account/profile instead.',
@@ -435,7 +505,7 @@ export const post14 = oc
   .output(zPostAccountTimezoneResponse)
 
 export const timezone = {
-  post: post14,
+  post: post17,
 }
 
 export const account = {

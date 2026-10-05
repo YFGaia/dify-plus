@@ -210,13 +210,25 @@ describe('Casdoor generated consoleQuery integration', () => {
     const casdoor = consoleQuery.systemManageExtend.integration.casdoor
     const client = new QueryClient()
     const configKey = casdoor.get.queryKey()
+    const displayKey = consoleQuery.auth.casdoor.display.get.queryKey()
+    const permissionKey = casdoor.permissions.get.queryKey()
     client.setQueryData(configKey, emptyConfiguration)
+    client.setQueryData(displayKey, {
+      enabled: false,
+      button_text: 'Casdoor',
+      start_path: '/console/api/auth/casdoor/login',
+    })
+    client.setQueryData(permissionKey, { can_manage_casdoor: true })
     const observer = new MutationObserver(client, casdoor.validate.post.mutationOptions())
     expect(await observer.mutate({ body: { revision_id: revisionId, etag: 1 } })).toEqual(
       staticResult,
     )
     expect(client.getQueryData(configKey)).toEqual(emptyConfiguration)
-    expect(client.getQueryState(configKey)?.isInvalidated).toBe(false)
+    expect(client.getQueryState(configKey)?.isInvalidated).toBe(true)
+    expect(client.getQueryData(configKey)?.enabled).toBe(false)
+    expect(client.getQueryState(displayKey)?.isInvalidated).toBe(false)
+    expect(client.getQueryData(displayKey)?.enabled).toBe(false)
+    expect(client.getQueryState(permissionKey)?.isInvalidated).toBe(false)
     expect(casdoor.validate.post.mutationOptions().gcTime).toBe(0)
     const outgoing = sentRequest(request)
     expect(outgoing.method).toBe('POST')
@@ -326,4 +338,65 @@ describe('Casdoor generated consoleQuery integration', () => {
     await vi.waitFor(() => expect(client.getMutationCache().getAll()).toHaveLength(0))
     client.clear()
   })
+})
+
+describe('reset and avatar retry shared defaults', () => {
+  it.each(['reset', 'retry'] as const)(
+    'invalidates all %s read keys after a lost response without replacing per-call callbacks',
+    async (kind) => {
+      const request = vi.fn().mockRejectedValue(new Error('synthetic connection loss'))
+      const { consoleQuery } = await loadConsole(request)
+      const api = consoleQuery.systemManageExtend.integration.casdoor
+      const client = new QueryClient({ defaultOptions: { mutations: { retry: 3 } } })
+      const keys =
+        kind === 'reset'
+          ? [
+              api.get.queryKey(),
+              consoleQuery.auth.casdoor.display.get.queryKey(),
+              api.localMembership.targets.get.queryKey({ input: { query: {} } }),
+              api.sync.retryTargets.get.queryKey({ input: { query: {} } }),
+              consoleQuery.account.casdoorIdentity.get.queryKey({ input: { query: {} } }),
+              consoleQuery.account.casdoorIdentity.actions.get.queryKey(),
+              consoleQuery.auth.casdoor.session.get.queryKey(),
+            ]
+          : [
+              api.sync.retryTargets.get.queryKey({ input: { query: {} } }),
+              consoleQuery.account.casdoorIdentity.get.queryKey({ input: { query: {} } }),
+              consoleQuery.account.casdoorIdentity.actions.get.queryKey(),
+              consoleQuery.account.profile.get.queryKey(),
+            ]
+      for (const key of keys) client.setQueryData<unknown>(key, { synthetic: true })
+      const permissionKey = api.permissions.get.queryKey()
+      client.setQueryData(permissionKey, { can_manage_casdoor: true })
+      const onError = vi.fn()
+      const onSettled = vi.fn()
+      onlineManager.setOnline(false)
+      if (kind === 'reset') {
+        const observer = new MutationObserver(client, api.resetNamespace.post.mutationOptions())
+        const unsubscribe = observer.subscribe(() => {})
+        await expect(
+          observer.mutate({ body: { review_id: 'R'.repeat(43), etag: 1 } }, { onError, onSettled }),
+        ).rejects.toThrow('synthetic connection loss')
+        expect(observer.options).toMatchObject({ gcTime: 0, retry: false, networkMode: 'always' })
+        unsubscribe()
+      } else {
+        const observer = new MutationObserver(client, api.sync.retry.post.mutationOptions())
+        const unsubscribe = observer.subscribe(() => {})
+        await expect(
+          observer.mutate({ body: { intent_id: revisionId } }, { onError, onSettled }),
+        ).rejects.toThrow('synthetic connection loss')
+        expect(observer.options).toMatchObject({ gcTime: 0, retry: false, networkMode: 'always' })
+        unsubscribe()
+      }
+      expect(onError).toHaveBeenCalledOnce()
+      expect(onSettled).toHaveBeenCalledOnce()
+      expect(request).toHaveBeenCalledOnce()
+      for (const key of keys) expect(client.getQueryState(key)?.isInvalidated).toBe(true)
+      expect(client.getQueryState(permissionKey)?.isInvalidated).toBe(false)
+      expect(dehydrate(client).mutations).toEqual([])
+      onlineManager.setOnline(true)
+      client.clear()
+      vi.doUnmock('../base')
+    },
+  )
 })

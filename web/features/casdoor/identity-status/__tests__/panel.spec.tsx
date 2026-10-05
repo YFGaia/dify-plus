@@ -81,6 +81,11 @@ const fixture = (): GetAccountCasdoorIdentityResponse => ({
       lifecycle: 'archived',
       profile_consistency: 'historical',
       avatar_status: 'unknown',
+      avatar_recorded_at: null,
+      avatar_last_reason: null,
+      avatar_recorded_generation: null,
+      avatar_consistency: 'unknown',
+      avatar_current_local_differs_from_last_applied: null,
       sync_generation: 42,
       name: {
         baseline_generation: 1,
@@ -221,17 +226,44 @@ async function loaded() {
 
 // Finite UI boundary cases: schema-field completeness belongs to the accepted client suite.
 describe('enterprise identity passive Account panel', () => {
+  it('mounts the source action owner beside historical observations on the actual account page', async () => {
+    const original = fetch
+    const navigation = vi.spyOn(window.location, 'assign').mockImplementation(() => {})
+    const path = `/console/api/auth/casdoor/identity/${'A'.repeat(43)}`
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(async (input, init) => {
+        const request = new Request(input, init)
+        if (new URL(request.url).pathname.endsWith('/casdoor-identity/actions'))
+          return json({ link: true, reauthenticate: false, unlink: false, reason: null })
+        if (new URL(request.url).pathname.endsWith('/casdoor-identity/link')) {
+          expect(request.method).toBe('POST')
+          expect(await request.json()).toEqual({})
+          return json({ handoff_path: path })
+        }
+        return original(input, init)
+      }),
+    )
+    mount(true)
+    await loaded()
+    const user = userEvent.setup()
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Link enterprise account' })).toBeEnabled(),
+    )
+    await user.click(screen.getByRole('button', { name: 'Link enterprise account' }))
+    await waitFor(() => expect(navigation).toHaveBeenCalledWith(`http://localhost:3000${path}`))
+  })
   it('separates historical and current local access, preserves unknowns, and exposes no enabled actions or internal codes', async () => {
     mount()
     await loaded()
     expect(panel()).toHaveAccessibleDescription(
-      'Linking and unlinking are unavailable here. Contact your administrator.',
+      'Link your enterprise account here. Unlinking requires recent authentication and a usable local password login.',
     )
     const identity = within(screen.getByRole('region', { name: regionNames[0] }))
     expect(identity.getByText('Inactive', { exact: true })).toBeVisible()
     expect(identity.getByText('Archived', { exact: true })).toBeVisible()
     expect(identity.getByText('********', { exact: true })).toBeVisible()
-    expect(identity.getAllByText('Unknown', { exact: true })).toHaveLength(3)
+    expect(identity.getAllByText('Unknown', { exact: true })).toHaveLength(7)
     expect(identity.getAllByText('Yes', { exact: true })).toHaveLength(2)
     expect(identity.getByText('No', { exact: true })).toBeVisible()
     expect(
@@ -263,6 +295,206 @@ describe('enterprise identity passive Account panel', () => {
     expect(lastQuery()).toEqual({ limit: '20' })
     expect(error).not.toHaveBeenCalled()
     expect(log).not.toHaveBeenCalled()
+  })
+
+  it('shows the generated local attachment record and its time on the actual AccountPage without claiming storage synchronization', async () => {
+    const recordedAt = '2026-10-05T03:00:00.000000+00:00'
+    const data = fixture()
+    Object.assign(data.identities[0]!, {
+      activity: 'active',
+      lifecycle: 'active',
+      namespace_id: cursors[0],
+      profile_consistency: 'consistent',
+      sync_generation: 2,
+      avatar_status: 'local_attachment_recorded',
+      avatar_recorded_at: recordedAt,
+      avatar_recorded_generation: 2,
+      avatar_consistency: 'current',
+      avatar_current_local_differs_from_last_applied: false,
+    })
+    selfResponse = async () => json(data)
+    mount(true)
+    await loaded()
+    expect(
+      within(panel()).getByText('Local attachment recorded; storage not confirmed'),
+    ).toBeVisible()
+    expect(within(panel()).getByText('Local attachment recorded at')).toBeVisible()
+    expect(within(panel()).getByText(recordedAt)).toBeVisible()
+    expect(within(panel()).queryByText(/synchronized successfully/i)).not.toBeInTheDocument()
+    expect(selfRequests()).toHaveLength(1)
+    expect(selfRequests()[0]).toMatchObject({
+      method: 'GET',
+      cache: 'no-store',
+      credentials: 'include',
+    })
+    expect(log).not.toHaveBeenCalled()
+  })
+
+  it('keeps an unknown avatar operation visibly unknown on the actual AccountPage and rejects unregistered private fields', async () => {
+    mount(true)
+    await loaded()
+    expect(within(panel()).getByText('Last avatar operation record')).toBeVisible()
+    expect(within(panel()).getByText('Recorded avatar reason')).toBeVisible()
+    expect(
+      within(panel()).queryByText('Local attachment recorded; storage not confirmed'),
+    ).not.toBeInTheDocument()
+    selfResponse = async () =>
+      json({
+        ...fixture(),
+        identities: [{ ...fixture().identities[0]!, raw_claims: { picture: sentinel } }],
+      })
+    await act(async () => {
+      await client.invalidateQueries({ queryKey: consoleQuery.account.casdoorIdentity.get.key() })
+    })
+    expect(await screen.findByRole('alert')).toBeVisible()
+    expect(within(panel()).queryByText(sentinel)).not.toBeInTheDocument()
+    expect(within(panel()).queryByText('Example organization')).not.toBeInTheDocument()
+    expect(log).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['off', 'Disabled'],
+    ['no_record', 'No avatar operation record'],
+    ['pending', 'Waiting for avatar processing'],
+    ['source_expired', 'Avatar source has expired'],
+    ['in_flight', 'Avatar processing attempt recorded'],
+    ['unknown', 'Unknown'],
+    ['failed_before_storage', 'Avatar processing failed before storage'],
+    ['local_override', 'Local override'],
+    ['historical', 'Historical record'],
+  ] as const)(
+    'shows the %s avatar observation as a passive record on the actual AccountPage',
+    async (status, label) => {
+      const data = fixture()
+      const noRecord = status === 'off' || status === 'no_record'
+      const recordedAt = noRecord ? null : '2026-10-05T04:00:00.000000+00:00'
+      Object.assign(data.identities[0]!, {
+        avatar_status: status,
+        avatar_recorded_at: recordedAt,
+        avatar_recorded_generation: noRecord ? null : 2,
+        avatar_consistency: status === 'historical' ? 'historical' : 'current',
+        avatar_last_reason: status === 'failed_before_storage' ? 'fetch_rejected' : null,
+        avatar_current_local_differs_from_last_applied: status === 'local_override' ? true : null,
+      })
+      selfResponse = async () => json(data)
+      mount(true)
+      await loaded()
+      const avatarLabel = within(panel()).getByText('Avatar operation record')
+      expect(avatarLabel.nextElementSibling).toHaveTextContent(label)
+      const timeLabel = within(panel()).getByText(
+        status === 'local_override'
+          ? 'Local attachment recorded at'
+          : 'Last avatar operation record',
+      )
+      expect(timeLabel.nextElementSibling).toHaveTextContent(recordedAt ?? 'Unknown')
+      if (status === 'failed_before_storage')
+        expect(within(panel()).getByText('Avatar source rejected')).toBeVisible()
+      expect(
+        within(panel()).queryByText('Local attachment recorded; storage not confirmed'),
+      ).not.toBeInTheDocument()
+      expect(panel().innerHTML).not.toContain('fetch_rejected')
+      expect(requests.some((request) => request.method !== 'GET')).toBe(false)
+      expect(log).not.toHaveBeenCalled()
+    },
+  )
+
+  it('refreshes the avatar record after the actual AccountPage avatar callback while preserving the profile Promise', async () => {
+    mount(true)
+    await loaded()
+    const data = fixture()
+    const recordedAt = '2026-10-05T05:00:00.000000+00:00'
+    Object.assign(data.identities[0]!, {
+      avatar_status: 'local_override',
+      avatar_recorded_at: recordedAt,
+      avatar_recorded_generation: 2,
+      avatar_consistency: 'current',
+      avatar_current_local_differs_from_last_applied: true,
+    })
+    selfResponse = async () => json(data)
+    let returned: unknown
+    await act(async () => {
+      returned = avatar.onSave?.()
+      await returned
+    })
+    expect(returned).toBeInstanceOf(Promise)
+    await waitFor(() => expect(within(panel()).getByText(recordedAt)).toBeVisible())
+    const diff = within(panel()).getByText('Local avatar differs from last attachment')
+    expect(diff.nextElementSibling).toHaveTextContent('Yes')
+    expect(selfRequests()).toHaveLength(2)
+    expect(requests.some((request) => request.method !== 'GET')).toBe(false)
+    expect(error).not.toHaveBeenCalled()
+  })
+
+  it('discards a valid late avatar attachment record from account A after the actual AccountPage switches to B', async () => {
+    mount(true)
+    await loaded()
+    const late = deferred<Response>()
+    selfResponse = () => late.promise
+    let pending!: Promise<void>
+    await act(async () => {
+      pending = client.invalidateQueries({
+        queryKey: consoleQuery.account.casdoorIdentity.get.key(),
+      })
+    })
+    selfResponse = async () =>
+      json({
+        ...fixture(),
+        identities: [{ ...fixture().identities[0]!, organization: 'B avatar organization' }],
+      })
+    profileId = accountB
+    await act(async () => {
+      seedAccountProfileQuery(client, { id: accountB, name: 'Account B' })
+    })
+    expect(await screen.findByText('B avatar organization')).toBeVisible()
+    const data = fixture()
+    const oldTime = '2026-10-05T01:00:00.000000+00:00'
+    Object.assign(data.identities[0]!, {
+      avatar_status: 'local_attachment_recorded',
+      avatar_recorded_at: oldTime,
+      avatar_recorded_generation: 2,
+      avatar_consistency: 'current',
+      avatar_current_local_differs_from_last_applied: false,
+    })
+    await act(async () => {
+      late.resolve(json(data))
+      await pending
+    })
+    expect(screen.getByText('B avatar organization')).toBeVisible()
+    expect(within(panel()).queryByText(oldTime)).not.toBeInTheDocument()
+    expect(
+      within(panel()).queryByText('Local attachment recorded; storage not confirmed'),
+    ).not.toBeInTheDocument()
+    expect(requests.some((request) => request.method !== 'GET')).toBe(false)
+  })
+
+  it('directs blocked unlink to an administrator on the actual AccountPage without posting a release or unlink action', async () => {
+    const original = fetch
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(async (input, init) => {
+        const request = new Request(input, init)
+        if (new URL(request.url).pathname.endsWith('/casdoor-identity/actions')) {
+          requests.push(request)
+          return json({
+            link: false,
+            reauthenticate: false,
+            unlink: false,
+            reason: 'managed_history_requires_release',
+          })
+        }
+        return original(input, init)
+      }),
+    )
+    mount(true)
+    await loaded()
+    expect(
+      await screen.findByText(
+        'Contact your administrator to release or transfer managed workspace access and reconcile synchronization history before unlinking.',
+      ),
+    ).toBeVisible()
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Verify account for unlinking' })).toBeDisabled()
+    expect(requests.filter((request) => request.method === 'POST')).toHaveLength(0)
   })
 
   it('renders unlinked empty pages without claiming a linked identity', async () => {
@@ -407,11 +639,26 @@ describe('enterprise identity passive Account panel', () => {
     expect(selfRequests()).toHaveLength(beforeSwitch + 1)
     expect(screen.queryByText('Example organization')).not.toBeInTheDocument()
     await act(async () => {
-      late.resolve(json({ ...fixture(), private_error: sentinel }))
+      late.resolve(
+        json({
+          ...fixture(),
+          identities: [
+            {
+              ...fixture().identities[0]!,
+              avatar_status: 'local_attachment_recorded',
+              avatar_recorded_at: '2026-10-05T02:00:00.000000+00:00',
+              avatar_consistency: 'current',
+              avatar_current_local_differs_from_last_applied: false,
+            },
+          ],
+          private_error: sentinel,
+        }),
+      )
       await pending
     })
     expect(screen.getByText('B organization')).toBeVisible()
     expect(panel().innerHTML).not.toContain(sentinel)
+    expect(screen.queryByText('2026-10-05T02:00:00.000000+00:00')).not.toBeInTheDocument()
     for (const name of regionNames)
       expect(
         within(screen.getByRole('region', { name })).getByRole('button', { name: 'First page' }),

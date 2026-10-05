@@ -2,12 +2,12 @@ import { zLicenseStatus } from '@dify/contracts/api/console/system-features/zod.
 import { cn } from '@langgenius/dify-ui/cn'
 import { toast } from '@langgenius/dify-ui/toast'
 import { RiContractLine, RiDoorLockLine, RiErrorWarningFill } from '@remixicon/react'
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { queryOptions, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { isLegacyBase401, userProfileQueryOptions } from '@/features/account-profile/client'
 import { casdoorDisplayQueryOptions } from '@/features/casdoor/signin/client'
-import CasdoorSigninEntry from '@/features/casdoor/signin/entry'
+import CasdoorSigninEntry, { readValidatedCasdoorInvitation } from '@/features/casdoor/signin/entry'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import Link from '@/next/link'
 import { useRouter, useSearchParams } from '@/next/navigation'
@@ -53,29 +53,37 @@ function NormalForm() {
   const [selectedAuthType, setSelectedAuthType] = useState<AuthType | null>(null)
 
   const isInviteLink = Boolean(inviteToken && inviteToken !== 'null')
-  const casdoorDisplay = useQuery(casdoorDisplayQueryOptions(!isInviteLink))
-  const hasCasdoor =
-    !isInviteLink &&
-    casdoorDisplay.isSuccess &&
-    !casdoorDisplay.isFetching &&
-    casdoorDisplay.data.enabled === true
+  const casdoorDisplay = useQuery(casdoorDisplayQueryOptions(true))
   const {
     data: invitationCheckResp,
     isPending: isInviteCheckLoading,
     isError: isInviteCheckError,
-  } = useQuery({
-    queryKey: ['signin', 'invite-check', inviteToken],
-    queryFn: () =>
-      invitationCheck({
-        url: '/activate/check',
-        params: {
-          token: inviteToken,
-        },
-      }),
-    enabled: isInviteLink,
-    retry: false,
-    refetchOnWindowFocus: false,
-  })
+  } = useQuery(
+    queryOptions({
+      queryKey: ['signin', 'invite-check', inviteToken],
+      queryFn: () =>
+        invitationCheck({
+          url: '/activate/check',
+          params: {
+            token: inviteToken,
+          },
+        }),
+      enabled: isInviteLink,
+      retry: false,
+      refetchOnWindowFocus: false,
+    }),
+  )
+  const casdoorRecoveryOnly =
+    isInviteCheckError &&
+    casdoorDisplay.isSuccess &&
+    !casdoorDisplay.isFetching &&
+    casdoorDisplay.data.enabled === true &&
+    typeof readValidatedCasdoorInvitation(searchParams) === 'string'
+  const hasCasdoor =
+    (!isInviteCheckError || casdoorRecoveryOnly) &&
+    casdoorDisplay.isSuccess &&
+    !casdoorDisplay.isFetching &&
+    casdoorDisplay.data.enabled === true
 
   const workspaceName = invitationCheckResp?.data?.workspace_name || ''
   const isInvitationForCurrentAccount = isInvitationForAccount(
@@ -101,8 +109,9 @@ function NormalForm() {
   const allMethodsAreDisabled =
     (noLoginMethodsConfigured &&
       !hasCasdoor &&
-      (isInviteLink || (casdoorDisplay.isSuccess && !casdoorDisplay.isFetching))) ||
-    isInviteCheckError
+      casdoorDisplay.isSuccess &&
+      !casdoorDisplay.isFetching) ||
+    (isInviteCheckError && !casdoorRecoveryOnly)
   const shouldRedirectLoggedInUser = isLoggedIn && (!isInviteLink || isInvitationForCurrentAccount)
   const isLoading =
     isCheckLoading || shouldRedirectLoggedInUser || (isInviteLink && isInviteCheckLoading)
@@ -224,16 +233,18 @@ function NormalForm() {
         )}
         <div className="relative">
           <div className="mt-6 flex flex-col gap-3">
-            {!isInviteLink && <CasdoorSigninEntry query={casdoorDisplay} />}
-            {hasSocialLogin && <SocialAuth />}
-            {hasSsoLogin && (
+            {(!isInviteCheckError || casdoorRecoveryOnly) && (
+              <CasdoorSigninEntry query={casdoorDisplay} />
+            )}
+            {!casdoorRecoveryOnly && hasSocialLogin && <SocialAuth />}
+            {!casdoorRecoveryOnly && hasSsoLogin && (
               <div className="w-full">
                 <SSOAuth protocol={ssoProtocol} />
               </div>
             )}
           </div>
 
-          {showORLine && (
+          {!casdoorRecoveryOnly && showORLine && (
             <div className="relative mt-6">
               <div className="flex items-center">
                 <div className="h-px flex-1 bg-linear-to-r from-background-gradient-mask-transparent to-divider-regular"></div>
@@ -244,7 +255,7 @@ function NormalForm() {
               </div>
             </div>
           )}
-          {hasEmailLogin && (
+          {!casdoorRecoveryOnly && hasEmailLogin && (
             <>
               {hasEmailCodeLogin && authType === 'code' && (
                 <>
@@ -289,7 +300,7 @@ function NormalForm() {
             </>
           )}
 
-          {systemFeatures.is_allow_register && authType === 'password' && (
+          {!casdoorRecoveryOnly && systemFeatures.is_allow_register && authType === 'password' && (
             <div className="mb-3 text-[13px] leading-4 font-medium text-text-secondary">
               <span>{t(($) => $['signup.noAccount'], { ns: 'login' })}</span>
               <Link className="text-text-accent" href={signupHref}>

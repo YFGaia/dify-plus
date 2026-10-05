@@ -414,7 +414,7 @@ describe('ordinary native Casdoor sign in', () => {
   })
 
   it.each(['pending', 'error', 'different', 'matching'] as const)(
-    'preserves invitation %s without querying or showing Casdoor',
+    'preserves original invitation %s while checking Casdoor availability',
     async (mode) => {
       boundary.params = new URLSearchParams('invite_token=invite-token')
       if (mode === 'pending') boundary.invite.mockReturnValue(new Promise(() => {}))
@@ -425,7 +425,10 @@ describe('ordinary native Casdoor sign in', () => {
         })
       mount({ enable_email_password_login: true })
       await waitFor(() => expect(boundary.invite).toHaveBeenCalledTimes(1))
-      if (mode === 'error') await screen.findByText('login.noLoginMethod')
+      if (mode === 'error') {
+        await screen.findByRole('link', { name: display.button_text })
+        expect(screen.queryByText('login.noLoginMethod')).not.toBeInTheDocument()
+      }
       if (mode === 'different') await screen.findByRole('button', { name: 'login.signBtn' })
       if (mode === 'matching')
         await waitFor(() =>
@@ -434,9 +437,82 @@ describe('ordinary native Casdoor sign in', () => {
           ),
         )
       if (mode === 'pending') expect(screen.queryByRole('heading')).not.toBeInTheDocument()
-      expect(fetchDisplay).not.toHaveBeenCalled()
+      await waitFor(() => expect(fetchDisplay).toHaveBeenCalledTimes(1))
+      if (mode === 'different') {
+        const link = await screen.findByRole('link', { name: display.button_text })
+        expect(
+          new URL(link.getAttribute('href')!, window.location.origin).searchParams.get(
+            'invite_token',
+          ),
+        ).toBe('invite-token')
+        expect(screen.getByText('login.or')).toBeInTheDocument()
+      } else if (mode === 'error') {
+        expect(screen.getByRole('link', { name: display.button_text })).toBeInTheDocument()
+        expect(screen.queryByText('login.or')).not.toBeInTheDocument()
+      } else {
+        expect(screen.queryByRole('link', { name: display.button_text })).not.toBeInTheDocument()
+        expect(screen.queryByText('login.or')).not.toBeInTheDocument()
+      }
+    },
+  )
+
+  it('offers the actual invitation native entry as the sole method without setup navigation', async () => {
+    const token = '11111111-1111-4111-8111-111111111111'
+    boundary.params = new URLSearchParams({
+      invite_token: token,
+      redirect_url: '/apps/invited',
+      account: 'untrusted-account',
+      source: 'untrusted-source',
+      mode: 'untrusted-mode',
+      init: 'untrusted-init',
+    })
+    const storage = vi.spyOn(Storage.prototype, 'setItem')
+    const cookie = vi.spyOn(document, 'cookie', 'set')
+    mount()
+    const link = await screen.findByRole('link', { name: display.button_text })
+    const target = new URL(link.getAttribute('href')!, window.location.origin)
+    expect(target.pathname).toBe('/console/api/auth/casdoor/login')
+    expect([...target.searchParams]).toEqual([
+      ['return_path', '/apps/invited'],
+      ['invite_token', token],
+      ['locale', 'zh-Hans'],
+      ['timezone', 'Asia/Shanghai'],
+    ])
+    expect(screen.queryByText('login.noLoginMethod')).not.toBeInTheDocument()
+    expect(boundary.invite).toHaveBeenCalledTimes(1)
+    expect(boundary.replace).not.toHaveBeenCalled()
+    expect(boundary.push).not.toHaveBeenCalled()
+    expect(storage).not.toHaveBeenCalled()
+    expect(cookie).not.toHaveBeenCalled()
+    expect(requests).toHaveLength(1)
+    expect(new URL(requests[0]!.url).search).toBe('')
+  })
+
+  it('keeps an invited form waiting for display availability before declaring no method', async () => {
+    boundary.params = new URLSearchParams('invite_token=11111111-1111-4111-8111-111111111111')
+    const pending = Promise.withResolvers<Response>()
+    fetchDisplay.mockReturnValue(pending.promise)
+    mount()
+    await screen.findByRole('heading', { level: 1 })
+    expect(screen.getByRole('status')).toHaveTextContent('common.loading')
+    expect(screen.queryByText('login.noLoginMethod')).not.toBeInTheDocument()
+    await act(async () => pending.resolve(response(display)))
+    await screen.findByRole('link', { name: display.button_text })
+  })
+
+  it.each([
+    'invite_token=first&invite_token=second',
+    new URLSearchParams({ invite_token: 'x'.repeat(513) }).toString(),
+    new URLSearchParams({ invite_token: 'with\u0001control' }).toString(),
+  ])(
+    'does not construct a Casdoor invitation navigation for ambiguous or invalid token input',
+    async (params) => {
+      boundary.params = new URLSearchParams(params)
+      mount({ enable_email_password_login: true })
+      await screen.findByRole('button', { name: 'login.signBtn' })
+      await waitFor(() => expect(fetchDisplay).toHaveBeenCalledTimes(1))
       expect(screen.queryByRole('link', { name: display.button_text })).not.toBeInTheDocument()
-      expect(screen.queryByText('login.or')).not.toBeInTheDocument()
+      expect(boundary.replace).not.toHaveBeenCalled()
     },
   )
 

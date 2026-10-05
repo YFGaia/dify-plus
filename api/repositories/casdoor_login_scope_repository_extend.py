@@ -8,7 +8,7 @@ Relevant current/controlled full rows use only the original bounded owner.
 
 import json
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field as dataclass_field
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -128,6 +128,7 @@ class LoginScope:
     histories: tuple
     intents: tuple
     lease_scope: CasdoorLeaseScope
+    _archived_facts: tuple[str, ...] = dataclass_field(default=(), repr=False)
 
     def availability(self) -> ServerWorkspaceAvailability:
         configured = {self.configuration.default_workspace_id} | {
@@ -228,7 +229,9 @@ class CasdoorLoginScopeRepository:
             raise CasdoorLoginScopeConflict()
         return owner._configuration(revision), ns
 
-    def discover(self, prepared: _PreparedLoginAccount, *, _lock=False, _parents=None) -> LoginScope:
+    def discover(
+        self, prepared: _PreparedLoginAccount, *, _lock=False, _parents=None, _ordinary_guard=None
+    ) -> LoginScope:
         """Full bounded scalar read; unlocked discovery owns no write/lease lifecycle.
 
         _parents is the already leased workspace set. A locked read must lock
@@ -247,6 +250,7 @@ class CasdoorLoginScopeRepository:
             extra_workspace_ids=(),
             _lock=_lock,
             _parents=_parents,
+            _ordinary_guard=_ordinary_guard,
         )
 
     def _project_scope(
@@ -259,6 +263,7 @@ class CasdoorLoginScopeRepository:
         extra_workspace_ids: tuple[UUID, ...],
         _lock=False,
         _parents=None,
+        _ordinary_guard=None,
     ) -> LoginScope:
         """Shared scalar projection; extra parents grant no mapping or admission.
 
@@ -330,11 +335,11 @@ class CasdoorLoginScopeRepository:
             if row.account_id != aid or row.namespace_id not in ns_ids:
                 raise CasdoorLoginScopeConflict()
             ns = ns_by_id[row.namespace_id]
-            key = VerifiedIdentityKey(_uuid(row.namespace_id), row.issuer, row.organization, row.subject)
+            identity_key = VerifiedIdentityKey(_uuid(row.namespace_id), row.issuer, row.organization, row.subject)
             if (row.issuer, row.organization, row.subject_digest) != (
                 ns.expected_issuer,
                 ns.organization,
-                key.subject_digest,
+                identity_key.subject_digest,
             ):
                 raise CasdoorLoginScopeConflict()
         workspaces = None
@@ -342,6 +347,38 @@ class CasdoorLoginScopeRepository:
             if _parents is None:
                 raise CasdoorLoginScopeConflict()
             workspaces = self._workspaces(_parents, configured=configured, lock=True)
+            if _ordinary_guard is not None:
+                from repositories.casdoor_terminal_local_invitation_repository_extend import (
+                    _lock_ordinary_terminal_parents,
+                )
+
+                _lock_ordinary_terminal_parents(_ordinary_guard, self.session, context, key, account_id, workspaces)
+        archive_facts = ()
+        selected_identity = [r for r in identities if r.namespace_id == str(c.namespace_id)]
+        if len(identities) > 1:
+            if len(selected_identity) != 1:
+                raise CasdoorLoginScopeConflict()
+            from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
+
+            factual = CasdoorLocalLifecycleRepository(self.session)
+            archive = factual._archived_release_facts(
+                account_id=aid, namespace_id=c.namespace_id, identity_id=selected_identity[0].id
+            )
+            if _lock and not {UUID(w) for w in archive[2]} <= set(_parents):
+                raise CasdoorLoginScopeConflict()
+            archive_facts = archive[0]
+            current_rows = factual._archived_rows(
+                History, sa.and_(History.account_id == aid, History.namespace_id == str(c.namespace_id))
+            )
+            for row in current_rows:
+                if row["source"] is CasdoorMembershipSource.ADOPT:
+                    _membership_id, facts = factual._adopted_current_refs(
+                        account_id=aid,
+                        namespace_id=c.namespace_id,
+                        identity_id=selected_identity[0].id,
+                        workspace_id=row["workspace_id"],
+                    )
+                    archive_facts += facts[len(archive[0]) :]
         joins = self._rows(
             sa.select(Join.id, Join.account_id, Join.tenant_id, Join.role, Join.invited_by)
             .where(Join.account_id == aid)
@@ -404,9 +441,7 @@ class CasdoorLoginScopeRepository:
         # it must be rejected or accounted for, never disappear via an inner join.
         linked = (
             self._rows(
-                sa.select(
-                    History.id, History.account_id, History.workspace_id, History.namespace_id, History.identity_id
-                )
+                sa.select(History.id, History.account_id, History.workspace_id, History.namespace_id, History.identity_id)
                 .where(History.id.in_([row.membership_id for row in intents if row.membership_id is not None]))
                 .order_by(History.id),
                 lock=_lock,
@@ -462,7 +497,16 @@ class CasdoorLoginScopeRepository:
             tuple(WorkspaceMemberScope(w, account_id) for w in sorted(wanted, key=str)),
         )
         return LoginScope(
-            configuration, namespaces, account, identities, workspaces, joins, histories, intents, lease_scope
+            configuration,
+            namespaces,
+            account,
+            identities,
+            workspaces,
+            joins,
+            histories,
+            intents,
+            lease_scope,
+            archive_facts,
         )
 
     def _workspaces(self, ids, *, configured, lock):
@@ -536,22 +580,32 @@ class CasdoorLoginScopeRepository:
             if join is not None and (join.account_id, join.tenant_id) != (aid, row.workspace_id):
                 raise CasdoorLoginScopeConflict()
 
-    def prelock_and_recheck(self, prepared, discovered: LoginScope) -> LoginScope:
-        current = self.discover(prepared, _lock=True, _parents=tuple(_uuid(row.id) for row in discovered.workspaces))
+    def prelock_and_recheck(self, prepared, discovered: LoginScope, *, _ordinary_guard=None) -> LoginScope:
+        current = self.discover(
+            prepared,
+            _lock=True,
+            _parents=tuple(_uuid(row.id) for row in discovered.workspaces),
+            _ordinary_guard=_ordinary_guard,
+        )
         if current != discovered:
             raise CasdoorLoginScopeConflict()
-        self._intent_barrier(prepared.account_id, current)
+        self._intent_barrier(prepared.account_id, current, _ordinary_guard=_ordinary_guard)
         return current
 
-    def _intent_barrier(self, account_id, scope):
+    def _intent_barrier(self, account_id, scope, *, _ordinary_guard=None):
         owner = CasdoorRequiredIntentRepository(self.session)
         for workspace in scope.workspaces:
-            if owner.read_locked(account_id, _uuid(workspace.id)):
+            if owner.read_locked(account_id, _uuid(workspace.id), _ordinary_guard=_ordinary_guard):
                 raise CasdoorLoginScopeConflict()
-        if scope.intents:
+        excluded = None
+        if _ordinary_guard is not None:
+            from repositories.casdoor_terminal_local_invitation_repository_extend import _ordinary_terminal_exclusion
+
+            excluded = _ordinary_terminal_exclusion(_ordinary_guard, self.session, account_id)
+        if any(row.id != excluded for row in scope.intents):
             raise CasdoorLoginScopeConflict()
 
-    def _classify_local_changes(self, before: LoginScope, plan: DesiredWorkspacePlan):
+    def _classify_local_changes(self, before: LoginScope, plan: DesiredWorkspacePlan, *, _ordinary_guard=None):
         """Freeze relevant original bounded rows before B2 can change them."""
         targets = {str(target.workspace_id): target for target in plan.targets}
         c = plan.context
@@ -574,13 +628,13 @@ class CasdoorLoginScopeRepository:
             target = targets.get(history.workspace_id)
             view = owner.inspect(version, workspace_id, backend=MembershipBackend.LOCAL)
             if target is None or view.decision is OwnershipDecision.CONTROLLED_WITHDRAWN:
-                row, join, _ = owner._read_local_state(version, workspace_id)
+                row, join, _ = owner._read_local_state(version, workspace_id, _ordinary_guard=_ordinary_guard)
                 if join is None:
                     owner._validate_local_absence(version, row, join)
                     if target is not None:
-                        owner.prepare_local_regrant(version, target)
+                        owner.prepare_local_regrant(version, target, _ordinary_guard=_ordinary_guard)
                 else:
-                    token = owner.prepare_local_withdrawal(version, workspace_id)
+                    token = owner.prepare_local_withdrawal(version, workspace_id, _ordinary_guard=_ordinary_guard)
                     row = token.state[0]
                     # Same recipient availability read as original B3, before B2 DML.
                     recipients = tuple(
@@ -599,7 +653,7 @@ class CasdoorLoginScopeRepository:
                     withdrawals.append(workspace_id)
                 rows.append(row)
             elif view.decision is OwnershipDecision.MANAGED_CURRENT:
-                refs = owner._history_refs(c.account_id, workspace_id)
+                refs = owner._current_local_refs(c.account_id, workspace_id, c.namespace_id, c.identity_id)
                 if len(refs) != 1 or refs[0].id != history.id:
                     raise CasdoorLoginScopeConflict()
                 rows.append(owner._current_row(refs[0]))
@@ -612,7 +666,9 @@ class CasdoorLoginScopeRepository:
         owner = CasdoorMembershipRepository(self.session)
         current = []
         for row in rows:
-            refs = owner._history_refs(_uuid(row.account_id), _uuid(row.workspace_id))
+            refs = owner._current_local_refs(
+                _uuid(row.account_id), _uuid(row.workspace_id), _uuid(row.namespace_id), _uuid(row.identity_id)
+            )
             if len(refs) != 1 or refs[0].id != row.id:
                 raise CasdoorLoginScopeConflict()
             current.append(owner._current_row(refs[0]))
@@ -627,17 +683,24 @@ class CasdoorLoginScopeRepository:
         *,
         expected_account_name: str | None = None,
         controlled_before=(),
+        _ordinary_guard=None,
     ) -> None:
         """Reconstruct full scope and allow only actual owners' explicit local delta."""
-        current = self.discover(prepared, _lock=True, _parents=tuple(_uuid(row.id) for row in before.workspaces))
+        current = self.discover(
+            prepared,
+            _lock=True,
+            _parents=tuple(_uuid(row.id) for row in before.workspaces),
+            _ordinary_guard=_ordinary_guard,
+        )
         if (
-            current.configuration != before.configuration
+            current._archived_facts != before._archived_facts
+            or current.configuration != before.configuration
             or current.namespaces != before.namespaces
             or current.workspaces != before.workspaces
             or current.lease_scope.canonical_keys != before.lease_scope.canonical_keys
         ):
             raise CasdoorLoginScopeConflict()
-        self._intent_barrier(prepared.account_id, current)
+        self._intent_barrier(prepared.account_id, current, _ordinary_guard=_ordinary_guard)
         fresh = CasdoorAccountPreflightRepository(self.session).reconstruct(
             prepared.plan.context, prepared.key, candidate_account_id=prepared.account_id
         )
@@ -702,8 +765,14 @@ class CasdoorLoginScopeRepository:
         ):
             raise CasdoorLoginScopeConflict()
         self._verify_memberships(before, current, plan, result, controlled_before=controlled_before)
+        if _ordinary_guard is not None:
+            from repositories.casdoor_terminal_local_invitation_repository_extend import _ordinary_terminal_last
+
+            _ordinary_terminal_last(_ordinary_guard)
 
     def _verify_memberships(self, before, current, plan, result, *, controlled_before=()):
+        from services.casdoor_local_membership_service_extend import RequiredIntentBarrier
+
         old_joins = {row.id: row for row in before.joins}
         new_joins = {row.id: row for row in current.joins}
         old_history = {row.id: row for row in before.histories}
@@ -877,6 +946,41 @@ class CasdoorLoginScopeRepository:
             else:
                 if actual != row:
                     raise CasdoorLoginScopeConflict()
+                preserved = tuple(
+                    item
+                    for item in result.workspaces
+                    if str(item.membership_id) == row.id and str(item.workspace_id) == row.workspace_id
+                )
+                if (
+                    len(preserved) == 1
+                    and preserved[0].outcome is LocalRoleOutcome.PRESERVED
+                    and preserved[0].ownership_decision
+                    in (
+                        OwnershipDecision.OWNER_PROTECTED,
+                        OwnershipDecision.PRESERVE_OVERRIDE,
+                        OwnershipDecision.PRESERVE_UNMANAGED,
+                    )
+                    and preserved[0].role_changed is False
+                    and preserved[0].metadata_changed is False
+                    and preserved[0].intent_barrier is RequiredIntentBarrier.CLEAR
+                ):
+                    item = preserved[0]
+                    view = owner.inspect(version, _uuid(row.workspace_id), backend=MembershipBackend.LOCAL)
+                    if (
+                        view.decision is item.ownership_decision
+                        and view.managed is not None
+                        and view.managed == owner._snapshot(actual)
+                        and view.managed.membership_id == _uuid(row.id)
+                        and view.managed.namespace_id == plan.context.namespace_id
+                        and view.managed.identity_id == plan.context.identity_id
+                        and view.managed.account_id == plan.context.account_id
+                        and view.managed.workspace_id == _uuid(row.workspace_id)
+                        and view.observation.join_id == item.join_id == _uuid(row.join_id)
+                        and view.observation.join_role is item.current_role
+                        and view.observation.account_id == plan.context.account_id
+                        and view.observation.workspace_id == _uuid(row.workspace_id)
+                    ):
+                        continue
                 absent, join, _ = owner._read_local_state(version, _uuid(row.workspace_id))
                 owner._validate_local_absence(version, absent, join)
         if new_joins != old_joins or new_history != old_history:

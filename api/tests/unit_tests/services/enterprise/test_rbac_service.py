@@ -16,7 +16,8 @@ from flask import Flask
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from models import TenantAccountJoin
+from models import Account, Tenant, TenantAccountJoin
+from models.account import AccountStatus
 from services.enterprise import rbac_service as svc
 
 MODULE = "services.enterprise.rbac_service"
@@ -982,19 +983,32 @@ class TestMemberRoles:
         self, mock_send: MagicMock, sqlite_session: Session, config_overrides
     ):
         config_overrides(RBAC_ENABLED=False)
+        tenant = Tenant(name="Legacy role workspace")
+        tenant.id = "00000000-0000-4000-8000-000000000201"
+        member = Account(name="Legacy member", email="legacy-member@example.test", status=AccountStatus.ACTIVE)
+        member.id = "00000000-0000-4000-8000-000000000202"
+        owner = Account(name="Legacy owner", email="legacy-owner@example.test", status=AccountStatus.ACTIVE)
+        owner.id = "00000000-0000-4000-8000-000000000203"
+        sqlite_session.add_all([tenant, member, owner])
+        sqlite_session.flush()
         target_join = TenantAccountJoin(
             tenant_id="00000000-0000-4000-8000-000000000201",
             account_id="00000000-0000-4000-8000-000000000202",
             role=svc.TenantAccountRole.NORMAL,
         )
-        sqlite_session.add(target_join)
+        owner_join = TenantAccountJoin(
+            tenant_id="00000000-0000-4000-8000-000000000201",
+            account_id="00000000-0000-4000-8000-000000000203",
+            role=svc.TenantAccountRole.OWNER,
+        )
+        sqlite_session.add_all([target_join, owner_join])
         sqlite_session.commit()
         target_join_id = target_join.id
         engine = sqlite_session.get_bind()
 
         out = svc.RBACService.MemberRoles.replace(
             "00000000-0000-4000-8000-000000000201",
-            "acct-1",
+            "00000000-0000-4000-8000-000000000203",
             "00000000-0000-4000-8000-000000000202",
             role_ids=["editor"],
             session=sqlite_session,
@@ -1018,6 +1032,14 @@ class TestMemberRoles:
         self, mock_send: MagicMock, sqlite_session: Session, config_overrides
     ):
         config_overrides(RBAC_ENABLED=False)
+        tenant = Tenant(name="Legacy transfer workspace")
+        tenant.id = "00000000-0000-4000-8000-000000000201"
+        member = Account(name="Legacy member", email="legacy-member@example.test", status=AccountStatus.ACTIVE)
+        member.id = "00000000-0000-4000-8000-000000000202"
+        owner = Account(name="Legacy owner", email="legacy-owner@example.test", status=AccountStatus.ACTIVE)
+        owner.id = "00000000-0000-4000-8000-000000000203"
+        sqlite_session.add_all([tenant, member, owner])
+        sqlite_session.flush()
         target_join = TenantAccountJoin(
             tenant_id="00000000-0000-4000-8000-000000000201",
             account_id="00000000-0000-4000-8000-000000000202",
@@ -1033,7 +1055,7 @@ class TestMemberRoles:
 
         out = svc.RBACService.MemberRoles.replace(
             "00000000-0000-4000-8000-000000000201",
-            "acct-1",
+            "00000000-0000-4000-8000-000000000203",
             "00000000-0000-4000-8000-000000000202",
             role_ids=["owner"],
             session=sqlite_session,

@@ -1,9 +1,10 @@
-"""Complete online directory graph policy; no authorization writes or generation.
+"""Complete online directory graph validation; no authorization writes or generation.
 
-The fixed candidate schema needs trusted deployment evidence before use. SDK
-defaults, static capabilities and a successful HTTP response are not evidence.
-The caller acquires its DB-reconstructed namespace/subject lease before loading,
-keeps network I/O outside write transactions, and assigns generation later (I11).
+The server selects the supported flat directory schema. Each use validates the
+actual organization/user/role responses and their completeness before matching
+roles. The caller acquires its DB-reconstructed namespace/subject lease before
+loading, keeps network I/O outside write transactions, and assigns generation
+later (I11).
 """
 
 import re
@@ -53,25 +54,19 @@ class DirectorySnapshotSchema(StrEnum):
 
 @dataclass(frozen=True, repr=False)
 class DirectorySnapshotContract:
-    """Trusted server-owned evidence linkage, never a configurable permission flag.
+    """Server-selected response schema, bound to the configured organization.
 
-    FLAT_DIRECTORY_V1 attests the release's full unpaginated org role response,
-    exact flat raw JSON keys below, full app organization-admin read visibility,
-    parent->child Role.roles and exact full-ref group membership. It also attests
-    present null/list relation semantics and AccountItems no-filter behavior for
-    null/[]/unmatched fields. AccountItem names use Go's lower+ASCII-space removal;
-    only Public/Self/Admin are visible to this proven org-admin application, and
-    visible affects presentation rather than this HTTP field filter. Non-ASCII
-    AccountItem names are unsupported to avoid guessing Go Unicode lower rules.
-
-    Fingerprints link externally reviewed fixed-release evidence; their shapes
-    cannot authenticate it. No real deployment contract is provided here.
+    The normal diagnostic/login path uses the built-in flat Casdoor profile and
+    leaves review evidence fields empty. A separately reviewed profile can still
+    be supplied by legacy optional flows; neither shape bypasses parsing of the
+    actual directory response or the role authorization checks below.
     """
 
-    deployment_proof: DirectoryDeploymentProof
-    schema_proof_fingerprint: str
-    visibility_proof_fingerprint: str
+    deployment_proof: DirectoryDeploymentProof | None = None
+    schema_proof_fingerprint: str | None = None
+    visibility_proof_fingerprint: str | None = None
     schema: DirectorySnapshotSchema = DirectorySnapshotSchema.FLAT_DIRECTORY_V1
+    organization: str | None = None
 
     def __repr__(self) -> str:
         return "DirectorySnapshotContract(<redacted>)"
@@ -102,10 +97,17 @@ def _text(value: object, limit: int = 255) -> bool:
 
 
 def _contract(contract: DirectorySnapshotContract | None, organization: str) -> DirectorySnapshotContract:
-    if (
-        not isinstance(contract, DirectorySnapshotContract)
-        or contract.schema is not DirectorySnapshotSchema.FLAT_DIRECTORY_V1
-        or not isinstance(contract.deployment_proof, DirectoryDeploymentProof)
+    if not isinstance(contract, DirectorySnapshotContract) or contract.schema is not DirectorySnapshotSchema.FLAT_DIRECTORY_V1:
+        _fail("contract_unknown")
+    if contract.deployment_proof is None:
+        if (
+            contract.organization != organization
+            or contract.schema_proof_fingerprint is not None
+            or contract.visibility_proof_fingerprint is not None
+        ):
+            _fail("contract_unknown")
+    elif (
+        not isinstance(contract.deployment_proof, DirectoryDeploymentProof)
         or contract.deployment_proof.organization != organization
         or not all(
             isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value)

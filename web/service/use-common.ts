@@ -15,6 +15,7 @@ import type {
 } from '@/models/common'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { discardRegistrationSessionState } from '@/app/components/base/amplitude/registration-session-state'
+import { consoleQuery } from '@/service/console'
 // oxlint-disable-next-line no-restricted-imports
 import { get, post } from './base'
 
@@ -154,21 +155,21 @@ export const useSchemaTypeDefinitions = () => {
 
 export const useLogout = () => {
   const queryClient = useQueryClient()
-  return useMutation({
-    mutationKey: [NAME_SPACE, 'logout'],
-    mutationFn: () => post('/logout'),
-    onSuccess: () => {
-      discardRegistrationSessionState()
-      // Drop all cached queries so the post-logout /signin probe doesn't read
-      // the previous user's profile (the userProfile queryKey is shared with
-      // the (commonLayout) tree, which keeps observing it during React's
-      // concurrent transition — gcTime: 0 is not enough on its own).
-      // Nuclear over targeted: every new user-scoped query would otherwise
-      // need to be remembered here. systemFeatures (user-agnostic) just
-      // refetches once on the way to /signin, which is cheap.
-      queryClient.clear()
-    },
-  })
+  return useMutation(
+    consoleQuery.logout.post.mutationOptions({
+      onSuccess: () => {
+        discardRegistrationSessionState()
+        // Drop all cached queries so the post-logout /signin probe doesn't read
+        // the previous user's profile (the userProfile queryKey is shared with
+        // the (commonLayout) tree, which keeps observing it during React's
+        // concurrent transition — gcTime: 0 is not enough on its own).
+        // Nuclear over targeted: every new user-scoped query would otherwise
+        // need to be remembered here. systemFeatures (user-agnostic) just
+        // refetches once on the way to /signin, which is cheap.
+        queryClient.clear()
+      },
+    }),
+  )
 }
 
 type ForgotPasswordValidity = CommonResponse & { is_valid: boolean; email: string; token: string }

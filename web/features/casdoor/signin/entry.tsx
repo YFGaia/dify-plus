@@ -41,6 +41,21 @@ function validTimezone(value: string | undefined): value is string {
   }
 }
 
+// oxlint-disable-next-line react/only-export-components -- Share the existing bounded query parser with the sign-in owner.
+export function readValidatedCasdoorInvitation(params: Pick<URLSearchParams, 'getAll'>) {
+  const invitations = params.getAll('invite_token')
+  if (invitations.length > 1) return null
+  const invitation = invitations[0]
+  if (!invitation || invitation === 'null') return undefined
+  if (
+    invitation.length > 512 ||
+    invitation !== invitation.trim() ||
+    /[\u0000-\u001F\u007F]/.test(invitation)
+  )
+    return null
+  return invitation
+}
+
 export default function CasdoorSigninEntry({
   query,
 }: {
@@ -77,6 +92,9 @@ export default function CasdoorSigninEntry({
   const params = new URLSearchParams({
     return_path: getReturnPath(searchParams.getAll('redirect_url')),
   })
+  const invitation = readValidatedCasdoorInvitation(searchParams)
+  if (invitation === null) return null
+  if (invitation) params.set('invite_token', invitation)
   if (validLocale(locale)) params.set('locale', locale)
   const timezone = getBrowserTimezone()
   if (validTimezone(timezone)) params.set('timezone', timezone)

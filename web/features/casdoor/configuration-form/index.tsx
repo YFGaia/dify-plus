@@ -3,8 +3,13 @@
 import { zCasdoorPermissionsResponse } from '@dify/contracts/api/console/system-manage-extend/zod.gen'
 import { Button } from '@langgenius/dify-ui/button'
 import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { useTranslation } from '#i18n'
 import { consoleQuery } from '@/service/console'
+import { AvatarRetry } from '../avatar-retry'
+import { LocalLifecycle } from '../local-lifecycle'
+import { RPLogoutDiagnostic } from '../logout/diagnostic'
+import { NamespaceReset } from '../namespace-reset'
 import { parseServerConfiguration } from './configuration-draft'
 import { ConfigurationSession } from './configuration-session'
 import { ManagementError } from './management-error'
@@ -27,6 +32,9 @@ export function CasdoorConfigurationForm() {
       context: { silent: true },
       enabled: permissions.data?.can_manage_casdoor === true,
       retry: false,
+      staleTime: 0,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: 'always',
       select: (data) => {
         const parsed = parseServerConfiguration(data)
         if (!parsed) throw new Error('Casdoor configuration response unavailable.')
@@ -34,6 +42,16 @@ export function CasdoorConfigurationForm() {
       },
     }),
   )
+  const canManage = permissions.data?.can_manage_casdoor === true
+  const refetch = configuration.refetch
+  useEffect(() => {
+    if (!canManage) return
+    const refreshOnReturn = (event: PageTransitionEvent) => {
+      if (event.persisted) void refetch()
+    }
+    window.addEventListener('pageshow', refreshOnReturn)
+    return () => window.removeEventListener('pageshow', refreshOnReturn)
+  }, [canManage, refetch])
   if (permissions.isError)
     return (
       <>
@@ -87,6 +105,24 @@ export function CasdoorConfigurationForm() {
         refreshing={configuration.isFetching}
         refreshError={configuration.error}
       />
+      <LocalLifecycle />
+      <NamespaceReset
+        response={configuration.data}
+        refreshing={configuration.isFetching}
+        refreshError={configuration.error}
+        onRefresh={async () => {
+          const current = await configuration.refetch()
+          return current.isSuccess ? current.data : null
+        }}
+      />
+      <AvatarRetry />
+      {configuration.data.draft && (
+        <RPLogoutDiagnostic
+          key={`${configuration.data.draft.revision_id}:${configuration.data.etag}`}
+          revision={configuration.data.draft}
+          etag={configuration.data.etag}
+        />
+      )}
     </section>
   )
 }

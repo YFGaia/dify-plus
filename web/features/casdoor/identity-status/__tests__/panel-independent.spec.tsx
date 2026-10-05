@@ -61,6 +61,11 @@ const identity = (organization: string): GetAccountCasdoorIdentityResponse => ({
       lifecycle: 'active',
       profile_consistency: 'consistent',
       avatar_status: 'unknown',
+      avatar_recorded_at: null,
+      avatar_last_reason: null,
+      avatar_recorded_generation: null,
+      avatar_consistency: 'unknown',
+      avatar_current_local_differs_from_last_applied: null,
       sync_generation: 1,
       name: {
         baseline_generation: null,

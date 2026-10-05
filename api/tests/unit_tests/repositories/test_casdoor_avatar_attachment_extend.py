@@ -68,7 +68,7 @@ def attachment(avatar_fixture, monkeypatch):
     for name in ("encrypt", "decrypt"):
         monkeypatch.setattr(type(s.config_owner.crypto), name, denied)
     for name in ("save", "load_stream", "load_once", "delete", "exists"):
-        monkeypatch.setattr(storage, name, denied)
+        monkeypatch.setattr(type(storage), name, denied)
     monkeypatch.setattr(Image, "open", denied)
     monkeypatch.setattr(redis.Redis, "execute_command", denied)
     with s.maker() as session, session.begin():

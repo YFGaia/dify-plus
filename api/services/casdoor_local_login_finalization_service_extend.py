@@ -1,7 +1,7 @@
 """Concrete private LOCAL tail, called only from the successful C2/C1 stack.
 
 Fresh SQL gates cannot eliminate the gap to Redis or serialize legacy writers.
-No production proof, route, Cookie, remote saga, lease lifecycle or retry lives
+No proof producer, route, Cookie, remote saga, lease lifecycle or retry lives
 here. Partial/unissued Redis credentials expire under the original issuer TTL;
 account-wide revoke would damage concurrent sessions and is not rollback.
 """
@@ -55,12 +55,14 @@ class CasdoorLocalLoginFinalizationService:
         session_factory: Callable[[], Session],
         configuration_factory,
         session_gateway: RedisAccountSessionGateway,
+        production_guard: Callable[[], object] | None = None,
     ) -> None:
         if type(session_gateway) is not RedisAccountSessionGateway:
             raise CasdoorLoginScopeConflict()
         self._session_factory = session_factory
         self._configuration_factory = configuration_factory
         self._session_gateway = session_gateway
+        self._production_guard = production_guard
 
     @staticmethod
     def _metadata(session, account_id):
@@ -100,7 +102,7 @@ class CasdoorLocalLoginFinalizationService:
         )
 
     @staticmethod
-    def _members(session, scope, plan, persisted):
+    def _members(session, scope, plan, persisted, *, _ordinary_guard=None):
         """Freeze bounded targets and legitimate prior-only controlled absences."""
         if tuple(t.workspace_id for t in plan.targets) != tuple(w.workspace_id for w in persisted.workspaces):
             raise CasdoorLoginScopeConflict()
@@ -147,7 +149,9 @@ class CasdoorLocalLoginFinalizationService:
                 or history.finalization not in (Finalization.PENDING, Finalization.FINALIZED)
             ):
                 raise CasdoorLoginScopeConflict()
-            refs = owner._history_refs(persisted.account_id, target.workspace_id)
+            refs = owner._current_local_refs(
+                persisted.account_id, target.workspace_id, persisted.namespace_id, persisted.identity_id
+            )
             if len(refs) != 1 or refs[0].id != history.id:
                 raise CasdoorLoginScopeConflict()
             row = owner._current_row(refs[0])
@@ -186,7 +190,7 @@ class CasdoorLocalLoginFinalizationService:
             if baseline.join_role is None:
                 if observation.membership_created or row.ownership_epoch < 2:
                     raise CasdoorLoginScopeConflict()
-                checked, join, _ = owner._read_local_state(version, target.workspace_id)
+                checked, join, _ = owner._read_local_state(version, target.workspace_id, _ordinary_guard=_ordinary_guard)
                 empty = MembershipObservation(
                     target.workspace_id, persisted.account_id, None, None, MembershipBackend.LOCAL
                 )
@@ -219,7 +223,7 @@ class CasdoorLocalLoginFinalizationService:
                 or history.tombstone
             ):
                 continue
-            row, join, _ = owner._read_local_state(version, UUID(history.workspace_id))
+            row, join, _ = owner._read_local_state(version, UUID(history.workspace_id), _ordinary_guard=_ordinary_guard)
             owner._validate_local_absence(version, row, join)
             if any(getattr(row, name) != value for name, value in history._mapping.items()):
                 raise CasdoorLoginScopeConflict()
@@ -312,7 +316,9 @@ class CasdoorLocalLoginFinalizationService:
         # Build expected metadata from actual assignments before flush/triggers.
         return current.id
 
-    def _finalize_local_login(self, *, prepared, persisted, roles, leases, configuration, ip_address) -> AuthTokenPair:
+    def _finalize_local_login(
+        self, *, prepared, persisted, roles, leases, configuration, ip_address, _ordinary_attempt=None
+    ) -> AuthTokenPair:
         """One cache pass, one write root and one final read, never replay C1.
 
         Exception facts distinguish attempted commit and token I/O; neither
@@ -357,23 +363,44 @@ class CasdoorLocalLoginFinalizationService:
                 if dify_config.RBAC_ENABLED is not False:
                     raise CasdoorLoginScopeConflict()
                 _check_deadline(prepared.deadline)
+                if _ordinary_attempt is not None:
+                    from repositories.casdoor_terminal_local_invitation_repository_extend import _ordinary_attempt_check
+
+                    _ordinary_attempt_check(_ordinary_attempt, prepared, roles, leases)
+                if self._production_guard is not None:
+                    self._production_guard()
                 leases.ensure_owned()
                 _check_deadline(prepared.deadline)
 
             def check(session, scope):
-                if scope.configuration != configuration or scope.lease_scope.canonical_keys != leases.canonical_keys:
+                if (
+                    scope._archived_facts != persisted._archived_facts
+                    or scope.configuration != configuration
+                    or scope.lease_scope.canonical_keys != leases.canonical_keys
+                ):
                     raise CasdoorLoginScopeConflict()
                 self._account(scope, prepared, persisted)
                 plan = self._mapping(scope, prepared, persisted, roles)
-                return self._members(session, scope, plan, persisted)
+                return self._members(session, scope, plan, persisted, _ordinary_guard=ordinary_guard)
+
+            from repositories.casdoor_terminal_local_invitation_repository_extend import (
+                _bind_ordinary_terminal_root,
+                _ordinary_terminal_last,
+            )
 
             guard()
             with self._session_factory() as session, session.begin():
+                ordinary_guard = (
+                    _bind_ordinary_terminal_root(_ordinary_attempt, session, self._configuration_factory)
+                    if _ordinary_attempt is not None
+                    else None
+                )
                 owner = CasdoorLoginScopeRepository(session, self._configuration_factory)
-                before = owner.prelock_and_recheck(prepared, owner.discover(prepared))
+                before = owner.prelock_and_recheck(prepared, owner.discover(prepared), _ordinary_guard=ordinary_guard)
                 views, rows = check(session, before)
                 metadata = self._metadata(session, persisted.account_id)
                 guard()
+                _ordinary_terminal_last(ordinary_guard)
             cache = BillingWorkspaceMembershipCache(enabled=dify_config.DEPLOYMENT_EDITION == DeploymentEdition.CLOUD)
             for row in rows:
                 if row.finalization is Finalization.PENDING:
@@ -382,8 +409,13 @@ class CasdoorLocalLoginFinalizationService:
                     guard()
             guard()
             with self._session_factory() as session, session.begin():
+                ordinary_guard = (
+                    _bind_ordinary_terminal_root(_ordinary_attempt, session, self._configuration_factory)
+                    if _ordinary_attempt is not None
+                    else None
+                )
                 owner = CasdoorLoginScopeRepository(session, self._configuration_factory)
-                scope = owner.prelock_and_recheck(prepared, before)
+                scope = owner.prelock_and_recheck(prepared, before, _ordinary_guard=ordinary_guard)
                 if check(session, scope) != (views, rows) or self._metadata(session, persisted.account_id) != metadata:
                     raise CasdoorLoginScopeConflict()
                 phase = "not_committed"
@@ -435,14 +467,20 @@ class CasdoorLocalLoginFinalizationService:
                     or self._metadata(session, persisted.account_id) != expected_metadata
                 ):
                     raise CasdoorLoginScopeConflict()
-                owner._intent_barrier(persisted.account_id, after)
+                owner._intent_barrier(persisted.account_id, after, _ordinary_guard=ordinary_guard)
                 guard()
+                _ordinary_terminal_last(ordinary_guard)
                 phase = "unknown"
             phase = "committed"
             guard()
             with self._session_factory() as session, session.begin():
+                ordinary_guard = (
+                    _bind_ordinary_terminal_root(_ordinary_attempt, session, self._configuration_factory)
+                    if _ordinary_attempt is not None
+                    else None
+                )
                 owner = CasdoorLoginScopeRepository(session, self._configuration_factory)
-                scope = owner.prelock_and_recheck(prepared, after)
+                scope = owner.prelock_and_recheck(prepared, after, _ordinary_guard=ordinary_guard)
                 if (
                     check(session, scope) != (views, completed_rows)
                     or self._metadata(session, persisted.account_id) != expected_metadata
@@ -453,6 +491,7 @@ class CasdoorLocalLoginFinalizationService:
                 if selected_join.current is not True or tenant.status is not TenantStatus.NORMAL:
                     raise CasdoorLoginScopeConflict()
                 guard()
+                _ordinary_terminal_last(ordinary_guard)
             guard()
             tokens = "unknown"
             pair = self._session_gateway.issue(str(persisted.account_id))

@@ -17,6 +17,7 @@ from services.account_quota_service_extend import ensure_account_quota_extend
 from services.account_service import AccountService, RegisterService, TenantService
 from services.entities.account_oauth_entities import OAuthAccountRegistration
 from services.errors.account import AccountNormalizedEmailAlreadyInUseError, SeatsLimitExceededError
+from tests.unit_tests.services.test_invitation_publication_transport_extend import Wire, client_for
 
 
 @pytest.fixture(autouse=True)
@@ -34,6 +35,9 @@ def dependencies(monkeypatch, config_overrides):
     monkeypatch.setattr("libs.workspace_permission.check_workspace_member_invite_permission", lambda *_args: None)
     monkeypatch.setattr(TenantService, "check_member_permission", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(account_service.send_invite_member_mail_task, "delay", lambda **_kwargs: None)
+    # Keep the original issuer/publisher and redis-py transport; only socket I/O is offline.
+    invitation_redis, _, _ = client_for(Wire(), monkeypatch)
+    monkeypatch.setattr(account_service, "redis_client", invitation_redis)
     return features
 
 

@@ -26,6 +26,16 @@ export const zCasdoorRestrictedResultResponse = z.object({
 })
 
 /**
+ * CasdoorSessionResponse
+ */
+export const zCasdoorSessionResponse = z.object({
+  expires_at: z.iso.datetime().nullish(),
+  rp_logout_available: z.boolean().optional().default(false),
+  source: z.enum(['casdoor', 'local_only']),
+  verified: z.boolean(),
+})
+
+/**
  * DatasourceCredentialPayload
  */
 export const zDatasourceCredentialPayload = z.object({
@@ -102,6 +112,23 @@ export const zCasdoorResultResponse = z.object({
   code: zCasdoorErrorCode,
   correlation_id: z.uuid(),
   retry_allowed: z.boolean(),
+})
+
+/**
+ * CasdoorNavigationResponse
+ *
+ * Opaque local handler path; the server validates/consumes the handoff.
+ */
+export const zCasdoorNavigationResponse = z.object({
+  handoff_path: z.string().min(1).max(2048),
+})
+
+/**
+ * CasdoorLogoutResponse
+ */
+export const zCasdoorLogoutResponse = z.object({
+  handoff: zCasdoorNavigationResponse.nullish(),
+  status: z.enum(['handoff_ready', 'local_only']),
 })
 
 /**
@@ -239,6 +266,11 @@ export const zDatasourceProviderAuthListResponse = z.object({
  */
 export const zGetAuthCasdoorDisplayResponse = zCasdoorDisplayResponse
 
+/**
+ * Anonymous browser-bound logout continuation
+ */
+export const zPostAuthCasdoorLogoutRetryResponse = zCasdoorLogoutResponse
+
 export const zGetAuthCasdoorResultQuery = z.object({
   handoff: z
     .string()
@@ -250,6 +282,11 @@ export const zGetAuthCasdoorResultQuery = z.object({
  * Consumed display result
  */
 export const zGetAuthCasdoorResultResponse = zCasdoorRestrictedResultResponse
+
+/**
+ * Current session provenance
+ */
+export const zGetAuthCasdoorSessionResponse = zCasdoorSessionResponse
 
 /**
  * Default datasource credentials retrieved successfully

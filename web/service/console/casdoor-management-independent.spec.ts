@@ -253,7 +253,15 @@ describe('independent Casdoor Console query integration', () => {
     const casdoor = consoleQuery.systemManageExtend.integration.casdoor
     const client = new QueryClient()
     const configurationKey = casdoor.get.queryKey()
+    const displayKey = consoleQuery.auth.casdoor.display.get.queryKey()
+    const permissionKey = casdoor.permissions.get.queryKey()
     client.setQueryData(configurationKey, emptyConfiguration)
+    client.setQueryData(displayKey, {
+      enabled: false,
+      button_text: 'Casdoor',
+      start_path: '/console/api/auth/casdoor/login',
+    })
+    client.setQueryData(permissionKey, { can_manage_casdoor: true })
 
     const result = await new MutationObserver(
       client,
@@ -262,7 +270,11 @@ describe('independent Casdoor Console query integration', () => {
 
     expect(result).toMatchObject({ kind: 'static', status: 'passed', static_only: true })
     expect(client.getQueryData(configurationKey)).toEqual(emptyConfiguration)
-    expect(client.getQueryState(configurationKey)?.isInvalidated).toBe(false)
+    expect(client.getQueryState(configurationKey)?.isInvalidated).toBe(true)
+    expect(client.getQueryData(configurationKey)?.enabled).toBe(false)
+    expect(client.getQueryState(displayKey)?.isInvalidated).toBe(false)
+    expect(client.getQueryData(displayKey)?.enabled).toBe(false)
+    expect(client.getQueryState(permissionKey)?.isInvalidated).toBe(false)
     expect(casdoor.validate.post.mutationOptions()).toMatchObject({
       gcTime: 0,
       networkMode: 'always',

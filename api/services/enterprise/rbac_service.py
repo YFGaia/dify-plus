@@ -11,6 +11,7 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from werkzeug.exceptions import Forbidden
 
 from configs import dify_config
 from core.db.session_factory import session_factory
@@ -20,6 +21,66 @@ from services.enterprise.base import EnterpriseRequest
 
 T = TypeVar("T")
 logger = logging.getLogger(__name__)
+
+
+def _authorize_local_member_role_change(
+    session: Session,
+    *,
+    tenant_id: str,
+    actor_account_id: str | None,
+    member_account_id: str,
+    target_role: TenantAccountRole,
+) -> None:
+    """Recheck actual LOCAL admission; no locks before ownership parent locks.
+
+    Runtime imports avoid account_service's import of this module. Fresh ORM
+    reads also refresh the identity map used by the original permission owner;
+    fresh column roles supply the administrator Owner restriction. This helper
+    issues no capability and never commits, rolls back or changes membership.
+    """
+    from models.account import Account, Tenant
+    from services.account_service import TenantService
+    from services.errors.account import CannotOperateSelfError, NoPermissionError
+
+    denial = "No permission to update member role."
+    if not actor_account_id:
+        raise Forbidden(denial)
+    tenant = session.scalar(select(Tenant).where(Tenant.id == tenant_id).execution_options(populate_existing=True))
+    actor = session.scalar(
+        select(Account).where(Account.id == actor_account_id).execution_options(populate_existing=True)
+    )
+    member = session.scalar(
+        select(Account).where(Account.id == member_account_id).execution_options(populate_existing=True)
+    )
+    if tenant is None or actor is None or member is None:
+        raise Forbidden(denial)
+    # These are reads, not early actor locks or additional affected scopes.
+    session.execute(
+        select(TenantAccountJoin)
+        .where(
+            TenantAccountJoin.tenant_id == tenant_id,
+            TenantAccountJoin.account_id.in_((actor_account_id, member_account_id)),
+        )
+        .execution_options(populate_existing=True)
+    ).scalars().all()
+    actor_role = session.scalar(
+        select(TenantAccountJoin.role).where(
+            TenantAccountJoin.tenant_id == tenant_id, TenantAccountJoin.account_id == actor_account_id
+        )
+    )
+    member_role = session.scalar(
+        select(TenantAccountJoin.role).where(
+            TenantAccountJoin.tenant_id == tenant_id, TenantAccountJoin.account_id == member_account_id
+        )
+    )
+    if actor_role not in (TenantAccountRole.OWNER, TenantAccountRole.ADMIN) or member_role not in tuple(TenantAccountRole):
+        raise Forbidden(denial)
+    try:
+        TenantService.check_member_permission(tenant, actor, member, "update", session=session)
+    except (CannotOperateSelfError, NoPermissionError):
+        raise Forbidden(denial) from None
+    if actor_role == TenantAccountRole.ADMIN and TenantAccountRole.OWNER in (member_role, target_role):
+        raise Forbidden(denial)
 
 
 def app_maintainer_id(tenant_id: str, app_id: str) -> str | None:
@@ -2117,35 +2178,101 @@ class RBACService:
             session: Session,
         ) -> MemberRolesResponse:
             if not dify_config.RBAC_ENABLED:
+                from core.casdoor.manual_ownership import ManualMutationKind
+                from services.casdoor_manual_member_mutation_service_extend import (
+                    mark_local_manual_member_mutation,
+                    require_clean_local_manual_session,
+                )
+                from services.errors.account import NoPermissionError
+
+                if not account_id:
+                    raise Forbidden("No permission to update member role.")
                 if len(role_ids) != 1:
                     raise ValueError("Legacy workspace member role update requires exactly one role.")
 
                 tenant_role = TenantAccountRole(role_ids[0])
+                try:
+                    require_clean_local_manual_session(session)
+                except NoPermissionError:
+                    raise Forbidden("No permission to update member role.") from None
+                _authorize_local_member_role_change(
+                    session,
+                    tenant_id=tenant_id,
+                    actor_account_id=account_id,
+                    member_account_id=member_account_id,
+                    target_role=tenant_role,
+                )
                 target_member_join = session.scalar(
                     select(TenantAccountJoin).where(
                         TenantAccountJoin.tenant_id == tenant_id,
                         TenantAccountJoin.account_id == member_account_id,
-                    )
+                    ).execution_options(populate_existing=True)
                 )
                 if not target_member_join:
                     raise ValueError("Member not in tenant.")
 
                 changed_joins: list[TenantAccountJoin] = []
+                current_owner_join = None
                 if tenant_role == TenantAccountRole.OWNER:
                     current_owner_join = session.scalar(
                         select(TenantAccountJoin).where(
                             TenantAccountJoin.tenant_id == tenant_id,
                             TenantAccountJoin.role == TenantAccountRole.OWNER,
-                        )
+                        ).execution_options(populate_existing=True)
                     )
                     if current_owner_join and current_owner_join.account_id != member_account_id:
-                        current_owner_join.role = TenantAccountRole.NORMAL
                         changed_joins.append(current_owner_join)
 
                 if target_member_join.role != tenant_role:
-                    target_member_join.role = tenant_role
                     changed_joins.append(target_member_join)
                 if changed_joins:
+                    before = tuple((join.id, join.account_id, join.role) for join in changed_joins)
+                    old_owner = (
+                        (current_owner_join.id, current_owner_join.account_id, current_owner_join.role)
+                        if current_owner_join is not None
+                        else None
+                    )
+                    try:
+                        mark_local_manual_member_mutation(
+                            session,
+                            workspace_id=tenant_id,
+                            account_ids=tuple(join.account_id for join in changed_joins),
+                            kind=ManualMutationKind.OWNER_TRANSFER
+                            if len(changed_joins) == 2
+                            else ManualMutationKind.ROLE_CHANGE,
+                        )
+                    except NoPermissionError:
+                        raise Forbidden("No permission to update member role.") from None
+                    _authorize_local_member_role_change(
+                        session,
+                        tenant_id=tenant_id,
+                        actor_account_id=account_id,
+                        member_account_id=member_account_id,
+                        target_role=tenant_role,
+                    )
+                    after = tuple(
+                        session.execute(
+                            select(TenantAccountJoin.id, TenantAccountJoin.account_id, TenantAccountJoin.role).where(
+                                TenantAccountJoin.id == join_id, TenantAccountJoin.tenant_id == tenant_id
+                            )
+                        ).one_or_none()
+                        for join_id, _account, _role in before
+                    )
+                    owner_after = (
+                        session.execute(
+                            select(TenantAccountJoin.id, TenantAccountJoin.account_id, TenantAccountJoin.role).where(
+                                TenantAccountJoin.tenant_id == tenant_id,
+                                TenantAccountJoin.role == TenantAccountRole.OWNER,
+                            )
+                        ).one_or_none()
+                        if tenant_role == TenantAccountRole.OWNER
+                        else None
+                    )
+                    if before != after or old_owner != owner_after:
+                        raise Forbidden("No permission to update member role.")
+                    if current_owner_join and current_owner_join.account_id != member_account_id:
+                        current_owner_join.role = TenantAccountRole.NORMAL
+                    target_member_join.role = tenant_role
                     session.flush(changed_joins)
                     authority = InvitationAuthorityRepository()
                     for changed_join in changed_joins:

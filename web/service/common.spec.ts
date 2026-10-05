@@ -12,6 +12,7 @@ import { useLogout } from './use-common'
 
 const mocks = vi.hoisted(() => ({
   post: vi.fn(),
+  request: vi.fn(),
 }))
 
 vi.mock('./base', () => ({
@@ -19,6 +20,7 @@ vi.mock('./base', () => ({
   get: vi.fn(),
   patch: vi.fn(),
   post: mocks.post,
+  request: mocks.request,
 }))
 
 describe('sendEMailLoginCode', () => {
@@ -89,7 +91,11 @@ describe('useLogout', () => {
     queryClient.setQueryData(['account-profile'], { id: 'previous-user' })
     window.sessionStorage.setItem(REGISTRATION_SUCCESS_STORAGE_KEY, 'pending-marker')
     window.sessionStorage.setItem(OAUTH_REGISTRATION_GA_SENT_KEY, 'true')
-    mocks.post.mockResolvedValueOnce({ result: 'success' })
+    mocks.request.mockResolvedValueOnce(
+      new Response(JSON.stringify({ result: 'success' }), {
+        headers: { 'content-type': 'application/json' },
+      }),
+    )
     const wrapper = ({ children }: { children: ReactNode }) =>
       createElement(QueryClientProvider, { client: queryClient }, children)
     const { result } = renderHook(() => useLogout(), { wrapper })
@@ -101,5 +107,8 @@ describe('useLogout', () => {
     expect(window.sessionStorage.getItem(REGISTRATION_SUCCESS_STORAGE_KEY)).toBeNull()
     expect(window.sessionStorage.getItem(OAUTH_REGISTRATION_GA_SENT_KEY)).toBeNull()
     expect(queryClient.getQueryData(['account-profile'])).toBeUndefined()
+    expect(mocks.request.mock.calls[0]?.[2].request.method).toBe('POST')
+    expect(new URL(mocks.request.mock.calls[0]?.[2].request.url).pathname).toMatch(/\/logout$/)
+    expect(mocks.post).not.toHaveBeenCalled()
   })
 })

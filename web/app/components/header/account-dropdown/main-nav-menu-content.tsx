@@ -26,6 +26,7 @@ import {
   settingsQueryParser,
 } from '@/app/components/header/account-setting/query-params'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
+import { CasdoorSessionNotice } from '@/features/casdoor/session-status'
 import Link from '@/next/link'
 import { consoleQuery } from '@/service/console'
 import { ExternalLinkIndicator, MenuItemContent } from './menu-item-content'
@@ -193,6 +194,7 @@ export function MainNavMenuContent({ onLogout }: MainNavMenuContentProps) {
         <AppearanceSubmenu />
       </DropdownMenuGroup>
       <DropdownMenuSeparator className="my-0! bg-divider-subtle" />
+      <CasdoorSessionNotice />
       <DropdownMenuGroup className="p-1">
         <DropdownMenuItem
           className="mx-0 h-8 gap-1 px-3 py-1"

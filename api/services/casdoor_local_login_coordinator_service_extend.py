@@ -1,7 +1,8 @@
-"""Private ordinary LOCAL login choreography; deliberately not production wired.
+"""Ordinary LOCAL login choreography bound to an active configuration revision.
 
-Only original consumed/exchanged inputs enter this bounded composition. Synthetic
-contracts can exercise the private path, never activate the production factory.
+Only original consumed/exchanged inputs enter this bounded composition. The
+production factory reconstructs the active database owner chain; token claims,
+online account state and the complete role graph are checked on every callback.
 A committed local membership result is not final permission or session authority.
 """
 
@@ -15,10 +16,13 @@ from uuid import UUID
 from configs import dify_config
 from core.casdoor.admission import AdmissionContext, decide_admission
 from core.casdoor.auth_transactions import AuthMode, ConsumedAuthTransaction
-from core.casdoor.claims import ClaimsValidator, NativeTokenContract, VerifiedOnlineUser
+from core.casdoor.claims import ClaimsValidator, NativeTokenContract, NativeTokenSchema, VerifiedOnlineUser
+from core.casdoor.configuration import CasdoorConfiguration
 from core.casdoor.crypto import CertificateTrustStore, TrustedCertificate
+from core.casdoor.deployment_evidence import AcceptedDeploymentPolicy
 from core.casdoor.errors import CasdoorErrorCode
 from core.casdoor.gateway import (
+    CasdoorBasicDirectoryCredentialStrategy,
     CasdoorDirectoryGateway,
     DirectoryCredentialStrategy,
     GatewayOperation,
@@ -26,6 +30,7 @@ from core.casdoor.gateway import (
 )
 from core.casdoor.leases import CasdoorLeases, RedisLeaseClient
 from core.casdoor.role_graph import DirectorySnapshotContract, OnlineRoleSnapshotLoader, _contract
+from enums import DeploymentEdition
 from models.casdoor_extend import CasdoorNamespaceExtend, CasdoorNamespaceLifecycle
 from repositories.casdoor_account_preflight_repository_extend import CasdoorAccountPreflightRepository
 from repositories.casdoor_configuration_repository_extend import CasdoorConfigurationError
@@ -33,11 +38,15 @@ from repositories.casdoor_identity_repository_extend import VerifiedIdentityKey
 from repositories.casdoor_login_scope_repository_extend import CasdoorLoginScopeRepository
 from sqlalchemy.orm import Session
 
+from services.account_login_adapters import RedisAccountSessionGateway
 from services.casdoor_configuration_service_extend import CasdoorConfigurationService
+from services.casdoor_deployment_policy_service_extend import CasdoorDeploymentPolicyService
 from services.casdoor_local_login_finalization_service_extend import CasdoorLocalLoginFinalizationService
 from services.casdoor_local_login_service_extend import CasdoorLocalLoginService
 from services.casdoor_local_membership_service_extend import LocalMembershipPersistence
 from services.casdoor_login_account_service_extend import CasdoorLoginAccountService
+from services.casdoor_rp_logout_service_extend import RPLogoutTokenSnapshot
+from services.casdoor_session_service_extend import SessionProvenanceSeed
 from services.entities.account_login_entities import AuthTokenPair
 
 
@@ -51,6 +60,7 @@ class _LocalLoginOutcome:
     tokens: AuthTokenPair | None = None
     finalization_outcome: str = "not_started"
     token_outcome: str = "not_started"
+    provenance: SessionProvenanceSeed | None = None
 
 
 class _CoordinationConflict(ValueError):
@@ -78,6 +88,10 @@ class CasdoorLocalLoginCoordinatorService:
         if finalization_service is not None and type(finalization_service) is not CasdoorLocalLoginFinalizationService:
             raise _CoordinationConflict("invalid_finalizer")
         self._finalization = finalization_service
+        self._deployment_policy_service: CasdoorDeploymentPolicyService | None = None
+        self._production_policy: AcceptedDeploymentPolicy | None = None
+        self._production_configuration: CasdoorConfiguration | None = None
+        self._production_binding: tuple[str, str, str] | None = None
         self._local = CasdoorLocalLoginService(
             session_factory=session_factory, configuration_factory=configuration_service._repository
         )
@@ -90,18 +104,86 @@ class CasdoorLocalLoginCoordinatorService:
         configuration_service: CasdoorConfigurationService,
         account_owner: CasdoorLoginAccountService,
         redis_client: RedisLeaseClient,
+        deployment_policy_service: CasdoorDeploymentPolicyService | None = None,
     ) -> "CasdoorLocalLoginCoordinatorService":
-        """No actual G0 proof producer exists; deny before constructing anything."""
-        raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "deployment_proof_missing")
+        """Reconstruct the active database owner chain before Redis/provider work.
+
+        External reviewer files are not a login prerequisite. The active
+        namespace/revision/digest remains fenced throughout the callback.
+        """
+        if (
+            dify_config.RBAC_ENABLED is not False
+            or configuration_service._rbac_enabled is not False
+            or dify_config.DEPLOYMENT_EDITION != DeploymentEdition.COMMUNITY
+        ):
+            raise _CoordinationConflict("local_mode_required")
+        with session_factory() as session, session.begin():
+            owner = configuration_service._repository(session)
+            integration = owner._integration()
+            if integration is None or integration.enabled is not True or not integration.active_revision_id:
+                raise CasdoorConfigurationError(CasdoorErrorCode.NOT_CONFIGURED, "inactive")
+            revision = owner._revision(integration.id, integration.active_revision_id)
+            namespace = session.get(CasdoorNamespaceExtend, revision.namespace_id)
+            if namespace is None or namespace.lifecycle is not CasdoorNamespaceLifecycle.ACTIVE:
+                raise _CoordinationConflict("configuration_changed")
+            configuration = owner._configuration(revision)
+            binding = (namespace.id, revision.id, revision.config_digest)
+        coordinator = cls(
+            session_factory=session_factory,
+            configuration_service=configuration_service,
+            account_owner=account_owner,
+            redis_client=redis_client,
+        )
+        coordinator._deployment_policy_service = deployment_policy_service
+        coordinator._production_configuration = configuration
+        coordinator._production_binding = binding
+        return coordinator
+
+    def _require_production_policy(self) -> AcceptedDeploymentPolicy | None:
+        """Compatibility guard that rechecks the active database revision."""
+        if self._production_binding is None:
+            return None
+        if (
+            dify_config.RBAC_ENABLED is not False
+            or self._configuration_service._rbac_enabled is not False
+            or dify_config.DEPLOYMENT_EDITION != DeploymentEdition.COMMUNITY
+        ):
+            raise _CoordinationConflict("local_mode_required")
+        expected_namespace, expected_revision, expected_digest = self._production_binding
+        with self._session_factory() as session, session.begin():
+            owner = self._configuration_service._repository(session)
+            integration = owner._integration()
+            if integration is None or integration.enabled is not True or integration.active_revision_id != expected_revision:
+                raise _CoordinationConflict("configuration_changed")
+            revision = owner._revision(integration.id, expected_revision)
+            namespace = session.get(CasdoorNamespaceExtend, revision.namespace_id)
+            if (
+                namespace is None
+                or namespace.lifecycle is not CasdoorNamespaceLifecycle.ACTIVE
+                or namespace.id != expected_namespace
+                or revision.config_digest != expected_digest
+                or owner._configuration(revision) != self._production_configuration
+            ):
+                raise _CoordinationConflict("configuration_changed")
+        return None
 
     def _with_request_redis(self, redis_client) -> "CasdoorLocalLoginCoordinatorService":
-        """Retain the admitted owners; bind only the private request Redis."""
+        """Bind request Redis and rebuild the production issuer on that client."""
         coordinator = copy(self)
         coordinator._redis_client = redis_client
+        if self._production_binding is not None:
+            coordinator._require_production_policy()
+            coordinator._finalization = CasdoorLocalLoginFinalizationService(
+                session_factory=self._session_factory,
+                configuration_factory=self._configuration_service._repository,
+                session_gateway=RedisAccountSessionGateway(redis=redis_client),
+                production_guard=coordinator._require_production_policy,
+            )
         return coordinator
 
     def _configuration(self, consumed, operation, subject):
         operation._check()
+        self._require_production_policy()
         if dify_config.RBAC_ENABLED is not False or self._configuration_service._rbac_enabled is not False:
             raise _CoordinationConflict("local_mode_required")
         with self._session_factory() as session, session.begin():
@@ -123,6 +205,11 @@ class CasdoorLocalLoginCoordinatorService:
             ):
                 raise _CoordinationConflict("configuration_changed")
             config = owner._configuration(revision)
+            if self._production_binding is not None and (
+                self._production_binding != (namespace.id, revision.id, revision.config_digest)
+                or config != self._production_configuration
+            ):
+                raise _CoordinationConflict("configuration_changed")
             if config != operation.config or c.registered_redirect_uri != operation.registered_redirect_uri:
                 raise _CoordinationConflict("configuration_changed")
             secret = owner.crypto.decrypt(
@@ -146,6 +233,7 @@ class CasdoorLocalLoginCoordinatorService:
                 subject,
             )
         operation._check()
+        self._require_production_policy()
         return config, context
 
     def _admission(self, context, consumed, bundle, online, profile):
@@ -225,6 +313,14 @@ class CasdoorLocalLoginCoordinatorService:
             or not operation._exchange_started
         ):
             raise _CoordinationConflict("invalid_attempt")
+        self._require_production_policy()
+        from core.casdoor.admission import AdmissionAction
+        from models.casdoor_extend import CasdoorIntentKind
+        from repositories.casdoor_terminal_local_invitation_repository_extend import (
+            _begin_ordinary_terminal_attempt,
+            _end_ordinary_terminal_attempt,
+        )
+
         retained = None
         original_context = None
         for pass_number in range(2):
@@ -235,8 +331,23 @@ class CasdoorLocalLoginCoordinatorService:
             finalization_outcome, token_outcome = "not_started", "not_started"
             cleanup = True
             primary = None
+            ordinary_attempt = None
             try:
                 config, _ = self._configuration(consumed, operation, "")
+                if self._production_binding is not None:
+                    if (
+                        native_contract
+                        != NativeTokenContract(
+                            NativeTokenSchema.FLAT_USER_V1,
+                            config.expected_issuer,
+                            config.organization,
+                            config.application,
+                            config.client_id,
+                        )
+                        or directory_contract != DirectorySnapshotContract(organization=config.organization)
+                        or credential_strategy != CasdoorBasicDirectoryCredentialStrategy(config.client_id)
+                    ):
+                        raise _CoordinationConflict("directory_contract_binding")
                 validator = ClaimsValidator(
                     trust_store=CertificateTrustStore(
                         [TrustedCertificate(**pin.model_dump()) for pin in config.certificates]
@@ -264,8 +375,12 @@ class CasdoorLocalLoginCoordinatorService:
                 directory = CasdoorDirectoryGateway(
                     operation, verified_subject=bundle.identity.subject, credential_strategy=credential_strategy
                 )
-                if (
-                    not contract.deployment_proof.matches(config)
+                if self._production_binding is not None:
+                    if contract != DirectorySnapshotContract(organization=config.organization) or directory.deployment_proof is not None:
+                        raise _CoordinationConflict("directory_contract_binding")
+                elif (
+                    contract.deployment_proof is None
+                    or not contract.deployment_proof.matches(config)
                     or directory.deployment_proof != contract.deployment_proof
                     or native_contract.release_fingerprint != contract.deployment_proof.release_fingerprint
                 ):
@@ -326,6 +441,17 @@ class CasdoorLocalLoginCoordinatorService:
                         plan,
                         fresh_scope,
                     ) and fresh_online == online:
+                        if (
+                            prepared.plan.action is AdmissionAction.USE_BOUND
+                            and len(final_scope.intents) == 1
+                            and final_scope.intents[0].kind is CasdoorIntentKind.INVITATION_FINALIZE
+                        ):
+                            ordinary_attempt = _begin_ordinary_terminal_attempt(
+                                prepared=prepared, roles=roles, leases=leases, configuration=config
+                            )
+                        ordinary_kwargs = (
+                            {"_ordinary_attempt": ordinary_attempt} if ordinary_attempt is not None else {}
+                        )
                         started = True
                         result = self._local._persist_local_login(
                             account_owner=self._account_owner,
@@ -337,6 +463,7 @@ class CasdoorLocalLoginCoordinatorService:
                             auth_started_at=consumed.auth_started_at,
                             correlation_id=correlation_id,
                             now=datetime.now(UTC),
+                            **ordinary_kwargs,
                         )
                         if self._finalization is not None:
                             tokens = self._finalization._finalize_local_login(
@@ -346,6 +473,7 @@ class CasdoorLocalLoginCoordinatorService:
                                 leases=leases,
                                 configuration=config,
                                 ip_address=ip_address,
+                                **ordinary_kwargs,
                             )
                             finalization_outcome, token_outcome = "committed", "issued"
             except BaseException as error:
@@ -354,6 +482,7 @@ class CasdoorLocalLoginCoordinatorService:
                 token_outcome = getattr(error, "token_outcome", token_outcome)
                 raise
             finally:
+                _end_ordinary_terminal_attempt(ordinary_attempt)
                 local_outcome = "committed" if result is not None else "unknown" if started else "not_started"
                 try:
                     if leases is not None:
@@ -383,6 +512,15 @@ class CasdoorLocalLoginCoordinatorService:
                     tokens=tokens if cleanup else None,
                     finalization_outcome=finalization_outcome,
                     token_outcome=token_outcome,
+                    provenance=SessionProvenanceSeed(
+                        result.account_id,
+                        consumed.context.namespace_id,
+                        consumed.context.revision_id,
+                        float(bundle.identity.expires_at),
+                        self._optional_rp_token(config, consumed, bundle, raw_tokens),
+                    )
+                    if cleanup and type(tokens) is AuthTokenPair
+                    else None,
                 )
             if not cleanup or pass_number == 1:
                 error = _CoordinationConflict("cleanup_pending" if not cleanup else "drift_limit")
@@ -390,3 +528,27 @@ class CasdoorLocalLoginCoordinatorService:
                 error.cleanup_released = cleanup
                 raise error
         raise AssertionError("unreachable")
+
+    def _optional_rp_token(self, configuration, consumed, bundle, raw_tokens):
+        """Transient exact native slot after complete claims/online/local chain.
+
+        Durable retention is still denied unless the post-cleanup source owner
+        finds the current reviewed profile AND its real protocol observation.
+        Optional snapshot failure cannot cancel an already issued normal pair.
+        """
+        try:
+            policy = self._production_policy
+            if (
+                type(policy) is not AcceptedDeploymentPolicy
+                or policy.rp_logout is None
+                or not configuration.rp_logout
+                or policy.binding.configuration_digest != configuration.config_digest()
+                or (policy.binding.namespace_id, policy.binding.revision_id) != (
+                    str(consumed.context.namespace_id), str(consumed.context.revision_id)
+                )
+            ):
+                return None
+            return RPLogoutTokenSnapshot(policy.binding, policy.proof_fingerprint,
+                                         raw_tokens.payload["id_token"], float(bundle.identity.expires_at))
+        except Exception:
+            return None

@@ -46,6 +46,11 @@ const response: CasdoorSelfIdentityStatusResponse = {
     {
       activity: 'active',
       avatar_status: 'unknown',
+      avatar_recorded_at: null,
+      avatar_last_reason: null,
+      avatar_recorded_generation: null,
+      avatar_consistency: 'unknown',
+      avatar_current_local_differs_from_last_applied: null,
       email: {
         current_differs: false,
         last_differs: null,

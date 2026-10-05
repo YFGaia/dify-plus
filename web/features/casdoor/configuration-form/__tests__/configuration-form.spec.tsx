@@ -7,6 +7,7 @@ import { dehydrate, QueryClient, QueryClientProvider } from '@tanstack/react-que
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { seedAccountProfileQuery } from '@/test/console/account-profile'
 
 const { transport } = vi.hoisted(() => ({ transport: vi.fn() }))
 vi.mock('@/service/base', () => ({ request: transport }))
@@ -695,3 +696,119 @@ function staticResult() {
     ],
   }
 }
+
+describe('live diagnostic navigation and return refresh', () => {
+  it('runs optional recent-authentication validation against the exact saved draft and safe local handler', async () => {
+    const user = userEvent.setup()
+    const navigation = vi.spyOn(window.location, 'assign').mockImplementation(() => {})
+    const path = `/console/api/auth/casdoor/identity/${'A'.repeat(43)}`
+    writeReply = () => json({ handoff_path: path })
+    await ready()
+    await user.click(screen.getByRole('button', { name: 'Test recent authentication' }))
+    await waitFor(() =>
+      expect(navigation).toHaveBeenCalledWith(`https://console.example.test${path}`),
+    )
+    expect(writes[0]).toMatchObject({
+      path: '/console/api/system-manage-extend/integration/casdoor/test-reauth',
+      body: { etag: 1, revision_id: revisionId },
+    })
+    navigation.mockRestore()
+  })
+  it('uses the saved draft identity and navigates to the trusted one-use handoff', async () => {
+    const user = userEvent.setup()
+    const navigation = vi.spyOn(window.location, 'assign').mockImplementation(() => {})
+    const path = `/console/api/auth/casdoor/diagnostic/${'A'.repeat(43)}`
+    writeReply = () => json({ status: 'started', reason: null, handoff: { handoff_path: path } })
+    await ready()
+    await user.click(screen.getByRole('button', { name: 'Test sign-in' }))
+    await waitFor(() =>
+      expect(navigation).toHaveBeenCalledWith(`https://console.example.test${path}`),
+    )
+    expect(writes[0]).toMatchObject({
+      path: '/console/api/system-manage-extend/integration/casdoor/test-login',
+      body: { etag: 1, revision_id: revisionId },
+    })
+    navigation.mockRestore()
+  })
+  it('rejects an external response without navigating or marking the diagnostic passed', async () => {
+    const user = userEvent.setup()
+    const navigation = vi.spyOn(window.location, 'assign').mockImplementation(() => {})
+    writeReply = () =>
+      json({ status: 'started', handoff: { handoff_path: 'https://evil.example/steal' } })
+    await ready()
+    await user.click(screen.getByRole('button', { name: 'Test sign-in' }))
+    await screen.findByRole('alert')
+    expect(navigation).not.toHaveBeenCalled()
+    expect(screen.queryByText('Test sign-in: Passed')).not.toBeInTheDocument()
+    navigation.mockRestore()
+  })
+  it('refreshes same-ETag summaries while preserving dirty edits and blocking diagnostic start', async () => {
+    const user = userEvent.setup()
+    await ready()
+    const organization = screen.getByLabelText('Casdoor organization')
+    await user.clear(organization)
+    await user.type(organization, 'unsaved-local-org')
+    const current = configured()
+    current.draft!.validation = [
+      { kind: 'diagnostic', revision_id: revisionId, status: 'failed', code: 'identity_conflict' },
+    ]
+    server = current
+    const pageReturn = new Event('pageshow')
+    Object.defineProperty(pageReturn, 'persisted', { value: true })
+    window.dispatchEvent(pageReturn)
+    await screen.findByText('Test sign-in: Failed')
+    expect(organization).toHaveValue('unsaved-local-org')
+    expect(screen.getByRole('button', { name: 'Test sign-in' })).toBeDisabled()
+    expect(writes).toHaveLength(0)
+  })
+})
+
+describe('additive namespace reset integration', () => {
+  it('refreshes the new disabled draft while retaining the mounted dirty fields and Secret', async () => {
+    const { client } = await ready()
+    seedAccountProfileQuery(client, { id: workspaceId })
+    const user = userEvent.setup()
+    await user.type(
+      screen.getByLabelText('Replace Client Secret'),
+      'synthetic-reset-preserved-secret',
+    )
+    await user.clear(screen.getByLabelText('Casdoor organization'))
+    await user.type(screen.getByLabelText('Casdoor organization'), 'unsaved-organization')
+    writeReply = (_body, path) => {
+      if (path.endsWith('/reset-namespace/review'))
+        return json({
+          review_id: 'R'.repeat(43),
+          namespace_id: namespaceId,
+          etag: 1,
+          expires_in: 60,
+          credential_check: 'format_only',
+        })
+      server = configured({
+        etag: 2,
+        draft_revision_id: nextRevision,
+        draft: { ...configured().draft!, namespace_id: workspaceId, revision_id: nextRevision },
+      })
+      return json(server)
+    }
+    await user.click(
+      await screen.findByRole('checkbox', { name: 'I have reviewed the management transfer.' }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Review namespace reset' }))
+    const region = screen.getByRole('region', { name: 'Namespace reset' })
+    await user.click(
+      await within(region).findByRole('checkbox', { name: 'I confirm this reviewed change.' }),
+    )
+    await user.click(within(region).getByRole('button', { name: 'Confirm' }))
+    await within(region).findByText(
+      'Current configuration is a new disabled draft. Existing rows are preserved.',
+    )
+    expect(screen.getByLabelText('Replace Client Secret')).toHaveValue(
+      'synthetic-reset-preserved-secret',
+    )
+    expect(screen.getByLabelText('Casdoor organization')).toHaveValue('unsaved-organization')
+    expect(writes).toHaveLength(2)
+    expect(JSON.stringify(writes)).not.toContain('synthetic-reset-preserved-secret')
+    expect(JSON.stringify(dehydrate(client))).not.toContain('synthetic-reset-preserved-secret')
+    client.clear()
+  })
+})

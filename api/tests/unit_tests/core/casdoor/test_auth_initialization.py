@@ -265,7 +265,7 @@ def test_invalid_handle_fails_before_io(env, bad):
 @pytest.mark.parametrize(
     ("field", "bad"),
     [
-        ("invite", "synthetic-invite"),
+        ("invite", False),
         ("source", False),
         ("identity_id", NAMESPACE),
         ("action", "unlink"),

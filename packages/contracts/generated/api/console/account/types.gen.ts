@@ -49,6 +49,34 @@ export type CasdoorSelfErrorResponse = {
     | 'casdoor_self_unavailable'
 }
 
+export type CasdoorIdentityActionsResponse = {
+  link: boolean
+  reason?:
+    | 'managed_history_requires_release'
+    | 'other_login_unavailable'
+    | 'reauthentication_required'
+    | 'reauthentication_unavailable'
+    | null
+  reauthenticate: boolean
+  unlink: boolean
+}
+
+export type CasdoorLinkIdentityPayload = {
+  [key: string]: never
+}
+
+export type CasdoorNavigationResponse = {
+  handoff_path: string
+}
+
+export type CasdoorUnlinkIdentityPayload = {
+  [key: string]: never
+}
+
+export type CasdoorIdentityUnlinkedResponse = {
+  status: 'unlinked'
+}
+
 export type ChangeEmailSendPayload = {
   email: string
   language?: string | null
@@ -184,7 +212,33 @@ export type CasdoorSelfCurrentMembershipResponse = {
 
 export type CasdoorSelfIdentityResponse = {
   activity: 'active' | 'inactive' | 'unknown'
-  avatar_status: 'unknown'
+  avatar_consistency: 'current' | 'historical' | 'unknown'
+  avatar_current_local_differs_from_last_applied: boolean | null
+  avatar_last_reason:
+    | 'attachment_lost'
+    | 'commit_unknown'
+    | 'fetch_cancelled'
+    | 'fetch_failed'
+    | 'fetch_rejected'
+    | 'fetch_unknown'
+    | 'image_rejected'
+    | 'lease_expired'
+    | 'storage_unknown'
+    | null
+  avatar_recorded_at: string | null
+  avatar_recorded_generation: number | null
+  avatar_status:
+    | 'failed_before_storage'
+    | 'failed_storage_cleaned'
+    | 'historical'
+    | 'in_flight'
+    | 'local_attachment_recorded'
+    | 'local_override'
+    | 'no_record'
+    | 'off'
+    | 'pending'
+    | 'source_expired'
+    | 'unknown'
   email: CasdoorSelfEmailResponse
   id: string | null
   lifecycle: 'active' | 'archived' | 'fencing' | 'unknown'
@@ -269,6 +323,14 @@ export type AccountResponseWritable = {
   timezone?: string | null
 }
 
+export type CasdoorLinkIdentityPayloadWritable = {
+  [key: string]: never
+}
+
+export type CasdoorUnlinkIdentityPayloadWritable = {
+  [key: string]: never
+}
+
 export type GetAccountAvatarData = {
   body?: never
   path?: never
@@ -324,6 +386,62 @@ export type GetAccountCasdoorIdentityResponses = {
 
 export type GetAccountCasdoorIdentityResponse =
   GetAccountCasdoorIdentityResponses[keyof GetAccountCasdoorIdentityResponses]
+
+export type GetAccountCasdoorIdentityActionsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/account/casdoor-identity/actions'
+}
+
+export type GetAccountCasdoorIdentityActionsResponses = {
+  200: CasdoorIdentityActionsResponse
+}
+
+export type GetAccountCasdoorIdentityActionsResponse =
+  GetAccountCasdoorIdentityActionsResponses[keyof GetAccountCasdoorIdentityActionsResponses]
+
+export type PostAccountCasdoorIdentityLinkData = {
+  body: CasdoorLinkIdentityPayloadWritable
+  path?: never
+  query?: never
+  url: '/account/casdoor-identity/link'
+}
+
+export type PostAccountCasdoorIdentityLinkResponses = {
+  200: CasdoorNavigationResponse
+}
+
+export type PostAccountCasdoorIdentityLinkResponse =
+  PostAccountCasdoorIdentityLinkResponses[keyof PostAccountCasdoorIdentityLinkResponses]
+
+export type PostAccountCasdoorIdentityReauthenticateData = {
+  body: CasdoorUnlinkIdentityPayloadWritable
+  path?: never
+  query?: never
+  url: '/account/casdoor-identity/reauthenticate'
+}
+
+export type PostAccountCasdoorIdentityReauthenticateResponses = {
+  200: CasdoorNavigationResponse
+}
+
+export type PostAccountCasdoorIdentityReauthenticateResponse =
+  PostAccountCasdoorIdentityReauthenticateResponses[keyof PostAccountCasdoorIdentityReauthenticateResponses]
+
+export type PostAccountCasdoorIdentityUnlinkData = {
+  body: CasdoorUnlinkIdentityPayloadWritable
+  path?: never
+  query?: never
+  url: '/account/casdoor-identity/unlink'
+}
+
+export type PostAccountCasdoorIdentityUnlinkResponses = {
+  200: CasdoorIdentityUnlinkedResponse
+}
+
+export type PostAccountCasdoorIdentityUnlinkResponse =
+  PostAccountCasdoorIdentityUnlinkResponses[keyof PostAccountCasdoorIdentityUnlinkResponses]
 
 export type PostAccountChangeEmailData = {
   body: ChangeEmailSendPayload

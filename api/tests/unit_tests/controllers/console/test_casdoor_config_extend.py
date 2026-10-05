@@ -7,8 +7,6 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import sqlalchemy as sa
-from flask import Flask, g, jsonify
-
 from configs import dify_config
 from constants import COOKIE_NAME_CSRF_TOKEN, HEADER_NAME_CSRF_TOKEN
 from controllers.console import bp
@@ -16,10 +14,12 @@ from controllers.console import casdoor_config_extend as controller
 from core.casdoor.permissions import CasdoorManagementPolicy
 from enums import DeploymentEdition
 from extensions import ext_application_services
+from flask import Flask, g, jsonify
 from libs.passport import PassportService
 from libs.token import generate_csrf_token
 from models.account import TenantAccountRole
 from models.casdoor_extend import CasdoorIntegrationExtend, CasdoorValidationExtend
+
 from tests.unit_tests.services import test_casdoor_configuration_service_extend as fixtures
 
 PREFIX = "/console/api" + controller.PREFIX
@@ -221,7 +221,9 @@ def test_http_disable_uses_csrf_guard_and_returns_namespace_reconciliation_state
     assert disabled.headers["Cache-Control"] == "no-store"
 
 
-def test_activate_and_test_login_fail_closed_without_real_deployment_proof(harness, certificate, monkeypatch):
+def test_activate_requires_deployment_proof_and_diagnostic_requires_actual_source_access(
+    harness, certificate, monkeypatch
+):
     configuration = fixtures.foundation.config(harness.workspace_id, certificate).model_dump(mode="json")
     saved = request(
         harness,
@@ -237,8 +239,10 @@ def test_activate_and_test_login_fail_closed_without_real_deployment_proof(harne
     assert activated.status_code == 409
     assert activated.json["code"] == "config_conflict"
     assert activated.json["reason"] == "deployment_proof_missing"
-    assert tested.status_code == 200
-    assert tested.json == {"status": "blocked", "reason": "deployment_proof_missing"}
+    # A CSRF-authenticated management stub without request access/refresh is
+    # insufficient for the independently browser-bound DIAGNOSTIC transaction.
+    assert tested.status_code == 400
+    assert tested.json["code"] == "invalid_transaction"
     for response in (activated, tested):
         assert response.headers["Cache-Control"] == "no-store"
         assert "synthetic-activate-secret" not in response.get_data(as_text=True)

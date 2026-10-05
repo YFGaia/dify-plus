@@ -11,6 +11,7 @@ import sqlalchemy as sa
 from core.casdoor.claims import VerifiedProfile
 from core.casdoor.crypto import CryptoError, EncryptionContext, EncryptionPurpose
 from models.account import Account, AccountStatus, TenantAccountJoin
+from models.casdoor_avatar_file_guard_extend import CasdoorAvatarFileGuardExtend
 from models.casdoor_extend import (
     CasdoorAuditExtend as Audit,
 )
@@ -56,7 +57,7 @@ URL = "https://images.example.test/picture.png?signature=synthetic-sensitive-val
 @pytest.fixture
 def avatar(storage_fixture):
     s = storage_fixture
-    for model in (TenantAccountJoin, CasdoorManagedMembershipExtend, Intent, UploadFile):
+    for model in (TenantAccountJoin, CasdoorManagedMembershipExtend, Intent, UploadFile, CasdoorAvatarFileGuardExtend):
         model.__table__.create(s.session.get_bind())
     with s.session.begin():
         config = s.config_owner._configuration(s.revision).model_copy(

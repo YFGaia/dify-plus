@@ -49,7 +49,8 @@ for key, _ in pairs(record) do
     if not fields[key] then return false end
     count = count + 1
 end
-if count ~= 4 or type(record.schema_version) ~= 'number' or record.schema_version ~= 1
+if count ~= 4 or type(record.schema_version) ~= 'number'
+    or (record.schema_version ~= 1 and record.schema_version ~= 2)
     or type(record.owner) ~= 'string' or record.owner ~= ARGV[1]
     or type(record.context) ~= 'string' or record.context ~= ARGV[2]
     or type(record.data) ~= 'string' or #record.data == 0 or #record.data > 16384 then
@@ -169,6 +170,23 @@ def _hash(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def source_action_cookie_name(state: str) -> str:
+    return "casdoor_action_" + _hash(_opaque(state))[:24]
+
+
+def source_initialization_cookie_name(handle: str) -> str:
+    return "casdoor_action_init_" + _hash(_opaque(handle))[:24]
+
+
+def diagnostic_initialization_cookie_name(handle: str) -> str:
+    return "casdoor_diagnostic_init_" + _hash(_opaque(handle))[:24]
+
+
+def diagnostic_cookie_name(state: str) -> str:
+    """Server-created routing marker only; the stored transaction is authority."""
+    return "casdoor_diagnostic_" + _hash(_opaque(state))[:24]
+
+
 def _json(value: object) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
@@ -240,6 +258,10 @@ class TrustedAuthContext:
     source: SourceSessionContext | None = None
     identity_id: UUID | None = None
     action: str | None = None
+    diagnostic_binding: str | None = None
+    action_binding: str | None = None
+    reauth_diagnostic: bool = False
+    rp_logout_diagnostic: bool = False
 
     def __post_init__(self) -> None:
         _uuid(self.namespace_id)
@@ -275,6 +297,20 @@ class TrustedAuthContext:
             raise AuthTransactionError()
         if self.mode == AuthMode.DIAGNOSTIC and not self.source.management_authorized:
             raise AuthTransactionError()
+        if self.diagnostic_binding is not None and (
+            self.mode != AuthMode.DIAGNOSTIC or not _DIGEST.fullmatch(self.diagnostic_binding)
+        ):
+            raise AuthTransactionError()
+        if type(self.reauth_diagnostic) is not bool or (self.reauth_diagnostic and self.mode != AuthMode.DIAGNOSTIC):
+            raise AuthTransactionError()
+        if type(self.rp_logout_diagnostic) is not bool or (
+            self.rp_logout_diagnostic and (self.mode != AuthMode.DIAGNOSTIC or self.reauth_diagnostic)
+        ):
+            raise AuthTransactionError()
+        if self.action_binding is not None and (
+            self.mode == AuthMode.LOGIN or not _DIGEST.fullmatch(self.action_binding)
+        ):
+            raise AuthTransactionError()
         if self.mode == AuthMode.REAUTH_UNLINK:
             _uuid(self.identity_id)
             if self.action != "unlink":
@@ -283,7 +319,7 @@ class TrustedAuthContext:
             raise AuthTransactionError()
 
     def public_projection(self) -> dict[str, object]:
-        return {
+        result = {
             "namespace_id": str(self.namespace_id),
             "revision_id": str(self.revision_id),
             "mode": self.mode.value,
@@ -295,6 +331,15 @@ class TrustedAuthContext:
             "identity_id": str(self.identity_id) if self.identity_id else None,
             "action": self.action,
         }
+        if self.mode == AuthMode.DIAGNOSTIC:
+            result["diagnostic_binding"] = self.diagnostic_binding
+            if self.reauth_diagnostic:
+                result["reauth_diagnostic"] = True
+            if self.rp_logout_diagnostic:
+                result["rp_logout_diagnostic"] = True
+        if self.action_binding is not None:
+            result["action_binding"] = self.action_binding
+        return result
 
 
 @dataclass(frozen=True, repr=False)
@@ -314,6 +359,10 @@ class CurrentAuthContext:
     source: SourceSessionContext | None
     identity_id: UUID | None = None
     action: str | None = None
+    diagnostic_binding: str | None = None
+    action_binding: str | None = None
+    reauth_diagnostic: bool = False
+    rp_logout_diagnostic: bool = False
     allowed: bool = field(kw_only=True)
 
     def projection(self) -> dict[str, object]:
@@ -330,13 +379,23 @@ class CurrentAuthContext:
             raise AuthTransactionError()
         if self.mode == AuthMode.DIAGNOSTIC and not self.source.management_authorized:
             raise AuthTransactionError()
+        if type(self.reauth_diagnostic) is not bool or (self.reauth_diagnostic and self.mode != AuthMode.DIAGNOSTIC):
+            raise AuthTransactionError()
+        if type(self.rp_logout_diagnostic) is not bool or (
+            self.rp_logout_diagnostic and (self.mode != AuthMode.DIAGNOSTIC or self.reauth_diagnostic)
+        ):
+            raise AuthTransactionError()
+        if self.action_binding is not None and (
+            self.mode == AuthMode.LOGIN or not _DIGEST.fullmatch(self.action_binding)
+        ):
+            raise AuthTransactionError()
         if self.mode == AuthMode.REAUTH_UNLINK:
             _uuid(self.identity_id)
             if self.action != "unlink":
                 raise AuthTransactionError()
         elif self.identity_id is not None or self.action is not None:
             raise AuthTransactionError()
-        return {
+        result = {
             "namespace_id": str(self.namespace_id),
             "revision_id": str(self.revision_id),
             "mode": self.mode.value,
@@ -345,6 +404,19 @@ class CurrentAuthContext:
             "identity_id": str(self.identity_id) if self.identity_id else None,
             "action": self.action,
         }
+        if self.mode == AuthMode.DIAGNOSTIC:
+            if self.diagnostic_binding is not None and not _DIGEST.fullmatch(self.diagnostic_binding):
+                raise AuthTransactionError()
+            result["diagnostic_binding"] = self.diagnostic_binding
+            if self.reauth_diagnostic:
+                result["reauth_diagnostic"] = True
+            if self.rp_logout_diagnostic:
+                result["rp_logout_diagnostic"] = True
+        elif self.diagnostic_binding is not None:
+            raise AuthTransactionError()
+        if self.action_binding is not None:
+            result["action_binding"] = self.action_binding
+        return result
 
 
 def _context_projection(context: TrustedAuthContext) -> dict[str, object]:
@@ -503,6 +575,7 @@ class CreatedAuthorization:
     cookie: CookieDirective
     scope_cookie: CookieDirective
     mode: AuthMode
+    reauth_diagnostic: bool = False
 
     @property
     def authorization_parameters(self) -> dict[str, str]:
@@ -514,7 +587,7 @@ class CreatedAuthorization:
             "code_challenge": self.code_challenge,
             "code_challenge_method": "S256",
         }
-        if self.mode == AuthMode.REAUTH_UNLINK:
+        if self.mode == AuthMode.REAUTH_UNLINK or self.reauth_diagnostic:
             result.update(prompt="login", max_age="0")
         return result
 
@@ -610,10 +683,13 @@ class AuthTransactionStore:
         context.__post_init__()
         policy.__post_init__()
         if context.mode != AuthMode.LOGIN or any(
-            value is not None for value in (context.invite, context.source, context.identity_id, context.action)
+            value is not None for value in (context.source, context.identity_id, context.action)
         ):
             raise AuthTransactionError()
-        callback, origin = urlsplit(context.registered_redirect_uri), urlsplit(policy.backend_origin)
+        callback, origin = (
+            urlsplit(context.registered_redirect_uri),
+            urlsplit(policy.backend_origin),
+        )
         if (callback.scheme, callback.netloc) != (origin.scheme, origin.netloc):
             raise AuthTransactionError("context_changed")
 
@@ -660,17 +736,39 @@ class AuthTransactionStore:
         if self._guard(guard) != expected:
             raise AuthTransactionError("context_changed")
         handle = _opaque(secrets.token_urlsafe(32))
+        # Ordinary legacy navigation retains its exact v1 shape. Invitation
+        # authority travels only inside authenticated encryption, bound to this
+        # one initialization handle and domain separated from OAuth records.
+        version, data = 1, _json(context.public_projection())
+        if context.invite is not None:
+            encryption = EncryptionContext(
+                EncryptionPurpose.AUTH_VERIFIER,
+                context.namespace_id,
+                context.revision_id,
+                "login-init:" + handle,
+            )
+            data = _json(
+                {
+                    "context": context.public_projection(),
+                    "encrypted_invite": self._crypto.encrypt(_json({"invite": context.invite}), context=encryption),
+                }
+            )
+            version = 2
         record = _json(
             {
-                "schema_version": 1,
+                "schema_version": version,
                 "owner": _hash(browser_scope),
                 "context": _hash(_json(expected)),
-                "data": _json(context.public_projection()),
+                "data": data,
             }
         )
         if len(record.encode("ascii")) > 16384:
             raise AuthTransactionError()
-        result = self._eval(CREATE_INITIALIZATION_SCRIPT, self._initialization_key(handle, browser_scope), record)
+        result = self._eval(
+            CREATE_INITIALIZATION_SCRIPT,
+            self._initialization_key(handle, browser_scope),
+            record,
+        )
         if type(result) is not int or result not in (0, 1):
             raise AuthTransactionError("storage_uncertain")
         if result == 0:
@@ -712,7 +810,12 @@ class AuthTransactionStore:
             policy,
         )
         owner, digest = _hash(browser_scope), _hash(_json(initial))
-        raw = self._eval(CONSUME_INITIALIZATION_SCRIPT, self._initialization_key(handle, browser_scope), owner, digest)
+        raw = self._eval(
+            CONSUME_INITIALIZATION_SCRIPT,
+            self._initialization_key(handle, browser_scope),
+            owner,
+            digest,
+        )
         if raw is None:
             raise AuthTransactionError()
         if not isinstance(raw, str | bytes):
@@ -724,13 +827,29 @@ class AuthTransactionStore:
             if (
                 set(record) != {"schema_version", "owner", "context", "data"}
                 or type(record["schema_version"]) is not int
-                or record["schema_version"] != 1
+                or record["schema_version"] not in (1, 2)
                 or record["owner"] != owner
                 or record["context"] != digest
                 or not isinstance(record["data"], str)
             ):
                 raise ValueError("envelope")
             stored = self._initialization_json(record["data"])
+            invite = None
+            if record["schema_version"] == 2:
+                if set(stored) != {"context", "encrypted_invite"} or type(stored["context"]) is not dict:
+                    raise ValueError("private_envelope")
+                encryption = EncryptionContext(
+                    EncryptionPurpose.AUTH_VERIFIER,
+                    UUID(str(initial["namespace_id"])),
+                    UUID(str(initial["revision_id"])),
+                    "login-init:" + handle,
+                )
+                private = self._initialization_json(
+                    self._crypto.decrypt(stored["encrypted_invite"], context=encryption)
+                )
+                if set(private) != {"invite"} or type(private["invite"]) is not str:
+                    raise ValueError("invitation")
+                invite, stored = private["invite"], stored["context"]
             context = TrustedAuthContext(
                 UUID(stored["namespace_id"]),
                 UUID(stored["revision_id"]),
@@ -739,6 +858,7 @@ class AuthTransactionStore:
                 stored["return_path"],
                 locale=stored["locale"],
                 timezone=stored["timezone"],
+                invite=invite,
             )
             self._initialization_context(context, policy)
             if stored != context.public_projection() or _context_projection(context) != initial:
@@ -993,7 +1113,271 @@ class AuthTransactionStore:
             ),
             CookieDirective(SCOPE_COOKIE_NAME, browser_scope, TTL_SECONDS, COOKIE_PATH, policy.secure),
             context.mode,
+            context.reauth_diagnostic,
         )
+
+    @staticmethod
+    def _diagnostic_context(stored: dict[str, Any]) -> TrustedAuthContext:
+        """Decode a navigation hint only; callers still reconstruct authority."""
+        try:
+            source = stored["source"]
+            account = UUID(source["account_id"])
+            context = TrustedAuthContext(
+                UUID(stored["namespace_id"]),
+                UUID(stored["revision_id"]),
+                AuthMode.DIAGNOSTIC,
+                stored["registered_redirect_uri"],
+                stored["return_path"],
+                source=SourceSessionContext(
+                    account, account, account, source["refresh_digest"], source["management_authorized"]
+                ),
+                diagnostic_binding=stored["diagnostic_binding"],
+                rp_logout_diagnostic=stored.get("rp_logout_diagnostic", False),
+            )
+            if stored != context.public_projection() or context.diagnostic_binding is None:
+                raise ValueError()
+            return context
+        except Exception:
+            raise AuthTransactionError("record_invalid") from None
+
+    def diagnostic_hint(self, state: str, *, browser_scope: str, transaction_cookie: str) -> TrustedAuthContext | None:
+        """Browser-bound routing hint, never authorization or consumption.
+
+        An ordinary LOGIN record returns None. No code, verifier or provider
+        token is decrypted or returned, and the actual consume keeps all guards.
+        """
+        _opaque(state)
+        _opaque(browser_scope)
+        _opaque(transaction_cookie)
+        raw = self._eval("return redis.call('GET', KEYS[1])", (self._keys(state, browser_scope)[0],))
+        if raw is None:
+            return None
+        record = self._initialization_json(raw)
+        if record.get("owner") != _hash(transaction_cookie):
+            raise AuthTransactionError()
+        data = self._initialization_json(record["data"])
+        stored = data.get("context")
+        if not isinstance(stored, dict):
+            raise AuthTransactionError()
+        if stored.get("mode") != AuthMode.DIAGNOSTIC.value:
+            return None
+        return self._diagnostic_context(stored)
+
+    def create_diagnostic_initialization(
+        self, context: TrustedAuthContext, *, browser_scope: str, guard: Callable[[], CurrentAuthContext]
+    ) -> str:
+        self._diagnostic_context(context.public_projection())
+        _opaque(browser_scope)
+        expected = _context_projection(context)
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        handle = _opaque(secrets.token_urlsafe(32))
+        record = _json(
+            {
+                "schema_version": 1,
+                "owner": _hash(browser_scope),
+                "context": _hash(_json(expected)),
+                "data": _json(context.public_projection()),
+            }
+        )
+        if self._eval(CREATE_INITIALIZATION_SCRIPT, self._initialization_key(handle, browser_scope), record) != 1:
+            raise AuthTransactionError("collision")
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        return handle
+
+    def diagnostic_initialization_hint(self, handle: str, *, browser_scope: str) -> TrustedAuthContext:
+        _opaque(handle)
+        _opaque(browser_scope)
+        raw = self._eval("return redis.call('GET', KEYS[1])", self._initialization_key(handle, browser_scope))
+        record = self._initialization_json(raw)
+        if record.get("owner") != _hash(browser_scope):
+            raise AuthTransactionError()
+        return self._diagnostic_context(self._initialization_json(record["data"]))
+
+    def consume_diagnostic_initialization(
+        self, handle: str, *, browser_scope: str, guard: Callable[[], CurrentAuthContext]
+    ) -> TrustedAuthContext:
+        context = self.diagnostic_initialization_hint(handle, browser_scope=browser_scope)
+        expected = _context_projection(context)
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        raw = self._eval(
+            CONSUME_INITIALIZATION_SCRIPT,
+            self._initialization_key(handle, browser_scope),
+            _hash(browser_scope),
+            _hash(_json(expected)),
+        )
+        record = self._initialization_json(raw)
+        consumed = self._diagnostic_context(self._initialization_json(record["data"]))
+        if consumed != context or self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        return consumed
+
+    @staticmethod
+    def _source_action_context(stored: dict[str, Any]) -> TrustedAuthContext:
+        """Navigation-only record reconstruction; no refresh/session authority."""
+        try:
+            source = stored["source"]
+            account = UUID(source["account_id"])
+            context = TrustedAuthContext(
+                UUID(stored["namespace_id"]),
+                UUID(stored["revision_id"]),
+                AuthMode(stored["mode"]),
+                stored["registered_redirect_uri"],
+                stored["return_path"],
+                source=SourceSessionContext(
+                    account, account, account, source["refresh_digest"], source["management_authorized"]
+                ),
+                identity_id=UUID(stored["identity_id"]) if stored["identity_id"] else None,
+                action=stored["action"],
+                diagnostic_binding=stored.get("diagnostic_binding"),
+                action_binding=stored.get("action_binding"),
+                reauth_diagnostic=stored.get("reauth_diagnostic", False),
+            )
+            if (
+                stored != context.public_projection()
+                or context.action_binding is None
+                or not (context.mode in (AuthMode.LINK, AuthMode.REAUTH_UNLINK) or context.reauth_diagnostic)
+            ):
+                raise ValueError()
+            return context
+        except Exception:
+            raise AuthTransactionError("record_invalid") from None
+
+    def source_action_hint(self, state: str, *, browser_scope: str, transaction_cookie: str) -> TrustedAuthContext:
+        _opaque(state)
+        _opaque(browser_scope)
+        _opaque(transaction_cookie)
+        raw = self._eval("return redis.call('GET', KEYS[1])", (self._keys(state, browser_scope)[0],))
+        record = self._initialization_json(raw)
+        if record.get("owner") != _hash(transaction_cookie):
+            raise AuthTransactionError()
+        data = self._initialization_json(record["data"])
+        return self._source_action_context(data["context"])
+
+    def create_source_initialization(self, context, *, browser_scope, guard):
+        self._source_action_context(context.public_projection())
+        _opaque(browser_scope)
+        expected = _context_projection(context)
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        handle = _opaque(secrets.token_urlsafe(32))
+        record = _json(
+            {
+                "schema_version": 1,
+                "owner": _hash(browser_scope),
+                "context": _hash(_json(expected)),
+                "data": _json(context.public_projection()),
+            }
+        )
+        if self._eval(CREATE_INITIALIZATION_SCRIPT, self._initialization_key(handle, browser_scope), record) != 1:
+            raise AuthTransactionError("collision")
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        return handle
+
+    def source_initialization_hint(self, handle, *, browser_scope):
+        _opaque(handle)
+        _opaque(browser_scope)
+        record = self._initialization_json(
+            self._eval("return redis.call('GET', KEYS[1])", self._initialization_key(handle, browser_scope))
+        )
+        if record.get("owner") != _hash(browser_scope):
+            raise AuthTransactionError()
+        return self._source_action_context(self._initialization_json(record["data"]))
+
+    def consume_source_initialization(self, handle, *, browser_scope, guard):
+        context = self.source_initialization_hint(handle, browser_scope=browser_scope)
+        expected = _context_projection(context)
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        record = self._initialization_json(
+            self._eval(
+                CONSUME_INITIALIZATION_SCRIPT,
+                self._initialization_key(handle, browser_scope),
+                _hash(browser_scope),
+                _hash(_json(expected)),
+            )
+        )
+        consumed = self._source_action_context(self._initialization_json(record["data"]))
+        if consumed != context or self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        return consumed
+
+    def _unlink_proof_key(self, handle, browser_scope):
+        _opaque(handle)
+        _opaque(browser_scope)
+        return (
+            self._key_serializer(
+                f"casdoor:unlink-proof:{{{_hash(browser_scope)}}}:{_hash(handle)}", self._redis._get_prefix()
+            ),
+        )
+
+    def create_unlink_proof(self, context, *, browser_scope, auth_time, guard):
+        """Only the actual signed reauthentication caller may produce this proof.
+
+        Separate keyspace prevents initialization handles authorizing an unlink.
+        The source session and exact identity are always freshly checked again.
+        """
+        if context.mode != AuthMode.REAUTH_UNLINK:
+            raise AuthTransactionError()
+        self._source_action_context(context.public_projection())
+        expected = _context_projection(context)
+        now = _utc(self._clock()).timestamp()
+        if type(auth_time) not in (int, float) or not now - 300 <= auth_time <= now:
+            raise AuthTransactionError()
+        handle = _opaque(secrets.token_urlsafe(32))
+        record = _json(
+            {
+                "schema_version": 1,
+                "owner": _hash(browser_scope),
+                "context": _hash(_json(expected)),
+                "data": _json({"context": context.public_projection(), "auth_time": auth_time}),
+            }
+        )
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        if self._eval(CREATE_INITIALIZATION_SCRIPT, self._unlink_proof_key(handle, browser_scope), record) != 1:
+            raise AuthTransactionError("collision")
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        return handle
+
+    def unlink_proof_hint(self, handle, *, browser_scope):
+        record = self._initialization_json(
+            self._eval("return redis.call('GET', KEYS[1])", self._unlink_proof_key(handle, browser_scope))
+        )
+        if record.get("owner") != _hash(browser_scope):
+            raise AuthTransactionError()
+        data = self._initialization_json(record["data"])
+        if set(data) != {"context", "auth_time"} or type(data["auth_time"]) not in (int, float):
+            raise AuthTransactionError()
+        now = _utc(self._clock()).timestamp()
+        if not now - 300 <= data["auth_time"] <= now:
+            raise AuthTransactionError()
+        context = self._source_action_context(data["context"])
+        if context.mode != AuthMode.REAUTH_UNLINK:
+            raise AuthTransactionError()
+        return context
+
+    def consume_unlink_proof(self, handle, *, browser_scope, guard):
+        context = self.unlink_proof_hint(handle, browser_scope=browser_scope)
+        expected = _context_projection(context)
+        if self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        record = self._initialization_json(
+            self._eval(
+                CONSUME_INITIALIZATION_SCRIPT,
+                self._unlink_proof_key(handle, browser_scope),
+                _hash(browser_scope),
+                _hash(_json(expected)),
+            )
+        )
+        data = self._initialization_json(record["data"])
+        if self._source_action_context(data["context"]) != context or self._guard(guard) != expected:
+            raise AuthTransactionError("context_changed")
+        return context
 
     def consume(
         self,
@@ -1058,6 +1442,10 @@ class AuthTransactionStore:
                 source_context,
                 UUID(stored["identity_id"]) if stored["identity_id"] else None,
                 stored["action"],
+                stored.get("diagnostic_binding"),
+                stored.get("action_binding"),
+                stored.get("reauth_diagnostic", False),
+                stored.get("rp_logout_diagnostic", False),
             )
             started = _utc(datetime.fromisoformat(data["auth_started_at"]))
             now = _utc(self._clock())

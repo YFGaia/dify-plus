@@ -4,8 +4,18 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}/console/api` | (string & {})
 }
 
-export type SimpleResultResponse = {
-  result: string
+export type CasdoorConsoleLogoutResponse = {
+  casdoor_logout?: CasdoorLogoutResponse | null
+  result?: 'success'
+}
+
+export type CasdoorLogoutResponse = {
+  handoff?: CasdoorNavigationResponse | null
+  status: 'handoff_ready' | 'local_only'
+}
+
+export type CasdoorNavigationResponse = {
+  handoff_path: string
 }
 
 export type PostLogoutData = {
@@ -16,7 +26,7 @@ export type PostLogoutData = {
 }
 
 export type PostLogoutResponses = {
-  200: SimpleResultResponse
+  200: CasdoorConsoleLogoutResponse
 }
 
 export type PostLogoutResponse = PostLogoutResponses[keyof PostLogoutResponses]

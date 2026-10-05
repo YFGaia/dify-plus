@@ -6,16 +6,21 @@ service. This new reader uses a separate SELECT-only, non-autoflushing session.
 
 import hashlib
 import json
+from collections.abc import Callable
+from datetime import UTC, datetime
 from uuid import UUID
 
 from core.casdoor.ownership import parse_local_withdrawal_json, parse_role_baseline_json
+from libs.datetime_utils import utc_now
 from libs.helper import email as validate_email
 from machinery.context import RequestContext
-from repositories.casdoor_profile_repository_extend import _name, _snapshot
+from repositories.casdoor_profile_repository_extend import _name, _parse_time, _snapshot
 from repositories.casdoor_self_identity_repository_extend import (
     CasdoorSelfIdentityRepository,
     CasdoorSelfReadConflict,
 )
+from sqlalchemy.exc import SQLAlchemyError
+
 from services.account_email import normalize_email
 
 ROLES = {"owner", "admin", "editor", "normal", "dataset_operator"}
@@ -194,6 +199,16 @@ def _membership(row, rbac_enabled):
         "remote_actual_state": "unknown",
     }
     ns = row["namespace"]
+    observation = row.get("_archived_observation")
+    tracked = (
+        type(observation) is tuple
+        and len(observation) == 3
+        and observation[0] == row["id"]
+        and observation[1] in ("current", "released")
+        and type(observation[2]) is str
+        and len(observation[2]) == 64
+        and all(c in "0123456789abcdef" for c in observation[2])
+    )
     if (
         not ns
         or not ns["integration_present"]
@@ -226,7 +241,7 @@ def _membership(row, rbac_enabled):
     result.update(workspace_id=row["workspace_id"], namespace_id=row["namespace_id"], identity_id=row["own_identity"])
     if (
         len(row["scope_refs"]) != 1
-        or len(row["history_refs"]) != 1
+        or (len(row["history_refs"]) != 1 and not tracked)
         or presence == "unknown"
         or not _generation(row["desired_generation"])
         or not _generation(row["ownership_epoch"])
@@ -242,6 +257,16 @@ def _membership(row, rbac_enabled):
             raise ValueError()
         if baseline.backend != applied.backend:
             raise ValueError()
+        if tracked and observation[1] == "released":
+            if (
+                row["ownership"] != "released"
+                or result["tombstone"]
+                or row["finalization"] != "finalized"
+                or applied.backend.value != "local"
+            ):
+                raise ValueError()
+            result.update(state="unmanaged", consistency="historical")
+            return result
         try:
             marker = parse_local_withdrawal_json(row["desired_roles_json"])
         except ValueError:
@@ -291,9 +316,92 @@ def _membership(row, rbac_enabled):
 
 
 class CasdoorSelfIdentityService:
-    def __init__(self, *, session_factory, rbac_enabled: bool):
+    def __init__(self, *, session_factory, rbac_enabled: bool, now: Callable[[], datetime] = utc_now):
         self._session_factory = session_factory
         self._rbac_enabled = rbac_enabled
+        self._now = now
+
+    def get_avatar_observations(self, context: RequestContext, *, now, identity_after=None, limit=20):
+        """Read the same private observations independently of membership pages.
+
+        This reads real durable SQL facts; it cannot synchronize, dispatch, retry
+        or prove storage completion. Caller supplies an aware UTC clock value.
+        """
+        if (
+            not _uuid(context.account_id)
+            or type(limit) is not int
+            or not 1 <= limit <= 50
+            or type(now) is not datetime
+            or now.tzinfo is None
+            or now.utcoffset() != UTC.utcoffset(now)
+        ):
+            raise CasdoorSelfReadConflict()
+        try:
+            with self._session_factory(autoflush=False) as session, session.no_autoflush:
+                reader = CasdoorSelfIdentityRepository(session, context.account_id)
+                account = reader.avatar_account()
+                identities, more, cursor = reader.identities(identity_after, limit)
+                result = {
+                    "identities": [
+                        {"id": row["id"], **self._avatar(reader.avatar_observation(row, account), now)}
+                        for row in identities
+                    ],
+                    "identity_has_more": more,
+                    "identity_next": cursor,
+                }
+                reader.recheck()
+                return result
+        except SQLAlchemyError:
+            raise CasdoorSelfReadConflict() from None
+
+    @staticmethod
+    def _avatar(facts, now):
+        """Return only a closed observation; DB readback is never a synced result."""
+        result = {
+            "avatar_status": "unknown",
+            "avatar_recorded_at": None,
+            "avatar_last_reason": None,
+            "avatar_recorded_generation": None,
+            "avatar_consistency": "unknown",
+            "avatar_current_local_differs_from_last_applied": None,
+        }
+        if facts is None:
+            return result
+        row = facts["intent"]
+        result["avatar_consistency"] = "current" if facts["current"] else "historical"
+        if row is None:
+            result["avatar_status"] = ("no_record" if facts["enabled"] else "off") if facts["current"] else "historical"
+            return result
+        state = row["operation_state"]
+        result["avatar_recorded_generation"] = row["generation"]
+        result["avatar_current_local_differs_from_last_applied"] = facts["local_differs"]
+        if state in ("applied", "failed"):
+            recorded_at = (
+                row["readback_at"]
+                if state == "applied" or facts.get("cleanup_complete") is True
+                else row["terminated_at"]
+            )
+        elif state == "unknown":
+            recorded_at = row["updated_at"]
+        else:
+            recorded_at = row["created_at"]
+        result["avatar_recorded_at"] = recorded_at.replace(tzinfo=UTC).isoformat(timespec="microseconds")
+        result["avatar_last_reason"] = row["error_code"]
+        if not facts["current"]:
+            result["avatar_status"] = "historical"
+        elif state == "applied":
+            result["avatar_status"] = "local_override" if facts["local_differs"] else "local_attachment_recorded"
+        elif state == "failed":
+            result["avatar_status"] = (
+                "failed_storage_cleaned" if facts.get("cleanup_complete") is True else "failed_before_storage"
+            )
+        elif state == "pending":
+            result["avatar_status"] = (
+                "source_expired" if _parse_time(facts["data"]["url_expires_at"]) <= now else "pending"
+            )
+        elif state == "in_flight":
+            result["avatar_status"] = "in_flight"
+        return result
 
     def get(
         self,
@@ -306,9 +414,13 @@ class CasdoorSelfIdentityService:
     ):
         if not _uuid(context.account_id) or type(limit) is not int or not 1 <= limit <= 50:
             raise CasdoorSelfReadConflict()
+        now = self._now()
+        if type(now) is not datetime or now.tzinfo is None or now.utcoffset() != UTC.utcoffset(now):
+            raise CasdoorSelfReadConflict()
         with self._session_factory(autoflush=False) as session, session.no_autoflush:
             reader = CasdoorSelfIdentityRepository(session, context.account_id)
             account = reader.account()
+            avatar_account = reader.avatar_account()
             linked = reader.linked()
             identities, identity_more, identity_next = reader.identities(identity_after, limit)
             history, membership_more, membership_next = reader.memberships(membership_after, limit)
@@ -344,7 +456,7 @@ class CasdoorSelfIdentityService:
                         if valid and ns["lifecycle"] in ("active", "fencing", "archived")
                         else "unknown",
                         "sync_generation": row["sync_generation"] if _generation(row["sync_generation"]) else None,
-                        "avatar_status": "unknown",
+                        **self._avatar(reader.avatar_observation(row, avatar_account) if valid else None, now),
                         **_profile(row if valid else {**row, "sync_generation": None}, account),
                     }
                 )

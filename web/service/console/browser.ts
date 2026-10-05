@@ -22,7 +22,50 @@ function publicCasdoorOperation(path: readonly string[]) {
 
 function privateCasdoorIdentityOperation(path: readonly string[]) {
   return (
-    path.length === 3 && path[0] === 'account' && path[1] === 'casdoorIdentity' && path[2] === 'get'
+    path[0] === 'account' &&
+    path[1] === 'casdoorIdentity' &&
+    ((path.length === 3 && path[2] === 'get') ||
+      (path.length === 4 &&
+        ((path[2] === 'actions' && path[3] === 'get') ||
+          (['link', 'reauthenticate', 'unlink'].includes(path[2]!) && path[3] === 'post'))))
+  )
+}
+
+function privateCasdoorSessionOperation(path: readonly string[]) {
+  return (
+    path.length === 4 &&
+    path[0] === 'auth' &&
+    path[1] === 'casdoor' &&
+    path[2] === 'session' &&
+    path[3] === 'get'
+  )
+}
+
+function anonymousRPLogoutOperation(path: readonly string[]) {
+  return path.length === 5 && path.join('/') === 'auth/casdoor/logout/retry/post'
+}
+
+function privateRPDiagnosticOperation(path: readonly string[]) {
+  return (
+    path.length === 5 &&
+    path[0] === 'systemManageExtend' &&
+    path[1] === 'integration' &&
+    path[2] === 'casdoor' &&
+    ((path[3] === 'rpLogoutStatus' && path[4] === 'get') ||
+      (path[3] === 'testRpLogout' && path[4] === 'post'))
+  )
+}
+
+function privateCasdoorLocalMembershipOperation(path: readonly string[]) {
+  return (
+    path[0] === 'systemManageExtend' &&
+    path[1] === 'integration' &&
+    path[2] === 'casdoor' &&
+    path[3] === 'localMembership' &&
+    ((path.length === 5 && path[4] === 'get') ||
+      (path.length === 6 &&
+        ((path[4] === 'targets' && path[5] === 'get') ||
+          (['review', 'release', 'adopt'].includes(path[4]!) && path[5] === 'post'))))
   )
 }
 
@@ -35,6 +78,30 @@ function createBrowserLink(contract: AnyContractRouter): ClientLink<ConsoleClien
       let normalizedRequest =
         normalizedURL === input.url ? input : new Request(normalizedURL, input)
       const casdoorOperation = publicCasdoorOperation(path)
+      if (anonymousRPLogoutOperation(path)) {
+        const prefix = new URL(API_PREFIX, window.location.origin)
+        const target = new URL(normalizedRequest.url)
+        if (
+          normalizedRequest.method !== 'POST' ||
+          target.origin !== prefix.origin ||
+          target.pathname !== `${prefix.pathname.replace(/\/$/, '')}/auth/casdoor/logout/retry` ||
+          target.search ||
+          target.hash
+        )
+          throw new Error('Logout continuation unavailable.')
+        // Anonymous continuation never invokes the old refresh/login recovery.
+        const response = await globalThis.fetch(
+          new Request(normalizedRequest, {
+            ...requestInit,
+            credentials: 'include',
+            cache: 'no-store',
+            redirect: 'error',
+          }),
+        )
+        if (response.status >= 300 && response.status < 400)
+          throw new Error('Unexpected logout continuation redirect.')
+        return response
+      }
       if (casdoorOperation) {
         const prefix = new URL(API_PREFIX, window.location.origin)
         const target = new URL(normalizedRequest.url)
@@ -85,13 +152,59 @@ function createBrowserLink(contract: AnyContractRouter): ClientLink<ConsoleClien
         })
       }
       const privateCasdoorIdentity = privateCasdoorIdentityOperation(path)
-      if (privateCasdoorIdentity) {
+      const privateCasdoorSession = privateCasdoorSessionOperation(path)
+      const privateLocalMembership = privateCasdoorLocalMembershipOperation(path)
+      const privateRPDiagnostic = privateRPDiagnosticOperation(path)
+      if (privateRPDiagnostic) {
+        const prefix = new URL(API_PREFIX, window.location.origin)
+        const target = new URL(normalizedRequest.url)
+        const isRead = path[3] === 'rpLogoutStatus'
+        if (
+          normalizedRequest.method !== (isRead ? 'GET' : 'POST') ||
+          target.origin !== prefix.origin ||
+          target.hash ||
+          target.pathname !==
+            `${prefix.pathname.replace(/\/$/, '')}/system-manage-extend/integration/casdoor/${isRead ? 'rp-logout-status' : 'test-rp-logout'}`
+        )
+          throw new Error('Logout diagnostic unavailable.')
+        requestInit = { ...requestInit, cache: 'no-store' }
+      }
+      if (privateLocalMembership) {
+        const prefix = new URL(API_PREFIX, window.location.origin)
+        const target = new URL(normalizedRequest.url)
+        const suffix = path.length === 5 ? '' : `/${path[4]}`
+        if (
+          normalizedRequest.method !== (path.at(-1) === 'get' ? 'GET' : 'POST') ||
+          target.origin !== prefix.origin ||
+          target.pathname !==
+            `${prefix.pathname.replace(/\/$/, '')}/system-manage-extend/integration/casdoor/local-membership${suffix}` ||
+          target.hash !== ''
+        )
+          throw new Error('Invalid local membership request.')
+        requestInit = { ...requestInit, cache: 'no-store' }
+      }
+      if (privateCasdoorSession) {
         const prefix = new URL(API_PREFIX, window.location.origin)
         const target = new URL(normalizedRequest.url)
         if (
           normalizedRequest.method !== 'GET' ||
           target.origin !== prefix.origin ||
-          target.pathname !== `${prefix.pathname.replace(/\/$/, '')}/account/casdoor-identity`
+          target.pathname !== `${prefix.pathname.replace(/\/$/, '')}/auth/casdoor/session` ||
+          target.search !== '' ||
+          target.hash !== ''
+        )
+          throw new Error('Invalid session source request.')
+        requestInit = { ...requestInit, cache: 'no-store' }
+      }
+      if (privateCasdoorIdentity) {
+        const prefix = new URL(API_PREFIX, window.location.origin)
+        const target = new URL(normalizedRequest.url)
+        const suffix = path.length === 3 ? '' : `/${path[2]}`
+        if (
+          normalizedRequest.method !== (path.at(-1) === 'get' ? 'GET' : 'POST') ||
+          target.origin !== prefix.origin ||
+          target.pathname !==
+            `${prefix.pathname.replace(/\/$/, '')}/account/casdoor-identity${suffix}`
         )
           throw new Error('Invalid account identity request.')
         requestInit = { ...requestInit, cache: 'no-store' }
@@ -100,12 +213,24 @@ function createBrowserLink(contract: AnyContractRouter): ClientLink<ConsoleClien
       return request(normalizedURL, requestInit, {
         fetchCompat: true,
         request: normalizedRequest,
-        silent: privateCasdoorIdentity || options.context.silent,
+        silent:
+          privateCasdoorIdentity ||
+          privateCasdoorSession ||
+          privateLocalMembership ||
+          privateRPDiagnostic ||
+          options.context.silent,
       })
     },
     interceptors: [
       onError((error, options) => {
-        if (!publicCasdoorOperation(options.path) && !privateCasdoorIdentityOperation(options.path))
+        if (
+          !publicCasdoorOperation(options.path) &&
+          !privateCasdoorIdentityOperation(options.path) &&
+          !privateCasdoorSessionOperation(options.path) &&
+          !privateCasdoorLocalMembershipOperation(options.path) &&
+          !anonymousRPLogoutOperation(options.path) &&
+          !privateRPDiagnosticOperation(options.path)
+        )
           console.error(error)
       }),
     ],

@@ -31,6 +31,21 @@ export function parseServerConfiguration(data: unknown) {
     (response.active?.revision_id ?? null) !== (response.active_revision_id ?? null)
   )
     return null
+  for (const revision of [response.draft, response.active]) {
+    if (!revision) continue
+    const summaries = revision.validation ?? []
+    if (
+      new Set(summaries.map((summary) => summary.kind)).size !== summaries.length ||
+      summaries.some((summary) => summary.revision_id !== revision.revision_id)
+    )
+      return null
+    if (
+      revision.diagnostic &&
+      (revision.diagnostic.revision_id !== revision.revision_id ||
+        revision.diagnostic.namespace_id !== revision.namespace_id)
+    )
+      return null
+  }
   return response
 }
 

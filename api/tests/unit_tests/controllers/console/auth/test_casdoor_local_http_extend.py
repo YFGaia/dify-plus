@@ -505,7 +505,7 @@ def test_server_navigation_and_direct_ip_ignore_request_authority(mounted, retur
     expected = return_path if return_path == "/apps/safe" else "/apps"
     assert response.location == m.f.settings.CONSOLE_WEB_URL + expected
     context = m.f.control.consumed[0].context
-    assert (context.locale, context.timezone) == ("en-US", "America/New_York")
+    assert (context.locale, context.timezone) == (None, None)
     with Session(m.f.local.engine) as session:
         assert session.scalar(sa.select(Account.last_login_ip)) == "192.0.2.7"
 

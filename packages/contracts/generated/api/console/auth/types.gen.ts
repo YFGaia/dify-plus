@@ -16,10 +16,22 @@ export type CasdoorResultResponse = {
   retry_allowed: boolean
 }
 
+export type CasdoorLogoutResponse = {
+  handoff?: CasdoorNavigationResponse | null
+  status: 'handoff_ready' | 'local_only'
+}
+
 export type CasdoorRestrictedResultResponse = {
   code: 'authorization_pending' | 'role_snapshot_unknown' | 'workspace_unavailable'
   correlation_id: string
   retry_allowed: false
+}
+
+export type CasdoorSessionResponse = {
+  expires_at?: string | null
+  rp_logout_available?: boolean
+  source: 'casdoor' | 'local_only'
+  verified: boolean
 }
 
 export type DatasourceProviderAuthListResponse = {
@@ -80,6 +92,10 @@ export type CasdoorErrorCode =
   | 'remote_account_disabled'
   | 'role_snapshot_unknown'
   | 'workspace_unavailable'
+
+export type CasdoorNavigationResponse = {
+  handoff_path: string
+}
 
 export type DatasourceProviderAuthResponse = {
   author: string
@@ -202,6 +218,20 @@ export type HeadCasdoorDisplayApiErrors = {
 export type HeadCasdoorDisplayApiError =
   HeadCasdoorDisplayApiErrors[keyof HeadCasdoorDisplayApiErrors]
 
+export type PostAuthCasdoorLogoutRetryData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/auth/casdoor/logout/retry'
+}
+
+export type PostAuthCasdoorLogoutRetryResponses = {
+  200: CasdoorLogoutResponse
+}
+
+export type PostAuthCasdoorLogoutRetryResponse =
+  PostAuthCasdoorLogoutRetryResponses[keyof PostAuthCasdoorLogoutRetryResponses]
+
 export type GetAuthCasdoorResultData = {
   body?: never
   path?: never
@@ -227,6 +257,20 @@ export type GetAuthCasdoorResultResponses = {
 
 export type GetAuthCasdoorResultResponse =
   GetAuthCasdoorResultResponses[keyof GetAuthCasdoorResultResponses]
+
+export type GetAuthCasdoorSessionData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/auth/casdoor/session'
+}
+
+export type GetAuthCasdoorSessionResponses = {
+  200: CasdoorSessionResponse
+}
+
+export type GetAuthCasdoorSessionResponse =
+  GetAuthCasdoorSessionResponses[keyof GetAuthCasdoorSessionResponses]
 
 export type GetAuthPluginDatasourceDefaultListData = {
   body?: never

@@ -10,10 +10,6 @@ from typing import cast
 from uuid import uuid4
 
 import httpx
-from flask import Flask, current_app
-from pydantic import ValidationError
-from sqlalchemy.orm import Session, sessionmaker
-
 from configs import dify_config
 from constants.dsl_version import CURRENT_APP_DSL_VERSION
 from constants.languages import languages
@@ -24,13 +20,13 @@ from core.helper.ssrf_proxy import ssrf_proxy
 from core.schemas.schema_manager import SchemaManager
 from core.tools.tool_file_manager import ToolFileManager
 from enums import DeploymentEdition, WebAppAccessMode
-from extensions.ext_redis import RedisClientWrapper, redis_client
-from extensions.ext_storage import storage
+from flask import Flask, current_app
 from libs.datetime_utils import naive_utc_now, utc_now
 from libs.helper import RateLimiter
 from libs.oauth import GitHubOAuth, GoogleOAuth
 from libs.oauth_bearer import invalidate_oauth_token_cache
 from libs.passport import PassportService
+from pydantic import ValidationError
 from repositories.account_activation_repository import SQLAlchemyAccountActivationRepository
 from repositories.account_integration_repository import SQLAlchemyAccountIntegrationRepository
 from repositories.account_oauth_repository import (
@@ -153,9 +149,17 @@ from services.billing_portal_service import BillingPortalService
 from services.billing_service import BillingService
 from services.casdoor_avatar_consumer_service_extend import CasdoorAvatarConsumerService
 from services.casdoor_avatar_dispatch_service_extend import CasdoorAvatarDispatchService
+from services.casdoor_avatar_retry_service_extend import CasdoorAvatarRetryService
 from services.casdoor_configuration_service_extend import CasdoorConfigurationService
+from services.casdoor_deployment_policy_service_extend import CasdoorDeploymentPolicyService
+from services.casdoor_diagnostic_service_extend import CasdoorDiagnosticService
+from services.casdoor_identity_action_service_extend import CasdoorIdentityActionService
 from services.casdoor_local_http_service_extend import CasdoorLocalHttpService
+from services.casdoor_local_lifecycle_service_extend import CasdoorLocalLifecycleService
+from services.casdoor_rp_logout_adapters_extend import CasdoorRPLogoutPolicyReader
+from services.casdoor_rp_logout_service_extend import CasdoorRPLogoutService
 from services.casdoor_self_identity_service_extend import CasdoorSelfIdentityService
+from services.casdoor_session_service_extend import CasdoorSessionService
 from services.compliance_download_service import ComplianceDownloadService
 from services.data_source_oauth_service import DataSourceOAuthService, InvalidDataSourceOAuthProviderError
 from services.enterprise.enterprise_service import EnterpriseService
@@ -217,7 +221,11 @@ from services.workspace_member_query_service import WorkspaceMemberQueryService
 from services.workspace_member_role_resolver import DeploymentWorkspaceMemberRoleResolver
 from services.workspace_plan_gateway import DeploymentWorkspacePlanGateway
 from services.workspace_query_service import WorkspaceQueryService
+from sqlalchemy.orm import Session, sessionmaker
 from tasks.mail_inner_task import enqueue_inner_mail
+
+from extensions.ext_redis import RedisClientWrapper, redis_client
+from extensions.ext_storage import storage
 
 _EXTENSION_KEY = "application_services"
 
@@ -301,10 +309,17 @@ class ApplicationServices:
     tags: TagApplicationService
     workflow_statistics: WorkflowStatisticQueryService
     casdoor_configuration: CasdoorConfigurationService
+    casdoor_deployment_policy: CasdoorDeploymentPolicyService
+    casdoor_diagnostic: CasdoorDiagnosticService
+    casdoor_identity_action: CasdoorIdentityActionService
+    casdoor_local_lifecycle: CasdoorLocalLifecycleService
     casdoor_local_http: CasdoorLocalHttpService
+    casdoor_session: CasdoorSessionService | None
+    casdoor_rp_logout: CasdoorRPLogoutService | None
     casdoor_self_identity: CasdoorSelfIdentityService
     casdoor_avatar_consumer: CasdoorAvatarConsumerService
     casdoor_avatar_dispatch: CasdoorAvatarDispatchService
+    casdoor_avatar_retry: CasdoorAvatarRetryService | None = None
 
     def resolve_data_source_oauth(self, provider: str) -> DataSourceOAuthService:
         service = self.data_source_oauth.get(provider)
@@ -461,15 +476,43 @@ def build_application_services(
     workflow_node_execution_repository = DifyAPIRepositoryFactory.create_api_workflow_node_execution_repository(
         session_maker=database_client
     )
-    return ApplicationServices(
-        casdoor_configuration=(
-            casdoor_configuration := CasdoorConfigurationService(
-                session_factory=database_client,
-                management_policy=CasdoorManagementPolicy.from_deployment(dify_config.CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS),
-                secret_key=dify_config.SECRET_KEY,
-                rbac_enabled=dify_config.RBAC_ENABLED,
-            )
+    casdoor_deployment_policy = CasdoorDeploymentPolicyService(
+        authority_path=dify_config.CASDOOR_DEPLOYMENT_AUTHORITY_PATH,
+        evidence_path=dify_config.CASDOOR_DEPLOYMENT_EVIDENCE_PATH,
+        deployment_edition=deployment_edition,
+    )
+    casdoor_configuration = CasdoorConfigurationService(
+        session_factory=database_client,
+        management_policy=CasdoorManagementPolicy.from_deployment(dify_config.CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS),
+        secret_key=dify_config.SECRET_KEY,
+        rbac_enabled=dify_config.RBAC_ENABLED,
+        deployment_policy_service=casdoor_deployment_policy,
+    )
+    casdoor_diagnostic = CasdoorDiagnosticService(
+        session_factory=database_client,
+        configuration_service=casdoor_configuration,
+        deployment_policy_service=casdoor_deployment_policy,
+        settings=dify_config,
+        redis_runtime_factory=CasdoorRedisRuntimeFactory(dify_config),
+    )
+    casdoor_rp_logout = CasdoorRPLogoutService.for_production(
+        dify_config,
+        current_policy=CasdoorRPLogoutPolicyReader(
+            session_factory=database_client,
+            configuration_service=casdoor_configuration,
+            deployment_policy_service=casdoor_deployment_policy,
+            settings=dify_config,
         ),
+        diagnostic_guard=casdoor_diagnostic.guard_rp_logout,
+    )
+    casdoor_diagnostic._rp_logout_service = casdoor_rp_logout
+    casdoor_configuration._rp_logout_service = casdoor_rp_logout
+    casdoor_session = CasdoorSessionService.for_production(dify_config, rp_logout_service=casdoor_rp_logout)
+    return ApplicationServices(
+        casdoor_session=casdoor_session,
+        casdoor_rp_logout=casdoor_rp_logout,
+        casdoor_deployment_policy=casdoor_deployment_policy,
+        casdoor_configuration=casdoor_configuration,
         accounts=AccountServices(
             access=AccountAccessService(
                 accounts=accounts,
@@ -790,6 +833,30 @@ def build_application_services(
             configuration_service=casdoor_configuration,
             account_activation=account_activation,
             redis_client=redis,
+            settings=dify_config,
+            redis_runtime_factory=CasdoorRedisRuntimeFactory(dify_config),
+            deployment_policy_service=casdoor_deployment_policy,
+            session_service=casdoor_session,
+        ),
+        casdoor_diagnostic=casdoor_diagnostic,
+        casdoor_identity_action=CasdoorIdentityActionService(
+            session_factory=database_client,
+            configuration_service=casdoor_configuration,
+            deployment_policy_service=casdoor_deployment_policy,
+            settings=dify_config,
+            redis_runtime_factory=CasdoorRedisRuntimeFactory(dify_config),
+        ),
+        casdoor_local_lifecycle=CasdoorLocalLifecycleService(
+            session_factory=database_client,
+            configuration_service=casdoor_configuration,
+            deployment_policy_service=casdoor_deployment_policy,
+            settings=dify_config,
+            redis_runtime_factory=CasdoorRedisRuntimeFactory(dify_config),
+        ),
+        casdoor_avatar_retry=CasdoorAvatarRetryService(
+            session_factory=database_client,
+            configuration_service=casdoor_configuration,
+            deployment_policy_service=casdoor_deployment_policy,
             settings=dify_config,
             redis_runtime_factory=CasdoorRedisRuntimeFactory(dify_config),
         ),

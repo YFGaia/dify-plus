@@ -5,6 +5,15 @@ from pydantic_settings import BaseSettings
 
 
 class ExtendInfo(BaseSettings):
+    CASDOOR_DEPLOYMENT_AUTHORITY_PATH: str = Field(
+        description="Server-only absolute path to Ed25519 authority and accepted manifest pin; empty denies.",
+        default="",
+    )
+    CASDOOR_DEPLOYMENT_EVIDENCE_PATH: str = Field(
+        description="Server-only absolute path to signed deployment review envelope; empty denies Casdoor policy.",
+        default="",
+    )
+
     CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS: str = Field(
         description="Comma-separated exact local account UUIDs allowed to manage only Casdoor; empty denies access.",
         default="",

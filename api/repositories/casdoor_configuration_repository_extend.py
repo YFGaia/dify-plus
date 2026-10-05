@@ -6,7 +6,7 @@ must roll back its complete unit of work after any exception (including a losing
 first-insert race). No network I/O occurs here. CasdoorManagementPolicy and CSRF
 belong at the authenticated service/controller boundary, before these methods.
 
-Validation rows are read-only here: future trusted server validators own writing
+Validation rows are read-only here: dedicated trusted server validators own writing
 real proof summaries. An HTTP payload must never supply deployment proof, RBAC
 mode, evidence_source, status or capabilities. Offline fixtures are not proof.
 """
@@ -18,10 +18,6 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import sqlalchemy as sa
-from pydantic import SecretStr
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
-
 from core.casdoor.configuration import CasdoorConfiguration
 from core.casdoor.crypto import (
     CasdoorCrypto,
@@ -32,6 +28,7 @@ from core.casdoor.crypto import (
     TrustedCertificate,
 )
 from core.casdoor.errors import CasdoorErrorCode
+from core.casdoor.rp_logout_activation import RPLogoutActivationAdmission
 from models.account import Tenant, TenantStatus
 from models.casdoor_extend import (
     CasdoorAuditExtend,
@@ -48,6 +45,9 @@ from models.casdoor_extend import (
     CasdoorValidationKind,
     CasdoorValidationStatus,
 )
+from pydantic import SecretStr
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 _POLICY_FIELDS = (
     "schema_version",
@@ -60,7 +60,7 @@ _POLICY_FIELDS = (
     "self_unlink",
 )
 _CORE_FIELDS = ("expected_issuer", "organization", "application", "client_id")
-# Server validator handoff contract, not selectable by administrators.
+# Server-owned summary fields, not selectable by administrators.
 REQUIRED_CAPABILITIES = {
     CasdoorValidationKind.STATIC: frozenset({"config_shape", "workspace_targets", "certificate_trust", "secret_ready"}),
     CasdoorValidationKind.DEPLOYMENT: frozenset(
@@ -119,6 +119,7 @@ class ValidationSnapshot:
     status: str
     checked_at: datetime | None
     expires_at: datetime | None
+    correlation_id: UUID | None = None
 
 
 @dataclass(frozen=True)
@@ -381,7 +382,11 @@ class CasdoorConfigurationRepository:
                     status = "unknown"
                 if row.kind in ambiguous:
                     status = "unknown"
-                latest[row.kind] = ValidationSnapshot(row.kind, status, row.checked_at, row.expires_at)
+                try:
+                    correlation = UUID(row.correlation_id)
+                except (ValueError, TypeError, AttributeError):
+                    correlation = None
+                latest[row.kind] = ValidationSnapshot(row.kind, status, row.checked_at, row.expires_at, correlation)
         return RevisionSnapshot(
             UUID(revision.id),
             UUID(revision.namespace_id),
@@ -600,15 +605,28 @@ class CasdoorConfigurationRepository:
         )
 
     def _activation_proof(
-        self, revision: CasdoorConfigRevisionExtend, configuration: CasdoorConfiguration, now: datetime
+        self,
+        revision: CasdoorConfigRevisionExtend,
+        configuration: CasdoorConfiguration,
+        now: datetime,
+        rp_logout_admission=None,
     ) -> None:
-        if self.deployment_proof_fingerprint is None:
-            raise _conflict("deployment_proof_missing")
+        # This deployment currently supports the local Community path. Its
+        # activation authority is exact-revision static validation plus the
+        # real browser diagnostic; an external reviewer manifest is not a
+        # runtime prerequisite. Enterprise/RBAC activation remains unsupported
+        # until its remote role/resource owners have their own live contract.
+        if self.rbac_mode != "off":
+            raise _conflict("local_mode_required")
         latest, ambiguous = self._latest_validations(revision.id)
         if ambiguous:
             raise _conflict("validation_ambiguous")
         capabilities_by_kind: dict[CasdoorValidationKind, dict[str, str]] = {}
-        for kind in REQUIRED_CAPABILITIES:
+        for kind in (
+            CasdoorValidationKind.STATIC,
+            CasdoorValidationKind.PROTOCOL,
+            CasdoorValidationKind.DIAGNOSTIC,
+        ):
             row = latest.get(kind)
             if (
                 row is None
@@ -616,18 +634,30 @@ class CasdoorConfigurationRepository:
                 or not self._fresh(row, now)
                 or row.config_digest != revision.config_digest
                 or row.rbac_mode != self.rbac_mode
-                or row.proof_fingerprint != self.deployment_proof_fingerprint
+                or (
+                    self.deployment_proof_fingerprint is not None
+                    and row.proof_fingerprint != self.deployment_proof_fingerprint
+                )
             ):
                 raise _conflict("validation_required")
             capabilities = self._record_capabilities(row, revision)
             if capabilities is None:
                 raise _conflict("validation_required")
             capabilities_by_kind[kind] = capabilities
-        if any(
-            getattr(configuration, option) and capabilities_by_kind[kind].get(capability) != "passed"
-            for option, (kind, capability) in _OPTIONAL_CAPABILITIES.items()
-        ):
-            raise _conflict("optional_capability_unknown")
+        for option, (kind, capability) in _OPTIONAL_CAPABILITIES.items():
+            if not getattr(configuration, option):
+                continue
+            if option == "rp_logout":
+                if type(rp_logout_admission) is not RPLogoutActivationAdmission or not rp_logout_admission.matches(
+                    revision=revision,
+                    configuration=configuration,
+                    fingerprint=self.deployment_proof_fingerprint,
+                    rbac_mode=self.rbac_mode,
+                    now=now,
+                ):
+                    raise _conflict("optional_capability_unknown")
+            elif capabilities_by_kind[kind].get(capability) != "passed":
+                raise _conflict("optional_capability_unknown")
 
     def _latest_validations(
         self, revision_id: str
@@ -656,14 +686,18 @@ class CasdoorConfigurationRepository:
         self, row: CasdoorValidationExtend, revision: CasdoorConfigRevisionExtend
     ) -> dict[str, str] | None:
         required = REQUIRED_CAPABILITIES.get(row.kind)
-        if required is None or self.deployment_proof_fingerprint is None:
+        if required is None:
             return None
         if row.kind == CasdoorValidationKind.DEPLOYMENT and self.rbac_mode == "on":
             required = required | {"role_and_resource_termination"}
         if (
             row.config_digest != revision.config_digest
             or row.rbac_mode != self.rbac_mode
-            or row.proof_fingerprint != self.deployment_proof_fingerprint
+            or (
+                self.deployment_proof_fingerprint is not None
+                and row.proof_fingerprint != self.deployment_proof_fingerprint
+            )
+            or (row.kind is CasdoorValidationKind.DEPLOYMENT and row.proof_fingerprint is None)
         ):
             return None
         try:
@@ -683,7 +717,13 @@ class CasdoorConfigurationRepository:
         return summary["capabilities"]
 
     def activate(
-        self, *, etag: int, revision_id: UUID, actor_account_id: UUID, now: datetime | None = None
+        self,
+        *,
+        etag: int,
+        revision_id: UUID,
+        actor_account_id: UUID,
+        now: datetime | None = None,
+        rp_logout_admission=None,
     ) -> ConfigurationSnapshot:
         self._require_transaction()
         self._etag(etag)
@@ -712,7 +752,7 @@ class CasdoorConfigurationRepository:
             pin.not_before.replace(tzinfo=None) <= checked_at < pin.accept_until.replace(tzinfo=None) for pin in pins
         ):
             raise CryptoError("casdoor_certificate_invalid")
-        self._activation_proof(revision, configuration, checked_at)
+        self._activation_proof(revision, configuration, checked_at, rp_logout_admission)
         self._cas(integration, etag, actor_account_id)
         integration.active_revision_id = revision.id
         integration.enabled = True
@@ -778,3 +818,114 @@ class CasdoorConfigurationRepository:
                 summary_json=_json({"schema_version": 1}),
             )
         )
+
+    def reset_namespace(self, namespace_id, *, etag, actor_account_id, scope_fingerprint):
+        """Archive only a freshly locked, released zero-intent LOCAL scope."""
+        from core.casdoor.auth_transactions import AuthTransactionError
+        from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
+
+        self._require_transaction()
+        self._etag(etag)
+        if self.session.new or self.session.dirty or self.session.deleted or self.session.in_nested_transaction():
+            raise _conflict("namespace_reset_dirty_root")
+        owner = CasdoorLocalLifecycleRepository(self.session)
+        scope = owner.inspect_namespace_reset(namespace_id, source_account_id=actor_account_id, lock=True)
+        if scope["fingerprint"] != scope_fingerprint or scope["etag"] != etag or self.rbac_mode != "off":
+            raise AuthTransactionError("context_changed")
+        revision = self._revision(scope["integration_id"], scope["pointer"])
+        configuration = self._configuration(revision)
+        secret = (
+            SecretStr(
+                self.crypto.decrypt(
+                    revision.encrypted_secret, context=self._secret_context(revision.namespace_id, revision.id)
+                )
+            )
+            if revision.encrypted_secret is not None
+            else None
+        )
+        archived = self.session.execute(
+            sa.update(CasdoorNamespaceExtend)
+            .where(
+                CasdoorNamespaceExtend.id == str(namespace_id),
+                CasdoorNamespaceExtend.integration_id == scope["integration_id"],
+                CasdoorNamespaceExtend.lifecycle == CasdoorNamespaceLifecycle.FENCING,
+                CasdoorNamespaceExtend.fence_epoch == scope["fence_epoch"],
+            )
+            .values(
+                lifecycle=CasdoorNamespaceLifecycle.ARCHIVED,
+                fence_epoch=scope["fence_epoch"] + 1,
+                archived_at=datetime.now(UTC),
+            )
+            .execution_options(synchronize_session=False)
+        )
+        if archived.rowcount != 1:
+            raise _conflict("namespace_reset_fence_changed")
+        integration = self._integration()
+        cleared = self.session.execute(
+            sa.update(CasdoorIntegrationExtend)
+            .where(
+                CasdoorIntegrationExtend.id == scope["integration_id"],
+                CasdoorIntegrationExtend.enabled.is_(False),
+                CasdoorIntegrationExtend.etag == etag,
+                CasdoorIntegrationExtend.active_revision_id.is_(None)
+                if integration.active_revision_id is None
+                else CasdoorIntegrationExtend.active_revision_id == integration.active_revision_id,
+                CasdoorIntegrationExtend.draft_revision_id.is_(None)
+                if integration.draft_revision_id is None
+                else CasdoorIntegrationExtend.draft_revision_id == integration.draft_revision_id,
+            )
+            .values(active_revision_id=None, draft_revision_id=None)
+            .execution_options(synchronize_session=False)
+        )
+        if cleared.rowcount != 1:
+            raise _conflict("namespace_reset_pointer_changed")
+        self.session.refresh(integration)
+        snapshot = self._save(configuration, etag=etag, actor_account_id=actor_account_id, secret=secret, clear=False)
+        secret = None
+        self.session.add(
+            CasdoorAuditExtend(
+                namespace_id=str(namespace_id),
+                revision_id=revision.id,
+                actor_account_id=str(actor_account_id),
+                action="local_namespace_reset_v1",
+                result_code="success",
+                correlation_id=str(uuid4()),
+                summary_json=_json(
+                    {
+                        "schema_version": 1,
+                        "old_namespace_id": str(namespace_id),
+                        "new_namespace_id": str(snapshot.draft.namespace_id),
+                        "new_revision_id": str(snapshot.draft.revision_id),
+                        "review_sha256": scope_fingerprint,
+                        "fence_epoch": scope["fence_epoch"] + 1,
+                        "etag": etag + 1,
+                    }
+                ),
+            )
+        )
+        self.session.flush()
+        self._namespace_reset_last_readback(scope, snapshot)
+        return snapshot
+
+    def _namespace_reset_last_readback(self, scope, snapshot):
+        from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
+
+        CasdoorLocalLifecycleRepository(self.session)._namespace_reset_readback(scope)
+        old = self.session.get(CasdoorNamespaceExtend, scope["namespace_id"], populate_existing=True)
+        integration = self._integration()
+        self.session.refresh(integration)
+        draft = self._revision(integration.id, integration.draft_revision_id)
+        new = self.session.get(CasdoorNamespaceExtend, draft.namespace_id, populate_existing=True)
+        if (
+            old.lifecycle != CasdoorNamespaceLifecycle.ARCHIVED
+            or old.fence_epoch != scope["fence_epoch"] + 1
+            or integration.enabled is not False
+            or integration.etag != scope["etag"] + 1
+            or integration.active_revision_id is not None
+            or new.id == old.id
+            or new.lifecycle != CasdoorNamespaceLifecycle.ACTIVE
+            or new.fence_epoch != 0
+            or integration.draft_revision_id != str(snapshot.draft.revision_id)
+            or UUID(new.id) != snapshot.draft.namespace_id
+        ):
+            raise _conflict("namespace_reset_readback_changed")

@@ -31,6 +31,7 @@ from .agent import (
     WorkflowAgentNodeBinding,
 )
 from .api_based_extension import APIBasedExtension, APIBasedExtensionPoint
+from .casdoor_avatar_file_guard_extend import CasdoorAvatarFileGuardExtend
 from .casdoor_extend import (
     CasdoorAuditExtend,
     CasdoorConfigRevisionExtend,
@@ -209,6 +210,7 @@ __all__ = [
     "AppTriggerType",
     "BuiltinToolProvider",
     "CasdoorAuditExtend",
+    "CasdoorAvatarFileGuardExtend",
     "CasdoorConfigRevisionExtend",
     "CasdoorIdentityExtend",
     "CasdoorIntegrationExtend",

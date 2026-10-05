@@ -23,6 +23,7 @@ from werkzeug.exceptions import Unauthorized
 
 from configs import dify_config
 from constants.languages import get_valid_language, language_timezone_mapping
+from core.casdoor.manual_ownership import ManualMutationKind
 from enums import DeploymentEdition
 from events.tenant_event import tenant_was_created
 from extensions.ext_database import db
@@ -60,6 +61,10 @@ from services.account_forgot_password_service import (
 )
 from services.account_quota_service_extend import ensure_account_quota_extend
 from services.billing_service import BillingService
+from services.casdoor_manual_member_mutation_service_extend import (
+    mark_local_manual_member_mutation,
+    require_clean_local_manual_session,
+)
 from services.enterprise.rbac_service import ListOption, RBACService
 from services.entities.auth_entities import (
     ChangeEmailNewEmailToken,
@@ -1644,6 +1649,7 @@ class TenantService:
         activated) and no remaining workspace memberships, the orphaned account
         record is deleted as well.
         """
+        require_clean_local_manual_session(session)
         if operator.id == account.id:
             raise CannotOperateSelfError("Cannot operate self.")
 
@@ -1679,6 +1685,12 @@ class TenantService:
         if owner_id is None:
             raise ValueError(f"Workspace owner not found for tenant {tenant.id}.")
 
+        mark_local_manual_member_mutation(
+            session,
+            workspace_id=tenant.id,
+            account_ids=(ta.account_id,),
+            kind=ManualMutationKind.MEMBER_REMOVE,
+        )
         TenantService._persist_member_removal_effect(tenant, account_id, ta, owner_id, session=session)
 
         # Clean up orphaned pending accounts (invited but never activated)
@@ -1758,6 +1770,7 @@ class TenantService:
     @staticmethod
     def update_member_role(tenant: Tenant, member: Account, new_role: str, operator: Account, *, session: Session):
         """Update member role"""
+        require_clean_local_manual_session(session)
         TenantService.check_member_permission(tenant, operator, member, "update", session=session)
         new_tenant_role = TenantAccountRole(new_role)
 
@@ -1779,6 +1792,13 @@ class TenantService:
             raise RoleAlreadyAssignedError("The provided role is already assigned to the member.")
 
         local_role_changes: dict[str, TenantAccountJoin] = {}
+        if new_role != "owner":
+            mark_local_manual_member_mutation(
+                session,
+                workspace_id=tenant.id,
+                account_ids=(target_member_join.account_id,),
+                kind=ManualMutationKind.ROLE_CHANGE,
+            )
         if new_role == "owner":
             if dify_config.RBAC_ENABLED:
                 old_owner_id = AccountService.get_rbac_workspace_owner_account_id(
@@ -1810,6 +1830,14 @@ class TenantService:
                 select(TenantAccountJoin)
                 .where(TenantAccountJoin.tenant_id == tenant.id, TenantAccountJoin.role == "owner")
                 .limit(1)
+            )
+            mark_local_manual_member_mutation(
+                session,
+                workspace_id=tenant.id,
+                account_ids=(target_member_join.account_id, current_owner_join.account_id)
+                if current_owner_join
+                else (target_member_join.account_id,),
+                kind=ManualMutationKind.OWNER_TRANSFER if current_owner_join else ManualMutationKind.ROLE_CHANGE,
             )
             if current_owner_join:
                 current_owner_join.role = TenantAccountRole.NORMAL

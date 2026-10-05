@@ -45,6 +45,7 @@ class EncryptionPurpose(StrEnum):
     CONFIG_SECRET = "config_secret"
     AUTH_VERIFIER = "auth_verifier"
     LOGOUT_ID_TOKEN = "logout_id_token"
+    SESSION_PROVENANCE = "session_provenance"
     AVATAR_URL = "avatar_url"
 
 

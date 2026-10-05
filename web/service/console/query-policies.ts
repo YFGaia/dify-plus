@@ -16,6 +16,56 @@ export function createConsoleQuery(consoleClient: ConsoleClient) {
       systemManageExtend: {
         integration: {
           casdoor: {
+            resetNamespace: {
+              review: {
+                post: { mutationOptions: { gcTime: 0, networkMode: 'always', retry: false } },
+              },
+              post: {
+                mutationOptions: {
+                  gcTime: 0,
+                  networkMode: 'always',
+                  retry: false,
+                  onSettled: (_data, _error, _variables, _result, context) =>
+                    invalidateQueryKeys(context.client, [
+                      consoleQuery.systemManageExtend.integration.casdoor.get.key(),
+                      consoleQuery.auth.casdoor.display.get.key(),
+                      consoleQuery.systemManageExtend.integration.casdoor.localMembership.key(),
+                      consoleQuery.systemManageExtend.integration.casdoor.sync.retryTargets.get.key(),
+                      consoleQuery.account.casdoorIdentity.get.key(),
+                      consoleQuery.account.casdoorIdentity.actions.get.key(),
+                      consoleQuery.auth.casdoor.session.get.key(),
+                    ]),
+                },
+              },
+            },
+            sync: {
+              retryTargets: {
+                get: {
+                  queryOptions: {
+                    retry: false,
+                    staleTime: 0,
+                    gcTime: 0,
+                    context: { silent: true },
+                  },
+                },
+              },
+              retry: {
+                post: {
+                  mutationOptions: {
+                    gcTime: 0,
+                    networkMode: 'always',
+                    retry: false,
+                    onSettled: (_data, _error, _variables, _result, context) =>
+                      invalidateQueryKeys(context.client, [
+                        consoleQuery.systemManageExtend.integration.casdoor.sync.retryTargets.get.key(),
+                        consoleQuery.account.casdoorIdentity.get.key(),
+                        consoleQuery.account.casdoorIdentity.actions.get.key(),
+                        consoleQuery.account.profile.get.key(),
+                      ]),
+                  },
+                },
+              },
+            },
             put: {
               mutationOptions: {
                 // Secret belongs only to the current mutation input, never a query result.
@@ -104,8 +154,16 @@ export function createConsoleQuery(consoleClient: ConsoleClient) {
             },
             validate: {
               post: {
-                // A local static result grants no activation or enabled-state update.
-                mutationOptions: { gcTime: 0, networkMode: 'always', retry: false },
+                // The server may persist a new validation summary at the same ETag.
+                mutationOptions: {
+                  gcTime: 0,
+                  networkMode: 'always',
+                  retry: false,
+                  onSettled: (_data, _error, _variables, _result, context) =>
+                    context.client.invalidateQueries({
+                      queryKey: consoleQuery.systemManageExtend.integration.casdoor.get.key(),
+                    }),
+                },
               },
             },
           },

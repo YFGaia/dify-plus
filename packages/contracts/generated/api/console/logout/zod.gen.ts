@@ -3,13 +3,31 @@
 import * as z from 'zod'
 
 /**
- * SimpleResultResponse
+ * CasdoorNavigationResponse
+ *
+ * Opaque local handler path; the server validates/consumes the handoff.
  */
-export const zSimpleResultResponse = z.object({
-  result: z.string(),
+export const zCasdoorNavigationResponse = z.object({
+  handoff_path: z.string().min(1).max(2048),
+})
+
+/**
+ * CasdoorLogoutResponse
+ */
+export const zCasdoorLogoutResponse = z.object({
+  handoff: zCasdoorNavigationResponse.nullish(),
+  status: z.enum(['handoff_ready', 'local_only']),
+})
+
+/**
+ * CasdoorConsoleLogoutResponse
+ */
+export const zCasdoorConsoleLogoutResponse = z.object({
+  casdoor_logout: zCasdoorLogoutResponse.nullish(),
+  result: z.literal('success').optional().default('success'),
 })
 
 /**
  * Success
  */
-export const zPostLogoutResponse = zSimpleResultResponse
+export const zPostLogoutResponse = zCasdoorConsoleLogoutResponse

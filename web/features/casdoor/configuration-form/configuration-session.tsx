@@ -7,7 +7,6 @@ import type { DraftErrors } from './configuration-draft'
 import {
   zCasdoorDisableResponse,
   zCasdoorStaticValidationResponse,
-  zCasdoorTestLoginResponse,
 } from '@dify/contracts/api/console/system-manage-extend/zod.gen'
 import {
   AlertDialog,
@@ -23,6 +22,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from '#i18n'
 import { consoleQuery } from '@/service/console'
+import { parseIdentityNavigation } from '../identity-navigation'
 import { CallbackReference } from './callback-reference'
 import { CertificateFields } from './certificate-fields'
 import {
@@ -31,6 +31,7 @@ import {
   validateConfiguration,
 } from './configuration-draft'
 import { ConnectionFields } from './connection-fields'
+import { parseDiagnosticStart } from './diagnostic-navigation'
 import { ManagementError } from './management-error'
 import { ProfileFields } from './profile-fields'
 import { SavedStatus } from './saved-status'
@@ -76,8 +77,9 @@ export function ConfigurationSession({
   const dirty =
     secret !== '' ||
     JSON.stringify(configuration) !== JSON.stringify(initialConfiguration(baseline))
-  const latest = response.etag > baseline.etag ? response : baseline
-  const stale = latest.etag !== baseline.etag
+  const latest = response.etag >= baseline.etag ? response : baseline
+  const stale =
+    latest.etag !== baseline.etag || latest.draft_revision_id !== baseline.draft_revision_id
 
   const acceptSaved = (data: CasdoorConfigurationResponse, message: 'saved' | 'cleared') => {
     setSecret('')
@@ -188,14 +190,15 @@ export function ConfigurationSession({
     casdoor.testLogin.post.mutationOptions({
       context: { silent: true },
       onSuccess: (data) => {
-        const parsed = zCasdoorTestLoginResponse.safeParse(data)
-        if (!parsed.success) {
+        try {
+          const parsed = parseDiagnosticStart(data)
+          setRequestError(null)
+          setTestLoginResult(parsed.response)
+          if (parsed.destination) window.location.assign(parsed.destination)
+        } catch {
           setTestLoginResult(null)
           setRequestError({})
-          return
         }
-        setRequestError(null)
-        setTestLoginResult(parsed.data)
       },
       onError: (error) => setRequestError(error),
     }),
@@ -223,13 +226,29 @@ export function ConfigurationSession({
       onError: (error) => setRequestError(error),
     }),
   )
+  const testReauth = useMutation(
+    casdoor.testReauth.post.mutationOptions({
+      context: { silent: true },
+      retry: false,
+      gcTime: 0,
+      onSuccess: (data) => {
+        try {
+          window.location.assign(parseIdentityNavigation(data))
+        } catch {
+          setRequestError({})
+        }
+      },
+      onError: (error) => setRequestError(error),
+    }),
+  )
   const busy =
     save.isPending ||
     clear.isPending ||
     disable.isPending ||
     validate.isPending ||
     activate.isPending ||
-    testLogin.isPending
+    testLogin.isPending ||
+    testReauth.isPending
   const exactDraft =
     baseline.draft && baseline.draft_revision_id === baseline.draft.revision_id
       ? baseline.draft
@@ -262,7 +281,7 @@ export function ConfigurationSession({
   }
   return (
     <div className="space-y-4">
-      <SavedStatus response={latest} />
+      <SavedStatus response={latest} onExpire={onRefresh} />
       <form
         noValidate
         className="space-y-6"
@@ -407,6 +426,20 @@ export function ConfigurationSession({
           >
             {t(($) => $['systemManage.casdoor.testLogin'])}
           </Button>
+          <Button
+            type="button"
+            loading={testReauth.isPending}
+            disabled={actionsUnavailable}
+            onClick={() => {
+              if (!exactDraft || actionsUnavailable) return
+              setRequestError(null)
+              testReauth.mutate({
+                body: { etag: baseline.etag, revision_id: exactDraft.revision_id },
+              })
+            }}
+          >
+            {t(($) => $['systemManage.casdoor.testReauth'])}
+          </Button>
           {(!latest.enabled || latest.active_revision_id !== latest.draft_revision_id) && (
             <Button
               type="button"
@@ -429,7 +462,7 @@ export function ConfigurationSession({
           )}
         </div>
       </form>
-      {testLoginResult && (
+      {testLoginResult?.status === 'blocked' && (
         <p role="status">
           {testLoginResult.reason === 'deployment_proof_missing'
             ? t(($) => $['systemManage.casdoor.deploymentProofMissing'])

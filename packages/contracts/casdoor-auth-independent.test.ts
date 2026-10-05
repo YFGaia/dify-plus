@@ -8,7 +8,10 @@ import { describe, expect, it } from 'vite-plus/test'
 import {
   zCasdoorDisplayResponse,
   zCasdoorRestrictedResultResponse,
+  zGetAuthCasdoorSessionResponse,
   zGetAuthCasdoorResultQuery,
+  zGetAuthCasdoorResultResponse,
+  zPostAuthCasdoorLogoutRetryResponse,
 } from './generated/api/console/auth/zod.gen'
 import { contractLoaders } from './generated/api/console/orpc.gen'
 
@@ -80,7 +83,64 @@ describe('independent native generated Casdoor auth contract', () => {
     )
     const head = auth.casdoor.display.head as Operation
 
-    expect(casdoor).toHaveLength(3)
+    const expectedCasdoor = [
+      {
+        operationId: 'getAuthCasdoorDisplay',
+        method: 'GET',
+        path: '/auth/casdoor/display',
+        input: false,
+        output: zCasdoorDisplayResponse,
+      },
+      {
+        operationId: 'head_casdoor_display_api',
+        method: 'HEAD',
+        path: '/auth/casdoor/display',
+        input: false,
+        output: undefined,
+      },
+      {
+        operationId: 'postAuthCasdoorLogoutRetry',
+        method: 'POST',
+        path: '/auth/casdoor/logout/retry',
+        input: false,
+        output: zPostAuthCasdoorLogoutRetryResponse,
+      },
+      {
+        operationId: 'getAuthCasdoorResult',
+        method: 'GET',
+        path: '/auth/casdoor/result',
+        input: true,
+        output: zGetAuthCasdoorResultResponse,
+      },
+      {
+        operationId: 'getAuthCasdoorSession',
+        method: 'GET',
+        path: '/auth/casdoor/session',
+        input: false,
+        output: zGetAuthCasdoorSessionResponse,
+      },
+    ]
+
+    expect(casdoor).toHaveLength(5)
+    expect(
+      casdoor
+        .map(({ '~orpc': { route } }) => route.operationId)
+        .sort(),
+    ).toEqual(expectedCasdoor.map((route) => route.operationId).sort())
+    for (const expected of expectedCasdoor) {
+      const operation = casdoor.find(
+        ({ '~orpc': { route } }) => route.operationId === expected.operationId,
+      )
+      expect(operation).toBeDefined()
+      expect(operation?.['~orpc'].route).toMatchObject({
+        inputStructure: 'detailed',
+        method: expected.method,
+        operationId: expected.operationId,
+        path: expected.path,
+      })
+      expect(Boolean(operation?.['~orpc'].inputSchema)).toBe(expected.input)
+      expect(operation?.['~orpc'].outputSchema).toBe(expected.output)
+    }
     expect(head['~orpc'].route).toMatchObject({
       inputStructure: 'detailed',
       method: 'HEAD',
@@ -155,35 +215,188 @@ describe('independent native generated Casdoor auth contract', () => {
     expect(zCasdoorDisplayResponse.safeParse({ button_text: 'x'.repeat(121) }).success).toBe(false)
   })
 
-  it('preserves the ten pre-existing auth operation routes and their generated schemas', async () => {
+  it('preserves each of the ten pre-existing auth operation routes and its schema shape', async () => {
     const { auth } = await contractLoaders.auth()
     const operations = collectOperations(auth)
     const oldOperations = operations.filter(
       ({ '~orpc': { route } }) => !route.path?.startsWith('/auth/casdoor/'),
     )
 
-    expect(operations).toHaveLength(13)
+    const expectedOldRoutes = [
+      {
+        operationId: 'getAuthPluginDatasourceDefaultList',
+        method: 'GET',
+        path: '/auth/plugin/datasource/default-list',
+        input: false,
+        output: true,
+      },
+      {
+        operationId: 'getAuthPluginDatasourceList',
+        method: 'GET',
+        path: '/auth/plugin/datasource/list',
+        input: false,
+        output: true,
+      },
+      {
+        operationId: 'getAuthPluginDatasourceByProviderId',
+        method: 'GET',
+        path: '/auth/plugin/datasource/{provider_id}',
+        input: true,
+        output: true,
+      },
+      {
+        operationId: 'postAuthPluginDatasourceByProviderId',
+        method: 'POST',
+        path: '/auth/plugin/datasource/{provider_id}',
+        input: true,
+        output: true,
+      },
+      {
+        operationId: 'deleteAuthPluginDatasourceByProviderIdCustomClient',
+        method: 'DELETE',
+        path: '/auth/plugin/datasource/{provider_id}/custom-client',
+        input: true,
+        output: true,
+      },
+      {
+        operationId: 'postAuthPluginDatasourceByProviderIdCustomClient',
+        method: 'POST',
+        path: '/auth/plugin/datasource/{provider_id}/custom-client',
+        input: true,
+        output: true,
+      },
+      {
+        operationId: 'postAuthPluginDatasourceByProviderIdDefault',
+        method: 'POST',
+        path: '/auth/plugin/datasource/{provider_id}/default',
+        input: true,
+        output: true,
+      },
+      {
+        operationId: 'postAuthPluginDatasourceByProviderIdDelete',
+        method: 'POST',
+        path: '/auth/plugin/datasource/{provider_id}/delete',
+        input: true,
+        output: true,
+      },
+      {
+        operationId: 'postAuthPluginDatasourceByProviderIdUpdate',
+        method: 'POST',
+        path: '/auth/plugin/datasource/{provider_id}/update',
+        input: true,
+        output: true,
+      },
+      {
+        operationId: 'postAuthPluginDatasourceByProviderIdUpdateName',
+        method: 'POST',
+        path: '/auth/plugin/datasource/{provider_id}/update-name',
+        input: true,
+        output: true,
+      },
+    ]
+
+    expect(operations).toHaveLength(15)
     expect(oldOperations).toHaveLength(10)
-    expect(new Set(oldOperations.map(({ '~orpc': { route } }) => route.operationId)).size).toBe(10)
-    for (const {
-      '~orpc': { route, inputSchema, outputSchema },
-    } of oldOperations) {
-      expect(route.method).toBeTruthy()
-      expect(route.path).toBeTruthy()
-      expect(route.inputStructure).toBe('detailed')
-      expect(inputSchema || outputSchema).toBeTruthy()
+    expect(
+      oldOperations
+        .map(({ '~orpc': { route } }) => route.operationId)
+        .sort(),
+    ).toEqual(expectedOldRoutes.map((route) => route.operationId).sort())
+    for (const expected of expectedOldRoutes) {
+      const operation = oldOperations.find(
+        ({ '~orpc': { route } }) => route.operationId === expected.operationId,
+      )
+      expect(operation).toBeDefined()
+      expect(operation?.['~orpc'].route).toMatchObject({
+        inputStructure: 'detailed',
+        method: expected.method,
+        operationId: expected.operationId,
+        path: expected.path,
+      })
+      expect(Boolean(operation?.['~orpc'].inputSchema)).toBe(expected.input)
+      expect(Boolean(operation?.['~orpc'].outputSchema)).toBe(expected.output)
     }
   })
 
-  it('keeps all nineteen management operations and their actual route and schema metadata loadable', async () => {
+  it('adds the eight accepted manager operations while preserving every prior route/schema', async () => {
     const { systemManageExtend } = await contractLoaders.systemManageExtend()
     const operations = collectOperations(systemManageExtend)
+    const additions = [
+      {
+        operationId: 'getSystemManageExtendIntegrationCasdoorLocalMembership',
+        method: 'GET',
+        path: '/system-manage-extend/integration/casdoor/local-membership',
+      },
+      {
+        operationId: 'getSystemManageExtendIntegrationCasdoorLocalMembershipTargets',
+        method: 'GET',
+        path: '/system-manage-extend/integration/casdoor/local-membership/targets',
+      },
+      {
+        operationId: 'postSystemManageExtendIntegrationCasdoorLocalMembershipReview',
+        method: 'POST',
+        path: '/system-manage-extend/integration/casdoor/local-membership/review',
+      },
+      {
+        operationId: 'postSystemManageExtendIntegrationCasdoorLocalMembershipRelease',
+        method: 'POST',
+        path: '/system-manage-extend/integration/casdoor/local-membership/release',
+      },
+      {
+        operationId: 'postSystemManageExtendIntegrationCasdoorLocalMembershipAdopt',
+        method: 'POST',
+        path: '/system-manage-extend/integration/casdoor/local-membership/adopt',
+      },
+      {
+        operationId: 'postSystemManageExtendIntegrationCasdoorTestReauth',
+        method: 'POST',
+        path: '/system-manage-extend/integration/casdoor/test-reauth',
+      },
+      {
+        operationId: 'getSystemManageExtendIntegrationCasdoorRpLogoutStatus',
+        method: 'GET',
+        path: '/system-manage-extend/integration/casdoor/rp-logout-status',
+      },
+      {
+        operationId: 'postSystemManageExtendIntegrationCasdoorTestRpLogout',
+        method: 'POST',
+        path: '/system-manage-extend/integration/casdoor/test-rp-logout',
+      },
+    ]
+    const additiveIds = new Set(additions.map(({ operationId }) => operationId))
+    const addedOperations = operations.filter(({ '~orpc': { route } }) =>
+      additiveIds.has(route.operationId ?? ''),
+    )
+    const priorOperations = operations.filter(
+      ({ '~orpc': { route } }) => !additiveIds.has(route.operationId ?? ''),
+    )
 
-    expect(operations).toHaveLength(19)
-    expect(new Set(operations.map(({ '~orpc': { route } }) => route.operationId)).size).toBe(19)
+    expect(operations).toHaveLength(30)
+    expect(new Set(operations.map(({ '~orpc': { route } }) => route.operationId)).size).toBe(30)
+    expect(priorOperations).toHaveLength(22)
+    expect(addedOperations).toHaveLength(8)
+    expect(
+      addedOperations
+        .map(({ '~orpc': { route } }) => route.operationId)
+        .sort(),
+    ).toEqual([...additiveIds].sort())
+    for (const expected of additions) {
+      const operation = addedOperations.find(
+        ({ '~orpc': { route } }) => route.operationId === expected.operationId,
+      )
+      expect(operation).toBeDefined()
+      expect(operation?.['~orpc'].route).toMatchObject({
+        inputStructure: 'detailed',
+        method: expected.method,
+        operationId: expected.operationId,
+        path: expected.path,
+      })
+      expect(operation?.['~orpc'].inputSchema).toBeTruthy()
+      expect(operation?.['~orpc'].outputSchema).toBeTruthy()
+    }
     for (const {
       '~orpc': { route, inputSchema, outputSchema },
-    } of operations) {
+    } of priorOperations) {
       expect(route.method).toBeTruthy()
       expect(route.path).toBeTruthy()
       expect(route.inputStructure).toBe('detailed')

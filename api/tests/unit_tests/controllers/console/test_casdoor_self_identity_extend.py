@@ -46,6 +46,8 @@ from models.casdoor_extend import (
 from models.casdoor_extend import (
     CasdoorNamespaceExtend as Namespace,
 )
+from models.casdoor_extend import CasdoorSyncIntentExtend
+from models.model import UploadFile
 from repositories.casdoor_self_identity_repository_extend import (
     CasdoorSelfIdentityRepository,
     CasdoorSelfReadConflict,
@@ -99,7 +101,18 @@ def sync_snapshot(**changes):
 def storage():
     engine = sa.create_engine("sqlite://")
     metadata = sa.MetaData()
-    for model in (Account, Tenant, TenantAccountJoin, Integration, Namespace, Revision, Identity, Membership):
+    for model in (
+        Account,
+        Tenant,
+        TenantAccountJoin,
+        Integration,
+        Namespace,
+        Revision,
+        Identity,
+        Membership,
+        CasdoorSyncIntentExtend,
+        UploadFile,
+    ):
         table = model.__table__.to_metadata(metadata)
         for column in table.columns:
             if column.server_default is not None and str(column.server_default.arg) == "CURRENT_TIMESTAMP(0)":

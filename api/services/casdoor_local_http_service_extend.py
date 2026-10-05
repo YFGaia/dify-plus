@@ -1,6 +1,6 @@
 """Private ordinary LOCAL HTTP orchestration; transport mounting belongs elsewhere.
 
-The original production coordinator still denies a missing genuine G0 producer.
+The production coordinator denies missing or revoked deployment authority.
 Construction is lazy. The two private production seams are deliberately concrete:
 offline tests may subclass them, but no request/configuration proof flag exists.
 Each ingress owns one deadline and a fresh active snapshot, not a historical fence
@@ -34,11 +34,21 @@ from core.casdoor.auth_transactions import (
     result_cookie_name,
     transaction_cookie_name,
 )
-from core.casdoor.claims import ClaimsError, NativeTokenContract
+from core.casdoor.claims import ClaimsError, NativeTokenContract, NativeTokenSchema
 from core.casdoor.configuration import CasdoorConfiguration
 from core.casdoor.crypto import CasdoorCrypto
+from core.casdoor.deployment_evidence import (
+    AcceptedDeploymentPolicy,
+    DeploymentEvidenceError,
+)
 from core.casdoor.errors import CasdoorErrorCode
-from core.casdoor.gateway import CasdoorTokenGateway, DirectoryCredentialStrategy, GatewayError, GatewayOperation
+from core.casdoor.gateway import (
+    CasdoorBasicDirectoryCredentialStrategy,
+    CasdoorTokenGateway,
+    DirectoryCredentialStrategy,
+    GatewayError,
+    GatewayOperation,
+)
 from core.casdoor.leases import CasdoorLeaseError
 from core.casdoor.mapping import MappingError
 from core.casdoor.redis_runtime import CasdoorRedisUnavailable
@@ -55,21 +65,37 @@ from core.casdoor.request_safety import (
     record_safety_event,
 )
 from core.casdoor.role_graph import DirectorySnapshotContract, RoleSnapshotError
+from enums import DeploymentEdition
 from libs.helper import timezone as valid_timezone
 from models.casdoor_extend import CasdoorNamespaceExtend, CasdoorNamespaceLifecycle
-from repositories.casdoor_account_preflight_repository_extend import AccountPreflightConflict
-from repositories.casdoor_configuration_repository_extend import CasdoorConfigurationError
+from repositories.casdoor_account_preflight_repository_extend import (
+    AccountPreflightConflict,
+)
+from repositories.casdoor_configuration_repository_extend import (
+    CasdoorConfigurationError,
+)
 from repositories.casdoor_identity_repository_extend import CasdoorIdentityConflict
 from repositories.casdoor_login_scope_repository_extend import CasdoorLoginScopeConflict
 from sqlalchemy.orm import Session
 
 from services.account_activation_service import AccountActivationService
+from services.account_adapters import RedisInvitationTokenStore
 from services.casdoor_configuration_service_extend import CasdoorConfigurationService
+from services.casdoor_deployment_policy_service_extend import (
+    CasdoorDeploymentPolicyService,
+)
+from services.casdoor_invited_local_login_coordinator_service_extend import (
+    CasdoorInvitedLocalLoginCoordinatorService,
+)
 from services.casdoor_local_login_coordinator_service_extend import (
     CasdoorLocalLoginCoordinatorService,
     _CoordinationConflict,
 )
 from services.casdoor_login_account_service_extend import CasdoorLoginAccountService
+from services.casdoor_session_service_extend import (
+    CasdoorSessionService,
+    SessionProvenanceSeed,
+)
 from services.entities.account_login_entities import AuthTokenPair
 
 
@@ -95,13 +121,15 @@ def _request_runtime(method):
         scope = None
         candidate = None
         try:
-            coordinator = self._coordinator_for_request()
+            request = copy(self)
+            request._request_deadline, request._request_correlation = deadline, correlation
+            coordinator = request._coordinator_for_request()
+            request._production_policy = coordinator._production_policy
             if self._redis_runtime_factory is None:
                 raise CasdoorRedisUnavailable()
             self._check(deadline)
             scope = self._redis_runtime_factory.open(deadline=deadline)
             self._check(deadline)
-            request = copy(self)
             request._redis_client = scope.client
             request._bound_coordinator = coordinator._with_request_redis(scope.client)
             request._request_deadline, request._request_correlation = deadline, correlation
@@ -124,6 +152,26 @@ def _request_runtime(method):
             return self._runtime_failure(method.__name__, kwargs, public, candidate)
         if closed and getattr(candidate, "error", None) is None and request._success_event is not None:
             _record_event(request._success_event)
+        # The optional provenance scope starts only AFTER mandatory token-runtime
+        # cleanup has succeeded. Its own close/CAS/budget failure cannot suppress
+        # a genuine normal pair; the close gate above remains mandatory.
+        if (
+            closed
+            and type(candidate) is _CompleteResult
+            and candidate.error is None
+            and type(candidate.tokens) is AuthTokenPair
+            and self._session_service is not None
+            and candidate.provenance is not None
+        ):
+            try:
+                cookie = self._session_service.create(
+                    seed=candidate.provenance,
+                    refresh_token=candidate.tokens.refresh_token,
+                    deadline=deadline,
+                )
+                candidate = replace(candidate, source_cookie=cookie)
+            except Exception:
+                pass
         return candidate
 
     return run
@@ -150,6 +198,8 @@ class _PhaseFacts:
 class _CompleteResult(_StartResult):
     tokens: AuthTokenPair | None = None
     phases: _PhaseFacts = _PhaseFacts()
+    provenance: SessionProvenanceSeed | None = None
+    source_cookie: CookieDirective | None = None
 
 
 @dataclass(frozen=True, repr=False)
@@ -204,6 +254,8 @@ class CasdoorLocalHttpService:
         redis_client,
         settings,
         redis_runtime_factory=None,
+        deployment_policy_service: CasdoorDeploymentPolicyService | None = None,
+        session_service: CasdoorSessionService | None = None,
     ) -> None:
         # No crypto, factories, SQL, Redis commands or provider work at startup.
         self._session_factory = session_factory
@@ -212,6 +264,9 @@ class CasdoorLocalHttpService:
         self._redis_client = redis_client
         self._settings = settings
         self._redis_runtime_factory = redis_runtime_factory
+        self._deployment_policy_service = deployment_policy_service
+        self._session_service = session_service
+        self._production_policy: AcceptedDeploymentPolicy | None = None
 
     def _runtime_failure(self, ingress, kwargs, public, candidate=None):
         cookies = ()
@@ -236,18 +291,49 @@ class CasdoorLocalHttpService:
         return _CompleteResult(None, cookies, public, public.status, public.correlation_id, phases=phases)
 
     def _coordinator_for_request(self) -> CasdoorLocalLoginCoordinatorService:
+        self._check(self._request_deadline)
         return CasdoorLocalLoginCoordinatorService.for_production(
             session_factory=self._session_factory,
             configuration_service=self._configuration_service,
             account_owner=CasdoorLoginAccountService(activation=self._account_activation),
             redis_client=self._redis_client,
+            deployment_policy_service=self._deployment_policy_service,
         )
 
     def _directory_inputs(
-        self, operation: GatewayOperation
+        self, operation: GatewayOperation, *, reviewed: bool = False
     ) -> tuple[NativeTokenContract, DirectorySnapshotContract, DirectoryCredentialStrategy]:
-        # A genuine server policy producer is a separate source/acceptance gate.
-        raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "deployment_proof_missing")
+        snapshot = self._read_active_context(operation.deadline)
+        if snapshot.configuration != operation.config or snapshot.callback != operation.registered_redirect_uri:
+            raise AuthTransactionError("context_changed")
+        if reviewed:
+            policy = self._require_policy(snapshot)
+            if policy is None:
+                raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "deployment_proof_missing")
+            return policy.native_token_contract, policy.directory_snapshot_contract, policy.credential_strategy
+        config = snapshot.configuration
+        # Server-selected, code-supported Casdoor profile. The callback still
+        # validates the real ID/native tokens, UserInfo, online account and full
+        # role graph before applying local workspace authorization.
+        return (
+            NativeTokenContract(
+                NativeTokenSchema.FLAT_USER_V1,
+                config.expected_issuer,
+                config.organization,
+                config.application,
+                config.client_id,
+            ),
+            DirectorySnapshotContract(organization=config.organization),
+            CasdoorBasicDirectoryCredentialStrategy(config.client_id),
+        )
+
+    def _require_policy(self, snapshot: _ActiveContext) -> AcceptedDeploymentPolicy | None:
+        if self._deployment_policy_service is None:
+            return None
+        policy = self._deployment_policy_service.resolve(
+            snapshot.configuration, snapshot.namespace_id, snapshot.revision_id, snapshot.config_digest, "off"
+        )
+        return policy
 
     def _check(self, deadline: float) -> None:
         if time.monotonic() >= deadline:
@@ -256,6 +342,7 @@ class CasdoorLocalHttpService:
             self._settings.RBAC_ENABLED is not False
             or dify_config.RBAC_ENABLED is not False
             or self._configuration_service._rbac_enabled is not False
+            or dify_config.DEPLOYMENT_EDITION != DeploymentEdition.COMMUNITY
         ):
             raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "local_mode_required")
 
@@ -329,7 +416,7 @@ class CasdoorLocalHttpService:
         )
 
     @staticmethod
-    def _navigation(snapshot: _ActiveContext, return_path, locale, timezone) -> TrustedAuthContext:
+    def _navigation(snapshot: _ActiveContext, return_path, locale, timezone, invite_token=None) -> TrustedAuthContext:
         try:
             language = supported_language(locale) if type(locale) is str else None
         except ValueError:
@@ -345,6 +432,7 @@ class CasdoorLocalHttpService:
             snapshot.callback,
             locale=language,
             timezone=zone,
+            invite=invite_token,
         )
         try:
             return replace(context, return_path=return_path) if return_path is not None else context
@@ -364,6 +452,7 @@ class CasdoorLocalHttpService:
         elif isinstance(
             error,
             CasdoorConfigurationError
+            | DeploymentEvidenceError
             | GatewayError
             | ClaimsError
             | _CoordinationConflict
@@ -527,28 +616,37 @@ class CasdoorLocalHttpService:
         return_path: str | None = None,
         locale: str | None = None,
         timezone: str | None = None,
+        invite_token: str | None = None,
         server_ip: str,
     ) -> _StartResult:
         deadline, correlation = self._request_deadline, self._request_correlation
         try:
             CasdoorRequestLimiter(self._redis_client).check_and_increment(
-                RequestAction.START, TrustedRateLimitScope.for_ip(server_ip), deadline=deadline
+                RequestAction.START,
+                TrustedRateLimitScope.for_ip(server_ip),
+                deadline=deadline,
             )
             snapshot = self._read_active_context(deadline)
             guard = partial(self._current_context, snapshot, deadline)
             store = self._store()
             if init_handle is not None:
-                if browser_scope is None or any(v is not None for v in (return_path, locale, timezone)):
+                if browser_scope is None or any(v is not None for v in (return_path, locale, timezone, invite_token)):
                     raise AuthTransactionError()
                 context = store.consume_initialization(
-                    init_handle, browser_scope=browser_scope, policy=snapshot.policy, guard=guard
+                    init_handle,
+                    browser_scope=browser_scope,
+                    policy=snapshot.policy,
+                    guard=guard,
                 )
             else:
-                context = self._navigation(snapshot, return_path, locale, timezone)
+                context = self._navigation(snapshot, return_path, locale, timezone, invite_token)
                 if browser_scope is None:
                     scope = new_browser_scope(snapshot.policy)
                     handle = store.create_initialization(
-                        context, browser_scope=scope.value, policy=snapshot.policy, guard=guard
+                        context,
+                        browser_scope=scope.value,
+                        policy=snapshot.policy,
+                        guard=guard,
                     )
                     guard()
                     redirect = (
@@ -558,7 +656,12 @@ class CasdoorLocalHttpService:
                         + urlencode({"init": handle})
                     )
                     return _StartResult(redirect, (scope,), None, 303, correlation)
-            created = store.create(context, browser_scope=browser_scope, policy=snapshot.policy, guard=guard)
+            created = store.create(
+                context,
+                browser_scope=browser_scope,
+                policy=snapshot.policy,
+                guard=guard,
+            )
             operation = self._operation(snapshot, deadline)
             guard()
             endpoints = operation.discover()
@@ -596,7 +699,9 @@ class CasdoorLocalHttpService:
             cookies = (CookieDirective(name, "", 0, COOKIE_PATH + "/callback", policy.secure),)
             coordinator = self._bound_coordinator
             CasdoorRequestLimiter(self._redis_client).check_and_increment(
-                RequestAction.CALLBACK, TrustedRateLimitScope.for_ip(server_ip), deadline=deadline
+                RequestAction.CALLBACK,
+                TrustedRateLimitScope.for_ip(server_ip),
+                deadline=deadline,
             )
             if (code is None) == (provider_error is None):
                 raise AuthTransactionError()
@@ -614,7 +719,6 @@ class CasdoorLocalHttpService:
             if consumed.context.mode is not AuthMode.LOGIN or any(
                 value is not None
                 for value in (
-                    consumed.context.invite,
                     consumed.context.source,
                     consumed.context.identity_id,
                     consumed.context.action,
@@ -622,7 +726,13 @@ class CasdoorLocalHttpService:
             ):
                 raise AuthTransactionError()
             if provider_error == "access_denied":
-                _record_event(SafetyEvent(RequestAction.CALLBACK, CasdoorErrorCode.INVALID_TRANSACTION, correlation))
+                _record_event(
+                    SafetyEvent(
+                        RequestAction.CALLBACK,
+                        CasdoorErrorCode.INVALID_TRANSACTION,
+                        correlation,
+                    )
+                )
                 guard()
                 return _CancelledNavigation(snapshot.web_origin + "/signin", cookies, correlation)
             if provider_error is not None:
@@ -631,8 +741,16 @@ class CasdoorLocalHttpService:
             guard()
             raw = CasdoorTokenGateway(operation).exchange_code(code, consumed.code_verifier)
             guard()
-            native, directory, strategy = self._directory_inputs(operation)
+            native, directory, strategy = self._directory_inputs(
+                operation, reviewed=consumed.context.invite is not None
+            )
             guard()
+            if consumed.context.invite is not None:
+                activation = copy(self._account_activation)
+                activation._tokens = RedisInvitationTokenStore(redis=self._redis_client)
+                coordinator = CasdoorInvitedLocalLoginCoordinatorService(
+                    ordinary=coordinator, activation=activation
+                )
             try:
                 outcome = coordinator._coordinate_local_login(
                     consumed=consumed,
@@ -688,6 +806,7 @@ class CasdoorLocalHttpService:
                 correlation,
                 outcome.tokens,
                 phases,
+                provenance=outcome.provenance,
             )
         except Exception as error:
             public = self._public_error(error, correlation, RequestAction.CALLBACK)

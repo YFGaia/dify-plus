@@ -2,11 +2,18 @@
 
 from datetime import datetime
 from typing import override
+from uuid import UUID
 
 from sqlalchemy import case, delete, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from models.account import Account, AccountIntegrate, AccountStatus, InvitationCode, InvitationCodeStatus
+from repositories.casdoor_audit_repository_extend import CasdoorAuditRepository, _reservation_fence_summary
+from repositories.casdoor_avatar_file_guard_repository_extend import (
+    CasdoorAvatarFileGuardConflict,
+    CasdoorAvatarFileGuardRepository,
+)
+from services.account_errors import AvatarFileNotFoundError
 from services.account_email import normalize_email
 from services.account_login_service import ConsoleAuthAccountRepository
 from services.account_ports import AccountRepository
@@ -107,9 +114,47 @@ class SQLAlchemyAccountRepository(AccountRepository, ConsoleAuthAccountRepositor
     @override
     def update_profile(self, account_id: str, changes: AccountProfileChanges) -> AccountSnapshot | None:
         with self._session_factory.begin() as session:
-            account = session.get(Account, account_id)
+            avatar_id = None
+            if changes.avatar is not None:
+                try:
+                    avatar_id = UUID(changes.avatar)
+                except (ValueError, TypeError, AttributeError):
+                    pass
+            denied_avatar = False
+            if avatar_id is not None:
+                try:
+                    guard = CasdoorAvatarFileGuardRepository(session).lock_or_create(avatar_id)
+                except CasdoorAvatarFileGuardConflict:
+                    raise AvatarFileNotFoundError from None
+                try:
+                    # The permanent stage denies adoption even if receipt data was lost/damaged.
+                    if guard.stage in ("cleanup_pending", "cleanup_complete"):
+                        raise AvatarFileNotFoundError
+                    receipt = CasdoorAuditRepository(session)._read_avatar_reservation_fence(avatar_id)
+                    if guard.stage == "unbound":
+                        if receipt is not None:
+                            raise AvatarFileNotFoundError
+                    else:
+                        if receipt is None:
+                            raise AvatarFileNotFoundError
+                        data = _reservation_fence_summary(receipt["summary_json"])
+                        if (
+                            data["references"]["intent_id"] != str(guard.intent_id)
+                            or data["references"]["attempt_id"] != str(guard.attempt_id)
+                            or data["guard_version"] != guard.version
+                        ):
+                            raise AvatarFileNotFoundError
+                except (ValueError, AvatarFileNotFoundError, TypeError, RecursionError, OverflowError):
+                    denied_avatar = True
+            account = (
+                session.get(Account, account_id, with_for_update=True)
+                if avatar_id is not None
+                else session.get(Account, account_id)
+            )
             if account is None:
                 return None
+            if denied_avatar:
+                raise AvatarFileNotFoundError
 
             if changes.name is not None:
                 account.name = changes.name

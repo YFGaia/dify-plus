@@ -1,8 +1,9 @@
-"""Pure, pinned token and raw identity validation; no login or account mutation.
+"""Pure token and raw identity validation; no login or account mutation.
 
 ID Token and native access JWT have distinct entry points and supported shapes.
-Native layout requires server-owned evidence linkage; the SDK does not establish
-that layout. Raw directory roles never become authorization in this module.
+The server selects the supported native layout; every token is still verified
+against the configured issuer, audience, nonce, signature and identity. Raw
+directory roles never become authorization in this module.
 """
 
 import base64
@@ -137,10 +138,11 @@ class NativeTokenSchema(StrEnum):
 
 @dataclass(frozen=True)
 class NativeTokenContract:
-    """Evidence references, not automatic proof/activation or a public setting.
+    """Server-selected supported native token layout, bound to saved config.
 
-    G0-B must independently attest the actual release and this exact flat layout.
-    No supported contract is inferred from SDK examples or an unverified token.
+    Optional fingerprints are retained only for the separate legacy reviewed
+    profile. The ordinary login and diagnostic path uses the code-supported
+    schema with both unset; no synthetic evidence is created or accepted.
     """
 
     schema: NativeTokenSchema
@@ -148,8 +150,8 @@ class NativeTokenContract:
     organization: str
     application: str
     client_id: str
-    release_fingerprint: str
-    schema_proof_fingerprint: str
+    release_fingerprint: str | None = None
+    schema_proof_fingerprint: str | None = None
 
 
 @dataclass(frozen=True, repr=False)
@@ -388,9 +390,13 @@ class ClaimsValidator:
             or contract.schema != NativeTokenSchema.FLAT_USER_V1
             or (contract.expected_issuer, contract.organization, contract.application, contract.client_id)
             != (self._issuer, self._organization, self._application, self._client_id)
-            or not all(
-                type(v) is str and re.fullmatch(r"[0-9a-f]{64}", v)
-                for v in (contract.release_fingerprint, contract.schema_proof_fingerprint)
+            or (contract.release_fingerprint is None) != (contract.schema_proof_fingerprint is None)
+            or (
+                contract.release_fingerprint is not None
+                and not all(
+                    type(v) is str and re.fullmatch(r"[0-9a-f]{64}", v)
+                    for v in (contract.release_fingerprint, contract.schema_proof_fingerprint)
+                )
             )
         ):
             _fail("native_contract_unknown", CasdoorErrorCode.CONFIG_CONFLICT)
@@ -420,8 +426,8 @@ class ClaimsValidator:
         """Fixed token-response slots, never fall back from id_token to access_token.
 
         JWT custom fields cannot cryptographically prove token purpose. The
-        validated OAuth response slots, nonce and independent native contract
-        establish the supported protocol boundary; live release proof is G0-B.
+        validated OAuth response slots, nonce and server-selected native
+        contract establish the supported protocol boundary.
         """
         from core.casdoor.gateway import RawTokens
 

@@ -121,8 +121,10 @@ def _proof_join(value):
 
 
 def _validate(value):
-    _closed(value, _TOP_FIELDS)
-    _require(type(value["schema_version"]) is int and value["schema_version"] == 1)
+    _require(type(value) is dict and type(value.get("schema_version")) is int)
+    version = value["schema_version"]
+    _require(version in (1, 2))
+    _closed(value, _TOP_FIELDS if version == 1 else (*_TOP_FIELDS, "withdrawals"))
     _require(type(value["receipt_kind"]) is str and value["receipt_kind"] == RECEIPT_KIND)
     refs = value["references"]
     _closed(refs, REFERENCE_FIELDS)
@@ -149,11 +151,20 @@ def _validate(value):
         _require(type(result["outcome"]) is str and result["outcome"] in ("applied", "noop", "preserved"))
         for name in ("membership_created", "role_changed", "metadata_changed", "membership_regranted"):
             _require(type(result[name]) is bool)
-        _require(result["membership_regranted"] is False)
+        if version == 1:
+            _require(result["membership_regranted"] is False)
+        elif result["membership_regranted"]:
+            _require(result["ownership_decision"] == "controlled_withdrawn")
+            _require(result["membership_id"] is not None and not result["membership_created"])
+            _require(result["outcome"] == "noop" and not result["role_changed"] and not result["metadata_changed"])
         if result["workspace_id"] == refs["workspace_id"]:
             _require(result["join_id"] == refs["invitation_join_id"])
         workspaces.append(result["workspace_id"])
     _require(workspaces == sorted(set(workspaces)))
+    if version == 2:
+        from core.casdoor.invited_controlled_write_receipt import validate_controlled_withdrawals
+
+        validate_controlled_withdrawals(value)
 
 
 def _unique(pairs):

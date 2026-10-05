@@ -284,6 +284,8 @@ def _update_account_profile(request_context: RequestContext, changes: AccountPro
         account = application_services().accounts.profile.update(request_context, changes)
     except account_errors.AccountNotFoundError as error:
         raise AccountNotFound() from error
+    except account_errors.AvatarFileNotFoundError as error:
+        raise NotFound("Avatar file not found") from error
     return dump_response(AccountResponse, account)
 
 

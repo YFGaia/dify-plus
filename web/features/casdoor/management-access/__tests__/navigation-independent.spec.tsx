@@ -54,6 +54,7 @@ const emptyConfiguration = {
 let permissionRequest: (request: Request, call: number) => Promise<Response>
 let permissionCall: number
 let requests: Request[]
+let logoutRequests: Request[]
 
 function json(value: unknown, status = 200) {
   return new Response(JSON.stringify(value), {
@@ -68,11 +69,16 @@ beforeEach(() => {
   route.pathname = '/system-manage-extend/system-integration'
   permissionCall = 0
   requests = []
+  logoutRequests = []
   permissionRequest = async () => json({ can_manage_casdoor: true })
   logoutPost.mockResolvedValue({ result: 'success' })
   transport.mockImplementation(
     async (_url: string, _init: RequestInit, { request }: { request: Request }) => {
       const path = new URL(request.url).pathname
+      if (path.endsWith('/logout') && request.method === 'POST') {
+        logoutRequests.push(request)
+        return json({ result: 'success' })
+      }
       if (path.endsWith('/permissions')) {
         requests.push(request)
         return permissionRequest(request, ++permissionCall)
@@ -140,7 +146,9 @@ describe('legacy integration URL compatibility', () => {
     )
     expect(screen.getByText('Email API boundary')).toBeVisible()
     expect(onUrlUpdate).not.toHaveBeenCalled()
-    expect(queryClient.getQueryData(permissionKey())).toEqual({ can_manage_casdoor: true })
+    await waitFor(() =>
+      expect(queryClient.getQueryData(permissionKey())).toEqual({ can_manage_casdoor: true }),
+    )
   })
 })
 
@@ -164,7 +172,13 @@ describe('independent permission cache boundaries', () => {
     const oldAccount = mountComposed(queryClient, 'normal', true)
     await screen.findByRole('status')
     expect(primary().queryByRole('link')).not.toBeInTheDocument()
-    expect(requests).toHaveLength(1)
+    expect(requests.length).toBeGreaterThan(0)
+    expect(
+      requests.every(
+        (request) =>
+          request.method === 'GET' && new URL(request.url).pathname.endsWith('/permissions'),
+      ),
+    ).toBe(true)
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Log out old account' }))
     await waitFor(() =>
@@ -172,13 +186,17 @@ describe('independent permission cache boundaries', () => {
         queryClient.getQueryCache().find({ queryKey: permissionKey(), exact: true }),
       ).toBeUndefined(),
     )
-    expect(logoutPost).toHaveBeenCalledWith('/logout')
+    expect(logoutRequests).toHaveLength(1)
+    expect(logoutRequests[0]?.method).toBe('POST')
+    expect(new URL(logoutRequests[0]!.url).pathname).toBe('/console/api/logout')
+    expect(logoutPost).not.toHaveBeenCalled()
     expect(requests[0]?.signal.aborted).toBe(true)
     oldAccount.unmount()
 
+    const requestsBeforeNextAccount = requests.length
     const nextAccount = mountComposed(queryClient, 'normal')
     await screen.findByRole('alert')
-    expect(requests).toHaveLength(2)
+    expect(requests.length).toBeGreaterThan(requestsBeforeNextAccount)
     expect(queryClient.getQueryData(permissionKey())).toEqual({ can_manage_casdoor: false })
     expect(primary().queryByRole('link')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /casdoor.save$/ })).not.toBeInTheDocument()

@@ -14,19 +14,20 @@ from typing import Literal
 from uuid import UUID
 
 from core.casdoor.avatar_termination import (
-    _enter_avatar_storage,
     _fetch_before_storage,
     _normalize_before_storage,
     _register_committed_avatar_claim,
     _seal_pre_storage,
     _start_pre_storage,
+    _store_avatar_observed,
+    _attach_avatar_observed,
+    _run_avatar_cleanup,
 )
 from core.casdoor.crypto import EncryptionContext, EncryptionPurpose
 from repositories.casdoor_avatar_repository_extend import CasdoorAvatarRepository
 from sqlalchemy.orm import Session, sessionmaker
 
 from services.casdoor_configuration_service_extend import CasdoorConfigurationService
-from services.file_service import FileService
 
 
 @dataclass(frozen=True)
@@ -261,17 +262,12 @@ class CasdoorAvatarConsumerService:
                         raise _Stop(reason)
                     budget.check(fresh.lease_expires_at)
                     reason = "storage_unknown"
-                    _enter_avatar_storage(termination)
-                    stored = FileService.store_reserved_avatar(authority.reservation, normalized)
+                    stored = _store_avatar_observed(termination, authority.reservation, normalized, budget)
                     budget.check()
                     if stored != "stored":
                         raise _Stop(reason)
                     reason = "attachment_lost"
-                    attached = self._root(
-                        invocation,
-                        lambda repo: repo.recheck_and_attach(attempt, normalized, now=budget.check()),
-                        write=True,
-                    )
+                    attached = _attach_avatar_observed(termination, self, attempt, normalized, budget)
                     if attached.commit_attempted:
                         # Never trust attach's return, including an acknowledged commit.
                         reason = "commit_unknown"
@@ -295,6 +291,8 @@ class CasdoorAvatarConsumerService:
             invocation.latch(error)
         # Finish in a separate root, outside original handlers and private scopes.
         confirmed = False
+        if attempt is not None and outcome.code != "applied" and invocation.signal is None:
+            confirmed = _run_avatar_cleanup(termination, self, budget)
         if attempt is not None and outcome.code != "applied" and invocation.signal is None:
             capability = _seal_pre_storage(termination)
             if capability is not None:
@@ -329,3 +327,6 @@ class CasdoorAvatarConsumerService:
         if invocation.signal == "exit":
             raise SystemExit(1)
         return outcome
+
+
+_AVATAR_ROOT_OWNER = CasdoorAvatarConsumerService._root

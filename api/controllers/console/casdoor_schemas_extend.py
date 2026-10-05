@@ -13,17 +13,6 @@ from datetime import datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-    SecretStr,
-    StrictBool,
-    StrictStr,
-    field_validator,
-    model_validator,
-)
-
 from core.casdoor.configuration import (
     ButtonText,
     CasdoorConfiguration,
@@ -35,6 +24,16 @@ from core.casdoor.configuration import (
 )
 from core.casdoor.errors import CasdoorDecisionReason, CasdoorErrorCode
 from fields.base import ResponseModel
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SecretStr,
+    StrictBool,
+    StrictStr,
+    field_validator,
+    model_validator,
+)
 
 ETag = Annotated[int, Field(strict=True, ge=0)]
 
@@ -46,6 +45,74 @@ class CasdoorPayload(BaseModel):
 class CasdoorResponse(ResponseModel):
     # Fail closed on accidental fields instead of silently dropping PII or tokens.
     model_config = ConfigDict(extra="forbid", hide_input_in_errors=True, validate_default=True)
+
+
+class CasdoorLocalMembershipTarget(CasdoorPayload):
+    identity_id: UUID
+    workspace_id: UUID
+
+
+class CasdoorLocalMembershipReviewPayload(CasdoorLocalMembershipTarget):
+    operation: Literal["release", "adopt"]
+    etag: ETag
+
+
+class CasdoorLocalMembershipMutationPayload(CasdoorPayload):
+    review_id: Annotated[StrictStr, Field(pattern=r"^[A-Za-z0-9_-]{43}$")]
+    etag: ETag
+
+
+class CasdoorLocalMembershipInspectionResponse(CasdoorResponse):
+    identity_id: UUID
+    workspace_id: UUID
+    account_id: UUID
+    etag: ETag
+    current_role: TargetRole
+    ownership: Literal["managed", "local_override", "released", "unmanaged"]
+    local_no_intent: StrictBool
+
+
+class CasdoorLocalMembershipReviewResponse(CasdoorResponse):
+    review_id: Annotated[StrictStr, Field(pattern=r"^[A-Za-z0-9_-]{43}$")]
+    etag: ETag
+    operation: Literal["release", "adopt"]
+    current_role: TargetRole
+    target_role: TargetRole
+    expires_in: Literal[60]
+
+
+class CasdoorLocalMembershipMutationResponse(CasdoorResponse):
+    status: Literal["released", "adopted"]
+    membership_id: UUID
+    ownership_epoch: ETag
+
+
+class CasdoorLocalMembershipListQuery(CasdoorPayload):
+    after_identity_id: UUID | None = None
+    after_workspace_id: UUID | None = None
+    limit: Annotated[int, Field(strict=True, ge=1, le=50)] = 20
+
+    @model_validator(mode="after")
+    def paired_cursor(self):
+        if (self.after_identity_id is None) != (self.after_workspace_id is None):
+            raise ValueError("cursor_pair_required")
+        return self
+
+
+class CasdoorLocalMembershipCandidateResponse(CasdoorResponse):
+    identity_id: UUID
+    workspace_id: UUID
+    account_id: UUID
+    account_name: ExactName
+    workspace_name: ExactName
+    current_role: Literal["owner", "admin", "editor", "normal", "dataset_operator"]
+
+
+class CasdoorLocalMembershipListResponse(CasdoorResponse):
+    items: Annotated[list[CasdoorLocalMembershipCandidateResponse], Field(max_length=50)]
+    has_more: StrictBool
+    next_identity_id: UUID | None
+    next_workspace_id: UUID | None
 
 
 class CasdoorDisplayResponse(CasdoorResponse):
@@ -125,6 +192,7 @@ class CasdoorRevisionResponse(CasdoorResponse):
     secret_configured: StrictBool
     certificate_summaries: tuple[CasdoorCertificateSummaryResponse, ...] = Field(default=(), max_length=2)
     validation: tuple[CasdoorValidationSummaryResponse, ...] = Field(default=(), max_length=2)
+    diagnostic: "CasdoorDraftDiagnosticPreviewResponse | None" = None
 
 
 class CasdoorConfigurationResponse(CasdoorResponse):
@@ -197,8 +265,18 @@ class CasdoorStaticValidationResponse(CasdoorResponse):
 
 
 class CasdoorTestLoginResponse(CasdoorResponse):
-    status: Literal["blocked"]
-    reason: Literal["deployment_proof_missing", "live_test_not_wired"]
+    status: Literal["blocked", "started"]
+    reason: Literal["deployment_proof_missing", "live_test_not_wired"] | None = None
+    handoff: "CasdoorNavigationResponse | None" = None
+
+    @model_validator(mode="after")
+    def consistent_navigation(self) -> "CasdoorTestLoginResponse":
+        if self.status == "started":
+            if self.handoff is None or self.reason is not None:
+                raise ValueError("started requires only local navigation")
+        elif self.reason is None or self.handoff is not None:
+            raise ValueError("blocked requires only a safe reason")
+        return self
 
 
 class CasdoorManagementErrorResponse(CasdoorResponse):
@@ -307,6 +385,23 @@ class CasdoorDiagnosticResponse(CasdoorResponse):
     decisions: tuple[CasdoorWorkspaceDecisionResponse, ...] = Field(default=(), max_length=100)
 
 
+class CasdoorDraftWorkspaceTargetResponse(CasdoorResponse):
+    """Desired permission preview; never claims local membership or a grant."""
+
+    workspace_id: UUID
+    target_role: TargetRole
+    reason: CasdoorDecisionReason
+
+
+class CasdoorDraftDiagnosticPreviewResponse(CasdoorResponse):
+    revision_id: UUID
+    namespace_id: UUID
+    correlation_id: UUID
+    effective_role_count: int = Field(ge=0, le=2000)
+    stages: tuple[CasdoorDiagnosticStageResponse, ...] = Field(max_length=7)
+    targets: tuple[CasdoorDraftWorkspaceTargetResponse, ...] = Field(max_length=100)
+
+
 class CasdoorProfilePayload(CasdoorPayload):
     """Name-only local request; role/email/password/quota remain separate owners."""
 
@@ -319,6 +414,25 @@ class CasdoorLinkIdentityPayload(CasdoorPayload):
 
 class CasdoorUnlinkIdentityPayload(CasdoorPayload):
     """Proof is bound server-side to the current account, identity and action."""
+
+
+class CasdoorIdentityActionsResponse(CasdoorResponse):
+    link: StrictBool
+    reauthenticate: StrictBool
+    unlink: StrictBool
+    reason: (
+        Literal[
+            "reauthentication_unavailable",
+            "reauthentication_required",
+            "other_login_unavailable",
+            "managed_history_requires_release",
+        ]
+        | None
+    ) = None
+
+
+class CasdoorIdentityUnlinkedResponse(CasdoorResponse):
+    status: Literal["unlinked"]
 
 
 class CasdoorProfileSyncResponse(CasdoorResponse):
@@ -342,6 +456,7 @@ class CasdoorSessionResponse(CasdoorResponse):
     source: Literal["casdoor", "local_only"]
     verified: StrictBool
     rp_logout_available: StrictBool = False
+    expires_at: datetime | None = None
 
     @model_validator(mode="after")
     def verified_source(self) -> "CasdoorSessionResponse":
@@ -382,3 +497,55 @@ class CasdoorLogoutResponse(CasdoorResponse):
         if (self.status == "handoff_ready") != (self.handoff is not None):
             raise ValueError("logout status and handoff must agree")
         return self
+
+
+class CasdoorConsoleLogoutResponse(CasdoorResponse):
+    result: Literal["success"] = "success"
+    casdoor_logout: CasdoorLogoutResponse | None = None
+
+
+class CasdoorRPLogoutDiagnosticResponse(CasdoorResponse):
+    revision_id: UUID
+    namespace_id: UUID
+    profile_available: StrictBool = False
+    status: Literal["not_run", "passed", "unknown"] = "unknown"
+    checked_at: datetime | None = None
+    expires_at: datetime | None = None
+
+    @model_validator(mode="after")
+    def matching_observation(self):
+        if self.status == "passed":
+            if (
+                not self.profile_available
+                or self.checked_at is None
+                or self.expires_at is None
+                or self.checked_at >= self.expires_at
+            ):
+                raise ValueError("passed requires a bounded protocol observation")
+        elif self.checked_at is not None or self.expires_at is not None:
+            raise ValueError("unavailable observation has no freshness claim")
+        return self
+
+
+class CasdoorRPLogoutStatusQuery(CasdoorPayload):
+    revision_id: UUID
+
+
+# Resolve late-defined wire models here, independently of controller registration
+# or a prior test importing/rebuilding the same classes in its process.
+CasdoorRevisionResponse.model_rebuild(_types_namespace=globals())
+CasdoorConfigurationResponse.model_rebuild(_types_namespace=globals())
+CasdoorTestLoginResponse.model_rebuild(_types_namespace=globals())
+
+
+class CasdoorNamespaceResetReviewResponse(CasdoorResponse):
+    review_id: Annotated[StrictStr, Field(pattern=r"^[A-Za-z0-9_-]{43}$")]
+    namespace_id: UUID
+    etag: ETag
+    expires_in: Literal[60]
+    credential_check: Literal["format_only"]
+
+
+class CasdoorNamespaceResetMutationPayload(CasdoorPayload):
+    review_id: Annotated[StrictStr, Field(pattern=r"^[A-Za-z0-9_-]{43}$")]
+    etag: ETag

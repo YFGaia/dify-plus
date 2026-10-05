@@ -258,3 +258,14 @@ class CasdoorLeases:
         self._attempted = list(reversed(failed))
         self._held = []
         return not failed
+
+    @classmethod
+    def for_scopes(cls, redis_client, scopes, *, deadline, ttl_seconds=15.0):
+        """Fix the complete bounded union before acquisition; no late expansion."""
+        if type(scopes) is not tuple or not 1 <= len(scopes) <= 100:
+            raise CasdoorLeaseError("invalid_scope")
+        if any(type(scope) is not CasdoorLeaseScope for scope in scopes):
+            raise CasdoorLeaseError("invalid_scope")
+        owner = cls(redis_client, scopes[0], deadline=deadline, ttl_seconds=ttl_seconds)
+        owner._keys = tuple(sorted({key for scope in scopes for key in scope.canonical_keys}))
+        return owner

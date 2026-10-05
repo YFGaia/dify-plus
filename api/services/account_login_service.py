@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Never, Protocol
 
 from constants.languages import get_valid_language, language_timezone_mapping
+
 from services import account_errors
 from services.account_ports import AccountPasswordHasher
 from services.entities.account_login_entities import (
@@ -76,6 +77,16 @@ class AccountSessionGateway(Protocol):
     def resolve_refresh_token(self, refresh_token: str) -> str | None: ...
 
     def rotate(self, *, refresh_token: str, account_id: str) -> AuthTokenPair: ...
+
+
+class SessionRotationObserver(Protocol):
+    """Optional request-owned provenance, never refresh authentication authority."""
+
+    def before_rotation(self, *, refresh_token: str, account_id: str) -> None: ...
+
+    def after_rotation(self, *, refresh_token: str, account_id: str) -> None: ...
+
+    def unavailable(self) -> None: ...
 
 
 class AccountRefreshPreparationGateway(Protocol):
@@ -307,7 +318,7 @@ class ConsoleAuthenticationService:
         self._security.reset_login_failures(normalized_email)
         return token_pair
 
-    def refresh(self, refresh_token: str) -> AuthTokenPair:
+    def refresh(self, refresh_token: str, *, observer: SessionRotationObserver | None = None) -> AuthTokenPair:
         account_id = self._sessions.resolve_refresh_token(refresh_token)
         if account_id is None:
             raise account_errors.InvalidRefreshTokenError("Invalid refresh token")
@@ -316,7 +327,23 @@ class ConsoleAuthenticationService:
             raise account_errors.InvalidRefreshTokenError("Account is banned.")
         if refresh_status == RefreshAccountStatus.NOT_FOUND:
             raise account_errors.InvalidRefreshTokenError("Invalid account")
-        return self._sessions.rotate(refresh_token=refresh_token, account_id=account_id)
+        if observer is not None:
+            self._observe_rotation(observer, "before_rotation", refresh_token, account_id)
+        pair = self._sessions.rotate(refresh_token=refresh_token, account_id=account_id)
+        if observer is not None:
+            self._observe_rotation(observer, "after_rotation", pair.refresh_token, account_id)
+        return pair
+
+    @staticmethod
+    def _observe_rotation(observer, phase, refresh_token, account_id):
+        # Optional provenance cannot change the original refresh result or pair.
+        try:
+            getattr(observer, phase)(refresh_token=refresh_token, account_id=account_id)
+        except Exception:
+            try:
+                observer.unavailable()
+            except Exception:
+                pass
 
     def _password_login_completion(
         self,

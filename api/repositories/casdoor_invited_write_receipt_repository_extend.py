@@ -563,14 +563,119 @@ class CasdoorInvitedWriteReceiptRepository:
                     "fence_epoch": value["fence_epoch"],
                 }
                 _require(history.desired_roles_json == _canonical(desired))
-            else:
-                _require(item["membership_id"] is None and item["outcome"] == "preserved")
-                _require(not item["role_changed"] and not item["metadata_changed"])
-                _require(
-                    item["ownership_decision"]
-                    == ("owner_protected" if join.role is TenantAccountRole.OWNER else "preserve_unmanaged")
+            elif item["membership_regranted"]:
+                from repositories.casdoor_invited_controlled_history_repository_extend import controlled_regrant_fact
+
+                history = details.get(item["membership_id"])
+                _require(history is not None and history.id not in used)
+                controlled_regrant_fact(self, scope, value, item, history, join)
+                used.add(history.id)
+            elif item["ownership_decision"] == "managed_current":
+                from core.casdoor.ownership import decide_ownership
+                from repositories.casdoor_membership_repository_extend import CasdoorMembershipRepository
+
+                history = details.get(item["membership_id"])
+                _require(history is not None and history.id not in used)
+                used.add(history.id)
+                actual = MembershipObservation(
+                    UUID(join.tenant_id), UUID(join.account_id), UUID(join.id), join.role, MembershipBackend.LOCAL
                 )
-                _require(not any(row.workspace_id == join.tenant_id for row in histories))
+                _require(item["outcome"] in ("applied", "noop"))
+                if item["role_changed"]:
+                    _require(item["outcome"] == "applied" and item["metadata_changed"] is True)
+                _require(
+                    (
+                        history.namespace_id,
+                        history.identity_id,
+                        history.account_id,
+                        history.workspace_id,
+                        history.join_id,
+                    )
+                    == (refs["namespace_id"], refs["identity_id"], refs["account_id"], item["workspace_id"], join.id)
+                )
+                _require(
+                    history.desired_generation == generation
+                    and history.revision_id == refs["revision_id"]
+                    and history.finalization is CasdoorFinalizationState.FINALIZED
+                    and history.tombstone is False
+                )
+                _require(
+                    decide_ownership(actual, CasdoorMembershipRepository._snapshot(history)).value == "managed_current"
+                )
+                _require(
+                    history.last_applied_roles_json == role_baseline_json(actual)
+                    and history.last_applied_fingerprint == roles_fingerprint(actual)
+                )
+                # E proves canonical current SQL facts, not the already-consumed
+                # signed role snapshot. The original producing guard and F plan
+                # owner separately verify this exact reason against sealed roles.
+                desired = _strict_json(
+                    history.desired_roles_json,
+                    {"schema_version", "backend", "target_role", "builtin_id", "role_ids", "reason", "fence_epoch"},
+                )
+                reason = CasdoorDecisionReason(desired["reason"])
+                if reason is CasdoorDecisionReason.ROLE_MAPPING:
+                    mapping = next(
+                        (m for m in scope.configuration.workspace_mappings if str(m.workspace_id) == join.tenant_id),
+                        None,
+                    )
+                    _require(mapping is not None and getattr(mapping, join.role.value, None) is not None)
+                else:
+                    _require(
+                        reason is CasdoorDecisionReason.DEFAULT_NORMAL_FALLBACK
+                        and join.tenant_id == str(scope.configuration.default_workspace_id)
+                        and join.role is TenantAccountRole.NORMAL
+                    )
+                _require(
+                    history.desired_roles_json
+                    == _canonical(
+                        {
+                            "schema_version": 1,
+                            "backend": "local",
+                            "target_role": join.role.value,
+                            "builtin_id": join.role.value,
+                            "role_ids": [join.role.value],
+                            "reason": reason.value,
+                            "fence_epoch": value["fence_epoch"],
+                        }
+                    )
+                )
+            else:
+                _require(item["outcome"] == "preserved" and not item["role_changed"] and not item["metadata_changed"])
+                matching = tuple(row for row in histories if row.workspace_id == join.tenant_id)
+                if matching:
+                    from core.casdoor.ownership import decide_ownership
+                    from repositories.casdoor_membership_repository_extend import CasdoorMembershipRepository
+
+                    _require(len(matching) == 1 and item["membership_id"] == matching[0].id)
+                    history = matching[0]
+                    actual = MembershipObservation(
+                        UUID(join.tenant_id), UUID(join.account_id), UUID(join.id), join.role, MembershipBackend.LOCAL
+                    )
+                    _require(
+                        (history.namespace_id, history.identity_id, history.account_id, history.join_id)
+                        == (refs["namespace_id"], refs["identity_id"], refs["account_id"], join.id)
+                        and history.finalization is CasdoorFinalizationState.FINALIZED
+                    )
+                    decision = decide_ownership(actual, CasdoorMembershipRepository._snapshot(history))
+                    _require(
+                        decision.value == item["ownership_decision"]
+                        and decision.value in ("owner_protected", "preserve_override")
+                    )
+                    used.add(history.id)
+                else:
+                    _require(item["membership_id"] is None)
+                    _require(
+                        item["ownership_decision"]
+                        == ("owner_protected" if join.role is TenantAccountRole.OWNER else "preserve_unmanaged")
+                    )
+        for item in value.get("withdrawals", ()):
+            from repositories.casdoor_invited_controlled_history_repository_extend import controlled_withdrawal_fact
+
+            history = details.get(item["membership_id"])
+            _require(history is not None and history.id not in used)
+            controlled_withdrawal_fact(self, value, item, history, scope)
+            used.add(history.id)
         _require(used == set(details))
 
     def observe(self, attempt):

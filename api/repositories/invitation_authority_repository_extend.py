@@ -315,6 +315,89 @@ class InvitationAuthorityRepository:
         row = self._issuance(session, issuance_id)
         return _issuance_record(row) if row else None
 
+    def get_issuance_by_token_digest(self, session: Session, *, token_digest: str) -> InvitationIssuanceRecord | None:
+        """Bounded nonlocking SQL facts; digest possession grants no authority.
+
+        Header reads bound row count and both TEXT byte lengths before fetching
+        their contents. Mutation owners retain their lifecycle-first lock order.
+        P1 payload hashing uses the original stored bytes, not reserialization.
+        """
+        _digest(token_digest)
+        _require(
+            isinstance(session, Session)
+            and session.is_active
+            and session.in_transaction()
+            and not session.in_nested_transaction()
+            and not session.new
+            and not session.dirty
+            and not session.deleted
+        )
+        model = InvitationAuthorityIssuanceExtend
+        texts = (model.payload_json, model.consumption_receipt_json)
+        lengths = tuple(
+            sa.func.length(sa.cast(column, sa.LargeBinary))
+            if session.get_bind().dialect.name == "sqlite"
+            else sa.func.octet_length(column)
+            for column in texts
+        )
+        with session.no_autoflush:
+            headers = tuple(
+                session.execute(
+                    sa.select(model.issuance_id, *lengths).where(model.token_digest == token_digest).limit(2)
+                )
+            )
+            _require(len(headers) <= 1)
+            if not headers:
+                return None
+            _require(all(size is None or type(size) is int and 0 <= size <= 8192 for size in tuple(headers[0])[1:]))
+            rows = tuple(
+                session.execute(
+                    sa.select(*model.__table__.columns)
+                    .where(
+                        model.token_digest == token_digest,
+                        model.issuance_id == headers[0].issuance_id,
+                        *(
+                            sa.or_(column.is_(None), length <= 8192)
+                            for column, length in zip(texts, lengths, strict=True)
+                        ),
+                    )
+                    .limit(1)
+                )
+            )
+            _require(len(rows) == 1)
+            row = rows[0]
+            data = _payload(row.payload_json)
+            authority = data["invitation_authority"]
+            _digest(row.payload_digest)
+            _require(sha256(row.payload_json.encode("utf-8")).hexdigest() == row.payload_digest)
+            expected = {
+                **{name: data[name] for name in _PAYLOAD_FIELDS - {"invitation_authority"}},
+                **{name: authority[name] for name in _AUTHORITY_FIELDS - {"schema_version"}},
+            }
+            _require(all(getattr(row, name) == value for name, value in expected.items()))
+            _require(row.token_digest == token_digest and type(row.requires_setup) is bool)
+            if row.actor_id is not None:
+                _uuid(row.actor_id)
+            _require(
+                all(type(value) is datetime and value.tzinfo is None for value in (row.created_at, row.updated_at))
+            )
+            _require(row.created_at <= row.updated_at)
+            if row.state == "issued":
+                _require(row.consumption_receipt_json is None and row.consumed_at is None)
+            else:
+                _require(
+                    row.state == "consumed" and type(row.consumed_at) is datetime and row.consumed_at.tzinfo is None
+                )
+                _require(row.created_at <= row.consumed_at <= row.updated_at)
+                receipt = _receipt(row.consumption_receipt_json)
+                _require(
+                    all(
+                        getattr(row, name) == receipt[name]
+                        for name in _RECEIPT_FIELDS - {"schema_version", "status", "operation_id", "key_digest"}
+                    )
+                )
+            return _issuance_record(row)
+
     def record_issuance(
         self, session: Session, *, payload_json: str, actor_id: str | None = None
     ) -> InvitationIssuanceRecord:

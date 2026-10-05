@@ -10,10 +10,11 @@ writer wiring, I13 remote completeness, I16 termination and real PG/MySQL races
 remain separate. Archived namespaces and unlinked historical identities survive.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field as dataclass_field
 from uuid import UUID
 
 import sqlalchemy as sa
+from core.casdoor.auth_transactions import AuthTransactionError
 from core.casdoor.manual_ownership import (
     ManualHistoryObservation,
     ManualMemberScope,
@@ -71,6 +72,8 @@ class _LockedState:
     histories: tuple
     intents: tuple
     revisions: tuple
+    _archived_facts: tuple = dataclass_field(default=(), repr=False)
+    _archived_history_ids: tuple[str, ...] = dataclass_field(default=(), repr=False)
 
 
 @dataclass(frozen=True, repr=False)
@@ -240,7 +243,10 @@ class CasdoorManualOwnershipRepository:
     def _read_locked(self, scopes: tuple[ManualMemberScope, ...]) -> _LockedState:
         # Fresh COLUMN rows avoid identity-map staleness and loading history TEXT.
         integrations = self._rows(
-            sa.select(Integration.id, Integration.slot, Integration.etag).order_by(Integration.id), 1
+            sa.select(Integration.id, Integration.slot, Integration.etag, Integration.active_revision_id).order_by(
+                Integration.id
+            ),
+            1,
         )
         namespaces = self._rows(
             sa.select(
@@ -260,19 +266,19 @@ class CasdoorManualOwnershipRepository:
         ns = {row.id: row for row in namespaces}
         if any(row.integration_id != integration_id or not self._epoch(row.fence_epoch) for row in namespaces):
             raise CasdoorManualOwnershipConflict()
+        account_ids = sorted({str(scope.account_id) for scope in scopes})
         # Discovery is a read under integration/namespace parents, not a history
         # lock ahead of account/identity. Detect set changes at final history read.
         discovery = self._rows(
-            sa.select(History.id, History.identity_id)
-            .where(self._scope_filter(History, scopes))
+            sa.select(History.id, History.identity_id, History.workspace_id)
+            .where(History.account_id.in_(account_ids))
             .order_by(History.namespace_id, History.account_id, History.workspace_id, History.id),
+            100,
             lock=False,
         )
         account_ids = sorted({str(scope.account_id) for scope in scopes})
-        workspace_ids = sorted({str(scope.workspace_id) for scope in scopes})
-        accounts = self._rows(
-            sa.select(Account.id, Account.status).where(Account.id.in_(account_ids)).order_by(Account.id)
-        )
+        workspace_ids = sorted({str(scope.workspace_id) for scope in scopes} | {row.workspace_id for row in discovery})
+        accounts = self._rows(sa.select(Account.id, Account.status).where(Account.id.in_(account_ids)).order_by(Account.id))
         if {row.id for row in accounts} != set(account_ids):
             raise CasdoorManualOwnershipConflict()
         historical_identity_ids = {row.identity_id for row in discovery}
@@ -290,11 +296,54 @@ class CasdoorManualOwnershipRepository:
             for row in identities
         ):
             raise CasdoorManualOwnershipConflict()
-        workspaces = self._rows(
-            sa.select(Tenant.id, Tenant.status).where(Tenant.id.in_(workspace_ids)).order_by(Tenant.id)
-        )
+        workspaces = self._rows(sa.select(Tenant.id, Tenant.status).where(Tenant.id.in_(workspace_ids)).order_by(Tenant.id))
         if {row.id for row in workspaces} != set(workspace_ids):
             raise CasdoorManualOwnershipConflict()
+        archived_facts, archived_history_ids = [], set()
+        from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
+
+        factual = CasdoorLocalLifecycleRepository(self._session)
+        active_revision = (
+            self._session.execute(
+                sa.select(Revision.namespace_id).where(Revision.id == integrations[0].active_revision_id)
+            ).scalar_one_or_none()
+            if integrations
+            else None
+        )
+        for account_id in account_ids:
+            bound = [row for row in identities if row.account_id == account_id]
+            if len(bound) > 1:
+                current = [row for row in bound if row.namespace_id == active_revision]
+                if len(current) != 1:
+                    raise CasdoorManualOwnershipConflict()
+                try:
+                    archive = factual._archived_release_facts(
+                        account_id=account_id, namespace_id=active_revision, identity_id=current[0].id
+                    )
+                    archived_facts.extend(archive[0])
+                    archived_history_ids.update(archive[3])
+                    for scope in scopes:
+                        if str(scope.account_id) != account_id:
+                            continue
+                        present = self._session.execute(
+                            sa.select(History.id)
+                            .where(
+                                History.account_id == account_id,
+                                History.namespace_id == active_revision,
+                                History.workspace_id == str(scope.workspace_id),
+                            )
+                            .limit(2)
+                        ).all()
+                        if present:
+                            _current_id, facts = factual._adopted_current_refs(
+                                account_id=account_id,
+                                namespace_id=active_revision,
+                                identity_id=current[0].id,
+                                workspace_id=scope.workspace_id,
+                            )
+                            archived_facts.extend(facts[len(archive[0]) :])
+                except AuthTransactionError:
+                    raise CasdoorManualOwnershipConflict() from None
         joins = self._rows(
             sa.select(
                 TenantAccountJoin.id, TenantAccountJoin.account_id, TenantAccountJoin.tenant_id, TenantAccountJoin.role
@@ -335,7 +384,16 @@ class CasdoorManualOwnershipRepository:
             .where(self._scope_filter(History, scopes))
             .order_by(History.namespace_id, History.account_id, History.workspace_id, History.id)
         )
-        if {(row.id, row.identity_id) for row in histories} != {(row.id, row.identity_id) for row in discovery}:
+        if {(row.id, row.identity_id, row.workspace_id) for row in histories} != {
+            (row.id, row.identity_id, row.workspace_id)
+            for row in discovery
+            if any(
+                row.workspace_id == str(scope.workspace_id)
+                and row.identity_id
+                in {identity.id for identity in identities if identity.account_id == str(scope.account_id)}
+                for scope in scopes
+            )
+        }:
             raise CasdoorManualOwnershipConflict()
         intents = self._rows(
             sa.select(
@@ -401,15 +459,24 @@ class CasdoorManualOwnershipRepository:
         except (ValueError, TypeError, AttributeError):
             raise CasdoorManualOwnershipConflict() from None
         return _LockedState(
-            integrations, namespaces, accounts, identities, workspaces, joins, histories, intents, revisions
+            integrations,
+            namespaces,
+            accounts,
+            identities,
+            workspaces,
+            joins,
+            histories,
+            intents,
+            revisions,
+            tuple(sorted(archived_facts)),
+            tuple(sorted(archived_history_ids)),
         )
 
     @staticmethod
     def _epoch(value) -> bool:
         return type(value) is int and 0 <= value <= MAX_GENERATION
 
-    @staticmethod
-    def _inspect(scopes, kind, backend, state) -> tuple[ManualScopeInspection, ...]:
+    def _inspect(self, scopes, kind, backend, state) -> tuple[ManualScopeInspection, ...]:
         inspections = []
         for scope in scopes:
             join = next(
@@ -430,6 +497,7 @@ class CasdoorManualOwnershipRepository:
                 )
                 for row in state.histories
                 if (row.account_id, row.workspace_id) == (str(scope.account_id), str(scope.workspace_id))
+                and row.id not in state._archived_history_ids
             )
             # A cross-scope malformed historical intent blocks the entire batch,
             # never gains permission through an incorrectly scoped association.

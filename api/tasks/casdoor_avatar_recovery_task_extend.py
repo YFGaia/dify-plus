@@ -1,4 +1,4 @@
-"""Default-off, initial-only outbox navigation under the installed FlaskTask."""
+"""Default-off initial and explicitly approved retry navigation in the FlaskTask."""
 
 from celery import shared_task
 from configs import dify_config

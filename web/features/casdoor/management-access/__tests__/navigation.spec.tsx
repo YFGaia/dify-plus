@@ -84,6 +84,7 @@ beforeEach(() => {
       const request = options.request
       requests.push(request)
       const path = new URL(request.url).pathname
+      if (path.endsWith('/logout')) return json({ result: 'success' })
       if (path.endsWith('/permissions')) {
         if (pending) return new Promise(() => {})
         return json(permission, responseStatus)
@@ -358,7 +359,12 @@ describe('Casdoor management admission through actual composed owners and genera
         view.client.getQueryCache().find({ queryKey: permissionKey(), exact: true }),
       ).toBeUndefined(),
     )
-    expect(logoutPost).toHaveBeenCalledWith('/logout')
+    expect(
+      requests
+        .filter((request) => new URL(request.url).pathname.endsWith('/logout'))
+        .map((request) => request.method),
+    ).toEqual(['POST'])
+    expect(logoutPost).not.toHaveBeenCalled()
     view.unmount()
     const next = mount({ queryClient: view.client })
     await screen.findByRole('alert')

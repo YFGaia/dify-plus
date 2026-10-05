@@ -41,6 +41,58 @@ export const zCasdoorDisablePayload = z.object({
 })
 
 /**
+ * CasdoorLocalMembershipInspectionResponse
+ */
+export const zCasdoorLocalMembershipInspectionResponse = z.object({
+  account_id: z.uuid(),
+  current_role: z.enum(['admin', 'editor', 'normal']),
+  etag: z.int().gte(0),
+  identity_id: z.uuid(),
+  local_no_intent: z.boolean(),
+  ownership: z.enum(['local_override', 'managed', 'released', 'unmanaged']),
+  workspace_id: z.uuid(),
+})
+
+/**
+ * CasdoorLocalMembershipMutationPayload
+ */
+export const zCasdoorLocalMembershipMutationPayload = z.object({
+  etag: z.int().gte(0),
+  review_id: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+})
+
+/**
+ * CasdoorLocalMembershipMutationResponse
+ */
+export const zCasdoorLocalMembershipMutationResponse = z.object({
+  membership_id: z.uuid(),
+  ownership_epoch: z.int().gte(0),
+  status: z.enum(['adopted', 'released']),
+})
+
+/**
+ * CasdoorLocalMembershipReviewPayload
+ */
+export const zCasdoorLocalMembershipReviewPayload = z.object({
+  etag: z.int().gte(0),
+  identity_id: z.uuid(),
+  operation: z.enum(['adopt', 'release']),
+  workspace_id: z.uuid(),
+})
+
+/**
+ * CasdoorLocalMembershipReviewResponse
+ */
+export const zCasdoorLocalMembershipReviewResponse = z.object({
+  current_role: z.enum(['admin', 'editor', 'normal']),
+  etag: z.int().gte(0),
+  expires_in: z.literal(60),
+  operation: z.enum(['adopt', 'release']),
+  review_id: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+  target_role: z.enum(['admin', 'editor', 'normal']),
+})
+
+/**
  * CasdoorPermissionsResponse
  */
 export const zCasdoorPermissionsResponse = z.object({
@@ -48,11 +100,118 @@ export const zCasdoorPermissionsResponse = z.object({
 })
 
 /**
+ * CasdoorNamespaceResetMutationPayload
+ */
+export const zCasdoorNamespaceResetMutationPayload = z.object({
+  etag: z.int().gte(0),
+  review_id: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+})
+
+/**
+ * CasdoorResetNamespacePayload
+ */
+export const zCasdoorResetNamespacePayload = z.object({
+  confirm_management_review: z.boolean(),
+  etag: z.int().gte(0),
+  namespace_id: z.uuid(),
+})
+
+/**
+ * CasdoorNamespaceResetReviewResponse
+ */
+export const zCasdoorNamespaceResetReviewResponse = z.object({
+  credential_check: z.literal('format_only'),
+  etag: z.int().gte(0),
+  expires_in: z.literal(60),
+  namespace_id: z.uuid(),
+  review_id: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
+})
+
+/**
+ * CasdoorRPLogoutDiagnosticResponse
+ */
+export const zCasdoorRpLogoutDiagnosticResponse = z.object({
+  checked_at: z.iso.datetime().nullish(),
+  expires_at: z.iso.datetime().nullish(),
+  namespace_id: z.uuid(),
+  profile_available: z.boolean().optional().default(false),
+  revision_id: z.uuid(),
+  status: z.enum(['not_run', 'passed', 'unknown']).optional().default('unknown'),
+})
+
+/**
+ * CasdoorRetrySyncPayload
+ */
+export const zCasdoorRetrySyncPayload = z.object({
+  intent_id: z.uuid(),
+})
+
+/**
+ * CasdoorAvatarRetryResponse
+ */
+export const zCasdoorAvatarRetryResponse = z.object({
+  intent_id: z.uuid(),
+  status: z.literal('pending'),
+})
+
+/**
+ * CasdoorNavigationResponse
+ *
+ * Opaque local handler path; the server validates/consumes the handoff.
+ */
+export const zCasdoorNavigationResponse = z.object({
+  handoff_path: z.string().min(1).max(2048),
+})
+
+/**
  * CasdoorTestLoginResponse
  */
 export const zCasdoorTestLoginResponse = z.object({
-  reason: z.enum(['deployment_proof_missing', 'live_test_not_wired']),
-  status: z.literal('blocked'),
+  handoff: zCasdoorNavigationResponse.nullish(),
+  reason: z.enum(['deployment_proof_missing', 'live_test_not_wired']).nullish(),
+  status: z.enum(['blocked', 'started']),
+})
+
+/**
+ * CasdoorLocalMembershipCandidateResponse
+ */
+export const zCasdoorLocalMembershipCandidateResponse = z.object({
+  account_id: z.uuid(),
+  account_name: z.string().min(1).max(255),
+  current_role: z.enum(['admin', 'dataset_operator', 'editor', 'normal', 'owner']),
+  identity_id: z.uuid(),
+  workspace_id: z.uuid(),
+  workspace_name: z.string().min(1).max(255),
+})
+
+/**
+ * CasdoorLocalMembershipListResponse
+ */
+export const zCasdoorLocalMembershipListResponse = z.object({
+  has_more: z.boolean(),
+  items: z.array(zCasdoorLocalMembershipCandidateResponse).max(50),
+  next_identity_id: z.uuid().nullable(),
+  next_workspace_id: z.uuid().nullable(),
+})
+
+/**
+ * CasdoorAvatarRetryTarget
+ */
+export const zCasdoorAvatarRetryTarget = z.object({
+  account_id: z.uuid(),
+  identity_id: z.uuid(),
+  intent_id: z.uuid(),
+  reason: z.enum(['fetch_failed', 'fetch_rejected', 'image_rejected']),
+  retry_eligible: z.literal(true),
+})
+
+/**
+ * CasdoorAvatarRetryTargetsResponse
+ */
+export const zCasdoorAvatarRetryTargetsResponse = z.object({
+  has_more: z.boolean(),
+  next_after: z.uuid().nullable(),
+  targets: z.array(zCasdoorAvatarRetryTarget),
 })
 
 /**
@@ -145,6 +304,23 @@ export const zCasdoorValidationSummaryResponse = z.object({
 })
 
 /**
+ * CasdoorDiagnosticStageResponse
+ */
+export const zCasdoorDiagnosticStageResponse = z.object({
+  code: zCasdoorErrorCode.nullish(),
+  stage: z.enum([
+    'configuration',
+    'identity',
+    'online_status',
+    'protocol',
+    'rbac',
+    'role_snapshot',
+    'workspace',
+  ]),
+  status: z.enum(['failed', 'not_run', 'passed', 'unknown']),
+})
+
+/**
  * RoleRef
  *
  * Two exact strings; names are never split, normalized or case-folded.
@@ -198,11 +374,42 @@ export const zCasdoorSaveConfigurationPayload = z.object({
 })
 
 /**
+ * CasdoorDecisionReason
+ *
+ * Successful authorization decisions, deliberately separate from error codes.
+ */
+export const zCasdoorDecisionReason = z.enum(['default_normal_fallback', 'role_mapping'])
+
+/**
+ * CasdoorDraftWorkspaceTargetResponse
+ *
+ * Desired permission preview; never claims local membership or a grant.
+ */
+export const zCasdoorDraftWorkspaceTargetResponse = z.object({
+  reason: zCasdoorDecisionReason,
+  target_role: z.enum(['admin', 'editor', 'normal']),
+  workspace_id: z.uuid(),
+})
+
+/**
+ * CasdoorDraftDiagnosticPreviewResponse
+ */
+export const zCasdoorDraftDiagnosticPreviewResponse = z.object({
+  correlation_id: z.uuid(),
+  effective_role_count: z.int().gte(0).lte(2000),
+  namespace_id: z.uuid(),
+  revision_id: z.uuid(),
+  stages: z.array(zCasdoorDiagnosticStageResponse).max(7),
+  targets: z.array(zCasdoorDraftWorkspaceTargetResponse).max(100),
+})
+
+/**
  * CasdoorRevisionResponse
  */
 export const zCasdoorRevisionResponse = z.object({
   certificate_summaries: z.array(zCasdoorCertificateSummaryResponse).max(2).optional().default([]),
   configuration: zCasdoorConfiguration,
+  diagnostic: zCasdoorDraftDiagnosticPreviewResponse.nullish(),
   namespace_id: z.uuid(),
   revision_id: z.uuid(),
   secret_configured: z.boolean(),
@@ -292,18 +499,131 @@ export const zPostSystemManageExtendIntegrationCasdoorDisableBody = zCasdoorDisa
  */
 export const zPostSystemManageExtendIntegrationCasdoorDisableResponse = zCasdoorDisableResponse
 
+export const zGetSystemManageExtendIntegrationCasdoorLocalMembershipQuery = z.object({
+  identity_id: z.uuid(),
+  workspace_id: z.uuid(),
+})
+
+/**
+ * Exact local membership inspection
+ */
+export const zGetSystemManageExtendIntegrationCasdoorLocalMembershipResponse =
+  zCasdoorLocalMembershipInspectionResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorLocalMembershipAdoptBody =
+  zCasdoorLocalMembershipMutationPayload
+
+/**
+ * Reviewed current target applied and managed
+ */
+export const zPostSystemManageExtendIntegrationCasdoorLocalMembershipAdoptResponse =
+  zCasdoorLocalMembershipMutationResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorLocalMembershipReleaseBody =
+  zCasdoorLocalMembershipMutationPayload
+
+/**
+ * Permissions retained; management released
+ */
+export const zPostSystemManageExtendIntegrationCasdoorLocalMembershipReleaseResponse =
+  zCasdoorLocalMembershipMutationResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorLocalMembershipReviewBody =
+  zCasdoorLocalMembershipReviewPayload
+
+/**
+ * One-use source-bound review
+ */
+export const zPostSystemManageExtendIntegrationCasdoorLocalMembershipReviewResponse =
+  zCasdoorLocalMembershipReviewResponse
+
+export const zGetSystemManageExtendIntegrationCasdoorLocalMembershipTargetsQuery = z.object({
+  after_identity_id: z.uuid().optional(),
+  after_workspace_id: z.uuid().optional(),
+  limit: z.int().gte(1).lte(50).optional().default(20),
+})
+
+/**
+ * Manager target navigation
+ */
+export const zGetSystemManageExtendIntegrationCasdoorLocalMembershipTargetsResponse =
+  zCasdoorLocalMembershipListResponse
+
 /**
  * Current account permission
  */
 export const zGetSystemManageExtendIntegrationCasdoorPermissionsResponse =
   zCasdoorPermissionsResponse
 
+export const zPostSystemManageExtendIntegrationCasdoorResetNamespaceBody =
+  zCasdoorNamespaceResetMutationPayload
+
+/**
+ * Archived old namespace; fresh disabled draft
+ */
+export const zPostSystemManageExtendIntegrationCasdoorResetNamespaceResponse =
+  zCasdoorConfigurationResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorResetNamespaceReviewBody =
+  zCasdoorResetNamespacePayload
+
+/**
+ * One-use clean LOCAL review; credential format only
+ */
+export const zPostSystemManageExtendIntegrationCasdoorResetNamespaceReviewResponse =
+  zCasdoorNamespaceResetReviewResponse
+
+export const zGetSystemManageExtendIntegrationCasdoorRpLogoutStatusQuery = z.object({
+  revision_id: z.uuid(),
+})
+
+/**
+ * Actual optional RP protocol observation
+ */
+export const zGetSystemManageExtendIntegrationCasdoorRpLogoutStatusResponse =
+  zCasdoorRpLogoutDiagnosticResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorSyncRetryBody = zCasdoorRetrySyncPayload
+
+/**
+ * Retry pending, no execution authority
+ */
+export const zPostSystemManageExtendIntegrationCasdoorSyncRetryResponse =
+  zCasdoorAvatarRetryResponse
+
+export const zGetSystemManageExtendIntegrationCasdoorSyncRetryTargetsQuery = z.object({
+  after: z.uuid().optional(),
+  limit: z.int().gte(1).lte(100).optional().default(20),
+})
+
+/**
+ * Manager retry targets
+ */
+export const zGetSystemManageExtendIntegrationCasdoorSyncRetryTargetsResponse =
+  zCasdoorAvatarRetryTargetsResponse
+
 export const zPostSystemManageExtendIntegrationCasdoorTestLoginBody = zCasdoorRevisionPayload
 
 /**
- * Draft login test blocked by missing real proof
+ * Draft diagnostic browser navigation or deployment block
  */
 export const zPostSystemManageExtendIntegrationCasdoorTestLoginResponse = zCasdoorTestLoginResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorTestReauthBody = zCasdoorRevisionPayload
+
+/**
+ * Local reviewed reauthentication diagnostic handoff
+ */
+export const zPostSystemManageExtendIntegrationCasdoorTestReauthResponse =
+  zCasdoorNavigationResponse
+
+export const zPostSystemManageExtendIntegrationCasdoorTestRpLogoutBody = zCasdoorRevisionPayload
+
+/**
+ * Draft diagnostic browser navigation or deployment block
+ */
+export const zPostSystemManageExtendIntegrationCasdoorTestRpLogoutResponse =
+  zCasdoorTestLoginResponse
 
 export const zPostSystemManageExtendIntegrationCasdoorValidateBody = zCasdoorRevisionPayload
 

@@ -11,6 +11,7 @@ there is no automatic commit retry or claim that an unknown commit rolled back.
 
 from collections.abc import Callable
 from datetime import datetime
+from dataclasses import replace
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -86,6 +87,7 @@ class CasdoorLocalLoginService:
         now: datetime | None = None,
         invitation: object = None,
         source: object = None,
+        _ordinary_attempt=None,
     ) -> LocalMembershipPersistence:
         """Persist actual B2A -> B3A -> optional I22 -> F12 in one fresh root.
 
@@ -149,6 +151,10 @@ class CasdoorLocalLoginService:
             if dify_config.RBAC_ENABLED is not False:
                 raise CasdoorLoginScopeConflict()
             _check_deadline(prepared.deadline)
+            if _ordinary_attempt is not None:
+                from repositories.casdoor_terminal_local_invitation_repository_extend import _ordinary_attempt_check
+
+                _ordinary_attempt_check(_ordinary_attempt, prepared, roles, leases)
             leases.ensure_owned()
             _check_deadline(prepared.deadline)
 
@@ -184,8 +190,17 @@ class CasdoorLocalLoginService:
                 raise CasdoorLoginScopeConflict()
             with session.begin():
                 root = session.get_transaction()
+                ordinary_guard = None
+                if _ordinary_attempt is not None:
+                    from repositories.casdoor_terminal_local_invitation_repository_extend import (
+                        _bind_ordinary_terminal_root,
+                        _ordinary_terminal_last,
+                    )
+
+                    ordinary_guard = _bind_ordinary_terminal_root(_ordinary_attempt, session, self._configuration_factory)
                 repository = CasdoorLoginScopeRepository(session, self._configuration_factory)
-                before = repository.prelock_and_recheck(prepared, discovered)
+                ordinary_kwargs = {"_ordinary_guard": ordinary_guard} if ordinary_guard is not None else {}
+                before = repository.prelock_and_recheck(prepared, discovered, **ordinary_kwargs)
                 # Old-scope removal must be noticed before even account activation.
                 current_identity = next(
                     (row for row in before.identities if row.namespace_id == str(prepared.key.namespace_id)), None
@@ -193,7 +208,7 @@ class CasdoorLocalLoginService:
                 withdrawal_ids, controlled_before = (), ()
                 if current_identity is not None:
                     withdrawal_ids, controlled_before = repository._classify_local_changes(
-                        before, mapping(before, UUID(current_identity.id))
+                        before, mapping(before, UUID(current_identity.id)), **ordinary_kwargs
                     )
                 elif before.histories:
                     raise CasdoorLoginScopeConflict()
@@ -214,6 +229,7 @@ class CasdoorLocalLoginService:
                     expected_generation=current_identity.sync_generation if current_identity else 0,
                     withdrawal_workspace_ids=withdrawal_ids,
                     correlation_id=correlation_id,
+                    **ordinary_kwargs,
                 )
                 session.flush()
                 guard()
@@ -226,8 +242,7 @@ class CasdoorLocalLoginService:
                 if profile is not None:
                     expected_name = (
                         prepared.plan.setup.name
-                        if prepared.plan.action
-                        in (AdmissionAction.CREATE_INITIALIZED, AdmissionAction.INITIALIZE_BOUND)
+                        if prepared.plan.action in (AdmissionAction.CREATE_INITIALIZED, AdmissionAction.INITIALIZE_BOUND)
                         else before.account.name
                     )
                     profile_outcome = CasdoorProfileRepository(
@@ -344,13 +359,11 @@ class CasdoorLocalLoginService:
                         own_new_account_id=prepared.account_id,
                         collision_email=prepared.plan.creation_email,
                     )
-                    if (
-                        collision.collision_knowledge is not CollisionKnowledge.COMPLETE
-                        or collision.collision_account_ids
-                    ):
+                    if collision.collision_knowledge is not CollisionKnowledge.COMPLETE or collision.collision_account_ids:
                         raise CasdoorLoginScopeConflict()
                 guard()
                 controlled_kwargs = {"controlled_before": controlled_before} if controlled_before else {}
+                controlled_kwargs.update(ordinary_kwargs)
                 if profile is None:
                     repository.recheck_before_commit(prepared, before, plan, result, **controlled_kwargs)
                 else:
@@ -359,9 +372,12 @@ class CasdoorLocalLoginService:
                     )
                     if read_profile()[0] != post_profile:
                         raise CasdoorLoginScopeConflict()
+                result = replace(result, _archived_facts=before._archived_facts)
                 if session.get_transaction() is not root or session.new or session.dirty or session.deleted:
                     raise CasdoorLoginScopeConflict()
                 # Last operation before context-manager root commit; no writes
                 # or external provider work can be scheduled beyond this barrier.
                 guard()
+                if ordinary_guard is not None:
+                    _ordinary_terminal_last(ordinary_guard)
             return result

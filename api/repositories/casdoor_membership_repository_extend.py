@@ -139,6 +139,7 @@ class CasdoorMembershipRepository:
         self._session = session
         self._preparations: dict[int, NewMembershipPreparation] = {}
         self._local_preparations: dict[int, _LocalMembershipPreparation] = {}
+        self._ordinary_guards: dict[int, object] = {}
 
     def inspect(
         self,
@@ -153,8 +154,16 @@ class CasdoorMembershipRepository:
         if not isinstance(workspace_id, UUID) or not isinstance(backend, MembershipBackend):
             raise CasdoorMembershipConflict()
         with self._session.no_autoflush:
-            namespaces = self._guard_owner(version)
-            return self._inspect_scope(version, workspace_id, backend, remote, namespaces)
+            namespaces = self._guard_owner(version, _initial_read=True)
+            view = self._inspect_scope(version, workspace_id, backend, remote, namespaces)
+            if version.generation == 0 and (
+                backend is not MembershipBackend.LOCAL
+                or view.managed is None
+                or view.managed.source is not CasdoorMembershipSource.ADOPT
+                or view.managed.desired_generation != 0
+            ):
+                raise CasdoorMembershipConflict()
+            return view
 
     def prepare_new(
         self,
@@ -289,7 +298,7 @@ class CasdoorMembershipRepository:
         self._session.flush()
         return self._snapshot(row)
 
-    def _read_local_state(self, version, workspace_id):
+    def _read_local_state(self, version, workspace_id, *, _ordinary_guard=None):
         """Full bounded row plus exact current parents, all history and intent guards."""
         self._require_clean_transaction()
         if dify_config.RBAC_ENABLED is not False or dify_config.DEPLOYMENT_EDITION == DeploymentEdition.ENTERPRISE:
@@ -305,18 +314,14 @@ class CasdoorMembershipRepository:
             )
         )
         self._uuid(default_id)
-        if (
-            account.status is not AccountStatus.ACTIVE
-            or account.initialized_at is None
-            or default_id == str(workspace_id)
-        ):
+        if account.status is not AccountStatus.ACTIVE or account.initialized_at is None or default_id == str(workspace_id):
             raise CasdoorMembershipConflict()
         if (
             self._session.scalar(sa.select(Tenant.status).where(Tenant.id == str(workspace_id)).with_for_update())
             is not TenantStatus.NORMAL
         ):
             raise CasdoorMembershipConflict()
-        refs = self._history_refs(c.account_id, workspace_id)
+        refs = self._current_local_refs(c.account_id, workspace_id, c.namespace_id, c.identity_id)
         self._validate_refs(refs, namespaces)
         if len(refs) != 1 or (refs[0].namespace_id, refs[0].identity_id) != (str(c.namespace_id), str(c.identity_id)):
             raise CasdoorMembershipConflict()
@@ -358,9 +363,7 @@ class CasdoorMembershipRepository:
                     TenantAccountJoin.role,
                     TenantAccountJoin.invited_by,
                 )
-                .where(
-                    TenantAccountJoin.tenant_id == str(workspace_id), TenantAccountJoin.account_id == str(c.account_id)
-                )
+                .where(TenantAccountJoin.tenant_id == str(workspace_id), TenantAccountJoin.account_id == str(c.account_id))
                 .order_by(TenantAccountJoin.id)
                 .limit(2)
                 .with_for_update()
@@ -371,7 +374,9 @@ class CasdoorMembershipRepository:
         join = joins[0] if joins else None
         if join:
             self._uuid(join.id)
-        if CasdoorRequiredIntentRepository(self._session).read_locked(c.account_id, workspace_id):
+        if CasdoorRequiredIntentRepository(self._session).read_locked(
+            c.account_id, workspace_id, _ordinary_guard=_ordinary_guard
+        ):
             raise CasdoorMembershipConflict()
         return row, join, default_id
 
@@ -415,11 +420,11 @@ class CasdoorMembershipRepository:
             value["reason"] = reason.value
         return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
-    def prepare_local_withdrawal(self, version: GenerationPlanVersion, workspace_id: UUID):
+    def prepare_local_withdrawal(self, version: GenerationPlanVersion, workspace_id: UUID, *, _ordinary_guard=None):
         """Capture present actual LOCAL state before the original removal effect."""
         if not isinstance(workspace_id, UUID):
             raise CasdoorMembershipConflict()
-        row, join, default_id = self._read_local_state(version, workspace_id)
+        row, join, default_id = self._read_local_state(version, workspace_id, _ordinary_guard=_ordinary_guard)
         if join is None or join.role not in LOCAL_ROLES or join.id != row.join_id:
             raise CasdoorMembershipConflict()
         observation = MembershipObservation(
@@ -437,21 +442,29 @@ class CasdoorMembershipRepository:
             or row.ownership_epoch == MAX_GENERATION
         ):
             raise CasdoorMembershipConflict()
-        return self._prepare_local(version, workspace_id, None, (row, default_id), True)
+        return self._prepare_local(
+            version, workspace_id, None, (row, default_id), True, _ordinary_guard=_ordinary_guard
+        )
 
-    def prepare_local_regrant(self, version: GenerationPlanVersion, target: DesiredWorkspaceTarget):
+    def prepare_local_regrant(
+        self, version: GenerationPlanVersion, target: DesiredWorkspaceTarget, *, _ordinary_guard=None
+    ):
         resolve_local_target(version.plan, target)
-        row, join, default_id = self._read_local_state(version, target.workspace_id)
+        row, join, default_id = self._read_local_state(version, target.workspace_id, _ordinary_guard=_ordinary_guard)
         self._validate_local_absence(version, row, join)
         if row.ownership_epoch == MAX_GENERATION:
             raise CasdoorMembershipConflict()
-        return self._prepare_local(version, target.workspace_id, target, (row, default_id), False)
+        return self._prepare_local(
+            version, target.workspace_id, target, (row, default_id), False, _ordinary_guard=_ordinary_guard
+        )
 
-    def _prepare_local(self, version, workspace_id, target, state, withdrawal):
+    def _prepare_local(self, version, workspace_id, target, state, withdrawal, *, _ordinary_guard=None):
         transaction = self._session.get_transaction()
         assert transaction is not None
         token = _LocalMembershipPreparation(version, workspace_id, target, transaction, state, withdrawal)
         self._local_preparations[id(token)] = token
+        if _ordinary_guard is not None:
+            self._ordinary_guards[id(token)] = _ordinary_guard
         return token
 
     def _consume_local(self, token, *, withdrawal):
@@ -463,7 +476,10 @@ class CasdoorMembershipRepository:
             or self._session.get_transaction() is not token.transaction
         ):
             raise CasdoorMembershipConflict()
-        row, join, default_id = self._read_local_state(token.version, token.workspace_id)
+        ordinary_guard = self._ordinary_guards.pop(id(token), None)
+        row, join, default_id = self._read_local_state(
+            token.version, token.workspace_id, _ordinary_guard=ordinary_guard
+        )
         if (row, default_id) != token.state:
             raise CasdoorMembershipConflict()
         self._require_removed_id_absent(row)
@@ -485,7 +501,9 @@ class CasdoorMembershipRepository:
         if result.rowcount != 1:
             raise CasdoorMembershipConflict()
         self._session.flush()
-        refs = self._history_refs(UUID(row.account_id), UUID(row.workspace_id))
+        refs = self._current_local_refs(
+            UUID(row.account_id), UUID(row.workspace_id), UUID(row.namespace_id), UUID(row.identity_id)
+        )
         if len(refs) != 1 or refs[0].id != row.id:
             raise CasdoorMembershipConflict()
         after = self._current_row(refs[0])
@@ -581,12 +599,13 @@ class CasdoorMembershipRepository:
         if self._session.new or self._session.dirty or self._session.deleted:
             raise CasdoorMembershipConflict()
 
-    def _guard_owner(self, version: GenerationPlanVersion) -> frozenset[str]:
+    def _guard_owner(self, version: GenerationPlanVersion, *, _initial_read=False) -> frozenset[str]:
         if (
-            not isinstance(version, GenerationPlanVersion)
+            type(_initial_read) is not bool
+            or not isinstance(version, GenerationPlanVersion)
             or not isinstance(version.plan, DesiredWorkspacePlan)
             or type(version.generation) is not int
-            or not 1 <= version.generation <= MAX_GENERATION
+            or not (0 if _initial_read else 1) <= version.generation <= MAX_GENERATION
             or type(version.fence_epoch) is not int
             or not 0 <= version.fence_epoch <= MAX_GENERATION
         ):
@@ -837,6 +856,12 @@ class CasdoorMembershipRepository:
                 or not 0 <= managed.desired_generation <= version.generation
             ):
                 raise CasdoorMembershipConflict()
+        if backend is MembershipBackend.LOCAL and any(r.namespace_id != str(c.namespace_id) for r in history):
+            selected = self._current_local_refs(c.account_id, workspace_id, c.namespace_id, c.identity_id)
+            if scoped != selected:
+                raise CasdoorMembershipConflict()
+            if selected:
+                history = selected
         decision = decide_ownership(observation, managed)
         if history and managed is None and decision is OwnershipDecision.NEW_JOIN_REQUIRED:
             decision = OwnershipDecision.PRESERVE_UNMANAGED
@@ -877,3 +902,25 @@ class CasdoorMembershipRepository:
             row.baseline_json,
             row.tombstone,
         )
+
+    def _current_local_refs(self, account_id, workspace_id, namespace_id, identity_id):
+        """Exact current owner after a full immutable archived SQL proof."""
+        refs = self._history_refs(account_id, workspace_id)
+        if any(r.namespace_id != str(namespace_id) for r in refs):
+            from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
+
+            owner = CasdoorLocalLifecycleRepository(self._session)
+            archive = owner._archived_release_facts(
+                account_id=account_id, namespace_id=namespace_id, identity_id=identity_id
+            )
+            if not archive[0]:
+                raise CasdoorMembershipConflict()
+            scoped = self._history_refs(account_id, workspace_id, namespace_id)
+            if scoped:
+                membership_id, _facts = owner._adopted_current_refs(
+                    account_id=account_id, namespace_id=namespace_id, identity_id=identity_id, workspace_id=workspace_id
+                )
+                if len(scoped) != 1 or scoped[0].id != membership_id:
+                    raise CasdoorMembershipConflict()
+            return scoped
+        return refs

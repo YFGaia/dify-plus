@@ -3,10 +3,6 @@ from typing import Never
 from uuid import UUID
 
 import flask_login
-from flask import make_response, request
-from flask_restx import Resource
-from pydantic import BaseModel, Field, field_validator
-
 from controllers.common.fields import (
     SimpleResultDataResponse,
     SimpleResultMessageResponse,
@@ -28,6 +24,7 @@ from controllers.console.auth.error import (
     TurnstileServiceUnavailableError,
     TurnstileVerificationFailedError,
 )
+from controllers.console.casdoor_schemas_extend import CasdoorConsoleLogoutResponse
 from controllers.console.error import (
     AccountBannedError,
     AccountInFreezeError,
@@ -47,6 +44,8 @@ from controllers.console.wraps import (
     setup_required,
 )
 from extensions.ext_application_services import application_services
+from flask import make_response, request
+from flask_restx import Resource
 from libs.helper import EmailStr, dump_response, extract_remote_ip
 from libs.helper import timezone as validate_timezone_string
 from libs.login import current_account_with_tenant_optional
@@ -59,7 +58,9 @@ from libs.token import (
     set_csrf_token_to_cookie,
     set_refresh_token_to_cookie,
 )
+from pydantic import BaseModel, Field, field_validator
 from services import account_errors
+from services.casdoor_session_service_extend import SOURCE_COOKIE_NAME
 from services.entities.account_login_entities import (
     AuthTokenPair,
     EmailCodeLoginCommand,
@@ -114,6 +115,7 @@ register_response_schema_models(
     SimpleResultMessageResponse,
     SimpleResultOptionalDataResponse,
     SimpleResultResponse,
+    CasdoorConsoleLogoutResponse,
 )
 
 
@@ -155,17 +157,57 @@ class LoginApi(Resource):
 @console_ns.route("/logout")
 class LogoutApi(Resource):
     @setup_required
-    @console_ns.response(200, "Success", console_ns.models[SimpleResultResponse.__name__])
+    @console_ns.response(200, "Success", console_ns.models[CasdoorConsoleLogoutResponse.__name__])
     def post(self):
+        handoff, provenance = None, None
         account, _ = current_account_with_tenant_optional()
         if account is not None:
-            application_services().accounts.authentication.logout(account.id)
+            services = application_services()
+            provenance = _optional_session_service(services)
+            prepared = None
+            if provenance is not None:
+                try:
+                    prepared = provenance.prepare_logout(
+                        account_id=account.id,
+                        refresh_token=extract_refresh_token(request),
+                        opaque=request.cookies.get(provenance.cookie_name()),
+                    )
+                except Exception:
+                    pass
+            services.accounts.authentication.logout(account.id)
             flask_login.logout_user()
+            # Optional provider work starts only after BOTH original local owners
+            # succeed. The revoked refresh mapping must not be revalidated here.
+            if provenance is not None and prepared is not None:
+                try:
+                    handoff = provenance.complete_local_logout(prepared)
+                except Exception:
+                    pass
 
         response = make_response(dump_response(SimpleResultResponse, {"result": "success"}))
+        if handoff is not None and provenance is not None:
+            try:
+                from controllers.console.auth.casdoor_rp_logout_extend import apply_rp_cookies
+                from repositories.casdoor_rp_logout_repository_extend import canonical_opaque
+                from services.casdoor_rp_logout_service_extend import RP_HANDOFF_PATH, RPLogoutHandoff
+
+                if type(handoff) is not RPLogoutHandoff or not handoff.handoff_path.startswith(RP_HANDOFF_PATH):
+                    raise ValueError()
+                canonical_opaque(handoff.handoff_path[len(RP_HANDOFF_PATH):])
+                candidate = make_response(dump_response(CasdoorConsoleLogoutResponse, {
+                    "result": "success",
+                    "casdoor_logout": {"status": "handoff_ready", "handoff": {"handoff_path": handoff.handoff_path}},
+                }))
+                apply_rp_cookies(candidate, provenance._rp_logout_service, handoff.cookies)
+                response = candidate
+            except Exception:
+                pass  # Optional delivery never cancels the original successful local logout.
         clear_access_token_from_cookie(response)
         clear_refresh_token_from_cookie(response)
         clear_csrf_token_from_cookie(response)
+        _clear_source_cookie(response)
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Referrer-Policy"] = "no-referrer"
         return response
 
 
@@ -246,14 +288,45 @@ class RefreshTokenApi(Resource):
                 {"result": "fail", "message": "No refresh token provided"},
             ), HTTPStatus.UNAUTHORIZED
 
+        services = application_services()
+        provenance = _optional_session_service(services)
+        observer = None
+        clear_source = any(request.cookies.get(name) for name in (SOURCE_COOKIE_NAME, "__Host-" + SOURCE_COOKIE_NAME))
+        if provenance is not None:
+            try:
+                observer = provenance.refresh_observer(request.cookies.get(provenance.cookie_name()))
+            except Exception:
+                pass
         try:
-            token_pair = application_services().accounts.authentication.refresh(refresh_token)
+            if observer is None:
+                token_pair = services.accounts.authentication.refresh(refresh_token)
+            else:
+                token_pair = services.accounts.authentication.refresh(refresh_token, observer=observer)
         except account_errors.InvalidRefreshTokenError as error:
             return dump_response(
                 SimpleResultMessageResponse,
                 {"result": "fail", "message": str(error)},
             ), HTTPStatus.UNAUTHORIZED
-        return _token_response(token_pair, SimpleResultResponse, {"result": "success"})
+        response = _token_response(token_pair, SimpleResultResponse, {"result": "success"})
+        if observer is not None:
+            clear_source = observer.clear_cookie
+        if clear_source:
+            _clear_source_cookie(response)
+        return response
+
+
+def _optional_session_service(services):
+    try:
+        return getattr(services, "casdoor_session", None)
+    except Exception:
+        return None
+
+
+def _clear_source_cookie(response):
+    # Host-only source is independent of the existing session-cookie domain.
+    # Clear both transport variants, including after a deployment URL change.
+    for name, secure in ((SOURCE_COOKIE_NAME, False), ("__Host-" + SOURCE_COOKIE_NAME, True)):
+        response.set_cookie(name, "", max_age=0, path="/", secure=secure, httponly=True, samesite="Lax")
 
 
 def _token_response(token_pair: AuthTokenPair, response_model: type[BaseModel], data: object):

@@ -108,6 +108,7 @@ class LocalMembershipPersistence:
     # Internal exact CAS deltas for C1/L3 final comparison, never serialized as
     # public authorization/finalization results or reconstructed after auditing.
     _controlled_effects: tuple[_LocalMembershipEffect, ...] = field(default=(), repr=False)
+    _archived_facts: tuple[str, ...] = field(default=(), repr=False)
 
 
 class CasdoorLocalMembershipService:
@@ -140,6 +141,7 @@ class CasdoorLocalMembershipService:
         withdrawal_workspace_ids: tuple[UUID, ...] = (),
         correlation_id: UUID | None = None,
         invitation_guard: object | None = None,
+        _ordinary_guard=None,
     ) -> LocalMembershipPersistence:
         """Reuse real owners in one root; no local transaction or recovery loop.
 
@@ -148,6 +150,12 @@ class CasdoorLocalMembershipService:
         Required intents across all histories/states/generations block mutation.
         """
         root = self._root()
+        if invitation_guard is not None and _ordinary_guard is not None:
+            raise CasdoorLocalMembershipConflict()
+        if _ordinary_guard is not None:
+            from repositories.casdoor_terminal_local_invitation_repository_extend import _ordinary_terminal_last
+
+            _ordinary_terminal_last(_ordinary_guard)
         try:
             if not isinstance(plan, DesiredWorkspacePlan) or not plan.targets:
                 raise ValueError()
@@ -215,14 +223,14 @@ class CasdoorLocalMembershipService:
             if workspace_id in withdrawal_ids:
                 self._root(root)
                 view = members.inspect(version, workspace_id, backend=MembershipBackend.LOCAL)
-                if intents.read_locked(context.account_id, workspace_id):
+                if intents.read_locked(context.account_id, workspace_id, _ordinary_guard=_ordinary_guard):
                     raise CasdoorLocalMembershipConflict()
                 if view.decision is OwnershipDecision.CONTROLLED_WITHDRAWN:
                     continue
                 if view.decision is not OwnershipDecision.MANAGED_CURRENT:
                     raise CasdoorLocalMembershipConflict()
                 self._correlation(correlation_id)
-                prepared = members.prepare_local_withdrawal(version, workspace_id)
+                prepared = members.prepare_local_withdrawal(version, workspace_id, _ordinary_guard=_ordinary_guard)
                 self._root(root)
                 self._remove_local_member(
                     workspace_id, context.account_id, view.observation.join_id, view.observation.join_role, root
@@ -255,13 +263,11 @@ class CasdoorLocalMembershipService:
             local_roles.validate_parent_scope(version, target)
             self._root(root)
             view = members.inspect(version, target.workspace_id, backend=MembershipBackend.LOCAL)
-            if invitation_guard is not None and view.managed is not None:
-                raise CasdoorLocalMembershipConflict()
             self._root(root)
             barrier = (
                 RequiredIntentBarrier.PENDING
                 if (
-                    intents.read_locked(context.account_id, target.workspace_id)
+                    intents.read_locked(context.account_id, target.workspace_id, _ordinary_guard=_ordinary_guard)
                     if target_guard is None
                     else intents.read_locked(context.account_id, target.workspace_id, invitation_guard=target_guard)
                 )
@@ -280,7 +286,7 @@ class CasdoorLocalMembershipService:
                     regranted = decision is OwnershipDecision.CONTROLLED_WITHDRAWN
                     if regranted:
                         self._correlation(correlation_id)
-                        token = members.prepare_local_regrant(version, target)
+                        token = members.prepare_local_regrant(version, target, _ordinary_guard=_ordinary_guard)
                     else:
                         token = members.prepare_new(version, target, backend=MembershipBackend.LOCAL)
                     self._root(root)
@@ -318,7 +324,7 @@ class CasdoorLocalMembershipService:
                     self._root(root)
                     created = not regranted
                 prepared = (
-                    local_roles.prepare(version, target)
+                    local_roles.prepare(version, target, _ordinary_guard=_ordinary_guard)
                     if target_guard is None
                     else local_roles.prepare(version, target, invitation_guard=target_guard)
                 )
@@ -339,7 +345,9 @@ class CasdoorLocalMembershipService:
                     barrier = (
                         RequiredIntentBarrier.PENDING
                         if (
-                            intents.read_locked(context.account_id, target.workspace_id)
+                            intents.read_locked(
+                                context.account_id, target.workspace_id, _ordinary_guard=_ordinary_guard
+                            )
                             if target_guard is None
                             else intents.read_locked(
                                 context.account_id, target.workspace_id, invitation_guard=target_guard
@@ -382,6 +390,8 @@ class CasdoorLocalMembershipService:
                     )
                 )
         self._root(root)
+        if _ordinary_guard is not None:
+            _ordinary_terminal_last(_ordinary_guard)
         return LocalMembershipPersistence(
             context.account_id,
             context.identity_id,

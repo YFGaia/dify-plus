@@ -150,16 +150,40 @@ class DirectoryDeploymentProof:
 
 
 class DirectoryCredentialStrategy(Protocol):
-    """Trusted deployment code only. No admin payload or arbitrary auth kwargs.
+    """Server-owned credential encoding; never an admin-selected auth mode.
 
-    Real strategy implementations must be separately proven against the release.
-    Query credentials are intentionally unsupported. UserInfo Bearer is not a
-    directory credential and must never be supplied through this interface.
+    Query credentials are unsupported. UserInfo Bearer is not a directory
+    credential and must never be supplied through this interface.
     """
 
-    proof: DirectoryDeploymentProof
-
     def authorization(self, client_id: str, client_secret: str) -> str: ...
+
+
+@dataclass(frozen=True, repr=False)
+class CasdoorBasicDirectoryCredentialStrategy:
+    """Built-in Casdoor organization-directory credential profile.
+
+    This is executable server policy, not evidence of deployment provenance.
+    The real diagnostic and login calls must still validate the returned user,
+    organization, complete role graph and authorization mapping.
+    """
+
+    client_id: str
+
+    def authorization(self, client_id: str, client_secret: str) -> str:
+        if type(self.client_id) is not str or client_id != self.client_id or ":" in client_id:
+            raise ValueError("invalid Casdoor client id")
+        if (
+            type(client_secret) is not str
+            or not 1 <= len(client_secret) <= 16 * 1024
+            or not client_secret.isascii()
+            or any(ord(char) < 32 or ord(char) == 127 for char in client_secret)
+        ):
+            raise ValueError("invalid Casdoor client secret")
+        return "Basic " + base64.b64encode((client_id + ":" + client_secret).encode("ascii")).decode("ascii")
+
+    def __repr__(self) -> str:
+        return "CasdoorBasicDirectoryCredentialStrategy(<redacted>)"
 
 
 @dataclass(repr=False)
@@ -418,8 +442,15 @@ class CasdoorDirectoryGateway:
         if self._strategy is None:
             op.fail("directory_credential_unsupported", CasdoorErrorCode.ROLE_SNAPSHOT_UNKNOWN)
         try:
-            if not self._strategy.proof.matches(op.config):
-                op.fail("directory_proof", CasdoorErrorCode.ROLE_SNAPSHOT_UNKNOWN)
+            proof = getattr(self._strategy, "proof", None)
+            if proof is not None:
+                if not isinstance(proof, DirectoryDeploymentProof) or not proof.matches(op.config):
+                    op.fail("directory_proof", CasdoorErrorCode.ROLE_SNAPSHOT_UNKNOWN)
+            elif (
+                type(self._strategy) is not CasdoorBasicDirectoryCredentialStrategy
+                or self._strategy.client_id != op.config.client_id
+            ):
+                op.fail("directory_credential_unsupported", CasdoorErrorCode.ROLE_SNAPSHOT_UNKNOWN)
             authorization = self._strategy.authorization(op.config.client_id, op.client_secret)
             # End-user Bearer may be Self-filtered and cannot substitute app identity.
             if not isinstance(authorization, str) or authorization.lower().startswith("bearer "):
@@ -441,7 +472,8 @@ class CasdoorDirectoryGateway:
 
     @property
     def deployment_proof(self) -> DirectoryDeploymentProof | None:
-        return self._strategy.proof if self._strategy is not None else None
+        proof = getattr(self._strategy, "proof", None) if self._strategy is not None else None
+        return proof if isinstance(proof, DirectoryDeploymentProof) else None
 
     def get_verified_user(self) -> dict[str, Any]:
         op = self._operation

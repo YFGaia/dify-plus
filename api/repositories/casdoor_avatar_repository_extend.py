@@ -61,6 +61,7 @@ from models.casdoor_extend import (
     CasdoorOperationState,
     CasdoorTerminationState,
 )
+from models.casdoor_extend import CasdoorManagedMembershipExtend as History
 from models.casdoor_extend import (
     CasdoorNamespaceExtend as Namespace,
 )
@@ -81,13 +82,22 @@ from sqlalchemy.orm import Session, SessionTransactionOrigin
 
 from repositories.casdoor_audit_repository_extend import (
     _AVATAR_PRE_STORAGE_SUMMARY_BYTES,
+    _AVATAR_RETRY_SUMMARY_BYTES,
+    _RETRY_MUTABLE_FIELDS,
     CasdoorAuditRepository,
     _AvatarAttachmentAudit,
     _AvatarAttemptAudit,
     _AvatarPendingAudit,
     _AvatarPreStorageAudit,
+    _AvatarReservationFenceAudit,
+    _AvatarRetryAudit,
     _pre_storage_summary_v2,
+    _retry_summary_v1,
+    _AvatarCleanupAudit,
+    _avatar_cleanup_summary,
+    _reservation_fence_summary,
 )
+from repositories.casdoor_avatar_file_guard_repository_extend import CasdoorAvatarFileGuardRepository
 from repositories.casdoor_configuration_repository_extend import (
     CasdoorConfigurationError,
     CasdoorConfigurationRepository,
@@ -360,9 +370,18 @@ def _worker_state(row):
         if count != len(data["reservations"]) or not 0 <= count <= 3:
             raise CasdoorAvatarConflict()
         state, termination = row["operation_state"], row["termination_state"]
+        if row["termination_proof_kind"] == "avatar_cleanup":
+            return _cleanup_state(row, data)
         if state not in set(CasdoorOperationState) or termination not in set(CasdoorTerminationState):
             raise CasdoorAvatarConflict()
-        for key in ("lease_expires_at", "sent_at", "acknowledged_at", "readback_at", "terminated_at", "retry_at"):
+        for key in (
+            "lease_expires_at",
+            "sent_at",
+            "acknowledged_at",
+            "readback_at",
+            "terminated_at",
+            "retry_at",
+        ):
             if row[key] is not None:
                 _worker_time(row[key])
         if count == 0:
@@ -404,7 +423,14 @@ def _worker_state(row):
                 if (
                     termination != "unconfirmed"
                     or data["cleanup_state"] != "none"
-                    or any(item["cleanup_state"] != "none" for item in data["reservations"])
+                    or (
+                        any(item["cleanup_state"] != "none" for item in data["reservations"])
+                        and not (
+                            _retry_shape(row, data)
+                            and row["attempt_count"] == 2
+                            and data["reservations"][-1]["cleanup_state"] == "none"
+                        )
+                    )
                     or any(
                         row[key] is not None
                         for key in (
@@ -428,7 +454,12 @@ def _worker_state(row):
                     or row["error_code"] not in _FINISH_REASONS
                     or any(
                         row[key] is not None
-                        for key in ("retry_at", "terminated_at", "termination_proof_kind", "proof_ref")
+                        for key in (
+                            "retry_at",
+                            "terminated_at",
+                            "termination_proof_kind",
+                            "proof_ref",
+                        )
                     )
                 ):
                     raise CasdoorAvatarConflict()
@@ -445,6 +476,10 @@ def _worker_state(row):
             elif state != "applied":
                 raise CasdoorAvatarConflict()
         if state != "applied" and (row["resource_id"] is not None or data["result_file_id"] is not None):
+            raise CasdoorAvatarConflict()
+        if row["termination_proof_kind"] == "avatar_retry_pre_storage" and (
+            not _retry_shape(row, data) or count != 1 or state != "pending" or data["cleanup_state"] != "complete"
+        ):
             raise CasdoorAvatarConflict()
         if row["termination_proof_kind"] == "avatar_pre_storage":
             _pre_storage_state(row, data)
@@ -602,6 +637,312 @@ class _AvatarDispatchPage:
 
 
 class CasdoorAvatarRepository:
+    def _cleanup_references(self, file_id, key, root, scope):
+        """Global typed/metadata vetoes plus bounded complete Casdoor history; no JSON text sweep."""
+        from models.human_input import HumanInputFormUploadFile
+        from models.model import MessageFile
+        from models.tools import ToolFile
+        from models.workflow import WorkflowDraftVariableFile, WorkflowNodeExecutionOffload
+
+        self._reservation_refs_absent(file_id, key)
+        for column in (
+            MessageFile.upload_file_id,
+            HumanInputFormUploadFile.upload_file_id,
+            WorkflowDraftVariableFile.upload_file_id,
+            WorkflowNodeExecutionOffload.file_id,
+        ):
+            if self._session.execute(
+                sa.select(column).where(_avatar_uuid_reference(sa.cast(column, sa.String), file_id)).limit(1)
+            ).first():
+                raise CasdoorAvatarConflict()
+        if self._session.execute(sa.select(ToolFile.id).where(ToolFile.file_key == key).limit(1)).first():
+            raise CasdoorAvatarConflict()
+        if self._session.execute(
+            sa.select(MessageFile.id)
+            .where(
+                sa.or_(
+                    MessageFile.url == str(file_id),
+                    MessageFile.url == key,
+                    MessageFile.url.like(f"%/files/{file_id}/%"),
+                )
+            )
+            .limit(1)
+        ).first():
+            raise CasdoorAvatarConflict()
+        related = self._require_retry_scope_intents(root["intent"]["account_id"], scope)
+        rows = []
+        for intent_id, _state_value, _termination in related:
+            row = self._worker_read(Intent, (Intent.id == intent_id,), lock=False)
+            data = _worker_state(row)
+            own = intent_id == root["intent"]["id"]
+            if not own and (
+                data["result_file_id"] == str(file_id)
+                or row["resource_id"] == str(file_id)
+                or data["baseline"] == str(file_id)
+            ):
+                raise CasdoorAvatarConflict()
+            for index, item in enumerate(data["reservations"]):
+                if item["file_id"] == str(file_id) or item["storage_key"] == key:
+                    if not own or index != len(data["reservations"]) - 1:
+                        raise CasdoorAvatarConflict()
+            rows.append(
+                _cleanup_beforeimage(row, data, self._read_cleanup_lineage(row))
+                if own and row["termination_proof_kind"] == "avatar_cleanup"
+                else row
+            )
+        manifest_root = dict(root)
+        if root["intent"]["termination_proof_kind"] == "avatar_cleanup":
+            manifest_root["intent"] = _cleanup_beforeimage(
+                root["intent"], _worker_state(root["intent"]), self._read_cleanup_lineage(root["intent"])
+            )
+        return _reservation_row_hash(
+            _cleanup_manifest_value(
+                dict(scope=scope, root=manifest_root, intents=rows, references="typed-global-absence-v1")
+            )
+        )
+
+    def _cleanup_original_fence(self, row, data, guard_version):
+        """Prove actual original claim and every immutable reservation/audit in its prefix."""
+        last = data["reservations"][-1]
+        audit = CasdoorAuditRepository(self._session)._read_avatar_reservation_fence(UUID(last["file_id"]))
+        if audit is None:
+            raise CasdoorAvatarConflict()
+        fence = _reservation_fence_summary(audit["summary_json"])
+        refs = {name: row[name] for name in ("namespace_id", "revision_id", "identity_id", "account_id")}
+        revision = self._worker_read(
+            Revision, (Revision.id == row["revision_id"],), fields=("default_workspace_id",), lock=False
+        )
+        if revision is None:
+            raise CasdoorAvatarConflict()
+        refs.update(
+            intent_id=row["id"],
+            attempt_id=row["attempt_id"],
+            file_id=last["file_id"],
+            tenant_id=revision["default_workspace_id"],
+            claim_correlation_id=data["correlation_id"],
+        )
+        if (
+            fence["references"] != refs
+            or fence["count"] != row["attempt_count"]
+            or fence["generation"] != row["generation"]
+            or fence["fence_epoch"] != row["fence_epoch"]
+            or fence["guard_version"] != guard_version
+            or fence["claim_intent_sha256"] != _reservation_row_hash(row)
+            or fence["reservation_sha256"] != _reservation_row_hash(data["reservations"])
+        ):
+            raise CasdoorAvatarConflict()
+        for item in fence["lineage"]:
+            correlation = (
+                row["id"] if item["action"] in ("avatar_retry", "avatar_retry_claim") else data["correlation_id"]
+            )
+            actual = self._read_retry_audit(action=item["action"], correlation_id=correlation)
+            if actual["id"] != item["id"] or _reservation_row_hash(actual) != item["sha256"]:
+                raise CasdoorAvatarConflict()
+        if row["attempt_count"] == 2:
+            self._read_retry_lineage(row, data)
+        return audit, refs
+
+    def _read_cleanup_lineage(self, row):
+        """Closed terminal before/after-image reader; never yields a live permit or claim."""
+        data = _worker_state(row)
+        file_id = UUID(data["reservations"][-1]["file_id"])
+        owner = CasdoorAuditRepository(self._session)
+        audit = owner._read_avatar_cleanup(file_id)
+        if audit is None:
+            raise CasdoorAvatarConflict()
+        summary = _avatar_cleanup_summary(audit["summary_json"])
+        before = dict(row, **{name: _retry_untag(name, tagged) for name, tagged in summary["before_mutable"]})
+        before_data = dict(
+            data,
+            cleanup_state="none",
+            reservations=[*data["reservations"][:-1], dict(data["reservations"][-1], cleanup_state="none")],
+        )
+        before["desired_json"] = _dump(before_data)
+        if (
+            before["operation_state"] != "in_flight"
+            or before["termination_state"] != "unconfirmed"
+            or _reservation_row_hash(before) != summary["before_sha256"]
+            or summary["count"] != row["attempt_count"]
+            or summary["proof_ref"] != row["proof_ref"]
+        ):
+            raise CasdoorAvatarConflict()
+        _worker_state(before)
+        fence, refs = self._cleanup_original_fence(before, before_data, summary["guard_version"])
+        if summary["references"] != refs or summary["fence_sha256"] != _reservation_row_hash(fence):
+            raise CasdoorAvatarConflict()
+        pending = _cleanup_afterimage(before, before_data, summary["proof_ref"], audit["created_at"], complete=False)
+        if _reservation_row_hash(pending) != summary["terminal_sha256"]:
+            raise CasdoorAvatarConflict()
+        if data["cleanup_state"] == "pending":
+            if pending != row or owner._read_avatar_cleanup(file_id, complete=True) is not None:
+                raise CasdoorAvatarConflict()
+        else:
+            completion = owner._read_avatar_cleanup(file_id, complete=True)
+            if completion is None:
+                raise CasdoorAvatarConflict()
+            final = _avatar_cleanup_summary(completion["summary_json"], complete=True)
+            expected = _cleanup_afterimage(
+                pending, _worker_state(pending), row["proof_ref"], completion["created_at"], complete=True
+            )
+            if (
+                expected != row
+                or final["references"] != refs
+                or final["proof_ref"] != row["proof_ref"]
+                or final["cleanup_sha256"] != _reservation_row_hash(audit)
+                or final["terminal_sha256"] != _reservation_row_hash(row)
+            ):
+                raise CasdoorAvatarConflict()
+        from models.casdoor_avatar_file_guard_extend import CasdoorAvatarFileGuardExtend as Guard
+
+        guard = (
+            self._session.execute(sa.select(*Guard.__table__.columns).where(Guard.file_id == str(file_id)))
+            .mappings()
+            .one_or_none()
+        )
+        if (
+            guard is None
+            or guard["intent_id"] != row["id"]
+            or guard["attempt_id"] != row["attempt_id"]
+            or guard["stage"] != ("cleanup_pending" if data["cleanup_state"] == "pending" else "cleanup_complete")
+            or guard["version"] != summary["guard_version"] + (1 if data["cleanup_state"] == "pending" else 2)
+        ):
+            raise CasdoorAvatarConflict()
+        return audit
+
+    def _prepare_avatar_cleanup(self, declaration, *, now):
+        """Consume actual normal-store/precommit-rollback declaration; SQL never performs I/O."""
+        from core.casdoor.avatar_termination import _consume_avatar_cleanup
+
+        current = self._worker_begin(now)
+        binding = _consume_avatar_cleanup(declaration)
+        attempt, reservation = binding.attempt, binding.reservation
+        guard_owner = CasdoorAvatarFileGuardRepository(self._session)
+        guard = guard_owner.lock_existing(UUID(reservation.file_id))
+        if guard.stage != "reserved" or guard.intent_id != attempt.intent_id or guard.attempt_id != attempt.attempt_id:
+            raise CasdoorAvatarConflict()
+        scope = self._retry_parent_scope(attempt.intent_id, lock=True)
+        root = self._worker_root(attempt.intent_id)
+        row = root["intent"]
+        data = _worker_state(row)
+        last = data["reservations"][-1]
+        if (
+            row["operation_state"] != "in_flight"
+            or row["termination_state"] != "unconfirmed"
+            or row["attempt_id"] != str(attempt.attempt_id)
+            or row["lease_owner"] != attempt.lease_owner
+            or last["file_id"] != reservation.file_id
+            or last["storage_key"] != reservation.storage_key
+            or row["account_id"] != reservation.account_id
+            or root["revision"] is None
+            or root["revision"]["default_workspace_id"] != reservation.tenant_id
+        ):
+            raise CasdoorAvatarConflict()
+        actual_source = _AvatarFetchSource(
+            UUID(row["namespace_id"]),
+            UUID(row["revision_id"]),
+            attempt.intent_id,
+            data["url_ciphertext"],
+            data["url_sha256"],
+            _parse_time(data["url_expires_at"]),
+        )
+        if binding.source != actual_source:
+            raise CasdoorAvatarConflict()
+        fence, refs = self._cleanup_original_fence(row, data, guard.version)
+        manifest = self._cleanup_references(UUID(reservation.file_id), reservation.storage_key, root, scope)
+        expected = _cleanup_afterimage(row, data, str(binding.proof_ref), current.replace(tzinfo=None), complete=False)
+        summary = dict(
+            schema_version=1,
+            references=refs,
+            proof_ref=str(binding.proof_ref),
+            count=row["attempt_count"],
+            guard_version=guard.version,
+            before_mutable=[[name, _retry_tag(row[name])] for name in _RETRY_MUTABLE_FIELDS],
+            before_sha256=_reservation_row_hash(row),
+            terminal_sha256=_reservation_row_hash(expected),
+            fence_sha256=_reservation_row_hash(fence),
+            manifest_sha256=manifest,
+            image_sha3_256=binding.sha3_256,
+            image_size=binding.size,
+        )
+        self._cleanup_intent_cas(row, expected)
+        bound = guard_owner._cleanup_cas(guard)
+        audit = CasdoorAuditRepository(self._session)._append_avatar_cleanup(
+            _AvatarCleanupAudit(_dump(summary), current.replace(tzinfo=None))
+        )
+        fresh = self._worker_root(attempt.intent_id, lock=False)
+        if fresh["intent"] != expected or guard_owner.lock_existing(guard.file_id) != bound:
+            raise CasdoorAvatarConflict()
+        self._read_cleanup_lineage(expected)
+        if (
+            self._retry_parent_scope(attempt.intent_id, lock=False) != scope
+            or self._cleanup_references(UUID(reservation.file_id), reservation.storage_key, fresh, scope) != manifest
+        ):
+            raise CasdoorAvatarConflict()
+        return _AvatarCleanupRecord(
+            attempt.intent_id, reservation, tuple(expected.items()), tuple(audit.items()), bound
+        )
+
+    def _cleanup_intent_cas(self, original, expected):
+        changed = self._session.execute(
+            sa.update(Intent)
+            .where(*(getattr(Intent, name) == value for name, value in original.items()))
+            .values(
+                **{name: value for name, value in expected.items() if value != original[name] or name == "updated_at"}
+            )
+            .execution_options(synchronize_session=False)
+        ).rowcount
+        if changed != 1:
+            raise CasdoorAvatarConflict()
+
+    def _read_avatar_cleanup_closed(self, record, *, now):
+        self._worker_begin(now)
+        if type(record) is not _AvatarCleanupRecord:
+            raise CasdoorAvatarConflict()
+        guard = CasdoorAvatarFileGuardRepository(self._session).lock_existing(UUID(record.reservation.file_id))
+        scope = self._retry_parent_scope(record.intent_id, lock=True)
+        root = self._worker_root(record.intent_id)
+        if (
+            root["intent"] != dict(record.intent_values)
+            or guard != record.guard
+            or self._read_cleanup_lineage(root["intent"]) != dict(record.audit_values)
+        ):
+            raise CasdoorAvatarConflict()
+        manifest = self._cleanup_references(
+            UUID(record.reservation.file_id), record.reservation.storage_key, root, scope
+        )
+        if manifest != _avatar_cleanup_summary(dict(record.audit_values)["summary_json"])["manifest_sha256"]:
+            raise CasdoorAvatarConflict()
+        return True
+
+    def _complete_avatar_cleanup(self, observation, *, now):
+        from core.casdoor.avatar_termination import _consume_avatar_cleanup_observation
+
+        current = self._worker_begin(now)
+        record = _consume_avatar_cleanup_observation(observation)
+        self._read_avatar_cleanup_closed(record, now=now)
+        guard_owner = CasdoorAvatarFileGuardRepository(self._session)
+        guard = guard_owner.lock_existing(UUID(record.reservation.file_id))
+        row = dict(record.intent_values)
+        data = _worker_state(row)
+        expected = _cleanup_afterimage(row, data, row["proof_ref"], current.replace(tzinfo=None), complete=True)
+        self._cleanup_intent_cas(row, expected)
+        guard_owner._cleanup_cas(guard, complete=True)
+        summary = _avatar_cleanup_summary(dict(record.audit_values)["summary_json"])
+        completion = dict(
+            schema_version=1,
+            references=summary["references"],
+            proof_ref=row["proof_ref"],
+            terminal_sha256=_reservation_row_hash(expected),
+            cleanup_sha256=_reservation_row_hash(dict(record.audit_values)),
+        )
+        CasdoorAuditRepository(self._session)._append_avatar_cleanup(
+            _AvatarCleanupAudit(_dump(completion), current.replace(tzinfo=None), True)
+        )
+        if self._worker_root(record.intent_id, lock=False)["intent"] != expected:
+            raise CasdoorAvatarConflict()
+        self._read_cleanup_lineage(expected)
+        return True
+
     def __init__(self, session: Session, *, configuration_repository: CasdoorConfigurationRepository):
         if (
             type(configuration_repository) is not CasdoorConfigurationRepository
@@ -1000,6 +1341,17 @@ class CasdoorAvatarRepository:
 
     def _worker_root(self, intent_id, *, lock=True):
         """Discovery grants no authority; lock parents first, then compare pointers."""
+        marker = self._worker_read(
+            Intent,
+            (Intent.id == str(intent_id),),
+            fields=("attempt_count", "termination_proof_kind"),
+            lock=False,
+        )
+        retry_scope = None
+        if marker is not None and (
+            marker["attempt_count"] == 2 or marker["termination_proof_kind"] == "avatar_retry_pre_storage"
+        ):
+            retry_scope = self._retry_parent_scope(intent_id, lock=lock)
         pointer_fields = ("id", "namespace_id", "revision_id", "identity_id", "account_id")
         pointers = self._worker_read(Intent, (Intent.id == str(intent_id),), fields=pointer_fields, lock=False)
         if pointers is None or any(not _uuid(value) for value in pointers.values()):
@@ -1071,7 +1423,7 @@ class CasdoorAvatarRepository:
         ):
             raise CasdoorAvatarConflict()
         _worker_state(row)
-        return dict(
+        result = dict(
             intent=row,
             integration=integration,
             namespace=namespace,
@@ -1081,6 +1433,18 @@ class CasdoorAvatarRepository:
             tenant=tenant,
             join=join,
         )
+        if retry_scope is not None:
+            if row["termination_proof_kind"] == "avatar_cleanup":
+                self._read_cleanup_lineage(row)
+            else:
+                self._read_retry_lineage(row, _worker_state(row))
+            self._validate_retry_related_avatars(
+                self._require_retry_scope_intents(row["account_id"], retry_scope), row["id"]
+            )
+            result["retry_scope"] = retry_scope
+        elif row["termination_proof_kind"] == "avatar_cleanup":
+            self._read_cleanup_lineage(row)
+        return result
 
     def _worker_eligible(self, root, now):
         """Current DB/config/profile authority; references and reason strings prove nothing."""
@@ -1220,9 +1584,15 @@ class CasdoorAvatarRepository:
     def _worker_applied(self, row, revision):
         """Retain an existing APPLIED file even after later config/avatar drift."""
         data = _worker_state(row)
+        if _retry_shape(row, data):
+            self._read_retry_lineage(row, data)
         if revision is None or revision["namespace_id"] != row["namespace_id"]:
             raise CasdoorAvatarConflict()
-        reservation = next(item for item in data["reservations"] if item["file_id"] == data["result_file_id"])
+        reservation = next(
+            item
+            for item in data["reservations"]
+            if item["file_id"] == data["result_file_id"]
+        )
         file = self._worker_read(
             UploadFile,
             (UploadFile.id == data["result_file_id"],),
@@ -1308,6 +1678,133 @@ class CasdoorAvatarRepository:
         if reason == "claimed" and not self._worker_eligible(fresh, now):
             raise CasdoorAvatarConflict()
 
+    def _reservation_candidate(self, intent_id, current):
+        """Bounded navigation only; original parent rebuild later decides all eligibility."""
+        row = self._worker_read(Intent, (Intent.id == str(intent_id),), lock=False)
+        if row is None or row["operation_state"] != "pending":
+            return None
+        data = _worker_state(row)
+        initial = row["termination_state"] == "not_started" and row["attempt_count"] == 0 and not data["reservations"]
+        retry = (
+            row["termination_proof_kind"] == "avatar_retry_pre_storage"
+            and row["attempt_count"] == 1
+            and _worker_time(row["retry_at"]) <= current
+        )
+        if not (initial or retry):
+            return None
+        owner = CasdoorAvatarFileGuardRepository(self._session)
+        candidate = owner.lock_or_create(uuid4())
+        return owner, candidate
+
+    def _reservation_candidate_admit(self, candidate, key):
+        """Guard already precedes parents; fresh global existence probes never lock other Accounts."""
+        if candidate is None or candidate[1].stage != "unbound":
+            raise CasdoorAvatarConflict()
+        file_id = candidate[1].file_id
+        self._reservation_refs_absent(file_id, key)
+        if CasdoorAuditRepository(self._session)._read_avatar_reservation_fence(file_id) is not None:
+            raise CasdoorAvatarConflict()
+        return file_id
+
+    def _reservation_refs_absent(self, file_id, key):
+        """Fresh bounded collision/reference probes before reservation and final return."""
+        for statement in (
+            sa.select(UploadFile.id)
+            .where(
+                sa.or_(
+                    UploadFile.id == str(file_id),
+                    _avatar_uuid_reference(sa.cast(UploadFile.id, sa.String), file_id),
+                    UploadFile.key == key,
+                )
+            )
+            .limit(1),
+            sa.select(Account.id).where(_avatar_uuid_reference(Account.avatar, file_id)).limit(1),
+        ):
+            if self._session.execute(statement).first() is not None:
+                raise CasdoorAvatarConflict()
+
+    def _reservation_fence_append(self, intent_id, candidate, attempt_id, current):
+        """After original claim audit/reread: bind parent and exact immutable reservation lineage."""
+        fresh = self._worker_root(intent_id, lock=False)
+        row = fresh["intent"]
+        data = _worker_state(row)
+        reservation = data["reservations"][-1]
+        if (
+            row["operation_state"] != "in_flight"
+            or row["termination_state"] != "unconfirmed"
+            or row["attempt_id"] != str(attempt_id)
+            or reservation["file_id"] != str(candidate[1].file_id)
+            or not self._worker_eligible(fresh, current)
+        ):
+            raise CasdoorAvatarConflict()
+        actions = ["avatar_pending", "avatar_claim"]
+        if row["attempt_count"] == 2:
+            actions += ["avatar_pre_storage", "avatar_retry", "avatar_retry_claim"]
+            self._read_retry_lineage(row, data)
+        lineage = []
+        audits = []
+        for action in actions:
+            correlation = row["id"] if action in ("avatar_retry", "avatar_retry_claim") else data["correlation_id"]
+            audit = self._read_retry_audit(action=action, correlation_id=correlation)
+            summary = json.loads(audit["summary_json"], object_pairs_hook=_pairs)
+            refs = summary["references"]
+            if (
+                any(
+                    audit[name] != row[name] or refs[name] != row[name]
+                    for name in ("namespace_id", "revision_id", "identity_id", "account_id")
+                )
+                or refs["intent_id"] != row["id"]
+                or (action != "avatar_retry" and audit["actor_account_id"] is not None)
+                or (action == "avatar_retry" and not _uuid(audit["actor_account_id"]))
+            ):
+                raise CasdoorAvatarConflict()
+            if action in ("avatar_claim", "avatar_retry_claim"):
+                expected = data["reservations"][0 if action == "avatar_claim" else -1]
+                if (
+                    refs["attempt_id"] != expected["attempt_id"]
+                    or refs["file_id"] != expected["file_id"]
+                    or summary["reason"] != "claimed"
+                    or summary["count"] != (1 if action == "avatar_claim" else 2)
+                    or audit["result_code"] != "reserved"
+                ):
+                    raise CasdoorAvatarConflict()
+            audits.append(audit)
+            lineage.append(dict(action=action, id=audit["id"], sha256=_reservation_row_hash(audit)))
+        bound = candidate[0].bind_reservation(candidate[1], intent_id=intent_id, attempt_id=attempt_id)
+        refs = {name: row[name] for name in ("namespace_id", "revision_id", "identity_id", "account_id")}
+        refs.update(
+            intent_id=str(intent_id),
+            attempt_id=str(attempt_id),
+            file_id=str(bound.file_id),
+            tenant_id=fresh["revision"]["default_workspace_id"],
+            claim_correlation_id=data["correlation_id"],
+        )
+        event = _AvatarReservationFenceAudit(
+            _dump(
+                dict(
+                    schema_version=1,
+                    references=refs,
+                    count=row["attempt_count"],
+                    generation=row["generation"],
+                    fence_epoch=row["fence_epoch"],
+                    guard_version=bound.version,
+                    reservation_sha256=_reservation_row_hash(data["reservations"]),
+                    claim_intent_sha256=_reservation_row_hash(row),
+                    lineage=lineage,
+                )
+            )
+        )
+        audit_owner = CasdoorAuditRepository(self._session)
+        receipt = audit_owner._append_avatar_reservation_fence(event)
+        if candidate[0].lock_existing(bound.file_id) != bound or self._worker_root(intent_id, lock=False) != fresh:
+            raise CasdoorAvatarConflict()
+        for action, audit in zip(actions, audits, strict=True):
+            if self._read_retry_audit(action=action, correlation_id=audit["correlation_id"]) != audit:
+                raise CasdoorAvatarConflict()
+        if audit_owner._read_avatar_reservation_fence(bound.file_id) != receipt:
+            raise CasdoorAvatarConflict()
+        self._reservation_refs_absent(bound.file_id, reservation["storage_key"])
+
     def claim_and_reserve(self, intent_id: UUID, *, now: datetime) -> _AvatarClaim:
         """Reserve initial work only; caller commits/releases before any external I/O."""
         current = self._worker_begin(now)
@@ -1315,11 +1812,15 @@ class CasdoorAvatarRepository:
             raise CasdoorAvatarConflict()
         try:
             with self._session.no_autoflush:
+                candidate = self._reservation_candidate(intent_id, current)
                 root = self._worker_root(intent_id)
                 row = root["intent"]
                 data = _worker_state(row)
                 if row["operation_state"] == "applied":
-                    return _AvatarClaim("replayed", result_file_id=UUID(self._worker_applied(row, root["revision"])))
+                    return _AvatarClaim(
+                        "replayed",
+                        result_file_id=UUID(self._worker_applied(row, root["revision"])),
+                    )
                 if row["operation_state"] == "unknown":
                     return _AvatarClaim("unknown")
                 if row["operation_state"] == "in_flight":
@@ -1329,15 +1830,77 @@ class CasdoorAvatarRepository:
                     return _AvatarClaim("unknown")
                 if row["operation_state"] != "pending":
                     return _AvatarClaim("closed")
+                if row["termination_proof_kind"] == "avatar_retry_pre_storage":
+                    self._read_retry_lineage(row, data)
+                    if _worker_time(row["retry_at"]) > current or not self._worker_eligible(root, current):
+                        return _AvatarClaim("not_due")
+                    attempt_id = uuid4()
+                    file_id = candidate[1].file_id if candidate is not None else None
+                    lease = UUID(root["join"]["id"]).hex + uuid4().hex
+                    key = f"casdoor-avatar/{intent_id}/{attempt_id}/{file_id}.png"
+                    self._reservation_candidate_admit(candidate, key)
+                    data["reservations"].append(
+                        dict(
+                            attempt_id=str(attempt_id),
+                            file_id=str(file_id),
+                            storage_key=key,
+                            cleanup_state="none",
+                        )
+                    )
+                    data["cleanup_state"] = "none"
+                    self._retry_claim_write(
+                        root,
+                        data,
+                        now=current,
+                        attempt_id=str(attempt_id),
+                        attempt_count=2,
+                        lease_owner=lease,
+                        lease_expires_at=(current + timedelta(seconds=60)).replace(tzinfo=None),
+                        operation_state=CasdoorOperationState.IN_FLIGHT,
+                        termination_state=CasdoorTerminationState.UNCONFIRMED,
+                        terminated_at=None,
+                        termination_proof_kind=None,
+                        proof_ref=None,
+                        retry_at=None,
+                        error_code=None,
+                    )
+                    self._reservation_fence_append(intent_id, candidate, attempt_id, current)
+                    return _AvatarClaim(
+                        "reserved",
+                        _AvatarAttemptRef(intent_id, attempt_id, lease),
+                        _AvatarFetchSource(
+                            UUID(row["namespace_id"]),
+                            UUID(row["revision_id"]),
+                            intent_id,
+                            data["url_ciphertext"],
+                            data["url_sha256"],
+                            _parse_time(data["url_expires_at"]),
+                        ),
+                        AvatarReservation(
+                            str(intent_id),
+                            str(attempt_id),
+                            str(file_id),
+                            row["account_id"],
+                            root["revision"]["default_workspace_id"],
+                            key,
+                        ),
+                    )
                 if row["termination_state"] != "not_started":
                     return _AvatarClaim("not_due")  # T's confirmed pre-storage retry producer is held.
                 if not self._worker_eligible(root, current):
                     return _AvatarClaim("closed")
-                attempt_id, file_id = uuid4(), uuid4()
+                attempt_id = uuid4()
+                file_id = candidate[1].file_id if candidate is not None else None
                 lease = UUID(root["join"]["id"]).hex + uuid4().hex
                 key = f"casdoor-avatar/{intent_id}/{attempt_id}/{file_id}.png"
+                self._reservation_candidate_admit(candidate, key)
                 data["reservations"].append(
-                    dict(attempt_id=str(attempt_id), file_id=str(file_id), storage_key=key, cleanup_state="none")
+                    dict(
+                        attempt_id=str(attempt_id),
+                        file_id=str(file_id),
+                        storage_key=key,
+                        cleanup_state="none",
+                    )
                 )
                 self._worker_write(
                     root,
@@ -1351,6 +1914,7 @@ class CasdoorAvatarRepository:
                     operation_state=CasdoorOperationState.IN_FLIGHT,
                     termination_state=CasdoorTerminationState.UNCONFIRMED,
                 )
+                self._reservation_fence_append(intent_id, candidate, attempt_id, current)
                 return _AvatarClaim(
                     "reserved",
                     _AvatarAttemptRef(intent_id, attempt_id, lease),
@@ -1371,7 +1935,7 @@ class CasdoorAvatarRepository:
                         key,
                     ),
                 )
-        except (SQLAlchemyError, ValueError, TypeError, OverflowError, RecursionError):
+        except (SQLAlchemyError, ValueError, TypeError, KeyError, AttributeError, OverflowError, RecursionError):
             raise CasdoorAvatarConflict() from None
 
     def _worker_unknown(self, root, data, *, reason, now):
@@ -1516,12 +2080,26 @@ class CasdoorAvatarRepository:
             or row["readback_at"] != row["terminated_at"]
             or row["updated_at"] != row["terminated_at"]
             or data["cleanup_state"] != "none"
-            or any(item["cleanup_state"] != "none" for item in data["reservations"])
-            or any(row[key] is not None for key in ("sent_at", "acknowledged_at", "retry_at", "error_code"))
+            or (
+                any(item["cleanup_state"] != "none" for item in data["reservations"])
+                and not (
+                    _retry_shape(row, data)
+                    and row["attempt_count"] == 2
+                    and data["reservations"][-1]["cleanup_state"] == "none"
+                )
+            )
+            or any(
+                row[key] is not None
+                for key in ("sent_at", "acknowledged_at", "retry_at", "error_code")
+            )
         ):
             raise CasdoorAvatarConflict()
         terminated = _worker_time(row["terminated_at"])
-        if not _parse_time(data["url_created_at"]) <= terminated < _worker_time(row["lease_expires_at"]):
+        if (
+            not _parse_time(data["url_created_at"])
+            <= terminated
+            < _worker_time(row["lease_expires_at"])
+        ):
             raise CasdoorAvatarConflict()
         if terminated >= _parse_time(data["url_expires_at"]):
             raise CasdoorAvatarConflict()
@@ -1529,7 +2107,10 @@ class CasdoorAvatarRepository:
         file = self._attachment_file(row, revision, reservation, digest=digest, size=size)
         if self._worker_applied(row, revision) != file["id"]:
             raise CasdoorAvatarConflict()
-        if self._attachment_file(row, revision, reservation, digest=digest, size=size) != file:
+        if (
+            self._attachment_file(row, revision, reservation, digest=digest, size=size)
+            != file
+        ):
             raise CasdoorAvatarConflict()
         return file
 
@@ -1870,13 +2451,22 @@ class CasdoorAvatarRepository:
         return sa.case((valid, value), else_=None)
 
     def _dispatch_initial_filters(self):
-        """Structural navigation only; the original worker owns all authority."""
-        return (
-            Intent.kind == CasdoorIntentKind.PROFILE_AVATAR,
-            Intent.operation_state == CasdoorOperationState.PENDING,
+        """Structural union navigation; actual initial/retry owners remain mandatory."""
+        initial = sa.and_(
             Intent.termination_state == CasdoorTerminationState.NOT_STARTED,
             Intent.attempt_count == 0,
             *(getattr(Intent, name).is_(None) for name in _DISPATCH_ABSENT_FIELDS),
+        )
+        retry = sa.and_(
+            Intent.termination_state == CasdoorTerminationState.CONFIRMED,
+            Intent.attempt_count == 1,
+            Intent.termination_proof_kind == "avatar_retry_pre_storage",
+            Intent.retry_at.is_not(None),
+        )
+        return (
+            Intent.kind == CasdoorIntentKind.PROFILE_AVATAR,
+            Intent.operation_state == CasdoorOperationState.PENDING,
+            sa.or_(initial, retry),
         )
 
     def _dispatch_cursor(self):
@@ -1992,6 +2582,17 @@ class CasdoorAvatarRepository:
                 root = self._worker_root(intent_id)
                 row = root["intent"]
                 data = _worker_state(row)
+                if row["termination_proof_kind"] == "avatar_retry_pre_storage":
+                    self._read_retry_lineage(row, data)
+                    self._attachment_prior(root, data)
+                    if (
+                        not self._worker_eligible(root, current)
+                        or _worker_time(row["retry_at"]) > current
+                    ):
+                        return None
+                    if self._worker_root(intent_id, lock=False) != root:
+                        return None
+                    return intent_id
                 if (
                     row["kind"] != "profile_avatar"
                     or row["operation_state"] != "pending"
@@ -2011,16 +2612,31 @@ class CasdoorAvatarRepository:
                     return None
                 if prior is not None:
                     old, revision, attempt, file = prior
-                    if self._worker_read(Intent, (Intent.id == old["id"],), lock=False) != old:
+                    if (
+                        self._worker_read(Intent, (Intent.id == old["id"],), lock=False)
+                        != old
+                    ):
                         return None
-                    if self._worker_read(Revision, (Revision.id == revision["id"],), lock=False) != revision:
+                    if (
+                        self._worker_read(
+                            Revision, (Revision.id == revision["id"],), lock=False
+                        )
+                        != revision
+                    ):
                         return None
                     if self._attachment_applied(old, revision, attempt) != file:
                         return None
                 return intent_id
         except SQLAlchemyError:
             raise CasdoorAvatarConflict() from None
-        except (ValueError, TypeError, KeyError, AttributeError, OverflowError, RecursionError):
+        except (
+            ValueError,
+            TypeError,
+            KeyError,
+            AttributeError,
+            OverflowError,
+            RecursionError,
+        ):
             return None
 
     def confirm_pre_storage_failure(self, attempt: _AvatarAttemptRef, capability, *, now: datetime):
@@ -2220,3 +2836,1037 @@ class CasdoorAvatarRepository:
                 return record
         except (SQLAlchemyError, ValueError, TypeError, KeyError, AttributeError, OverflowError, RecursionError):
             return None
+
+    def _retry_claim_write(self, root, data, *, now, **changes):
+        original = root["intent"]
+        for key in ("operation_state", "termination_state"):
+            changes[key] = str(changes[key])
+        expected = dict(
+            original,
+            desired_json=_dump(data),
+            updated_at=now.replace(tzinfo=None),
+            **changes,
+        )
+        _worker_state(expected)
+        self._read_retry_lineage(original, _worker_state(original))
+        changed = self._session.execute(
+            sa.update(Intent)
+            .where(*(getattr(Intent, key) == value for key, value in original.items()))
+            .values(
+                **{key: expected[key] for key in (*changes, "desired_json", "updated_at")}
+            )
+            .execution_options(synchronize_session=False)
+        )
+        if changed.rowcount != 1:
+            raise CasdoorAvatarConflict()
+        self._session.flush()
+        last = data["reservations"][-1]
+        CasdoorAuditRepository(self._session)._append_avatar_retry_claim(
+            _AvatarAttemptAudit(
+                namespace_id=UUID(original["namespace_id"]),
+                revision_id=UUID(original["revision_id"]),
+                identity_id=UUID(original["identity_id"]),
+                account_id=UUID(original["account_id"]),
+                intent_id=UUID(original["id"]),
+                correlation_id=UUID(data["correlation_id"]),
+                attempt_id=UUID(last["attempt_id"]),
+                file_id=UUID(last["file_id"]),
+                generation=original["generation"],
+                fence_epoch=original["fence_epoch"],
+                count=2,
+                action="avatar_claim",
+                result="reserved",
+                reason="claimed",
+            ),
+            retry_audit_id=UUID(original["proof_ref"]),
+            claim_mutable=[
+                [key, _retry_tag(expected[key])] for key in _RETRY_MUTABLE_FIELDS
+            ],
+            claim_sha256=_retry_row_hash(expected),
+            pending_sha256=_retry_row_hash(original),
+            created_at=now.replace(tzinfo=None),
+        )
+        fresh = self._worker_root(UUID(original["id"]), lock=False)
+        if fresh["intent"] != expected or any(
+            fresh[key] != root[key] for key in root if key != "intent"
+        ):
+            raise CasdoorAvatarConflict()
+        if not self._worker_eligible(fresh, now):
+            raise CasdoorAvatarConflict()
+
+    def _read_retry_audit(self, *, action, correlation_id):
+        """Enumerate before bounded hydration; duplicates are never repaired."""
+        ids = self._session.scalars(
+            sa.select(self._dispatch_key_projection(Audit.id))
+            .where(Audit.action == action, Audit.correlation_id == correlation_id)
+            .order_by(Audit.id)
+            .limit(2)
+        ).all()
+        if len(ids) != 1 or not _uuid(ids[0]):
+            raise CasdoorAvatarConflict()
+        cap = (
+            _AVATAR_RETRY_SUMMARY_BYTES
+            if action in ("avatar_retry", "avatar_retry_claim")
+            else _AVATAR_PRE_STORAGE_SUMMARY_BYTES
+        )
+        bounds = []
+        for column in Audit.__table__.columns:
+            if (
+                isinstance(column.type, (sa.String, sa.Text))
+                or column.name == "id"
+                or column.name.endswith("_id")
+            ):
+                maximum = cap if column.name == "summary_json" else 64
+                size = (
+                    sa.func.length(sa.cast(column, sa.LargeBinary))
+                    if self._session.get_bind().dialect.name == "sqlite"
+                    else sa.func.octet_length(column)
+                )
+                bounded = size.between(0, maximum)
+                bounds.append(
+                    sa.or_(column.is_(None), bounded) if column.nullable else bounded
+                )
+        row = (
+            self._session.execute(
+                sa.select(*Audit.__table__.columns).where(Audit.id == ids[0], *bounds)
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None:
+            raise CasdoorAvatarConflict()
+        return dict(row)
+
+    def _read_retry_lineage(self, row, data):
+        audit = self._read_retry_audit(action="avatar_retry", correlation_id=row["id"])
+        original = self._read_retry_audit(
+            action="avatar_pre_storage", correlation_id=data["correlation_id"]
+        )
+        old = _retry_lineage_values(row, data, audit, original)
+        if (
+            row["attempt_count"] == 1
+            and self._session.execute(
+                sa.select(Audit.id)
+                .where(
+                    Audit.action == "avatar_retry_claim", Audit.correlation_id == row["id"]
+                )
+                .limit(1)
+            ).first()
+        ):
+            raise CasdoorAvatarConflict()
+        if row["attempt_count"] == 2:
+            _retry_claim_values(
+                row,
+                data,
+                audit,
+                self._read_retry_audit(
+                    action="avatar_retry_claim", correlation_id=row["id"]
+                ),
+            )
+        if (
+            self._read_retry_audit(action="avatar_retry", correlation_id=row["id"]) != audit
+            or self._read_retry_audit(
+                action="avatar_pre_storage", correlation_id=data["correlation_id"]
+            )
+            != original
+        ):
+            raise CasdoorAvatarConflict()
+        return old
+
+    def _retry_parent_scope(self, intent_id, *, lock):
+        """Discover bounded complete account parents before ordered parent locking."""
+        pointer = self._worker_read(
+            Intent,
+            (Intent.id == str(intent_id),),
+            fields=("namespace_id", "revision_id", "account_id"),
+            lock=False,
+        )
+        if pointer is None or any(not _uuid(value) for value in pointer.values()):
+            raise CasdoorAvatarConflict()
+        revision = self._worker_read(
+            Revision,
+            (Revision.id == pointer["revision_id"],),
+            fields=("integration_id", "default_workspace_id"),
+            lock=False,
+        )
+        if revision is None or any(not _uuid(value) for value in revision.values()):
+            raise CasdoorAvatarConflict()
+        self._worker_read(
+            Integration,
+            (Integration.id == revision["integration_id"],),
+            fields=("id",),
+            lock=lock,
+        )
+
+        def discover():
+            histories = tuple(
+                tuple(item)
+                for item in self._session.execute(
+                    sa.select(
+                        self._dispatch_key_projection(History.id),
+                        self._dispatch_key_projection(History.namespace_id),
+                        self._dispatch_key_projection(History.workspace_id),
+                        self._dispatch_key_projection(History.identity_id),
+                    )
+                    .where(History.account_id == pointer["account_id"])
+                    .order_by(History.id)
+                    .limit(101)
+                )
+            )
+            if len(histories) > 100 or any(
+                not _uuid(value) for item in histories for value in item
+            ):
+                raise CasdoorAvatarConflict()
+            queries = (
+                sa.select(
+                    self._dispatch_key_projection(Identity.id),
+                    self._dispatch_key_projection(Identity.namespace_id),
+                ).where(
+                    sa.or_(
+                        Identity.account_id == pointer["account_id"],
+                        Identity.id.in_([item[3] for item in histories]),
+                    )
+                ),
+                sa.select(
+                    self._dispatch_key_projection(TenantAccountJoin.id),
+                    self._dispatch_key_projection(TenantAccountJoin.tenant_id),
+                ).where(TenantAccountJoin.account_id == pointer["account_id"]),
+            )
+            values = []
+            for query in queries:
+                rows = tuple(
+                    tuple(item)
+                    for item in self._session.execute(
+                        query.order_by(*query.selected_columns).limit(101)
+                    )
+                )
+                if len(rows) > 100 or any(
+                    not _uuid(value) for item in rows for value in item
+                ):
+                    raise CasdoorAvatarConflict()
+                values.append(rows)
+            return (*values, histories)
+
+        scope = discover()
+        namespaces = {
+            pointer["namespace_id"],
+            *(item[1] for item in scope[0]),
+            *(item[1] for item in scope[2]),
+        }
+        workspaces = {
+            revision["default_workspace_id"],
+            *(item[1] for item in scope[1]),
+            *(item[2] for item in scope[2]),
+        }
+        for key in sorted(namespaces):
+            self._worker_read(Namespace, (Namespace.id == key,), fields=("id",), lock=lock)
+        self._worker_read(
+            Account, (Account.id == pointer["account_id"],), fields=("id",), lock=lock
+        )
+        for key in sorted(item[0] for item in scope[0]):
+            self._worker_read(Identity, (Identity.id == key,), fields=("id",), lock=lock)
+        for key in sorted(workspaces):
+            self._worker_read(Tenant, (Tenant.id == key,), fields=("id",), lock=lock)
+        if discover() != scope:
+            raise CasdoorAvatarConflict()
+        metadata = self._retry_scope_metadata(
+            pointer["account_id"], scope, revision["integration_id"]
+        )
+        self._require_retry_scope_intents(pointer["account_id"], scope)
+        return (*scope, metadata)
+
+    def _retry_scope_metadata(self, account_id, scope, integration_id):
+        identities, joins, histories, namespaces, revisions, workspaces = (
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        )
+        for model, keys, fields, dest in (
+            (Identity, [item[0] for item in scope[0]], _RETRY_IDENTITY_FIELDS, identities),
+            (TenantAccountJoin, [item[0] for item in scope[1]], _RETRY_JOIN_FIELDS, joins),
+            (History, [item[0] for item in scope[2]], _RETRY_HISTORY_FIELDS, histories),
+        ):
+            for key in keys:
+                dest.append(self._retry_scope_row(model, key, fields))
+        for key in sorted({item[1] for item in scope[0]} | {item[1] for item in scope[2]}):
+            namespaces.append(
+                self._retry_scope_row(Namespace, key, _RETRY_NAMESPACE_FIELDS)
+            )
+        for key in sorted({item["revision_id"] for item in histories}):
+            revisions.append(self._retry_scope_row(Revision, key, _RETRY_REVISION_FIELDS))
+        for key in sorted({item[1] for item in scope[1]} | {item[2] for item in scope[2]}):
+            workspaces.append(self._retry_scope_row(Tenant, key, ("id", "status")))
+        _retry_scope_values(
+            account_id,
+            integration_id,
+            identities,
+            joins,
+            histories,
+            namespaces,
+            revisions,
+            workspaces,
+        )
+        return tuple(
+            tuple(tuple(row.items()) for row in rows)
+            for rows in (identities, joins, histories, namespaces, revisions, workspaces)
+        )
+
+    def _retry_scope_row(self, model, key, fields):
+        bounds = []
+        for name in fields:
+            column = model.__table__.columns[name]
+            if (
+                isinstance(column.type, (sa.String, sa.Text))
+                or name == "id"
+                or name.endswith("_id")
+            ):
+                maximum = 2048 if name in ("issuer", "expected_issuer") else 255
+                size = (
+                    sa.func.length(sa.cast(column, sa.LargeBinary))
+                    if self._session.get_bind().dialect.name == "sqlite"
+                    else sa.func.octet_length(column)
+                )
+                bounded = size.between(0, maximum)
+                bounds.append(
+                    sa.or_(column.is_(None), bounded) if column.nullable else bounded
+                )
+        row = self._worker_read(
+            model, (model.id == key, *bounds), fields=fields, lock=False
+        )
+        if row is None:
+            raise CasdoorAvatarConflict()
+        return row
+
+    def _require_retry_scope_intents(self, account_id, scope):
+        history_ids = [item[0] for item in scope[2]]
+        identity_ids = [item[0] for item in scope[0]]
+        where = sa.or_(
+            Intent.account_id == account_id,
+            Intent.identity_id.in_(identity_ids),
+            Intent.membership_id.in_(history_ids),
+        )
+        if self._session.execute(
+            sa.select(Intent.id)
+            .where(where, Intent.kind != CasdoorIntentKind.PROFILE_AVATAR)
+            .limit(1)
+        ).first():
+            raise CasdoorAvatarConflict()
+        # Other unfinished avatar work cannot be silently discarded to enable retry.
+        rows = self._session.execute(
+            sa.select(Intent.id, Intent.operation_state, Intent.termination_state)
+            .where(where)
+            .order_by(Intent.id)
+            .limit(101)
+        ).all()
+        if len(rows) > 100:
+            raise CasdoorAvatarConflict()
+        return rows
+
+    def prepare_confirmed_pre_storage_retry(self, intent_id, *, actor_account_id, now):
+        """Caller authenticated manager; exact SQL CAS and lineage, no commit/I/O."""
+        current = self._worker_begin(now)
+        if type(intent_id) is not UUID or type(actor_account_id) is not UUID:
+            raise CasdoorAvatarConflict()
+        scope = self._retry_parent_scope(intent_id, lock=True)
+        root = self._worker_root(intent_id)
+        row = root["intent"]
+        data = _worker_state(row)
+        self._validate_retry_related_avatars(
+            self._require_retry_scope_intents(row["account_id"], scope), row["id"]
+        )
+        if (
+            row["operation_state"] == "pending"
+            and row["termination_proof_kind"] == "avatar_retry_pre_storage"
+        ):
+            self._read_retry_lineage(row, data)
+            if not self._worker_eligible(root, current):
+                raise CasdoorAvatarConflict()
+            return {"status": "pending", "intent_id": row["id"]}
+        _pre_storage_state(row, data)
+        audit = self._read_retry_audit(
+            action="avatar_pre_storage", correlation_id=data["correlation_id"]
+        )
+        # Reconstruct original retained facts with the frozen v2 parser/digest.
+        original = _pre_storage_summary_v2(audit["summary_json"])
+        refs = {
+            key: row[key]
+            for key in ("namespace_id", "revision_id", "identity_id", "account_id")
+        }
+        expected_refs = dict(
+            refs,
+            intent_id=row["id"],
+            attempt_id=row["attempt_id"],
+            file_id=data["reservations"][0]["file_id"],
+        )
+        if (
+            original
+            != dict(
+                schema_version=2,
+                references=expected_refs,
+                count=1,
+                generation=row["generation"],
+                fence_epoch=row["fence_epoch"],
+                reason=row["error_code"],
+                proof_ref=row["proof_ref"],
+                terminal_intent_sha256=_pre_storage_intent_digest(row),
+            )
+            or any(audit[key] != row[key] for key in refs)
+            or audit["actor_account_id"] is not None
+            or audit["result_code"] != "failed"
+            or not self._worker_eligible(root, current)
+        ):
+            raise CasdoorAvatarConflict()
+        self._attachment_prior(root, data)
+        if self._session.execute(
+            sa.select(Audit.id)
+            .where(Audit.action == "avatar_retry", Audit.correlation_id == row["id"])
+            .limit(1)
+        ).first():
+            raise CasdoorAvatarConflict()
+        audit_id = uuid4()
+        stamp = current.replace(tzinfo=None)
+        changes = dict(
+            operation_state="pending",
+            termination_proof_kind="avatar_retry_pre_storage",
+            proof_ref=str(audit_id),
+            retry_at=stamp,
+            updated_at=stamp,
+        )
+        expected = dict(row, **changes)
+        _worker_state(expected)
+        summary = dict(
+            schema_version=1,
+            references=dict(refs, intent_id=row["id"]),
+            before=[[key, _retry_tag(row[key])] for key in _RETRY_MUTABLE_FIELDS],
+            original_audit_id=audit["id"],
+            original_audit_sha256=_retry_row_hash(audit),
+            original_terminal_sha256=_pre_storage_intent_digest(row),
+            original_desired_sha256=hashlib.sha256(
+                row["desired_json"].encode()
+            ).hexdigest(),
+            immutable_sha256=_retry_base_hash(row, data),
+            pending_sha256=_retry_row_hash(expected),
+            retry_at=stamp.isoformat(timespec="microseconds"),
+        )
+        changed = self._session.execute(
+            sa.update(Intent)
+            .where(*(getattr(Intent, key) == value for key, value in row.items()))
+            .values(**changes)
+            .execution_options(synchronize_session=False)
+        )
+        if changed.rowcount != 1:
+            raise CasdoorAvatarConflict()
+        self._session.flush()
+        CasdoorAuditRepository(self._session)._append_avatar_retry(
+            _AvatarRetryAudit(audit_id, actor_account_id, summary, stamp)
+        )
+        fresh = self._worker_root(intent_id, lock=False)
+        if (
+            fresh["intent"] != expected
+            or fresh["retry_scope"] != scope
+            or any(fresh[key] != root[key] for key in root if key != "intent")
+        ):
+            raise CasdoorAvatarConflict()
+        self._read_retry_lineage(fresh["intent"], _worker_state(fresh["intent"]))
+        return {"status": "pending", "intent_id": row["id"]}
+
+    def inspect_retry_target(self, intent_id, *, now):
+        current = self._worker_begin(now)
+        root = self._worker_root(intent_id, lock=False)
+        row = root["intent"]
+        data = _worker_state(row)
+        _pre_storage_state(row, data)
+        # A navigation result is only a snapshot; POST always rechecks the SQL proof.
+        audit = self._read_retry_audit(
+            action="avatar_pre_storage", correlation_id=data["correlation_id"]
+        )
+        _retry_original_values(row, data, audit)
+        scope = self._retry_parent_scope(intent_id, lock=False)
+        self._validate_retry_related_avatars(
+            self._require_retry_scope_intents(row["account_id"], scope), row["id"]
+        )
+        if not self._worker_eligible(root, current):
+            raise CasdoorAvatarConflict()
+        self._attachment_prior(root, data)
+        return {
+            "account_id": row["account_id"],
+            "identity_id": row["identity_id"],
+            "intent_id": row["id"],
+            "reason": row["error_code"],
+            "retry_eligible": True,
+        }
+
+    def list_retry_target_ids(self, after, limit):
+        if (
+            (after is not None and type(after) is not UUID)
+            or type(limit) is not int
+            or not 1 <= limit <= 100
+        ):
+            raise CasdoorAvatarConflict()
+        key = self._dispatch_key_projection(Intent.id)
+        where = [
+            Intent.kind == "profile_avatar",
+            Intent.operation_state == "failed",
+            Intent.termination_state == "confirmed",
+            Intent.attempt_count == 1,
+        ]
+        if after is not None:
+            where.append(Intent.id > str(after))
+        rows = self._session.scalars(
+            sa.select(key).where(*where).order_by(Intent.id).limit(limit + 1)
+        ).all()
+        if any(not _uuid(key) for key in rows):
+            raise CasdoorAvatarConflict()
+        return tuple(UUID(key) for key in rows[:limit]), len(rows) > limit
+
+
+    def _validate_retry_related_avatars(self, rows, target_id):
+        target = self._worker_read(
+            Intent, (Intent.id == target_id,), fields=("account_id",), lock=False
+        )
+        if target is None:
+            raise CasdoorAvatarConflict()
+        for key, state, termination in rows:
+            if key == target_id:
+                continue
+            if state != "applied" or termination != "confirmed":
+                raise CasdoorAvatarConflict()
+            row = self._worker_read(Intent, (Intent.id == key,), lock=False)
+            if row is None or row["account_id"] != target["account_id"]:
+                raise CasdoorAvatarConflict()
+            identity = self._worker_read(
+                Identity,
+                (Identity.id == row["identity_id"],),
+                fields=("account_id", "namespace_id"),
+                lock=False,
+            )
+            if identity is None or identity != {
+                "account_id": target["account_id"],
+                "namespace_id": row["namespace_id"],
+            }:
+                raise CasdoorAvatarConflict()
+            revision = self._worker_read(
+                Revision, (Revision.id == row["revision_id"],), lock=False
+            )
+            self._attachment_applied(
+                row,
+                revision,
+                _AvatarAttemptRef(UUID(key), UUID(row["attempt_id"]), row["lease_owner"]),
+            )
+
+
+_RETRY_DATES = {"lease_expires_at", "sent_at", "acknowledged_at", "readback_at", "terminated_at", "retry_at", "updated_at"}
+
+
+def _retry_tag(value):
+    if value is None:
+        return ["null"]
+    if type(value) is datetime and value.tzinfo is None:
+        return ["datetime", value.isoformat(timespec="microseconds")]
+    if type(value) in (int, str):
+        return ["int" if type(value) is int else "str", value]
+    raise CasdoorAvatarConflict()
+
+
+def _retry_untag(name, tagged):
+    if tagged == ["null"]:
+        return None
+    if tagged[0] == "datetime" and name in _RETRY_DATES:
+        value = datetime.fromisoformat(tagged[1])
+        if (
+            value.tzinfo is not None
+            or value.isoformat(timespec="microseconds") != tagged[1]
+        ):
+            raise CasdoorAvatarConflict()
+        _worker_time(value)
+        return value
+    if (
+        tagged[0] == "int"
+        and name == "attempt_count"
+        and type(tagged[1]) is int
+        or tagged[0] == "str"
+        and name not in _RETRY_DATES
+        and name != "attempt_count"
+        and type(tagged[1]) is str
+    ):
+        return tagged[1]
+    raise CasdoorAvatarConflict()
+
+
+def _retry_hash(value):
+    return hashlib.sha256(
+        b"dify-plus:casdoor:avatar-retry:v1\x00" + _dump(value).encode()
+    ).hexdigest()
+
+
+def _retry_row_hash(row):
+    return _retry_hash([[key, _retry_tag(value)] for key, value in row.items()])
+
+
+def _retry_base_hash(row, data):
+    return _retry_hash(
+        dict(
+            sql=[
+                [key, _retry_tag(value)]
+                for key, value in row.items()
+                if key not in _RETRY_MUTABLE_FIELDS and key != "desired_json"
+            ],
+            desired={
+                key: value
+                for key, value in data.items()
+                if key not in ("reservations", "cleanup_state", "result_file_id")
+            },
+        )
+    )
+
+
+def _retry_shape(row, data):
+    """Recognize a narrow scalar shape only; callers must read durable lineage."""
+    return (
+        row["attempt_count"] in (1, 2)
+        and len(data["reservations"]) == row["attempt_count"]
+        and data["reservations"][0]["cleanup_state"] == "complete"
+    )
+
+
+def _retry_lineage_values(row, data, audit, original_audit):
+    """Exact SQL evidence comparison, never a permission or executable grant."""
+    summary = _retry_summary_v1(audit["summary_json"])
+    refs = summary["references"]
+    if (
+        not _retry_shape(row, data)
+        or any(refs[key] != row[key] for key in refs if key != "intent_id")
+        or refs["intent_id"] != row["id"]
+        or audit["action"] != "avatar_retry"
+        or audit["result_code"] != "pending"
+        or audit["correlation_id"] != row["id"]
+        or not _uuid(audit["actor_account_id"])
+        or any(
+            audit[key] != row[key]
+            for key in ("namespace_id", "revision_id", "identity_id", "account_id")
+        )
+        or summary["original_audit_id"] != original_audit["id"]
+        or _retry_row_hash(original_audit) != summary["original_audit_sha256"]
+        or _retry_base_hash(row, data) != summary["immutable_sha256"]
+    ):
+        raise CasdoorAvatarConflict()
+    before = {name: _retry_untag(name, tagged) for name, tagged in summary["before"]}
+    old_data = dict(
+        data,
+        reservations=[dict(data["reservations"][0])],
+        cleanup_state="complete",
+        result_file_id=None,
+    )
+    old = dict(row, **before, desired_json=_dump(old_data))
+    _worker_state(old)
+    _pre_storage_state(old, old_data)
+    original = _pre_storage_summary_v2(original_audit["summary_json"])
+    old_refs = {
+        key: old[key]
+        for key in ("namespace_id", "revision_id", "identity_id", "account_id")
+    }
+    old_refs.update(
+        intent_id=old["id"],
+        attempt_id=old["attempt_id"],
+        file_id=old_data["reservations"][0]["file_id"],
+    )
+    if (
+        hashlib.sha256(old["desired_json"].encode()).hexdigest()
+        != summary["original_desired_sha256"]
+        or _pre_storage_intent_digest(old) != summary["original_terminal_sha256"]
+        or original
+        != dict(
+            schema_version=2,
+            references=old_refs,
+            count=1,
+            generation=old["generation"],
+            fence_epoch=old["fence_epoch"],
+            reason=old["error_code"],
+            proof_ref=old["proof_ref"],
+            terminal_intent_sha256=summary["original_terminal_sha256"],
+        )
+        or any(
+            original_audit[key] != old[key]
+            for key in ("namespace_id", "revision_id", "identity_id", "account_id")
+        )
+        or original_audit["actor_account_id"] is not None
+        or original_audit["action"] != "avatar_pre_storage"
+        or original_audit["result_code"] != "failed"
+        or original_audit["correlation_id"] != data["correlation_id"]
+    ):
+        raise CasdoorAvatarConflict()
+    stamp = datetime.fromisoformat(summary["retry_at"])
+    _worker_time(stamp)
+    if (
+        stamp.isoformat(timespec="microseconds") != summary["retry_at"]
+        or stamp != audit["created_at"]
+    ):
+        raise CasdoorAvatarConflict()
+    pending = dict(
+        old,
+        operation_state="pending",
+        proof_ref=audit["id"],
+        termination_proof_kind="avatar_retry_pre_storage",
+        retry_at=stamp,
+        updated_at=stamp,
+    )
+    if (
+        _retry_row_hash(pending) != summary["pending_sha256"]
+        or stamp < old["terminated_at"]
+    ):
+        raise CasdoorAvatarConflict()
+    if row["attempt_count"] == 1:
+        if row != pending:
+            raise CasdoorAvatarConflict()
+    else:
+        if (
+            data["reservations"][0] != old_data["reservations"][0]
+            or data["reservations"][1]["attempt_id"] == old["attempt_id"]
+            or row["attempt_id"] != data["reservations"][1]["attempt_id"]
+            or row["operation_state"] not in ("in_flight", "applied", "unknown")
+            or row["updated_at"] < stamp
+        ):
+            raise CasdoorAvatarConflict()
+    return old
+
+
+def _retry_claim_values(row, data, retry, claim):
+    raw = claim["summary_json"]
+    parsed = json.loads(raw)
+    extra = {"claim_mutable", "claim_sha256", "pending_sha256"}
+    refs = {
+        key: row[key]
+        for key in ("namespace_id", "revision_id", "identity_id", "account_id")
+    }
+    refs.update(
+        intent_id=row["id"],
+        attempt_id=row["attempt_id"],
+        file_id=data["reservations"][-1]["file_id"],
+    )
+    expected = dict(
+        schema_version=1,
+        references=refs,
+        count=2,
+        generation=row["generation"],
+        fence_epoch=row["fence_epoch"],
+        reason="claimed",
+        retry_audit_id=retry["id"],
+    )
+    if (
+        type(parsed) is not dict
+        or set(parsed) != set(expected) | extra
+        or any(parsed[key] != value for key, value in expected.items())
+        or json.dumps(
+            {key: parsed[key] for key in expected},
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        != json.dumps(expected, sort_keys=True, separators=(",", ":"))
+        or json.dumps(parsed, sort_keys=True, separators=(",", ":")) != raw
+        or claim["action"] != "avatar_retry_claim"
+        or claim["result_code"] != "reserved"
+        or claim["actor_account_id"] is not None
+        or claim["correlation_id"] != row["id"]
+        or any(
+            claim[key] != row[key]
+            for key in ("namespace_id", "revision_id", "identity_id", "account_id")
+        )
+        or not retry["created_at"] <= claim["created_at"] <= row["updated_at"]
+        or [item[0] for item in parsed["claim_mutable"]] != list(_RETRY_MUTABLE_FIELDS)
+    ):
+        raise CasdoorAvatarConflict()
+    mutable = {
+        name: _retry_untag(name, tagged) for name, tagged in parsed["claim_mutable"]
+    }
+    claim_data = dict(
+        data,
+        result_file_id=None,
+        cleanup_state="none",
+        reservations=[
+            dict(data["reservations"][0]),
+            dict(data["reservations"][1], cleanup_state="none"),
+        ],
+    )
+    claimed = dict(row, **mutable, desired_json=_dump(claim_data))
+    _worker_state(claimed)
+    retry_summary = _retry_summary_v1(retry["summary_json"])
+    if (
+        claimed["operation_state"] != "in_flight"
+        or claimed["attempt_count"] != 2
+        or claimed["updated_at"] != claim["created_at"]
+        or claimed["attempt_id"] != row["attempt_id"]
+        or claimed["lease_owner"] != row["lease_owner"]
+        or claimed["lease_expires_at"] != row["lease_expires_at"]
+        or parsed["claim_sha256"] != _retry_row_hash(claimed)
+        or parsed["pending_sha256"] != retry_summary["pending_sha256"]
+    ):
+        raise CasdoorAvatarConflict()
+
+
+_RETRY_IDENTITY_FIELDS = ("id", "namespace_id", "account_id", "issuer", "organization", "subject", "subject_digest", "sync_generation")
+_RETRY_JOIN_FIELDS = ("id", "tenant_id", "account_id", "role")
+_RETRY_HISTORY_FIELDS = ("id", "namespace_id", "identity_id", "account_id", "workspace_id", "join_id", "revision_id", "ownership", "ownership_epoch", "desired_generation", "source", "finalization", "tombstone")
+_RETRY_NAMESPACE_FIELDS = ("id", "integration_id", "expected_issuer", "organization", "application", "client_id", "lifecycle", "fence_epoch")
+_RETRY_REVISION_FIELDS = ("id", "namespace_id", "integration_id", "expected_issuer", "organization", "application", "client_id")
+
+
+def _retry_scope_values(
+    account_id,
+    integration_id,
+    identities,
+    joins,
+    histories,
+    namespaces,
+    revisions,
+    workspaces,
+):
+    ns = {item["id"]: item for item in namespaces}
+    rev = {item["id"]: item for item in revisions}
+    ids = {item["id"]: item for item in identities}
+    tenants = {item["id"]: item for item in workspaces}
+    for item in (*identities, *joins, *histories, *namespaces, *revisions, *workspaces):
+        if any(
+            value is not None and not _uuid(value)
+            for key, value in item.items()
+            if key
+            in (
+                "id",
+                "namespace_id",
+                "integration_id",
+                "identity_id",
+                "account_id",
+                "workspace_id",
+                "tenant_id",
+                "join_id",
+                "revision_id",
+            )
+        ):
+            raise CasdoorAvatarConflict()
+    if any(
+        item["integration_id"] != integration_id
+        or item["lifecycle"] not in ("active", "archived")
+        or not _generation(item["fence_epoch"])
+        for item in namespaces
+    ):
+        raise CasdoorAvatarConflict()
+    for item in identities:
+        parent = ns.get(item["namespace_id"])
+        if (
+            parent is None
+            or item["account_id"] != account_id
+            or item["issuer"] != parent["expected_issuer"]
+            or item["organization"] != parent["organization"]
+            or not _generation(item["sync_generation"])
+            or not item["subject"]
+            or hashlib.sha256(item["subject"].encode()).hexdigest()
+            != item["subject_digest"]
+        ):
+            raise CasdoorAvatarConflict()
+    if len({item["tenant_id"] for item in joins}) != len(joins) or any(
+        item["account_id"] != account_id
+        or item["tenant_id"] not in tenants
+        or item["role"] not in set(TenantAccountRole)
+        for item in joins
+    ):
+        raise CasdoorAvatarConflict()
+    for item in histories:
+        parent, revision, identity = (
+            ns.get(item["namespace_id"]),
+            rev.get(item["revision_id"]),
+            ids.get(item["identity_id"]),
+        )
+        if (
+            parent is None
+            or revision is None
+            or item["account_id"] != account_id
+            or item["workspace_id"] not in tenants
+            or revision["integration_id"] != integration_id
+            or revision["namespace_id"] != parent["id"]
+            or any(
+                revision[key] != parent[key]
+                for key in (
+                    "expected_issuer",
+                    "organization",
+                    "application",
+                    "client_id",
+                )
+            )
+            or not _generation(item["ownership_epoch"])
+            or not _generation(item["desired_generation"])
+            or item["ownership"] not in ("managed", "local_override", "released")
+            or item["source"] not in ("mapping", "fallback", "adopt")
+            or item["finalization"] not in ("pending", "finalized", "manual_recovery")
+            or type(item["tombstone"]) not in (int, bool)
+            or item["tombstone"] not in (0, 1)
+            or (
+                identity is not None
+                and (identity["namespace_id"], identity["account_id"])
+                != (item["namespace_id"], item["account_id"])
+            )
+        ):
+            raise CasdoorAvatarConflict()
+        if item["join_id"] is not None and not any(
+            join["id"] == item["join_id"] and join["tenant_id"] == item["workspace_id"]
+            for join in joins
+        ):
+            raise CasdoorAvatarConflict()
+
+
+def _retry_original_values(row, data, audit):
+    refs = {
+        key: row[key]
+        for key in ("namespace_id", "revision_id", "identity_id", "account_id")
+    }
+    expected_refs = dict(
+        refs,
+        intent_id=row["id"],
+        attempt_id=row["attempt_id"],
+        file_id=data["reservations"][0]["file_id"],
+    )
+    if (
+        _pre_storage_summary_v2(audit["summary_json"])
+        != dict(
+            schema_version=2,
+            references=expected_refs,
+            count=1,
+            generation=row["generation"],
+            fence_epoch=row["fence_epoch"],
+            reason=row["error_code"],
+            proof_ref=row["proof_ref"],
+            terminal_intent_sha256=_pre_storage_intent_digest(row),
+        )
+        or any(audit[key] != row[key] for key in refs)
+        or audit["actor_account_id"] is not None
+        or audit["action"] != "avatar_pre_storage"
+        or audit["result_code"] != "failed"
+        or audit["correlation_id"] != data["correlation_id"]
+    ):
+        raise CasdoorAvatarConflict()
+
+
+def _reservation_row_hash(value):
+    """New domain-separated full SQL/reservation digest, with explicit scalar tags."""
+
+    def tagged(item):
+        if type(item) is dict:
+            return ["dict", [[key, tagged(val)] for key, val in item.items()]]
+        if type(item) is list:
+            return ["list", [tagged(val) for val in item]]
+        return _retry_tag(item)
+
+    return hashlib.sha256(
+        b"dify-plus:casdoor:avatar-reservation-fence:v1\x00" + _dump(tagged(value)).encode()
+    ).hexdigest()
+
+
+def _avatar_uuid_reference(column, file_id: UUID):
+    """Conservative portable scalar reference equality for Python UUID's accepted text forms.
+
+    Account stores submitted text; PG's UUID UploadFile lookup and MySQL collation
+    can resolve variants. Match those variants without rewriting the stored value.
+    False positives preserve the candidate. This is no arbitrary JSON scan.
+    """
+    value = sa.func.lower(column)
+    for part in ("urn:", "uuid:", "{", "}", "-"):
+        value = sa.func.replace(value, part, "")
+    return value == file_id.hex
+
+
+@dataclass(frozen=True, repr=False)
+class _AvatarCleanupRecord:
+    intent_id: UUID
+    reservation: AvatarReservation
+    intent_values: tuple
+    audit_values: tuple
+    guard: object
+
+
+def _cleanup_state(row, data):
+    """Exact normal-store terminal shape, separate from all old nonapplied shapes."""
+    last = data["reservations"][-1]
+    if (
+        row["operation_state"] != "failed"
+        or row["termination_state"] != "confirmed"
+        or row["attempt_count"] not in (1, 2)
+        or row["attempt_id"] != last["attempt_id"]
+        or row["resource_id"] != last["file_id"]
+        or data["result_file_id"] is not None
+        or data["cleanup_state"] not in ("pending", "complete")
+        or last["cleanup_state"] != data["cleanup_state"]
+        or (row["attempt_count"] == 2 and data["reservations"][0]["cleanup_state"] != "complete")
+        or not _uuid(row["proof_ref"])
+        or row["error_code"] != "attachment_lost"
+        or row["retry_at"] is not None
+        or row["sent_at"] is not None
+        or row["acknowledged_at"] is not None
+        or type(row["lease_owner"]) is not str
+        or re.fullmatch(r"[0-9a-f]{64}", row["lease_owner"]) is None
+        or row["lease_expires_at"] is None
+        or row["terminated_at"] is None
+        or (
+            data["cleanup_state"] == "pending"
+            and (row["readback_at"] is not None or row["updated_at"] != row["terminated_at"])
+        )
+        or (
+            data["cleanup_state"] == "complete"
+            and (row["readback_at"] is None or row["updated_at"] != row["readback_at"])
+        )
+    ):
+        raise CasdoorAvatarConflict()
+    for name in ("lease_expires_at", "terminated_at", "updated_at"):
+        _worker_time(row[name])
+    if data["cleanup_state"] == "complete":
+        if _worker_time(row["readback_at"]) < _worker_time(row["terminated_at"]):
+            raise CasdoorAvatarConflict()
+    return data
+
+
+def _cleanup_afterimage(row, data, proof_ref, now, *, complete):
+    changed = dict(
+        data,
+        cleanup_state="complete" if complete else "pending",
+        reservations=[
+            *data["reservations"][:-1],
+            dict(data["reservations"][-1], cleanup_state="complete" if complete else "pending"),
+        ],
+    )
+    result = dict(
+        row,
+        desired_json=_dump(changed),
+        operation_state="failed",
+        termination_state="confirmed",
+        resource_id=data["reservations"][-1]["file_id"],
+        termination_proof_kind="avatar_cleanup",
+        proof_ref=proof_ref,
+        terminated_at=row["terminated_at"] if complete else now,
+        readback_at=now if complete else None,
+        error_code="attachment_lost",
+        updated_at=now,
+    )
+    _worker_state(result)
+    return result
+
+
+def _cleanup_manifest_value(value):
+    if type(value) in (tuple, list):
+        return [_cleanup_manifest_value(x) for x in value]
+    if type(value) is dict:
+        return {name: _cleanup_manifest_value(item) for name, item in value.items()}
+    return value
+
+
+def _cleanup_beforeimage(row, data, audit):
+    summary = _avatar_cleanup_summary(audit["summary_json"])
+    result = dict(row, **{name: _retry_untag(name, tagged) for name, tagged in summary["before_mutable"]})
+    before_data = dict(
+        data,
+        cleanup_state="none",
+        reservations=[*data["reservations"][:-1], dict(data["reservations"][-1], cleanup_state="none")],
+    )
+    result["desired_json"] = _dump(before_data)
+    if _reservation_row_hash(result) != summary["before_sha256"]:
+        raise CasdoorAvatarConflict()
+    return result

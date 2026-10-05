@@ -230,7 +230,8 @@ def test_invalid_request_details_are_hidden_and_uncached(setup_api):
     response = call(harness, "PUT")
     assert response.status_code == 400
     assert response.json["code"] == "invalid_transaction"
-    assert set(response.json) == {"code", "message", "correlation_id"}
+    assert set(response.json) == {"code", "message", "reason", "correlation_id"}
+    assert response.json["reason"] is None
     assert response.headers["Cache-Control"] == "no-store"
     serialized = response.get_data(as_text=True)
     for field in ('"loc"', '"input"', '"ctx"'):

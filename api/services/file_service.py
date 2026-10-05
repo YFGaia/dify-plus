@@ -284,6 +284,19 @@ def _avatar_valid_normalized(normalized: NormalizedAvatar) -> bool:
 
 
 class FileService:
+    @staticmethod
+    def _cleanup_reserved_avatar(permit):
+        """One-use exact orphan cleanup after original acknowledged/closed SQL roots."""
+        from core.casdoor.avatar_cleanup_provider import _delete_native_avatar
+        from core.casdoor.avatar_termination import _consume_avatar_cleanup_io, _observe_avatar_cleanup_deleted
+
+        domain, record = _consume_avatar_cleanup_io(permit)
+        if not _avatar_valid_reservation(record.reservation):
+            raise ValueError("avatar_cleanup_invalid")
+        if _delete_native_avatar(domain, record.reservation):
+            return _observe_avatar_cleanup_deleted(domain, record)
+        return None
+
     _session_maker: sessionmaker[Session]
 
     def __init__(self, session_factory: sessionmaker | Engine | None = None):

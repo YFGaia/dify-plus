@@ -47,6 +47,53 @@ export const zCasdoorSelfErrorResponse = z.object({
 })
 
 /**
+ * CasdoorIdentityActionsResponse
+ */
+export const zCasdoorIdentityActionsResponse = z.object({
+  link: z.boolean(),
+  reason: z
+    .enum([
+      'managed_history_requires_release',
+      'other_login_unavailable',
+      'reauthentication_required',
+      'reauthentication_unavailable',
+    ])
+    .nullish(),
+  reauthenticate: z.boolean(),
+  unlink: z.boolean(),
+})
+
+/**
+ * CasdoorLinkIdentityPayload
+ *
+ * Empty request: source account comes only from the current session owner.
+ */
+export const zCasdoorLinkIdentityPayload = z.record(z.string(), z.never())
+
+/**
+ * CasdoorNavigationResponse
+ *
+ * Opaque local handler path; the server validates/consumes the handoff.
+ */
+export const zCasdoorNavigationResponse = z.object({
+  handoff_path: z.string().min(1).max(2048),
+})
+
+/**
+ * CasdoorUnlinkIdentityPayload
+ *
+ * Proof is bound server-side to the current account, identity and action.
+ */
+export const zCasdoorUnlinkIdentityPayload = z.record(z.string(), z.never())
+
+/**
+ * CasdoorIdentityUnlinkedResponse
+ */
+export const zCasdoorIdentityUnlinkedResponse = z.object({
+  status: z.literal('unlinked'),
+})
+
+/**
  * ChangeEmailSendPayload
  */
 export const zChangeEmailSendPayload = z.object({
@@ -332,7 +379,36 @@ export const zCasdoorSelfNameResponse = z.object({
  */
 export const zCasdoorSelfIdentityResponse = z.object({
   activity: z.enum(['active', 'inactive', 'unknown']),
-  avatar_status: z.literal('unknown'),
+  avatar_consistency: z.enum(['current', 'historical', 'unknown']),
+  avatar_current_local_differs_from_last_applied: z.boolean().nullable(),
+  avatar_last_reason: z
+    .enum([
+      'attachment_lost',
+      'commit_unknown',
+      'fetch_cancelled',
+      'fetch_failed',
+      'fetch_rejected',
+      'fetch_unknown',
+      'image_rejected',
+      'lease_expired',
+      'storage_unknown',
+    ])
+    .nullable(),
+  avatar_recorded_at: z.string().max(40).nullable(),
+  avatar_recorded_generation: z.int().gte(0).lte(9223372036854776000).nullable(),
+  avatar_status: z.enum([
+    'failed_before_storage',
+    'failed_storage_cleaned',
+    'historical',
+    'in_flight',
+    'local_attachment_recorded',
+    'local_override',
+    'no_record',
+    'off',
+    'pending',
+    'source_expired',
+    'unknown',
+  ]),
   email: zCasdoorSelfEmailResponse,
   id: z.string().nullable(),
   lifecycle: z.enum(['active', 'archived', 'fencing', 'unknown']),
@@ -378,6 +454,20 @@ export const zAccountResponseWritable = z.object({
   timezone: z.string().nullish(),
 })
 
+/**
+ * CasdoorLinkIdentityPayload
+ *
+ * Empty request: source account comes only from the current session owner.
+ */
+export const zCasdoorLinkIdentityPayloadWritable = z.record(z.string(), z.never())
+
+/**
+ * CasdoorUnlinkIdentityPayload
+ *
+ * Proof is bound server-side to the current account, identity and action.
+ */
+export const zCasdoorUnlinkIdentityPayloadWritable = z.record(z.string(), z.never())
+
 export const zGetAccountAvatarQuery = z.object({
   avatar: z.string(),
 })
@@ -405,6 +495,32 @@ export const zGetAccountCasdoorIdentityQuery = z.object({
  * Private local observations
  */
 export const zGetAccountCasdoorIdentityResponse = zCasdoorSelfIdentityStatusResponse
+
+/**
+ * Current source-session identity actions
+ */
+export const zGetAccountCasdoorIdentityActionsResponse = zCasdoorIdentityActionsResponse
+
+export const zPostAccountCasdoorIdentityLinkBody = zCasdoorLinkIdentityPayloadWritable
+
+/**
+ * Local identity handoff
+ */
+export const zPostAccountCasdoorIdentityLinkResponse = zCasdoorNavigationResponse
+
+export const zPostAccountCasdoorIdentityReauthenticateBody = zCasdoorUnlinkIdentityPayloadWritable
+
+/**
+ * Local reauthentication handoff
+ */
+export const zPostAccountCasdoorIdentityReauthenticateResponse = zCasdoorNavigationResponse
+
+export const zPostAccountCasdoorIdentityUnlinkBody = zCasdoorUnlinkIdentityPayloadWritable
+
+/**
+ * Identity unlinked; original session preserved
+ */
+export const zPostAccountCasdoorIdentityUnlinkResponse = zCasdoorIdentityUnlinkedResponse
 
 export const zPostAccountChangeEmailBody = zChangeEmailSendPayload
 

@@ -1,7 +1,14 @@
 import type { CasdoorConfigurationResponse } from '@dify/contracts/api/console/system-manage-extend/types.gen'
 import { useTranslation } from '#i18n'
+import { DiagnosticStatus } from './diagnostic-status'
 
-export function SavedStatus({ response }: { response: CasdoorConfigurationResponse }) {
+export function SavedStatus({
+  response,
+  onExpire,
+}: {
+  response: CasdoorConfigurationResponse
+  onExpire: () => void
+}) {
   const { t } = useTranslation('extend')
   return (
     <section className="space-y-1 rounded-lg border border-divider-regular p-3">
@@ -37,6 +44,7 @@ export function SavedStatus({ response }: { response: CasdoorConfigurationRespon
           })}
         </p>
       ))}
+      {response.draft && <DiagnosticStatus revision={response.draft} onExpire={onExpire} />}
     </section>
   )
 }

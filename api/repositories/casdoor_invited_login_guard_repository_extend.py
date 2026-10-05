@@ -123,6 +123,8 @@ def _invitation_exclusion(guard, session, account_id, workspace_id):
 
 
 def _begin_invited_b3(guard, session, plan, fence, generation, withdrawals):
+    from repositories.casdoor_invited_existing_history_repository_extend import invited_withdrawal_workspaces
+
     value = _binding(guard, session)
     attempt = value.observed.attempt
     _require(
@@ -133,7 +135,7 @@ def _begin_invited_b3(guard, session, plan, fence, generation, withdrawals):
         and type(generation) is int
         and generation == attempt.expected_generation
         and type(withdrawals) is tuple
-        and not withdrawals
+        and withdrawals == invited_withdrawal_workspaces(session, value.observed.scope, plan, generation)
     )
     value.owner._before_write(value)
     value.phase = "writing"
@@ -142,25 +144,11 @@ def _begin_invited_b3(guard, session, plan, fence, generation, withdrawals):
 def _invited_target_guard(guard, session, workspace_id):
     value = _binding(guard, session)
     _require(value.phase == "writing" and workspace_id in {t.workspace_id for t in value.plan.targets})
-    # No old/withdrawn/regrant history may reach the pinned membership inspector.
-    # Later targets remain empty; only already-processed targets gain new rows.
-    joins = sa.select(Join.id).where(
-        Join.account_id == str(value.plan.context.account_id), Join.tenant_id == str(workspace_id)
+    prior = tuple(row for row in value.rows["histories"] if row.workspace_id == str(workspace_id))
+    current = value.owner._rows(
+        History, History.account_id == str(value.plan.context.account_id), History.workspace_id == str(workspace_id)
     )
-    history = session.scalar(
-        sa.select(History.id)
-        .where(
-            sa.or_(
-                sa.and_(
-                    History.account_id == str(value.plan.context.account_id), History.workspace_id == str(workspace_id)
-                ),
-                History.join_id.in_(joins),
-            )
-        )
-        .limit(1)
-        .with_for_update()
-    )
-    _require(history is None)
+    _require(current == prior)
     value.owner._invitation_unchanged(value)
     value.owner._identity_generation(value, increment=1)
     return guard if workspace_id == value.observed.attempt.workspace_id else None
@@ -249,6 +237,13 @@ class CasdoorInvitedLoginGuardRepository:
             "identities": self._rows(Identity, Identity.account_id == str(attempt.account_id)),
             "workspaces": self._rows(Tenant, Tenant.id.in_([row.id for row in scope.workspaces])),
             "joins": self._rows(Join, Join.account_id == str(attempt.account_id)),
+            "histories": self._rows(
+                History,
+                sa.or_(
+                    History.account_id == str(attempt.account_id),
+                    History.join_id.in_(sa.select(Join.id).where(Join.account_id == str(attempt.account_id))),
+                ),
+            ),
         }
 
     def _leases(self, value):
@@ -311,8 +306,7 @@ class CasdoorInvitedLoginGuardRepository:
         ).prelock_and_recheck_completed_invitation(attempt)
         before = observed.scope
         _require(
-            before.histories == ()
-            and before.account is not None
+            before.account is not None
             and before.account.status is AccountStatus.ACTIVE
             and before.account.initialized_at is not None
             and len(before.intents) == 1
@@ -335,6 +329,17 @@ class CasdoorInvitedLoginGuardRepository:
         )
         plan = resolve_workspace_plan(
             configuration=before.configuration, snapshot=roles, context=context, availability=before.availability()
+        )
+        from repositories.casdoor_invited_existing_history_repository_extend import prior_history_rows
+
+        prior_history_rows(
+            self.session,
+            before,
+            namespace_id=context.namespace_id,
+            account_id=context.account_id,
+            identity_id=context.identity_id,
+            generation=attempt.expected_generation,
+            plan=plan,
         )
         value = _Binding(
             self,
@@ -362,12 +367,18 @@ class CasdoorInvitedLoginGuardRepository:
 
     def persist_once(self, guard):
         """Save the actual B3 result internally; callers cannot supply a result."""
+        from repositories.casdoor_invited_existing_history_repository_extend import invited_withdrawal_workspaces
+
         value = _binding(guard, self.session)
         _require(value.owner is self and value.phase == "issued")
         result = CasdoorLocalMembershipService(self.session).persist_local_memberships(
             value.plan,
             expected_fence_epoch=value.observed.attempt.context.fence_epoch,
             expected_generation=value.observed.attempt.expected_generation,
+            withdrawal_workspace_ids=invited_withdrawal_workspaces(
+                self.session, value.observed.scope, value.plan, value.observed.attempt.expected_generation
+            ),
+            correlation_id=value.observed.completion.snapshot.operation_id,
             invitation_guard=guard,
         )
         _require(value.phase == "writing")
@@ -400,7 +411,6 @@ class CasdoorInvitedLoginGuardRepository:
                 value.observed.attempt.expected_generation + 1,
             )
         )
-        _require(not result.withdrawals and not result._controlled_effects)
         _require(len(result.workspaces) == len(plan.targets))
         self._invitation_unchanged(value)
         self._identity_generation(value, increment=1)
@@ -444,33 +454,11 @@ class CasdoorInvitedLoginGuardRepository:
             and prior.updated_at.utcoffset() in (None, timedelta(0))
             and own.updated_at >= prior.updated_at
         )
-        all_joins = {row.id: row for row in actual["joins"]}
-        for row in value.rows["joins"]:
-            _require(all_joins.pop(row.id, None) == row)
-        created = set()
-        for target, summary in zip(plan.targets, result.workspaces, strict=True):
-            _require(
-                target.workspace_id == summary.workspace_id and summary.intent_barrier is RequiredIntentBarrier.CLEAR
-            )
-            _require(not summary.membership_regranted)
-            if summary.membership_created:
-                _require(summary.outcome in (LocalRoleOutcome.APPLIED, LocalRoleOutcome.NOOP))
-                _require(summary.ownership_decision is OwnershipDecision.NEW_JOIN_REQUIRED)
-                created.add(str(summary.join_id))
-            else:
-                _require(
-                    summary.outcome is LocalRoleOutcome.PRESERVED
-                    and summary.membership_id is None
-                    and summary.ownership_decision
-                    in (OwnershipDecision.PRESERVE_UNMANAGED, OwnershipDecision.OWNER_PROTECTED)
-                    and not summary.role_changed
-                    and not summary.metadata_changed
-                    and summary.finalization is None
-                )
-        _require(set(all_joins) == created)
-        _require(all(str(summary.join_id) in {row.id for row in actual["joins"]} for summary in result.workspaces))
+        from repositories.casdoor_invited_existing_history_repository_extend import verify_prior_write_rows
+
+        captured = verify_prior_write_rows(value.rows, actual, plan, result)
         CasdoorLoginScopeRepository(self.session, self.configuration_factory)._verify_memberships(
-            before, current, plan, result
+            before, current, plan, result, controlled_before=captured
         )
         self._leases(value)
         # Configuration is reconstructed once more after the lease I/O boundary.
@@ -526,41 +514,62 @@ class CasdoorInvitedLoginGuardRepository:
             }
             for item in result.workspaces
         ]
-        return InvitedLocalWriteReceipt.from_values(
-            {
-                "schema_version": 1,
-                "receipt_kind": RECEIPT_KIND,
-                "references": {
-                    "operation_id": str(facts.snapshot.operation_id),
-                    "issuance_id": str(attempt.issuance_id),
-                    "integration_id": str(context.integration_id),
-                    "namespace_id": str(context.namespace_id),
-                    "revision_id": str(context.revision_id),
-                    "identity_id": str(context.identity_id),
-                    "account_id": str(context.account_id),
-                    "workspace_id": str(attempt.workspace_id),
-                    "invitation_join_id": facts.join_id,
-                },
-                "generation_before": attempt.expected_generation,
-                "generation_after": result.generation,
-                "fence_epoch": result.fence_epoch,
-                "scope_digest": facts.snapshot.scope_digest,
-                "completion_proof_ref": facts.proof_ref,
-                "payload_digest": value.rows["issuance"].payload_digest,
-                "results": results,
-                "postwrite_sha256": self._postwrite_digest(value, value.verified_scope),
-            }
-        )
+        receipt = {
+            "schema_version": 1,
+            "receipt_kind": RECEIPT_KIND,
+            "references": {
+                "operation_id": str(facts.snapshot.operation_id),
+                "issuance_id": str(attempt.issuance_id),
+                "integration_id": str(context.integration_id),
+                "namespace_id": str(context.namespace_id),
+                "revision_id": str(context.revision_id),
+                "identity_id": str(context.identity_id),
+                "account_id": str(context.account_id),
+                "workspace_id": str(attempt.workspace_id),
+                "invitation_join_id": facts.join_id,
+            },
+            "generation_before": attempt.expected_generation,
+            "generation_after": result.generation,
+            "fence_epoch": result.fence_epoch,
+            "scope_digest": facts.snapshot.scope_digest,
+            "completion_proof_ref": facts.proof_ref,
+            "payload_digest": value.rows["issuance"].payload_digest,
+            "results": results,
+            "postwrite_sha256": self._postwrite_digest(value, value.verified_scope),
+        }
+        if result.withdrawals or any(item.membership_regranted for item in result.workspaces):
+            receipt["schema_version"] = 2
+            receipt["withdrawals"] = [
+                {
+                    "workspace_id": str(item.workspace_id),
+                    "membership_id": str(item.membership_id),
+                    "removed_join_id": str(item.removed_join_id),
+                    "prior_role": item.prior_role.value,
+                    "epoch_before": item.epoch_before,
+                    "epoch_after": item.epoch_after,
+                    "generation": result.generation,
+                    "fence_epoch": result.fence_epoch,
+                }
+                for item in sorted(result.withdrawals, key=lambda item: str(item.workspace_id))
+            ]
+        return InvitedLocalWriteReceipt.from_values(receipt)
 
     def _recheck_verified(self, value):
+        from repositories.casdoor_invited_existing_history_repository_extend import verify_prior_write_rows
+
         _require(value.verified_scope is not None and value.verified_rows is not None)
         current = self._scope(value)
         _require(current == value.verified_scope)
-        _require(self._snapshot_rows(value.observed) == value.verified_rows)
+        actual = self._snapshot_rows(value.observed)
+        _require(actual == value.verified_rows)
         self._invitation_unchanged(value)
         self._identity_generation(value, increment=1)
         CasdoorLoginScopeRepository(self.session, self.configuration_factory)._verify_memberships(
-            value.observed.scope, current, value.plan, value.result
+            value.observed.scope,
+            current,
+            value.plan,
+            value.result,
+            controlled_before=verify_prior_write_rows(value.rows, actual, value.plan, value.result),
         )
         if value.receipt is not None:
             _require(self._postwrite_digest(value, current) == value.receipt.values()["postwrite_sha256"])
@@ -577,13 +586,18 @@ class CasdoorInvitedLoginGuardRepository:
         value.phase = "receipting"
         audit = CasdoorAuditRepository(self.session)
         value.audit_row = audit._append_invited_write_receipt(value.receipt, invitation_guard=guard)
+        from repositories.casdoor_terminal_retained_invitation_facts_extend import append_actual, reread_actual
+
+        retained = append_actual(self, guard)
         self._recheck_verified(value)
+        reread_actual(self, guard, retained)
         audit._read_invited_write_receipt(value.receipt, dict(value.audit_row._mapping))
         self._leases(value)
         # No lease I/O follows these complete final SQL/projection checks.
         self._recheck_verified(value)
         audit._read_invited_write_receipt(value.receipt, dict(value.audit_row._mapping))
         _require(self._receipt_from_verified(value) == value.receipt)
+        reread_actual(self, guard, retained)
         _check_deadline(value.deadline)
         value.phase = "receipted"
 

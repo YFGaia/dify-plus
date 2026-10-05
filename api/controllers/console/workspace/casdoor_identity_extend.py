@@ -2,23 +2,58 @@
 
 import re
 from typing import Literal
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from flask import Response, request
+from core.casdoor.auth_transactions import (
+    SCOPE_COOKIE_NAME,
+    AuthMode,
+    AuthTransactionError,
+    source_initialization_cookie_name,
+)
+from core.casdoor.errors import CasdoorErrorCode
+from core.casdoor.request_safety import (
+    LocalReferences,
+    RequestAction,
+    SafetyEvent,
+    SafetyResultCode,
+    format_public_error,
+    record_safety_event,
+)
+from extensions.ext_application_services import application_services
+from fields.base import ResponseModel
+from flask import Response, jsonify, make_response, request
 from flask_restx import Resource
+from libs.helper import dump_response
+from libs.login import login_required
+from libs.token import extract_refresh_token
+from machinery.context import RequestContext
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
+from repositories.casdoor_self_identity_repository_extend import CasdoorSelfReadConflict
+from services.casdoor_identity_action_service_extend import PROOF_COOKIE_NAME, PROOF_SCOPE_COOKIE_NAME
 
 from controllers.common.schema import (
     query_params_from_model,
     register_response_schema_models,
+    register_schema_models,
 )
 from controllers.console import bp, console_ns
+from controllers.console.auth.casdoor_extend import (
+    _apply_cookies,
+    _diagnostic_account,
+    _direct_ip,
+    _exact_directives,
+    _security_cookie,
+)
+from controllers.console.casdoor_schemas_extend import (
+    CasdoorIdentityActionsResponse,
+    CasdoorIdentityUnlinkedResponse,
+    CasdoorLinkIdentityPayload,
+    CasdoorNavigationResponse,
+    CasdoorResultResponse,
+    CasdoorRevisionPayload,
+    CasdoorUnlinkIdentityPayload,
+)
 from controllers.console.flask_admission import console_account_admission
-from extensions.ext_application_services import application_services
-from fields.base import ResponseModel
-from libs.helper import dump_response
-from machinery.context import RequestContext
-from repositories.casdoor_self_identity_repository_extend import CasdoorSelfReadConflict
 
 PATH = "/console/api/account/casdoor-identity"
 
@@ -77,7 +112,42 @@ class CasdoorSelfIdentityResponse(ClosedResponse):
     profile_consistency: Literal["consistent", "historical", "unknown"]
     name: CasdoorSelfNameResponse
     email: CasdoorSelfEmailResponse
-    avatar_status: Literal["unknown"]
+    avatar_status: Literal[
+        "off",
+        "no_record",
+        "pending",
+        "source_expired",
+        "in_flight",
+        "unknown",
+        "failed_before_storage",
+        "failed_storage_cleaned",
+        "local_attachment_recorded",
+        "local_override",
+        "historical",
+    ]
+    avatar_recorded_at: str | None = Field(
+        max_length=40,
+        description=(
+            "UTC operation record time. DB attachment readback does not prove physical storage synchronization."
+        ),
+    )
+    avatar_last_reason: (
+        Literal[
+            "fetch_rejected",
+            "fetch_failed",
+            "fetch_cancelled",
+            "fetch_unknown",
+            "image_rejected",
+            "storage_unknown",
+            "attachment_lost",
+            "lease_expired",
+            "commit_unknown",
+        ]
+        | None
+    )
+    avatar_recorded_generation: int | None = Field(ge=0, le=2**63 - 1)
+    avatar_consistency: Literal["current", "historical", "unknown"]
+    avatar_current_local_differs_from_last_applied: bool | None
 
 
 class CasdoorSelfCurrentMembershipResponse(ClosedResponse):
@@ -155,9 +225,10 @@ def _self_private_response(response: Response) -> Response:
     """Applies to native auth/routing errors without changing their status codes."""
     if request.path == PATH or request.path.startswith(PATH + "/"):
         response.headers["Cache-Control"] = "no-store"
+        response.headers["Referrer-Policy"] = "no-referrer"
         response.vary.add("Cookie")
         response.vary.add("Authorization")
-        if response.status_code >= 400:
+        if response.status_code >= 400 and not getattr(response, "_casdoor_action_error", False):
             # Replace native descriptions/input, including routing failures, with
             # a fixed public code. Do not inspect or read an error response body.
             code = getattr(response, "_casdoor_self_code", "casdoor_self_request_rejected")
@@ -221,3 +292,152 @@ class CasdoorSelfIdentityApi(Resource):
     @console_ns.doc(False)
     def options(self):
         return Response(status=204, headers={"Allow": "GET, OPTIONS"})
+
+
+register_schema_models(console_ns, CasdoorLinkIdentityPayload, CasdoorUnlinkIdentityPayload, CasdoorRevisionPayload)
+register_response_schema_models(
+    console_ns,
+    CasdoorIdentityActionsResponse,
+    CasdoorIdentityUnlinkedResponse,
+    CasdoorNavigationResponse,
+    CasdoorResultResponse,
+)
+
+
+class CasdoorIdentityActionResource(Resource):
+    method_decorators = [login_required]
+    safety_action = RequestAction.START
+
+    def dispatch_request(self, *args, **kwargs):
+        correlation = uuid4()
+        references = LocalReferences()
+        try:
+            response = make_response(super().dispatch_request(*args, **kwargs))
+            references = getattr(self, "_source_references", references)
+            code = SafetyResultCode.SUCCESS if response.status_code < 400 else CasdoorErrorCode.INVALID_TRANSACTION
+        except Exception as error:
+            public = format_public_error(
+                CasdoorErrorCode.INVALID_TRANSACTION
+                if isinstance(error, (AuthTransactionError, ValueError))
+                else error,
+                correlation_id=correlation,
+            )
+            response = jsonify(dump_response(CasdoorResultResponse, public.payload()))
+            response.status_code = public.status
+            response._casdoor_action_error = True
+            if public.retry_after_seconds is not None:
+                response.headers["Retry-After"] = str(public.retry_after_seconds)
+            code = public.code
+        try:
+            record_safety_event(SafetyEvent(self.safety_action, code, correlation, references=references))
+        except Exception:
+            # Logging cannot change the authorization/transport result; never
+            # log the original exception, request values or provider data.
+            response.headers["Cache-Control"] = "no-store"
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+    @staticmethod
+    def _input(model):
+        if request.args:
+            raise AuthTransactionError()
+        return model.model_validate(request.get_json())
+
+    @staticmethod
+    def _arguments(*, proof=False):
+        return {
+            "refresh_token": extract_refresh_token(request),
+            "browser_scope": _security_cookie(PROOF_SCOPE_COOKIE_NAME if proof else SCOPE_COOKIE_NAME),
+            "server_ip": _direct_ip(),
+        }
+
+    def _prepare(self, mode, **extra):
+        service = application_services().casdoor_identity_action
+        account = _diagnostic_account()
+        result = service.prepare_action(account, mode=mode, **self._arguments(), **extra)
+        self._source_references = LocalReferences(account_id=UUID(account.id), actor_account_id=UUID(account.id))
+        response = make_response(dump_response(CasdoorNavigationResponse, {"handoff_path": result.path}))
+        # The account POST does not overwrite the auth-path shared scope.
+        prefix = "/console/api/auth/casdoor/identity/"
+        if not result.path.startswith(prefix) or not re.fullmatch(r"[A-Za-z0-9_-]{43}", result.path[len(prefix) :]):
+            raise AuthTransactionError()
+        handle = result.path[len(prefix) :]
+        _exact_directives(
+            service, result.cookies, ((source_initialization_cookie_name(handle), None, 60, result.path),)
+        )
+        return _apply_cookies(response, result.cookies)
+
+
+@console_ns.route("/account/casdoor-identity/actions")
+class CasdoorIdentityActionsApi(CasdoorIdentityActionResource):
+    @console_ns.doc(False)
+    def head(self):
+        return Response(status=405, headers={"Allow": "GET, OPTIONS"})
+
+    @console_ns.response(
+        200, "Current source-session identity actions", console_ns.models[CasdoorIdentityActionsResponse.__name__]
+    )
+    def get(self):
+        if request.args or request.get_data(cache=False):
+            raise AuthTransactionError()
+        result = application_services().casdoor_identity_action.action_status(
+            _diagnostic_account(), proof=_security_cookie(PROOF_COOKIE_NAME), **self._arguments(proof=True)
+        )
+        return dump_response(CasdoorIdentityActionsResponse, result)
+
+
+@console_ns.route("/account/casdoor-identity/link")
+class CasdoorIdentityLinkApi(CasdoorIdentityActionResource):
+    safety_action = RequestAction.LINK
+
+    @console_ns.expect(console_ns.models[CasdoorLinkIdentityPayload.__name__])
+    @console_ns.response(200, "Local identity handoff", console_ns.models[CasdoorNavigationResponse.__name__])
+    def post(self):
+        self._input(CasdoorLinkIdentityPayload)
+        return self._prepare(AuthMode.LINK)
+
+
+@console_ns.route("/account/casdoor-identity/reauthenticate")
+class CasdoorIdentityReauthenticateApi(CasdoorIdentityActionResource):
+    safety_action = RequestAction.REAUTH
+
+    @console_ns.expect(console_ns.models[CasdoorUnlinkIdentityPayload.__name__])
+    @console_ns.response(200, "Local reauthentication handoff", console_ns.models[CasdoorNavigationResponse.__name__])
+    def post(self):
+        self._input(CasdoorUnlinkIdentityPayload)
+        return self._prepare(AuthMode.REAUTH_UNLINK)
+
+
+@console_ns.route("/account/casdoor-identity/unlink")
+class CasdoorIdentityUnlinkApi(CasdoorIdentityActionResource):
+    safety_action = RequestAction.REAUTH
+
+    @console_ns.expect(console_ns.models[CasdoorUnlinkIdentityPayload.__name__])
+    @console_ns.response(
+        200,
+        "Identity unlinked; original session preserved",
+        console_ns.models[CasdoorIdentityUnlinkedResponse.__name__],
+    )
+    def post(self):
+        self._input(CasdoorUnlinkIdentityPayload)
+        service = application_services().casdoor_identity_action
+        clear = service.unlink_action(
+            _diagnostic_account(), proof=_security_cookie(PROOF_COOKIE_NAME), **self._arguments(proof=True)
+        )
+        _exact_directives(service, clear, ((PROOF_COOKIE_NAME, "", 0, PATH), (PROOF_SCOPE_COOKIE_NAME, "", 0, PATH)))
+        return _apply_cookies(
+            make_response(dump_response(CasdoorIdentityUnlinkedResponse, {"status": "unlinked"})), clear
+        )
+
+
+@console_ns.route("/system-manage-extend/integration/casdoor/test-reauth")
+class CasdoorReauthenticationDiagnosticApi(CasdoorIdentityActionResource):
+    safety_action = RequestAction.DIAGNOSTIC
+
+    @console_ns.expect(console_ns.models[CasdoorRevisionPayload.__name__])
+    @console_ns.response(
+        200, "Local reviewed reauthentication diagnostic handoff", console_ns.models[CasdoorNavigationResponse.__name__]
+    )
+    def post(self):
+        payload = self._input(CasdoorRevisionPayload)
+        return self._prepare(AuthMode.DIAGNOSTIC, **payload.model_dump())

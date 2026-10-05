@@ -68,6 +68,43 @@ class CasdoorLocalRoleRepository:
         self._session = session
         self._preparations: dict[int, LocalRolePreparation] = {}
         self._invitation_guards: dict[int, object] = {}
+        self._ordinary_guards: dict[int, object] = {}
+
+    def apply_lifecycle_join_role(self, *, account_id, workspace_id, join_id, expected_role, target_role):
+        """Actual LOCAL role CAS for the separate lifecycle preparation owner.
+
+        This helper does not authorize adoption. Its caller has already consumed
+        an issuer-owned preparation and locked integration/all namespaces/account/
+        identity/workspace/join/all histories and checked all-kind zero intents.
+        It returns the actual change observation. The caller must flush its exact
+        History CAS before the original invitation lineage owner is invoked.
+        """
+        self._require_clean_root()
+        if dify_config.RBAC_ENABLED is not False or expected_role not in LOCAL_ROLES or target_role not in LOCAL_ROLES:
+            raise CasdoorLocalRoleConflict()
+        actual = self._session.execute(
+            sa.select(TenantAccountJoin.id, TenantAccountJoin.role)
+            .where(TenantAccountJoin.account_id == str(account_id), TenantAccountJoin.tenant_id == str(workspace_id))
+            .with_for_update()
+        ).one_or_none()
+        if actual is None or tuple(actual) != (str(join_id), expected_role):
+            raise CasdoorLocalRoleConflict()
+        if expected_role is target_role:
+            return False
+        result = self._session.execute(
+            sa.update(TenantAccountJoin)
+            .where(
+                TenantAccountJoin.id == str(join_id),
+                TenantAccountJoin.account_id == str(account_id),
+                TenantAccountJoin.tenant_id == str(workspace_id),
+                TenantAccountJoin.role == expected_role,
+            )
+            .values(role=target_role)
+            .execution_options(synchronize_session=False)
+        )
+        if result.rowcount != 1:
+            raise CasdoorLocalRoleConflict()
+        return True
 
     def validate_parent_scope(self, version: GenerationPlanVersion, target: DesiredWorkspaceTarget) -> None:
         """Read parent/default consistency without current-history preparation.
@@ -88,13 +125,20 @@ class CasdoorLocalRoleRepository:
                 raise CasdoorLocalRoleConflict()
 
     def prepare(
-        self, version: GenerationPlanVersion, target: DesiredWorkspaceTarget, *, invitation_guard: object | None = None
+        self,
+        version: GenerationPlanVersion,
+        target: DesiredWorkspaceTarget,
+        *,
+        invitation_guard: object | None = None,
+        _ordinary_guard=None,
     ) -> LocalRolePreparation:
         self._require_clean_root()
         self._validate(version, target)
+        if invitation_guard is not None and _ordinary_guard is not None:
+            raise CasdoorLocalRoleConflict()
         with self._session.no_autoflush:
             state = (
-                self._read_locked(version, target)
+                self._read_locked(version, target, _ordinary_guard=_ordinary_guard)
                 if invitation_guard is None
                 else self._read_locked(version, target, invitation_guard=invitation_guard)
             )
@@ -104,6 +148,8 @@ class CasdoorLocalRoleRepository:
         self._preparations[id(token)] = token
         if invitation_guard is not None:
             self._invitation_guards[id(token)] = invitation_guard
+        if _ordinary_guard is not None:
+            self._ordinary_guards[id(token)] = _ordinary_guard
         return token
 
     def apply(self, token: LocalRolePreparation) -> LocalRoleApplyReceipt:
@@ -112,12 +158,13 @@ class CasdoorLocalRoleRepository:
         if not isinstance(token, LocalRolePreparation) or self._preparations.pop(id(token), None) is not token:
             raise CasdoorLocalRoleConflict()
         invitation_guard = self._invitation_guards.pop(id(token), None)
+        ordinary_guard = self._ordinary_guards.pop(id(token), None)
         if self._session.get_transaction() is not token.transaction:
             raise CasdoorLocalRoleConflict()
         role = self._validate(token.version, token.target)
         with self._session.no_autoflush:
             state = (
-                self._read_locked(token.version, token.target)
+                self._read_locked(token.version, token.target, _ordinary_guard=ordinary_guard)
                 if invitation_guard is None
                 else self._read_locked(token.version, token.target, invitation_guard=invitation_guard)
             )
@@ -380,7 +427,9 @@ class CasdoorLocalRoleRepository:
             return sa.func.length(sa.cast(column, sa.LargeBinary))
         return sa.func.octet_length(column)
 
-    def _read_locked(self, version, target, *, invitation_guard=None) -> tuple:
+    def _read_locked(self, version, target, *, invitation_guard=None, _ordinary_guard=None) -> tuple:
+        if invitation_guard is not None and _ordinary_guard is not None:
+            raise CasdoorLocalRoleConflict()
         parents = self._guard_owner(version, target)
         c = version.plan.context
         workspace = self._session.execute(
@@ -408,6 +457,12 @@ class CasdoorLocalRoleRepository:
                 .with_for_update()
             )
         )
+        if any(r.namespace_id != str(c.namespace_id) for r in refs):
+            from repositories.casdoor_membership_repository_extend import CasdoorMembershipRepository
+
+            refs = CasdoorMembershipRepository(self._session)._current_local_refs(
+                c.account_id, target.workspace_id, c.namespace_id, c.identity_id
+            )
         if len(refs) > 1 or any(not all(self._uuid(v) for v in row) for row in refs):
             raise CasdoorLocalRoleConflict()
         if refs and (refs[0].namespace_id, refs[0].identity_id) != (str(c.namespace_id), str(c.identity_id)):
@@ -452,7 +507,7 @@ class CasdoorLocalRoleRepository:
                 raise CasdoorLocalRoleConflict()
         owner = CasdoorRequiredIntentRepository(self._session)
         intents = (
-            owner.read_locked(c.account_id, target.workspace_id)
+            owner.read_locked(c.account_id, target.workspace_id, _ordinary_guard=_ordinary_guard)
             if invitation_guard is None
             else owner.read_locked(c.account_id, target.workspace_id, invitation_guard=invitation_guard)
         )

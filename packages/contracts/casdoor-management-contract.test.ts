@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vite-plus/test'
 import { contractLoaders } from './generated/api/console/orpc.gen'
 import {
   zCasdoorConfigurationResponse,
+  zCasdoorDraftDiagnosticPreviewResponse,
+  zCasdoorTestLoginResponse,
   zCasdoorRevisionResponse,
   zGetSystemManageExtendIntegrationCasdoorWorkspacesQuery,
   zGetSystemManageExtendIntegrationCasdoorWorkspacesResponse,
@@ -23,23 +25,47 @@ const configuration: CasdoorConfiguration = {
 }
 
 describe('generated Casdoor management contract', () => {
-  it('loads exactly the six accepted operations through the generated segment', async () => {
+  it('loads the twenty-one current management operations through the generated segment', async () => {
     const { systemManageExtend } = await contractLoaders.systemManageExtend()
     const casdoor = systemManageExtend.integration.casdoor
     const prefix = '/system-manage-extend/integration/casdoor'
     const operations = [
+      [casdoor.resetNamespace.review.post, 'POST', `${prefix}/reset-namespace/review`],
+      [casdoor.resetNamespace.post, 'POST', `${prefix}/reset-namespace`],
+      [casdoor.sync.retryTargets.get, 'GET', `${prefix}/sync/retry-targets`],
+      [casdoor.sync.retry.post, 'POST', `${prefix}/sync/retry`],
       [casdoor.get, 'GET', prefix],
       [casdoor.put, 'PUT', prefix],
       [casdoor.permissions.get, 'GET', `${prefix}/permissions`],
       [casdoor.clearSecret.post, 'POST', `${prefix}/clear-secret`],
       [casdoor.validate.post, 'POST', `${prefix}/validate`],
       [casdoor.workspaces.get, 'GET', `${prefix}/workspaces`],
+      [casdoor.activate.post, 'POST', `${prefix}/activate`],
+      [casdoor.disable.post, 'POST', `${prefix}/disable`],
+      [casdoor.testLogin.post, 'POST', `${prefix}/test-login`],
+      [casdoor.testReauth.post, 'POST', `${prefix}/test-reauth`],
+      [casdoor.testRpLogout.post, 'POST', `${prefix}/test-rp-logout`],
+      [casdoor.rpLogoutStatus.get, 'GET', `${prefix}/rp-logout-status`],
+      [casdoor.localMembership.get, 'GET', `${prefix}/local-membership`],
+      [casdoor.localMembership.targets.get, 'GET', `${prefix}/local-membership/targets`],
+      [casdoor.localMembership.review.post, 'POST', `${prefix}/local-membership/review`],
+      [casdoor.localMembership.release.post, 'POST', `${prefix}/local-membership/release`],
+      [casdoor.localMembership.adopt.post, 'POST', `${prefix}/local-membership/adopt`],
     ] as const
     expect(Object.keys(casdoor).sort()).toEqual([
+      'activate',
       'clearSecret',
+      'disable',
       'get',
+      'localMembership',
       'permissions',
       'put',
+      'resetNamespace',
+      'rpLogoutStatus',
+      'sync',
+      'testLogin',
+      'testReauth',
+      'testRpLogout',
       'validate',
       'workspaces',
     ])
@@ -135,6 +161,43 @@ describe('generated Casdoor management contract', () => {
       zPostSystemManageExtendIntegrationCasdoorValidateResponse.safeParse({
         ...result,
         static_only: false,
+      }).success,
+    ).toBe(false)
+  })
+})
+
+describe('native diagnostic response contract', () => {
+  it('exports started with opaque handoff and constrains safe blocked reason literals', () => {
+    expect(
+      zCasdoorTestLoginResponse.parse({
+        status: 'started',
+        reason: null,
+        handoff: { handoff_path: `/console/api/auth/casdoor/diagnostic/${'A'.repeat(43)}` },
+      }).status,
+    ).toBe('started')
+    expect(
+      zCasdoorTestLoginResponse.safeParse({ status: 'blocked', reason: 'provider secret text' })
+        .success,
+    ).toBe(false)
+  })
+  it('bounds the generated read-only desired-permission projection and excludes owner targets', () => {
+    const preview = {
+      revision_id: revisionId,
+      namespace_id: revisionId,
+      correlation_id: revisionId,
+      effective_role_count: 2000,
+      stages: [{ stage: 'protocol', status: 'passed' }],
+      targets: [{ workspace_id: revisionId, target_role: 'editor', reason: 'role_mapping' }],
+    }
+    expect(zCasdoorDraftDiagnosticPreviewResponse.safeParse(preview).success).toBe(true)
+    expect(
+      zCasdoorDraftDiagnosticPreviewResponse.safeParse({ ...preview, effective_role_count: 2001 })
+        .success,
+    ).toBe(false)
+    expect(
+      zCasdoorDraftDiagnosticPreviewResponse.safeParse({
+        ...preview,
+        targets: [{ ...preview.targets[0], target_role: 'owner' }],
       }).success,
     ).toBe(false)
   })

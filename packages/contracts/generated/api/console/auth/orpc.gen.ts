@@ -8,10 +8,12 @@ import {
   zGetAuthCasdoorDisplayResponse,
   zGetAuthCasdoorResultQuery,
   zGetAuthCasdoorResultResponse,
+  zGetAuthCasdoorSessionResponse,
   zGetAuthPluginDatasourceByProviderIdPath,
   zGetAuthPluginDatasourceByProviderIdResponse,
   zGetAuthPluginDatasourceDefaultListResponse,
   zGetAuthPluginDatasourceListResponse,
+  zPostAuthCasdoorLogoutRetryResponse,
   zPostAuthPluginDatasourceByProviderIdBody,
   zPostAuthPluginDatasourceByProviderIdCustomClientBody,
   zPostAuthPluginDatasourceByProviderIdCustomClientPath,
@@ -55,6 +57,24 @@ export const display = {
   head,
 }
 
+export const post = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postAuthCasdoorLogoutRetry',
+    path: '/auth/casdoor/logout/retry',
+    tags: ['console'],
+  })
+  .output(zPostAuthCasdoorLogoutRetryResponse)
+
+export const retry = {
+  post,
+}
+
+export const logout = {
+  retry,
+}
+
 export const get2 = oc
   .route({
     inputStructure: 'detailed',
@@ -70,12 +90,28 @@ export const result = {
   get: get2,
 }
 
-export const casdoor = {
-  display,
-  result,
+export const get3 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getAuthCasdoorSession',
+    path: '/auth/casdoor/session',
+    tags: ['console'],
+  })
+  .output(zGetAuthCasdoorSessionResponse)
+
+export const session = {
+  get: get3,
 }
 
-export const get3 = oc
+export const casdoor = {
+  display,
+  logout,
+  result,
+  session,
+}
+
+export const get4 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -86,10 +122,10 @@ export const get3 = oc
   .output(zGetAuthPluginDatasourceDefaultListResponse)
 
 export const defaultList = {
-  get: get3,
+  get: get4,
 }
 
-export const get4 = oc
+export const get5 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -100,7 +136,7 @@ export const get4 = oc
   .output(zGetAuthPluginDatasourceListResponse)
 
 export const list = {
-  get: get4,
+  get: get5,
 }
 
 export const delete_ = oc
@@ -114,7 +150,7 @@ export const delete_ = oc
   .input(z.object({ params: zDeleteAuthPluginDatasourceByProviderIdCustomClientPath }))
   .output(zDeleteAuthPluginDatasourceByProviderIdCustomClientResponse)
 
-export const post = oc
+export const post2 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -132,10 +168,10 @@ export const post = oc
 
 export const customClient = {
   delete: delete_,
-  post,
+  post: post2,
 }
 
-export const post2 = oc
+export const post3 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -152,10 +188,10 @@ export const post2 = oc
   .output(zPostAuthPluginDatasourceByProviderIdDefaultResponse)
 
 export const default_ = {
-  post: post2,
+  post: post3,
 }
 
-export const post3 = oc
+export const post4 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -172,10 +208,10 @@ export const post3 = oc
   .output(zPostAuthPluginDatasourceByProviderIdDeleteResponse)
 
 export const delete2 = {
-  post: post3,
+  post: post4,
 }
 
-export const post4 = oc
+export const post5 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -193,10 +229,10 @@ export const post4 = oc
   .output(zPostAuthPluginDatasourceByProviderIdUpdateResponse)
 
 export const update = {
-  post: post4,
+  post: post5,
 }
 
-export const post5 = oc
+export const post6 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -213,10 +249,10 @@ export const post5 = oc
   .output(zPostAuthPluginDatasourceByProviderIdUpdateNameResponse)
 
 export const updateName = {
-  post: post5,
+  post: post6,
 }
 
-export const get5 = oc
+export const get6 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -227,7 +263,7 @@ export const get5 = oc
   .input(z.object({ params: zGetAuthPluginDatasourceByProviderIdPath }))
   .output(zGetAuthPluginDatasourceByProviderIdResponse)
 
-export const post6 = oc
+export const post7 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -244,8 +280,8 @@ export const post6 = oc
   .output(zPostAuthPluginDatasourceByProviderIdResponse)
 
 export const byProviderId = {
-  get: get5,
-  post: post6,
+  get: get6,
+  post: post7,
   customClient,
   default: default_,
   delete: delete2,

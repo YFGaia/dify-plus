@@ -136,6 +136,9 @@ class Storage:
         return self.storage_runner.scan(path, files=files, directories=directories)
 
 
+_AVATAR_STORAGE_OWNER_METHODS = {name: getattr(Storage, name) for name in ("save", "load_stream", "delete", "exists")}
+
+
 storage = Storage()
 
 

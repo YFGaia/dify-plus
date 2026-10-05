@@ -48,6 +48,35 @@ const nameCopy = {
   skipped: 'casdoorIdentity.skipped',
   unchanged: 'casdoorIdentity.unchanged',
 } satisfies Record<NonNullable<CasdoorSelfNameResponse['last_status']>, CopyKey>
+const avatarCopy = {
+  off: 'casdoorIdentity.disabled',
+  no_record: 'casdoorIdentity.avatarNoRecord',
+  pending: 'casdoorIdentity.avatarPending',
+  source_expired: 'casdoorIdentity.avatarSourceExpired',
+  in_flight: 'casdoorIdentity.avatarInFlight',
+  unknown: 'casdoorIdentity.unknown',
+  failed_before_storage: 'casdoorIdentity.avatarBeforeStorageFailure',
+  failed_storage_cleaned: 'casdoorIdentity.avatarStorageCleaned',
+  local_attachment_recorded: 'casdoorIdentity.avatarAttachmentRecorded',
+  local_override: 'casdoorIdentity.override',
+  historical: 'casdoorIdentity.historical',
+} satisfies Record<CasdoorSelfIdentityResponse['avatar_status'], CopyKey>
+const avatarConsistencyCopy = {
+  current: 'casdoorIdentity.avatarCurrent',
+  historical: 'casdoorIdentity.historical',
+  unknown: 'casdoorIdentity.unknown',
+} satisfies Record<CasdoorSelfIdentityResponse['avatar_consistency'], CopyKey>
+const avatarReasonCopy = {
+  fetch_rejected: 'casdoorIdentity.avatarFetchRejected',
+  fetch_failed: 'casdoorIdentity.avatarFetchFailed',
+  fetch_cancelled: 'casdoorIdentity.avatarFetchCancelled',
+  fetch_unknown: 'casdoorIdentity.avatarFetchUnknown',
+  image_rejected: 'casdoorIdentity.avatarImageRejected',
+  storage_unknown: 'casdoorIdentity.avatarStorageUnknown',
+  attachment_lost: 'casdoorIdentity.avatarAttachmentLost',
+  lease_expired: 'casdoorIdentity.avatarLeaseExpired',
+  commit_unknown: 'casdoorIdentity.avatarCommitUnknown',
+} satisfies Record<NonNullable<CasdoorSelfIdentityResponse['avatar_last_reason']>, CopyKey>
 const ownershipCopy = {
   local_override: 'casdoorIdentity.override',
   managed: 'casdoorIdentity.managed',
@@ -215,7 +244,32 @@ export default function EnterpriseIdentityPanel() {
                           copy('casdoorIdentity.consistency'),
                           copy(consistencyCopy[identity.profile_consistency]),
                         ],
-                        [copy('casdoorIdentity.avatar'), unknown],
+                        [
+                          copy('casdoorIdentity.avatarOperation'),
+                          copy(avatarCopy[identity.avatar_status]),
+                        ],
+                        [
+                          copy(
+                            identity.avatar_current_local_differs_from_last_applied === null
+                              ? 'casdoorIdentity.avatarTime'
+                              : 'casdoorIdentity.avatarAttachmentTime',
+                          ),
+                          identity.avatar_recorded_at ?? unknown,
+                        ],
+                        [
+                          copy('casdoorIdentity.avatarReason'),
+                          identity.avatar_last_reason === null
+                            ? unknown
+                            : copy(avatarReasonCopy[identity.avatar_last_reason]),
+                        ],
+                        [
+                          copy('casdoorIdentity.avatarConsistency'),
+                          copy(avatarConsistencyCopy[identity.avatar_consistency]),
+                        ],
+                        [
+                          copy('casdoorIdentity.avatarLocalDiff'),
+                          boolean(identity.avatar_current_local_differs_from_last_applied),
+                        ],
                       ])}
                       <h4 className="system-xs-semibold text-text-secondary">
                         {t(($) => $['account.name'], { ns: 'common' })}

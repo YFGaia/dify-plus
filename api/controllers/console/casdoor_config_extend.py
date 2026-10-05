@@ -6,12 +6,34 @@ or IdP claim fallback. Errors never serialize request values, validation locatio
 provider messages, encrypted envelopes or credentials.
 """
 
+import re
+from datetime import UTC
 from typing import Any
 from uuid import uuid4
 
+from core.casdoor.auth_transactions import (
+    COOKIE_PATH,
+    SCOPE_COOKIE_NAME,
+    AuthTransactionError,
+    CookieDirective,
+    diagnostic_initialization_cookie_name,
+)
+from core.casdoor.crypto import CryptoError
+from core.casdoor.permissions import CasdoorManagementForbiddenError
+from extensions.ext_application_services import application_services
 from flask import Response, jsonify, make_response, request
 from flask_restx import Resource
+from libs.helper import dump_response
+from libs.login import current_user, login_required
+from libs.token import extract_access_token, extract_refresh_token, is_admin_api_key_request
+from models.account import Account
+from models.casdoor_extend import CasdoorValidationKind
 from pydantic import ValidationError
+from repositories.casdoor_configuration_repository_extend import (
+    CasdoorConfigurationError,
+    ConfigurationSnapshot,
+    RevisionSnapshot,
+)
 from werkzeug.exceptions import HTTPException
 
 from controllers.common.schema import query_params_from_model, register_response_schema_models, register_schema_models
@@ -24,22 +46,13 @@ from controllers.console.casdoor_schemas_extend import (
     CasdoorManagementErrorResponse,
     CasdoorPermissionsResponse,
     CasdoorRevisionPayload,
+    CasdoorRPLogoutDiagnosticResponse,
+    CasdoorRPLogoutStatusQuery,
     CasdoorSaveConfigurationPayload,
     CasdoorStaticValidationResponse,
     CasdoorTestLoginResponse,
     CasdoorWorkspacesQuery,
     CasdoorWorkspacesResponse,
-)
-from core.casdoor.crypto import CryptoError
-from core.casdoor.permissions import CasdoorManagementForbiddenError
-from extensions.ext_application_services import application_services
-from libs.helper import dump_response
-from libs.login import current_user, login_required
-from models.account import Account
-from repositories.casdoor_configuration_repository_extend import (
-    CasdoorConfigurationError,
-    ConfigurationSnapshot,
-    RevisionSnapshot,
 )
 
 PREFIX = "/system-manage-extend/integration/casdoor"
@@ -61,10 +74,12 @@ register_schema_models(
     CasdoorDisablePayload,
     CasdoorRevisionPayload,
     CasdoorWorkspacesQuery,
+    CasdoorRPLogoutStatusQuery,
 )
 register_response_schema_models(
     console_ns,
     CasdoorPermissionsResponse,
+    CasdoorRPLogoutDiagnosticResponse,
     CasdoorConfigurationResponse,
     CasdoorDisableResponse,
     CasdoorStaticValidationResponse,
@@ -88,9 +103,8 @@ def _configuration_response(snapshot: ConfigurationSnapshot) -> dict[str, Any]:
             "namespace_id": value.namespace_id,
             "configuration": value.configuration,
             "secret_configured": value.secret_configured,
-            # I24-B owns aggregation of all four proof kinds. Local static checks
-            # cannot stand in for protocol/deployment/diagnostic verification.
-            "validation": (),
+            "validation": _validation_summaries(value),
+            "diagnostic": application_services().casdoor_configuration.diagnostic_preview(value.revision_id),
         }
 
     return dump_response(
@@ -104,6 +118,39 @@ def _configuration_response(snapshot: ConfigurationSnapshot) -> dict[str, Any]:
             "draft": revision(snapshot.draft),
         },
     )
+
+
+def _validation_summaries(revision: RevisionSnapshot):
+    if not revision.validation:
+        return []
+    rows = {row.kind: row for row in revision.validation}
+    summaries = []
+    for label, kinds in (
+        (
+            "validation",
+            (CasdoorValidationKind.STATIC, CasdoorValidationKind.DEPLOYMENT, CasdoorValidationKind.PROTOCOL),
+        ),
+        ("diagnostic", (CasdoorValidationKind.DIAGNOSTIC,)),
+    ):
+        selected = [rows.get(kind) for kind in kinds]
+        statuses = {row.status if row is not None else "not_run" for row in selected}
+        if "pending" in statuses:
+            statuses.discard("pending")
+            statuses.add("not_run")
+        status = next(item for item in ("failed", "unknown", "expired", "not_run", "passed") if item in statuses)
+        checked = [row.checked_at for row in selected if row is not None and row.checked_at is not None]
+        expires = [row.expires_at for row in selected if row is not None and row.expires_at is not None]
+        summaries.append(
+            {
+                "revision_id": revision.revision_id,
+                "kind": label,
+                "status": status,
+                "checked_at": max(checked).replace(tzinfo=UTC) if checked else None,
+                "expires_at": min(expires).replace(tzinfo=UTC) if expires else None,
+                "correlation_id": selected[0].correlation_id if label == "diagnostic" and selected[0] else None,
+            }
+        )
+    return summaries
 
 
 @console_ns.response(400, "Invalid management request", console_ns.models[CasdoorManagementErrorResponse.__name__])
@@ -129,6 +176,8 @@ class CasdoorManagementResource(Resource):
             response = self._error("invalid_transaction", 400)
         except CryptoError:
             response = self._error("config_conflict", 400)
+        except AuthTransactionError:
+            response = self._error("invalid_transaction", 400)
         except HTTPException as error:
             code = "unauthorized" if error.code == 401 else "invalid_transaction"
             response = self._error(code, error.code or 500)
@@ -257,10 +306,13 @@ class CasdoorActivateApi(CasdoorManagementResource):
 
 @console_ns.route(PREFIX + "/test-login")
 class CasdoorTestLoginApi(CasdoorManagementResource):
+    def _prepare(self, service, account, **kwargs):
+        return service.prepare(account, **kwargs)
+
     @console_ns.expect(console_ns.models[CasdoorRevisionPayload.__name__])
     @console_ns.response(
         200,
-        "Draft login test blocked by missing real proof",
+        "Draft diagnostic browser navigation or deployment block",
         console_ns.models[CasdoorTestLoginResponse.__name__],
     )
     def post(self):
@@ -268,8 +320,101 @@ class CasdoorTestLoginApi(CasdoorManagementResource):
         account = _account()
         service.require_management(account)
         payload = CasdoorRevisionPayload.model_validate(request.get_json())
-        reason = service.test_login(account, etag=payload.etag, revision_id=payload.revision_id)
-        return dump_response(CasdoorTestLoginResponse, {"status": "blocked", "reason": reason})
+        # Refresh extraction remains with the existing Console Cookie owner.
+        if is_admin_api_key_request(request) or not extract_access_token(request):
+            raise AuthTransactionError("source_session_invalid")
+        result = self._prepare(
+            application_services().casdoor_diagnostic,
+            account,
+            refresh_token=extract_refresh_token(request),
+            etag=payload.etag,
+            revision_id=payload.revision_id,
+            browser_scope=_single_scope(),
+            server_ip=request.remote_addr,
+        )
+        if result.navigation is None:
+            return dump_response(CasdoorTestLoginResponse, {"status": "blocked", "reason": result.reason})
+        navigation = result.navigation
+        response = make_response(
+            jsonify(
+                dump_response(
+                    CasdoorTestLoginResponse, {"status": "started", "handoff": {"handoff_path": navigation.redirect}}
+                )
+            ),
+            200,
+        )
+        policy = application_services().casdoor_diagnostic._policy()
+        if type(navigation.cookies) is not tuple or len(navigation.cookies) != 1:
+            raise AuthTransactionError()
+        cookie = navigation.cookies[0]
+        prefix = COOKIE_PATH + "/diagnostic/"
+        if not navigation.redirect.startswith(prefix) or not re.fullmatch(
+            r"[A-Za-z0-9_-]{43}", navigation.redirect[len(prefix) :]
+        ):
+            raise AuthTransactionError()
+        handle = navigation.redirect[len(prefix) :]
+        if (
+            type(cookie) is not CookieDirective
+            or cookie.name != diagnostic_initialization_cookie_name(handle)
+            or cookie.path != navigation.redirect
+            or cookie.max_age != 60
+            or type(cookie.value) is not str
+            or not re.fullmatch(r"[A-Za-z0-9_-]{43}", cookie.value)
+            or cookie.secure != policy.secure
+            or cookie.domain is not None
+            or not cookie.httponly
+            or cookie.samesite != "Lax"
+        ):
+            raise AuthTransactionError()
+        response.set_cookie(
+            cookie.name,
+            cookie.value,
+            max_age=cookie.max_age,
+            path=cookie.path,
+            secure=cookie.secure,
+            httponly=True,
+            samesite="Lax",
+        )
+        return response
+
+
+@console_ns.route(PREFIX + "/test-rp-logout")
+class CasdoorTestRPLogoutApi(CasdoorTestLoginApi):
+    def _prepare(self, service, account, **kwargs):
+        return service.prepare_rp_logout(account, **kwargs)
+
+
+@console_ns.route(PREFIX + "/rp-logout-status")
+class CasdoorRPLogoutStatusApi(CasdoorManagementResource):
+    @console_ns.doc(params=query_params_from_model(CasdoorRPLogoutStatusQuery))
+    @console_ns.response(
+        200, "Actual optional RP protocol observation", console_ns.models[CasdoorRPLogoutDiagnosticResponse.__name__]
+    )
+    def get(self):
+        account = _account()
+        application_services().casdoor_configuration.require_management(account)
+        if is_admin_api_key_request(request) or not extract_access_token(request):
+            raise AuthTransactionError("source_session_invalid")
+        data = {}
+        for key, values in request.args.lists():
+            if key not in CasdoorRPLogoutStatusQuery.model_fields or len(values) != 1:
+                raise AuthTransactionError()
+            data[key] = values[0]
+        query = CasdoorRPLogoutStatusQuery.model_validate(data)
+        result = application_services().casdoor_diagnostic.rp_logout_status(
+            account,
+            refresh_token=extract_refresh_token(request),
+            revision_id=query.revision_id,
+            server_ip=request.remote_addr,
+        )
+        return dump_response(CasdoorRPLogoutDiagnosticResponse, result)
+
+
+def _single_scope():
+    values = request.cookies.getlist(SCOPE_COOKIE_NAME)
+    if len(values) > 1:
+        raise AuthTransactionError()
+    return values[0] if values else None
 
 
 @console_ns.route(PREFIX + "/workspaces")

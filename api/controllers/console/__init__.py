@@ -34,6 +34,7 @@ console_ns = Namespace("console", description="Console management API operations
 RESOURCE_MODULES = (
     "controllers.console.app.app_import",
     "controllers.console.auth.casdoor_extend",
+    "controllers.console.auth.casdoor_rp_logout_extend",
     "controllers.console.auth.casdoor_display_extend",
     "controllers.console.casdoor_config_extend",
     "controllers.console.explore.audio",
@@ -44,6 +45,8 @@ RESOURCE_MODULES = (
     "controllers.console.files",
     "controllers.console.remote_files",
     "controllers.console.workspace.casdoor_identity_extend",
+    "controllers.console.casdoor_local_lifecycle_extend",
+    "controllers.console.casdoor_avatar_retry_extend",
 )
 
 for module_name in RESOURCE_MODULES:

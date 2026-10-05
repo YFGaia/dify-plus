@@ -18,6 +18,7 @@ import Collapse from '@/app/components/header/account-setting/collapse'
 import { validPassword } from '@/config'
 import { userProfileQueryOptions } from '@/features/account-profile/client'
 import EnterpriseIdentityPanel from '@/features/casdoor/identity-status'
+import { IdentityActions } from '@/features/casdoor/identity-status/actions'
 import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import { updateUserProfile } from '@/service/common'
 import { consoleQuery } from '@/service/console'
@@ -253,6 +254,7 @@ export default function AccountPage() {
         </div>
       )}
       <EnterpriseIdentityPanel key={userProfile.id} />
+      <IdentityActions key={`identity-actions-${userProfile.id}`} enabled={true} />
       <div className="mb-6 border border-divider-subtle" />
       <div className="mb-8">
         <div className={titleClassName}>

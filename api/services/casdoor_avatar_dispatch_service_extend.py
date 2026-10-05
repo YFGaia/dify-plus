@@ -1,4 +1,4 @@
-"""Bounded initial navigation; only the original consumer can claim or attach."""
+"""Bounded initial and explicitly approved retry navigation; original consumer claims."""
 
 from collections.abc import Callable
 from datetime import datetime
