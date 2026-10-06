@@ -11,7 +11,7 @@ import hashlib
 import json
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from functools import partial
 from urllib.parse import urlencode
@@ -31,13 +31,14 @@ from core.casdoor.auth_transactions import (
     source_action_cookie_name,
     source_initialization_cookie_name,
 )
-from core.casdoor.claims import ClaimsValidator
+from core.casdoor.claims import ClaimsValidator, NativeTokenContract, NativeTokenSchema
 from core.casdoor.crypto import CertificateTrustStore, TrustedCertificate
-from core.casdoor.gateway import CasdoorTokenGateway
+from core.casdoor.deployment_evidence import DeploymentEvidenceError
+from core.casdoor.gateway import CasdoorBasicDirectoryCredentialStrategy, CasdoorTokenGateway
 from core.casdoor.leases import CasdoorLeases, CasdoorLeaseScope
 from core.casdoor.reauthentication import verify_recent_auth_time
 from core.casdoor.request_safety import RequestAction
-from core.casdoor.role_graph import OnlineRoleSnapshotLoader
+from core.casdoor.role_graph import DirectorySnapshotContract, OnlineRoleSnapshotLoader
 from models.account import Account, AccountStatus
 from models.casdoor_extend import (
     CasdoorAuditExtend,
@@ -84,6 +85,27 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
 
     def _return_url(self):
         return self._settings.CONSOLE_WEB_URL.rstrip("/") + RETURN_PATH + "?casdoor_identity=complete"
+
+    def _reauth_draft(self, revision_id, etag=None):
+        """Load the exact draft and require its reviewed reauthentication capability."""
+        draft = super()._draft(revision_id, etag)
+        policy = draft.policy
+        if policy is None:
+            if self._deployment_policy_service is None:
+                raise AuthTransactionError("reauthentication_unavailable")
+            try:
+                policy = self._deployment_policy_service.resolve(
+                    configuration=draft.configuration,
+                    namespace_id=draft.binding.namespace_id,
+                    revision_id=draft.binding.revision_id,
+                    config_digest=draft.binding.config_digest,
+                    rbac_mode="off",
+                )
+            except DeploymentEvidenceError:
+                raise AuthTransactionError("reauthentication_unavailable") from None
+        if policy.reauthentication is None:
+            raise AuthTransactionError("reauthentication_unavailable")
+        return replace(draft, policy=policy)
 
     def _account(self, account, *, management=False):
         if not isinstance(account, Account) or account.status != AccountStatus.ACTIVE:
@@ -134,7 +156,21 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
         )
         if not secret:
             raise AuthTransactionError("required_secret_missing")
-        return _Draft(binding, config, secret, policy)
+        return _Draft(
+            binding,
+            config,
+            secret,
+            policy,
+            NativeTokenContract(
+                NativeTokenSchema.FLAT_USER_V1,
+                config.expected_issuer,
+                config.organization,
+                config.application,
+                config.client_id,
+            ),
+            DirectorySnapshotContract(organization=config.organization),
+            CasdoorBasicDirectoryCredentialStrategy(config.client_id),
+        )
 
     def _identity(self, snapshot, account_id):
         with self._session_factory() as session, session.begin():
@@ -161,7 +197,7 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
     def _guard_action(self, snapshot, context, account, refresh_token, client, deadline):
         if time.monotonic() >= deadline:
             raise AuthTransactionError("deadline")
-        current = super()._draft(context.revision_id) if context.reauth_diagnostic else self._active()
+        current = self._reauth_draft(context.revision_id) if context.reauth_diagnostic else self._active()
         identity = (
             self._identity(current, context.source.account_id) if context.mode == AuthMode.REAUTH_UNLINK else None
         )
@@ -213,7 +249,7 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
             source = self._source(account, refresh_token, client, management=diagnostic)
             self._charge_action(client, action, account_id=source.account_id, deadline=deadline)
             snapshot = (
-                super(CasdoorIdentityActionService, self)._draft(revision_id, etag) if diagnostic else self._active()
+                self._reauth_draft(revision_id, etag) if diagnostic else self._active()
             )
             identity = self._identity(snapshot, source.account_id) if mode == AuthMode.REAUTH_UNLINK else None
             if mode != AuthMode.LINK and snapshot.policy.reauthentication is None:
@@ -258,11 +294,7 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
         def run(client, deadline):
             store = AuthTransactionStore(client, self._crypto())
             context = store.source_initialization_hint(handle, browser_scope=initialization_cookie)
-            snapshot = (
-                super(CasdoorIdentityActionService, self)._draft(context.revision_id)
-                if context.reauth_diagnostic
-                else self._active()
-            )
+            snapshot = self._reauth_draft(context.revision_id) if context.reauth_diagnostic else self._active()
             guard = partial(self._guard_action, snapshot, context, account, refresh_token, client, deadline)
             store.consume_source_initialization(handle, browser_scope=initialization_cookie, guard=guard)
             scope = new_browser_scope(self._policy()).value if browser_scope is None else browser_scope
@@ -468,11 +500,7 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
                 state, browser_scope=browser_scope, transaction_cookie=transaction_cookie
             )
             account = account_provider()
-            snapshot = (
-                super(CasdoorIdentityActionService, self)._draft(context.revision_id)
-                if context.reauth_diagnostic
-                else self._active()
-            )
+            snapshot = self._reauth_draft(context.revision_id) if context.reauth_diagnostic else self._active()
             guard = partial(self._guard_action, snapshot, context, account, refresh_token, client, deadline)
             consumed = store.consume(
                 state,
@@ -513,7 +541,7 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
                     tokens,
                     expected_nonce=consumed.nonce,
                     auth_started_at=consumed.auth_started_at,
-                    contract=snapshot.policy.native_token_contract,
+                    contract=snapshot.native_token_contract,
                 )
                 validator.verify_userinfo(operation.userinfo(tokens.payload["access_token"]), identity=bundle.identity)
                 guard()
@@ -528,8 +556,8 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
                     identity=bundle.identity,
                     claims_validator=validator,
                     leases=leases if leases is not None else _ReadGuard(guard),
-                    credential_strategy=snapshot.policy.credential_strategy,
-                    contract=snapshot.policy.directory_snapshot_contract,
+                    credential_strategy=snapshot.credential_strategy,
+                    contract=snapshot.directory_snapshot_contract,
                 ).load()
                 self._preview(snapshot, snapshot_roles, context.source, correlation)
                 guard()

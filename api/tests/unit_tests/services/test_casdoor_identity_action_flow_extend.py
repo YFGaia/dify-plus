@@ -95,6 +95,8 @@ def test_mounted_link_binds_current_source_only_without_admission_session_or_mem
 
 def test_missing_reauth_capability_is_denied_before_provider_navigation(actions):
     d = actions
+    snapshot = d.services.casdoor_configuration.get(d.actor)
+    assert snapshot.draft.configuration.rp_logout is False
     state, _ = begin(d)
     assert complete(d, state).status_code == 302
     status = send(d, IDENTITY + "/actions", headers={"X-CSRF-Token": d.csrf})
@@ -107,6 +109,17 @@ def test_missing_reauth_capability_is_denied_before_provider_navigation(actions)
     }
     response = send(d, IDENTITY + "/reauthenticate", method="POST", json={})
     assert response.status_code == 400
+    request_count = len(d.f.control.requests)
+    creation_count = len(d.f.control.created)
+    reviewed = send(
+        d,
+        "/console/api/system-manage-extend/integration/casdoor/test-reauth",
+        method="POST",
+        json={"etag": snapshot.etag, "revision_id": str(snapshot.draft_revision_id)},
+    )
+    assert reviewed.status_code == 400
+    assert len(d.f.control.requests) == request_count
+    assert len(d.f.control.created) == creation_count
     assert_source_unchanged(d)
 
 
