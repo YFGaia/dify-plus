@@ -133,16 +133,10 @@ def _business_counts(flow):
         )
 
 
-@pytest.mark.parametrize("failure", ["missing", "revoked", "expired", "enterprise", "rbac"])
+@pytest.mark.parametrize("failure", ["enterprise", "rbac"])
 def test_preflight_denies_before_runtime_provider_or_business(production, monkeypatch, failure):
-    env, flow = production, production.flow
-    if failure == "missing":
-        flow.service._deployment_policy_service = CasdoorDeploymentPolicyService()
-    elif failure == "revoked":
-        env.authority.unlink()
-    elif failure == "expired":
-        env.policy._now = lambda: env.now + timedelta(hours=2)
-    elif failure == "enterprise":
+    flow = production.flow
+    if failure == "enterprise":
         monkeypatch.setattr(dify_config, "DEPLOYMENT_EDITION", DeploymentEdition.ENTERPRISE)
     else:
         monkeypatch.setattr(dify_config, "RBAC_ENABLED", True)
@@ -160,13 +154,7 @@ def test_preflight_denies_before_runtime_provider_or_business(production, monkey
 
 def test_production_completes_original_chain_and_issues_only_on_private_redis(production, monkeypatch):
     flow = production.flow
-    production.policy.resolve(
-        flow.local.config,
-        flow.local.env[1].namespace_id,
-        flow.local.env[1].revision_id,
-        flow.local.env[1].config_digest,
-        "off",
-    )
+    production.authority.unlink()
     clones = []
     original = CasdoorLocalLoginCoordinatorService._with_request_redis
 
@@ -178,7 +166,11 @@ def test_production_completes_original_chain_and_issues_only_on_private_redis(pr
     monkeypatch.setattr(CasdoorLocalLoginCoordinatorService, "_with_request_redis", bind)
     scope, _ = begin(flow)
     result = complete(flow, scope)
-    assert result.tokens
+    assert result.tokens, (
+        result.error.code if result.error else None,
+        result.phases.__dict__,
+        [path for path, _ in flow.control.requests],
+    )
     assert result.status == 302
     clone = clones[-1]
     assert type(clone) is CasdoorLocalLoginCoordinatorService
@@ -191,17 +183,14 @@ def test_production_completes_original_chain_and_issues_only_on_private_redis(pr
     assert all(scope.finish_calls == 1 for scope in flow.control.runtime_scopes)
 
 
-@pytest.mark.parametrize("failure", ["revoked", "active_changed"])
+@pytest.mark.parametrize("failure", ["active_changed"])
 def test_callback_preflight_rechecks_before_consume_or_provider(production, failure):
-    env, flow = production, production.flow
+    flow = production.flow
     scope, _ = begin(flow)
     before = (len(flow.control.runtime_scopes), len(flow.control.requests))
-    if failure == "revoked":
-        env.authority.unlink()
-    else:
-        with flow.local.session.begin():
-            integration = flow.local.session.scalar(sa.select(CasdoorIntegrationExtend))
-            integration.active_revision_id = None
+    with flow.local.session.begin():
+        integration = flow.local.session.scalar(sa.select(CasdoorIntegrationExtend))
+        integration.active_revision_id = None
     result = complete(flow, scope)
     assert result.error
     assert result.tokens is None
@@ -210,10 +199,9 @@ def test_callback_preflight_rechecks_before_consume_or_provider(production, fail
     assert not flow.control.tokens
 
 
-def test_revocation_during_role_graph_denies_before_local_write(production):
+def test_manifest_removal_during_roles_read_keeps_claim_and_role_checks(production):
     env, flow = production, production.flow
     scope, _ = begin(flow)
-    counts = _business_counts(flow)
 
     def revoke(path):
         if path == "/api/get-roles":
@@ -221,11 +209,10 @@ def test_revocation_during_role_graph_denies_before_local_write(production):
 
     flow.control.hook = revoke
     result = complete(flow, scope)
-    assert result.error
-    assert result.tokens is None
-    assert not flow.control.tokens
-    assert _business_counts(flow) == counts
-    assert not flow.lease.data
+    assert result.error is None
+    assert result.tokens is not None
+    assert "/api/get-roles" in [path for path, _ in flow.control.requests]
+    assert len(flow.control.tokens) == 2
 
 
 def test_close_failure_suppresses_production_tokens(production):
@@ -240,8 +227,7 @@ def test_close_failure_suppresses_production_tokens(production):
     assert all(cookie.max_age == 0 for cookie in result.cookies)
 
 
-@pytest.mark.parametrize("failure", ["revoked", "expired"])
-def test_finalizer_fresh_guard_denies_before_token_issue(production, monkeypatch, failure):
+def test_finalizer_does_not_reintroduce_manifest_gate(production, monkeypatch):
     env, flow = production, production.flow
     scope, _ = begin(flow)
     original = CasdoorLocalLoginFinalizationService._login_metadata
@@ -250,19 +236,31 @@ def test_finalizer_fresh_guard_denies_before_token_issue(production, monkeypatch
     def invalidate(session, account_id, ip_address):
         selected = original(session, account_id, ip_address)
         entered.append(selected)
-        if failure == "revoked":
+        if env.authority.exists():
             env.authority.unlink()
-        else:
-            env.policy._now = lambda: env.now + timedelta(hours=2)
         return selected
 
     monkeypatch.setattr(CasdoorLocalLoginFinalizationService, "_login_metadata", staticmethod(invalidate))
     result = complete(flow, scope)
     assert entered
-    assert result.error
-    assert result.tokens is None
-    assert not flow.control.tokens
-    assert not flow.lease.data
+    assert result.error is None
+    assert result.tokens is not None
+    assert len(flow.control.tokens) == 2
     assert result.phases.local_outcome == "committed"
-    assert result.phases.finalization_outcome == "not_committed"
-    assert result.phases.token_outcome == "not_started"
+    assert result.phases.finalization_outcome == "committed"
+    assert result.phases.token_outcome == "issued"
+
+
+def test_complete_role_read_failure_does_not_write_or_issue_tokens(production):
+    flow = production.flow
+    scope, _ = begin(flow)
+    before = _business_counts(flow)
+    flow.control.role_read_failure = True
+
+    result = complete(flow, scope)
+
+    assert result.phases.local_outcome == "not_started"
+    assert "/api/get-roles" in [path for path, _ in flow.control.requests]
+    assert not flow.control.tokens
+    assert _business_counts(flow) == before
+    assert not flow.lease.data

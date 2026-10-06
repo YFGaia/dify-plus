@@ -7,6 +7,7 @@ from dataclasses import FrozenInstanceError, replace
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from typing import Any
+from urllib.parse import urlsplit
 from uuid import UUID
 
 import httpx
@@ -15,7 +16,14 @@ from core.casdoor.claims import ClaimsValidator, StructuredUserRef, VerifiedIDTo
 from core.casdoor.configuration import CasdoorConfiguration
 from core.casdoor.crypto import CertificateTrustStore, TrustedCertificate
 from core.casdoor.errors import CasdoorErrorCode
-from core.casdoor.gateway import JSON_LIMIT, ROLES_LIMIT, DirectoryDeploymentProof, GatewayError, GatewayOperation
+from core.casdoor.gateway import (
+    JSON_LIMIT,
+    ROLES_LIMIT,
+    CasdoorBasicDirectoryCredentialStrategy,
+    DirectoryDeploymentProof,
+    GatewayError,
+    GatewayOperation,
+)
 from core.casdoor.role_graph import (
     DirectorySnapshotContract,
     OnlineRoleSnapshotLoader,
@@ -600,6 +608,31 @@ def test_online_actual_gateway_fixed_paths_shared_deadline_and_fresh_reads(trans
         assert kwargs["ssl_verify"] is True
         assert kwargs["request_timeout"] == 15.0
     assert [entry[2]["max_response_bytes"] for entry in calls[:3]] == [JSON_LIMIT, JSON_LIMIT, ROLES_LIMIT]
+
+
+def test_builtin_profile_without_manifest_still_reads_and_validates_complete_roles(transport):
+    calls, replies = transport
+    op = operation()
+    replies.extend(
+        [response(organization()), response(user()), response([role("r", users=[ORG + "/directory-name"])])]
+    )
+    contract = DirectorySnapshotContract(organization=ORG)
+    coordinator = OnlineRoleSnapshotLoader(
+        op,
+        identity=VerifiedIDToken(op.config.expected_issuer, SUBJECT, op.config.client_id, 0, 9999999999),
+        claims_validator=claims_validator(),
+        leases=FakeLease(),
+        credential_strategy=CasdoorBasicDirectoryCredentialStrategy(op.config.client_id),
+        contract=contract,
+    )
+
+    assert names(coordinator.load()) == {(ORG, "r")}
+    assert [urlsplit(url).path for _, url, _ in calls] == [
+        "/api/get-organization",
+        "/api/get-user",
+        "/api/get-roles",
+    ]
+    assert all(call[2]["headers"]["Authorization"].startswith("Basic ") for call in calls)
 
 
 def test_default_contract_and_default_credentials_disabled_before_dispatch(transport):

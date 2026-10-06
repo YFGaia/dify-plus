@@ -202,6 +202,9 @@ def http_flow(local_fixture, signing, monkeypatch):
         limit_count=0,
         hook=lambda path: None,
         bad_nonce=False,
+        token_variant=None,
+        bad_roles=False,
+        role_read_failure=False,
         bad_discovery=False,
         fail_limit=False,
         fail_billing=False,
@@ -392,16 +395,18 @@ def http_flow(local_fixture, signing, monkeypatch):
         if path.endswith("access_token"):
             now = datetime.now(UTC).timestamp()
             common = {"iss": context.issuer, "aud": context.client_id, "iat": now, "exp": now + 300}
+            if control.token_variant == "wrong_issuer":
+                common["iss"] = "https://wrong-issuer.example.test"
             # Bind this signed response to THIS actual create, never chain's
             # already-consumed transaction or a prior operation's deadline.
             nonce = "bad-current-nonce" if control.bad_nonce else control.created[-1].nonce
-            return response(
-                {
-                    "token_type": "Bearer",
-                    "id_token": sign(key, common | {"sub": context.subject, "nonce": nonce}),
-                    "access_token": sign(key, common | {"owner": context.organization, "id": context.subject}),
-                }
-            )
+            token_response = {
+                "token_type": "Bearer",
+                "access_token": sign(key, common | {"owner": context.organization, "id": context.subject}),
+            }
+            if control.token_variant != "missing_id_token":
+                token_response["id_token"] = sign(key, common | {"sub": context.subject, "nonce": nonce})
+            return response(token_response)
         if path.endswith("userinfo"):
             return response(
                 {"sub": context.subject, "name": "Remote Name", "email": "new@example.test", "email_verified": True}
@@ -427,6 +432,20 @@ def http_flow(local_fixture, signing, monkeypatch):
                 }
             ],
         }
+        if path == "/api/get-roles":
+            if control.role_read_failure:
+                return response({"status": "ok", "data": {"unexpected": "not-a-complete-list"}})
+            if control.bad_roles:
+                data[path] = [
+                    {
+                        "owner": context.organization,
+                        "name": "operators",
+                        "isEnabled": True,
+                        "roles": [context.organization + "/missing-role"],
+                        "users": [context.organization + "/person"],
+                        "groups": [],
+                    }
+                ]
         return response({"status": "ok", "data": data[path]})
 
     def release_hook(command, key):

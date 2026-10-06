@@ -128,7 +128,7 @@ def _validation_summaries(revision: RevisionSnapshot):
     for label, kinds in (
         (
             "validation",
-            (CasdoorValidationKind.STATIC, CasdoorValidationKind.DEPLOYMENT, CasdoorValidationKind.PROTOCOL),
+            (CasdoorValidationKind.STATIC, CasdoorValidationKind.PROTOCOL),
         ),
         ("diagnostic", (CasdoorValidationKind.DIAGNOSTIC,)),
     ):

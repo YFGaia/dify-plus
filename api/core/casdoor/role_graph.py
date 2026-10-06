@@ -345,7 +345,13 @@ class OnlineRoleSnapshotLoader:
             ):
                 _fail("identity_schema")
             contract = _contract(self._contract, config.organization)
-            if (
+            if contract.deployment_proof is None:
+                # The ordinary Community adapter is selected by server code and
+                # carries no external reviewer manifest. It remains bound to the
+                # configured organization and must pass every live graph check.
+                if self._directory.deployment_proof is not None:
+                    _fail("contract_binding")
+            elif (
                 not contract.deployment_proof.matches(config)
                 or self._directory.deployment_proof != contract.deployment_proof
             ):

@@ -13,6 +13,7 @@ import sqlalchemy as sa
 from configs import dify_config
 from controllers.console import bp
 from core.casdoor import auth_transactions as auth
+from core.casdoor.permissions import CasdoorManagementPolicy
 from enums import DeploymentEdition
 from extensions.ext_application_services import build_application_services
 from extensions.ext_login import DifyLoginManager, _load_user_from_request
@@ -188,11 +189,18 @@ def rows(d):
         return session.scalars(sa.select(CasdoorValidationExtend).order_by(CasdoorValidationExtend.checked_at)).all()
 
 
-def test_mounted_diagnostic_live_owners_four_rows_activate_no_business_session_mutation(diagnostic):
+def test_mounted_diagnostic_without_manifest_binds_revision_and_activates(diagnostic):
     d = diagnostic
+    d.production.authority.unlink()
     before = counts(d.f)
     snapshot, state = begin(d)
-    assert set(row.kind for row in rows(d)) == set(CasdoorValidationKind)
+    assert {row.kind for row in rows(d)} == {
+        CasdoorValidationKind.STATIC,
+        CasdoorValidationKind.PROTOCOL,
+        CasdoorValidationKind.DIAGNOSTIC,
+    }
+    assert all(row.revision_id == str(snapshot.draft_revision_id) for row in rows(d))
+    assert all(row.proof_fingerprint is None for row in rows(d))
     assert all(
         row.status != CasdoorValidationStatus.PASSED
         for row in rows(d)
@@ -222,7 +230,6 @@ def test_mounted_diagnostic_live_owners_four_rows_activate_no_business_session_m
     assert not any(value in json.dumps(preview) for value in ("new@example.test", "person", d.token, "id_token"))
     for row in rows(d):
         assert row.expires_at <= row.checked_at + timedelta(minutes=15)
-        assert row.expires_at <= d.production.now.replace(tzinfo=None) + timedelta(hours=1)
     activated = send(
         d,
         MANAGEMENT + "/activate",
@@ -234,10 +241,12 @@ def test_mounted_diagnostic_live_owners_four_rows_activate_no_business_session_m
 
 
 @pytest.mark.parametrize(
-    "failure", ["refresh_revoked", "account_banned", "policy_revoked", "bad_nonce", "replay", "draft_changed"]
+    "failure",
+    ["refresh_revoked", "account_banned", "bad_nonce", "missing_token", "wrong_token", "unknown_role", "replay", "draft_changed"],
 )
 def test_callback_rejects_revoked_sources_context_nonce_and_replay(diagnostic, failure):
     d = diagnostic
+    d.production.authority.unlink()
     snapshot, state = begin(d)
     before = counts(d.f)
     if failure == "refresh_revoked":
@@ -245,22 +254,39 @@ def test_callback_rejects_revoked_sources_context_nonce_and_replay(diagnostic, f
     elif failure == "account_banned":
         with d.f.service._session_factory() as session, session.begin():
             session.get(Account, d.actor.id).status = AccountStatus.BANNED
-    elif failure == "policy_revoked":
-        d.production.authority.unlink()
     elif failure == "bad_nonce":
         d.f.control.bad_nonce = True
+    elif failure == "missing_token":
+        d.f.control.token_variant = "missing_id_token"
+    elif failure == "wrong_token":
+        d.f.control.token_variant = "wrong_issuer"
+    elif failure == "unknown_role":
+        d.f.control.bad_roles = True
     elif failure == "draft_changed":
         d.services.casdoor_configuration.save(d.actor, configuration=d.f.local.config, etag=snapshot.etag, secret=None)
     else:
         assert complete(d, state).status_code == 302
     result = complete(d, state)
-    assert (result.status_code == 302) is (failure == "bad_nonce")
+    assert (result.status_code == 302) is (
+        failure in {"bad_nonce", "missing_token", "wrong_token", "unknown_role"}
+    )
     assert counts(d.f) == before
     assert_source_unchanged(d)
-    if failure == "bad_nonce":
+    if failure in {"bad_nonce", "missing_token", "wrong_token", "unknown_role"}:
         current = send(d, MANAGEMENT).json["draft"]
         assert current["validation"][0]["status"] == "failed"
         assert current["diagnostic"] is None
+        failed_rows = rows(d)
+        assert any(
+            row.kind is CasdoorValidationKind.PROTOCOL and row.status is CasdoorValidationStatus.FAILED
+            for row in failed_rows
+        )
+        assert any(
+            row.kind is CasdoorValidationKind.DIAGNOSTIC and row.status is CasdoorValidationStatus.UNKNOWN
+            for row in failed_rows
+        )
+        if failure == "unknown_role":
+            assert "/api/get-roles" in [path for path, _ in d.f.control.requests]
 
 
 def test_cancel_after_old_success_supersedes_rows_and_activation_remains_closed(diagnostic):
@@ -277,16 +303,6 @@ def test_cancel_after_old_success_supersedes_rows_and_activation_remains_closed(
         json={"etag": snapshot.etag, "revision_id": str(snapshot.draft_revision_id)},
     )
     assert denied.status_code == 409
-    assert_source_unchanged(d)
-
-
-def test_missing_policy_checks_source_before_blocking_and_never_creates_protocol_pass(diagnostic):
-    d = diagnostic
-    d.production.authority.unlink()
-    _, response = prepare(d)
-    assert response.json == {"status": "blocked", "reason": "deployment_proof_missing", "handoff": None}
-    assert d.f.control.runtime_scopes and d.source_reads and not d.f.control.requests
-    assert all(row.status is CasdoorValidationStatus.UNKNOWN for row in rows(d))
     assert_source_unchanged(d)
 
 
@@ -336,11 +352,11 @@ def test_ordinary_login_survives_a_later_diagnostic_handoff(diagnostic):
     assert complete(d, state).status_code == 302
 
 
-def test_diagnostic_action_limit_charges_verified_source_once_before_missing_policy_block(diagnostic):
+def test_diagnostic_action_limit_charges_verified_source_once_without_manifest(diagnostic):
     d = diagnostic
     d.production.authority.unlink()
     _, response = prepare(d)
-    assert response.json["status"] == "blocked"
+    assert response.json["status"] == "started"
     scopes = [key for key in d.f.control.limits if ":diagnostic:" in key]
     assert len(scopes) == 2
     assert sum(":ip:" in key for key in scopes) == 1
@@ -373,7 +389,7 @@ def test_final_writer_gap_rejects_source_changes_and_rolls_back_all_pass_rows(di
     assert_source_unchanged(d)
 
 
-def test_operator_revocation_at_activation_commit_rolls_back_enabled_and_etag(diagnostic, monkeypatch):
+def test_manifest_removal_at_activation_commit_does_not_block_enabled_revision(diagnostic, monkeypatch):
     d = diagnostic
     snapshot, state = begin(d)
     assert complete(d, state).status_code == 302
@@ -391,9 +407,9 @@ def test_operator_revocation_at_activation_commit_rolls_back_enabled_and_etag(di
         method="POST",
         json={"etag": snapshot.etag, "revision_id": str(snapshot.draft_revision_id)},
     )
-    assert response.status_code == 409
+    assert response.status_code == 200
     current = d.services.casdoor_configuration.get(d.actor)
-    assert current.enabled == snapshot.enabled and current.etag == snapshot.etag
+    assert current.enabled is True and current.etag == snapshot.etag + 1
 
 
 @pytest.mark.parametrize("failure", ["cross_browser", "expired", "init_replay"])
@@ -428,7 +444,7 @@ def test_browser_ownership_expiry_and_initialization_one_use(diagnostic, failure
     assert_source_unchanged(d)
 
 
-@pytest.mark.parametrize("failure", ["revoked", "get_failure", "get_deadline", "policy_deadline"])
+@pytest.mark.parametrize("failure", ["revoked", "get_failure", "get_deadline"])
 def test_after_pass_row_flush_final_refresh_and_budget_barrier_rollback(diagnostic, monkeypatch, failure):
     d = diagnostic
     _, state = begin(d)
@@ -455,28 +471,16 @@ def test_after_pass_row_flush_final_refresh_and_budget_barrier_rollback(diagnost
                 monkeypatch.setattr(time, "monotonic", lambda: deadline + 1)
         return read(name)
 
-    policy_owner = d.services.casdoor_deployment_policy
-    resolve = policy_owner.resolve
-
-    def delayed_policy(*args, **kwargs):
-        result = resolve(*args, **kwargs)
-        if triggered and failure == "policy_deadline":
-            deadline = d.f.control.budgets[-1]
-            monkeypatch.setattr(time, "monotonic", lambda: deadline + 1)
-        return result
-
     monkeypatch.setattr(CasdoorValidationRepository, "record", record)
     monkeypatch.setattr(d.f.redis, "get", get)
-    monkeypatch.setattr(policy_owner, "resolve", delayed_policy)
     assert complete(d, state).status_code != 302
     assert triggered
     assert sum(row.status is CasdoorValidationStatus.PASSED for row in rows(d)) == previous_passes
     assert_source_unchanged(d)
 
 
-def test_missing_policy_revoked_source_cannot_write_unknown_or_pass(diagnostic):
+def test_revoked_source_cannot_write_static_or_pass(diagnostic):
     d = diagnostic
-    d.production.authority.unlink()
     d.source.clear()
     snapshot = d.services.casdoor_configuration.get(d.actor)
     response = send(
@@ -489,27 +493,49 @@ def test_missing_policy_revoked_source_cannot_write_unknown_or_pass(diagnostic):
     assert not rows(d) and not d.f.control.requests
 
 
-@pytest.mark.parametrize("failure", ["revoke", "get_failure"])
-def test_missing_policy_writer_gap_rolls_back_unknown_rows(diagnostic, monkeypatch, failure):
+def test_no_manifest_does_not_bypass_management_allowlist(diagnostic):
+    d = diagnostic
+    d.production.authority.unlink()
+    snapshot = d.services.casdoor_configuration.get(d.actor)
+    d.services.casdoor_configuration._management_policy = CasdoorManagementPolicy.from_deployment("")
+
+    response = send(
+        d,
+        MANAGEMENT + "/test-login",
+        method="POST",
+        json={"etag": snapshot.etag, "revision_id": str(snapshot.draft_revision_id)},
+    )
+
+    assert response.status_code == 403
+    assert response.json["code"] == "casdoor_management_forbidden"
+    assert not d.f.control.runtime_scopes and not d.f.control.requests
+    assert not rows(d) and not d.f.control.tokens and not d.f.control.billing
+
+
+@pytest.mark.parametrize("failure", ["source_revoked", "refresh_read_failure"])
+def test_pending_row_writer_gap_rolls_back_protocol_and_diagnostic_rows(diagnostic, monkeypatch, failure):
     d = diagnostic
     d.production.authority.unlink()
     original = CasdoorValidationRepository.record
-    read = d.f.redis.get
+    source_get = d.f.redis.get
     triggered = False
 
     def record(writer, binding, **kwargs):
         nonlocal triggered
         result = original(writer, binding, **kwargs)
-        if kwargs["status"] is CasdoorValidationStatus.UNKNOWN:
+        if (
+            kwargs["kind"] is CasdoorValidationKind.PROTOCOL
+            and kwargs["status"] is CasdoorValidationStatus.PENDING
+        ):
             triggered = True
-            if failure == "revoke":
+            if failure == "source_revoked":
                 d.source.clear()
         return result
 
     def get(name):
-        if triggered and d.f.opened and failure == "get_failure":
-            raise TimeoutError("synthetic private source failure")
-        return read(name)
+        if triggered and failure == "refresh_read_failure":
+            raise TimeoutError("synthetic private source read failure")
+        return source_get(name)
 
     monkeypatch.setattr(CasdoorValidationRepository, "record", record)
     monkeypatch.setattr(d.f.redis, "get", get)
@@ -520,5 +546,11 @@ def test_missing_policy_writer_gap_rolls_back_unknown_rows(diagnostic, monkeypat
         method="POST",
         json={"etag": snapshot.etag, "revision_id": str(snapshot.draft_revision_id)},
     )
-    assert response.status_code in (400, 500)
-    assert triggered and not rows(d)
+
+    assert triggered
+    assert response.status_code != 200
+    persisted = rows(d)
+    assert len(persisted) == 1
+    assert persisted[0].kind is CasdoorValidationKind.STATIC
+    assert persisted[0].status is CasdoorValidationStatus.PASSED
+    assert not d.f.control.requests and not d.f.control.tokens and not d.f.control.billing

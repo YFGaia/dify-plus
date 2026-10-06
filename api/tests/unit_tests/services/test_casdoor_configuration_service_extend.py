@@ -21,6 +21,8 @@ from models.casdoor_extend import (
     CasdoorNamespaceExtend,
     CasdoorNamespaceLifecycle,
     CasdoorValidationExtend,
+    CasdoorValidationKind,
+    CasdoorValidationStatus,
 )
 from repositories.casdoor_configuration_repository_extend import CasdoorConfigurationError
 from services.casdoor_configuration_service_extend import CasdoorConfigurationService
@@ -161,9 +163,14 @@ def test_static_exact_draft_local_checks_no_proof_or_activation(database, actor,
     assert result.etag == 1
     assert len(result.certificates) == 1
     assert not owner.get(actor).enabled
-    assert owner.get(actor).draft.validation == ()
     with factory() as session:
-        assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorValidationExtend)) == 0
+        snapshot = owner._repository(session).get(now=NOW)
+        assert snapshot.draft.validation[0].kind is CasdoorValidationKind.STATIC
+        assert snapshot.draft.validation[0].status == CasdoorValidationStatus.PASSED.value
+        row = session.scalar(sa.select(CasdoorValidationExtend))
+        assert row.revision_id == str(saved.draft_revision_id)
+        revision = session.get(CasdoorConfigRevisionExtend, str(saved.draft_revision_id))
+        assert row.config_digest == revision.config_digest
         assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorAuditExtend)) == 1
         repository = owner._repository(session)
         assert repository.deployment_proof_fingerprint is None
@@ -203,7 +210,16 @@ def test_static_rejects_unready_config(database, actor, certificate, failure):
     with pytest.raises((CasdoorConfigurationError, CryptoError)):
         owner.validate_static(actor, etag=1, revision_id=saved.draft_revision_id, now=now)
     with factory() as session:
-        assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorValidationExtend)) == 0
+        row = session.scalar(sa.select(CasdoorValidationExtend))
+        # Corrupting the encrypted secret invalidates the revision's opaque digest
+        # before a trusted validation binding can be constructed.
+        if failure == "tamper":
+            assert row is None
+            return
+        assert row is not None
+        assert row.revision_id == str(saved.draft_revision_id)
+        assert row.kind is CasdoorValidationKind.STATIC
+        assert row.status is CasdoorValidationStatus.FAILED
 
 
 def test_global_workspace_created_order_pagination_earliest_unavailable_ambiguity(database, actor):
@@ -251,16 +267,17 @@ def test_service_disable_fences_namespace_and_reports_no_unresolved_remote_work(
         assert namespace.fence_epoch == 1
 
 
-def test_service_activate_and_test_login_require_deployment_proof(database, actor, certificate):
+def test_activation_requires_revision_diagnostic_not_deployment_proof(database, actor, certificate):
     factory, workspace_id = database
     owner = service(factory)
     saved = save(owner, actor, workspace_id, certificate)
+    owner.validate_static(actor, etag=saved.etag, revision_id=saved.draft_revision_id, now=NOW)
 
     with pytest.raises(CasdoorConfigurationError) as activate_error:
         owner.activate(actor, etag=saved.etag, revision_id=saved.draft_revision_id, now=NOW)
-    assert activate_error.value.reason == "deployment_proof_missing"
+    assert activate_error.value.reason == "validation_required"
 
-    assert owner.test_login(actor, etag=saved.etag, revision_id=saved.draft_revision_id) == "deployment_proof_missing"
+    assert owner.test_login(actor, etag=saved.etag, revision_id=saved.draft_revision_id) == "live_test_not_wired"
     assert owner.get(actor).enabled is False
 
 
