@@ -613,7 +613,17 @@ class CasdoorLoginScopeRepository:
         owner = CasdoorMembershipRepository(self.session)
         withdrawals, rows = [], []
         for history in before.histories:
-            if history.ownership is not CasdoorMembershipOwnership.MANAGED or history.tombstone:
+            target = targets.get(history.workspace_id)
+            mapped_override = (
+                history.ownership is CasdoorMembershipOwnership.LOCAL_OVERRIDE
+                and history.tombstone is True
+                and target is not None
+                and target.reason is CasdoorDecisionReason.ROLE_MAPPING
+                and bool(target.matched_role_refs)
+            )
+            if not mapped_override and (
+                history.ownership is not CasdoorMembershipOwnership.MANAGED or history.tombstone
+            ):
                 continue
             if history.namespace_id != str(c.namespace_id) or history.identity_id != str(c.identity_id):
                 raise CasdoorLoginScopeConflict()
@@ -625,9 +635,13 @@ class CasdoorLoginScopeRepository:
                 identity.sync_generation,
             )
             workspace_id = _uuid(history.workspace_id)
-            target = targets.get(history.workspace_id)
             view = owner.inspect(version, workspace_id, backend=MembershipBackend.LOCAL)
-            if target is None or view.decision is OwnershipDecision.CONTROLLED_WITHDRAWN:
+            if view.decision is OwnershipDecision.MAPPED_REGRANT_REQUIRED:
+                token = owner.prepare_local_regrant(version, target, _ordinary_guard=_ordinary_guard)
+                rows.append(token.state[0])
+            elif mapped_override:
+                continue  # Preserve a retained/malformed/blocked manual override.
+            elif target is None or view.decision is OwnershipDecision.CONTROLLED_WITHDRAWN:
                 row, join, _ = owner._read_local_state(version, workspace_id, _ordinary_guard=_ordinary_guard)
                 if join is None:
                     owner._validate_local_absence(version, row, join)
@@ -810,6 +824,30 @@ class CasdoorLoginScopeRepository:
             }
             if membership_id in regrants:
                 changed.add("join_id")
+                summary = regrants[membership_id]
+                if summary.ownership_decision is OwnershipDecision.MAPPED_REGRANT_REQUIRED:
+                    changed |= {"ownership", "tombstone"}
+                    target = next((t for t in plan.targets if t.workspace_id == summary.workspace_id), None)
+                    if (
+                        target is None
+                        or target.reason is not CasdoorDecisionReason.ROLE_MAPPING
+                        or not target.matched_role_refs
+                        or effect.before.ownership is not CasdoorMembershipOwnership.LOCAL_OVERRIDE
+                        or effect.before.tombstone is not True
+                        or effect.before.join_id in old_joins
+                    ):
+                        raise CasdoorLoginScopeConflict()
+                elif (
+                    summary.ownership_decision is not OwnershipDecision.CONTROLLED_WITHDRAWN
+                    or effect.before.ownership is not CasdoorMembershipOwnership.MANAGED
+                    or effect.before.tombstone is not False
+                ):
+                    raise CasdoorLoginScopeConflict()
+                if (
+                    effect.after.ownership is not CasdoorMembershipOwnership.MANAGED
+                    or effect.after.tombstone is not False
+                ):
+                    raise CasdoorLoginScopeConflict()
             if (
                 any(
                     getattr(effect.after, key) != value

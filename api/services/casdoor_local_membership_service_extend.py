@@ -145,8 +145,8 @@ class CasdoorLocalMembershipService:
     ) -> LocalMembershipPersistence:
         """Reuse real owners in one root; no local transaction or recovery loop.
 
-        Full plan shape is checked before generation DML. Preserved histories do
-        not enter LOCAL prepare, whose current-only history contract is narrower.
+        Full plan shape is checked before generation DML. Only a removed current
+        override reselected by an explicit mapping may enter LOCAL regrant.
         Required intents across all histories/states/generations block mutation.
         """
         root = self._root()
@@ -281,9 +281,17 @@ class CasdoorLocalMembershipService:
                 OwnershipDecision.NEW_JOIN_REQUIRED,
                 OwnershipDecision.MANAGED_CURRENT,
                 OwnershipDecision.CONTROLLED_WITHDRAWN,
+                OwnershipDecision.MAPPED_REGRANT_REQUIRED,
             ):
-                if decision in (OwnershipDecision.NEW_JOIN_REQUIRED, OwnershipDecision.CONTROLLED_WITHDRAWN):
-                    regranted = decision is OwnershipDecision.CONTROLLED_WITHDRAWN
+                if decision in (
+                    OwnershipDecision.NEW_JOIN_REQUIRED,
+                    OwnershipDecision.CONTROLLED_WITHDRAWN,
+                    OwnershipDecision.MAPPED_REGRANT_REQUIRED,
+                ):
+                    regranted = decision in (
+                        OwnershipDecision.CONTROLLED_WITHDRAWN,
+                        OwnershipDecision.MAPPED_REGRANT_REQUIRED,
+                    )
                     if regranted:
                         self._correlation(correlation_id)
                         token = members.prepare_local_regrant(version, target, _ordinary_guard=_ordinary_guard)

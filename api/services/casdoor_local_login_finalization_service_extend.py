@@ -190,7 +190,7 @@ class CasdoorLocalLoginFinalizationService:
             if baseline.join_role is None:
                 if observation.membership_created or row.ownership_epoch < 2:
                     raise CasdoorLoginScopeConflict()
-                checked, join, _ = owner._read_local_state(version, target.workspace_id, _ordinary_guard=_ordinary_guard)
+                checked, join, _ = owner.read_present_local_state(version, target, _ordinary_guard=_ordinary_guard)
                 empty = MembershipObservation(
                     target.workspace_id, persisted.account_id, None, None, MembershipBackend.LOCAL
                 )

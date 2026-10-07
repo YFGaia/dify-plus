@@ -298,9 +298,19 @@ class CasdoorMembershipRepository:
         self._session.flush()
         return self._snapshot(row)
 
-    def _read_local_state(self, version, workspace_id, *, _ordinary_guard=None):
+    def _read_local_state(
+        self, version, workspace_id, *, _ordinary_guard=None, _mapped_regrant_target=None, _present_target=None
+    ):
         """Full bounded row plus exact current parents, all history and intent guards."""
         self._require_clean_transaction()
+        if _mapped_regrant_target is not None:
+            self._validate_mapped_regrant_target(version, _mapped_regrant_target)
+            if _mapped_regrant_target.workspace_id != workspace_id:
+                raise CasdoorMembershipConflict()
+        if _present_target is not None:
+            resolve_local_target(version.plan, _present_target)
+            if _present_target.workspace_id != workspace_id or _mapped_regrant_target is not None:
+                raise CasdoorMembershipConflict()
         if dify_config.RBAC_ENABLED is not False or dify_config.DEPLOYMENT_EDITION == DeploymentEdition.ENTERPRISE:
             raise CasdoorMembershipConflict()
         namespaces = self._guard_owner(version)
@@ -314,7 +324,7 @@ class CasdoorMembershipRepository:
             )
         )
         self._uuid(default_id)
-        if account.status is not AccountStatus.ACTIVE or account.initialized_at is None or default_id == str(workspace_id):
+        if account.status is not AccountStatus.ACTIVE or account.initialized_at is None:
             raise CasdoorMembershipConflict()
         if (
             self._session.scalar(sa.select(Tenant.status).where(Tenant.id == str(workspace_id)).with_for_update())
@@ -326,6 +336,17 @@ class CasdoorMembershipRepository:
         if len(refs) != 1 or (refs[0].namespace_id, refs[0].identity_id) != (str(c.namespace_id), str(c.identity_id)):
             raise CasdoorMembershipConflict()
         row = self._current_row(refs[0])
+        mapped_regrant = (
+            _mapped_regrant_target is not None
+            and row.ownership is CasdoorMembershipOwnership.LOCAL_OVERRIDE
+            and row.tombstone is True
+        )
+        # Only an explicit mapping can restore a removed override in the default
+        # workspace. Controlled withdrawal/regrant keeps its original protection.
+        if default_id == str(workspace_id) and not mapped_regrant and _present_target is None:
+            raise CasdoorMembershipConflict()
+        if mapped_regrant and self._history_refs(c.account_id, workspace_id) != refs:
+            raise CasdoorMembershipConflict()
         revision = self._session.execute(
             sa.select(
                 CasdoorConfigRevisionExtend.integration_id,
@@ -340,8 +361,8 @@ class CasdoorMembershipRepository:
             revision is None
             or tuple(revision)
             != (str(c.integration_id), str(c.namespace_id), c.issuer, c.organization, c.application, c.client_id)
-            or row.ownership is not CasdoorMembershipOwnership.MANAGED
-            or row.tombstone is not False
+            or (not mapped_regrant and row.ownership is not CasdoorMembershipOwnership.MANAGED)
+            or (not mapped_regrant and row.tombstone is not False)
             or row.source
             not in (CasdoorMembershipSource.MAPPING, CasdoorMembershipSource.FALLBACK, CasdoorMembershipSource.ADOPT)
             or row.finalization not in (CasdoorFinalizationState.PENDING, CasdoorFinalizationState.FINALIZED)
@@ -356,6 +377,17 @@ class CasdoorMembershipRepository:
         initial = parse_role_baseline_json(row.baseline_json)
         if initial.backend is not MembershipBackend.LOCAL or initial.join_role not in (None, *LOCAL_ROLES):
             raise CasdoorMembershipConflict()
+        if mapped_regrant:
+            applied = parse_role_baseline_json(row.last_applied_roles_json)
+            observation = MembershipObservation(
+                workspace_id, c.account_id, UUID(row.join_id), applied.join_role, MembershipBackend.LOCAL
+            )
+            if (
+                applied.backend is not MembershipBackend.LOCAL
+                or applied.join_role not in LOCAL_ROLES
+                or row.last_applied_fingerprint != roles_fingerprint(observation)
+            ):
+                raise CasdoorMembershipConflict()
         joins = tuple(
             self._session.execute(
                 sa.select(
@@ -374,11 +406,40 @@ class CasdoorMembershipRepository:
         join = joins[0] if joins else None
         if join:
             self._uuid(join.id)
+        if _present_target is not None:
+            role = resolve_local_target(version.plan, _present_target)
+            observation = MembershipObservation(
+                workspace_id,
+                c.account_id,
+                UUID(join.id) if join else None,
+                join.role if join else None,
+                MembershipBackend.LOCAL,
+            )
+            if (
+                join is None
+                or join.id != row.join_id
+                or join.role is not role
+                or row.desired_generation != version.generation
+                or row.revision_id != str(c.revision_id)
+                or row.last_applied_roles_json != role_baseline_json(observation)
+                or row.last_applied_fingerprint != roles_fingerprint(observation)
+            ):
+                raise CasdoorMembershipConflict()
         if CasdoorRequiredIntentRepository(self._session).read_locked(
             c.account_id, workspace_id, _ordinary_guard=_ordinary_guard
         ):
             raise CasdoorMembershipConflict()
         return row, join, default_id
+
+    def read_present_local_state(self, version, target, *, _ordinary_guard=None):
+        """Validate an exact managed target, including an existing default join.
+
+        This never accepts absence or ownership transfer. Withdrawal and regrant
+        preparation continue to use their separate default-workspace guards.
+        """
+        return self._read_local_state(
+            version, target.workspace_id, _ordinary_guard=_ordinary_guard, _present_target=target
+        )
 
     def _require_removed_id_absent(self, row):
         if (
@@ -402,6 +463,23 @@ class CasdoorMembershipRepository:
             or marker["fence_epoch"] != version.fence_epoch
             or row.last_applied_roles_json != role_baseline_json(observation)
             or row.last_applied_fingerprint != roles_fingerprint(observation)
+        ):
+            raise CasdoorMembershipConflict()
+        self._require_removed_id_absent(row)
+
+    @staticmethod
+    def _validate_mapped_regrant_target(version, target):
+        resolve_local_target(version.plan, target)
+        if target.reason is not CasdoorDecisionReason.ROLE_MAPPING or not target.matched_role_refs:
+            raise CasdoorMembershipConflict()
+
+    def _validate_mapped_regrant_absence(self, version, target, row, join):
+        """Removed current-owner override only; a retained manual join never qualifies."""
+        self._validate_mapped_regrant_target(version, target)
+        if (
+            row.ownership is not CasdoorMembershipOwnership.LOCAL_OVERRIDE
+            or row.tombstone is not True
+            or join is not None
         ):
             raise CasdoorMembershipConflict()
         self._require_removed_id_absent(row)
@@ -450,8 +528,16 @@ class CasdoorMembershipRepository:
         self, version: GenerationPlanVersion, target: DesiredWorkspaceTarget, *, _ordinary_guard=None
     ):
         resolve_local_target(version.plan, target)
-        row, join, default_id = self._read_local_state(version, target.workspace_id, _ordinary_guard=_ordinary_guard)
-        self._validate_local_absence(version, row, join)
+        mapped_target = (
+            target if target.reason is CasdoorDecisionReason.ROLE_MAPPING and target.matched_role_refs else None
+        )
+        row, join, default_id = self._read_local_state(
+            version, target.workspace_id, _ordinary_guard=_ordinary_guard, _mapped_regrant_target=mapped_target
+        )
+        if row.ownership is CasdoorMembershipOwnership.LOCAL_OVERRIDE:
+            self._validate_mapped_regrant_absence(version, target, row, join)
+        else:
+            self._validate_local_absence(version, row, join)
         if row.ownership_epoch == MAX_GENERATION:
             raise CasdoorMembershipConflict()
         return self._prepare_local(
@@ -477,8 +563,13 @@ class CasdoorMembershipRepository:
         ):
             raise CasdoorMembershipConflict()
         ordinary_guard = self._ordinary_guards.pop(id(token), None)
+        mapped_target = (
+            token.target
+            if not withdrawal and token.state[0].ownership is CasdoorMembershipOwnership.LOCAL_OVERRIDE
+            else None
+        )
         row, join, default_id = self._read_local_state(
-            token.version, token.workspace_id, _ordinary_guard=ordinary_guard
+            token.version, token.workspace_id, _ordinary_guard=ordinary_guard, _mapped_regrant_target=mapped_target
         )
         if (row, default_id) != token.state:
             raise CasdoorMembershipConflict()
@@ -580,6 +671,8 @@ class CasdoorMembershipRepository:
         return self._cas_local(
             row,
             join_id=join.id,
+            ownership=CasdoorMembershipOwnership.MANAGED,
+            tombstone=False,
             ownership_epoch=row.ownership_epoch + 1,
             revision_id=str(token.version.plan.context.revision_id),
             desired_generation=token.version.generation,
@@ -880,6 +973,27 @@ class CasdoorMembershipRepository:
                 pass  # Keep the original missing/drift decision; never heal malformed history.
             else:
                 decision = OwnershipDecision.CONTROLLED_WITHDRAWN
+        if (
+            backend is MembershipBackend.LOCAL
+            and decision is OwnershipDecision.PRESERVE_OVERRIDE
+            and observation.join_id is None
+            and managed is not None
+            and managed.ownership is CasdoorMembershipOwnership.LOCAL_OVERRIDE
+            and managed.tombstone is True
+        ):
+            target = next((item for item in version.plan.targets if item.workspace_id == workspace_id), None)
+            if target is not None:
+                try:
+                    row, actual_join, _default = self._read_local_state(
+                        version, workspace_id, _mapped_regrant_target=target
+                    )
+                    self._validate_mapped_regrant_absence(version, target, row, actual_join)
+                    if self._snapshot(row) != managed or row.ownership_epoch == MAX_GENERATION:
+                        raise CasdoorMembershipConflict()
+                except (ValueError, TypeError, AttributeError):
+                    pass  # Preserve overrides unless the complete current mapping/absence proof succeeds.
+                else:
+                    decision = OwnershipDecision.MAPPED_REGRANT_REQUIRED
         return MembershipInspection(observation, managed, decision, invited_by)
 
     @staticmethod

@@ -222,6 +222,9 @@ def test_exception_cause_and_pydantic_details_never_enter_logs(caplog):
         assert sentinel not in output
     assert not caplog.records[0].exc_info
     assert caplog.records[0].stack_info is None
+    assert f"correlation_id={public.correlation_id}" in caplog.text
+    assert f"result_code={public.code.value}" in caplog.text
+    assert "action=callback" in caplog.text
     assert set(caplog.records[0].casdoor_event) == {"action", "result_code", "correlation_id", "references", "summary"}
 
 

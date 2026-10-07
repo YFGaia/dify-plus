@@ -104,6 +104,7 @@ class OwnershipDecision(StrEnum):
     MANAGED_CURRENT = "managed_current"
     MARK_OVERRIDE_REQUIRED = "mark_override_required"
     CONTROLLED_WITHDRAWN = "controlled_withdrawn"
+    MAPPED_REGRANT_REQUIRED = "mapped_regrant_required"
 
 
 def _text(value: object, *, empty: bool = False) -> bool:

@@ -298,7 +298,18 @@ def record_safety_event(event: SafetyEvent) -> None:
     if type(event) is not SafetyEvent:
         raise RequestSafetyError(SafetyFailure.INVALID_INPUT)
     values = event.values()
-    logger.info("casdoor_request_result", extra={"casdoor_event": values}, exc_info=False, stack_info=False)
+    # The deployed text formatter does not serialize LogRecord extras. Keep the
+    # bounded public result and correlation visible there as well as structured
+    # logs, without rendering exception text or authentication payloads.
+    logger.info(
+        "casdoor_request_result action=%s result_code=%s correlation_id=%s",
+        values["action"],
+        values["result_code"],
+        values["correlation_id"],
+        extra={"casdoor_event": values},
+        exc_info=False,
+        stack_info=False,
+    )
 
 
 class ProfileAuditAction(StrEnum):

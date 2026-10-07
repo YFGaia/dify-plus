@@ -14,7 +14,7 @@ Dify-Plus 是基于 Dify 的企业 AI 应用平台，提供可视化工作流、
 
 - **原生配置管理**：配置 Casdoor 地址、组织、应用、Client ID/Secret、回调地址和登录空间；支持保存草稿、静态校验、真实登录诊断、启用和停用。
 - **自动登录验证**：通过 Discovery/JWKS 自动发现签名公钥并处理缓存与刷新，管理员无需手工维护验签证书。
-- **空间角色映射**：按 Casdoor 精确角色名映射到多个 Dify 空间的 `admin`、`editor`、`normal`，同一空间多角色命中时按此顺序取最高角色；不映射 `owner`，保留已有未托管权限。
+- **空间角色映射**：按 Casdoor 精确角色名映射到多个 Dify 空间的 `admin`、`editor`、`normal`，同一空间多角色命中时按此顺序取最高角色；不映射 `owner`，保留已有未托管权限。此前在 Dify 移除的同一绑定用户重新命中显式角色映射时，登录会恢复对应空间成员及角色；默认普通成员兜底不会触发恢复。
 Casdoor 当前支持 Community 本地模式（`RBAC_ENABLED=false`）。配置保存不等于启用，启用需要通过对应版本的校验与登录诊断。登录成功后使用 Dify 本地会话和空间权限。本项目的 Casdoor 功能范围是 **SSO 集成**。
 
 配置步骤见[Casdoor SSO 指南](docs/dify-plus/Casdoor-SSO配置指南.md)。

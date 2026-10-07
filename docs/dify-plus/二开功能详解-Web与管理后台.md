@@ -28,6 +28,8 @@ Dify-Plus 的应用使用、应用开发和系统管理共用 Dify Web 与 Flask
 
 Casdoor SSO 配置支持工作区角色映射，让通过企业认证的用户进入对应工作区。角色映射按工作区选择目标，支持 `admin`、`editor`、`normal`，单份配置最多 100 条映射，不能通过映射赋予 `owner`。
 
+同一绑定用户此前被 Dify 移除后，重新命中已启用的显式角色映射可在登录时恢复对应空间及角色；默认普通成员兜底不会触发恢复，现存人工角色覆盖仍保留。恢复条件及排障方法见[Casdoor SSO 配置指南](./Casdoor-SSO配置指南.md)。
+
 | 能力 | 当前源码入口 |
 | --- | --- |
 | 普通登录入口 | `web/app/signin/normal-form.tsx`、`web/features/casdoor/signin/entry.tsx` |
