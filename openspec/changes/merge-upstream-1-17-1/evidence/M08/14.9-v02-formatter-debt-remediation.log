@@ -1,0 +1,10 @@
+M08/14.9 exact formatter follow-up
+Base candidate: 97f94625d2d51fe1780f69aaecce5a56d3073db4
+V02/16.6 failure inventory: 63 paths; 15 candidate-diff, 48 unchanged baseline.
+Coordinator formatter command: pnpm --config.verify-deps-before-run=false exec vp fmt <65 registered paths> ; exit 0.
+Astra formatter command: pnpm --config.verify-deps-before-run=false exec vp fmt .github/workflows/deploy-rag-dev.yml packages/dify-ui/src/dialog/__tests__/index.spec.tsx packages/dify-ui/src/dialog/index.stories.tsx ; exit 0.
+Exact-path verification: pnpm --config.verify-deps-before-run=false exec vp fmt <68 registered paths> --check ; exit 0.
+Astra source check: same exact paths with --check; exit 0.
+Git diff --check registered paths: exit 0.
+Semantic: 27 JSON parsed values equal; 38 Markdown wordings equal apart from table alignment and two literal code spans; YAML deep equality true; both TSX files byte-identical.
+No tests or installs were run.

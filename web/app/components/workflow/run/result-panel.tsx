@@ -1,14 +1,11 @@
 'use client'
 import type { FC } from 'react'
-import type {
-  AgentLogItemWithChildren,
-  NodeTracing,
-} from '@/types/workflow'
+import type { AgentLogItemWithChildren, NodeTracing } from '@/types/workflow'
 import { useTranslation } from 'react-i18next'
 import CodeEditor from '@/app/components/workflow/nodes/_base/components/editor/code-editor'
 import ErrorHandleTip from '@/app/components/workflow/nodes/_base/components/error-handle/error-handle-tip'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
-import { AgentLogTrigger } from '@/app/components/workflow/run/agent-log'
+import { AgentLogTrigger } from '@/app/components/workflow/run/agent-log/agent-log-trigger'
 import { IterationLogTrigger } from '@/app/components/workflow/run/iteration-log'
 import { LoopLogTrigger } from '@/app/components/workflow/run/loop-log'
 import { RetryLogTrigger } from '@/app/components/workflow/run/retry-log'
@@ -41,6 +38,8 @@ export type ResultPanelProps = {
   exceptionCounts?: number
   execution_metadata?: any
   isListening?: boolean
+  workflowRunId?: string
+  onOpenTracingTab?: () => void
   handleShowIterationResultList?: (detail: NodeTracing[][], iterDurationMap: any) => void
   handleShowLoopResultList?: (detail: NodeTracing[][], loopDurationMap: any) => void
   onShowRetryDetail?: (detail: NodeTracing[]) => void
@@ -67,6 +66,8 @@ const ResultPanel: FC<ResultPanelProps> = ({
   exceptionCounts,
   execution_metadata,
   isListening = false,
+  workflowRunId,
+  onOpenTracingTab,
   handleShowIterationResultList,
   handleShowLoopResultList,
   onShowRetryDetail,
@@ -89,70 +90,75 @@ const ResultPanel: FC<ResultPanelProps> = ({
           error={error}
           exceptionCounts={exceptionCounts}
           isListening={isListening}
+          workflowRunId={workflowRunId}
+          onOpenTracingTab={onOpenTracingTab}
         />
       </div>
       <div className="px-4">
-        {
-          isIterationNode && handleShowIterationResultList && (
-            <IterationLogTrigger
-              nodeInfo={nodeInfo}
-              onShowIterationResultList={handleShowIterationResultList}
-            />
-          )
-        }
-        {
-          isLoopNode && handleShowLoopResultList && (
-            <LoopLogTrigger
-              nodeInfo={nodeInfo}
-              onShowLoopResultList={handleShowLoopResultList}
-            />
-          )
-        }
-        {
-          isRetryNode && onShowRetryDetail && (
-            <RetryLogTrigger
-              nodeInfo={nodeInfo}
-              onShowRetryResultList={onShowRetryDetail}
-            />
-          )
-        }
-        {
-          (isAgentNode || isToolNode) && handleShowAgentOrToolLog && (
-            <AgentLogTrigger
-              nodeInfo={nodeInfo}
-              onShowAgentOrToolLog={handleShowAgentOrToolLog}
-            />
-          )
-        }
+        {isIterationNode && handleShowIterationResultList && (
+          <IterationLogTrigger
+            nodeInfo={nodeInfo}
+            onShowIterationResultList={handleShowIterationResultList}
+          />
+        )}
+        {isLoopNode && handleShowLoopResultList && (
+          <LoopLogTrigger nodeInfo={nodeInfo} onShowLoopResultList={handleShowLoopResultList} />
+        )}
+        {isRetryNode && onShowRetryDetail && (
+          <RetryLogTrigger nodeInfo={nodeInfo} onShowRetryResultList={onShowRetryDetail} />
+        )}
+        {(isAgentNode || isToolNode) && handleShowAgentOrToolLog && (
+          <AgentLogTrigger nodeInfo={nodeInfo} onShowAgentOrToolLog={handleShowAgentOrToolLog} />
+        )}
       </div>
       <div className="flex flex-col gap-2 px-4 py-2">
         <CodeEditor
           readOnly
-          title={<div>{t('common.input', { ns: 'workflow' }).toLocaleUpperCase()}</div>}
+          title={<div>{t(($) => $['common.input'], { ns: 'workflow' }).toLocaleUpperCase()}</div>}
           language={CodeLanguage.json}
           value={inputs}
           isJSONStringifyBeauty
-          footer={inputs_truncated && <LargeDataAlert textHasNoExport className="mx-1 mb-1 mt-2 h-7" />}
+          footer={
+            inputs_truncated && <LargeDataAlert textHasNoExport className="mx-1 mt-2 mb-1 h-7" />
+          }
         />
         {process_data && (
           <CodeEditor
             readOnly
-            title={<div>{t('common.processData', { ns: 'workflow' }).toLocaleUpperCase()}</div>}
+            showFileList
+            title={
+              <div>{t(($) => $['common.processData'], { ns: 'workflow' }).toLocaleUpperCase()}</div>
+            }
             language={CodeLanguage.json}
             value={process_data}
             isJSONStringifyBeauty
-            footer={process_data_truncated && <LargeDataAlert textHasNoExport className="mx-1 mb-1 mt-2 h-7" />}
+            footer={
+              process_data_truncated && (
+                <LargeDataAlert textHasNoExport className="mx-1 mt-2 mb-1 h-7" />
+              )
+            }
           />
         )}
         {(outputs || status === 'running') && (
           <CodeEditor
             readOnly
-            title={<div>{t('common.output', { ns: 'workflow' }).toLocaleUpperCase()}</div>}
+            showFileList
+            title={
+              <div>{t(($) => $['common.output'], { ns: 'workflow' }).toLocaleUpperCase()}</div>
+            }
             language={CodeLanguage.json}
             value={outputs}
             isJSONStringifyBeauty
             tip={<ErrorHandleTip type={execution_metadata?.error_strategy} />}
-            footer={outputs_truncated && <LargeDataAlert textHasNoExport downloadUrl={outputs_full_content?.download_url} className="mx-1 mb-1 mt-2 h-7" />}
+            footer={
+              outputs_truncated && (
+                <LargeDataAlert
+                  textHasNoExport
+                  downloadUrl={outputs_full_content?.download_url}
+                  className="mx-1 mt-2 mb-1 h-7"
+                />
+              )
+            }
           />
         )}
       </div>

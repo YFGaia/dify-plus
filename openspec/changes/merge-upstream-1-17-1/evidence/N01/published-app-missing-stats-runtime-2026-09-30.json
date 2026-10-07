@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-30",
+  "scope": "isolated full-image N01 published application center regression; all records are synthetic owner-owned data in fresh acceptance DB",
+  "service": {
+    "web": "http://localhost:23010",
+    "api": "http://localhost:25442",
+    "api_image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+    "web_image_id": "sha256:412b2cad11badfcfa25a3e19490aa329059245c7c07842b9c7d0230eeb4c8569"
+  },
+  "stats_present_app": {
+    "name": "Acceptance Center Published With Stats 2026-09-30",
+    "app_id": "c8af11f7-885a-454b-bcc2-181025ace644",
+    "installed_id": "e0cbad51-01b3-4918-9b76-941ad7b32a4c",
+    "product_calls": {
+      "create_app": 201,
+      "save_workflow_draft": 200,
+      "publish_workflow": 200,
+      "sync_to_center": 200,
+      "install": 200
+    },
+    "statistics_readback": {
+      "row_count": 1,
+      "number": 0
+    },
+    "center_list_status": 200,
+    "installed_detail_status": 200,
+    "installed_parameters_status": 200
+  },
+  "missing_stats_app": {
+    "name": "Acceptance Center Published Missing Stats 2026-09-30",
+    "app_id": "d69912a8-cbfc-4690-b334-9ac13d81bac1",
+    "installed_id": "edfc85c1-c7d4-4f14-a64c-0009ded90b65",
+    "product_calls": {
+      "create_app": 201,
+      "save_workflow_draft": 200,
+      "publish_workflow": 200,
+      "sync_to_center": 200,
+      "install": 200
+    },
+    "statistics_readback_before_targeted_delete": {
+      "row_count": 1,
+      "number": 0
+    },
+    "targeted_delete": {
+      "table": "app_statistics_extend",
+      "predicate": "app_id equals this synthetic app_id",
+      "rows_deleted": 1
+    },
+    "statistics_readback_after_delete": {
+      "row_count": 0
+    },
+    "center_list_status_after_delete": 200,
+    "center_returned_app_after_delete": true,
+    "installed_detail_status_after_delete": 200,
+    "installed_parameters_status_after_delete": 200
+  },
+  "workflow": {
+    "graph": "Start(text marker) -> End(result from marker)",
+    "model_nodes": 0,
+    "external_model_calls": 0
+  },
+  "owner_session_or_secret_values_recorded": false,
+  "browser_visual_check": "pending exclusive browser owner role batch handoff",
+  "existing_23000_database_or_apps_modified": false
+}

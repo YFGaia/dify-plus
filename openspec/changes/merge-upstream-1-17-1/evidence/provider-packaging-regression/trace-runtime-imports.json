@@ -1,0 +1,37 @@
+{
+  "external_clients_instantiated": false,
+  "results": [
+    {
+      "module": "dify_trace_aliyun.aliyun_trace",
+      "imported": true
+    },
+    {
+      "module": "dify_trace_arize_phoenix.arize_phoenix_trace",
+      "imported": true
+    },
+    {
+      "module": "dify_trace_langfuse.langfuse_trace",
+      "imported": true
+    },
+    {
+      "module": "dify_trace_langsmith.langsmith_trace",
+      "imported": true
+    },
+    {
+      "module": "dify_trace_mlflow.mlflow_trace",
+      "imported": true
+    },
+    {
+      "module": "dify_trace_opik.opik_trace",
+      "imported": true
+    },
+    {
+      "module": "dify_trace_tencent.tencent_trace",
+      "imported": true
+    },
+    {
+      "module": "dify_trace_weave.weave_trace",
+      "imported": true
+    }
+  ]
+}

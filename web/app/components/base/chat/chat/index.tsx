@@ -1,48 +1,99 @@
-import type {
-  FC,
-  ReactNode,
-} from 'react'
-import type { ThemeBuilder } from '../embedded-chatbot/theme/theme-context'
-import type {
-  ChatConfig,
-  ChatItem,
-  Feedback,
-  OnRegenerate,
-  OnSend,
-} from '../types'
+import type { FC, ReactNode } from 'react'
+import type { Theme } from '../embedded-chatbot/theme/theme'
+import type { ChatConfig, ChatItem, OnFeedback, OnRegenerate, OnSend } from '../types'
+import type { HumanInputFormSubmitData } from './answer/human-input-content/type'
+import type { AnswerActionPosition } from './answer/operation'
 import type { InputForm } from './type'
-import type { Emoji } from '@/app/components/tools/types'
-import type { AppData } from '@/models/share'
-import { debounce } from 'es-toolkit/compat'
-// extend: start messages context handling
-import {
-  Fragment,
-  memo,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import type { SpeechToTextTarget } from '@/app/components/base/voice-input/types'
+import type { HumanInputNodeType } from '@/app/components/workflow/nodes/human-input/types'
+import type { Node } from '@/app/components/workflow/types'
+import type { AppData, ToolIcon } from '@/models/share'
+import { Button } from '@langgenius/dify-ui/button'
+import { cn } from '@langgenius/dify-ui/cn'
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Fragment, memo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { useStore as useAppStore } from '@/app/components/app/store'
-import AgentLogModal from '@/app/components/base/agent-log-modal'
-import Button from '@/app/components/base/button'
-import { StopCircle } from '@/app/components/base/icons/src/vender/solid/mediaAndDevices'
-import PromptLogModal from '@/app/components/base/prompt-log-modal'
-import { cn } from '@/utils/classnames'
+import { useChatWithHistoryContext } from '@/app/components/base/chat/chat-with-history/context'
+import {
+  deleteMessageContext,
+  hasConsoleContextSession,
+  messageContextList,
+} from '@/service/message-context-extend'
 import Answer from './answer'
 import ChatInputArea from './chat-input-area'
-import { ChatContextProvider } from './context'
+import ChatLogModals from './chat-log-modals'
+import { ChatContextProvider } from './context-provider'
 import Question from './question'
-import TryToAsk from './try-to-ask'
-// Extend: start messages context handling
-import { deleteMessageContext, messageContextList } from '@/service/apps'
-import { useChatWithHistoryContext } from '@/app/components/base/chat/chat-with-history/context'
 import s from './style.module.css'
-// Extend: stop messages context handling
+import TryToAsk from './try-to-ask'
+import { useChatLayout } from './use-chat-layout'
+
+const MessageContextMarker = ({
+  conversationId,
+  messageId,
+  isResponding,
+}: {
+  conversationId: string
+  messageId: string
+  isResponding?: boolean
+}) => {
+  const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const queryKey = ['message-context-extend', conversationId]
+  const { data: contextList = [] } = useQuery(
+    queryOptions({
+      queryKey,
+      queryFn: () => messageContextList({ conversation_id: conversationId }),
+      enabled: !isResponding,
+      retry: false,
+      // Override the app's five-minute freshness window: finishing an answer can
+      // create a new context boundary in the same conversation.
+      staleTime: 0,
+      gcTime: 0,
+    }),
+  )
+  const { mutate, isPending } = useMutation({
+    mutationFn: () =>
+      deleteMessageContext({
+        conversation_id: conversationId,
+        message_id: messageId,
+      }),
+    onSuccess: async (result) => {
+      if (result !== 'ok') return
+      // Cancel earlier reads before updating this conversation, even if the user
+      // has switched to another conversation while the deletion was in flight.
+      await queryClient.cancelQueries({ queryKey, exact: true })
+      queryClient.setQueryData<string[]>(queryKey, (previous) =>
+        previous?.filter((id) => id !== messageId),
+      )
+      await queryClient.invalidateQueries({ queryKey, exact: true })
+    },
+  })
+
+  if (!contextList.includes(messageId)) return null
+
+  return (
+    <button
+      type="button"
+      disabled={isPending || isResponding}
+      onClick={() => mutate()}
+      className={s.contextTag}
+      aria-label={t(($) => $['configuration.restoreContext'], { ns: 'extend' })}
+    >
+      <span className={s.isCenter}>
+        {t(($) => $['configuration.clearContext'], { ns: 'extend' })}
+      </span>
+      <span className={s.recover}>
+        {t(($) => $['configuration.restoreContext'], { ns: 'extend' })}
+      </span>
+    </button>
+  )
+}
 
 export type ChatProps = {
+  answerActionPosition?: AnswerActionPosition
   isTryApp?: boolean
   readonly?: boolean
   appData?: AppData
@@ -52,8 +103,9 @@ export type ChatProps = {
   noStopResponding?: boolean
   onStopResponding?: () => void
   noChatInput?: boolean
+  showRegenerate?: boolean
   onSend?: OnSend
-  inputs?: Record<string, any>
+  inputs?: Record<string, unknown>
   inputsForm?: InputForm[]
   onRegenerate?: OnRegenerate
   chatContainerClassName?: string
@@ -64,27 +116,52 @@ export type ChatProps = {
   showPromptLog?: boolean
   questionIcon?: ReactNode
   answerIcon?: ReactNode
-  allToolIcons?: Record<string, string | Emoji>
+  allToolIcons?: Record<string, ToolIcon>
   onAnnotationEdited?: (question: string, answer: string, index: number) => void
-  onAnnotationAdded?: (annotationId: string, authorName: string, question: string, answer: string, index: number) => void
+  onAnnotationAdded?: (
+    annotationId: string,
+    authorName: string,
+    question: string,
+    answer: string,
+    index: number,
+  ) => void
   onAnnotationRemoved?: (index: number) => void
   chatNode?: ReactNode
   disableFeedback?: boolean
-  onFeedback?: (messageId: string, feedback: Feedback) => void
+  onFeedback?: OnFeedback
   chatAnswerContainerInner?: string
   hideProcessDetail?: boolean
   hideLogModal?: boolean
-  themeBuilder?: ThemeBuilder
+  theme?: Theme
   switchSibling?: (siblingMessageId: string) => void
   showFeatureBar?: boolean
   showFileUpload?: boolean
+  featureBarReadonly?: boolean
   onFeatureBarClick?: (state: boolean) => void
   noSpacing?: boolean
   inputDisabled?: boolean
+  inputPlaceholder?: string
+  inputPlaceholderBotName?: string
+  sendButtonLabel?: string
+  sendButtonLoading?: boolean
+  footerNotice?: ReactNode
+  footerNoticeTooltip?: ReactNode
   sidebarCollapseState?: boolean
+  hideAvatar?: boolean
+  sendOnEnter?: boolean
+  speechToTextTarget?: SpeechToTextTarget
+  onBeforeSpeechToText?: () => Promise<unknown>
+  renderAgentContent?: (props: {
+    item: ChatItem
+    responding?: boolean
+    content?: string
+  }) => ReactNode
+  onHumanInputFormSubmit?: (formToken: string, formData: HumanInputFormSubmitData) => Promise<void>
+  getHumanInputNodeData?: (nodeID: string) => Node<HumanInputNodeType> | undefined
 }
 
 const Chat: FC<ChatProps> = ({
+  answerActionPosition,
   isTryApp,
   readonly = false,
   appData,
@@ -98,6 +175,7 @@ const Chat: FC<ChatProps> = ({
   noStopResponding,
   onStopResponding,
   noChatInput,
+  showRegenerate,
   chatContainerClassName,
   chatContainerInnerClassName,
   chatFooterClassName,
@@ -115,174 +193,57 @@ const Chat: FC<ChatProps> = ({
   chatAnswerContainerInner,
   hideProcessDetail,
   hideLogModal,
-  themeBuilder,
+  theme,
   switchSibling,
   showFeatureBar,
   showFileUpload,
+  featureBarReadonly,
   onFeatureBarClick,
   noSpacing,
   inputDisabled,
+  inputPlaceholder,
+  inputPlaceholderBotName,
+  sendButtonLabel,
+  sendButtonLoading,
+  footerNotice,
+  footerNoticeTooltip,
   sidebarCollapseState,
+  hideAvatar,
+  sendOnEnter,
+  speechToTextTarget,
+  onBeforeSpeechToText,
+  renderAgentContent,
+  onHumanInputFormSubmit,
+  getHumanInputNodeData,
 }) => {
   const { t } = useTranslation()
-  const { currentLogItem, setCurrentLogItem, showPromptLogModal, setShowPromptLogModal, showAgentLogModal, setShowAgentLogModal } = useAppStore(useShallow(state => ({
-    currentLogItem: state.currentLogItem,
-    setCurrentLogItem: state.setCurrentLogItem,
-    showPromptLogModal: state.showPromptLogModal,
-    setShowPromptLogModal: state.setShowPromptLogModal,
-    showAgentLogModal: state.showAgentLogModal,
-    setShowAgentLogModal: state.setShowAgentLogModal,
-  })))
-  const [width, setWidth] = useState(0)
-  const chatContainerRef = useRef<HTMLDivElement>(null)
-  const chatContainerInnerRef = useRef<HTMLDivElement>(null)
-  const chatFooterRef = useRef<HTMLDivElement>(null)
-  const chatFooterInnerRef = useRef<HTMLDivElement>(null)
-  const userScrolledRef = useRef(false)
-  const isAutoScrollingRef = useRef(false)
-  // Extend: start add Message Context List
-  let currentConversationId = ''
-  try {
-    const context = useChatWithHistoryContext()
-    currentConversationId = context?.currentConversationId || ''
-  } catch {
-    // Context not available, skip
-  }
-  const [contextList, setContextList] = useState<string[]>([])
-  const handleResponding = async () => {
-    // 请求当前conversation_id分割
-    if (currentConversationId) {
-      try {
-        const historyList = await messageContextList({ conversation_id: currentConversationId })
-        setContextList(historyList)
-      } catch (error) {
-        // Handle error silently
-        console.error('Failed to fetch message context list:', error)
-      }
-    }
-  }
+  const { currentConversationId } = useChatWithHistoryContext()
+  const canLoadMessageContext = !!currentConversationId && hasConsoleContextSession()
+  const {
+    currentLogItem,
+    setCurrentLogItem,
+    showPromptLogModal,
+    setShowPromptLogModal,
+    showAgentLogModal,
+    setShowAgentLogModal,
+  } = useAppStore(
+    useShallow((state) => ({
+      currentLogItem: state.currentLogItem,
+      setCurrentLogItem: state.setCurrentLogItem,
+      showPromptLogModal: state.showPromptLogModal,
+      setShowPromptLogModal: state.setShowPromptLogModal,
+      showAgentLogModal: state.showAgentLogModal,
+      setShowAgentLogModal: state.setShowAgentLogModal,
+    })),
+  )
+  const { width, chatContainerRef, chatContainerInnerRef, chatFooterRef, chatFooterInnerRef } =
+    useChatLayout({
+      chatList,
+      sidebarCollapseState,
+    })
 
-  useEffect(() => {
-    if (isResponding)
-      return
-    handleResponding().then()
-  }, [isResponding, currentConversationId])
-  // Extend: stop add Message Context List
-
-  const handleScrollToBottom = useCallback(() => {
-    if (chatList.length > 1 && chatContainerRef.current && !userScrolledRef.current) {
-      isAutoScrollingRef.current = true
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
-
-      requestAnimationFrame(() => {
-        isAutoScrollingRef.current = false
-      })
-    }
-  }, [chatList.length])
-
-  const handleWindowResize = useCallback(() => {
-    if (chatContainerRef.current)
-      setWidth(document.body.clientWidth - (chatContainerRef.current?.clientWidth + 16) - 8)
-
-    if (chatContainerRef.current && chatFooterRef.current)
-      chatFooterRef.current.style.width = `${chatContainerRef.current.clientWidth}px`
-
-    if (chatContainerInnerRef.current && chatFooterInnerRef.current)
-      chatFooterInnerRef.current.style.width = `${chatContainerInnerRef.current.clientWidth}px`
-  }, [])
-
-  useEffect(() => {
-    handleScrollToBottom()
-    handleWindowResize()
-  }, [handleScrollToBottom, handleWindowResize])
-
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      requestAnimationFrame(() => {
-        handleScrollToBottom()
-        handleWindowResize()
-      })
-    }
-  })
-
-  useEffect(() => {
-    const debouncedHandler = debounce(handleWindowResize, 200)
-    window.addEventListener('resize', debouncedHandler)
-
-    return () => {
-      window.removeEventListener('resize', debouncedHandler)
-      debouncedHandler.cancel()
-    }
-  }, [handleWindowResize])
-
-  useEffect(() => {
-    if (chatFooterRef.current && chatContainerRef.current) {
-      // container padding bottom
-      const resizeContainerObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          const { blockSize } = entry.borderBoxSize[0]
-          chatContainerRef.current!.style.paddingBottom = `${blockSize}px`
-          handleScrollToBottom()
-        }
-      })
-      resizeContainerObserver.observe(chatFooterRef.current)
-
-      // footer width
-      const resizeFooterObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          const { inlineSize } = entry.borderBoxSize[0]
-          chatFooterRef.current!.style.width = `${inlineSize}px`
-        }
-      })
-      resizeFooterObserver.observe(chatContainerRef.current)
-
-      return () => {
-        resizeContainerObserver.disconnect()
-        resizeFooterObserver.disconnect()
-      }
-    }
-  }, [handleScrollToBottom])
-
-  useEffect(() => {
-    const setUserScrolled = () => {
-      const container = chatContainerRef.current
-      if (!container)
-        return
-
-      if (isAutoScrollingRef.current)
-        return
-
-      const distanceToBottom = container.scrollHeight - container.clientHeight - container.scrollTop
-      const SCROLL_UP_THRESHOLD = 100
-
-      userScrolledRef.current = distanceToBottom > SCROLL_UP_THRESHOLD
-    }
-
-    const container = chatContainerRef.current
-    if (!container)
-      return
-
-    container.addEventListener('scroll', setUserScrolled)
-    return () => container.removeEventListener('scroll', setUserScrolled)
-  }, [])
-
-  // Reset user scroll state when conversation changes or a new chat starts
-  // Track the first message ID to detect conversation switches (fixes #29820)
-  const prevFirstMessageIdRef = useRef<string | undefined>(undefined)
-  useEffect(() => {
-    const firstMessageId = chatList[0]?.id
-    // Reset when: new chat (length <= 1) OR conversation switched (first message ID changed)
-    if (chatList.length <= 1 || (firstMessageId && prevFirstMessageIdRef.current !== firstMessageId))
-      userScrolledRef.current = false
-    prevFirstMessageIdRef.current = firstMessageId
-  }, [chatList])
-
-  useEffect(() => {
-    if (!sidebarCollapseState)
-      setTimeout(() => handleWindowResize(), 200)
-  }, [handleWindowResize, sidebarCollapseState])
-
-  const hasTryToAsk = config?.suggested_questions_after_answer?.enabled && !!suggestedQuestions?.length && onSend
+  const hasTryToAsk =
+    config?.suggested_questions_after_answer?.enabled && !!suggestedQuestions?.length && onSend
 
   return (
     <ChatContextProvider
@@ -295,150 +256,151 @@ const Chat: FC<ChatProps> = ({
       answerIcon={answerIcon}
       onSend={onSend}
       onRegenerate={onRegenerate}
+      showRegenerate={showRegenerate}
       onAnnotationAdded={onAnnotationAdded}
       onAnnotationEdited={onAnnotationEdited}
       onAnnotationRemoved={onAnnotationRemoved}
       disableFeedback={disableFeedback}
       onFeedback={onFeedback}
+      getHumanInputNodeData={getHumanInputNodeData}
     >
-      <div className={cn('relative h-full', isTryApp && 'flex flex-col')}>
+      <div data-testid="chat-root" className={cn('relative h-full', isTryApp && 'flex flex-col')}>
         <div
+          data-testid="chat-container"
           ref={chatContainerRef}
-          className={cn('relative h-full overflow-y-auto overflow-x-hidden', isTryApp && 'h-0 grow', chatContainerClassName)}
+          className={cn(
+            'relative h-full overflow-x-hidden overflow-y-auto',
+            isTryApp && 'h-0 grow',
+            chatContainerClassName,
+          )}
         >
           {chatNode}
           <div
             ref={chatContainerInnerRef}
-            className={cn('w-full', !noSpacing && 'px-8', chatContainerInnerClassName, isTryApp && 'px-0')}
+            className={cn(
+              'w-full',
+              !noSpacing && 'px-8',
+              chatContainerInnerClassName,
+              isTryApp && 'px-0',
+            )}
           >
-            {
-              chatList.map((item, index) => {
-                if (item.isAnswer) {
-                  const isLast = item.id === chatList[chatList.length - 1]?.id
-                  // Extend: start messages context handling
-                  const clearContext = async (message_id: string) => {
-                    if (currentConversationId) {
-                      await deleteMessageContext({ conversation_id: currentConversationId, message_id })
-                      handleResponding().then()
-                    }
-                  }
-                  // Extend: stop messages context handling
-                  return (
-                    <Fragment key={item.id}>
-                      <Answer
-                        appData={appData}
-                        item={item}
-                        question={chatList[index - 1]?.content}
-                        index={index}
-                        config={config}
-                        answerIcon={answerIcon}
-                        responding={isLast && isResponding}
-                        showPromptLog={showPromptLog}
-                        chatAnswerContainerInner={chatAnswerContainerInner}
-                        hideProcessDetail={hideProcessDetail}
-                        noChatInput={noChatInput}
-                        switchSibling={switchSibling}
-                      />
-                      {/* Extend: start messages context handling */}
-                      {
-                        contextList.includes(item.id) && (
-                          <span
-                            onClick={() => {
-                              clearContext(item.id).then()
-                            }}
-                            className={cn(s.contextTag)}
-                          >
-                            <span className={cn(s.isCenter)}>{t('configuration.clearContext', { ns: 'extend' })}</span>
-                            <span className={cn(s.recover)}>{t('configuration.restoreContext', { ns: 'extend' })}</span>
-                          </span>
-                        )
-                      }
-                      {/* Extend: stop messages context handling */}
-                    </Fragment>
-                  )
-                }
+            {chatList.map((item, index) => {
+              if (item.isAnswer) {
+                const isLast = item.id === chatList.at(-1)?.id
                 return (
-                  <Question
-                    key={item.id}
-                    item={item}
-                    questionIcon={questionIcon}
-                    theme={themeBuilder?.theme}
-                    enableEdit={config?.questionEditEnable}
-                    switchSibling={switchSibling}
-                  />
+                  <Fragment key={item.id}>
+                    <Answer
+                      answerActionPosition={answerActionPosition}
+                      appData={appData}
+                      item={item}
+                      question={chatList[index - 1]?.content ?? ''}
+                      index={index}
+                      config={config}
+                      answerIcon={answerIcon}
+                      responding={isLast && isResponding}
+                      showPromptLog={showPromptLog}
+                      chatAnswerContainerInner={chatAnswerContainerInner}
+                      hideProcessDetail={hideProcessDetail}
+                      noChatInput={noChatInput}
+                      switchSibling={switchSibling}
+                      hideAvatar={hideAvatar}
+                      renderAgentContent={renderAgentContent}
+                      onHumanInputFormSubmit={onHumanInputFormSubmit}
+                    />
+                    {canLoadMessageContext && (
+                      <MessageContextMarker
+                        key={currentConversationId}
+                        conversationId={currentConversationId}
+                        messageId={item.id}
+                        isResponding={isResponding}
+                      />
+                    )}
+                  </Fragment>
                 )
-              })
-            }
+              }
+              return (
+                <Question
+                  key={item.id}
+                  item={item}
+                  questionIcon={questionIcon}
+                  theme={theme}
+                  enableEdit={config?.questionEditEnable}
+                  switchSibling={switchSibling}
+                  hideAvatar={hideAvatar}
+                />
+              )
+            })}
           </div>
         </div>
         <div
-          className={`absolute bottom-0 z-10 flex justify-center bg-chat-input-mask ${(hasTryToAsk || !noChatInput || !noStopResponding) && chatFooterClassName}`}
+          data-testid="chat-footer"
+          className={cn(
+            'pointer-events-none absolute bottom-0 z-10 flex justify-center bg-chat-input-mask',
+            (hasTryToAsk || !noChatInput || !noStopResponding) && chatFooterClassName,
+          )}
           ref={chatFooterRef}
         >
           <div
             ref={chatFooterInnerRef}
-            className={cn('relative', chatFooterInnerClassName, isTryApp && 'px-0')}
+            className={cn(
+              'pointer-events-none relative',
+              chatFooterInnerClassName,
+              isTryApp && 'px-0',
+            )}
           >
-            {
-              !noStopResponding && isResponding && (
-                <div className="mb-2 flex justify-center">
-                  <Button className="border-components-panel-border bg-components-panel-bg text-components-button-secondary-text" onClick={onStopResponding}>
-                    <StopCircle className="mr-[5px] h-3.5 w-3.5" />
-                    <span className="text-xs font-normal">{t('operation.stopResponding', { ns: 'appDebug' })}</span>
-                  </Button>
-                </div>
-              )
-            }
-            {
-              hasTryToAsk && (
-                <TryToAsk
-                  suggestedQuestions={suggestedQuestions}
-                  onSend={onSend}
-                />
-              )
-            }
-            {
-              !noChatInput && (
-                <ChatInputArea
-                  botName={appData?.site?.title || 'Bot'}
-                  disabled={inputDisabled}
-                  showFeatureBar={showFeatureBar}
-                  showFileUpload={showFileUpload}
-                  featureBarDisabled={isResponding}
-                  onFeatureBarClick={onFeatureBarClick}
-                  visionConfig={config?.file_upload}
-                  speechToTextConfig={config?.speech_to_text}
-                  onSend={onSend}
-                  inputs={inputs}
-                  inputsForm={inputsForm}
-                  theme={themeBuilder?.theme}
-                  isResponding={isResponding}
-                  readonly={readonly}
-                />
-              )
-            }
+            {!noStopResponding && isResponding && (
+              <div data-testid="stop-responding-container" className="mb-2 flex justify-center">
+                <Button
+                  className="pointer-events-auto bg-components-panel-bg text-components-button-secondary-text inset-ring-components-panel-border"
+                  onClick={onStopResponding}
+                >
+                  <div className="i-custom-vender-solid-mediaAndDevices-stop-circle h-3.5 w-3.5" />
+                  <span className="text-xs font-normal">
+                    {t(($) => $['operation.stopResponding'], { ns: 'appDebug' })}
+                  </span>
+                </Button>
+              </div>
+            )}
+            {hasTryToAsk && <TryToAsk suggestedQuestions={suggestedQuestions} onSend={onSend} />}
+            {!noChatInput && (
+              <ChatInputArea
+                botName={inputPlaceholderBotName || appData?.site?.title || 'Bot'}
+                customPlaceholder={inputPlaceholder ?? appData?.site?.input_placeholder}
+                disabled={inputDisabled}
+                showFeatureBar={showFeatureBar}
+                showFileUpload={showFileUpload}
+                featureBarReadonly={featureBarReadonly}
+                featureBarDisabled={isResponding}
+                onFeatureBarClick={onFeatureBarClick}
+                visionConfig={config?.file_upload}
+                speechToTextConfig={config?.speech_to_text}
+                speechToTextTarget={speechToTextTarget}
+                onBeforeSpeechToText={onBeforeSpeechToText}
+                onSend={onSend}
+                inputs={inputs}
+                inputsForm={inputsForm}
+                theme={theme}
+                isResponding={isResponding}
+                readonly={readonly}
+                sendButtonLabel={sendButtonLabel}
+                sendButtonLoading={sendButtonLoading}
+                footerNotice={footerNotice}
+                footerNoticeTooltip={footerNoticeTooltip}
+                sendOnEnter={sendOnEnter}
+              />
+            )}
           </div>
         </div>
-        {showPromptLogModal && !hideLogModal && (
-          <PromptLogModal
-            width={width}
-            currentLogItem={currentLogItem}
-            onCancel={() => {
-              setCurrentLogItem()
-              setShowPromptLogModal(false)
-            }}
-          />
-        )}
-        {showAgentLogModal && !hideLogModal && (
-          <AgentLogModal
-            width={width}
-            currentLogItem={currentLogItem}
-            onCancel={() => {
-              setCurrentLogItem()
-              setShowAgentLogModal(false)
-            }}
-          />
-        )}
+        <ChatLogModals
+          width={width}
+          currentLogItem={currentLogItem}
+          showPromptLogModal={showPromptLogModal}
+          showAgentLogModal={showAgentLogModal}
+          hideLogModal={hideLogModal}
+          setCurrentLogItem={setCurrentLogItem}
+          setShowPromptLogModal={setShowPromptLogModal}
+          setShowAgentLogModal={setShowAgentLogModal}
+        />
       </div>
     </ChatContextProvider>
   )

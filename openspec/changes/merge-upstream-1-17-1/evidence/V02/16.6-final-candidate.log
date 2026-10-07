@@ -1,0 +1,167 @@
+V02/16.6 candidate snapshot retry
+Candidate: 97f94625d2d51fe1780f69aaecce5a56d3073db4
+Tree: d94e6e1a034175165598bafe859d3f605b80beee
+Archive snapshot: /private/tmp/dify-v02-16.6.hF7TCH
+Created with git archive; no .git metadata, branch, or worktree. Root and web node_modules are symlinks to the preprovisioned dependencies.
+
+Environment and input hashes:
+Node v24.20.0; pnpm 12.3.4; VP_SKIP_INSTALL=1; --config.verify-deps-before-run=false on every pnpm invocation.
+Node SHA-256: 9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a
+pnpm SHA-256: 99ccfa6b57e73c693ec2c9760a978f063b001df8f462e89fce3a30be3d641f3
+package.json SHA-256: 1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f
+pnpm-lock.yaml SHA-256: b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824
+
+Frozen lock consistency: reused V02 attempt 1/M01 because package.json and pnpm-lock.yaml hashes are unchanged. No install or dependency sync was run.
+Browser inventory in access-point/api-key scope: exactly one browser spec, web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx.
+Browser spec SHA-256: 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120; exact match to M08/14.7. Reused its result: 1 file, 2 Chromium tests collected, 2 passed. No browser rerun.
+
+FIRST V02 GATE — pnpm check
+Command:
+PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false check
+Working directory: /private/tmp/dify-v02-16.6.hF7TCH
+Exit code: 1
+Full captured stdout/stderr follows:
+$ vp check && vp run lint:eslint
+[1m[31merror:[39m[0m Formatting issues found
+.github/workflows/deploy-rag-dev.yml (0ms)
+openspec/changes/merge-upstream-1-17-1/design.md (119ms)
+openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md (42ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md (9ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md (37ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md (53ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md (25ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md (14ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md (7ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md (25ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md (12ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md (12ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md (8ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md (8ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md (102ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md (8ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md (20ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md (42ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md (30ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md (8ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md (200ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md (25ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md (84ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md (20ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md (8ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md (11ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md (4ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md (14ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md (3ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md (6ms)
+openspec/changes/merge-upstream-1-17-1/execution-graph.json (3ms)
+openspec/changes/merge-upstream-1-17-1/execution-graph.md (177ms)
+openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md (68ms)
+openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md (64ms)
+openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md (60ms)
+openspec/changes/merge-upstream-1-17-1/research/planning-checks.json (0ms)
+openspec/changes/merge-upstream-1-17-1/research/planning-validation.md (30ms)
+openspec/changes/merge-upstream-1-17-1/runbook.md (97ms)
+openspec/changes/merge-upstream-1-17-1/verification-matrix.md (33ms)
+packages/dify-ui/src/dialog/__tests__/index.spec.tsx (2ms)
+packages/dify-ui/src/dialog/index.stories.tsx (6ms)
+
+Found formatting issues in 63 files (2280ms, 10 threads). Run `vp check --fix` to fix them.
+[ELIFECYCLE] Command failed with exit code 1.
+
+
+Attribution basis: each checker path was compared with git diff --name-status ac5fca9ace9401734bca31d87b03548b9ff83b18 97f94625d2d51fe1780f69aaecce5a56d3073db4 -- <path>.
+Candidate-diff paths (15):
+- openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json
+- openspec/changes/merge-upstream-1-17-1/execution-graph.json
+- openspec/changes/merge-upstream-1-17-1/execution-graph.md
+Baseline paths unchanged from candidate first parent (48):
+- .github/workflows/deploy-rag-dev.yml
+- openspec/changes/merge-upstream-1-17-1/design.md
+- openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json
+- openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md
+- openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json
+- openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md
+- openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md
+- openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md
+- openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md
+- openspec/changes/merge-upstream-1-17-1/research/planning-checks.json
+- openspec/changes/merge-upstream-1-17-1/research/planning-validation.md
+- openspec/changes/merge-upstream-1-17-1/runbook.md
+- openspec/changes/merge-upstream-1-17-1/verification-matrix.md
+- packages/dify-ui/src/dialog/__tests__/index.spec.tsx
+- packages/dify-ui/src/dialog/index.stories.tsx
+
+Outcome: vp check reported 63 formatting issues; lint:eslint did not run. No candidate web source/test path appears among the formatter failures. Stopped before lint:tss, i18n, unit tests, browser rerun, or either build. No source/test/graph/tasks/ownership changes, staging, or commit.
+
+Ownership grouping of the 63 listed paths:
+Candidate-diff paths: M05=2, M08=10, V02=1, coordinator graph=2.
+Baseline-unchanged paths: upstream workflow baseline=1; A00/A02/A04=3; M01=1; M02=3; M03=4; M04=5; M05=3; M06=13; M07=4; coordinator planning/runbook docs=9; Dify UI package baseline=2.
+.github/workflows/deploy-rag-dev.yml is among the 63 paths; it is unchanged from the candidate first parent. Coordinator attribution identifies upstream commit ef2d614fe8.
+These groups enumerate all listed formatter failures as candidate-diff or unchanged baseline and associate OpenSpec paths with their owning node.

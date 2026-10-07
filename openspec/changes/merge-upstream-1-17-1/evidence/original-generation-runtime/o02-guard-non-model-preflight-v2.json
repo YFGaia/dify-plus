@@ -1,0 +1,192 @@
+{
+  "instrument": "acceptance-only local HTTP guard",
+  "model_calls": 0,
+  "provider_requests": 0,
+  "fake_model_responses": 0,
+  "sink_semantics": "explicit transport_probe SSE only, no LLM output or usage",
+  "cases": [
+    {
+      "case": "two_forwards_third_denied",
+      "passed": true,
+      "statuses": [
+        200,
+        200,
+        429
+      ],
+      "sink_receives": 2,
+      "slots": 2
+    },
+    {
+      "case": "raw_stream_and_headers_preserved",
+      "passed": true,
+      "response_sha256": "87abd081c278e9496679856cae0855ee5890f8249bcfa70ff77293a28b394ffb"
+    },
+    {
+      "case": "original_request_bytes_key_headers_preserved",
+      "passed": true
+    },
+    {
+      "case": "false_stream_sdk_request_original_bytes_and_sse_preserved",
+      "passed": true,
+      "status": 200,
+      "sink_receives": 1,
+      "slots": 1,
+      "response_sha256": "87abd081c278e9496679856cae0855ee5890f8249bcfa70ff77293a28b394ffb",
+      "request_bytes_unchanged": true
+    },
+    {
+      "case": "progressive_stream_before_upstream_completion",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "case": "progressive_stream_full_hash_matches",
+      "passed": true
+    },
+    {
+      "case": "durable_restart_budget_unchanged",
+      "passed": true,
+      "slots": 2
+    },
+    {
+      "case": "immutable_policy_hash",
+      "passed": true
+    },
+    {
+      "case": "foreign_caller",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "foreign_agent",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "different_model",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "cap_above_eight",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "alternate_token_parameter",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "stream_string_true_zero_forward",
+      "passed": true,
+      "status": 400,
+      "additional_sink_receives": 0,
+      "slots": 0
+    },
+    {
+      "case": "stream_string_false_zero_forward",
+      "passed": true,
+      "status": 400,
+      "additional_sink_receives": 0,
+      "slots": 0
+    },
+    {
+      "case": "stream_integer_one_zero_forward",
+      "passed": true,
+      "status": 400,
+      "additional_sink_receives": 0,
+      "slots": 0
+    },
+    {
+      "case": "stream_integer_zero_zero_forward",
+      "passed": true,
+      "status": 400,
+      "additional_sink_receives": 0,
+      "slots": 0
+    },
+    {
+      "case": "stream_null_zero_forward",
+      "passed": true,
+      "status": 400,
+      "additional_sink_receives": 0,
+      "slots": 0
+    },
+    {
+      "case": "wrong_transport_key_zero_forward",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "case": "negative_requests_do_not_reserve_slots",
+      "passed": true,
+      "slots": 0
+    },
+    {
+      "case": "duplicate_invocation_not_replayed",
+      "passed": true,
+      "statuses": [
+        200,
+        409
+      ],
+      "sink_receives": 1
+    },
+    {
+      "case": "atomic_concurrent_budget",
+      "passed": true,
+      "statuses": [
+        200,
+        200,
+        429,
+        429
+      ],
+      "sink_receives": 2
+    },
+    {
+      "case": "unknown_send_never_releases_slot",
+      "passed": true,
+      "statuses": [
+        502,
+        502,
+        429
+      ],
+      "slots": 2,
+      "sink_receives": 0
+    },
+    {
+      "case": "unknown_outcomes_persisted",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "guard_sha256": "1b5ca6b04ec845c96d69c68c78a10feca621034fc5ab6738aee7dc4736679e0c",
+  "revision": "v2_strict_boolean_stream",
+  "captured_at_utc": "2026-09-30T17:12:23.385389+00:00",
+  "case_count": 24,
+  "preflight_exit_code": 0,
+  "original_v1_proof": {
+    "path": "o02-guard-non-model-preflight.json",
+    "sha256": "579bc5a123354d92a5fd49369d28d0db7e271ce39e972704cef5025a71184b1b",
+    "cases": 18,
+    "guard_sha256": "60c44a5bb2a4a007d2166137d877d21d6aefd7c339caabfe1d6025a58563a8a0",
+    "checkpoint_commit": "0d3ea0712d676c2b14b840d41bc182387db43676"
+  },
+  "scope": {
+    "agent_creation": 0,
+    "file_uploads": 0,
+    "real_provider_requests": 0,
+    "sidecar_owner_requests": 0,
+    "network_configuration_changes": 0,
+    "metadata_routes_added": 0,
+    "forward_slots": 2,
+    "max_output_tokens": 8,
+    "prompt_json_char_limit": 512,
+    "single_process_required": true,
+    "vendor_retry_or_tool_call_limit_proven": false
+  }
+}

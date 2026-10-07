@@ -1,0 +1,151 @@
+{
+  "captured_at_utc": "2026-09-30T17:01:17.753014+00:00",
+  "timezone": "Asia/Shanghai",
+  "verification_source": "committed_release_archive_with_exact_reviewed_docs",
+  "base_HEAD": "43e2d6a06acc795b1daa1dd4aba0d0b701965d1a",
+  "archive_directory": "/private/tmp/dify-o02-docs-43e2-precommit-archive",
+  "release_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+  "source55_unchanged": true,
+  "worktree_lock_not_release_input": true,
+  "tag_preserved": "fork-merged-1.17.1 -> e91c4d89fc6090ebd339acaf9be5ce853c29f544",
+  "secret_scan_flags": 0,
+  "scope": "O02 five-service partial readiness and actual network authorization rejection; no O02 Agent created/upload/model calls; prior original B05/B11/B09 real calls remain documented and are not counted as zero",
+  "local_missing": 1,
+  "external_missing": 8,
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "openspec/changes/merge-upstream-1-17-1/evidence/current-graph-reference-check.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: DAG, passed references, N01 exact reviewed source milestone, N02 complete durable frozen source inventory, N02/N05/N06 dependencies and29 scene IDs /24 local /4 historical /1 production"
+    },
+    {
+      "command": [
+        "openspec",
+        "validate",
+        "merge-upstream-1-17-1",
+        "--strict"
+      ],
+      "exit_code": 0,
+      "stdout": "Change 'merge-upstream-1-17-1' is valid"
+    }
+  ],
+  "paths": [
+    {
+      "path": "docs/dify-plus/1.17.1合并验收记录.md",
+      "sha256": "e2f5b884216ce3f151865836451a7dadb6214c82b42fb178929c131f2fae38ed"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/acceptance-ledger-2026-09-30.md",
+      "sha256": "cc8183036066094bd14902150afb0fd3908c0c2cf787e36786c346073c4793a6"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/acceptance-ledger-state-2026-09-30.json",
+      "sha256": "93fcf5575d0e4631610a9442bd620d1274e6c7d7190677ec3eaaac4c71dc4ea2"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/external-conditions-2026-09-30.json",
+      "sha256": "3eebc2a270eaa0a906dcb35834cf9c0b5c4b1aed36d350f5881a74daf043b28e"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/full-scope-completion-audit-2026-09-30.json",
+      "sha256": "ca521cf424dc0e59e9200dc9e5a1d730155a825ddc4cd6e16e3234a64f97cf44"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/remaining-action-matrix-2026-09-30.json",
+      "sha256": "0b3de4b4cb851de697404bfe1afb1f905a2f2aa9dc540229346672c5281f4715"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+      "sha256": "fb76b864d8a0a64d28bc2a30e54129e8f2dca1f196e707af773fab5c5b843f02"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+      "sha256": "e30396100ef128b5f22c3f0bb73bb3dee9936bb2f35aea6c4f3a90c0098a77fe"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/runbook.md",
+      "sha256": "77c3b754868317c72bf9cc346f508d5984ec641be33c236587c0d3972912aa82"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/tasks.md",
+      "sha256": "37b3655d2773d1e2aea48f175456089ceac0d0d514901a468bd2071ba7d9ecfa"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/agent-sidecar-source-plan.md",
+      "sha256": "89ec9e2efb019380cf52396d5c51beac7b2782c47d07cda20955987345cc8ede"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-o02-agent-metadata-plan-review.json",
+      "sha256": "ac1136e877692d37b57466942fdde47b201baac32ebe26495cb1095e5f022d64"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-o02-guard-review.json",
+      "sha256": "b5b21e0b57e67f0b5e17f7e510164dbad321d5d94ccb029d2693adaf51ef38a1"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-o02-network-mode-review.json",
+      "sha256": "32b2b5f238e54e8c2cf1ec119d06f5141f471c32f88e4ab24498f4a1065492f7"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-o02-sidecar-review.json",
+      "sha256": "b198512d52fe711b81bfdab8e199fe09a5735aa077fe125457c72aa04578b116"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-o02-sidecar-second-review.json",
+      "sha256": "10a1cc87fad158e4103cd2c789bf4bbb569852bc67afba4e1722d6f49bbd0c04"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-o02-storage-subpath-review.json",
+      "sha256": "fd2741766967442a0872dfb5d126e388606ae8d4c159918902c7305755006b54"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-o02-runtime-health-review.json",
+      "sha256": "33f9f11cf2a03795f7161fbd0e55a4b9ea20c3cda02a436ac51aae1dee076535"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-agent-fixture-metadata-plan.md",
+      "sha256": "81b9b05b46eee187f95e10f0196994e1f2c1fcf0b36a44bc53b06524a16fb4ce"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-guard-non-model-preflight.json",
+      "sha256": "579bc5a123354d92a5fd49369d28d0db7e271ce39e972704cef5025a71184b1b"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-sidecar-compose.fragment.yaml",
+      "sha256": "520c26d46481e0cf653887a23201558c89b103e0f0bf912e0fbe798620a2c5d9"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-sidecar-plan.md",
+      "sha256": "eef1c73b96264d3bb071830585a5e962408b538a391876752d32a582f3888f2d"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-sidecar-preflight-readback.json",
+      "sha256": "624aa6d2838ca2b508449ee226a6532a56a12f3834f0bbcf6457f5093642e631"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-sidecar-prestart-private-validation.json",
+      "sha256": "0a3a2ab97888398509c83a43dcf6600c725cb9b39e86444c5d11fa2e9466bcf8"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-sidecar-runtime-health.json",
+      "sha256": "b961436a142fa0236cbf47c797fe5a4262d25195009e2e529716d47f26c49644"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-sidecar-storage-before.json",
+      "sha256": "3b548bec4feb65e1601e95d891f3556f70b1af762cfa5f35dbe57a69271763a9"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/supporting/o02_gateway_guard.py",
+      "sha256": "60c44a5bb2a4a007d2166137d877d21d6aefd7c339caabfe1d6025a58563a8a0"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/supporting/o02_gateway_guard_preflight.py",
+      "sha256": "ef0294c4c0192366eb531ffe13e52161545326c92ac84bf7c33716b6850c28de"
+    }
+  ],
+  "manifest_self_excluded": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/o02-docs-checkpoint-preflight.json",
+  "mutations": "docs checkpoint only; no source/lock/tag/branch/push changes"
+}

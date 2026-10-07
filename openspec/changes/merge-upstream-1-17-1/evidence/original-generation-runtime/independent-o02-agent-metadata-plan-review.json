@@ -1,0 +1,36 @@
+{
+  "reviewed_at_utc": "2026-09-30T16:21:05.682632+00:00",
+  "timezone": "Asia/Shanghai",
+  "review_kind": "Independent static product/codec/storage contract review, no fixture or API/model invocation",
+  "plan_sha256": "72cc019f31b3776eb395c21507754632476cb3557763a937ad9ad320a9f85c3b",
+  "verdict": "no blocking contract issues for separately dispatched one-Agent no-model metadata preparation; not permission for writes/deletes or generation",
+  "accepted": [
+    "normal POST AgentCreate setup/login/account/RBAC chain creates actual owner App/Agent, no synthetic identity bypass",
+    "composer GET normal draft side effect explicitly scoped after fixture gate",
+    "PUT save_to_current_version preserves actual draft, not publishing snapshot",
+    "short deepseek provider normalizes to legitimate plugin identity; credential_ref omitted and same-tenant resolver retained",
+    "Console manifest/files routes require AGENT_PREVIEW and actual draft/version scope",
+    "AgentStubTokenCodec fixed-five-minute genuine JWE with product actual execution context; no guessed IDs",
+    "original persisted signing/RSA root remains RO; owned upload_files volume is only write target for later file gate",
+    "precise private baseline/ownership/cleanup manifest excludes protected App and prior3fixtures"
+  ],
+  "required_dispatch_boundaries": [
+    "current healthy5service phase creates0Agent; this plan needs explicit separate coordinator fixture dispatch",
+    "newfile upload and configfile removal are later mutation scope; no destructive cleanup until required human authorization",
+    "no model invoke, backend run, shell, HumanInput/workflow execution or queue consumer in metadata package",
+    "file removal is not complete UploadFile/blob/home cleanup; actual residue must be recorded",
+    "metadata/config/JWE/files are partial no-model proof, cannot close full generated Agent/tool/memory/compaction"
+  ],
+  "source_contracts": [
+    "api/controllers/console/agent/roster.py:696",
+    "api/controllers/console/agent/composer.py:503",
+    "api/controllers/console/app/agent_config_inspector.py:654",
+    "api/controllers/console/app/agent_config_inspector.py:787",
+    "dify-agent/src/dify_agent/agent_stub/server/tokens/agent_stub.py:96",
+    "api/models/provider_ids.py",
+    "api/core/plugin/provider_identity.py"
+  ],
+  "services_started": false,
+  "fixtures_created": 0,
+  "model_calls": 0
+}

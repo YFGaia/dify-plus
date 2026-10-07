@@ -1,0 +1,22 @@
+{
+  "transaction_read_only": true,
+  "workflow_run_id": "a4b48e02-6d1a-4200-a164-a02fcf1ad136",
+  "workflow_key_id": "2f73ce94-8dd3-47ad-ab11-0c64d98bc13b",
+  "workflow_status": "succeeded",
+  "tokens": 0,
+  "triggered_from": "app-run",
+  "actor_role": "end_user",
+  "token_to_run_join_exactly_one": true,
+  "tenant_app_chain_matches_own_fixture": true,
+  "quota_soft_deleted_on_product_key_delete": true,
+  "remaining_usage": {
+    "accumulated_quota": "0E-7",
+    "day_used_quota": "0E-7",
+    "month_used_quota": "0E-7"
+  },
+  "recommended_after_resync_exactly_one": true,
+  "categories": [
+    "AcceptanceCategoryA",
+    "AcceptanceCategoryB"
+  ]
+}

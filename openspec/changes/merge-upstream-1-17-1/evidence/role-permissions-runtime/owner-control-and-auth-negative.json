@@ -1,0 +1,50 @@
+[
+  {
+    "operation": "forward-create",
+    "status": 201,
+    "identifier_present": true
+  },
+  {
+    "operation": "forward-read",
+    "status": 200,
+    "created_name_present": true
+  },
+  {
+    "operation": "forward-delete",
+    "status": 200,
+    "result": "success"
+  },
+  {
+    "operation": "forward-after-delete",
+    "status": 200,
+    "removed": true
+  },
+  {
+    "operation": "code-control-create",
+    "status": 201,
+    "identifier_present": true,
+    "cache_synced": true
+  },
+  {
+    "operation": "code-control-read",
+    "status": 200,
+    "present": true
+  },
+  {
+    "operation": "code-control-delete",
+    "status": 200,
+    "result": "success",
+    "cache_synced": true
+  },
+  {
+    "operation": "code-control-after-delete",
+    "status": 200,
+    "removed": true
+  },
+  {
+    "operation": "owner-cannot-activate-another-invite",
+    "status": 403,
+    "code": "invitation_account_mismatch",
+    "message": "This invitation was sent to another account. Please sign in with the invited account."
+  }
+]

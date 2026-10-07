@@ -1,0 +1,71 @@
+{
+  "surface": "real localhost Socket.IO WebSocket endpoint",
+  "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "app_a_id": "507d0a6b-9504-4266-8f05-630a50846f2c",
+  "foreign_app_b_id": "644081fd-d6e4-4c15-87d2-019449df0368",
+  "cases": [
+    {
+      "case": "canonical_identity",
+      "status": 200,
+      "tenant_matches": true,
+      "owner": true
+    },
+    {
+      "case": "same_tenant_app_exists",
+      "status": 200,
+      "id_matches": true
+    },
+    {
+      "case": "two_same_tenant_joins",
+      "distinct_sids": true,
+      "both_connected": true,
+      "leader_count": 1
+    },
+    {
+      "case": "online_users_and_leader",
+      "both_sids_visible": true,
+      "leader_is_owned_sid": true,
+      "both_status_received": true
+    },
+    {
+      "case": "real_marker_relay",
+      "ack": [
+        {
+          "msg": "event_broadcasted"
+        },
+        200
+      ],
+      "observer_received_marker": true
+    },
+    {
+      "case": "foreign_tenant_join_denial",
+      "join_ack": [
+        {
+          "msg": "unauthorized"
+        },
+        401
+      ],
+      "relay_ack": [
+        {
+          "msg": "unauthorized"
+        },
+        401
+      ],
+      "no_sid_mapping": true,
+      "foreign_room_unchanged": true
+    },
+    {
+      "case": "disconnect_only_sender",
+      "observer_remains_online": true,
+      "observer_is_leader": true
+    },
+    {
+      "case": "disconnect_cleanup",
+      "owned_sid_mappings_removed": true,
+      "app_a_baseline_preserved": true,
+      "app_b_baseline_preserved": true
+    }
+  ],
+  "model_calls": 0,
+  "verdict": "passed"
+}

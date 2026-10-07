@@ -4,16 +4,15 @@ SQLAlchemy implementation of the WorkflowExecutionRepository.
 
 import json
 import logging
-from typing import Union
+from typing import override
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
-from core.workflow.entities import WorkflowExecution
-from core.workflow.enums import WorkflowExecutionStatus, WorkflowType
-from core.workflow.repositories.workflow_execution_repository import WorkflowExecutionRepository
-from core.workflow.workflow_type_encoder import WorkflowRuntimeTypeConverter
-from libs.helper import extract_tenant_id
+from core.repositories.factory import WorkflowExecutionRepository
+from graphon.entities import WorkflowExecution
+from graphon.enums import WorkflowExecutionStatus, WorkflowType
+from graphon.workflow_type_encoder import WorkflowRuntimeTypeConverter
 from models import (
     Account,
     CreatorUserRole,
@@ -21,6 +20,7 @@ from models import (
     WorkflowRun,
 )
 from models.enums import WorkflowRunTriggeredFrom
+from models.workflow_account_extend import WorkflowRunAccountExtend
 
 logger = logging.getLogger(__name__)
 
@@ -40,37 +40,41 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
     def __init__(
         self,
         session_factory: sessionmaker | Engine,
-        user: Union[Account, EndUser],
+        tenant_id: str,
+        user: Account | EndUser,
         app_id: str | None,
         triggered_from: WorkflowRunTriggeredFrom | None,
+        from_account_id: str | None = None,
     ):
         """
         Initialize the repository with a SQLAlchemy sessionmaker or engine and context information.
 
         Args:
             session_factory: SQLAlchemy sessionmaker or engine for creating sessions
-            user: Account or EndUser object containing tenant_id, user ID, and role information
+            tenant_id: Tenant that owns the workflow execution
+            user: Account or EndUser used for creator attribution
             app_id: App ID for filtering by application (can be None)
             triggered_from: Source of the execution trigger (DEBUGGING or APP_RUN)
+            from_account_id: Validated WebApp Console actor; ignored for already persisted ownership
         """
         # If an engine is provided, create a sessionmaker from it
-        if isinstance(session_factory, Engine):
-            self._session_factory = sessionmaker(bind=session_factory, expire_on_commit=False)
-        elif isinstance(session_factory, sessionmaker):
-            self._session_factory = session_factory
-        else:
-            raise ValueError(
-                f"Invalid session_factory type {type(session_factory).__name__}; expected sessionmaker or Engine"
-            )
+        match session_factory:
+            case Engine():
+                self._session_factory = sessionmaker(bind=session_factory, expire_on_commit=False)
+            case sessionmaker():
+                self._session_factory = session_factory
+            case _:
+                raise ValueError(
+                    f"Invalid session_factory type {type(session_factory).__name__}; expected sessionmaker or Engine"
+                )
 
-        # Extract tenant_id from user
-        tenant_id = extract_tenant_id(user)
         if not tenant_id:
-            raise ValueError("User must have a tenant_id or current_tenant_id")
+            raise ValueError("tenant_id is required")
         self._tenant_id = tenant_id
 
         # Store app context
         self._app_id = app_id
+        self._from_account_id = from_account_id
 
         # Extract user context
         self._triggered_from = triggered_from
@@ -146,7 +150,9 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
 
         # No sequence number generation needed anymore
 
-        db_model.type = domain_model.workflow_type
+        from models.workflow import WorkflowType as ModelWorkflowType
+
+        db_model.type = ModelWorkflowType(domain_model.workflow_type.value)
         db_model.version = domain_model.workflow_version
         db_model.graph = json.dumps(domain_model.graph) if domain_model.graph else None
         db_model.inputs = json.dumps(domain_model.inputs) if domain_model.inputs else None
@@ -173,6 +179,15 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
 
         return db_model
 
+    def validate_scope(self, execution_id: str) -> None:
+        """Reject foreign SQL records before a configured dual-write appends a log."""
+        with self._session_factory() as session:
+            for model in (WorkflowRun, WorkflowRunAccountExtend):
+                row = session.get(model, execution_id)
+                if row is not None and (row.tenant_id != self._tenant_id or row.app_id != self._app_id):
+                    raise ValueError("Unauthorized access to workflow run")
+
+    @override
     def save(self, execution: WorkflowExecution):
         """
         Save or update a WorkflowExecution domain entity to the database.
@@ -194,9 +209,32 @@ class SQLAlchemyWorkflowExecutionRepository(WorkflowExecutionRepository):
 
         # Create a new database session
         with self._session_factory() as session:
+            existing_model = session.get(WorkflowRun, db_model.id)
+            if existing_model:
+                if existing_model.tenant_id != self._tenant_id or existing_model.app_id != self._app_id:
+                    raise ValueError("Unauthorized access to workflow run")
+                # Preserve the original start time for pause/resume flows.
+                db_model.created_at = existing_model.created_at
+            # Also check an association retained after SQL run cleanup; it cannot
+            # be claimed by another scope or overwritten by a retry.
+            attribution = session.get(WorkflowRunAccountExtend, db_model.id)
+            if attribution is not None and (
+                attribution.tenant_id != self._tenant_id or attribution.app_id != self._app_id
+            ):
+                raise ValueError("Unauthorized access to workflow run")
+
             # SQLAlchemy merge intelligently handles both insert and update operations
             # based on the presence of the primary key
             session.merge(db_model)
+            if existing_model is None and attribution is None and self._app_id is not None:
+                session.add(
+                    WorkflowRunAccountExtend(
+                        workflow_run_id=db_model.id,
+                        tenant_id=self._tenant_id,
+                        app_id=self._app_id,
+                        from_account_id=self._from_account_id,
+                    )
+                )
             session.commit()
 
             # Update the in-memory cache for faster subsequent lookups

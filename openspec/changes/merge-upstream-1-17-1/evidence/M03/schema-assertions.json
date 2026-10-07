@@ -1,0 +1,20 @@
+{
+  "generator_exit_code": 0,
+  "assertions_passed": 6,
+  "assertions": [
+    "Site optional strict bool/null payload",
+    "Site response stays upstream",
+    "OAuth callback exposes code/state/token fallback",
+    "Web login status exposes Console identity plus fork switch",
+    "Missing app code uses protected default true",
+    "Passport schemas contain no fork switch"
+  ],
+  "schema_hashes": {
+    "console-openapi.json": "7097df0660248caa6a6fa4e47863d452883593db7caa97ccd58b0c0d1b3e15db",
+    "openapi-openapi.json": "79da89686e05ca9fead85351f8a1f103ef4b649a778935d2ced575e10a242751",
+    "service-openapi.json": "92012cfaef48db5b00dd60db0aff1c92306a724348e9d7a830a793ee988e99ec",
+    "web-openapi.json": "713b0d02d975b1f4192ecdde6dbf9527781c9241a893c50d2eaec4031cddcc1c"
+  },
+  "output_dir": "/private/tmp/dify-m03-openapi-final",
+  "passport_schema_names": ["PassportAccessTokenResponse", "PassportQuery"]
+}

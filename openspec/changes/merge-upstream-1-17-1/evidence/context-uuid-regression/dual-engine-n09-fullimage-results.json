@@ -1,0 +1,35 @@
+{
+  "boundary": "Complete canonical N09 image, before N10 package correction; latest bundled runtime HTTP still pending",
+  "results": [
+    {
+      "engine": "postgresql",
+      "image_tag": "difyplus-acceptance-api:953cf1c-n09-83263107",
+      "exit_code": 0,
+      "safe_result": {
+        "engine": "postgresql",
+        "fixture_only": true,
+        "outer_rollback": true,
+        "legacy_before": "failed",
+        "legacy_error_type": "ProgrammingError",
+        "legacy_text_uuid_operator_error": true,
+        "cast_read_positive": "passed",
+        "foreign_app_tenant_deleted_read_delete_guard": "passed",
+        "positive_delete_selected_marker_only": "passed"
+      }
+    },
+    {
+      "engine": "mysql",
+      "image_tag": "difyplus-acceptance-api:953cf1c-n09-83263107",
+      "exit_code": 0,
+      "safe_result": {
+        "engine": "mysql",
+        "fixture_only": true,
+        "outer_rollback": true,
+        "legacy_before": "passed",
+        "cast_read_positive": "passed",
+        "foreign_app_tenant_deleted_read_delete_guard": "passed",
+        "positive_delete_selected_marker_only": "passed"
+      }
+    }
+  ]
+}

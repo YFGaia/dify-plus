@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=80.10.2,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dify-vdb-baidu"
+version = "0.0.1"
+dependencies = [
+    "pymochow==2.4.1",
+]
+description = "Dify vector store backend (dify-vdb-baidu)."
+
+[project.entry-points."dify.vector_backends"]
+baidu = "dify_vdb_baidu.baidu_vector:BaiduVectorFactory"
+
+[tool.setuptools.packages.find]
+where = ["src"]

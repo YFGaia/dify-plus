@@ -1,0 +1,240 @@
+{
+  "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+  "prior_n08_source_manifest_sha256": "0002b223b6802bc4ce77b388531927271f857a7d80345527ab54c34eed7c27e0",
+  "overlay_count": 56,
+  "overlays": [
+    {
+      "path": "api/controllers/console/apikey.py",
+      "sha256": "d7de964844e9adb4e4a6b7befcf25ace3062bc4058624530ccb79978b7eb2ccb"
+    },
+    {
+      "path": "api/events/event_handlers/__init__.py",
+      "sha256": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8"
+    },
+    {
+      "path": "api/events/event_handlers/create_app_statistics_when_app_created_extend.py",
+      "sha256": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba"
+    },
+    {
+      "path": "api/models/model_extend.py",
+      "sha256": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190"
+    },
+    {
+      "path": "api/services/installed_app_service.py",
+      "sha256": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b"
+    },
+    {
+      "path": "api/services/recommended_app_service_extend.py",
+      "sha256": "a218fb7c088b296e70248b01bd96913b1978fae9622a61d6de5ff31b96517bee"
+    },
+    {
+      "path": "api/services/system_manage_extend.py",
+      "sha256": "1cf69052a66dc6f681899dffe24d9cd12eee8ab93e88e9825bcef3e881cbd12e"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_apikey_quota_serialization_extend.py",
+      "sha256": "b9880a010b2eccf10b32850a4e7ec701332ed01bbb176a851e5b2af126a9a622"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_system_manage_extend.py",
+      "sha256": "8fc9fd897e8950a7126968731f27539271761a933c5a3f816e7b99ad1af6c6fb"
+    },
+    {
+      "path": "api/tests/unit_tests/events/test_app_statistics_extend.py",
+      "sha256": "856fcf4a6b4ed85c9cef5d2f051e0a19f35be52107c0cffc23d80dcab98d534c"
+    },
+    {
+      "path": "api/tests/unit_tests/models/test_model_extend_uuid_defaults.py",
+      "sha256": "ca89fd7377bf776f5e3da3caa2b617f70179acd06c27c91fad02040dd0f1feb0"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_app_center_extend.py",
+      "sha256": "4e6e1e770a8505f750979598de032602e7b707262fccb315185d57e667a0dae1"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_quota_manage_pagination_extend.py",
+      "sha256": "97145c114e9189237492e0c75fdc456bd708d8aa78fed101c75fd9497a8f298c"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_quota_manage_upsert_extend.py",
+      "sha256": "3d7a0d682f52bbc12fff859ab4c35b7a753d7eadbc3d4dcd68d23a7b1bdab32d"
+    },
+    {
+      "path": "api/uv.lock",
+      "sha256": "3d1b58d109585d9498e757734a7fef6a24fa972c8b17128ce12e4019331f7dbc"
+    },
+    {
+      "path": "api/controllers/web/wraps.py",
+      "sha256": "96830ac4c86f7a630412b6586d601bfed9a2fed57b5623a5b86c057b41241f30"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/web/test_webapp_passport_scope_extend.py",
+      "sha256": "6170851117e29b09be05450e49ff184c14ec513f5b5462087479522696ecb3ec"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_context_uuid_scope_extend.py",
+      "sha256": "7efc45c601150b2643ea734f472e1860fb7f81f6f9f21fb2249c6ecb04da7653"
+    },
+    {
+      "path": "api/providers/trace/trace-aliyun/pyproject.toml",
+      "sha256": "c3031c7dcb52cfd0f4fecfebe279d3405f3a1da2ceb33e3e66eb98701ba78013"
+    },
+    {
+      "path": "api/providers/trace/trace-arize-phoenix/pyproject.toml",
+      "sha256": "0967b301b1a4f0529de0edd1a42def47aa8e857ff9ff171a1b400a622b810f3c"
+    },
+    {
+      "path": "api/providers/trace/trace-langfuse/pyproject.toml",
+      "sha256": "b469e5335d0802ccf801d5c3c87f79ffdad86327bf9a924f25bf7e0f378ee2a0"
+    },
+    {
+      "path": "api/providers/trace/trace-langsmith/pyproject.toml",
+      "sha256": "c768501ec33e2627c937e226162335ee17631b1ecf7f2346cd038d87cbf40f77"
+    },
+    {
+      "path": "api/providers/trace/trace-mlflow/pyproject.toml",
+      "sha256": "b7677449f03cdb7ad0fc31e461480d2112a60083d47d839983560d8866f3b880"
+    },
+    {
+      "path": "api/providers/trace/trace-opik/pyproject.toml",
+      "sha256": "bdb3b31cbb02c0ba4144492a5a7edad3457894e2762388ede2de0a34a88a08df"
+    },
+    {
+      "path": "api/providers/trace/trace-tencent/pyproject.toml",
+      "sha256": "ea12d4cc87bf7a37f8ba24848164089755fd7081881e0cd9aba546a08b924185"
+    },
+    {
+      "path": "api/providers/trace/trace-weave/pyproject.toml",
+      "sha256": "b2512675f79266e1267654ad1010be546918ac5560e6857295481b3c96b9061a"
+    },
+    {
+      "path": "api/providers/vdb/vdb-alibabacloud-mysql/pyproject.toml",
+      "sha256": "b81810813bf5f18077f87b7deeb82fdacc60ae96fe30163ea32f1f4d28c3d70f"
+    },
+    {
+      "path": "api/providers/vdb/vdb-analyticdb/pyproject.toml",
+      "sha256": "c997948e609ca9928385f1bab1cdd2f076779a8f7356bf67da2d92b3131bb417"
+    },
+    {
+      "path": "api/providers/vdb/vdb-baidu/pyproject.toml",
+      "sha256": "47eea7f63863218938650ffbd99fd6a34aa6c7ffbe6fb8e192f0b84fe70ae053"
+    },
+    {
+      "path": "api/providers/vdb/vdb-chroma/pyproject.toml",
+      "sha256": "6affd006b91287e569cdc42b5da4174ac1d21d6cb7fd5718dafd089636e935e8"
+    },
+    {
+      "path": "api/providers/vdb/vdb-clickzetta/pyproject.toml",
+      "sha256": "0475e174df9a1bf45cd7f688b43c645a1340edb707268e8ce336da174543b94d"
+    },
+    {
+      "path": "api/providers/vdb/vdb-couchbase/pyproject.toml",
+      "sha256": "3c08c536cfe0be6522b08d5ae61a7f9c161effc8bc38ef1c8c5cf9e845ada9dd"
+    },
+    {
+      "path": "api/providers/vdb/vdb-elasticsearch/pyproject.toml",
+      "sha256": "438d468b9414c401ee51ff6a47b1fb04c738b4e4a0f54808ef9184d9478b4d8a"
+    },
+    {
+      "path": "api/providers/vdb/vdb-hologres/pyproject.toml",
+      "sha256": "6f305e46f3e24b2889ded2a2a85bdf126c71547486d79a792be6c70dbe3d274d"
+    },
+    {
+      "path": "api/providers/vdb/vdb-huawei-cloud/pyproject.toml",
+      "sha256": "a63655c3c25cb66b8ee14bacc7f2201152bebef20668a9d7bafeb080b82e5f5b"
+    },
+    {
+      "path": "api/providers/vdb/vdb-iris/pyproject.toml",
+      "sha256": "3b67518a58f4354a9d07b59096245c277ea781429e1c1b5a88c895dc7a556008"
+    },
+    {
+      "path": "api/providers/vdb/vdb-lindorm/pyproject.toml",
+      "sha256": "fe806264a3636825abc9ecd901df04471018c46e0be3b53affe07aa98dcddc0e"
+    },
+    {
+      "path": "api/providers/vdb/vdb-matrixone/pyproject.toml",
+      "sha256": "8701ac155520065595732828b814008e7179ad54d4a8a923a3908ac7923b6c6d"
+    },
+    {
+      "path": "api/providers/vdb/vdb-milvus/pyproject.toml",
+      "sha256": "41b672c658372bb460e132a8eac5a3e96acee85d3fc89b43332e4144909ce640"
+    },
+    {
+      "path": "api/providers/vdb/vdb-myscale/pyproject.toml",
+      "sha256": "9dc223d0f13b40da281ed75b9417883d1c90c131c86f3a917c675b923aa5a585"
+    },
+    {
+      "path": "api/providers/vdb/vdb-oceanbase/pyproject.toml",
+      "sha256": "9e5e7b57985c8bfa0f66ae494bc8a7f95b853d91751d8fa150a6a34631066077"
+    },
+    {
+      "path": "api/providers/vdb/vdb-opengauss/pyproject.toml",
+      "sha256": "89aef22c6accbdd423f5d359fbc6439c3f216e88d6b386c1ae3f386dd23bf40f"
+    },
+    {
+      "path": "api/providers/vdb/vdb-opensearch/pyproject.toml",
+      "sha256": "ad9383de64cbeb6f9e538e843f8d4a760cd779245560c0d093b3fa96e34a89e4"
+    },
+    {
+      "path": "api/providers/vdb/vdb-oracle/pyproject.toml",
+      "sha256": "553aa4383f3764d67a4712591ebf1ed9005509cf0e21f15257ecf8f5e4aefeba"
+    },
+    {
+      "path": "api/providers/vdb/vdb-pgvecto-rs/pyproject.toml",
+      "sha256": "bb1661fa5e453292bb927358c5025aa957512afe829649633bfe5463b55051c9"
+    },
+    {
+      "path": "api/providers/vdb/vdb-pgvector/pyproject.toml",
+      "sha256": "763a1512bee7227ce16c489c3e770943090de44546e83daf576f56bd59cca5e1"
+    },
+    {
+      "path": "api/providers/vdb/vdb-qdrant/pyproject.toml",
+      "sha256": "a6de7ebef76859f63f9420c88fdf32a30a99ad38901bfcded1428e1387cec057"
+    },
+    {
+      "path": "api/providers/vdb/vdb-relyt/pyproject.toml",
+      "sha256": "ab8366014cd366444956b9f6ba136c1dd7960359b728b1df83a634fc4f747d90"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tablestore/pyproject.toml",
+      "sha256": "8e7e61beddf4a79bf1f02d7425d6b21aa0d1553377b590b77c16933c61150f21"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tencent/pyproject.toml",
+      "sha256": "9ebf1bbdb448a076ce4ce66ffb23a084a6feb31b8f7fa7c5b1f0ab1fc2b2a071"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tidb-on-qdrant/pyproject.toml",
+      "sha256": "938bd7810f22c73904e4cef0e46a596ba1330f0339f797d89180e8b180ca147e"
+    },
+    {
+      "path": "api/providers/vdb/vdb-tidb-vector/pyproject.toml",
+      "sha256": "65634197bdae5bafb167a8d914d67ed37ad026c61bbf95f7baabc76a4aebb1c7"
+    },
+    {
+      "path": "api/providers/vdb/vdb-upstash/pyproject.toml",
+      "sha256": "6bdff08c418d6938c1dbb6cfb365b663606aedbeacb3c08cfe49e75b4d2478c2"
+    },
+    {
+      "path": "api/providers/vdb/vdb-vastbase/pyproject.toml",
+      "sha256": "ee8b8821e8581b62166698a81319ca792843a0f5529634326c298c23e694c982"
+    },
+    {
+      "path": "api/providers/vdb/vdb-vikingdb/pyproject.toml",
+      "sha256": "ad805e9217801e5dac1f79f97b0f97f713e17752e11658cfed8f72e86136e852"
+    },
+    {
+      "path": "api/providers/vdb/vdb-weaviate/pyproject.toml",
+      "sha256": "462d5ae12bd55cc56ac86ecd4d78221ad6dcf4b5aed5f066df04192ef43e9fb3"
+    }
+  ],
+  "source_frozen": true,
+  "verification_boundary": "38 wheels/install, 32 vector entries, Qdrant factory registry load, 8 trace runtime modules imported; HEAD lock check/default-groups frozen dry-run and real frozen Qdrant sync pass; user-dirty preserved lock frozen Qdrant sync passes but lock --check wants serialization migration; full canonical default-groups image and Qdrant server CRUD/N09 dual-engine/live HTTP pending",
+  "prior_n09_source_manifest_sha256": "2733b709fa8996f1b0cf41f53fb1d11a8885861615a35beeeeb82b1b687fbdbd",
+  "runtime_lock": {
+    "path": "api/uv.lock",
+    "sha256": "3d1b58d109585d9498e757734a7fef6a24fa972c8b17128ce12e4019331f7dbc",
+    "preexisting_dirty_sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+    "owned_delta": "38 provider sources virtual\u2192uv-generated editable only; HEAD already editable so no owned HEAD lock delta"
+  }
+}

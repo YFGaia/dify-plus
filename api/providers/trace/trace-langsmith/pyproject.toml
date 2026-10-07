@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=80.10.2,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dify-trace-langsmith"
+version = "0.0.1"
+dependencies = [
+    "langsmith==0.8.18",
+]
+description = "Dify ops tracing provider (LangSmith)."
+
+[tool.setuptools.packages.find]
+where = ["src"]

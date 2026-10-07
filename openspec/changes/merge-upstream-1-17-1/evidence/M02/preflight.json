@@ -1,0 +1,122 @@
+{
+  "branch": "codex/merge-upstream-1.17.1",
+  "head": "d4ecd2f9d0d4e25cfefc5bd3c924ef45aef789b3",
+  "tag": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "parents": "b17761ed0166e8ef49474da418b95a9462adbb9c 8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "statuses": [
+    {
+      "id": "A00",
+      "status": "passed"
+    },
+    {
+      "id": "A01",
+      "status": "passed"
+    },
+    {
+      "id": "A02",
+      "status": "passed"
+    },
+    {
+      "id": "A03",
+      "status": "blocked"
+    },
+    {
+      "id": "A04",
+      "status": "passed"
+    },
+    {
+      "id": "M00",
+      "status": "passed"
+    },
+    {
+      "id": "M01",
+      "status": "passed"
+    },
+    {
+      "id": "M02",
+      "status": "ready"
+    },
+    {
+      "id": "M03",
+      "status": "pending"
+    },
+    {
+      "id": "M04",
+      "status": "pending"
+    },
+    {
+      "id": "M05",
+      "status": "pending"
+    },
+    {
+      "id": "M06",
+      "status": "pending"
+    },
+    {
+      "id": "M07",
+      "status": "ready"
+    },
+    {
+      "id": "M08",
+      "status": "pending"
+    },
+    {
+      "id": "V01",
+      "status": "pending"
+    },
+    {
+      "id": "V02",
+      "status": "pending"
+    },
+    {
+      "id": "R01",
+      "status": "pending"
+    },
+    {
+      "id": "V03",
+      "status": "pending"
+    },
+    {
+      "id": "V04",
+      "status": "pending"
+    },
+    {
+      "id": "V05",
+      "status": "pending"
+    },
+    {
+      "id": "V06",
+      "status": "pending"
+    },
+    {
+      "id": "R02",
+      "status": "pending"
+    },
+    {
+      "id": "D00",
+      "status": "pending"
+    },
+    {
+      "id": "D01",
+      "status": "pending"
+    },
+    {
+      "id": "D02",
+      "status": "pending"
+    },
+    {
+      "id": "D03",
+      "status": "pending"
+    },
+    {
+      "id": "D04",
+      "status": "pending"
+    }
+  ],
+  "untracked_inventory": {
+    "count": 7735,
+    "sha256": "feb449c81f3fd5cf7ad38e6504ebece6c9f316531a92869092ff8f7e02bb6685",
+    "encoding": "git ls-files --others --exclude-standard, LF joined without trailing LF",
+    "unchanged_before_commit": true
+  }
+}

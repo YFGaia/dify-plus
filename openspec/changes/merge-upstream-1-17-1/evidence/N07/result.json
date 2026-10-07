@@ -1,0 +1,21 @@
+{
+  "node": "N07",
+  "status": "passed",
+  "source_context": "1a805b0ebc293f756959609fa21062bf473dac13cc06408b7a3b3a301eecb3d8",
+  "image": {
+    "dockerfile": "api/Dockerfile",
+    "tag": "difyplus-acceptance-api:953cf1c-n07-k01-1a805b0e",
+    "image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619",
+    "platform": "linux/arm64",
+    "temporary_dependency_seed_used": false
+  },
+  "review": "Independent source reviews + immutable fullcontext verified; runtime latest image identities and actual independent UI edit/refetch/restore plus Key JSON numbers satisfied affected gates",
+  "evidence": [
+    "evidence/N07/source-freeze-result.json",
+    "evidence/N07/fullimage-runtime-verification-2026-09-30.json",
+    "evidence/N07/independent-pagination-source-review.json",
+    "evidence/N07/independent-apikey-numeric-source-review.json",
+    "evidence/api-key-regression/latest-numeric-key-crud-runtime.json"
+  ],
+  "boundary": "Historical N02/N03 3c accepted evidence retained; this current affected-source gate does not claim nonzero billing/fullmatrix/original23000/local restore"
+}

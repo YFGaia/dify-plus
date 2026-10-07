@@ -1,0 +1,53 @@
+{
+  "date": "2026-09-30",
+  "scope": "real isolated Economy knowledge-base upload, asynchronous indexing, and keyword retrieval; no embeddings or model calls",
+  "service": {
+    "api": "http://localhost:25442",
+    "api_image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429"
+  },
+  "dataset": {
+    "id": "e52228b7-c590-466b-bb33-854927ac1ad2",
+    "name": "Acceptance economy retrieval 2026-09-30",
+    "indexing_technique": "economy",
+    "detail_status": 200
+  },
+  "upload": {
+    "endpoint": "POST /console/api/files/upload?source=datasets",
+    "status": 201,
+    "file_id": "056c62a7-84b0-4886-b8e3-b68a7e01e11f",
+    "synthetic_only": true
+  },
+  "document": {
+    "endpoint": "POST /console/api/datasets/{id}/documents",
+    "status": 200,
+    "document_id": "c0206122-26bb-4cd2-9c63-ba0d25f6e114",
+    "filename": "acceptance-kb.txt",
+    "source": "upload_file",
+    "process_rule": "automatic"
+  },
+  "indexing": {
+    "worker_path": "standard dataset worker queues dataset,priority_dataset",
+    "initial_status": "waiting",
+    "polls_until_completed": 3,
+    "final_status": "completed",
+    "completed_segments": 1,
+    "total_segments": 1
+  },
+  "retrieval": {
+    "endpoint": "POST /console/api/datasets/{id}/hit-testing",
+    "status": 200,
+    "search_method": "keyword_search",
+    "query": "cobalt lantern readiness",
+    "hits": 1,
+    "synthetic_fixture_content_matched": true,
+    "segment_content_returned": true
+  },
+  "provider_availability": {
+    "model_provider_summary_status": 200,
+    "configured_models": 0,
+    "configured_embedding_models": 0,
+    "high_quality_vector_business_gate": "blocked: no configured embedding model in the isolated owner workspace; no credentials copied or model calls made"
+  },
+  "qdrant_health_is_not_vector_acceptance": true,
+  "user_23000_data_modified": false
+}

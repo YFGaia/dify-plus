@@ -1,0 +1,11 @@
+{
+  "foreign_B_app_exists_positive_status": 200,
+  "B_app_id_matches": true,
+  "legal_A_agent_manifest_status": 200,
+  "agent_id_matches": true,
+  "actual_version_matches": true,
+  "version_kind": "draft",
+  "config_body_stored": false,
+  "context_read_on_old_N08_attempted": false,
+  "owner_tenant_unchanged": true
+}

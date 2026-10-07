@@ -1,16 +1,15 @@
+import agentV2Default from '@/app/components/workflow/nodes/agent-v2/default'
 import agentDefault from '@/app/components/workflow/nodes/agent/default'
 import assignerDefault from '@/app/components/workflow/nodes/assigner/default'
 import codeDefault from '@/app/components/workflow/nodes/code/default'
-
 import documentExtractorDefault from '@/app/components/workflow/nodes/document-extractor/default'
-
 import httpRequestDefault from '@/app/components/workflow/nodes/http/default'
+import humanInputDefault from '@/app/components/workflow/nodes/human-input/default'
 import ifElseDefault from '@/app/components/workflow/nodes/if-else/default'
 import iterationStartDefault from '@/app/components/workflow/nodes/iteration-start/default'
 import iterationDefault from '@/app/components/workflow/nodes/iteration/default'
 import knowledgeRetrievalDefault from '@/app/components/workflow/nodes/knowledge-retrieval/default'
 import listOperatorDefault from '@/app/components/workflow/nodes/list-operator/default'
-
 import llmDefault from '@/app/components/workflow/nodes/llm/default'
 import loopEndDefault from '@/app/components/workflow/nodes/loop-end/default'
 import loopStartDefault from '@/app/components/workflow/nodes/loop-start/default'
@@ -25,6 +24,7 @@ export const WORKFLOW_COMMON_NODES = [
   llmDefault,
   knowledgeRetrievalDefault,
   agentDefault,
+  agentV2Default,
   questionClassifierDefault,
   ifElseDefault,
   iterationDefault,
@@ -41,4 +41,5 @@ export const WORKFLOW_COMMON_NODES = [
   httpRequestDefault,
   listOperatorDefault,
   toolDefault,
+  humanInputDefault,
 ]

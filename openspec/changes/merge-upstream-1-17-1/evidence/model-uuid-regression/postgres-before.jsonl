@@ -1,0 +1,5 @@
+{"engine": "postgresql", "model": "AppStatisticsExtend", "omitted_id": true, "before_rows": 0, "flush": "passed", "readback": "passed", "uuidv4": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "postgresql", "model": "EndUserAccountJoinsExtend", "omitted_id": true, "before_rows": 0, "flush": "passed", "readback": "passed", "uuidv4": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "postgresql", "model": "AppExtend", "omitted_id": true, "before_rows": 0, "flush": "passed", "readback": "passed", "uuidv4": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "postgresql", "model": "MessageContextExtend", "omitted_id": true, "before_rows": 0, "flush": "passed", "readback": "passed", "uuidv4": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "postgresql", "overall": "passed"}

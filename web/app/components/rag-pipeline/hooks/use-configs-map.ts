@@ -4,8 +4,8 @@ import { Resolution, TransferMethod } from '@/types/app'
 import { FlowType } from '@/types/common'
 
 export const useConfigsMap = () => {
-  const pipelineId = useStore(s => s.pipelineId)
-  const fileUploadConfig = useStore(s => s.fileUploadConfig)
+  const pipelineId = useStore((s) => s.pipelineId)
+  const fileUploadConfig = useStore((s) => s.fileUploadConfig)
   return useMemo(() => {
     return {
       flowId: pipelineId!,
@@ -20,5 +20,5 @@ export const useConfigsMap = () => {
         fileUploadConfig,
       },
     }
-  }, [pipelineId])
+  }, [fileUploadConfig, pipelineId])
 }

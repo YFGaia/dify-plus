@@ -1,0 +1,7 @@
+038879dc7d54298459442b4e038278ad59c531685af56bbfac0ddbd5d4695de5  api/core/workflow/node_runtime.py
+d8fb188e3b72217bf62a232024531ea0997b06f9f1f5df49e578b93fe3402268  api/core/tools/tool_manager.py
+dd8d1d029b64b0d0a1f452d00c1b6afe2633679be7b2bfa6427333e570b500e8  api/services/workflow_service.py
+fbe3c746bd3425ae66129d462d81bb98b7e214e5b677898c84452c72c75c2704  api/core/tools/workflow_as_tool/tool.py
+1b94d5c8a55921522f77e9fe4ddaebf2be72d1f36814e2a09b6032dcb54db027  web/app/components/workflow/nodes/tool/default.ts
+e1ca23b11822f1bc931936fa98fc4dcb705895f89bb7f1b70f62041500d2e872  web/app/components/workflow/nodes/tool/hooks/use-config.ts
+1981510d75c8d5dbba8b0730c28e9f69d5ad6d338abd6b8be267ba4a3faf8a4d  web/app/components/tools/utils/to-form-schema.ts

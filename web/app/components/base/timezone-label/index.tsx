@@ -1,9 +1,9 @@
+import { cn } from '@langgenius/dify-ui/cn'
 import * as React from 'react'
 import { useMemo } from 'react'
 import { convertTimezoneToOffsetStr } from '@/app/components/base/date-and-time-picker/utils/dayjs'
-import { cn } from '@/utils/classnames'
 
-export type TimezoneLabelProps = {
+type TimezoneLabelProps = {
   /** IANA timezone identifier (e.g., 'Asia/Shanghai', 'America/New_York') */
   timezone: string
   /** Additional CSS classes to apply */
@@ -29,16 +29,9 @@ export type TimezoneLabelProps = {
  * // Custom styling
  * <TimezoneLabel timezone="Europe/London" className="text-xs font-bold" />
  */
-const TimezoneLabel: React.FC<TimezoneLabelProps> = ({
-  timezone,
-  className,
-  inline = false,
-}) => {
+const TimezoneLabel: React.FC<TimezoneLabelProps> = ({ timezone, className, inline = false }) => {
   // Memoize offset calculation to avoid redundant computations
-  const offsetStr = useMemo(
-    () => convertTimezoneToOffsetStr(timezone),
-    [timezone],
-  )
+  const offsetStr = useMemo(() => convertTimezoneToOffsetStr(timezone), [timezone])
 
   return (
     <span

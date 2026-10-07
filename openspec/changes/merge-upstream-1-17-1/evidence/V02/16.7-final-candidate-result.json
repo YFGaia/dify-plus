@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "node_id": "V02",
+  "task_id": "16.7_final_candidate_clean_snapshot_frontend_gates",
+  "candidate_commit": "95101d76b955481ce6c9519596aeea426680fa71",
+  "candidate_tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+  "status": "blocked",
+  "first_failed_gate": "pnpm check",
+  "summary": "In a clean git archive snapshot, pnpm check entered vp check and failed its formatter stage on two packages/dify-ui files. A focused read-only vp fmt --check in the same snapshot also fails on both. Both paths are unchanged from the candidate first parent, so they are inherited baseline formatting debt. Because package.json chains lint:eslint after vp check with &&, lint:eslint was not entered; all subsequent V02 gates were stopped.",
+  "snapshot": {
+    "path": "/private/tmp/dify-v02-16.7.4ZoGeS",
+    "creation": "git archive --format=tar 95101d76b955481ce6c9519596aeea426680fa71 | tar -xf - -C /private/tmp/dify-v02-16.7.4ZoGeS",
+    "archive_invocation_commit": "95101d76b955481ce6c9519596aeea426680fa71",
+    "expected_and_verified_tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+    "git_metadata_present": false,
+    "root_node_modules_symlink": "/Users/liuxingwang/go/src/dify-plus/node_modules",
+    "web_node_modules_symlink": "/Users/liuxingwang/go/src/dify-plus/web/node_modules",
+    "disposable_snapshot_only": true
+  },
+  "environment": {
+    "node": "v24.20.0",
+    "node_path": "/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin/node",
+    "node_sha256": "9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a",
+    "pnpm": "12.3.4",
+    "pnpm_path": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm",
+    "pnpm_sha256": "99ccfa6b57e73c693ec2c9760a978f063b001df8f462e89fce3a30be3d641f3",
+    "vp_skip_install": "1",
+    "verify_deps_before_run": false,
+    "dependency_install_or_sync": false,
+    "network_install_or_sync": false
+  },
+  "input_hashes": {
+    "package.json_sha256": "1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f",
+    "pnpm-lock.yaml_sha256": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+    "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx_sha256": "93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120",
+    "packages/dify-ui/src/dialog/__tests__/index.spec.tsx_git_blob": "f7cdbdf8d2f7abdd9934baf6cc78c9a2dd52fec7",
+    "packages/dify-ui/src/dialog/index.stories.tsx_git_blob": "bd454010a1bca4a6e23770e7dca6f872ab70741b"
+  },
+  "reused_evidence": {
+    "frozen_lock_consistency": {
+      "source": "V02 attempt 1 and M01",
+      "package_json_sha256": "1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f",
+      "lock_sha256": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+      "status": "reused_without_install"
+    },
+    "V01_api_tests": {
+      "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+      "prior_result": "160 passed, 0 failed, 0 skipped; 2 pytest warnings",
+      "applicable_to_candidate": true,
+      "status": "reused"
+    },
+    "browser_quota_spec": {
+      "inventory_count_in_scope": 1,
+      "path": "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+      "sha256": "93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120",
+      "matches_m08_14_7": true,
+      "prior_result": "1 Chromium file; 2 tests collected, 2 passed",
+      "status": "reused_without_rerun"
+    }
+  },
+  "gates": [
+    {
+      "name": "pnpm check",
+      "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false check",
+      "cwd": "/private/tmp/dify-v02-16.7.4ZoGeS",
+      "exit_code": 1,
+      "failed_stage": "vp check formatter",
+      "failure_count": 2,
+      "failure_paths": [
+        "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+        "packages/dify-ui/src/dialog/index.stories.tsx"
+      ],
+      "lint_eslint_entered": false,
+      "warnings": 0,
+      "exact_output_in_log": true
+    },
+    {
+      "name": "focused formatter attribution",
+      "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH node_modules/.bin/vp fmt packages/dify-ui/src/dialog/__tests__/index.spec.tsx packages/dify-ui/src/dialog/index.stories.tsx --check",
+      "cwd": "/private/tmp/dify-v02-16.7.4ZoGeS",
+      "exit_code": 1,
+      "failure_count": 2,
+      "result": "both named files fail formatting check in this snapshot",
+      "mutating": false
+    }
+  ],
+  "failure_attribution": {
+    "comparison": "97f94625d2d51fe1780f69aaecce5a56d3073db4..95101d76b955481ce6c9519596aeea426680fa71",
+    "candidate_first_parent": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+    "failure_paths_changed_in_candidate": [],
+    "failure_paths": {
+      "packages/dify-ui/src/dialog/__tests__/index.spec.tsx": {
+        "classification": "candidate-tracked, unchanged from first parent; baseline formatting debt",
+        "candidate_blob": "f7cdbdf8d2f7abdd9934baf6cc78c9a2dd52fec7",
+        "owning_feature_node": null
+      },
+      "packages/dify-ui/src/dialog/index.stories.tsx": {
+        "classification": "candidate-tracked, unchanged from first parent; baseline formatting debt",
+        "candidate_blob": "bd454010a1bca4a6e23770e7dca6f872ab70741b",
+        "owning_feature_node": null
+      }
+    },
+    "historical_comparison": "M08/14.9 report states vp fmt --check passed on 68 paths for source candidate 97f946...; this run directly checked these two files in the 95101... archive and both failed. The reports reflect different snapshot/check execution and are not conflated; current snapshot result governs this gate."
+  },
+  "skipped_gates": [
+    "pnpm --dir web lint:tss",
+    "pnpm --dir web i18n:check",
+    "registered system-features/console/access-point/api-key unit suite",
+    "browser suite (M08/14.7 exact hash 2/2 reused)",
+    "pnpm --dir web build",
+    "pnpm --dir web build:vinext"
+  ],
+  "stop_reason": {
+    "type": "baseline_formatter_failure",
+    "first_failed_gate": "pnpm check",
+    "next_owner": "baseline packages/dify-ui formatting owner; no candidate-owned feature path failed",
+    "note": "Stopped at the first failed gate. No source/test files were modified; no install, sync, or network action occurred."
+  },
+  "scope": {
+    "source_or_test_files_modified": false,
+    "execution_graph_or_tasks_modified": false,
+    "staged_or_committed": false
+  }
+}

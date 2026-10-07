@@ -1,0 +1,8 @@
+{
+  "node": "N03",
+  "status": "passed",
+  "accepted_context_sha256": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+  "readiness_evidence": "evidence/N03/runtime-readiness-2026-09-30.json",
+  "scope": "fullimage/runtime readiness, not business matrix",
+  "latest_source_advance": "N07 now holds quota pagination fix/newcandidate; prioracceptedreadiness remains historical"
+}

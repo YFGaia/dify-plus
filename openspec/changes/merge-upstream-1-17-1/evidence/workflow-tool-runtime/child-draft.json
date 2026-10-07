@@ -1,0 +1,108 @@
+{
+  "id": "ed7b2393-ced6-4642-a9e4-183bad04c51d",
+  "graph": {
+    "nodes": [
+      {
+        "id": "start",
+        "data": {
+          "type": "start",
+          "title": "Start",
+          "variables": [
+            {
+              "type": "text-input",
+              "variable": "marker",
+              "label": "Acceptance marker",
+              "required": true,
+              "max_length": 256,
+              "options": []
+            }
+          ]
+        },
+        "type": "custom",
+        "position": {
+          "x": 30,
+          "y": 100
+        },
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "width": 244,
+        "height": 100
+      },
+      {
+        "id": "end",
+        "data": {
+          "type": "end",
+          "title": "End",
+          "outputs": [
+            {
+              "variable": "marker",
+              "value_type": "string",
+              "value_selector": [
+                "start",
+                "marker"
+              ]
+            }
+          ]
+        },
+        "type": "custom",
+        "position": {
+          "x": 334,
+          "y": 100
+        },
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "width": 244,
+        "height": 100
+      }
+    ],
+    "edges": [
+      {
+        "id": "start-end",
+        "source": "start",
+        "target": "end",
+        "sourceHandle": "source",
+        "targetHandle": "target",
+        "type": "custom",
+        "data": {
+          "sourceType": "start",
+          "targetType": "end",
+          "isInIteration": false,
+          "isInLoop": false
+        }
+      }
+    ],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 0.8
+    }
+  },
+  "features": {
+    "file_upload": {},
+    "text_to_speech": {
+      "enabled": false,
+      "voice": "",
+      "language": ""
+    },
+    "sensitive_word_avoidance": {
+      "enabled": false
+    }
+  },
+  "hash": "dafed6be154e60eda0f9bdb28e350b7a6abc3d358aa84656794e627f8bd4a5be",
+  "version": "draft",
+  "version_number": null,
+  "marked_name": "",
+  "marked_comment": "",
+  "created_by": {
+    "id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+    "name": "Acceptance Owner",
+    "email": "acceptance-owner@example.invalid"
+  },
+  "created_at": 1790761421,
+  "updated_by": null,
+  "updated_at": 1790761420,
+  "tool_published": false,
+  "environment_variables": [],
+  "conversation_variables": [],
+  "rag_pipeline_variables": []
+}

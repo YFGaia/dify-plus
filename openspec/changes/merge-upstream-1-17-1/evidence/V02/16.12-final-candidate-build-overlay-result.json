@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "node_id": "V02",
+  "task_id": "16.12_final_candidate_build_overlay_retry",
+  "candidate_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+  "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+  "status": "blocked",
+  "conclusion": "blocked_dependency_overlay_symlink_boundary",
+  "first_failed_gate": "pnpm --dir web build",
+  "summary": "A fresh archive matched the exact candidate commit/tree. The top-level web/node_modules was successfully copy-on-write cloned into a real directory with the same 719-entry manifest as the source. Next.js/Turbopack still rejected the nested web/node_modules/next symlink because it resolves into the checkout root node_modules outside the archive filesystem root. Stop here; build:vinext was not run and no workaround was attempted.",
+  "snapshot": {
+    "path": "/private/tmp/dify-v02-16.12.VBhO06",
+    "creation": "git archive d2fea9989725c79afdeec3eba4eaa6e0e260e480 | tar -x -C /private/tmp/dify-v02-16.12.VBhO06",
+    "archive_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+    "verified_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+    "git_metadata_present": false,
+    "disposable_archive_not_worktree": true,
+    "web_node_modules_cow_clone": {
+      "command": "cp -cR /Users/liuxingwang/go/src/dify-plus/web/node_modules /private/tmp/dify-v02-16.12.VBhO06/web/node_modules",
+      "is_real_directory": true,
+      "is_symlink": false,
+      "source_manifest_sha256": "4f00c2c4c5f07d658d65bcaf92ca0ec38b6d1df75bee86613123000e8012b326",
+      "archive_manifest_sha256": "4f00c2c4c5f07d658d65bcaf92ca0ec38b6d1df75bee86613123000e8012b326",
+      "manifest_entries": 719,
+      "regular_files": 523,
+      "size_bytes": 41959424
+    }
+  },
+  "environment": {
+    "node": "v24.20.0",
+    "node_path": "/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin/node",
+    "node_sha256": "9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a",
+    "pnpm": "12.3.4",
+    "pnpm_path": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm",
+    "pnpm_sha256": "99ccfa6b57e73c693ec2c9760a978f063b001df8f462e89fce3a30be3d641f3",
+    "vp_skip_install": "1",
+    "verify_deps_before_run": false,
+    "dependency_install_or_sync": false,
+    "network_access_for_dependencies": false
+  },
+  "dependency_overlay": [
+    {
+      "snapshot_path": "web/node_modules",
+      "kind": "copy_on_write_directory_clone",
+      "source_manifest_sha256": "4f00c2c4c5f07d658d65bcaf92ca0ec38b6d1df75bee86613123000e8012b326",
+      "target_directory": true,
+      "is_symlink": false
+    },
+    {
+      "snapshot_path": "node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/node_modules"
+    },
+    {
+      "snapshot_path": "packages/dify-ui/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/dify-ui/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/packages/dify-ui/node_modules"
+    },
+    {
+      "snapshot_path": "packages/contracts/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/contracts/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/packages/contracts/node_modules"
+    },
+    {
+      "snapshot_path": "packages/iconify-collections/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/iconify-collections/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/packages/iconify-collections/node_modules"
+    },
+    {
+      "snapshot_path": "packages/jotai-tanstack-form/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/jotai-tanstack-form/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/packages/jotai-tanstack-form/node_modules"
+    },
+    {
+      "snapshot_path": "packages/migrate-no-unchecked-indexed-access/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/migrate-no-unchecked-indexed-access/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/packages/migrate-no-unchecked-indexed-access/node_modules"
+    },
+    {
+      "snapshot_path": "packages/nuqs-jotai/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/nuqs-jotai/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/packages/nuqs-jotai/node_modules"
+    },
+    {
+      "snapshot_path": "packages/dev-proxy/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/dev-proxy/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/packages/dev-proxy/node_modules"
+    },
+    {
+      "snapshot_path": "cli/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/cli/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/cli/node_modules"
+    },
+    {
+      "snapshot_path": "e2e/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/e2e/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/e2e/node_modules"
+    },
+    {
+      "snapshot_path": "sdks/nodejs-client/node_modules",
+      "kind": "symlink",
+      "target": "/Users/liuxingwang/go/src/dify-plus/sdks/nodejs-client/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true,
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/sdks/nodejs-client/node_modules"
+    }
+  ],
+  "excluded_generated_path": "web/.next/node_modules",
+  "input_hashes": {
+    "package_json_sha256": "1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f",
+    "pnpm_lock_sha256": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+    "root_node_modules_modules_yaml_sha256": "b1b316f7f6a0d64a2fa9d27e6186edaf28d416acc09297fae9ad90b6d9f1129c",
+    "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67"
+  },
+  "reused_evidence": {
+    "V02_16_11": {
+      "result_sha256": "67bb3e88c1b6de7fc1e8df2846aac9a0c8c53b3818bfd69f77fe1a6ba93441b5",
+      "log_sha256": "44e4421b7c6a4ee5cfeb528026916b6414e3a8526910b79ad72afbeaade2f184",
+      "pnpm_check": "8,950 formatted; 0 ESLint errors; 1,931 warnings",
+      "lint_tss": "6,266 passed",
+      "i18n": "24 locales; 0 missing keys; passed on same-archive retry after sandbox restrictions lifted",
+      "focused_unit": "20 files; 222 tests passed"
+    },
+    "V01": {
+      "api_tree_matches": true,
+      "result": "160 passed, 0 failed, 0 skipped; 2 warnings",
+      "result_sha256": "995e8f0dbb5c0f8853eea275cd653df14b41b8fc81e6bb9a75d6836da76efe77",
+      "status": "reused"
+    },
+    "M08_14_7_browser": {
+      "file": "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+      "sha256": "93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120",
+      "result": "2 Chromium tests passed",
+      "rerun": false
+    }
+  },
+  "builds": [
+    {
+      "name": "web build",
+      "command": "pnpm --config.verify-deps-before-run=false --dir web build",
+      "cwd": "/private/tmp/dify-v02-16.12.VBhO06",
+      "exit_code": 1,
+      "elapsed_seconds": 3,
+      "status": "blocked_dependency_overlay_symlink_boundary",
+      "runtime": "Next.js 16.3.4 / Turbopack",
+      "error": "Symlink [project]/web/node_modules/next is invalid, it points out of the filesystem root",
+      "nested_symlink_target": "../../node_modules/.pnpm/next@16.3.4_@babel+core@7.29.7_supports-color@11.0.0__@playwright+test@1.62.1_@types+no_fb0d8e6761f3c2c604b44c68e2c43cca/node_modules/next",
+      "resolved_target": "/Users/liuxingwang/go/src/dify-plus/node_modules/.pnpm/next@16.3.4_@babel+core@7.29.7_supports-color@11.0.0__@playwright+test@1.62.1_@types+no_fb0d8e6761f3c2c604b44c68e2c43cca/node_modules/next",
+      "panic_log": "/var/folders/xn/kxnfh8dd50dbn_wm94rgt9qr0000gp/T/next-panic-9c7bda8a5b0d013ab900aae47616dc14.log"
+    }
+  ],
+  "stop_boundary": {
+    "first_failure": "pnpm --dir web build",
+    "not_run": ["pnpm --config.verify-deps-before-run=false --dir web build:vinext"],
+    "reason": "Turbopack failed on the external nested dependency symlink; registered stop-at-first-failure rule"
+  },
+  "source_test_graph_tasks_index_mutated_by_task": false,
+  "dependency_mutation": false,
+  "staged_or_committed": false,
+  "outputs": {
+    "log_path": "evidence/V02/16.12-final-candidate-build-overlay.log",
+    "log_sha256": "97b4a7bdbb66a5a3aae51606e40fb140e246061929da17ab53edb944b4ff6865",
+    "log_bytes": 7073,
+    "result_path": "evidence/V02/16.12-final-candidate-build-overlay-result.json"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "create_status": 201,
+  "error_code": null,
+  "manifest_status": 200,
+  "agent_id": "01a0f229-cf53-7578-aa7f-337c46ce3a97",
+  "app_id": "258b9cbb-d76b-44a9-902b-44471d3c3a4f",
+  "manifest_schema": true,
+  "config_version_id": "01a0f229-cfb5-7051-ac40-f14ac9856024",
+  "config_version_kind": "draft",
+  "fixture_private_file": "/private/tmp/dify-agent-proxy-acceptance-20260930/legal-agent-fixture.json",
+  "model_invocations": 0,
+  "manifest_body_stored": false
+}

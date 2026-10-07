@@ -1,9 +1,20 @@
+"""模型同步扩展服务（历史遗留，当前无存活调用方）。
+
+原为 GVA 管理后台「同步所有模型到新工作区」功能的服务层。管理后台于 2026-07-05 退役后，
+本模块与 services/model_service_extend.py 已无任何调用方；且其依赖的
+``ProviderConfiguration.add_or_update_custom_*_without_validate_extend`` /
+``get_custom_model_credentials`` / ``get_custom_credentials`` 方法在上游 model_runtime
+外部化（graphon 化）后已不存在——若被调用会直接 AttributeError。1.16.0 合并复核时仅修复
+import 路径使模块可导入；是否恢复功能或删除本模块，留待维护者决策（见
+docs/dify-plus/复核记录-1.16.0-后端.md）。
+"""
+
 import logging
 
-from core.model_runtime.entities.model_entities import ModelType
 from core.provider_manager import ProviderManager
 from extensions.ext_database import db
-from models.tenant_model_sync_extend import *
+from graphon.model_runtime.entities.model_entities import ModelType
+from models.tenant_model_sync_extend import TenantModelSyncExtend
 
 logger = logging.getLogger(__name__)
 
@@ -127,12 +138,22 @@ class ModelProviderExtendService:
 
     @staticmethod
     def get_current_syned_tenants(origin_model_id: str) -> list[TenantModelSyncExtend]:
-        return db.session.query(TenantModelSyncExtend).filter(TenantModelSyncExtend.origin_model_id == origin_model_id).all()
+        return (
+            db.session.query(TenantModelSyncExtend)
+            .filter(TenantModelSyncExtend.origin_model_id == origin_model_id)
+            .all()
+        )
 
     @staticmethod
-    def delete_syned_tenants(origin_model_id, tenant_id: str
-    ) -> bool:
-        syned_tenant = db.session.query(TenantModelSyncExtend).filter(TenantModelSyncExtend.origin_model_id == origin_model_id, TenantModelSyncExtend.tenant_id == tenant_id).first()
+    def delete_syned_tenants(origin_model_id, tenant_id: str) -> bool:
+        syned_tenant = (
+            db.session.query(TenantModelSyncExtend)
+            .filter(
+                TenantModelSyncExtend.origin_model_id == origin_model_id,
+                TenantModelSyncExtend.tenant_id == tenant_id,
+            )
+            .first()
+        )
 
         db.session.delete(syned_tenant)
         db.session.commit()

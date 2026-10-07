@@ -1,41 +1,65 @@
+import logging
+
 from flask_login import current_user
+from sqlalchemy import String, and_, cast, func, select
+from sqlalchemy.sql import Select
+from werkzeug.exceptions import NotFound
 
 from extensions.ext_database import db
 from models.model import (
     App,
-    AppStatisticsExtend,  # Extend: App Center - Recommended list sorted by usage frequency
+    Conversation,
     InstalledApp,
     RecommendedApp,
-    RecommendedAppsCategoryJoinExtend,
-    RecommendedCategoryExtend,
     Tag,
     TagBinding,
 )
+from models.model_extend import AppStatisticsExtend  # Extend: App Center
 from services.account_service_extend import TenantExtendService
+from services.installed_app_service import InstalledAppService
+
+logger = logging.getLogger(__name__)
 
 
 class RecommendedAppService:
     @classmethod
     def installed_app_list(cls, tenant_id: str) -> dict:
-        # -------------- start: add category to categories ---------------
-        apps = (
-            db.session.query(App)
-            .join(AppStatisticsExtend, App.id == AppStatisticsExtend.app_id)
-            .filter(App.tenant_id == tenant_id)
-            .order_by(AppStatisticsExtend.number.desc())
-            .all()
+        """List published workspace installations, even before their first use.
+
+        Usage statistics are optional ranking data. Older/imported apps can lack
+        that row, and historical duplicates must not duplicate app-center cards.
+        Keep the installation within the complete workspace/app owner chain.
+        """
+        usage = (
+            select(AppStatisticsExtend.app_id, func.max(AppStatisticsExtend.number).label("number"))
+            .group_by(AppStatisticsExtend.app_id)
+            .subquery()
         )
+        apps = db.session.execute(
+            select(App, InstalledApp)
+            .join(
+                InstalledApp,
+                and_(
+                    InstalledApp.app_id == App.id,
+                    InstalledApp.tenant_id == tenant_id,
+                    InstalledApp.app_owner_tenant_id == App.tenant_id,
+                ),
+            )
+            .outerjoin(usage, App.id == usage.c.app_id)
+            .where(App.tenant_id == tenant_id, InstalledAppService.published_app_filter())
+            .order_by(func.coalesce(usage.c.number, 0).desc(), App.id.asc(), InstalledApp.id.asc())
+        ).all()
         categories = set()
         recommended_apps_result = []
 
-        for app in apps:
-            classList = app.tags
+        for app, installed_app in apps:
+            classList = list(app.tags_with_session(session=db.session))
             description = app.description
-            config = app.app_model_config
+            config = app.app_model_config_with_session(session=db.session)
             # Extend: start Handle apps without tags
             if len(classList) == 0:
                 # Create a simple object with name attribute for "未分类" category
-                classList.append(type('Tag', (), {'name': '未分类'})())
+                classList.append(type("Tag", (), {"name": "未分类"})())
             # Extend: stop Handle apps without tags
             if (
                 len(description) == 0
@@ -48,9 +72,6 @@ class RecommendedAppService:
                 category = i.name
                 if i.name != "未分类":
                     categories.add(i.name)
-                installed_app: InstalledApp = (
-                    db.session.query(InstalledApp).filter(InstalledApp.app_id == app.id).first()
-                )
                 recommended_apps_result.append(
                     {
                         "id": installed_app.id,
@@ -80,15 +101,24 @@ class RecommendedAppService:
 
     @classmethod
     def delete_sync_recommended_app(cls, app: str):
-        recommended: RecommendedApp = db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).first()
-        db.session.query(RecommendedAppsCategoryJoinExtend).filter(
-            RecommendedAppsCategoryJoinExtend.recommended_id == recommended.id
-        ).delete()
+        # 分类数据随 recommended_apps.categories 一并删除（DD3：fork 分类表已退役）
         db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).delete()
         db.session.commit()
 
     @classmethod
     def sync_recommended_app(cls, app: str) -> str:
+        """
+        Sync an app into the explore recommended list (fork "sync to app center" feature).
+
+        Categories are written to the upstream-native ``recommended_apps.categories``
+        JSON column (DD3, openspec change p3-merge-upstream-1-15-0); the former fork
+        tables ``recommended_category_extend`` / ``recommended_apps_category_join_extend``
+        are retired and must not be written anymore. Categories are derived from the
+        app's workspace tags at sync time.
+
+        :param app: App ID (non-app tag targets fall through the except and return "")
+        :return: RecommendedApp ID, or "" when unauthorized or on failure
+        """
         # The role of the current user in the ta table must be admin or owner
         tenant_extend_service = TenantExtendService
         super_admin_id = tenant_extend_service.get_super_admin_id().id
@@ -96,15 +126,10 @@ class RecommendedAppService:
             return ""
         try:
             # query application information
-            recommendedApp = None
             appInfo: App = db.session.query(App).filter(App.id == app).first()
             appInfo.is_public = True
             db.session.commit()
-            try:
-                recommendedApp = db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).first()
-            except:
-                # create
-                pass
+            recommendedApp = db.session.query(RecommendedApp).filter(RecommendedApp.app_id == app).first()
             if recommendedApp is None:
                 language_prefix = "zh-Hans"
                 if current_user and current_user.interface_language:
@@ -125,91 +150,77 @@ class RecommendedAppService:
                 # insert statement
                 db.session.add(recommendedApp)
                 db.session.commit()
-            # query related tags
-            tagList = []
-            newList = []
-            tagIdDick = {}
-            tagNameDick = {}
+            # derive categories from the app's current tags and overwrite the JSON column
             bindings = db.session.query(TagBinding).filter(TagBinding.target_id == appInfo.id).all()
             tag_ids = [binding.tag_id for binding in bindings]
-            # get application type
-            for recommended in db.session.query(RecommendedCategoryExtend).all():
-                tagNameDick[recommended.tag_id] = recommended.table
-                tagIdDick[recommended.tag_id] = recommended.id
-            # query old associated data
-            likes = (
-                db.session.query(RecommendedAppsCategoryJoinExtend)
-                .filter(RecommendedAppsCategoryJoinExtend.recommended_id == recommendedApp.id)
-                .all()
-            )
-            categoryList = [like.category_id for like in likes]
-            # query all
+            categories: list[str] = []
             if tag_ids:
                 tags = db.session.query(Tag).filter(Tag.id.in_(tag_ids)).all()
-                for tag in tags:
-                    tagName = str.strip(tag.name)
-                    if tag.id not in tagNameDick:
-                        # create tag
-                        classInfo = RecommendedCategoryExtend(
-                            tag_id=tag.id,
-                            table=tagName,
-                        )
-                        db.session.add(classInfo)
-                    else:
-                        classInfo = (
-                            db.session.query(RecommendedCategoryExtend)
-                            .filter(RecommendedCategoryExtend.tag_id == tag.id)
-                            .first()
-                        )
-                        if tagNameDick[tag.id] != tagName:
-                            classInfo.name = tagName
-                    db.session.commit()
-                    categoryId = classInfo.id
-                    # Store new category id
-                    newList.append(categoryId)
-                    if tagName not in tagList:
-                        tagList.append(tagName)
-                    # do you have any old bindings
-                    if categoryId not in categoryList:
-                        # do you have tag permission?
-                        db.session.add(
-                            RecommendedAppsCategoryJoinExtend(
-                                recommended_id=recommendedApp.id,
-                                category_id=categoryId,
-                            )
-                        )
-                        db.session.commit()
-            # loop through an old type list
-            for item in categoryList:
-                if item not in newList:
-                    db.session.query(RecommendedAppsCategoryJoinExtend).filter(
-                        RecommendedAppsCategoryJoinExtend.recommended_id == recommendedApp.id,
-                        RecommendedAppsCategoryJoinExtend.category_id == item,
-                    ).delete()
+                categories = sorted({tag.name.strip() for tag in tags if tag.name and tag.name.strip()})
+            recommendedApp.categories = categories
             db.session.commit()
             return recommendedApp.id
-        except:
+        except Exception:
+            # 保持历史行为：同步失败（含非 App 的 tag target）静默返回空串，不打断 tag 解绑等主流程
+            logger.exception("sync_recommended_app failed, app_id=%s", app)
+            db.session.rollback()
             return ""
 
     # Extend: start messages context handling
     @classmethod
-    def message_context(cls, conversation_id: str):
-        from models.model_extend import MessageContextExtend
-        message_list = []
-        message_context = db.session.query(MessageContextExtend).filter(
-            MessageContextExtend.conversation_id == conversation_id).order_by(
-            MessageContextExtend.created_at.desc()).all()
-        for v in message_context:
-            message_list.append(v.message_id)
-        return message_list
+    def message_context_app(cls, *, tenant_id: str, conversation_id: str) -> App:
+        """Resolve the trusted app owner without accessing any context markers."""
+        app = (
+            db.session.query(App)
+            .join(Conversation, Conversation.app_id == App.id)
+            .filter(
+                App.tenant_id == tenant_id,
+                Conversation.id == conversation_id,
+                Conversation.is_deleted.is_(False),
+            )
+            .first()
+        )
+        if app is None:
+            raise NotFound("Conversation not found")
+        return app
+
+    @staticmethod
+    def _context_conversations(*, tenant_id: str, app_id: str, conversation_id: str) -> Select[tuple[str]]:
+        """Keep the owner chain and match legacy text marker IDs to upstream UUIDs."""
+        return (
+            select(cast(Conversation.id, String(36)))
+            .join(App, App.id == Conversation.app_id)
+            .where(
+                App.tenant_id == tenant_id,
+                App.id == app_id,
+                Conversation.id == conversation_id,
+                Conversation.is_deleted.is_(False),
+            )
+        )
 
     @classmethod
-    def delete_message_context(cls, conversation_id, message_id: str):
+    def message_context(cls, *, tenant_id: str, app_id: str, conversation_id: str) -> list[str]:
         from models.model_extend import MessageContextExtend
+
+        conversations = cls._context_conversations(tenant_id=tenant_id, app_id=app_id, conversation_id=conversation_id)
+        message_context = (
+            db.session.query(MessageContextExtend)
+            .filter(MessageContextExtend.conversation_id.in_(conversations))
+            .order_by(MessageContextExtend.created_at.desc())
+            .all()
+        )
+        return [context.message_id for context in message_context]
+
+    @classmethod
+    def delete_message_context(cls, *, tenant_id: str, app_id: str, conversation_id: str, message_id: str) -> str:
+        from models.model_extend import MessageContextExtend
+
+        conversations = cls._context_conversations(tenant_id=tenant_id, app_id=app_id, conversation_id=conversation_id)
         db.session.query(MessageContextExtend).filter(
-            MessageContextExtend.conversation_id == conversation_id,
+            MessageContextExtend.conversation_id.in_(conversations),
             MessageContextExtend.message_id == message_id,
-        ).delete()
+        ).delete(synchronize_session=False)
         db.session.commit()
-        return 'ok'
+        return "ok"
+
     # Extend: stop messages context handling

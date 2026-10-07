@@ -1,0 +1,16 @@
+{
+  "status": "source_verified",
+  "live_charging_not_asserted": true,
+  "source_sha256": {
+    "api/controllers/service_api/wraps.py": "9207e807d9462147a4c9da6e790f9336f099399c5b20c53689237a6badbd14ce",
+    "api/tasks/extend/update_account_money_when_workflow_node_execution_created_extend.py": "dc458dbc2dcb0959cccaf14ce51523ef4da310033fa9c358a0cc35b74d37a9b5",
+    "api/models/api_token_money_extend.py": "c4fbac65df991a52ab23bfe1c677034b9a70e47c8507e04128fa47663f60cc26",
+    "web/app/components/api-key/api-key-modal.tsx": "68f1d7553884ffe99a926340d0452f1d4944293a148f99f7253129e022d15218",
+    "web/app/components/api-key/__tests__/api-key-modal.spec.tsx": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08"
+  },
+  "checks": {
+    "accumulated": "usage update adds price; quota guard checks owner total and day/month finite values, no accumulated limit; model accumulated doc says not reset; request schemas expose only day/month limits",
+    "environment": "APIKeyModal showQuota scope.type===app and quota editor open only app; exact unchanged frontend test does not expose app quota controls for dataset/environment scopes (accepted V02)"
+  },
+  "live_reference": "evidence/api-key-regression/latest-role-and-zero-limit-runtime.json"
+}

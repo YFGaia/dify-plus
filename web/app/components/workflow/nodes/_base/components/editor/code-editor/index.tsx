@@ -1,18 +1,17 @@
 'use client'
 import type { FC } from 'react'
+import { cn } from '@langgenius/dify-ui/cn'
 import Editor, { loader } from '@monaco-editor/react'
 import { noop } from 'es-toolkit/function'
 import * as React from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  getFilesInLogs,
-} from '@/app/components/base/file-uploader/utils'
+import { getFilesInLogs } from '@/app/components/base/file-uploader/utils'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 import useTheme from '@/hooks/use-theme'
 import { Theme } from '@/types/app'
-import { cn } from '@/utils/classnames'
 import { basePath } from '@/utils/var'
 import Base from '../base'
+import { serializeCodeEditorValue } from './utils'
 import './style.css'
 
 // load file from local instead of cdn https://github.com/suren-atoyan/monaco-react/issues/482
@@ -21,7 +20,7 @@ if (typeof window !== 'undefined')
 
 const CODE_EDITOR_LINE_HEIGHT = 18
 
-export type Props = {
+export type Props = Readonly<{
   nodeId?: string
   value?: string | object
   placeholder?: React.JSX.Element | string
@@ -42,7 +41,7 @@ export type Props = {
   className?: string
   tip?: React.JSX.Element
   footer?: React.ReactNode
-}
+}>
 
 export const languageMap = {
   [CodeLanguage.javascript]: 'javascript',
@@ -83,8 +82,7 @@ const CodeEditor: FC<Props> = ({
   }, [value])
 
   const fileList = useMemo(() => {
-    if (typeof value === 'object')
-      return getFilesInLogs(value)
+    if (typeof value === 'object') return getFilesInLogs(value)
     return []
   }, [value])
 
@@ -120,20 +118,10 @@ const CodeEditor: FC<Props> = ({
     setIsMounted(true)
   }
 
-  const outPutValue = (() => {
-    if (!isJSONStringifyBeauty)
-      return value as string
-    try {
-      return JSON.stringify(value as object, null, 2)
-    }
-    catch {
-      return value as string
-    }
-  })()
+  const outPutValue = serializeCodeEditorValue(value, isJSONStringifyBeauty)
 
   const theme = useMemo(() => {
-    if (appTheme === Theme.light)
-      return 'light'
+    if (appTheme === Theme.light) return 'light'
     return 'vs-dark'
   }, [appTheme])
 
@@ -141,7 +129,7 @@ const CodeEditor: FC<Props> = ({
     <>
       {/* https://www.npmjs.com/package/@monaco-editor/react */}
       <Editor
-        // className='min-h-[100%]' // h-full
+        // className='min-h-full' // h-full
         // language={language === CodeLanguage.javascript ? 'javascript' : 'python'}
         language={languageMap[language] || 'javascript'}
         theme={isMounted ? theme : 'default-theme'} // sometimes not load the default theme
@@ -167,45 +155,47 @@ const CodeEditor: FC<Props> = ({
         }}
         onMount={handleEditorDidMount}
       />
-      {!outPutValue && !isFocus && <div className="pointer-events-none absolute left-[36px] top-0 text-[13px] font-normal leading-[18px] text-gray-300">{placeholder}</div>}
+      {!outPutValue && !isFocus && (
+        <div className="pointer-events-none absolute top-0 left-9 text-[13px] leading-4.5 font-normal text-components-input-text-placeholder">
+          {placeholder}
+        </div>
+      )}
     </>
   )
 
   return (
     <div className={cn(isExpand && 'h-full', className)}>
-      {noWrapper
-        ? (
-            <div
-              className="no-wrapper relative"
-              style={{
-                height: isExpand ? '100%' : (editorContentHeight) / 2 + CODE_EDITOR_LINE_HEIGHT, // In IDE, the last line can always be in lop line. So there is some blank space in the bottom.
-                minHeight: CODE_EDITOR_LINE_HEIGHT,
-              }}
-            >
-              {main}
-            </div>
-          )
-        : (
-            <Base
-              nodeId={nodeId}
-              className="relative"
-              title={title}
-              value={outPutValue}
-              headerRight={headerRight}
-              isFocus={isFocus && !readOnly}
-              minHeight={minHeight}
-              isInNode={isInNode}
-              onGenerated={onGenerated}
-              codeLanguages={language}
-              fileList={fileList as any}
-              showFileList={showFileList}
-              showCodeGenerator={showCodeGenerator}
-              tip={tip}
-              footer={footer}
-            >
-              {main}
-            </Base>
-          )}
+      {noWrapper ? (
+        <div
+          className="no-wrapper relative"
+          style={{
+            height: isExpand ? '100%' : editorContentHeight / 2 + CODE_EDITOR_LINE_HEIGHT, // In IDE, the last line can always be in lop line. So there is some blank space in the bottom.
+            minHeight: CODE_EDITOR_LINE_HEIGHT,
+          }}
+        >
+          {main}
+        </div>
+      ) : (
+        <Base
+          nodeId={nodeId}
+          className="relative"
+          title={title}
+          value={outPutValue}
+          headerRight={headerRight}
+          isFocus={isFocus && !readOnly}
+          minHeight={minHeight}
+          isInNode={isInNode}
+          onGenerated={onGenerated}
+          codeLanguages={language}
+          fileList={fileList as any}
+          showFileList={showFileList}
+          showCodeGenerator={showCodeGenerator}
+          tip={tip}
+          footer={footer}
+        >
+          {main}
+        </Base>
+      )}
     </div>
   )
 }

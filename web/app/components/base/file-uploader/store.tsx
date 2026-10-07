@@ -1,17 +1,6 @@
-import type {
-  FileEntity,
-} from './types'
-import { isEqual } from 'es-toolkit/predicate'
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-} from 'react'
-import {
-  create,
-  useStore as useZustandStore,
-} from 'zustand'
+import type { FileEntity } from './types'
+import { createContext, use, useState } from 'react'
+import { create, useStore as useZustandStore } from 'zustand'
 
 type Shape = {
   files: FileEntity[]
@@ -22,7 +11,7 @@ export const createFileStore = (
   value: FileEntity[] = [],
   onChange?: (files: FileEntity[]) => void,
 ) => {
-  return create<Shape>(set => ({
+  return create<Shape>((set) => ({
     files: value ? [...value] : [],
     setFiles: (files) => {
       set({ files })
@@ -35,15 +24,14 @@ type FileStore = ReturnType<typeof createFileStore>
 export const FileContext = createContext<FileStore | null>(null)
 
 export function useStore<T>(selector: (state: Shape) => T): T {
-  const store = useContext(FileContext)
-  if (!store)
-    throw new Error('Missing FileContext.Provider in the tree')
+  const store = use(FileContext)
+  if (!store) throw new Error('Missing FileContext.Provider in the tree')
 
   return useZustandStore(store, selector)
 }
 
 export const useFileStore = () => {
-  return useContext(FileContext)!
+  return use(FileContext)!
 }
 
 type FileProviderProps = {
@@ -51,29 +39,8 @@ type FileProviderProps = {
   value?: FileEntity[]
   onChange?: (files: FileEntity[]) => void
 }
-export const FileContextProvider = ({
-  children,
-  value,
-  onChange,
-}: FileProviderProps) => {
-  const storeRef = useRef<FileStore | undefined>(undefined)
-  if (!storeRef.current)
-    storeRef.current = createFileStore(value, onChange)
+export const FileContextProvider = ({ children, value, onChange }: FileProviderProps) => {
+  const [store] = useState(() => createFileStore(value, onChange))
 
-  useEffect(() => {
-    if (!storeRef.current)
-      return
-    if (isEqual(value, storeRef.current.getState().files))
-      return
-
-    storeRef.current.setState({
-      files: value ? [...value] : [],
-    })
-  }, [value])
-
-  return (
-    <FileContext.Provider value={storeRef.current}>
-      {children}
-    </FileContext.Provider>
-  )
+  return <FileContext.Provider value={store}>{children}</FileContext.Provider>
 }

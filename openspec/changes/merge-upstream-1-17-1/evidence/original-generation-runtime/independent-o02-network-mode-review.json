@@ -1,0 +1,54 @@
+{
+  "reviewed_at_utc": "2026-09-30T16:47:25.018336+00:00",
+  "timezone": "Asia/Shanghai",
+  "review_kind": "Independent official-source and actual topology failure review; no container operation by reviewer",
+  "official_sources": [
+    {
+      "url": "https://docs.docker.com/reference/compose-file/services/#priority",
+      "finding": "priority is not gateway or interface selection; gw_priority selects default gateway"
+    },
+    {
+      "url": "https://github.com/docker/compose/blob/v2.36.0/pkg/compose/create.go#L461-L511",
+      "finding": "this exact version derives primaryNetworkKey from NetworksByPriority()[0] and returns its Moby name as initial NetworkMode; endpoint gw priority is separate"
+    }
+  ],
+  "actual_reported_results": [
+    {
+      "change": "original_default priority100",
+      "result": "primary NetworkMode changed to original_default, but actual network Internal=true and active published Ports empty"
+    },
+    {
+      "reference": "original API current primary access network",
+      "result": "difyplus-quota-selftest-access actual Internal=false; original API active25432 publish"
+    }
+  ],
+  "review_correction": "Earlier inference that original_default was noninternal from network naming was unsupported and incorrect; actual inspect is authoritative",
+  "minimal_approved_followup": {
+    "sidecar_service": "o02_api only",
+    "network": "existing difyplus-quota-selftest-access external exact identity",
+    "priority": 200,
+    "existing_networks": "preserve all default/ssrf/core/files and private api alias boundary",
+    "host_binding": "127.0.0.1:25452 only",
+    "other_services": "do not add Agent/Sandbox/Redis/proxy to access network",
+    "original_runtime": "do not recreate original services or modify existing network attributes"
+  },
+  "required_actual_acceptance": [
+    "exact config quiet",
+    "actual initial NetworkMode equals noninternal access network",
+    "NetworkSettings.Ports maps5001 to127.0.0.1:25452, not only HostConfig intent",
+    "host health200 and legitimate sameowner/tenant summary",
+    "original protected app/config/quota/key/state baseline equality booleans"
+  ],
+  "verdict": "static proposal supported, actual access-network mutation rejected; transport/owner/fixture runtime gate unpassed",
+  "model_calls": 0,
+  "current_status": "blocked_automatic_approval_review_exact_access_network_join_recreate",
+  "automatic_review": {
+    "rejected_action": "add o02_api to existing difyplus-quota-selftest-access external shared network and recreate sidecar API",
+    "reason": "network carries original API/worker/plugin/web; sidecar joins widen trust boundary and persistent exposure requiring explicit human authorization",
+    "action_executed": false,
+    "no_bypass": "no alternative network/host/proxy workaround to perform rejected boundary expansion",
+    "current_actual_report": "API container-local health200, original internal default primary, NetworkSettings.Ports empty, hosthealth and legitimate sidecar owner gate not passed",
+    "next_action": "root requests explicit human authorization for this precise network action; source/schema public read-only analysis can continue",
+    "reported_at_utc": "2026-09-30T16:49:43.350504+00:00"
+  }
+}

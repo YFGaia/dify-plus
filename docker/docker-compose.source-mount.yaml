@@ -1,0 +1,18 @@
+# docker-compose override to mount source code into containers for development
+# Usage: docker compose -f docker-compose.dify-plus.yaml -f docker-compose.local-build.yaml -f docker-compose.source-mount.yaml --env-file .env.local-test <cmd>
+#
+# Mounts the local api source code into running containers, avoiding the need to rebuild images
+# when Python source files are changed.
+
+services:
+  api:
+    volumes:
+      - ../api:/app/api:ro
+      - /app/api/.venv  # keep container's venv
+      - /app/api/storage  # keep container's storage
+
+  worker:
+    volumes:
+      - ../api:/app/api:ro
+      - /app/api/.venv  # keep container's venv
+      - /app/api/storage  # keep container's storage

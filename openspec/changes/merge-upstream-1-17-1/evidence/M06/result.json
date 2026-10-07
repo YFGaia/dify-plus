@@ -1,0 +1,1666 @@
+{
+  "node": "M06",
+  "status": "passed",
+  "implementation": "passed",
+  "deployable": false,
+  "preflight": {
+    "status": "completed",
+    "source_commit": "4048e97aeb00a05cc5c6c6ccfce21036092d357d",
+    "analysis_agent": "/root/m06_frontend_analysis",
+    "analysis_model": "gpt-6-sol",
+    "contract_review_agent": "/root/m06_message_context_contract",
+    "contract_review_model": "gpt-6-sol",
+    "contract_handoff_review_agent": "/root/m06_context_contract_handoff",
+    "contract_handoff_review_model": "gpt-6-sol",
+    "findings": [
+      "Built-in WebApp authentication, environment address/passport settings, and anonymous context guarding need to be restored at the 1.17.1 host; built-in authentication must remain independent from environment passport/access-point controls.",
+      "The current production frontend has no message/context caller. The generated GET and DELETE contracts expose no query parameters and generic object responses, while the backend requires conversation_id and message_id and returns string[] and the string ok.",
+      "The existing message/context service filters only supplied IDs. Authentication alone does not prove conversation ownership; reads and deletes must resolve the conversation to its app and tenant and enforce the applicable app permission before a frontend caller is restored.",
+      "The API currently returns 400 for missing or empty context identifiers. Adding query models must preserve that status rather than inheriting the shared model-validation wrapper's 422 behavior.",
+      "The backend route/service/tests are not registered in M06's frontend write scope. Register a backend owner and transfer the generated message contract trio through M05 before editing those paths; M06 may consume the generated contract after that handoff.",
+      "Other confirmed M06 migration gaps: app-center uses a missing useInstalledAppList hook and legacy installed-app URL; the recommended-app placeholder is empty while the fork installed-app API has the actual rows; its response needs runtime validation before cache use; account balance uses the public snapshot's 7.26 fallback instead of login_config exchange rate; system-management navigation hosts are unmounted; lo-LA extend resources are missing."
+    ],
+    "next_actions": [
+      "Implement independent M06 UI work only after registering each new path and preserving generated-contract boundaries.",
+      "Reopen/register M02 ownership for api/controllers/console/app/app_extend.py, api/services/recommended_app_service_extend.py, and focused controller/service tests. Preserve 400 for missing or empty identifiers; resolve Conversation.app_id server-side; return 404 for missing/deleted/cross-tenant conversations and 403 for same-tenant callers without app permission; check Agent-bound app permissions too.",
+      "Reopen M05 only for the existing owned message contract trio and regenerate it from backend Pydantic/OpenAPI schemas: GET query {conversation_id} -> string[], DELETE query {conversation_id, message_id} -> string 'ok'. Do not hand-edit generated files or add client-supplied app_id.",
+      "After the M02/M05 handoff is complete, add the M06 caller in the registered chat host and skip it for anonymous WebApps without a Console CSRF cookie; do not redirect anonymous sessions to login from this endpoint.",
+      "Keep V02 responsible for real browser Cookie/CORS and identity-switch acceptance."
+    ],
+    "limitations": [
+      "Read-only source analysis only; no files or tests were changed by the analysis agents.",
+      "This preflight does not complete any 12.1-12.6 implementation task and does not mark M06 passed."
+    ],
+    "contract_handoff": {
+      "status": "completed_read_only",
+      "backend_owner": "M02 (reopen and register before implementation)",
+      "generated_contract_owner": "M05 (reopen its existing message trio for standard regeneration)",
+      "frontend_consumer_owner": "M06",
+      "permission_chain": [
+        "Reject missing/empty IDs with the existing HTTP 400 behavior before shared model validation can return 422.",
+        "Resolve Conversation by conversation_id, join its App by Conversation.app_id, and constrain App.tenant_id to current_user.current_tenant_id.",
+        "Return 404 for missing, deleted, or cross-tenant conversations without reading or deleting context rows.",
+        "GET requires APP_VIEW_LAYOUT; DELETE requires APP_EDIT; same-tenant unauthorized callers receive 403. Preserve adjacent legacy edit checks where applicable.",
+        "For agent-bound apps, also apply AgentBehindApp permission checks because PlainApp does not authorize those applications."
+      ],
+      "contract_shapes": {
+        "GET /message/context": "required query { conversation_id: string }; 200 response string[]",
+        "DELETE /message/context": "required query { conversation_id: string, message_id: string }; 200 response string 'ok'"
+      },
+      "frontend_boundary": "No route change or client-provided app_id is needed. Console caller must be skipped for anonymous WebApps without Console CSRF cookie, and its 401 must not trigger login redirect.",
+      "acceptance_cases": [
+        "missing/empty IDs -> 400",
+        "anonymous Console request -> 401",
+        "cross-tenant conversation -> 404 with no context query/delete",
+        "same-tenant unauthorized app -> 403",
+        "authorized GET returns newest-first list of string message IDs",
+        "DELETE removes only the selected message_id in the selected conversation",
+        "generated query parameters are required and response schemas are array(string)/string",
+        "anonymous WebApp does not call the Console context endpoint"
+      ],
+      "key_sources": [
+        "api/controllers/console/app/app_extend.py",
+        "api/services/recommended_app_service_extend.py",
+        "api/controllers/console/app/conversation.py",
+        "api/controllers/common/rbac/checks.py",
+        "api/controllers/common/rbac/locators.py",
+        "api/controllers/console/wraps.py",
+        "packages/contracts/generated/api/console/message/{orpc,types,zod}.gen.ts",
+        "packages/contracts/package.json gen-api-contract script",
+        "research/contract-matrix.md"
+      ],
+      "limitations": [
+        "No implementation or tests were run.",
+        "Agent-bound app context GET should be aligned with the existing AGENT_TEST_AND_RUN message-read policy when implementing the permission chain."
+      ]
+    }
+  },
+  "subtasks": {
+    "12.1a": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m06_builtin_auth_switch",
+      "source_commit_before_subtask": "58ae912797e82c09f22b7497481e45f30f425877",
+      "source_sha256": {
+        "web/app/components/app/access-point/built-in-access-points/web-app-card.tsx": "3b93dcc6be2254a256c7f7f7df47da786682fc4c3e65c8e726261e29e8529281",
+        "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx": "4d40dd17e76ec7c666c1c07b4f864723cc647097d5d152ccf0d4a98d2c3a4c7d"
+      },
+      "summary": [
+        "Added a per-app WebApp authentication switch backed by the generated site POST contract, independent from enable_site and the environment/global auth feature.",
+        "Preserved the default enabled behavior, access-point permission, success-only store update, and error toast.",
+        "Added eight focused parameterized cases for defaulting, both update directions, permission, retry, and late cross-app responses.",
+        "Existing WebApp address/auth suites passed 15 tests; independent Luna ran the card suite (22 passed) and scoped two-file check with no errors."
+      ],
+      "verification_blocker": {
+        "suite": "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx",
+        "status": "resolved_in_isolated_worktree",
+        "cause": "The installed workspace lacks the already-declared/locked cn@0.2.4 package imported by packages/dify-ui/src/cn.ts.",
+        "scope_policy": "No dependency manifest/lock changes or UI mock were made; the existing isolated worktree already contains the locked package, so validation used it without installing dependencies.",
+        "node_option": "NODE_OPTIONS=--no-experimental-webstorage is required on the current Node 26 runtime for existing localStorage-based suites."
+      },
+      "limitations": [
+        "The main checkout still lacks cn@0.2.4; the committed card test and implementation were byte-identical to the isolated worktree where the suite and scoped check passed. No dependency or lockfile changes were made.",
+        "The environment address/passport behavior was already present and its existing 15 focused tests passed in prior evidence; the new anonymous context caller is separately covered by 12.1b."
+      ],
+      "next_action": "12.1a and 12.1b are complete; continue with the 12.2 app-center analysis handoff.",
+      "independent_review": {
+        "status": "no_blocking_findings",
+        "model": "gpt-6-luna",
+        "agent": "/root/m06_switch_luna_review",
+        "reviewed_worktree_head": "d6105324d4",
+        "reviewed_source_sha256": {
+          "web/app/components/app/access-point/built-in-access-points/web-app-card.tsx": "3b93dcc6be2254a256c7f7f7df47da786682fc4c3e65c8e726261e29e8529281",
+          "web/app/components/app/access-point/__tests__/web-app-card.spec.tsx": "4d40dd17e76ec7c666c1c07b4f864723cc647097d5d152ccf0d4a98d2c3a4c7d"
+        },
+        "findings": [],
+        "non_blocking_coverage_gap": "Focused tests do not explicitly set global systemFeatures.webapp_auth false and assert the per-app switch remains available; reviewer verified the component itself does not read that global feature.",
+        "checks": [
+          {
+            "command": "git diff --check -- web/app/components/app/access-point/built-in-access-points/web-app-card.tsx web/app/components/app/access-point/__tests__/web-app-card.spec.tsx",
+            "exit_code": 0
+          },
+          {
+            "command": "focused WebApp card suite",
+            "exit_code": null,
+            "result": "Not run by reviewer; previously blocked before collection by missing installed cn@0.2.4."
+          }
+        ],
+        "next_action": "Complete; the independent card suite and scoped source checks passed."
+      },
+      "implementation_commit": "ea853611dc",
+      "independent_test_verification": {
+        "status": "passed",
+        "model": "gpt-6-luna",
+        "client_thread_id": "client-new-thread:633765b7-88e4-446d-96f5-e50a6e62e064",
+        "verification_agent": "/root/m06_12_1a_luna_test_retry",
+        "worktree_path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+        "worktree_head": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+        "source_commit": "ea853611dca7f57cc18131fe15490515ce44821d",
+        "source_sha256_matches_commit": true,
+        "toolchain": {
+          "node": "24.20.0",
+          "pnpm": "12.3.4",
+          "pnpm_executable": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm"
+        },
+        "command": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm exec vp test run --project unit --configLoader native --no-cache --attachmentsDir /private/tmp/dify-m06-12-1a-retry-attachments app/components/app/access-point/__tests__/web-app-card.spec.tsx",
+        "working_directory": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus/web",
+        "result": "1 file passed; 22 tests passed",
+        "exit_code": 0,
+        "scoped_check": {
+          "command": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm exec vp check web/app/components/app/access-point/built-in-access-points/web-app-card.tsx web/app/components/app/access-point/__tests__/web-app-card.spec.tsx",
+          "result": "2 files formatted; no warnings, lint errors, or type errors",
+          "exit_code": 0
+        },
+        "prior_attempts": [
+          {
+            "working_directory": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+            "status": "failed_before_test_collection",
+            "error": "ERR_MODULE_NOT_FOUND resolving extensionless ./lint.config from vite.config.ts; 0 tests collected."
+          },
+          {
+            "working_directory": "root checkout",
+            "status": "failed_before_test_collection",
+            "error": "The main checkout lacks the declared/locked cn@0.2.4 package."
+          }
+        ],
+        "environment": "Ran from the web project directory with TMPDIR=/private/tmp, XDG_CACHE_HOME=/private/tmp/dify-m06-cache, pnpm_config_store_dir=/private/tmp/dify-m06-pnpm-store, pnpm_config_pm_on_fail=ignore, and pnpm_config_verify_deps_before_run=false; no dependency install or source edit occurred."
+      }
+    },
+    "12.2_analysis": {
+      "status": "passed",
+      "model": "gpt-6-sol",
+      "agent": "/root/m06_12_2_analysis",
+      "source_commit": "13a7b5c82e6cd9e4514ce2b6d98b2ca66e07dcb6",
+      "thread_request": {
+        "client_thread_id": "client-new-thread:de387753-bd0e-47c7-9710-c7a2cd63a43e",
+        "status": "provisioning_not_readable"
+      },
+      "report": "evidence/M06/12.2-analysis.md",
+      "tests_run": false,
+      "files_changed": false,
+      "handoffs": [
+        "12.2a M06 frontend app-center repair, exact paths registered before Astra implementation",
+        "9.6 M03 API producer follow-up populates AppPagination.recommended_apps for current page; exact paths registered before Astra implementation",
+        "12.2c M06 Studio sync menu waits for M03 9.6 and consumes existing generated field and sync routes"
+      ],
+      "findings_summary": [
+        "The mounted fork app-center page calls removed useInstalledAppList and currently returns no data.",
+        "TagFilter returns tag IDs but /installed/apps rows expose tag names as category; map IDs to names before filtering and deduplicate by app_id.",
+        "Validate fork /installed/apps response locally with Zod before caching; its generated contract is record<string, unknown>, and upstream /installed-apps is a different endpoint/shape.",
+        "Build installed-app routes using buildInstalledAppPath, which returns /installed/:id.",
+        "The generated AppPagination.recommended_apps field is always emptied by api/controllers/console/app/app.py:702, so sync status needs an M03 page-scoped backend follow-up before restoring the Studio menu."
+      ]
+    },
+    "12.3_analysis": {
+      "status": "analysis_complete_paths_registered",
+      "model": "gpt-6-sol",
+      "agent": "/root/m06_12_3_analysis_retry",
+      "thread_id": "01a0eb1c-f509-7f71-961e-2b1fd2978b99",
+      "evidence": "evidence/M06/12.3-analysis.md",
+      "registered_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/api-key-table.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "web/app/components/main-nav/components/account-money-extend.tsx",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "summary": [
+        "App key endpoint supports quota create/list/edit; current modal omits required create body and quota UI.",
+        "Dataset/environment quota behavior is unsupported; do not expose quota controls there.",
+        "Account balance and key quota are distinct; validate account money before cache and source exchange rate only from identity-bound login_config, never public fallback.",
+        "Agent v2 quota editing is outside the current backend contract."
+      ]
+    },
+    "12.4_analysis": {
+      "status": "analysis_complete_paths_registered",
+      "model": "gpt-6-sol",
+      "agent": "/root/m06_12_4_analysis_retry",
+      "thread_id": "01a0eb1d-b29e-7372-919d-a77825b52415",
+      "evidence": "evidence/M06/12.4-analysis.md",
+      "registered_paths": [
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "summary": [
+        "Pages/layout remain; owner nav entry was removed from MainNav.",
+        "Restore existing owner-only nav component mount; keep direct-access and role guards, including extension-flag denial.",
+        "Preserve backend is_admin_or_owner behavior and do not implement P6."
+      ]
+    },
+    "12.1b": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "dependencies": {
+        "M02_8.6": "passed; commit 30410b8fff",
+        "M05_11.6": "passed; commit 5177f98e1589117341ac152890d53d6abb3707ff"
+      },
+      "contract": "GET /message/context requires conversation_id:string and returns string[]; DELETE requires conversation_id/message_id and returns string ok.",
+      "acceptance_cases": [
+        "missing/empty IDs -> 400",
+        "anonymous Console request -> 401",
+        "cross-tenant conversation -> 404 with no context query/delete",
+        "same-tenant unauthorized app -> 403",
+        "authorized GET returns newest-first list of string message IDs",
+        "DELETE removes only the selected message_id in the selected conversation",
+        "generated query parameters are required and response schemas are array(string)/string",
+        "anonymous WebApp does not call the Console context endpoint"
+      ],
+      "required_frontend_behavior": "Skip the Console context call when no Console CSRF cookie is available; a 401 must not trigger login redirect; use current conversation/message identifiers and never send app_id.",
+      "next_action": "Continue M06; no 12.1b path reopening required.",
+      "path_analysis": {
+        "status": "passed_no_required_path_changes",
+        "model": "gpt-6-sol",
+        "client_thread_id": "client-new-thread:3f8019c7-3df7-4c7c-b8e6-fa755aa6ef07",
+        "base_commit": "5381ccbaef63d8c31111e1f89743c91f94354e4f",
+        "scope": "Read-only trace of anonymous WebApp chat IDs, Console CSRF cookie detection, 401 redirect behavior, and minimum exact host/test path registration.",
+        "next_action": "Complete; if the pending read-only cross-check finds a required missing path or behavior, register it before creating a fresh follow-up implementation task.",
+        "agent": "/root/m06_12_1b_sol_path_crosscheck",
+        "result": "The four registered implementation/test paths are complete. No additional required production consumer or test path; no scope reopening.",
+        "evidence": [
+          "execution-graph.json:1748-1779",
+          "evidence/M06/12.1b-path-registration.md",
+          "commit 9ee0119ca1ae501008db1913777ac4582af17205"
+        ]
+      },
+      "path_registration": {
+        "status": "completed_by_integrator_source_audit",
+        "registered_paths": [
+          "web/app/components/base/chat/chat/index.tsx",
+          "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+          "web/service/message-context-extend.ts",
+          "web/service/message-context-extend.spec.ts"
+        ],
+        "evidence": "evidence/M06/12.1b-path-registration.md",
+        "basis": [
+          "current chat host and context source",
+          "fork-merged-1.16.0 restored-feature diff",
+          "M05 generated message context contract",
+          "401 redirect behavior in shared service wrapper"
+        ],
+        "decision": "Use a fork-specific service helper so no-console-CSRF and 401 behavior can be isolated without changing shared M05 Console transport or generic Apps service.",
+        "independent_sol_cross_check": "passed_no_required_path_changes; four registered paths remain sufficient"
+      },
+      "implementation": {
+        "status": "committed",
+        "model": "gpt-6-astra",
+        "client_thread_id": "client-new-thread:a0ea804b-bf7d-4329-8d7b-c496befbfbb2",
+        "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+        "registered_paths": [
+          "web/app/components/base/chat/chat/index.tsx",
+          "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+          "web/service/message-context-extend.ts",
+          "web/service/message-context-extend.spec.ts"
+        ],
+        "scope": "Restore message context list and clear interaction with generated M05 types; skip without Console CSRF cookie and do not redirect on 401.",
+        "next_action": "Complete; source commit is 9ee0119ca1ae501008db1913777ac4582af17205.",
+        "source_commit": "9ee0119ca1ae501008db1913777ac4582af17205",
+        "closeout_owner": "integrator",
+        "worktree_path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+        "worktree_base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+        "observed_paths": [
+          "web/app/components/base/chat/chat/index.tsx",
+          "web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+          "web/service/message-context-extend.ts",
+          "web/service/message-context-extend.spec.ts"
+        ],
+        "verification": {
+          "status": "passed_and_independently_reviewed",
+          "performed_by": "integrator",
+          "source_commit": "9ee0119ca1ae501008db1913777ac4582af17205",
+          "tested_worktree_files_byte_identical_to_commit": true,
+          "toolchain": {
+            "node": "24.20.0",
+            "pnpm": "12.3.4",
+            "pnpm_executable": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm"
+          },
+          "runtime_environment": {
+            "TMPDIR": "/private/tmp",
+            "XDG_CACHE_HOME": "/private/tmp/dify-m06-cache",
+            "pnpm_config_store_dir": "/private/tmp/dify-m06-pnpm-store",
+            "pnpm_config_pm_on_fail": "ignore",
+            "pnpm_config_verify_deps_before_run": "false"
+          },
+          "unit_tests": {
+            "command": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm exec vp test run --project unit --configLoader native --no-cache --attachmentsDir /private/tmp/dify-m06-attachments-pnpm12 service/message-context-extend.spec.ts app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+            "result": "2 files passed; 20 tests passed",
+            "exit_code": 0
+          },
+          "scoped_check": {
+            "command": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm exec vp check web/service/message-context-extend.ts web/service/message-context-extend.spec.ts web/app/components/base/chat/chat/index.tsx web/app/components/base/chat/chat/__tests__/message-context.spec.tsx",
+            "result": "4 files formatted; no warnings, lint errors, or scoped type errors",
+            "exit_code": 0
+          },
+          "environment_note": "pnpm's default store probe attempts a temporary write in the isolated worktree and fails under the sandbox; an explicit /private/tmp store fixes pnpm startup, and scoped vp check passed with authorized escalation for its .vite-temp write.",
+          "root_checkout_replay": {
+            "status": "dependency_setup_blocked",
+            "exit_code": 1,
+            "result": "The root checkout has no installed cn@0.2.4 package: the service test file passed all 10 tests, while the component suite failed during import resolution before collecting tests. The four committed files are byte-identical to the isolated worktree where both files passed; no dependency or lockfile was changed."
+          }
+        },
+        "independent_review": {
+          "status": "passed_no_blocking_defects",
+          "model": "gpt-6-luna",
+          "scope": "Old fork behavior, generated contract, backend handler, cookie/401 handling, conversation query-key isolation, late requests, and test coverage.",
+          "result": "No blocking issues found. The old delete-and-reload behavior is retained through cache removal and query invalidation; no app_id is sent."
+        }
+      }
+    },
+    "12.2a_app_center_repair": {
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "scope": "Restore installed-app list fetch, validate response before cache, repair category/tag filtering and canonical navigation.",
+      "registered_paths": [
+        "web/app/components/explore/app-list-center-extend/index.tsx",
+        "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
+        "web/service/explore.ts",
+        "web/service/use-explore.ts",
+        "web/service/explore.spec.ts",
+        "web/service/__tests__/use-explore.spec.tsx"
+      ],
+      "dependencies": ["12.2_analysis:passed", "M05 11.6 generated contract:passed"],
+      "base_commit": "f2424be348",
+      "client_thread_id": "client-new-thread:d21212b0-d4ba-41d6-9395-345a2a3602eb",
+      "created_from_commit": "f2424be348",
+      "dispatch_channel": "codex_project_worktree",
+      "prior_agent_attempt": {
+        "status": "failed",
+        "reason": "agent thread limit reached"
+      },
+      "worktree_path": "/Users/liuxingwang/.codex/worktrees/7155/dify-plus",
+      "observed_modified_paths": [
+        "web/app/components/explore/app-list-center-extend/index.tsx",
+        "web/app/components/explore/app-list-center-extend/__tests__/index.spec.tsx",
+        "web/service/explore.ts",
+        "web/service/use-explore.ts",
+        "web/service/explore.spec.ts",
+        "web/service/__tests__/use-explore.spec.tsx"
+      ],
+      "observation": "The six registered paths were integrated into the root branch after the Astra worktree stopped advancing. The implementation was minimally adjusted to preserve unrelated existing hooks and the existing suppression baseline. The source worktree remains untouched.",
+      "duplicate_worktree_observation": {
+        "worktree_path": "/Users/liuxingwang/.codex/worktrees/f7b7/dify-plus",
+        "base_commit": "354b88becc769987b0c1a87de89c7661fd99a5e5",
+        "relationship": "base is an ancestor of the registered 12.2a base f2424be34839fdb2a5d696ad451e3963bbc5b6bb",
+        "tracked_implementation_patch_id": "1ed9f86a9c72eff4f12e6b947e0b08518ff64fd6",
+        "test_file_sha256": "3f520bdc0b0ba5f39814b8044a048f14e7daa112cb2598e4b5ddcc712f35397e",
+        "unregistered_changes": [
+          "oxlint-suppressions.json removes the web/service/use-explore.ts @tanstack/query/prefer-query-options suppression count 2"
+        ],
+        "handling": "The registered 7155 worktree remains the canonical 12.2a implementation source. Preserve f7b7 without integrating it; do not include its unregistered suppression change."
+      },
+      "verification_evidence": "evidence/M06/12.2a-verification.md",
+      "verified_snapshot_commit": "fdc323930e88921e1df4eb5a9aed081ec76564a4",
+      "verification": {
+        "evidence": "evidence/M06/12.2a-verification.md",
+        "runtime": "Node 24.20.0; official pnpm 12.3.4",
+        "dependency_diagnosis": "Root node_modules resolves @base-ui/react 1.6.0 while lock/catalog require 1.8.0; verification worktree resolves 1.8.0 and Combobox.createItems. No manifest or lockfile change.",
+        "unit_tests": {
+          "command": "pnpm exec vp test run --project unit app/components/explore/app-list-center-extend/__tests__/index.spec.tsx service/explore.spec.ts service/__tests__/use-explore.spec.tsx",
+          "exit_code": 0,
+          "files_passed": 3,
+          "tests_passed": 26
+        },
+        "scoped_check": {
+          "command": "pnpm --config.verify-deps-before-run=false exec vp check <six registered paths>",
+          "exit_code": 0,
+          "files_formatted": 6,
+          "lint_errors": 0,
+          "type_errors": 0,
+          "warnings": 0
+        },
+        "diff_check_exit_code": 0,
+        "test_worktree": {
+          "path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+          "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+          "target_paths_restored": true,
+          "preexisting_changes_preserved": true
+        },
+        "source_worktree": {
+          "path": "/Users/liuxingwang/.codex/worktrees/7155/dify-plus",
+          "status": "preserved; no longer used as integration target after root validation"
+        }
+      },
+      "source_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b",
+      "integration_commit": "82227748fcbe7b727da1d4aed67306f44ef00a4b"
+    },
+    "9.6_recommended_apps_page_status": {
+      "status": "passed",
+      "owner": "M03",
+      "model": "gpt-6-astra",
+      "scope": "Populate the existing AppPagination.recommended_apps field from RecommendedApp rows intersecting only the current app page.",
+      "registered_paths": [
+        "api/controllers/console/app/app.py",
+        "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
+      ],
+      "dependencies": ["12.2_analysis:passed"],
+      "contract_change": false,
+      "downstream_impact": "M04/M05 schema evidence remains valid; the existing generated optional string[] field is unchanged. M06 12.2c is unblocked.",
+      "agent": "/root/m03_9_6_sync_status",
+      "base_commit": "f2424be34839fdb2a5d696ad451e3963bbc5b6bb",
+      "source_commit": "11fe1809f30c64d095d5a2a2ac81cc37eeb9e5c6",
+      "verification": {
+        "pytest": {
+          "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
+          "exit_code": 0,
+          "passed": 29,
+          "warnings": ["1 pre-existing cgi deprecation warning"]
+        },
+        "ruff_format_check_exit_code": 0,
+        "ruff_check_exit_code": 0,
+        "git_diff_check_exit_code": 0
+      }
+    },
+    "12.2c_studio_sync_menu": {
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "scope": "Restore page-scoped sync/unsync menu in the 1.17.1 Studio app-card interaction host, preserve prior permission gates, invalidate list cache on success.",
+      "registered_paths": [
+        "web/app/components/apps/app-card/index.tsx",
+        "web/app/components/apps/app-card/interactions.tsx",
+        "web/app/components/apps/app-list-catalog.tsx",
+        "web/app/components/apps/__tests__/app-card.spec.tsx",
+        "web/app/components/apps/__tests__/list.spec.tsx"
+      ],
+      "dependencies": ["9.6_recommended_apps_page_status:passed"],
+      "dependency_evidence": "evidence/M03/result.json#/followups/9.6_recommended_apps_page_status",
+      "client_thread_id": "client-new-thread:0ceed222-0cfe-483a-a7b1-b61587486cf7",
+      "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
+      "created_from_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
+      "dispatch_channel": "codex_project_worktree",
+      "worktree_path": "/Users/liuxingwang/.codex/worktrees/171d/dify-plus",
+      "observed_modified_paths": [
+        "web/app/components/apps/app-card/index.tsx",
+        "web/app/components/apps/app-card/interactions.tsx",
+        "web/app/components/apps/app-list-catalog.tsx",
+        "web/app/components/apps/__tests__/app-card.spec.tsx",
+        "web/app/components/apps/__tests__/list.spec.tsx"
+      ],
+      "observation": "The five registered paths were integrated from the Astra source worktree. App-card sync permissions, confirmation, pending protection, per-page status, success invalidation, and error behavior are covered. The source worktree remains preserved.",
+      "verification_evidence": "evidence/M06/12.2c-verification.md",
+      "verified_snapshot_commit": "24d940104341798297d59493accfdb0001e36bbc",
+      "verification": {
+        "evidence": "evidence/M06/12.2c-verification.md",
+        "runtime": "Node 24.20.0; official pnpm 12.3.4",
+        "unit_tests": {
+          "command": "pnpm exec vp test run --project unit app/components/apps/__tests__/app-card.spec.tsx app/components/apps/__tests__/list.spec.tsx",
+          "exit_code": 0,
+          "files_passed": 2,
+          "tests_passed": 137
+        },
+        "scoped_check": {
+          "command": "pnpm --config.verify-deps-before-run=false exec vp check <five registered paths>",
+          "exit_code": 0,
+          "files_formatted": 5,
+          "lint_errors": 0,
+          "type_errors": 0,
+          "warnings": 2
+        },
+        "baseline_warnings": {
+          "exit_code": 0,
+          "count": 2,
+          "rule": "dify(require-title-for-truncated-text)",
+          "assertion": "The restored baseline produced the same two warnings on the unchanged app mode and edit time truncation elements."
+        },
+        "diff_check_exit_code": 0,
+        "test_worktree": {
+          "path": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus",
+          "base_commit": "6fb808c30c7e0e31ff14de20ccb66cd19766f4bc",
+          "target_paths_restored": true,
+          "preexisting_changes_preserved": true
+        },
+        "source_worktree": {
+          "path": "/Users/liuxingwang/.codex/worktrees/171d/dify-plus",
+          "base_commit": "00728c296cfb4da1cb40588b04617e208b511d19",
+          "registered_paths_only": true,
+          "status": "preserved after integration"
+        }
+      },
+      "source_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8",
+      "integration_commit": "78c099003f06b06a4820bb5c62999a7c0c65e0e8"
+    },
+    "12.5_analysis": {
+      "status": "passed",
+      "model": "gpt-6-sol",
+      "agent": "/root/m06_12_5_analysis",
+      "evidence": "evidence/M06/12.5-analysis.md",
+      "scope": "Read-only exact-path and ownership analysis for full 24-locale fork namespace coverage and old UI reference cleanup.",
+      "findings": {
+        "en_US_keys": 135,
+        "zh_Hans_keys": 135,
+        "existing_extend_locales": 23,
+        "lo_LA_missing_file": true,
+        "incomplete_existing_locales": 21,
+        "missing_keys_per_existing_locale": 85,
+        "required_locale_paths": [
+          "web/i18n/ar-TN/extend.json",
+          "web/i18n/de-DE/extend.json",
+          "web/i18n/es-ES/extend.json",
+          "web/i18n/fa-IR/extend.json",
+          "web/i18n/fr-FR/extend.json",
+          "web/i18n/hi-IN/extend.json",
+          "web/i18n/id-ID/extend.json",
+          "web/i18n/it-IT/extend.json",
+          "web/i18n/lo-LA/extend.json",
+          "web/i18n/ja-JP/extend.json",
+          "web/i18n/ko-KR/extend.json",
+          "web/i18n/nl-NL/extend.json",
+          "web/i18n/pl-PL/extend.json",
+          "web/i18n/pt-BR/extend.json",
+          "web/i18n/ro-RO/extend.json",
+          "web/i18n/ru-RU/extend.json",
+          "web/i18n/sl-SI/extend.json",
+          "web/i18n/th-TH/extend.json",
+          "web/i18n/tr-TR/extend.json",
+          "web/i18n/uk-UA/extend.json",
+          "web/i18n/vi-VN/extend.json",
+          "web/i18n/zh-Hant/extend.json"
+        ],
+        "obsolete_zero_reference_path": "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx",
+        "preserve_active_category": "web/app/components/explore/category.tsx",
+        "preserve_active_template_card": "web/features/home/template-card.tsx",
+        "preserve_active_app_card_utils": "web/app/components/app/overview/app-card-utils.ts",
+        "validation": "pnpm i18n:check --file extend --lang <group locales>, then pnpm i18n:check --file extend"
+      }
+    },
+    "12.5a_locale_group_a": {
+      "status": "passed_after_follow_up",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "dependencies": ["12.5_analysis:passed"],
+      "registered_paths": [
+        "web/i18n/ar-TN/extend.json",
+        "web/i18n/de-DE/extend.json",
+        "web/i18n/es-ES/extend.json",
+        "web/i18n/fa-IR/extend.json",
+        "web/i18n/fr-FR/extend.json",
+        "web/i18n/hi-IN/extend.json",
+        "web/i18n/id-ID/extend.json",
+        "web/i18n/it-IT/extend.json",
+        "web/i18n/lo-LA/extend.json"
+      ],
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity.",
+      "agent": "/root/m06_12_5a_locale_a",
+      "source_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
+      "verification": {
+        "json_parse": "9 locale files passed python3 -m json.tool",
+        "key_order": "all 9 contain 135 keys in en-US order",
+        "placeholders": "all interpolation tokens match en-US exactly",
+        "baseline_values": "the original 50 values in eight existing locale files match commit ebeaa1926d",
+        "diff_check_exit_code": 0,
+        "i18n_check": {
+          "command": "pnpm i18n:check --file extend --lang ar-TN de-DE es-ES fa-IR fr-FR hi-IN id-ID it-IT lo-LA",
+          "runtime": "Node 24.20.0 and pinned pnpm 12.3.4; elevated retry required because default sandbox denied tsx Unix socket listen",
+          "exit_code": 0,
+          "missing_key_counts": {
+            "ar-TN": 0,
+            "de-DE": 0,
+            "es-ES": 0,
+            "fa-IR": 0,
+            "fr-FR": 0,
+            "hi-IN": 0,
+            "id-ID": 0,
+            "it-IT": 0,
+            "lo-LA": 0
+          }
+        }
+      },
+      "review_model": "gpt-6-luna",
+      "review_target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
+      "superseded_review_client_thread_id": "client-new-thread:e4dae6de-cb0b-4dcf-8a4f-29f485fdcba5",
+      "review_thread_id": "01a0eb23-5525-7453-b3ca-7a750f637ca6",
+      "review_title": "M06 12.5a systemManage 多语言独立复核",
+      "review_status": "passed",
+      "dispatch_channel": "codex_fork_same_directory",
+      "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+      "observation": "Independent Luna review completed; no blocker, one P3 Indonesian wording refinement is registered for follow-up.",
+      "superseded_duplicate_review_thread_id": "01a0eb21-61a6-7ad1-b2aa-b74eb261c9c2",
+      "review_result": {
+        "status": "completed_no_blockers_one_p3",
+        "target_commit": "5673d013768afd0daae3cdbc92259c9096da4ff9",
+        "review_thread_id": "01a0eb23-5525-7453-b3ca-7a750f637ca6",
+        "blocking_findings": [],
+        "nonblocking_findings": [
+          {
+            "priority": "P3",
+            "locale": "id-ID",
+            "keys": ["systemManage.quota.action.edit", "systemManage.quota.editDialog.title"],
+            "issue": "English Edit remains in values",
+            "recommendation": "Use natural Indonesian Ubah, e.g. Ubah Kuota / Ubah kuota untuk {{name}}"
+          }
+        ]
+      },
+      "follow_up_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+      "follow_up_review": "evidence/M06/12.5-follow-up-review.md",
+      "follow_up_evidence": "evidence/M06/12.5-follow-up-review.md"
+    },
+    "12.5b_locale_group_b": {
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "dependencies": ["12.5_analysis:passed"],
+      "registered_paths": [
+        "web/i18n/ja-JP/extend.json",
+        "web/i18n/ko-KR/extend.json",
+        "web/i18n/nl-NL/extend.json",
+        "web/i18n/pl-PL/extend.json",
+        "web/i18n/pt-BR/extend.json",
+        "web/i18n/ro-RO/extend.json",
+        "web/i18n/ru-RU/extend.json"
+      ],
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity.",
+      "client_thread_id": "client-new-thread:c5e5befd-ba66-431e-bb13-f29f9ba0670b",
+      "base_commit": "d867181b50",
+      "created_from_commit": "d867181b50",
+      "dispatch_channel": "codex_project_worktree",
+      "source_commit": "37c4f5c71775880912286347c842106e4a9593ab",
+      "integration_commit": "bb83bc818d5e18b45dc0bfdafe40f7f8236fd6d2",
+      "worktree_path": "/Users/liuxingwang/.codex/worktrees/56bc/dify-plus",
+      "verification": {
+        "json_parse": "All 7 registered locale files passed python3 -m json.tool.",
+        "key_order": "All files contain the same 135 ordered leaf keys as en-US/extend.json.",
+        "placeholders": "Interpolation tokens match en-US exactly for every key.",
+        "baseline_values": "Each locale preserves all 50 pre-existing values from base d867181b50.",
+        "i18n_check": {
+          "command": "pnpm i18n:check --file extend --lang ja-JP ko-KR nl-NL pl-PL pt-BR ro-RO ru-RU",
+          "runtime": "Node 24.20.0 and pinned pnpm 12.3.4, run from web/ in the root worktree.",
+          "exit_code": 0,
+          "missing_key_counts": {
+            "ja-JP": 0,
+            "ko-KR": 0,
+            "nl-NL": 0,
+            "pl-PL": 0,
+            "pt-BR": 0,
+            "ro-RO": 0,
+            "ru-RU": 0
+          }
+        },
+        "diff_check_exit_code": 0,
+        "environment_note": "The first attempt in the detached source worktree could not start because that worktree lacks tsx; the same scoped check passed in the root worktree with the pinned repository runtime. No dependencies or lockfiles changed."
+      },
+      "evidence": "evidence/M06/12.5b-verification.md"
+    },
+    "12.5c_locale_group_c": {
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "dependencies": ["12.5_analysis:passed"],
+      "registered_paths": [
+        "web/i18n/sl-SI/extend.json",
+        "web/i18n/th-TH/extend.json",
+        "web/i18n/tr-TR/extend.json",
+        "web/i18n/uk-UA/extend.json",
+        "web/i18n/vi-VN/extend.json",
+        "web/i18n/zh-Hant/extend.json"
+      ],
+      "scope": "Add accurate localized systemManage keys without altering existing translations; preserve interpolation tokens; run locale-scoped i18n parity.",
+      "client_thread_id": "client-new-thread:d35f1f2d-5fdc-4787-b247-aa69907254fb",
+      "base_commit": "d867181b50",
+      "created_from_commit": "d867181b50",
+      "dispatch_channel": "codex_project_worktree",
+      "source_commit": "9290d1ff47de61b66ce0870241914f42eca183c4",
+      "integration_commit": "44395f560311018132d85c4f2bc4d0edadf3789b",
+      "worktree_path": "/Users/liuxingwang/.codex/worktrees/3b0a/dify-plus",
+      "verification": {
+        "json_parse": "All 6 registered locale files passed python3 -m json.tool.",
+        "key_order": "All files contain the same 135 ordered leaf keys as en-US/extend.json.",
+        "placeholders": "Interpolation tokens match en-US exactly for every key.",
+        "baseline_values": "Each locale preserves all 50 pre-existing values from base d867181b50.",
+        "i18n_check": {
+          "command": "pnpm i18n:check --file extend --lang sl-SI th-TH tr-TR uk-UA vi-VN zh-Hant",
+          "runtime": "Node 24.20.0 and pinned pnpm 12.3.4, run from web/ in the root worktree.",
+          "exit_code": 0,
+          "missing_key_counts": {
+            "sl-SI": 0,
+            "th-TH": 0,
+            "tr-TR": 0,
+            "uk-UA": 0,
+            "vi-VN": 0,
+            "zh-Hant": 0
+          }
+        },
+        "diff_check_exit_code": 0,
+        "environment_note": "The detached source worktree lacks tsx; its invocation did not start. The scoped check was rerun successfully in the root worktree with the pinned repository runtime. No dependencies or lockfiles changed."
+      },
+      "evidence": "evidence/M06/12.5c-verification.md"
+    },
+    "12.5d_obsolete_secret_key_quota_modal": {
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "dependencies": ["12.3:passed"],
+      "registered_paths": [
+        "web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx"
+      ],
+      "scope": "Delete the zero-reference legacy quota modal after the new API-key quota host is accepted; active category/template-card/app-card-utils modules retained.",
+      "implementation_commit": "5bb83572cad2253f129ec308d32770e0392710de",
+      "agent": "/root/m06_12_5d_astra_delete_orphan",
+      "base_commit": "8dbd5e6a03e6966446ee413e0eea9bf656c9fb7c",
+      "verification": {
+        "reference_search": "zero active static/dynamic/test references before delete; active references remain zero afterward",
+        "host_chain": "ApiSecretKeyButton -> ApiKeyModal -> AppQuotaForm / ApiKeyTable",
+        "git_diff_check": "passed",
+        "openspec_validate": "passed",
+        "full_extend_i18n": "passed; 24 locales zero missing/extra keys",
+        "evidence": "evidence/M06/12.5-final-verification.md"
+      }
+    },
+    "12.5_full_locale_parity": {
+      "status": "passed_after_corrections",
+      "source_commit": "5bb83572cad2253f129ec308d32770e0392710de",
+      "verification": {
+        "command": "pnpm i18n:check --file extend",
+        "runtime": "Node 24.20.0 and pinned pnpm 12.3.4 from web/ in the root worktree",
+        "exit_code": 0,
+        "checked_locale_count": 24,
+        "missing_key_counts": {
+          "en-US": 0,
+          "zh-Hans": 0,
+          "zh-Hant": 0,
+          "pt-BR": 0,
+          "es-ES": 0,
+          "fr-FR": 0,
+          "de-DE": 0,
+          "ja-JP": 0,
+          "ko-KR": 0,
+          "lo-LA": 0,
+          "ru-RU": 0,
+          "it-IT": 0,
+          "th-TH": 0,
+          "uk-UA": 0,
+          "vi-VN": 0,
+          "ro-RO": 0,
+          "pl-PL": 0,
+          "hi-IN": 0,
+          "tr-TR": 0,
+          "fa-IR": 0,
+          "sl-SI": 0,
+          "id-ID": 0,
+          "nl-NL": 0,
+          "ar-TN": 0
+        }
+      },
+      "evidence": "evidence/M06/12.5-final-verification.md",
+      "post_fix_checker": {
+        "status": "passed",
+        "command": "node /Users/liuxingwang/.codex/worktrees/eafe/dify-plus/web/node_modules/tsx/dist/cli.mjs ./scripts/check-i18n.js --file extend",
+        "working_directory": "/Users/liuxingwang/go/src/dify-plus/web",
+        "runtime": "Node v26.8.1 direct Node/tsx; no pnpm or install",
+        "exit_code": 0,
+        "checked_locale_count": 24,
+        "missing_and_extra_keys": "0 for every supported locale",
+        "i18n_hash_snapshot": "all 909 web/i18n JSON file SHA-256 hashes unchanged before and after"
+      }
+    },
+    "12.5bc_independent_luna_review": {
+      "id": "12.5bc_independent_luna_review",
+      "status": "passed_after_follow_up",
+      "owner": "M06",
+      "model": "gpt-6-luna",
+      "review_target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
+      "registered_paths": [
+        "web/i18n/ja-JP/extend.json",
+        "web/i18n/ko-KR/extend.json",
+        "web/i18n/nl-NL/extend.json",
+        "web/i18n/pl-PL/extend.json",
+        "web/i18n/pt-BR/extend.json",
+        "web/i18n/ro-RO/extend.json",
+        "web/i18n/ru-RU/extend.json",
+        "web/i18n/sl-SI/extend.json",
+        "web/i18n/th-TH/extend.json",
+        "web/i18n/tr-TR/extend.json",
+        "web/i18n/uk-UA/extend.json",
+        "web/i18n/vi-VN/extend.json",
+        "web/i18n/zh-Hant/extend.json"
+      ],
+      "scope": "Read-only linguistic accuracy review for M06 12.5b/c; terms, residual untranslated content, operational meaning, and placeholder semantics.",
+      "superseded_review_client_thread_id": "client-new-thread:41242006-885e-49aa-a19b-d69a497c162c",
+      "review_thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
+      "review_status": "passed",
+      "dispatch_channel": "codex_fork_same_directory",
+      "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+      "observation": "Re-reviewed after locale corrections: Indonesian Edit labels use Ubah; Polish tenant wording is clear and preserves sandbox-full to standard sandbox behavior. 13 locales still have 85 keys each with zero missing/extra keys and zero placeholder mismatches. No P1/P2/P3 findings remain.",
+      "completed_at": "2026-09-29",
+      "finding_count": 0,
+      "review_checks": {
+        "system_manage_keys_per_locale": 85,
+        "missing_or_extra_keys": 0,
+        "placeholder_mismatches": 0,
+        "locales_reviewed": 13,
+        "other_blocking_findings": 0,
+        "english_residue": "Remaining exact English matches are established UI/protocol terms (API URL, Token, Avatar, Email).",
+        "operational_semantics": "All 13 locales preserve the sandbox-full to standard sandbox transition and the cache-sync warning/recovery instruction."
+      },
+      "superseded_client_thread_id": null,
+      "thread_id": "01a0eb21-badc-77b0-b9f0-f9c8223cda12",
+      "target_commit": "fe35f6a5493435b81032f30685cbfe82dc7e9499",
+      "locales_reviewed": 13,
+      "key_count_per_locale": 85,
+      "missing_extra_keys": 0,
+      "placeholder_mismatches": 0,
+      "evidence": "evidence/M06/12.5-luna-review.md",
+      "resolved_findings": [],
+      "follow_up_commits": {
+        "id_ID": "0b360565b4c733660225faecfd337538a0d635c3",
+        "pl_PL": "84805a93186032f84245c01bdbc3ec620c325d63"
+      },
+      "follow_up_review": {
+        "status": "passed",
+        "model": "gpt-6-luna",
+        "reviewer": "/root/m06_12_5_locale_followup_review",
+        "review_target_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+        "polish_commit": "84805a93186032f84245c01bdbc3ec620c325d63",
+        "findings_remaining": [],
+        "evidence": "evidence/M06/12.5-follow-up-review.md"
+      },
+      "follow_up_target_commit": "0b360565b4c733660225faecfd337538a0d635c3"
+    },
+    "12.5_language_corrections": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m06_12_5_language_corrections",
+      "registered_paths": ["web/i18n/id-ID/extend.json", "web/i18n/pl-PL/extend.json"],
+      "source_commits": {
+        "id-ID": "0b360565b4c733660225faecfd337538a0d635c3",
+        "pl-PL": "84805a93186032f84245c01bdbc3ec620c325d63"
+      },
+      "scope": "Resolve one P3 Indonesian residual-English finding and one P2 Polish tenant/sandbox terminology finding; preserve placeholders, key order, and security semantics.",
+      "verification": {
+        "node": "24.20.0",
+        "json_key_order_placeholders": "passed for both locales; 135 keys each and localized-value assertions passed",
+        "git_diff_check": "passed",
+        "pnpm_i18n_parity": "not run; root pnpm attempted dependency auto-install because tsx is missing and was stopped before any dependency/lock change"
+      },
+      "independent_review": {
+        "status": "passed",
+        "model": "gpt-6-luna",
+        "reviewer": "/root/m06_12_5_locale_followup_review",
+        "review_target_commit": "0b360565b4c733660225faecfd337538a0d635c3",
+        "findings_remaining": [],
+        "evidence": "evidence/M06/12.5-follow-up-review.md"
+      },
+      "observation": "Both locale corrections are integrated and independently re-reviewed; scoped i18n parity should be rerun with a complete dependency environment.",
+      "post_fix_parity_revalidation": {
+        "status": "passed",
+        "model": "gpt-6-luna",
+        "thread_id": "01a0eb3e-ade0-7380-a27b-b548332ce0c8",
+        "title": "M06 12.5e 修订后语言完整性验收",
+        "base_commit": "490fd465e3c0809b129cb4721936c1a8d1d21a7b",
+        "dispatch_channel": "codex_shared_local",
+        "registered_paths": [
+          "web/i18n/id-ID/extend.json",
+          "web/i18n/pl-PL/extend.json",
+          "web/package.json",
+          "package.json",
+          "pnpm-lock.yaml"
+        ],
+        "scope": "Read-only independent verification of id-ID/pl-PL post-fix locale key parity, order, existing values and interpolation tokens; safely rerun scoped i18n parity with auto-install disabled and report exact commands/results.",
+        "evidence": "evidence/M06/12.5-final-verification.md",
+        "review_target_commit": "5bb83572cad2253f129ec308d32770e0392710de",
+        "verification": {
+          "official_checker": "passed exit 0; 24 supported locales, no missing or extra extend keys",
+          "id-ID_pl-PL": "135 keys each; order/key sets/placeholders match en-US; prior 50 values preserved; 85 new, 0 removed",
+          "read_only_integrity": "909 i18n JSON SHA-256 hashes unchanged",
+          "runtime": "Node 26.8.1 direct invocation of eafe tsx; no pnpm/install"
+        },
+        "observation": "Independent static locale parity passed; official pnpm checker command remains unverified in the current dependency environment."
+      }
+    },
+    "12.3_app_api_key_quota_and_balance": {
+      "id": "12.3_app_api_key_quota_and_balance",
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eb31-4a8d-7791-9d3b-05d25aae562f",
+      "title": "M06 12.3 API key 与余额实现",
+      "created_from_commit": "20fcdc3f2382458c241f9f065ce7990513e480bb",
+      "dispatch_channel": "codex_fork_same_directory",
+      "registered_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/api-key-table.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "web/app/components/main-nav/components/account-money-extend.tsx",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "observed_modified_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/api-key-table.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "web/app/components/main-nav/components/account-money-extend.tsx",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "dependencies": [
+        "12.3_analysis:analysis_complete_paths_registered",
+        "M05 11.2 login_config contract"
+      ],
+      "scope": "Complete and verify the existing six-path draft for app-key quota UI and identity-bound account balance/login_config exchange rate; do not implement 12.4 navigation changes.",
+      "analysis_evidence": "evidence/M06/12.3-analysis.md",
+      "observation": "Final combined 12.3+12.4 focused runtime verification passed at source snapshot 5381ccbaef; both registered specs passed 97 tests. Exact six-file byte identity to a7b7ddeeda and safe restore are documented in evidence/M06/12.3-12.4-final-verification.md.",
+      "evidence": "evidence/M06/result.json#/subtasks/12.3_app_api_key_quota_and_balance"
+    },
+    "12.3_implementation": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "implementation_commit": "12160c8b2b406dd92d9bb08dc440d6685749ec51",
+      "registered_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/api-key-table.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "web/app/components/main-nav/components/account-money-extend.tsx",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "summary": [
+        "App API keys now create with supported description/day/month quota body, edit through supported PUT and invalidate the per-app list on success.",
+        "Table shows accumulated, daily and monthly usage only for app scope; dataset/environment request and display remain unchanged.",
+        "Account balance is parsed before successful cache data and isolated by account/workspace; login_config is the sole rate source, no public fallback; identity/403/invalid-data states hide converted balance."
+      ],
+      "static_review": {
+        "reviewer": "/root/m06_12_3_luna_verification",
+        "status": "accepted_no_P1_P2_P3_findings",
+        "scope": "Read-only six-file review; tests and scoped checks were not run."
+      },
+      "verification_task": {
+        "agent": "/root/m06_12_3_12_4_final_luna",
+        "status": "passed",
+        "plan": "Run both registered Vitest specs against final combined 12.3+12.4 snapshot using direct Node in the dependency-complete eafe worktree; overlay and hash-verify restoration of six target files."
+      },
+      "limits": [
+        "First isolated pnpm test attempt auto-attempted node@24.20 installation and was stopped (exit 129); no tests passed from that attempt.",
+        "Zero/negative exchange rate hides conversion as conservative UI behavior; no product rule defines those values."
+      ],
+      "verification": {
+        "status": "passed",
+        "review_target_commit": "5381ccbaef63d8c31111e1f89743c91f94354e4f",
+        "command": "node .../node_modules/vitest/vitest.mjs run --project unit app/components/api-key/__tests__/api-key-modal.spec.tsx app/components/main-nav/__tests__/index.spec.tsx",
+        "working_directory": "/Users/liuxingwang/.codex/worktrees/eafe/dify-plus/web",
+        "runtime": "Node 24.20.0 direct invocation of Vitest 4.1.11; no package manager or install",
+        "exit_code": 0,
+        "result": "2 test files, 97 tests passed",
+        "source_identity": "Six registered implementation/spec paths are byte-identical to a7b7ddeedad8396870863c2fa7de56a42d508ca9.",
+        "restore": "All six eafe targets restored with matching original SHA-256; git diff --exit-code clean; full status preserved including pre-existing message-context changes.",
+        "evidence": "evidence/M06/12.3-12.4-final-verification.md"
+      },
+      "followup_commit": "b49d389cb41783535028647a3acc3505b8d5a54e",
+      "review_status": "passed",
+      "followup_commits": ["4526fd02f2039f568ea605012329f4da2a1bc514"]
+    },
+    "12.4_implementation": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "implementation_commit": "a7b7ddeeda",
+      "registered_paths": [
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "summary": [
+        "Restored the existing SystemManageNavExtend owner-only entry in MainNav.",
+        "Added focused coverage for owner visibility, admin/member denial, route highlighting, and workspace role switching."
+      ],
+      "verification_task": {
+        "agent": "/root/m06_12_3_12_4_final_luna",
+        "status": "passed",
+        "scope": "Combined focused specs for 12.3 and 12.4 at final snapshot."
+      },
+      "analysis_evidence": "evidence/M06/12.4-analysis.md",
+      "evidence": "evidence/M06/result.json#/subtasks/12.4_implementation",
+      "verification": {
+        "status": "passed",
+        "review_target_commit": "5381ccbaef63d8c31111e1f89743c91f94354e4f",
+        "test_result": "Both focused specs passed; 2 files / 97 tests. Six registered paths byte-identical to implementation commit a7b7ddeedad8396870863c2fa7de56a42d508ca9.",
+        "evidence": "evidence/M06/12.3-12.4-final-verification.md"
+      }
+    },
+    "12.5_final_verification": {
+      "status": "passed",
+      "model": "gpt-6-luna",
+      "agent": "/root/m06_12_5_locale_final_luna",
+      "review_target_commit": "5bb83572cad2253f129ec308d32770e0392710de",
+      "evidence": "evidence/M06/12.5-final-verification.md"
+    },
+    "12.6_analysis": {
+      "status": "gaps_found_followups_registered",
+      "model": "gpt-6-sol",
+      "reviewers": ["/root/m06_12_6_sol_acceptance_gap", "/root/m06_12_6_user_overview_intent"],
+      "review_target_commit": "e40296f41ec507c267c7ef624ba8b27d749fa4dc",
+      "findings": [
+        "MainNav lost the explicitly planned fork app-center entry; restore it as a distinct route and preserve upstream Home at /.",
+        "System integration has no host behavior test; exact new spec path registered.",
+        "user_overview_extend remains direct-only as before but personal-statistics account filter, Promise params, allTime behavior and canMonitor gate are not correct/verified; do not invent navigation.",
+        "Backend contract audit is needed because current statistics APIs and generated types do not accept account scope; identity must come from authenticated account."
+      ],
+      "evidence": "evidence/M06/12.6-analysis.md",
+      "next_subtask": "12.6a_home_navigation"
+    },
+    "12.6c_user_overview_backend_contract": {
+      "status": "completed_handoff_registered",
+      "model": "gpt-6-sol",
+      "agent": "/root/m04_user_overview_backend_contract",
+      "summary": [
+        "Six chart-backed endpoints need optional account scope: three app and three workflow statistics endpoints; preserve app-wide default behavior.",
+        "Resolve identity only from authenticated RequestContext.account_id; ordinary app filtering uses trusted from_account_id.",
+        "WebApp workflow executions lack trusted Console account ownership in both SQLAlchemy and Logstore. Persist a trusted actor before implementing workflow filters; do not infer or backfill historical ownership from external_user_id."
+      ],
+      "registered_followups": [
+        "12.6d_app_account_statistics",
+        "12.6e_workflow_account_ownership_persistence",
+        "12.6f_workflow_account_statistics",
+        "12.6g_user_overview_ui_contract",
+        "12.6h_contract_generation"
+      ],
+      "evidence": "evidence/M06/12.6-analysis.md"
+    },
+    "12.6a_home_navigation": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eb56-3ff2-7443-b0ac-81c605b54338",
+      "registered_paths": [
+        "web/app/components/main-nav/routes.ts",
+        "web/app/components/main-nav/index.tsx",
+        "web/app/components/main-nav/__tests__/index.spec.tsx"
+      ],
+      "implementation_commit": "6061766c11348e9179cc3eb03b1d747bd3f19726",
+      "summary": "Independent fork app-center nav entry; upstream Home unchanged. MainNav 92/92 tests passed; scoped check 0 errors, one preexisting warning; diff check passed.",
+      "evidence": "evidence/M06/12.6a-verification.md"
+    },
+    "12.6b_system_integration_host_test": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eb6c-c197-7360-9e37-2258755300cf",
+      "title": "M06 12.6b 系统集成页宿主测试",
+      "base_commit": "c2baf732b297b5e9258f1852f4a175f61a0f7697",
+      "dispatch_channel": "codex_shared_local",
+      "registered_paths": [
+        "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx"
+      ],
+      "scope": "Add focused host behavior tests for system-integration tab/content switching at the exact registered test path.",
+      "evidence": "evidence/M06/12.6b-validation.md",
+      "observed_path": "web/app/(commonLayout)/system-manage-extend/system-integration/__tests__/page.spec.tsx",
+      "branch_head": "2a72712052",
+      "implementation_commit": "db73bbf8b18f24958eab9312b5d1af6248b526a0",
+      "verification": {
+        "status": "passed",
+        "focused_tests": "2 passed in 1 file, exit 0",
+        "scoped_check": "format/lint/types passed, exit 0",
+        "test_sha256": "4088c14548fc66871dba2ba9fa2c63ea52cae3bcc3653c2546290eddb54a1b4d",
+        "runtime": "Node 24.20.0; Vite Plus 0.3.1; Vitest 4.1.11",
+        "thread_id": "01a0ebda-52ac-7293-8ecd-960555e698b7"
+      },
+      "review_status": "passed_no_p1_p2_p3",
+      "review_thread_id": "01a0eb7c-53c5-7600-af3b-1dccba308181",
+      "review_evidence": "evidence/M06/12.6b-review.md",
+      "superseded_competing_commit": "45180f1b6a",
+      "verification_thread_id": "01a0ebda-52ac-7293-8ecd-960555e698b7",
+      "verification_model": "gpt-6-luna"
+    },
+    "12.6a_home_navigation_luna_review": {
+      "status": "passed",
+      "model": "gpt-6-luna",
+      "thread_id": "01a0eb61-ea9a-73c1-ba83-09edbf105c90",
+      "review_target_commit": "6061766c11348e9179cc3eb03b1d747bd3f19726",
+      "findings": [],
+      "evidence": "evidence/M06/12.6a-review.md"
+    },
+    "12.6d_app_account_statistics": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "api/controllers/console/app/statistic.py",
+        "api/services/app_statistic_query.py",
+        "api/repositories/app_statistic_query_repository.py",
+        "api/tests/unit_tests/controllers/console/app/test_statistic_api.py",
+        "api/tests/unit_tests/repositories/test_app_statistic_query_repository.py"
+      ],
+      "implementation_commit": "fcc0b0e7a5",
+      "source_implementation_commit": "175e3040bdc9a5f34f07643a844ec95018bd4072",
+      "verification_worktree": "/Users/liuxingwang/.codex/worktrees/2d92/dify-plus",
+      "review": {
+        "status": "passed_no_p1_p2_p3",
+        "thread_id": "01a0eb76-9ccc-7072-8187-f9e0b790040a",
+        "evidence": "evidence/M06/12.6d-review.md"
+      },
+      "verification": {
+        "status": "passed",
+        "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-12-6d-uv-cache LITELLM_LOCAL_MODEL_COST_MAP=True PYTHONDONTWRITEBYTECODE=1 uv run --project api --no-sync pytest -q -o addopts= -p no:cacheprovider api/tests/unit_tests/controllers/console/app/test_statistic_api.py api/tests/unit_tests/repositories/test_app_statistic_query_repository.py",
+        "exit_code": 0,
+        "result": "22 passed, 56 warnings in 2.11s",
+        "ruff_check_exit_code": 0,
+        "ruff_format_check_exit_code": 0,
+        "diff_check_exit_code": 0,
+        "implementation_paths_equal_exit_code": 0,
+        "runtime": "Python 3.12 existing environment; uv --no-sync; uv cache and venv redirected to /private/tmp; no dependency sync/install"
+      },
+      "evidence": ["evidence/M06/12.6d-verification.md", "evidence/M06/12.6d-review.md"],
+      "verification_status": "passed",
+      "review_status": "passed_no_p1_p2_p3"
+    },
+    "12.6e_workflow_actor_analysis": {
+      "status": "analysis_complete_paths_registered",
+      "model": "gpt-6-sol",
+      "thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
+      "base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
+      "read_only": true,
+      "evidence": "evidence/M06/12.6e-analysis.md",
+      "registered_paths": [
+        "api/controllers/web/workflow.py",
+        "api/services/webapp_console_identity_extend.py",
+        "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
+        "api/core/app/apps/workflow/app_generator.py",
+        "api/core/repositories/factory.py",
+        "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
+        "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+        "api/core/repositories/celery_workflow_execution_repository.py",
+        "api/tasks/app_generate/workflow_execute_task.py",
+        "api/tasks/async_workflow_tasks.py",
+        "api/tasks/workflow_execution_tasks.py",
+        "api/tests/unit_tests/controllers/web/test_workflow.py",
+        "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
+        "api/tests/unit_tests/models/test_workflow.py",
+        "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
+        "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+        "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py",
+        "api/services/workflow_run_account_extend.py",
+        "api/models/workflow_account_extend.py",
+        "api/models/__init__.py"
+      ],
+      "migration_revision": "020_workflow_run_account",
+      "migration_down_revision": "019_webapp_auth_switch",
+      "summary": "Use the dedicated workflow_run_account_extend association table and fork extension migration chain; keep upstream workflow_runs schema untouched. Historical/anonymous runs have no trusted association and are never backfilled.",
+      "migration_chain": "Dify Plus extension chain; association table only; upstream workflow_runs unchanged"
+    },
+    "12.6e_workflow_account_ownership_persistence": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "owner": "M03/M02",
+      "thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
+      "base_commit": "f1771c90a1a5701cb4ac115d3393320897bc5347",
+      "registered_paths": [
+        "api/controllers/web/workflow.py",
+        "api/services/webapp_console_identity_extend.py",
+        "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
+        "api/core/app/apps/workflow/app_generator.py",
+        "api/core/repositories/factory.py",
+        "api/core/repositories/sqlalchemy_workflow_execution_repository.py",
+        "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+        "api/core/repositories/celery_workflow_execution_repository.py",
+        "api/tasks/app_generate/workflow_execute_task.py",
+        "api/tasks/async_workflow_tasks.py",
+        "api/tasks/workflow_execution_tasks.py",
+        "api/tests/unit_tests/controllers/web/test_workflow.py",
+        "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
+        "api/tests/unit_tests/models/test_workflow.py",
+        "api/tests/unit_tests/core/app/apps/test_workflow_app_generator.py",
+        "api/tests/unit_tests/core/repositories/test_sqlalchemy_workflow_execution_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+        "api/tests/unit_tests/core/repositories/test_celery_workflow_execution_repository.py",
+        "api/services/workflow_run_account_extend.py",
+        "api/models/workflow_account_extend.py",
+        "api/models/__init__.py"
+      ],
+      "migration_down_revision": "019_webapp_auth_switch",
+      "evidence": "evidence/M06/12.6e-verification.md",
+      "analysis_thread_id": "01a0eb7c-8d27-70e0-acf6-70764808b6a0",
+      "analysis_base_commit": "fcc0b0e7a544c804d72b628828ad93776aec12f8",
+      "analysis_evidence": "evidence/M06/12.6e-analysis.md",
+      "migration_revision": "020_workflow_run_account",
+      "scope": "Persist authenticated WebApp Console account ownership in a Dify Plus workflow_run_account_extend association table without altering upstream workflow_runs; propagate the actor through normal and async execution/recovery in SQLAlchemy and Logstore while preserving created_by as EndUser. Do not infer or backfill historical ownership; app-wide queries remain unchanged.",
+      "verification_gates": [
+        "authenticated and absent/invalid Console identity",
+        "SQLAlchemy and Logstore first write",
+        "Celery serialization and normal/async recovery preserve actor",
+        "old rows remain NULL and Logstore old records read as NULL",
+        "pause/resume does not overwrite actor",
+        "migration head and upgrade checks",
+        "no inference from external_user_id"
+      ],
+      "implementation_thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
+      "migration_chain": "Dify Plus extension chain; association table only; upstream workflow_runs unchanged",
+      "implementation_agent": "/root/m06_12_6e_astra_finalize",
+      "superseded_implementation_thread_id": "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+      "restart_reason": "Fork-only migration belongs to migrations_extend, not upstream main chain; first Astra attempt was stopped before commit.",
+      "implementation_gate": "Use validated Console cookie actor only; one idempotent association row in the SQL transaction; preserve NULL first-write for anonymous/unknown runs; reject tenant/app mismatches on recovery and dual-write; no historical inference.",
+      "previous_implementation_thread_ids": [
+        "01a0eb83-6577-7011-8ea1-2d6377041f8f",
+        "01a0eb8d-da62-7520-993c-6c1f8e7eed95",
+        "01a0eb97-fbb0-7650-8fa5-2fec800481ce"
+      ],
+      "dispatch_channel": "codex_project_local",
+      "latest_attempt_note": "Committed e9359f9bfe688f24212112cdc3e5f2ac6560c910. Root reran seven registered test files: 202 passed. Ruff/format passed 21 paths; source Pyrefly 0 diagnostics; strict test typing has 120 baseline diagnostics and no new diagnostics. Main migration head remains c3f1a9b2e6d4; extension head is 020_workflow_run_account. Live PostgreSQL/MySQL, Aliyun Logstore, cross-process concurrency and index visibility remain unverified. 12.6f is ready.",
+      "implementation_verification": {
+        "status": "passed_root_rechecked",
+        "reported_by_thread_id": "01a0eb9a-0f5a-7190-856f-1ac05495690a",
+        "focused_tests": "202 passed; rerun by root after Astra stopped",
+        "ruff_and_format": "passed_21_registered_paths",
+        "source_pyrefly": "0 diagnostics",
+        "tests_pyrefly": "120 baseline diagnostics, no new diagnostics",
+        "migration_heads": {
+          "main": "c3f1a9b2e6d4",
+          "extension": "020_workflow_run_account"
+        },
+        "evidence": "evidence/M06/12.6e-verification.md",
+        "review_status": "passed_after_follow_up",
+        "verification_snapshot_head": "ac4d5b1127c1c69ad774f0df8f13fba2745c47e5",
+        "branch_head": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+        "followup_commit": "2ca9e0d7cb",
+        "followup_tests": "60 focused tests; 208 tests in the original seven-file regression",
+        "followup_review": "Independent Luna found no P1/P2/P3.",
+        "review_evidence": "evidence/M06/12.6e-review.md"
+      },
+      "implementation_commit": "e9359f9bfe688f24212112cdc3e5f2ac6560c910",
+      "independent_review_status": "passed_after_follow_up",
+      "independent_review_thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
+      "independent_review_scope_note": "Separate review conversation remains active; root code review and test rerun are recorded independently.",
+      "independent_review_findings": [
+        "P2: SQL scope validation errors were logged and swallowed before Logstore append.",
+        "P2: migration returned for an existing association table without ensuring its required scope index."
+      ],
+      "followup_thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
+      "independent_review_findings_resolved_by": "2ca9e0d7cb",
+      "followup_commit": "2ca9e0d7cb",
+      "followup_tests": "two files: 60 passed; original seven files: 208 passed",
+      "followup_review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
+      "followup_review_result": "No P1/P2/P3",
+      "review_evidence": "evidence/M06/12.6e-review.md",
+      "followup_evidence": "evidence/M06/12.6e-review.md",
+      "followup_diff_only_review_thread_id": "01a0ebaf-7f96-7112-815c-33ef98a6a395"
+    },
+    "12.6i_api_key_interaction_regressions": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eb6a-62d4-7650-b0ed-8f868d62e70a",
+      "registered_paths": ["web/app/components/api-key/__tests__/api-key-modal.spec.tsx"],
+      "branch_head": "8d5257ee908e328718395ad860b7406f249b81de",
+      "superseded_duplicate_client_thread_id": "client-new-thread:5c910d34-9260-4ad9-a089-6c2ffb23f0ae",
+      "implementation_commit": "a602bb8a585b348df2626f21c68c644814ce5367",
+      "evidence": "evidence/M06/12.6i-validation.md",
+      "verification": {
+        "status": "passed",
+        "focused_tests": "23 passed; exit 0",
+        "scoped_check": "format/lint/types passed; exit 0",
+        "verified_test_sha256": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08",
+        "runtime": "Node 24.20.0; VP_SKIP_INSTALL=1",
+        "review_agent": "/root/api_key_final_snapshot_review",
+        "review_result": "No P1/P2/P3; hash stable before/after"
+      },
+      "review_status": "passed_no_p1_p2_p3",
+      "review_thread_id": "01a0eb7c-6b41-7840-b661-5a3c9eb3b86c",
+      "review_evidence": "evidence/M06/12.6i-review.md",
+      "superseded_competing_commit": "777238cc",
+      "verification_thread_id": "01a0ebda-2332-7663-900f-3dd9ee08cd9f",
+      "verification_model": "gpt-6-luna",
+      "review_agent": "/root/api_key_final_snapshot_review"
+    },
+    "12.6f_workflow_account_statistics": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "owner": "M04",
+      "dependency": "12.6e_workflow_account_ownership_persistence:passed",
+      "registered_paths": [
+        "api/controllers/console/app/workflow_statistic.py",
+        "api/services/workflow_statistic_query_service.py",
+        "api/repositories/api_workflow_run_repository.py",
+        "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+        "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+        "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+        "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+        "evidence/M06/12.6f-verification.md"
+      ],
+      "scope": "Add optional account=true to three workflow charts. SQLAlchemy joins workflow_run_account_extend on workflow_run_id+tenant_id+app_id+from_account_id; Logstore applies the trusted per-run from_account_id field. Exclude missing/NULL ownership; preserve app-wide defaults and daily-terminals.",
+      "implementation_base_commit": "cb761050c287dd8de5bb0d1b9cd09f949779375d",
+      "dispatch_channel": "codex_project_local",
+      "implementation_model": "gpt-6-astra",
+      "latest_attempt_note": "Astra is completing the registered account-statistics implementation on disjoint paths. Integration acceptance is blocked until the SLS IndexConfig preservation P2 follow-up passes.",
+      "implementation_thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
+      "thread_id": "01a0ebbd-d178-7982-9141-834a93649224",
+      "blocked_reason": null,
+      "index_prerequisite": "12.6f_logstore_actor_index_config_preservation",
+      "index_thread_id": "01a0ebb0-b71e-7bc1-81f5-e428456cc2d8",
+      "index_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "dependencies": [
+        "12.6e_review_followup:passed",
+        "12.6f_logstore_actor_index:passed",
+        "12.6f_logstore_actor_index_config_preservation:passed",
+        "12.6f_workflow_statistics_analysis:passed"
+      ],
+      "analysis_thread_id": "01a0ebaa-a879-7652-9b09-fae6a91d70b8",
+      "implementation_thread_ids": [
+        "01a0ebbd-d178-7982-9141-834a93649224",
+        "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
+      ],
+      "validation_status": "passed",
+      "blocked_by": null,
+      "verification_evidence": "evidence/M06/12.6f-verification.md",
+      "review_agent": "/root/workflow_statistics_review",
+      "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
+      "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed",
+      "implementation_commit": "7593d52222"
+    },
+    "12.6f_workflow_statistics_analysis": {
+      "status": "analysis_complete_paths_registered",
+      "model": "gpt-6-sol",
+      "agent": "/root/m06_12_6f_sol_analysis",
+      "base_commit": "59166311d1a864544e6eca1ea4675172bd59d052",
+      "read_only": true,
+      "evidence": "evidence/M06/12.6f-analysis.md",
+      "registered_paths": [
+        "api/controllers/console/app/workflow_statistic.py",
+        "api/services/workflow_statistic_query_service.py",
+        "api/repositories/api_workflow_run_repository.py",
+        "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+        "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+        "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+        "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py"
+      ],
+      "path_overlap_with_12.6e": false,
+      "summary": "12.6f query paths confirmed. After 12.6e association-table design: SQLAlchemy uses the tenant/app-scoped ownership association; Logstore uses its trusted from_account_id event field. Missing/NULL ownership is excluded; app-wide default and daily-terminals remain unchanged."
+    },
+    "12.6e_independent_luna_verification": {
+      "status": "findings_resolved_by_followup",
+      "model": "gpt-6-luna",
+      "thread_id": "01a0eba3-2d49-7cb0-95da-3d3e14d0f698",
+      "read_only": true,
+      "scope": "Independent review and focused verification of the stopped implementation snapshot.",
+      "followup_review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
+      "followup_review_result": "No P1/P2/P3",
+      "followup_commit": "2ca9e0d7cb",
+      "review_evidence": "evidence/M06/12.6e-review.md"
+    },
+    "12.6e_review_followup": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
+      "dependencies": [
+        "12.6e_workflow_account_ownership_persistence:implementation_passed",
+        "12.6e_independent_luna_verification:two_P2_findings"
+      ],
+      "registered_paths": [
+        "api/extensions/logstore/repositories/logstore_workflow_execution_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_workflow_execution_repository.py",
+        "api/migrations_extend/versions/2026_09_29_1200-020_workflow_run_account.py",
+        "api/tests/unit_tests/models/test_workflow.py",
+        "evidence/M06/12.6e-review.md"
+      ],
+      "scope": "Close two Luna P2 findings: fail closed if SQL scope validation errors before Logstore write; reconcile missing migration index on an existing table and safely downgrade if index is absent.",
+      "latest_test_result": "Four regressions failed on original implementation; Astra applied fixes and reports two-file focused tests pass. Root verification pending.",
+      "implementation_commit": "2ca9e0d7cbb3b1cc79148d44659129cf84f98451",
+      "focused_tests": "60 passed on two files; 208 passed on original seven-file regression set, rerun by root",
+      "ruff_and_format": "passed four registered paths",
+      "independent_review_status": "no_p1_p2",
+      "independent_review_thread_id": "01a0eba3-ec07-7cb2-9e20-c14247500c60",
+      "evidence": "evidence/M06/12.6e-review.md"
+    },
+    "12.6f_logstore_actor_index": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "owner": "M04",
+      "base_commit": "2b0612367b276154c59137f9de27bb9ddbfe26c9",
+      "registered_paths": [
+        "api/extensions/logstore/aliyun_logstore.py",
+        "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
+        "evidence/M06/12.6f-logstore-index-verification.md"
+      ],
+      "dependencies": ["12.6e_review_followup:passed"],
+      "scope": "Register trusted workflow-run from_account_id as a Logstore index field for SQL aggregation queries, and verify create/reconcile while preserving custom indexes.",
+      "implementation_tests": "3 initial tests passed; strict existing-key doc_value/type follow-up is open",
+      "implementation_static_checks": "Ruff check/format and diff-check passed",
+      "dispatch_channel": "codex_project_local",
+      "implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "verification": {
+        "status": "passed_root_rechecked",
+        "test_result": "10 passed",
+        "ruff_check": "passed",
+        "ruff_format": "passed",
+        "diff_check": "passed",
+        "evidence": "evidence/M06/12.6f-logstore-index-verification.md"
+      },
+      "limits": [
+        "No live Aliyun verification",
+        "Historical Logstore index coverage/visibility not tested"
+      ],
+      "followup_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "test_result": "10 passed; independent Luna and root",
+      "evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+      "verification_evidence": "evidence/M06/12.6f-logstore-index-verification.md",
+      "review_result": "No P1/P2/P3",
+      "static_checks": "Ruff check/format and diff-check passed"
+    },
+    "12.6e-review-followup": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "thread_id": "01a0eba9-13a0-7460-bd51-af0aee72ff1a",
+      "commit": "2ca9e0d7cb",
+      "focused_tests": "60 passed; full seven-file 12.6e regression 208 passed",
+      "static_checks": "four registered paths Ruff check/format/diff-check passed",
+      "review_thread_id": "01a0ebae-0dd2-70b3-a0cb-2cf9e483d45e",
+      "review_result": "No P1/P2/P3",
+      "evidence": "evidence/M06/12.6e-review.md"
+    },
+    "12.6f_logstore_actor_index_reconciliation": {
+      "status": "passed_after_config_preservation",
+      "model": "gpt-6-astra",
+      "owner": "M04",
+      "base_commit": "17a755d104b6417e63b25dfe11a3156f34b37250",
+      "dependencies": [
+        "12.6f_logstore_actor_index:implementation_complete",
+        "12.6f_index_existing_config_gap:confirmed"
+      ],
+      "registered_paths": [
+        "api/extensions/logstore/aliyun_logstore.py",
+        "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
+        "evidence/M06/12.6f-logstore-index-reconcile-verification.md"
+      ],
+      "scope": "Force text/doc_value=True for workflow_execution.from_account_id across existing text/json/wrong-type options while preserving other fields and custom config.",
+      "finding": "Existing _merge_index_configs treats text/json as compatible and compares only index_type, so from_account_id with doc_value=False is retained.",
+      "implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "verification": {
+        "test_result": "10 passed in independent Luna and root reruns",
+        "ruff_check": "passed",
+        "ruff_format": "passed",
+        "diff_check": "passed",
+        "review_findings": "0 P1/P2/P3",
+        "evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md"
+      },
+      "verification_evidence": "evidence/M06/12.6f-logstore-index-reconcile-verification.md",
+      "test_result": "10 passed; independent Luna and root",
+      "review_result": "No P1/P2/P3",
+      "static_checks": "Ruff check/format and diff-check passed",
+      "reopened_finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
+      "verification_invalidated_by": "12.6f_logstore_actor_index_config_preservation",
+      "historical_implementation_commit": "af2dadff5ec25697c0f86a89ed65538465a56dc5",
+      "followup": "12.6f_logstore_actor_index_config_preservation"
+    },
+    "12.6f_statistics_integration_recovery": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "owner": "M04",
+      "base_commit": "5514c6df0f88921fbf7029611bd95de216d20757",
+      "dispatch_channel": "codex_project_local",
+      "implementation_thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
+      "thread_id": "01a0ebc5-0fe7-7861-9560-a10dc5aa82b8",
+      "dependencies": [
+        "12.6f_workflow_statistics_analysis:passed",
+        "12.6e_review_followup:passed",
+        "12.6f_logstore_actor_index_config_preservation:passed"
+      ],
+      "registered_paths": [
+        "api/controllers/console/app/workflow_statistic.py",
+        "api/services/workflow_statistic_query_service.py",
+        "api/repositories/api_workflow_run_repository.py",
+        "api/repositories/sqlalchemy_api_workflow_run_repository.py",
+        "api/extensions/logstore/repositories/logstore_api_workflow_run_repository.py",
+        "api/tests/unit_tests/services/test_workflow_statistic_query_service.py",
+        "api/tests/unit_tests/controllers/console/app/test_workflow_statistic_api.py",
+        "api/tests/unit_tests/repositories/test_sqlalchemy_api_workflow_run_repository.py",
+        "api/tests/unit_tests/extensions/logstore/repositories/test_logstore_api_workflow_run_repository.py",
+        "evidence/M06/12.6f-verification.md"
+      ],
+      "scope": "Single-writer integration of the two stopped 12.6f shared-checkout attempts. Deduplicate controller/service/repository parameters and Logstore predicates; review and reconcile the existing diff; add missing controller and Logstore tests; run the full registered focused suite and scoped checks; write evidence and commit exact registered paths. No other writer may touch these paths.",
+      "stopped_threads": [
+        "01a0ebbd-d178-7982-9141-834a93649224",
+        "01a0ebbd-c2bd-7583-9dc6-928554eb7af0"
+      ],
+      "current_worktree_observation": "At dispatch, seven registered code/test paths had uncommitted changes; controller and Logstore behavior test files were not yet present. Unrelated untracked user paths remain untouched.",
+      "verification_evidence": "evidence/M06/12.6f-verification.md",
+      "review_agent": "/root/workflow_statistics_review",
+      "review_result": "No P1/P2/P3; 40 focused tests rerun independently; nine file hashes match",
+      "validation_status": "passed",
+      "test_result": "40 focused + 63 schema tests passed; source and tests Pyrefly zero diagnostics; Ruff check/format passed",
+      "implementation_commit": "7593d52222"
+    },
+    "12.6f_logstore_actor_index_config_preservation": {
+      "id": "12.6f_logstore_actor_index_config_preservation",
+      "status": "passed",
+      "owner": "M04",
+      "model": "gpt-6-astra",
+      "base_commit": "5514c6df0f",
+      "dependencies": [
+        "12.6f_logstore_actor_index:implementation_complete",
+        "12.6f_logstore_actor_index_reconciliation:reopened_by_P2"
+      ],
+      "registered_paths": [
+        "api/extensions/logstore/aliyun_logstore.py",
+        "api/tests/unit_tests/extensions/logstore/test_aliyun_logstore_workflow_index.py",
+        "evidence/M06/12.6f-logstore-index-config-preservation.md"
+      ],
+      "scope": "Preserve the complete existing Aliyun SLS IndexConfig during update_index while adding/fixing workflow_execution.from_account_id; retain ttl, all_keys_config, log_reduce, docvalue_max_text_len, reduce white/black lists, line_config, scan_index, all custom keys, and compatible actor text options such as token_list/case_sensitive. Add regression coverage for overwrite semantics and only force required actor type/doc_value where incompatible.",
+      "finding": "Independent Luna review found _merge_index_configs rebuilds a partial IndexConfig and update_index replaces the complete SLS index configuration, dropping existing top-level options; actor doc_value-only correction can also discard user text options.",
+      "verification_plan": "Seed a full non-default IndexConfig and actor text options, reconcile the required actor field, then assert the serialized update retains all existing top-level and custom settings; focused pytest, Ruff check/format, diff-check, independent Luna review.",
+      "evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
+      "thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
+      "implementation_thread_id": "01a0ebc4-6350-7951-a5e5-d508c9ad298e",
+      "review_agent": "/root/index_preservation_review",
+      "review_result": "No P1/P2/P3; independent Luna rerun 46 passed; Ruff check and format passed",
+      "verification_evidence": "evidence/M06/12.6f-logstore-index-config-preservation.md",
+      "test_result": "46 passed; 36 regression cases failed before repair",
+      "verified_source_sha256": "22ad424ee36911206d42d3064d7613931eb26846ebbab5f6f187ecd20025da44",
+      "implementation_commit": "8466ad5ff749271057d14df7d6e0589dad4b226f"
+    },
+    "12.6j_frontend_dependency_recovery": {
+      "id": "12.6j_frontend_dependency_recovery",
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "base_commit": "d2fbe18cd1a621d4704fd29c73fa4c294aa1d770",
+      "registered_paths": ["evidence/M06/12.6j-dependency-recovery.md"],
+      "scope": "Restore ignored node_modules with exact Node 24.20.0/pnpm 12.3.4 and frozen existing lockfiles; do not modify manifests/locks, other checkouts or create worktrees. Runtime tests remain separate subtasks.",
+      "dependencies": [],
+      "analysis_agent": "/root/frontend_dependency_diagnosis",
+      "implementation_agent": "/root/frontend_dependency_recovery",
+      "finding": "Frozen dependency recovery and workspace entrypoint repair completed; direct tools ready.",
+      "initial_install_exit_code": 0,
+      "workspace_entrypoint_verification": "passed",
+      "verification": "Frozen install exit 0; stale generated links/shims repaired; contracts/web vp and Vite imports pass; no dangling workspace dependencies",
+      "verification_evidence": "evidence/M06/12.6j-dependency-recovery.md",
+      "scope_limit": "Dependency readiness only; does not pass any UI tests. Subsequent pnpm commands can add the same 19-line tool registration; root reconciles it after generators stop.",
+      "lock_side_effect": "Root restored only the verified 19-line @pnpm/exe registration after generation stopped; exact backup and patch in /private/tmp/dify-scheduling-pnpm-lock-side-effect.*"
+    },
+    "12.6g_user_overview_ui_contract": {
+      "id": "12.6g_user_overview_ui_contract",
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/page.tsx",
+        "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/layout-main.tsx",
+        "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/user_overview_extend/__tests__/page.spec.tsx",
+        "web/app/components/app/overview/app-chart.tsx",
+        "web/app/components/app/overview/__tests__/app-chart.spec.tsx",
+        "web/app/(commonLayout)/app/(appDetailLayout)/[appId]/__tests__/layout-main.spec.tsx",
+        "evidence/M06/12.6g-verification.md"
+      ],
+      "scope": "Promise route params; retain account=true for all periods; canMonitor blocks chart rendering and direct-route admission; keep direct-only navigation; preserve empty-data date fallback.",
+      "analysis_agent": "/root/overview_ui_analysis",
+      "dependencies": [
+        "12.6d_app_account_statistics:passed",
+        "12.6f_workflow_account_statistics:passed"
+      ],
+      "implementation_agent": "/root/overview_ui_implementation",
+      "review_agent": "/root/overview_ui_review",
+      "review_result": "No P1/P2/P3; six final file blob hashes matched",
+      "verification": "Node 24.20.0, VP_SKIP_INSTALL=1; 62 tests in three specs passed; six-path format/lint/type and scoped diff checks passed",
+      "verification_evidence": "evidence/M06/12.6g-verification.md",
+      "implementation_commit": "3691f17a83"
+    },
+    "12.6h_contract_generation": {
+      "id": "12.6h_contract_generation",
+      "status": "passed",
+      "owner": "M05/M08",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "packages/contracts/openapi/console-openapi.json",
+        "api/openapi/markdown/console-openapi.md",
+        "packages/contracts/generated/api/console/apps/types.gen.ts",
+        "packages/contracts/generated/api/console/apps/zod.gen.ts",
+        "packages/contracts/generated/api/console/apps/orpc.gen.ts",
+        "evidence/M06/12.6h-verification.md"
+      ],
+      "scope": "Regenerate and review only after both backend endpoint contracts agree; generated contract files remain under M05/M08 ownership.",
+      "dependencies": [
+        "12.6d_app_account_statistics:passed",
+        "12.6f_workflow_account_statistics:passed"
+      ],
+      "implementation_agent": "/root/account_contract_generation",
+      "review_agent": "/root/account_contract_review",
+      "review_result": "No P1/P2/P3; independent AST/Zod/oRPC verification passed; hashes match",
+      "verification": "Standard generator 64 jobs and formatting 191 files passed; six optional account booleans verified; 196 unrelated output hashes unchanged",
+      "verification_evidence": "evidence/M06/12.6h-verification.md",
+      "implementation_commit": "d86c131597"
+    },
+    "12.6i_fixture_typing": {
+      "id": "12.6i_fixture_typing",
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "web/app/components/api-key/__tests__/api-key-modal.spec.tsx",
+        "evidence/M06/12.6i-validation.md"
+      ],
+      "scope": "Fix two actual scoped TypeScript failures in existing API key test fixture without weakening coverage, suppression, casts or production changes; rerun 23 focused tests and scoped check.",
+      "finding": "queryKey() requires argument; indexed appKeys[0] may be undefined under noUncheckedIndexedAccess.",
+      "verification": {
+        "status": "passed",
+        "focused_tests": "23 passed; exit 0",
+        "scoped_check": "format/lint/types passed; exit 0",
+        "verified_test_sha256": "4d42fa50e585f7205052cbe5c6f43d5d48dbcc9ddd6ea00fa2655bcd90dc9d08",
+        "runtime": "Node 24.20.0; VP_SKIP_INSTALL=1",
+        "review_agent": "/root/api_key_final_snapshot_review",
+        "review_result": "No P1/P2/P3; hash stable before/after"
+      },
+      "review_status": "passed_no_p1_p2_p3",
+      "review_agent": "/root/api_key_final_snapshot_review",
+      "implementation_commit": "c474b9c42b"
+    },
+    "12.6_final_aggregate": {
+      "id": "12.6_final_aggregate",
+      "status": "passed",
+      "owner": "M06",
+      "model": "gpt-6-luna",
+      "agent": "/root/m06_final_aggregate",
+      "read_only_source": true,
+      "registered_paths": ["evidence/M06/12.6-final-aggregate.md"],
+      "scope": "One bounded integrated frontend regression, 24-locale extend checker and existing generated-schema verification; no full builds, backend reruns, code edits or dispatch.",
+      "verification": "16 files / 399 tests passed; 24-locale extend, six-endpoint contract parsing, OpenSpec strict and diff-check passed",
+      "snapshot_commit": "c474b9c42bfc46325540a8a27c4de28b6a538eee",
+      "evidence": "evidence/M06/12.6-final-aggregate.md",
+      "dispatch_status": "closed"
+    },
+    "12.7_parameter_item_dormant_disposition": {
+      "status": "passed",
+      "summary": "Dormant component retained; stale radio import changed to actual @langgenius/dify-ui/radio-group export after confirming no app callsite. Node 24.20 scoped vp check and diff-check passed.",
+      "evidence": "evidence/M06/12.7-parameter-item-disposition.md",
+      "source_sha256": "acd496c6a1c5b865288caca9ec5d23c2f813251f210c41e9464c8cc19bed4ef4",
+      "evidence_sha256": "a75d9e237cd0f72a0ff10d38c9d1ab6a15e72348a24f17f7114d32b3408651b7"
+    }
+  },
+  "next_subtask": "M08",
+  "acceptance_evidence": "evidence/M06/12.6-final-aggregate.md",
+  "completion_boundary": "Source and focused integration acceptance only; V02 real browser/full checks/dual builds and all environment gates remain pending."
+}

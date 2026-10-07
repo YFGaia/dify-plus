@@ -1,84 +1,149 @@
 from collections.abc import Mapping, Sequence
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 from constants import UUID_NIL
 from core.app.app_config.entities import EasyUIBasedAppConfig, WorkflowUIBasedAppConfig
+from core.credit_usage import (
+    CreditUsageAppType,
+    CreditUsageAppTypeInput,
+    CreditUsageCreatedBy,
+    CreditUsageCreatedByInput,
+    created_by_from_app_type,
+    normalize_credit_usage_app_type,
+    normalize_credit_usage_created_by,
+)
 from core.entities.provider_configuration import ProviderModelBundle
-from core.file import File, FileUploadConfig
-from core.model_runtime.entities.model_entities import AIModelEntity
+from graphon.file import File, FileUploadConfig
+from graphon.model_runtime.entities.model_entities import AIModelEntity
+from models.model import AppMode
 
 if TYPE_CHECKING:
     from core.ops.ops_trace_manager import TraceQueueManager
 
 
+DIFY_RUN_CONTEXT_KEY = "_dify"
+
+
+class UserFrom(StrEnum):
+    ACCOUNT = "account"
+    END_USER = "end-user"
+
+
 class InvokeFrom(StrEnum):
-    """
-    Invoke From.
-    """
-
-    # SERVICE_API indicates that this invocation is from an API call to Dify app.
-    #
-    # Description of service api in Dify docs:
-    # https://docs.dify.ai/en/guides/application-publishing/developing-with-apis
     SERVICE_API = "service-api"
-
-    # WEB_APP indicates that this invocation is from
-    # the web app of the workflow (or chatflow).
-    #
-    # Description of web app in Dify docs:
-    # https://docs.dify.ai/en/guides/application-publishing/launch-your-webapp-quickly/README
+    OPENAPI = "openapi"
     WEB_APP = "web-app"
-
-    # TRIGGER indicates that this invocation is from a trigger.
-    # this is used for plugin trigger and webhook trigger.
     TRIGGER = "trigger"
-
-    # EXPLORE indicates that this invocation is from
-    # the workflow (or chatflow) explore page.
     EXPLORE = "explore"
-    # DEBUGGER indicates that this invocation is from
-    # the workflow (or chatflow) edit page.
     DEBUGGER = "debugger"
-    # PUBLISHED_PIPELINE indicates that this invocation runs a published RAG pipeline workflow.
     PUBLISHED_PIPELINE = "published"
-
-    # VALIDATION indicates that this invocation is from validation.
     VALIDATION = "validation"
 
     @classmethod
-    def value_of(cls, value: str):
-        """
-        Get value of given mode.
-
-        :param value: mode value
-        :return: mode
-        """
-        for mode in cls:
-            if mode.value == value:
-                return mode
-        raise ValueError(f"invalid invoke from value {value}")
+    def value_of(cls, value: str) -> "InvokeFrom":
+        return cls(value)
 
     def to_source(self) -> str:
-        """
-        Get source of invoke from.
+        source_mapping = {
+            InvokeFrom.WEB_APP: "web_app",
+            InvokeFrom.DEBUGGER: "dev",
+            InvokeFrom.EXPLORE: "explore_app",
+            InvokeFrom.TRIGGER: "trigger",
+            InvokeFrom.SERVICE_API: "api",
+            InvokeFrom.OPENAPI: "openapi",
+        }
+        return source_mapping.get(self, "dev")
 
-        :return: source
-        """
-        if self == InvokeFrom.WEB_APP:
-            return "web_app"
-        elif self == InvokeFrom.DEBUGGER:
-            return "dev"
-        elif self == InvokeFrom.EXPLORE:
-            return "explore_app"
-        elif self == InvokeFrom.TRIGGER:
-            return "trigger"
-        elif self == InvokeFrom.SERVICE_API:
-            return "api"
+    def runs_as_account(self) -> bool:
+        """Whether a run from this entry point is attributed to a workspace
+        Account rather than an end user. Console contexts (debugger/explore)
+        run as the signed-in Account; webapp/service-api/trigger run as an
+        EndUser. Single source of truth for the created-by-role / user-type
+        split shared by the app runners and MCP identity forwarding."""
+        return self in (InvokeFrom.DEBUGGER, InvokeFrom.EXPLORE)
 
-        return "dev"
+
+def get_credit_usage_app_type(app_mode: AppMode | str | None) -> CreditUsageAppType:
+    """Return the top-level application type for an app mode."""
+    if app_mode is None:
+        return CreditUsageAppType.UNKNOWN
+
+    try:
+        normalized_app_mode = app_mode if isinstance(app_mode, AppMode) else AppMode.value_of(str(app_mode))
+    except ValueError:
+        return CreditUsageAppType.UNKNOWN
+
+    app_mode_mapping = {
+        AppMode.CHAT: CreditUsageAppType.CHATBOT,
+        AppMode.ADVANCED_CHAT: CreditUsageAppType.CHATFLOW,
+        AppMode.WORKFLOW: CreditUsageAppType.WORKFLOW,
+        AppMode.AGENT_CHAT: CreditUsageAppType.AGENT,
+        AppMode.AGENT: CreditUsageAppType.AGENT_V2,
+        AppMode.COMPLETION: CreditUsageAppType.COMPLETION,
+        AppMode.CHANNEL: CreditUsageAppType.CHANNEL,
+        AppMode.RAG_PIPELINE: CreditUsageAppType.RAG_PIPELINE,
+    }
+    return app_mode_mapping.get(normalized_app_mode, CreditUsageAppType.UNKNOWN)
+
+
+def get_credit_usage_created_by(app_mode: AppMode | str | None) -> CreditUsageCreatedBy:
+    """Return the direct app feature for an app mode."""
+    return created_by_from_app_type(get_credit_usage_app_type(app_mode))
+
+
+class DifyRunContext(BaseModel):
+    tenant_id: str
+    app_id: str
+    user_id: str
+    user_from: UserFrom
+    invoke_from: InvokeFrom
+    app_type: CreditUsageAppType | None = None
+    created_by: CreditUsageCreatedBy | None = None
+    trace_session_id: str | None = None
+
+    @field_validator("created_by", mode="before")
+    @classmethod
+    def normalize_created_by(cls, value: object) -> CreditUsageCreatedBy | None:
+        if value is None:
+            return None
+        return normalize_credit_usage_created_by(value)
+
+    @field_validator("app_type", mode="before")
+    @classmethod
+    def normalize_app_type(cls, value: object) -> CreditUsageAppType | None:
+        if value is None:
+            return None
+        return normalize_credit_usage_app_type(value)
+
+
+def build_dify_run_context(
+    *,
+    tenant_id: str,
+    app_id: str,
+    user_id: str,
+    user_from: UserFrom,
+    invoke_from: InvokeFrom,
+    app_type: CreditUsageAppTypeInput = None,
+    created_by: CreditUsageCreatedByInput = None,
+    trace_session_id: str | None = None,
+    extra_context: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build graph run_context with the reserved Dify runtime payload."""
+    run_context = dict(extra_context) if extra_context else {}
+    run_context[DIFY_RUN_CONTEXT_KEY] = DifyRunContext(
+        tenant_id=tenant_id,
+        app_id=app_id,
+        user_id=user_id,
+        user_from=user_from,
+        invoke_from=invoke_from,
+        app_type=normalize_credit_usage_app_type(app_type) if app_type is not None else None,
+        created_by=normalize_credit_usage_created_by(created_by) if created_by is not None else None,
+        trace_session_id=trace_session_id,
+    )
+    return run_context
 
 
 class ModelConfigWithCredentialsEntity(BaseModel):
@@ -132,7 +197,7 @@ class AppGenerateEntity(BaseModel):
     extras: dict[str, Any] = Field(default_factory=dict)
 
     # tracing instance
-    trace_manager: Optional["TraceQueueManager"] = None
+    trace_manager: "TraceQueueManager | None" = Field(default=None, exclude=True, repr=False)
 
 
 class EasyUIBasedAppGenerateEntity(AppGenerateEntity):
@@ -156,6 +221,7 @@ class ConversationAppGenerateEntity(AppGenerateEntity):
     """
 
     conversation_id: str | None = None
+    is_new_conversation: bool = False
     parent_message_id: str | None = Field(
         default=None,
         description=(
@@ -196,6 +262,35 @@ class AgentChatAppGenerateEntity(ConversationAppGenerateEntity, EasyUIBasedAppGe
     """
 
     pass
+
+
+class AgentAppGenerateEntity(ChatAppGenerateEntity):
+    """
+    Agent App (new Agent app type) Generate Entity.
+
+    Subclasses ``ChatAppGenerateEntity`` so it rides the exact same EasyUI chat
+    pipeline (generator, task pipeline, message cycle) without widening every
+    accepted-entity union. The answer is produced by the dify-agent backend
+    rather than an in-process LLM call; ``model_conf`` is synthesized from the
+    bound Agent Soul model so the chat task pipeline can persist usage.
+
+    ``agent_config_version_kind`` selects which Agent config surface the
+    backend should read from: immutable snapshot, shared draft, or per-user
+    build draft.
+
+    ``agent_session_scope_config_version_id`` identifies the draft or immutable
+    config version whose Workspace Binding should be reused for this session.
+
+    Uploaded files use the inherited ``files`` field. The Agent App runtime
+    sends supported images directly to vision models and preserves the sandbox
+    locator fallback for all other files.
+    """
+
+    agent_id: str
+    agent_config_snapshot_id: str
+    agent_config_version_kind: Literal["snapshot", "draft", "build_draft"] = "snapshot"
+    agent_session_scope_config_version_id: str | None = None
+    agent_llm_gateway_enabled: bool = False
 
 
 class AdvancedChatAppGenerateEntity(ConversationAppGenerateEntity):

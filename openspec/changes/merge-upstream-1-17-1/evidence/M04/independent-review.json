@@ -1,0 +1,54 @@
+{
+  "node": "M04",
+  "verdict": "pass",
+  "reviewer_model": "gpt-6-luna",
+  "review_thread_id": "01a0e987-dcbb-79b0-b535-68612b57bb1f",
+  "tested_head": "615efae14dcff1d02ea51d5c4b61e403df76ec5b",
+  "branch": "codex/merge-upstream-1.17.1",
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "source_commits": [
+    "521eb98761517347f28a18dcdfdcf646c389ddb8",
+    "a65840a41a85de545811b8b879891a9f5d5ad278",
+    "08e130ed1dbe7f8c0907a9171b76406836eeb668"
+  ],
+  "worktree": {
+    "tracked_changes": false,
+    "index_changes": false,
+    "untracked_user_paths_modified": false
+  },
+  "focused_tests": {
+    "command": "sh openspec/changes/merge-upstream-1-17-1/evidence/M04/verify.sh",
+    "exit_code": 0,
+    "passed": 370,
+    "warnings": 2,
+    "warning_summary": ["cgi deprecation", "Pydantic class-based config deprecation"]
+  },
+  "ruff": {
+    "exit_code": 0,
+    "changed_python_files": 9,
+    "result": "All checks passed"
+  },
+  "openspec_strict": {
+    "command": "openspec validate merge-upstream-1-17-1 --strict",
+    "exit_code": 0
+  },
+  "verified_inputs": {
+    "sha256_count": 51,
+    "all_match": true
+  },
+  "graph_at_review": {
+    "status": "ready",
+    "evidence_paths": 15,
+    "all_evidence_paths_exist": true,
+    "tasks_10_1_to_10_4_checked": true,
+    "task_10_5_unchecked": true
+  },
+  "code_review": {
+    "new_findings": [],
+    "summary": "No new defects found. Review confirmed dataset and Cloud boundaries, signature-aware Service API injection, quota and tenant/RBAC checks, retention of historical message joins, and chatflow INITIAL-only association writes."
+  },
+  "limitations": [
+    "Not deployable; no production, PostgreSQL concurrency, live provider, scheduler, or queue validation.",
+    "Celery redelivery idempotency, concurrent quota read-modify-write, and anonymous payer/limit gaps remain recorded P4 debt."
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "node": "N10",
+  "reviewer": "merge_audit independent readonly backend/package/lock review",
+  "verdict": "No issues found.",
+  "source_manifest_sha256": "f048fee1dabe9db512cabc19b1878ce533e191dcb2e065d4ed1fc7e1e2fdc449",
+  "overlay_count": 56,
+  "owned_paths_excluding_user_full_lock": 55,
+  "checks": {
+    "all56_frozen_current_file_hashes_match": true,
+    "all38_metadata_only_build_system_added_preserve_project_dependencies_entrypoints_src": true,
+    "current_dirty_lock_only38_source_virtual_to_editable_all_other_user_bytes_retained": true,
+    "HEAD_lock38_alreadyeditable_no_owned_lock_staging_delta": true,
+    "prior_N08_changed_only_recommended_context_projection_and_lock": true,
+    "added39_only38providers_and_N09_context_test": true,
+    "HEAD_original_lock_check_passed": true,
+    "HEAD_actual_frozen_Qdrant_group_sync_passed_not_just_dryrun": true,
+    "dirty_preserved_actual_frozen_Qdrant_group_sync_passed": true,
+    "dirty_lock_check1_serialization_not_counted_pass": true,
+    "38_actual_wheels_and_target_distributions32entries_Qdrantfactory8trace_runtime_imports_developer_proof": true
+  },
+  "candidate_uvlock_sha256": "3d1b58d109585d9498e757734a7fef6a24fa972c8b17128ce12e4019331f7dbc",
+  "scope": "Explicit setuptools metadata fixes re-resolution/installability; restored dirty runtime lock sources. Existing HEAD lock alreadyinstallable source declarations. No backend business logic/schema/dep-version change.",
+  "release_boundary": "HEAD source+newmetadata actual Qdrant frozen install verified. Full default groups actual canonical image build/install remains N10runtime gate. Code-ready committed HEAD lock is not byte-identical to dirty3d runtime lock; needs recorded source/artifact identity and defaultgroup actual proof, not fake hash equivalence.",
+  "runtime_boundary": "No actual default fullimage installed/import/server CRUD or final original23000 acceptance inferred from source/package target proofs."
+}

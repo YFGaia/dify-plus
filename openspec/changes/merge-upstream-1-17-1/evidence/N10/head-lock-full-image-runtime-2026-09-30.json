@@ -1,0 +1,405 @@
+{
+  "archive_base_commit": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+  "context": {
+    "head_uv_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+    "overlay_count": 56,
+    "path": "/private/tmp/difyplus-acceptance-api-20260930/final-context-n10-headlock",
+    "prod_path_hash_count": 47,
+    "prod_path_hash_matches": 47,
+    "prod_path_hash_mismatches": [],
+    "prod_path_hash_missing": [],
+    "sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9"
+  },
+  "image": {
+    "build": "standard api/Dockerfile; frozen HEAD lock",
+    "id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "platform": "linux/arm64",
+    "tag": "difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6"
+  },
+  "installed_distributions": {
+    "all_distribution_version_map_matches_dirty_lock_candidate": true,
+    "dirty_candidate_map_sha256": "fabc7603b2e86174e325582688c33e02560fb56ffa1492aa652ea489cc57c64e",
+    "headlock_map_sha256": "fabc7603b2e86174e325582688c33e02560fb56ffa1492aa652ea489cc57c64e",
+    "provider_distributions": 38,
+    "provider_expected": 38,
+    "provider_names_match": true,
+    "provider_versions": {
+      "dify-trace-aliyun": "0.0.1",
+      "dify-trace-arize-phoenix": "0.0.1",
+      "dify-trace-langfuse": "0.0.1",
+      "dify-trace-langsmith": "0.0.1",
+      "dify-trace-mlflow": "0.0.1",
+      "dify-trace-opik": "0.0.1",
+      "dify-trace-tencent": "0.0.1",
+      "dify-trace-weave": "0.0.1",
+      "dify-vdb-alibabacloud-mysql": "0.0.1",
+      "dify-vdb-analyticdb": "0.0.1",
+      "dify-vdb-baidu": "0.0.1",
+      "dify-vdb-chroma": "0.0.1",
+      "dify-vdb-clickzetta": "0.0.1",
+      "dify-vdb-couchbase": "0.0.1",
+      "dify-vdb-elasticsearch": "0.0.1",
+      "dify-vdb-hologres": "0.0.1",
+      "dify-vdb-huawei-cloud": "0.0.1",
+      "dify-vdb-iris": "0.0.1",
+      "dify-vdb-lindorm": "0.0.1",
+      "dify-vdb-matrixone": "0.0.1",
+      "dify-vdb-milvus": "0.0.1",
+      "dify-vdb-myscale": "0.0.1",
+      "dify-vdb-oceanbase": "0.0.1",
+      "dify-vdb-opengauss": "0.0.1",
+      "dify-vdb-opensearch": "0.0.1",
+      "dify-vdb-oracle": "0.0.1",
+      "dify-vdb-pgvecto-rs": "0.0.1",
+      "dify-vdb-pgvector": "0.0.1",
+      "dify-vdb-qdrant": "0.0.1",
+      "dify-vdb-relyt": "0.0.1",
+      "dify-vdb-tablestore": "0.0.1",
+      "dify-vdb-tencent": "0.0.1",
+      "dify-vdb-tidb-on-qdrant": "0.0.1",
+      "dify-vdb-tidb-vector": "0.0.1",
+      "dify-vdb-upstash": "0.0.1",
+      "dify-vdb-vastbase": "0.0.1",
+      "dify-vdb-vikingdb": "0.0.1",
+      "dify-vdb-weaviate": "0.0.1"
+    },
+    "total": 449
+  },
+  "isolated_stack_rollout": {
+    "active_queues_remote_inspect": {
+      "attempted": true,
+      "completed": false,
+      "timeout": true
+    },
+    "agent_inner_api_key_matches_api": true,
+    "agent_plugin_key_matches_plugin_daemon": true,
+    "all_updated_services_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "all_updated_services_restart_count": 0,
+    "all_updated_services_running_on_candidate": true,
+    "api_health_http_status": 200,
+    "api_to_agent_api_token_matches": true,
+    "compose_result": "exit0",
+    "migration_or_init_run": false,
+    "oom_killed": false,
+    "updated_services": [
+      "api",
+      "api_websocket",
+      "worker",
+      "worker-gaia",
+      "worker-dataset",
+      "worker_beat"
+    ],
+    "web_root_http_status": 307,
+    "worker_startup_logs": {
+      "dataset_worker_ready": true,
+      "gaia_extend_high_seen": true,
+      "gaia_extend_low_seen": true,
+      "gaia_worker_ready": true,
+      "main_worker_ready": true,
+      "main_workflow_queue_seen": true
+    }
+  },
+  "probe_execution": {
+    "all_network_disabled_except_qdrant_probe": true,
+    "metadata_probe_exit": 0,
+    "sequential_entrypoint_trace_probe_exit": 0,
+    "sequential_probe_oom_killed": false,
+    "source_hash_probe_exit": 0
+  },
+  "qdrant": {
+    "collection_crud": {
+      "collection_create_acknowledged": true,
+      "collection_created": false,
+      "collection_delete_acknowledged": true,
+      "count_after_point_delete": 0,
+      "count_before_delete": 1,
+      "deleted_collection_absent": true,
+      "diagnostic_collection_cleanup_status": 200,
+      "interpretation": "create/upsert/read/delete acknowledgements true; collection_created=false is final post-cleanup state",
+      "readback_payload_marker": true,
+      "readback_vector_match": true,
+      "remaining_owned_collection_count": 0,
+      "upsert_acknowledged": true
+    },
+    "image": "langgenius/qdrant:v1.8.3",
+    "registry_entrypoint": {
+      "exit_code": 0,
+      "loaded": true,
+      "name": "qdrant",
+      "target": "dify_vdb_qdrant.qdrant_vector:QdrantVectorFactory"
+    },
+    "scope": "isolated temporary collection; removed after readback"
+  },
+  "runtime_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+  "stage": "N10 final HEAD-lock full-image runtime acceptance",
+  "trace_imports": {
+    "expected": 8,
+    "failures": [],
+    "passed": 8,
+    "results": [
+      {
+        "exit_code": 0,
+        "imported": true,
+        "module": "dify_trace_aliyun.aliyun_trace"
+      },
+      {
+        "exit_code": 0,
+        "imported": true,
+        "module": "dify_trace_arize_phoenix.arize_phoenix_trace"
+      },
+      {
+        "exit_code": 0,
+        "imported": true,
+        "module": "dify_trace_langfuse.langfuse_trace"
+      },
+      {
+        "exit_code": 0,
+        "imported": true,
+        "module": "dify_trace_langsmith.langsmith_trace"
+      },
+      {
+        "exit_code": 0,
+        "imported": true,
+        "module": "dify_trace_mlflow.mlflow_trace"
+      },
+      {
+        "exit_code": 0,
+        "imported": true,
+        "module": "dify_trace_opik.opik_trace"
+      },
+      {
+        "exit_code": 0,
+        "imported": true,
+        "module": "dify_trace_tencent.tencent_trace"
+      },
+      {
+        "exit_code": 0,
+        "imported": true,
+        "module": "dify_trace_weave.weave_trace"
+      }
+    ]
+  },
+  "vector_backends": {
+    "entrypoints": 32,
+    "expected_entrypoints": 32,
+    "failures": [],
+    "loaded": 32,
+    "results": [
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "alibabacloud_mysql",
+        "target": "dify_vdb_alibabacloud_mysql.alibabacloud_mysql_vector:AlibabaCloudMySQLVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "analyticdb",
+        "target": "dify_vdb_analyticdb.analyticdb_vector:AnalyticdbVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "baidu",
+        "target": "dify_vdb_baidu.baidu_vector:BaiduVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "chroma",
+        "target": "dify_vdb_chroma.chroma_vector:ChromaVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "clickzetta",
+        "target": "dify_vdb_clickzetta.clickzetta_vector:ClickzettaVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "couchbase",
+        "target": "dify_vdb_couchbase.couchbase_vector:CouchbaseVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "elasticsearch",
+        "target": "dify_vdb_elasticsearch.elasticsearch_vector:ElasticSearchVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "elasticsearch-ja",
+        "target": "dify_vdb_elasticsearch.elasticsearch_ja_vector:ElasticSearchJaVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "hologres",
+        "target": "dify_vdb_hologres.hologres_vector:HologresVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "huawei_cloud",
+        "target": "dify_vdb_huawei_cloud.huawei_cloud_vector:HuaweiCloudVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "iris",
+        "target": "dify_vdb_iris.iris_vector:IrisVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "lindorm",
+        "target": "dify_vdb_lindorm.lindorm_vector:LindormVectorStoreFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "matrixone",
+        "target": "dify_vdb_matrixone.matrixone_vector:MatrixoneVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "milvus",
+        "target": "dify_vdb_milvus.milvus_vector:MilvusVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "myscale",
+        "target": "dify_vdb_myscale.myscale_vector:MyScaleVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "oceanbase",
+        "target": "dify_vdb_oceanbase.oceanbase_vector:OceanBaseVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "opengauss",
+        "target": "dify_vdb_opengauss.opengauss:OpenGaussFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "opensearch",
+        "target": "dify_vdb_opensearch.opensearch_vector:OpenSearchVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "oracle",
+        "target": "dify_vdb_oracle.oraclevector:OracleVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "pgvecto-rs",
+        "target": "dify_vdb_pgvecto_rs.pgvecto_rs:PGVectoRSFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "pgvector",
+        "target": "dify_vdb_pgvector.pgvector:PGVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "qdrant",
+        "target": "dify_vdb_qdrant.qdrant_vector:QdrantVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "relyt",
+        "target": "dify_vdb_relyt.relyt_vector:RelytVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "seekdb",
+        "target": "dify_vdb_oceanbase.oceanbase_vector:OceanBaseVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "tablestore",
+        "target": "dify_vdb_tablestore.tablestore_vector:TableStoreVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "tencent",
+        "target": "dify_vdb_tencent.tencent_vector:TencentVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "tidb_on_qdrant",
+        "target": "dify_vdb_tidb_on_qdrant.tidb_on_qdrant_vector:TidbOnQdrantVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "tidb_vector",
+        "target": "dify_vdb_tidb_vector.tidb_vector:TiDBVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "upstash",
+        "target": "dify_vdb_upstash.upstash_vector:UpstashVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "vastbase",
+        "target": "dify_vdb_vastbase.vastbase_vector:VastbaseVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "vikingdb",
+        "target": "dify_vdb_vikingdb.vikingdb_vector:VikingDBVectorFactory"
+      },
+      {
+        "exit_code": 0,
+        "loaded": true,
+        "name": "weaviate",
+        "target": "dify_vdb_weaviate.weaviate_vector:WeaviateVectorFactory"
+      }
+    ]
+  },
+  "isolated_compose_override_sha256": "f766280955dabd42d83cf7c38306b79b17a10cd25fc98890eeb6922d74e5e6c5",
+  "agent_manifest_proxy_acceptance": {
+    "cause": "agent_backend lacked an explicit DIFY_AGENT_INNER_API_KEY mapping to the API runtime INNER_API_KEY_FOR_PLUGIN field",
+    "mapping_service_field": "DIFY_AGENT_INNER_API_KEY",
+    "mapping_env_variable": "LOCAL_ACCEPTANCE_PLUGIN_INNER_KEY",
+    "agent_inner_matches_api_runtime_inner_for_plugin": true,
+    "dedicated_proxy_status": 200,
+    "generic_proxy_status": 403,
+    "agent_id_matches": true,
+    "config_version_id_matches": true,
+    "config_version_kind_matches": true,
+    "schema_valid": true,
+    "manifest_counts": {
+      "env_keys": 0,
+      "files": 0,
+      "skills": 0
+    },
+    "probe_script": "/private/tmp/difyplus-acceptance-api-20260930/n10-agent-manifest-proxy.py",
+    "synthetic_fixture": "/private/tmp/dify-agent-proxy-acceptance-20260930/legal-agent-fixture.json",
+    "mapping_persisted_in_isolated_override": true,
+    "agent_backend_recreated": true,
+    "post_restart_agent_inner_matches_api_runtime_inner_for_plugin": true
+  }
+}

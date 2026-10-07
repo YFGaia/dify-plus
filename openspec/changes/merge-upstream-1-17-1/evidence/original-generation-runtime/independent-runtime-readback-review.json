@@ -1,0 +1,102 @@
+{
+  "review_kind": "Independent read of actual runtime-private result; selected safe assertions copied, no new business/model call",
+  "input_sha256": "372920bd2acf96e596b80bf6a2444587370c1cacf333db40450c348f3710ae9b",
+  "captured_at_utc": "2026-09-30T15:04:00Z",
+  "source_runtime": {
+    "api_container": "difyplus-upstream1171-quota-selftest-20260930-api-1",
+    "image_tag": "difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6",
+    "database_container": "difyplus-upstream1171-quota-selftest-20260930-db_postgres-1"
+  },
+  "B05": {
+    "http_attempts": 16,
+    "successful_generation_requests": 10,
+    "rejected_auth_on_anonymous_requests": 6,
+    "distinct_reject_cells": 3,
+    "duplicate_reject_attempts_due_to_runner_phase_reset": 3,
+    "successful_matrix_cells": 9,
+    "terminal_sse": true,
+    "chat_completion_messages_count": 7,
+    "workflow_runs_count": 3,
+    "actual_output_tokens_total": 80,
+    "actual_price_usd_total": "0.0000000",
+    "automatic_retries": 0
+  },
+  "B05_remaining_identity_admission_readback": "Passed actual linked/unlinked IDs disjoint; links matchowner; all3fixtureApps zero generation records before/after rejection batch. Twelveuniquecells and9positive terminal/API/DB80output satisfy original B05 generation scope; pricing0 does not prove fees.",
+  "B11": {
+    "config_pointer_matches": true,
+    "max_tokens": 8,
+    "message_count": 5,
+    "marker_count": 5,
+    "markers_all_reference_real_same_conversation_messages": true,
+    "actual_token_buffer_readback": {
+      "method": "TokenBufferMemory.get_history_prompt_messages",
+      "without_marker_handling_prompt_message_count": 6,
+      "without_marker_handling_latest_thread_message_ids": [
+        "1d7362b6-8c82-4775-ba98-a105378c0a89",
+        "1d7362b6-8c82-4775-ba98-a105378c0a89",
+        "72c4d580-1ce2-4625-aa56-87fd34e59d15",
+        "72c4d580-1ce2-4625-aa56-87fd34e59d15",
+        "b9df9883-ad99-408a-9c9f-ad7ec3fe3d04",
+        "b9df9883-ad99-408a-9c9f-ad7ec3fe3d04"
+      ],
+      "assistant_names_before_marker_handling": [
+        "1d7362b6-8c82-4775-ba98-a105378c0a89",
+        "72c4d580-1ce2-4625-aa56-87fd34e59d15",
+        "b9df9883-ad99-408a-9c9f-ad7ec3fe3d04"
+      ],
+      "marker_hits_in_latest_thread": 3,
+      "with_marker_handling_prompt_message_count": 0,
+      "provider_prompt_capture": false,
+      "limitation": "This is actual persisted-history component readback after generation, not capture of the provider prompt sent for either new call."
+    },
+    "earlier_three_messages_parent_ids_null": true,
+    "console_context_api": {
+      "http_status": 200,
+      "returned_marker_count": 5,
+      "marker_ids": [
+        "b9df9883-ad99-408a-9c9f-ad7ec3fe3d04",
+        "72c4d580-1ce2-4625-aa56-87fd34e59d15",
+        "1d7362b6-8c82-4775-ba98-a105378c0a89",
+        "2ea007e6-9b6c-4803-85b0-8bde4cc28069",
+        "216f53a2-a2b9-486e-a3c0-3141384ff24f"
+      ],
+      "all_markers_match_fixture_messages": true,
+      "no_owner_refresh": true
+    }
+  },
+  "B11_verdict": "passed exact original authenticated generated multi-turn truncation: real linked thread3→4→5, three history pairs before existing marker handling and zero after; provider prompt not captured",
+  "B09": {
+    "first_stop": {
+      "status": "stopped",
+      "stored_total_tokens": 0,
+      "interrupted_provider_usage": "UNKNOWN",
+      "control_verdict": "passed stop state only"
+    },
+    "completed_node_usage_stop": {
+      "status": "stopped",
+      "total_tokens": 46,
+      "completed_llm_node_usage": {
+        "prompt_tokens": 38,
+        "completion_tokens": 8,
+        "total_tokens": 46,
+        "price_usd": "0.0000000"
+      },
+      "stopped_llm_node_usage_available": false,
+      "stop_flow": "first_llm_finished_usage_persisted_second_llm_started_stop_200_terminal_stopped",
+      "result": "completed_node_usage_preserved_stop_state_pass_partial_tokens_unknown"
+    },
+    "verdict": "passed actual stopped and first completed usage preserved; canceled partial provider usage UNKNOWN, no retry/resume/nonzero fee claim"
+  },
+  "source_and_git_mutations": false,
+  "evidence": [
+    "evidence/original-generation-runtime/caller-results.json",
+    "evidence/original-generation-runtime/supplemental-caller-packages.json",
+    "evidence/original-generation-runtime/independent-retention-semantics-review.json",
+    "evidence/original-generation-sse-contract-audit-2026-09-30.json"
+  ],
+  "durable_runtime_evidence": "evidence/original-generation-runtime/independent-actual-readback.json",
+  "durable_runtime_evidence_sha256": "ecef794724f194c32fda777ddfe3616c32e8cba6993c73e5cfd0f7eb250f116f",
+  "B05_verdict": "passed original12matrix and existingcrossappscope; no nonzerochargeclaim",
+  "cleanup_verdict": "blocked_automatic_review_pending_user_exact_authorization; productApp204/404 only, associatedrows remain",
+  "O02_preflight_verdict": "Actualoriginalmissing3services/no controltoken/DNSunreachable, existingmodel3toolfeatures true;0invocations. Currenttopology notAgentready, reversible4sidecar no-model plan possible without changing originalAPI/providerkeys."
+}

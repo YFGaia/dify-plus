@@ -43,7 +43,8 @@ def thread_forwarding_read(key) -> ForwardingExtend | None:
                     address=forwarding_dict_back["address"],
                     description=forwarding_dict_back["description"],
                 )
-            except Exception as e:
+            except Exception:  # noqa: S110
+                # 有意忽略：缓存反序列化失败时回退到数据库查询
                 pass
         else:
             return None
@@ -76,10 +77,8 @@ class AiDrawForwarding:
         address = {}
         for i in db.session.query(ForwardingExtend).all():
             # 1. 替换 https://  http:// :8000
-            url = i.address.replace('https://', '', 1).replace('http://', '', 1).replace(':8000', '', 1)
+            url = i.address.replace("https://", "", 1).replace("http://", "", 1).replace(":8000", "", 1)
             # 2. 移除末尾的/（如果有）
-            url = url.rstrip('/')
+            url = url.rstrip("/")
             address[url] = i.path
         return address
-
-

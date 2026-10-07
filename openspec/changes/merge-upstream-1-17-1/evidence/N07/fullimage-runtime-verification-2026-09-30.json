@@ -1,0 +1,69 @@
+{
+  "node": "N07",
+  "status": "latest_full_image_runtime_api_and_ui_pagination_gate_passed",
+  "observed_at_local": "2026-09-30T17:53:00+08:00",
+  "source": {
+    "head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+    "context_manifest_sha256": "1a805b0ebc293f756959609fa21062bf473dac13cc06408b7a3b3a301eecb3d8",
+    "overlay_count": 15,
+    "context_file_count": 4316,
+    "owned_production_overlay_sha256": {
+      "api/controllers/console/apikey.py": "d7de964844e9adb4e4a6b7befcf25ace3062bc4058624530ccb79978b7eb2ccb",
+      "api/events/event_handlers/__init__.py": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8",
+      "api/events/event_handlers/create_app_statistics_when_app_created_extend.py": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba",
+      "api/models/model_extend.py": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190",
+      "api/services/installed_app_service.py": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b",
+      "api/services/recommended_app_service_extend.py": "ccfb4524e7790b740ba10bd484a63b0bbca8756006dcc89a657f0fe997bb9cb8",
+      "api/services/system_manage_extend.py": "1cf69052a66dc6f681899dffe24d9cd12eee8ab93e88e9825bcef3e881cbd12e"
+    },
+    "uv_lock_sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+    "installed_lock_check": "canonical Docker build ran uv sync --frozen --no-dev --no-editable; lock bytes match the previously verified 411-package canonical image gate",
+    "dify_agent": {
+      "version": "1.17.1",
+      "source": "file:///app/dify-agent",
+      "editable": false
+    }
+  },
+  "image": {
+    "dockerfile": "api/Dockerfile",
+    "tag": "difyplus-acceptance-api:953cf1c-n07-k01-1a805b0e",
+    "image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619",
+    "platform": "linux/arm64",
+    "temporary_dependency_seed_used": false
+  },
+  "runtime": {
+    "project": "difyplus-acceptance-20260930",
+    "services_updated_to_image": ["api", "api_websocket", "worker", "worker-gaia", "worker-dataset"],
+    "api_container_health": "healthy",
+    "api_health_response": {"status": "ok", "version": "1.17.1"},
+    "other_api_derived_containers": "running",
+    "web_image_unchanged": "difyplus-smoke-web:970b704e351f sha256:412b2cad11badfcfa25a3e19490aa329059245c7c07842b9c7d0230eeb4c8569"
+  },
+  "n07_live_api_pagination": {
+    "authenticated_with_existing_synthetic_owner_session": true,
+    "login_logout_or_refresh_performed": false,
+    "endpoint": "/console/api/system-manage-extend/quota-management?page={1,2}&page_size=10",
+    "status": 200,
+    "total": 11,
+    "page_counts": [10, 1],
+    "page_1_repeated_order_stable": true,
+    "quota_fields_json_numbers": true,
+    "seven_decimal_values_preserved": true,
+    "used_quota_remained_zero": true,
+    "synthetic_member_ui_edit_refetch_restore": {
+      "target": "acceptance-member-01@example.invalid",
+      "original_quota": 23.1234567,
+      "temporary_ui_edit": 24.9876543,
+      "api_readback_during_edit": {"quota": 24.9876543, "json_type": "number", "used_quota": 0},
+      "page_1_order_unchanged_after_edit": true,
+      "page_2_row_after_edit": "acceptance-member-05@example.invalid",
+      "restored_via_ui": true,
+      "final_api_readback": {"quota": 23.1234567, "json_type": "number", "used_quota": 0}
+    },
+    "original_23000_touched": false
+  },
+  "limitations": [
+    "N07 list/edit/refetch/restore was verified in browser TaskSpace 9 p2 on the isolated localhost stack.",
+    "Original 23000 service update and post-update application-center check remain pending."
+  ]
+}

@@ -1,0 +1,96 @@
+from inspect import unwrap
+from unittest.mock import patch
+
+from flask import Flask
+
+from controllers.console.workspace.agent_providers import (
+    AgentProviderApi,
+    AgentProviderListApi,
+)
+from models.account import Account
+
+
+def _account() -> Account:
+    account = Account(name="Agent Provider Tester", email="agent-provider@example.com")
+    account.id = "user1"
+    return account
+
+
+class TestAgentProviderListApi:
+    def test_get_success(self, app: Flask):
+        api = AgentProviderListApi()
+        method = unwrap(api.get)
+
+        user = _account()
+        tenant_id = "tenant1"
+        providers = [{"name": "openai"}, {"name": "anthropic"}]
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "controllers.console.workspace.agent_providers.AgentService.list_agent_providers",
+                return_value=providers,
+            ),
+        ):
+            result = method(api, tenant_id, user)
+
+        assert result == providers
+
+    def test_get_empty_list(self, app: Flask):
+        api = AgentProviderListApi()
+        method = unwrap(api.get)
+
+        user = _account()
+        tenant_id = "tenant1"
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "controllers.console.workspace.agent_providers.AgentService.list_agent_providers",
+                return_value=[],
+            ),
+        ):
+            result = method(api, tenant_id, user)
+
+        assert result == []
+
+
+class TestAgentProviderApi:
+    def test_get_success(self, app: Flask):
+        api = AgentProviderApi()
+        method = unwrap(api.get)
+
+        user = _account()
+        tenant_id = "tenant1"
+        provider_name = "openai"
+        provider_data = {"name": "openai", "models": ["gpt-4"]}
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "controllers.console.workspace.agent_providers.AgentService.get_agent_provider",
+                return_value=provider_data,
+            ),
+        ):
+            result = method(api, tenant_id, user, provider_name)
+
+        assert result == provider_data
+
+    def test_get_provider_not_found(self, app: Flask):
+        api = AgentProviderApi()
+        method = unwrap(api.get)
+
+        user = _account()
+        tenant_id = "tenant1"
+        provider_name = "unknown"
+
+        with (
+            app.test_request_context("/"),
+            patch(
+                "controllers.console.workspace.agent_providers.AgentService.get_agent_provider",
+                return_value=None,
+            ),
+        ):
+            result = method(api, tenant_id, user, provider_name)
+
+        assert result is None

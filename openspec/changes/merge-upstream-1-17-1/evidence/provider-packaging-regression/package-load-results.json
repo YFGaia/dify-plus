@@ -1,0 +1,40 @@
+{
+  "registry_qdrant_loaded": true,
+  "factory": "QdrantVectorFactory",
+  "distribution_count": 38,
+  "vector_entries": 32,
+  "trace_results": [
+    {
+      "name": "dify-trace-aliyun",
+      "config_import": true
+    },
+    {
+      "name": "dify-trace-arize-phoenix",
+      "config_import": true
+    },
+    {
+      "name": "dify-trace-langfuse",
+      "config_import": true
+    },
+    {
+      "name": "dify-trace-langsmith",
+      "config_import": true
+    },
+    {
+      "name": "dify-trace-mlflow",
+      "config_import": true
+    },
+    {
+      "name": "dify-trace-opik",
+      "config_import": true
+    },
+    {
+      "name": "dify-trace-tencent",
+      "config_import": true
+    },
+    {
+      "name": "dify-trace-weave",
+      "config_import": true
+    }
+  ]
+}

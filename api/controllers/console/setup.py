@@ -3,17 +3,19 @@ from typing import Literal
 from flask import request
 from pydantic import BaseModel, Field, field_validator
 
-from configs import dify_config
 from controllers.fastopenapi import console_router
+from extensions.ext_application_services import application_services
 from libs.helper import EmailStr, extract_remote_ip
 from libs.password import valid_password
-from models.model import DifySetup, db
-from services.account_service import RegisterService, TenantService
-from services.admin_initdb_service import trigger_admin_initdb_if_configured
+from services.setup_service import (
+    InitializationValidationRequiredError,
+    SetupAlreadyCompletedError,
+    SetupInput,
+)
 
 from .error import AlreadySetupError, NotInitValidateError
-from .init_validate import get_init_validate_status
-from .wraps import only_edition_self_hosted
+from .init_validate import is_init_validated
+from .wraps import mark_setup_completed, only_edition_self_hosted
 
 
 class SetupRequestPayload(BaseModel):
@@ -43,15 +45,21 @@ class SetupResponse(BaseModel):
     tags=["console"],
 )
 def get_setup_status_api() -> SetupStatusResponse:
-    """Get system setup status."""
-    if dify_config.EDITION == "SELF_HOSTED":
-        setup_status = get_setup_status()
-        if setup_status and not isinstance(setup_status, bool):
-            return SetupStatusResponse(step="finished", setup_at=setup_status.setup_at.isoformat())
-        if setup_status:
-            return SetupStatusResponse(step="finished")
+    """Get system setup status.
+
+    NOTE: This endpoint is unauthenticated by design.
+
+    During first-time bootstrap there is no admin account yet, so frontend initialization must be
+    able to query setup progress before any login flow exists.
+
+    Only bootstrap-safe status information should be returned by this endpoint.
+    """
+    setup_status = application_services().setup.get_status()
+    if not setup_status.completed:
         return SetupStatusResponse(step="not_started")
-    return SetupStatusResponse(step="finished")
+
+    setup_at = setup_status.setup_at.isoformat() if setup_status.setup_at is not None else None
+    return SetupStatusResponse(step="finished", setup_at=setup_at)
 
 
 @console_router.post(
@@ -62,34 +70,28 @@ def get_setup_status_api() -> SetupStatusResponse:
 )
 @only_edition_self_hosted
 def setup_system(payload: SetupRequestPayload) -> SetupResponse:
-    """Initialize system setup with admin account."""
-    if get_setup_status():
-        raise AlreadySetupError()
+    """Initialize system setup with admin account.
 
-    tenant_count = TenantService.get_tenant_count()
-    if tenant_count > 0:
-        raise AlreadySetupError()
+    NOTE: This endpoint is unauthenticated by design for first-time bootstrap.
+    Access is restricted to self-hosted editions (`COMMUNITY` and `ENTERPRISE`), one-time setup guards,
+    and init-password validation rather than user session authentication.
+    """
+    try:
+        application_services().setup.initialize(
+            SetupInput(
+                email=payload.email,
+                name=payload.name,
+                password=payload.password,
+                ip_address=extract_remote_ip(request),
+                language=payload.language,
+            ),
+            initialization_validated=is_init_validated(),
+        )
+    except SetupAlreadyCompletedError:
+        raise AlreadySetupError() from None
+    except InitializationValidationRequiredError:
+        raise NotInitValidateError() from None
 
-    if not get_init_validate_status():
-        raise NotInitValidateError()
-
-    normalized_email = payload.email.lower()
-
-    RegisterService.setup(
-        email=normalized_email,
-        name=payload.name,
-        password=payload.password,
-        ip_address=extract_remote_ip(request),
-        language=payload.language,
-    )
-
-    trigger_admin_initdb_if_configured(admin_password=payload.password)
+    mark_setup_completed()
 
     return SetupResponse(result="success")
-
-
-def get_setup_status() -> DifySetup | bool | None:
-    if dify_config.EDITION == "SELF_HOSTED":
-        return db.session.query(DifySetup).first()
-
-    return True

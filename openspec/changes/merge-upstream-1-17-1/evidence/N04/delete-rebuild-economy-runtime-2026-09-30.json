@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-30T11:00:16.628670+00:00",
+  "candidate_image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+  "dataset_id": "c696e635-a684-444d-bf4a-cc413d84c9ff",
+  "dataset_name": "N04 Delete Rebuild 20260930",
+  "indexing_technique": "economy",
+  "provider_model_calls": 0,
+  "initial_cycle": {
+    "status": "completed_and_retrieved",
+    "source_evidence": "previous real readback: 1 hit, fixture phrase present"
+  },
+  "delete": {
+    "http_status": 204,
+    "documents_total_after_delete": 0,
+    "worker_task": "tasks.clean_document_task.clean_document_task succeeded",
+    "cleanup_note": "asynchronous; immediate preview was polled too early; post-task upload row absent in isolated PostgreSQL"
+  },
+  "rebuild": {
+    "upload_http_status": 201,
+    "document_create_http_status": 200,
+    "indexing": {
+      "status": "completed",
+      "completed_segments": 1,
+      "total_segments": 1
+    },
+    "retrieval": {
+      "http_status": 200,
+      "hits": 1,
+      "target_document_hit": true,
+      "fixture_phrase_present": true
+    },
+    "upload_file_reference_matches": true
+  }
+}

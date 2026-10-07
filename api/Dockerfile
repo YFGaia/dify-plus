@@ -11,25 +11,30 @@ RUN pip install --no-cache-dir uv==${UV_VERSION}
 
 FROM base AS packages
 
-# if you located in China, you can use aliyun mirror to speed up
-# RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+# Use aliyun mirror to speed up apt downloads in China
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
           # basic environment
-          g++ \
+          git g++ \
           # for building gmpy2
           libmpfr-dev libmpc-dev
 
-# Install Python dependencies
-COPY pyproject.toml uv.lock ./
-RUN uv sync --locked --no-dev
+# Install Python dependencies (workspace members under providers/vdb/)
+COPY api/pyproject.toml api/uv.lock ./
+COPY api/providers ./providers
+COPY dify-agent/pyproject.toml dify-agent/README.md /app/dify-agent/
+COPY dify-agent/src /app/dify-agent/src
+# Trust the checked-in lock during image builds; local path sources are copied from the repository context.
+# extend: Use aliyun pypi mirror to speed up dependency downloads in China
+ENV UV_DEFAULT_INDEX=https://mirrors.aliyun.com/pypi/simple/
+RUN uv sync --frozen --no-dev --no-editable
 
 # production stage
 FROM base AS production
 
 ENV FLASK_APP=app.py
-ENV EDITION=SELF_HOSTED
 ENV DEPLOY_ENV=PRODUCTION
 ENV CONSOLE_API_URL=http://127.0.0.1:5001
 ENV CONSOLE_WEB_URL=http://127.0.0.1:3000
@@ -41,24 +46,26 @@ EXPOSE 5001
 # set timezone
 ENV TZ=UTC
 
-# Set UTF-8 locale (C.UTF-8 is available in slim images; en_US.UTF-8 would require installing locales)
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
+# Set UTF-8 locale
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 WORKDIR /app/api
 
+# Use aliyun mirror to speed up apt downloads in China
+RUN sed -i 's@deb.debian.org@mirrors.aliyun.com@g' /etc/apt/sources.list.d/debian.sources
+
 # Create non-root user
 ARG dify_uid=1001
-ARG NODE_MAJOR=22
-ARG NODE_PACKAGE_VERSION=22.21.0-1nodesource1
+ARG NODE_PACKAGE_VERSION=24.20.0-1nodesource1
 ARG NODESOURCE_KEY_FPR=6F71F525282841EEDAF851B42F59B5F99B1BE0B4
 RUN groupadd -r -g ${dify_uid} dify && \
     useradd -r -u ${dify_uid} -g ${dify_uid} -s /bin/bash dify && \
     chown -R dify:dify /app
 
-RUN \
-    apt-get update \
+RUN NODE_MAJOR="${NODE_PACKAGE_VERSION%%.*}" \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
@@ -95,9 +102,9 @@ ENV VIRTUAL_ENV=/app/api/.venv
 COPY --from=packages --chown=dify:dify ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-# Download nltk data
 RUN mkdir -p /usr/local/share/nltk_data \
-    && NLTK_DATA=/usr/local/share/nltk_data python -c "import nltk; from unstructured.nlp.tokenize import download_nltk_packages; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger'); nltk.download('stopwords'); download_nltk_packages()" \
+    && NLTK_DATA=/usr/local/share/nltk_data python -m nltk.downloader punkt_tab averaged_perceptron_tagger_eng stopwords \
+    && NLTK_DATA=/usr/local/share/nltk_data python -c "import nltk; nltk.data.find('tokenizers/punkt_tab'); nltk.data.find('taggers/averaged_perceptron_tagger_eng'); nltk.data.find('corpora/stopwords')" \
     && chmod -R 755 /usr/local/share/nltk_data
 
 ENV TIKTOKEN_CACHE_DIR=/app/api/.tiktoken_cache
@@ -106,11 +113,10 @@ RUN python -c "import tiktoken; tiktoken.encoding_for_model('gpt2')" \
     && chown -R dify:dify ${TIKTOKEN_CACHE_DIR}
 
 # Copy source code
-COPY --chown=dify:dify . /app/api/
+COPY --chown=dify:dify api /app/api/
 
-# Prepare entrypoint script (chmod in RUN for compatibility without BuildKit)
-COPY --chown=dify:dify docker/entrypoint.sh /entrypoint.sh
-RUN chmod 755 /entrypoint.sh
+# Prepare entrypoint script
+COPY --chown=dify:dify --chmod=755 api/docker/entrypoint.sh /entrypoint.sh
 
 
 ARG COMMIT_SHA

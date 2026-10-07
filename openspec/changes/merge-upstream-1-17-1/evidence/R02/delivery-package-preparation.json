@@ -1,0 +1,34 @@
+{
+  "status": "prepared_not_final_runtime_not_committed",
+  "original_required_outputs": [
+    "evidence/R02/result.json",
+    "evidence/R02/execution.log",
+    "docs/dify-plus current release references",
+    "runbook exact target environment/digests/backuprestore operations",
+    "explicit owned source/docs commit",
+    "non-overwriting fork-merged-1.17.1 archival tag"
+  ],
+  "format_requirement": "Original graph does not require a tar/zip artifact. Environment operation package is versioned runbook + compose wrapper/overlay/validator + private-env reference + immutable source/context/image manifests. Private snapshots remain local restricted artifacts, never committed.",
+  "local_package": {
+    "compose_wrapper": "evidence/local-acceptance-runtime-2026-09-30/compose.sh",
+    "overlay": "evidence/local-acceptance-runtime-2026-09-30/compose.acceptance.override.yaml",
+    "validator": "evidence/local-acceptance-runtime-2026-09-30/validate-config.py",
+    "safe_plan": "evidence/local-acceptance-runtime-2026-09-30/runtime-plan.json",
+    "original_update_runbook": "evidence/N06/original-23000-update-runbook.md",
+    "snapshot_restore_proof": "evidence/N06/runtime-snapshot-restore-2026-09-30.json"
+  },
+  "remaining_local_deliverables": [
+    "N09/N10 dirty+HEAD-lock full default canonical build manifests and real installed/import contracts",
+    "latest B11 same-resource positive/foreign HTTP",
+    "final source/image delivery original23000 with selected readbacks",
+    "explicit owned index validation, source/docs commit, archival tag target check",
+    "final result JSON/execution log with command exit/actual assertions and external debt"
+  ],
+  "preserved_original_conditions": [
+    "V03 historical existing-install copies/audit/upgrade remain deferred by prior user agreement",
+    "V04 old vector minor upgrade/storage data validation not replaced by new Qdrant CRUD",
+    "V06 old-version consistent-point application/storage/vector/Redis restore/RTO/RPO not replaced by current fresh clone",
+    "Production environment inventory/maintenance window/operator/single migration executor/thresholds/observations remain unmet"
+  ],
+  "commit_parity": "Commit uses 55owned source paths plus exact safe planning/proof; api/uv.lock remains userfull unstaged. HEAD original lock second canonical release image must prove full default sync/install and dependency equivalence; final image label must distinguish archive base from actual resulting source commit."
+}

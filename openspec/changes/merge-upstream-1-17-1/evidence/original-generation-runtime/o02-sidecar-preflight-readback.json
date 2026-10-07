@@ -1,0 +1,104 @@
+{
+  "captured_at_utc": "2026-09-30T16:02:24Z",
+  "source": "read-only Docker inspect, fixed-path stat, and tracked source contracts",
+  "secrets_or_file_contents_read": false,
+  "services_started_or_changed": false,
+  "original_api": {
+    "container": "difyplus-upstream1171-quota-selftest-20260930-api-1",
+    "compose_project": "difyplus-upstream1171-quota-selftest-20260930",
+    "compose_service": "api",
+    "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "state": "running",
+    "networks": {
+      "difyplus-upstream1171-quota-selftest-20260930_default": ["api", "difyplus-upstream1171-quota-selftest-20260930-api-1"],
+      "difyplus-upstream1171-quota-selftest-20260930_ssrf_proxy_network": ["api", "difyplus-upstream1171-quota-selftest-20260930-api-1"],
+      "difyplus-quota-selftest-access": ["api", "difyplus-upstream1171-quota-selftest-20260930-api-1"]
+    },
+    "loaded_environment_fields": {
+      "database_fields_required": "present_and_nonempty",
+      "redis_fields_required": "present_and_nonempty",
+      "INNER_API_KEY_FOR_PLUGIN": "present_and_nonempty",
+      "PLUGIN_DAEMON_KEY": "present_and_nonempty",
+      "SECRET_KEY": "present_but_empty; runtime key is persisted in storage",
+      "STORAGE_TYPE": "opendal",
+      "OPENDAL_SCHEME": "fs",
+      "OPENDAL_FS_ROOT": "storage",
+      "AGENT_BACKEND_BASE_URL": "present_and_nonempty",
+      "AGENT_BACKEND_API_TOKEN": "present_but_empty",
+      "AGENT_SHELL_ENABLED": "not explicitly set in container environment; prior effective-config evidence says true",
+      "AGENT_BACKEND_USE_FAKE": "not explicitly set in container environment; prior effective-config evidence says false"
+    },
+    "storage": {
+      "volume_name": "difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage",
+      "source_path": "/var/lib/docker/volumes/difyplus-upstream1171-quota-selftest-20260930_quota_selftest_storage/_data",
+      "container_mount": "/app/api/storage",
+      "mount_type": "named volume",
+      "original_mount_rw": true,
+      "container_working_dir": "/app/api",
+      "effective_opendal_root": "/app/api/storage",
+      "fixed_path_existence": {
+        "/app/api/storage/.dify_secret_key": true,
+        "/app/api/storage/privkeys": true,
+        "/app/api/storage/privkeys/f3e7ebbc-1757-421b-b63e-7dc7d63bca75/private.pem": true,
+        "/app/api/storage/upload_files": false
+      },
+      "source_contracts": [
+        "api/configs/secret_key.py:9,20-22",
+        "api/configs/middleware/__init__.py:71-81",
+        "api/extensions/ext_storage.py:28-33",
+        "api/extensions/storage/opendal_storage.py:20-43",
+        "api/libs/rsa.py:37-39,66-74",
+        "api/services/file_service.py:96-99"
+      ]
+    },
+    "compose_source_paths": [
+      "/Users/liuxingwang/go/src/dify-plus/docker/docker-compose.dify-plus.yaml",
+      "/private/tmp/difyplus-upstream1171-smoke-20260930/override-quota-selftest.yaml",
+      "/private/tmp/difyplus-performance-20260930/override-performance.yaml",
+      "/private/tmp/difyplus-performance-20260930/override-worker.yaml",
+      "/private/tmp/difyplus-original-delivery-20260930/override-final-image.yaml"
+    ]
+  },
+  "existing_agent_stack": {
+    "compose_project": "difyplus-acceptance-20260930",
+    "api_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "agent_backend_image_id": "sha256:58ae6b8319ba230fa378e82810bebd9ba66ec3e64b64368ebe24de8225f711e2",
+    "local_sandbox_image_id": "sha256:8a0712d59c4ffc2043caac9e295a289e67b0af22bb729fb1e8ccf56f904d4be2",
+    "agent_ssrf_proxy_image_id": "sha256:ce0177cf3a9dd4508c748c70c6ffe63e388a1be4790efd5a0af1565b657f6a36",
+    "backend_networks": ["difyplus-acceptance-20260930_agent_sandbox_network", "difyplus-acceptance-20260930_default"],
+    "sandbox_networks": ["difyplus-acceptance-20260930_agent_sandbox_network", "difyplus-acceptance-20260930_local_sandbox_proxy_network"],
+    "proxy_networks": ["difyplus-acceptance-20260930_default", "difyplus-acceptance-20260930_local_sandbox_proxy_network"],
+    "separate_from_original_project": true,
+    "reused_for_original_api_tests": false
+  },
+  "planned_storage_mounts": {
+    "original_named_volume": "read_only at /app/api/storage",
+    "new_owned_volume": "read_write at /app/api/storage/upload_files",
+    "original_privkeys": "read through original read_only root; no key copy",
+    "original_persisted_secret_key": "read through original read_only root",
+    "volume_subpath_support_required": false,
+    "nested_upload_mount_support_required": true,
+    "original_upload_files_preexisting": false,
+    "startup_boundary": "Docker may materialize an empty upload_files mountpoint in the original volume. Compare fixed-path existence/type before and after; compare protected .dify_secret_key and privkeys file hashes only as equality booleans; do not claim whole-volume byte identity. No upload is part of the five-service health package."
+  },
+  "compose_validation": {
+    "fragment_yaml_parsed": true,
+    "compose_config_quiet": "passed using temporary placeholder interpolation only",
+    "service_count": 5,
+    "service_names": ["o02_api", "o02_agent_backend", "o02_local_sandbox", "o02_agent_ssrf_proxy", "o02_redis_agent"],
+    "binds": ["127.0.0.1:25452:5001"],
+    "migration_flags": "false",
+    "worker_or_beat_services": false,
+    "original_api_alias_added": false,
+    "startup": false
+  },
+  "review_update": {
+    "captured_at_utc": "2026-09-30T16:10:17Z",
+    "network_alias_boundary": "o02_api is only on internal API/backend core; api alias exists only on private Agent file-proxy network; no new api alias is added to original networks",
+    "agent_proxy_contract": "standard tracked docker-agent-entrypoint.sh plus squid-agent.conf.template and squid-common.conf.template mounted read-only",
+    "sandbox_home_mount": "/home/dify",
+    "model_calls": 0,
+    "agent_fixtures_created": 0,
+    "sidecar_startup": 0
+  }
+}

@@ -1,0 +1,321 @@
+{
+  "node": "A02",
+  "status": "passed",
+  "recorded_at_utc": "2026-09-28T15:34:12.373102+00:00",
+  "branch": "codex/merge-upstream-1.17.1",
+  "source_commit_before_A02": "619a8024971fe6e22faeb1631d086b38f1724a09",
+  "source_tree_before_A02": "1f057f06d3aecbda770cebaa9ce8e6f89f6cd4b5",
+  "original_baseline": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+  "upstream_base_and_merge_base": "5c6372d2f76d240265b92fd27c16bc772ffcb107",
+  "source_tag": "refs/tags/1.17.1",
+  "target_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "fixed_tag_match": true,
+  "merge_tree_exit_code": 1,
+  "merge_tree_exit_meaning": "predicted conflicts only; no merge started",
+  "merge_tree_result_tree": "6c8e13db2dab732907af7b12b96f962f1be24180",
+  "files": {
+    "upstream_changed": 8120,
+    "upstream_renames": 49,
+    "fork_baseline_changed": 500,
+    "branch_changed": 527,
+    "branch_renames": 0,
+    "planning_only_changed": 27,
+    "fork_business_delta_excludes_planning_commits": true
+  },
+  "conflicts": {
+    "count": 91,
+    "types": {
+      "content": 70,
+      "modify/delete": 21
+    },
+    "unique_owner_count": 91,
+    "unowned_paths": [],
+    "duplicate_paths": [],
+    "rename_related_not_in_same_path_overlap": ["web/features/home/template-card.tsx"]
+  },
+  "hosts": {
+    "count": 20,
+    "unique_target_paths": 20,
+    "unowned_paths": []
+  },
+  "fork_post_baseline_commits": [
+    {
+      "sha": "ee78816071af0f7cfb9d6e4582e216dcb5adcdcd",
+      "summary": "chore(release): prepare 1.16.0 beta",
+      "changed_file_count": 85,
+      "ancestry_in_original_baseline": true,
+      "paths": [
+        ".claude/settings.json.example",
+        ".mcp.json",
+        "README.md",
+        "api/controllers/console/__init__.py",
+        "api/controllers/console/app/passport_extend.py",
+        "api/tests/unit_tests/controllers/console/app/test_retired_routes.py",
+        "cli/scripts/e2e-provision.ts",
+        "cli/test/e2e/helpers/cli.test.ts",
+        "cli/test/e2e/helpers/cli.ts",
+        "cli/test/e2e/setup/global-setup.ts",
+        "docker/.env.example",
+        "docker/docker-compose.dify-plus.yaml",
+        "docker/docker-compose.local-build.yaml",
+        "docker/envs/core-services/web.env.example",
+        "docs/dify-plus/1.16.0-beta发布说明.md",
+        "docs/dify-plus/1.16.0升级本地容器验证记录.md",
+        "docs/dify-plus/README.md",
+        "docs/dify-plus/SECRET_KEY轮换runbook.md",
+        "docs/dify-plus/上游升级与回归检查清单.md",
+        "docs/dify-plus/与上游差异总表.md",
+        "docs/dify-plus/二开功能详解-后端与数据层.md",
+        "docs/dify-plus/人工回归清单-1.16.0.md",
+        "docs/dify-plus/合并规划-upstream-1.16.0.md",
+        "docs/dify-plus/复核记录-1.16.0-前端与部署.md",
+        "docs/dify-plus/整体架构图.md",
+        "docs/dify-plus/验证记录-1.16.0-前端.md",
+        "docs/dify-plus/验证记录-1.16.0-后端.md",
+        "openspec/changes/archive/2026-04-02-admin-migration-phase1/design.md",
+        "openspec/changes/archive/2026-04-02-admin-migration-phase1/specs.md",
+        "openspec/changes/archive/2026-04-02-admin-migration-phase2-quota/design.md",
+        "openspec/changes/archive/2026-04-02-admin-migration-phase2-quota/proposal.md",
+        "openspec/changes/archive/2026-04-02-admin-migration-phase2-quota/specs.md",
+        "openspec/changes/archive/2026-04-02-admin-migration-phase2-quota/tasks.md",
+        "openspec/changes/archive/2026-07-05-p0-restore-billing-hooks/specs/api-token-quota-attribution/spec.md",
+        "openspec/changes/archive/2026-07-05-p0-restore-billing-hooks/specs/billing-regression-baseline/spec.md",
+        "openspec/changes/archive/2026-07-05-p0-restore-billing-hooks/specs/merge-residue-cleanup/spec.md",
+        "openspec/changes/archive/2026-07-05-p0-restore-billing-hooks/specs/quota-reset-scheduling/spec.md",
+        "openspec/changes/archive/2026-07-05-p0-restore-billing-hooks/specs/workflow-node-billing/spec.md",
+        "openspec/changes/archive/2026-07-05-p1-batch-workflow-disposition/design.md",
+        "openspec/changes/archive/2026-07-05-p1-batch-workflow-disposition/specs/batch-workflow-console-service/spec.md",
+        "openspec/changes/archive/2026-07-05-p1-batch-workflow-disposition/specs/batch-workflow-disposition-gate/spec.md",
+        "openspec/changes/archive/2026-07-05-p1-batch-workflow-disposition/specs/batch-workflow-removal/spec.md",
+        "openspec/changes/archive/2026-07-05-p2-merge-upstream-1-14-2/battle-plan.md",
+        "openspec/changes/archive/2026-07-05-p2-merge-upstream-1-14-2/design.md",
+        "openspec/changes/archive/2026-07-05-p2-merge-upstream-1-14-2/specs/billing-hook-relocation/spec.md",
+        "openspec/changes/archive/2026-07-05-p2-merge-upstream-1-14-2/specs/fork-extension-compatibility/spec.md",
+        "openspec/changes/archive/2026-07-05-p2-merge-upstream-1-14-2/specs/upstream-merge-baseline/spec.md",
+        "openspec/changes/archive/2026-07-05-p5-admin-decommission/cutover-record.md",
+        "openspec/changes/archive/2026-07-05-p5-admin-decommission/specs/admin-decommission-cleanup/spec.md",
+        "openspec/changes/archive/2026-07-05-p5-admin-decommission/specs/admin-decommission-cutover/spec.md",
+        "openspec/changes/archive/2026-07-05-p5-admin-decommission/specs/code-execution-control-console/spec.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/nav-mount-baseline.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/specs/api-providers-workspace/spec.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/specs/billing-hook-relocation/spec.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/specs/explore-native-categories/spec.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/specs/headlessui-free-extend-ui/spec.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/specs/main-nav-extend-mounts/spec.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/specs/upstream-upgrade-runbook/spec.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/specs/web-extend-realignment/spec.md",
+        "openspec/changes/archive/2026-07-06-p3-merge-upstream-1-15-0/specs/web-monorepo-build/spec.md",
+        "openspec/changes/p6-console-manage-standardization/design.md",
+        "openspec/changes/p6-console-manage-standardization/specs/console-system-manage-access-control/spec.md",
+        "openspec/changes/p6-console-manage-standardization/specs/console-system-manage-data-layer/spec.md",
+        "openspec/changes/p6-console-manage-standardization/specs/console-system-manage-i18n/spec.md",
+        "openspec/changes/p6-console-manage-standardization/specs/console-system-manage-ui/spec.md",
+        "openspec/specs/api-providers-workspace/spec.md",
+        "openspec/specs/api-token-quota-attribution/spec.md",
+        "openspec/specs/billing-hook-relocation/spec.md",
+        "openspec/specs/billing-regression-baseline/spec.md",
+        "openspec/specs/code-execution-control-console/spec.md",
+        "openspec/specs/explore-native-categories/spec.md",
+        "openspec/specs/fork-extension-compatibility/spec.md",
+        "openspec/specs/headlessui-free-extend-ui/spec.md",
+        "openspec/specs/main-nav-extend-mounts/spec.md",
+        "openspec/specs/merge-residue-cleanup/spec.md",
+        "openspec/specs/quota-reset-scheduling/spec.md",
+        "openspec/specs/upstream-merge-baseline/spec.md",
+        "openspec/specs/upstream-upgrade-runbook/spec.md",
+        "openspec/specs/web-extend-realignment/spec.md",
+        "openspec/specs/web-monorepo-build/spec.md",
+        "openspec/specs/workflow-node-billing/spec.md",
+        "specs/requirements_admin_migration.md",
+        "specs/requirements_api_key_quota_control.md",
+        "specs/tasks_admin_migration_AM-001.md",
+        "specs/tasks_api_key_quota_control_QC-001.md"
+      ]
+    },
+    {
+      "sha": "1ffa101203b17ae0e591de1e49c37805d28f3cf1",
+      "summary": "feat(extend): add per-app WebApp access authentication switch",
+      "changed_file_count": 47,
+      "ancestry_in_original_baseline": true,
+      "paths": [
+        "README.md",
+        "api/controllers/common/fields.py",
+        "api/controllers/console/app/app.py",
+        "api/controllers/console/app/site.py",
+        "api/controllers/web/completion.py",
+        "api/controllers/web/login.py",
+        "api/controllers/web/workflow.py",
+        "api/core/app/apps/base_app_runner.py",
+        "api/migrations_extend/versions/2026_07_21_0001-add_webapp_auth_enabled_to_app_extend.py",
+        "api/models/model_extend.py",
+        "api/services/webapp_auth_service_extend.py",
+        "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
+        "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+        "docs/dify-plus/与上游差异总表.md",
+        "docs/dify-plus/二开功能详解-Web与管理后台.md",
+        "docs/dify-plus/二开功能详解-后端与数据层.md",
+        "docs/dify-plus/二开页面与交互清单.md",
+        "web/app/(shareLayout)/components/__tests__/authenticated-layout.spec.tsx",
+        "web/app/(shareLayout)/components/authenticated-layout.tsx",
+        "web/app/components/app/overview/__tests__/app-card.spec.tsx",
+        "web/app/components/app/overview/app-card-sections.tsx",
+        "web/app/components/app/overview/app-card.tsx",
+        "web/i18n/ar-TN/extend.json",
+        "web/i18n/de-DE/extend.json",
+        "web/i18n/en-US/extend.json",
+        "web/i18n/es-ES/extend.json",
+        "web/i18n/fa-IR/extend.json",
+        "web/i18n/fr-FR/extend.json",
+        "web/i18n/hi-IN/extend.json",
+        "web/i18n/id-ID/extend.json",
+        "web/i18n/it-IT/extend.json",
+        "web/i18n/ja-JP/extend.json",
+        "web/i18n/ko-KR/extend.json",
+        "web/i18n/nl-NL/extend.json",
+        "web/i18n/pl-PL/extend.json",
+        "web/i18n/pt-BR/extend.json",
+        "web/i18n/ro-RO/extend.json",
+        "web/i18n/ru-RU/extend.json",
+        "web/i18n/sl-SI/extend.json",
+        "web/i18n/th-TH/extend.json",
+        "web/i18n/tr-TR/extend.json",
+        "web/i18n/uk-UA/extend.json",
+        "web/i18n/vi-VN/extend.json",
+        "web/i18n/zh-Hans/extend.json",
+        "web/i18n/zh-Hant/extend.json",
+        "web/service/webapp-auth.ts",
+        "web/types/app.ts"
+      ]
+    },
+    {
+      "sha": "fc5ceb5283a2780449a6e392ff5ea834274e96ef",
+      "summary": "fix(extend): skip Console memory-context calls for anonymous WebApp sessions",
+      "changed_file_count": 3,
+      "ancestry_in_original_baseline": true,
+      "paths": [
+        "api/tests/unit_tests/core/app/apps/test_add_messages_context_extend.py",
+        "docs/dify-plus/与上游差异总表.md",
+        "web/app/components/base/chat/chat/index.tsx"
+      ]
+    },
+    {
+      "sha": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+      "summary": "chore(build): exclude .venv from docker build context",
+      "changed_file_count": 1,
+      "ancestry_in_original_baseline": true,
+      "paths": [".dockerignore"]
+    }
+  ],
+  "checks": [
+    {
+      "command": "git fetch --no-tags upstream refs/tags/1.17.1:refs/tags/1.17.1 (sandbox)",
+      "exit_code": 255,
+      "output": "cannot open .git/FETCH_HEAD: Operation not permitted"
+    },
+    {
+      "command": "git fetch --no-tags upstream refs/tags/1.17.1:refs/tags/1.17.1 (approved Git metadata permission)",
+      "exit_code": 0,
+      "output": "new tag 1.17.1"
+    },
+    {
+      "command": "git rev-parse refs/tags/1.17.1^{commit}",
+      "exit_code": 0,
+      "output": "8387590ace4a094de812b7847fc6a4c3a27cd52b"
+    },
+    {
+      "command": "git merge-base HEAD refs/tags/1.17.1",
+      "exit_code": 0,
+      "output": "5c6372d2f76d240265b92fd27c16bc772ffcb107"
+    },
+    {
+      "command": "git diff --name-status -M50% -l10000 base..target/base..fork/base..HEAD",
+      "exit_code": 0,
+      "output": "8120/500/527 paths"
+    },
+    {
+      "command": "git merge-tree --write-tree --name-only --no-messages HEAD refs/tags/1.17.1 (sandbox)",
+      "exit_code": 128,
+      "output": "temporary Git object creation denied"
+    },
+    {
+      "command": "git merge-tree --write-tree --name-only --no-messages HEAD refs/tags/1.17.1 (temporary object directory)",
+      "exit_code": 1,
+      "output": "91 predicted conflicts"
+    },
+    {
+      "command": "git show original baseline tree for four effect anchors",
+      "exit_code": 0,
+      "output": "release changes in ancestry/diff; WebApp service + migration 019; csrf_token guard; **/.venv exclusion"
+    },
+    {
+      "command": "A02 JSON/ownership/graph/four-commit assertions",
+      "exit_code": 0,
+      "output": "91 conflicts, 155 overlap paths including 65 auto-merged, 20 moved/new hosts; all unique owners and verification nodes; baseline and target SHAs match"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "output": "no whitespace errors"
+    },
+    {
+      "command": "openspec validate merge-upstream-1-17-1 --strict",
+      "exit_code": 0,
+      "output": "Change 'merge-upstream-1-17-1' is valid"
+    },
+    {
+      "command": "git diff --cached --name-only -z exact 11-path allowlist assertion",
+      "exit_code": 0,
+      "output": "11 staged A02-owned paths; zero extra paths"
+    },
+    {
+      "command": "git diff --cached --check",
+      "exit_code": 0,
+      "output": "no whitespace errors"
+    }
+  ],
+  "known_limits": [
+    "Prediction is merge-tree output, not a worktree merge or behavior acceptance.",
+    "Automatically merged overlaps require semantic review by the assigned owner; a clean text merge does not prove behavior.",
+    "Host ownership identifies initial rewrite owners; actual merge may reveal additional semantic sites that must be registered before editing.",
+    "A03 remains blocked pending separate authorization for real environment read-only access.",
+    "No dependency install, functional test, database migration, deployment, or production operation was run.",
+    "A02 evidence commit SHA is assigned after result.json is committed; Git history is the final commit identity."
+  ],
+  "overlap": {
+    "path_count": 155,
+    "conflict_count": 90,
+    "automerged_count": 65,
+    "unique_owner_count": 155,
+    "unowned_paths": [],
+    "classification_counts": {
+      "auto_merged_overlap/fork_backend_behavior": 28,
+      "auto_merged_overlap/fork_frontend_behavior": 7,
+      "auto_merged_overlap/integration_configuration": 8,
+      "auto_merged_overlap/test_alignment": 22,
+      "text_conflict/fork_backend_behavior": 30,
+      "text_conflict/fork_frontend_behavior": 33,
+      "text_conflict/integration_configuration": 3,
+      "text_conflict/other": 5,
+      "text_conflict/test_alignment": 19
+    },
+    "review_policy": "All 155 shared changed paths have exactly one write owner and one verification node. The 65 auto-merged paths require semantic review; review_kind distinguishes behavior, tests, and integration configuration. Later implementation records whether a rewrite was actually needed."
+  },
+  "fork_effect_anchors": [
+    {
+      "commit": "ee78816071af0f7cfb9d6e4582e216dcb5adcdcd",
+      "effect": "1.16.0 beta release adjustments are in baseline ancestry; release documentation and compose/env path changes remain in base-to-fork diff"
+    },
+    {
+      "commit": "1ffa101203b17ae0e591de1e49c37805d28f3cf1",
+      "effect": "per-app WebApp switch service and migration 019_webapp_auth_switch exist in original baseline tree"
+    },
+    {
+      "commit": "fc5ceb5283a2780449a6e392ff5ea834274e96ef",
+      "effect": "web chat retains csrf_token guard before Console context request in original baseline tree"
+    },
+    {
+      "commit": "1c3368ed1584c4e9b6387a28334552d10c946ab4",
+      "effect": ".dockerignore retains **/.venv exclusion in original baseline tree"
+    }
+  ]
+}

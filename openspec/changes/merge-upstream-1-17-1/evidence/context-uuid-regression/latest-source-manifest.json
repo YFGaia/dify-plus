@@ -1,0 +1,81 @@
+{
+  "base_head": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+  "prior_n08_source_manifest_sha256": "0002b223b6802bc4ce77b388531927271f857a7d80345527ab54c34eed7c27e0",
+  "overlay_count": 18,
+  "overlays": [
+    {
+      "path": "api/controllers/console/apikey.py",
+      "sha256": "d7de964844e9adb4e4a6b7befcf25ace3062bc4058624530ccb79978b7eb2ccb"
+    },
+    {
+      "path": "api/events/event_handlers/__init__.py",
+      "sha256": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8"
+    },
+    {
+      "path": "api/events/event_handlers/create_app_statistics_when_app_created_extend.py",
+      "sha256": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba"
+    },
+    {
+      "path": "api/models/model_extend.py",
+      "sha256": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190"
+    },
+    {
+      "path": "api/services/installed_app_service.py",
+      "sha256": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b"
+    },
+    {
+      "path": "api/services/recommended_app_service_extend.py",
+      "sha256": "a218fb7c088b296e70248b01bd96913b1978fae9622a61d6de5ff31b96517bee"
+    },
+    {
+      "path": "api/services/system_manage_extend.py",
+      "sha256": "1cf69052a66dc6f681899dffe24d9cd12eee8ab93e88e9825bcef3e881cbd12e"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_apikey_quota_serialization_extend.py",
+      "sha256": "b9880a010b2eccf10b32850a4e7ec701332ed01bbb176a851e5b2af126a9a622"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_system_manage_extend.py",
+      "sha256": "8fc9fd897e8950a7126968731f27539271761a933c5a3f816e7b99ad1af6c6fb"
+    },
+    {
+      "path": "api/tests/unit_tests/events/test_app_statistics_extend.py",
+      "sha256": "856fcf4a6b4ed85c9cef5d2f051e0a19f35be52107c0cffc23d80dcab98d534c"
+    },
+    {
+      "path": "api/tests/unit_tests/models/test_model_extend_uuid_defaults.py",
+      "sha256": "ca89fd7377bf776f5e3da3caa2b617f70179acd06c27c91fad02040dd0f1feb0"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_app_center_extend.py",
+      "sha256": "4e6e1e770a8505f750979598de032602e7b707262fccb315185d57e667a0dae1"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_quota_manage_pagination_extend.py",
+      "sha256": "97145c114e9189237492e0c75fdc456bd708d8aa78fed101c75fd9497a8f298c"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_quota_manage_upsert_extend.py",
+      "sha256": "3d7a0d682f52bbc12fff859ab4c35b7a753d7eadbc3d4dcd68d23a7b1bdab32d"
+    },
+    {
+      "path": "api/uv.lock",
+      "sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57"
+    },
+    {
+      "path": "api/controllers/web/wraps.py",
+      "sha256": "96830ac4c86f7a630412b6586d601bfed9a2fed57b5623a5b86c057b41241f30"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/web/test_webapp_passport_scope_extend.py",
+      "sha256": "6170851117e29b09be05450e49ff184c14ec513f5b5462087479522696ecb3ec"
+    },
+    {
+      "path": "api/tests/unit_tests/services/test_context_uuid_scope_extend.py",
+      "sha256": "7efc45c601150b2643ea734f472e1860fb7f81f6f9f21fb2249c6ecb04da7653"
+    }
+  ],
+  "source_frozen": true,
+  "verification_boundary": "80 focused tests pass; new complete image/dedicated dual-engine/live HTTP pending"
+}

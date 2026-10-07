@@ -25,7 +25,10 @@ class TenantModelSyncExtend(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, server_default=db.text("CURRENT_TIMESTAMP(0)"))
 
     def __repr__(self):
-        return f"<tenant_model_sync(id={self.id}, tenant_id={self.tenant_id}, model_id='{self.model_id}', is_all='{self.is_all}')>"
+        return (
+            f"<tenant_model_sync(id={self.id}, tenant_id={self.tenant_id}, "
+            f"model_id='{self.model_id}', is_all='{self.is_all}')>"
+        )
 
 
 class ModelSyncConfigExtend(db.Model):

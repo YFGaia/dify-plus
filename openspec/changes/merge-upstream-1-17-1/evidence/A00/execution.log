@@ -1,0 +1,17 @@
+2026-09-28T15:15:34Z A00 authorization evidence captured from parent Codex task 01a0e889-6c99-7021-a4dc-f7e277ef90c5 via read_thread.
+User implementation request message: 01a0e88d-6bb9-75e0-993d-0dc9c4ee10bf.
+User named-branch authorization answer: 01a0e88f-83b0-7642-babf-24823c252c8f, "授权创建指定分支".
+git rev-parse HEAD -> 1c3368ed1584c4e9b6387a28334552d10c946ab4 (exit 0).
+git rev-parse HEAD^{tree} -> b3f037755ed16eb99e61c699df99b8a6d7e186f3 (exit 0).
+git branch --show-current -> 1.16.0 (exit 0).
+git show-ref --verify --quiet refs/heads/codex/merge-upstream-1.17.1 -> no ref (exit 1).
+Task 1.1 passed: local implementation, validation, and specified branch creation authorized.
+Task 1.2 not applicable: user selected the specified branch, not execution on the current branch.
+Task 1.3 passed: scope, source, branch, and environment boundary recorded in result.json.
+A01 ready for its own baseline/workspace protection checks. A03 blocked pending explicit read-only access to real deployment and business data.
+No branch, merge, commit, fetch, dependency installation, functional test, or environment operation was performed by A00.
+python3 -m json.tool on execution-graph.json and evidence/A00/result.json -> both valid (exit 0).
+Local A00 graph/task/evidence assertions -> passed (exit 0).
+openspec validate merge-upstream-1-17-1 --strict -> Change is valid (exit 0).
+Obsolete A00 pending/authorization text search -> no matches (rg exit 1 is expected).
+Final HEAD remains 1c3368ed1584c4e9b6387a28334552d10c946ab4 on branch 1.16.0.

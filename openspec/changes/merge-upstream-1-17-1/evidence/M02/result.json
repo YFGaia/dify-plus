@@ -1,0 +1,423 @@
+{
+  "node": "M02",
+  "status": "passed",
+  "recorded_at_utc": "2026-09-28T18:08:09.710214+00:00",
+  "branch": "codex/merge-upstream-1.17.1",
+  "pre_commit_head": "3c4c28947777b3437ec95c1e559ffa76fcd32041",
+  "target_ref": "refs/tags/1.17.1",
+  "target_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "merge_baseline": "948fefb69ae87abefa7e91a13968213696b3e310",
+  "fork_first_parent": "b17761ed0166e8ef49474da418b95a9462adbb9c",
+  "deployable": false,
+  "implementation_started": true,
+  "source_changes": [
+    "api/controllers/console/__init__.py",
+    "api/controllers/console/feature.py",
+    "api/controllers/console/workspace/workspace.py",
+    "api/models/__init__.py",
+    "api/models/workflow.py",
+    "api/models/workflow_log_extend.py",
+    "api/repositories/workflow_app_log_query_repository.py",
+    "api/services/login_config_service_extend.py",
+    "api/services/workspace_service.py",
+    "api/tests/unit_tests/conftest.py",
+    "api/tests/unit_tests/controllers/console/test_feature.py",
+    "api/tests/unit_tests/controllers/console/workspace/test_workspace.py",
+    "api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py",
+    "api/tests/unit_tests/services/test_login_config_service_extend.py",
+    "api/tests/unit_tests/services/test_workspace_service.py"
+  ],
+  "source_sha256": {
+    "api/controllers/console/__init__.py": "e4e9bc708fea5ba8320a8a3a09b8ba448083135becc8f5def512d77f075163a2",
+    "api/controllers/console/feature.py": "08bb14501fb7ad67e9dc25e18f9c280310ea6a156186a3b28a2236c059f1cc3d",
+    "api/controllers/console/workspace/workspace.py": "029291adc46a29de5efdfbcfab52e329ebb8a7e29f9878012849e7d86a2caef5",
+    "api/models/__init__.py": "e50308612aaf864292cb642e7c7051289c35f6e55fc4cfa854d5e2ba7c0d3993",
+    "api/models/workflow.py": "752c0dc27d05e4649a829daae650cd923f7d2cd4ab7f38f80030bd03c71b88e6",
+    "api/models/workflow_log_extend.py": "9d858a8e7b32a8a73d35c87d0b753aadbb101ddfb363deaaf146432273d9a69b",
+    "api/repositories/workflow_app_log_query_repository.py": "73de5b724222f717dfce9e5974acda7d14060f4d525e3749ed45ba5c66b82e49",
+    "api/services/login_config_service_extend.py": "f58c57705b223c88c2e6c10854492b9fc13ea66268bcc0d7ce13e5af34d5d8dc",
+    "api/services/workspace_service.py": "a60a0cf3b7628f6b8706dcc83634a10d99889462e17a19f48b4d35a394a555b4",
+    "api/tests/unit_tests/conftest.py": "213b6523de6db54b308cf5f117adfee1d75ec7bcefa9bed9532cf5ccf63d6da5",
+    "api/tests/unit_tests/controllers/console/test_feature.py": "06e846c17329d41c317463b66d2625bff7ec9b3fae5152bd3cdbac4ea5928db5",
+    "api/tests/unit_tests/controllers/console/workspace/test_workspace.py": "698722711c1e7d04221d400e4064560bea6b7e6b8949e7640f4b9909988bdcf2",
+    "api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py": "3d1d60294f77fc226d0b739dc9d299bdfc345e2f7a4143a02dbb676393c518e1",
+    "api/tests/unit_tests/services/test_login_config_service_extend.py": "ba2b6e1ac492c25d7cb298a70e44d388eb08b76d3087b8da30116635367e438c",
+    "api/tests/unit_tests/services/test_workspace_service.py": "4b517888e00fcd7f6961da2d2da4a73a536ffb8ee5a13b924079767f3ad53eb3"
+  },
+  "prior_attempts": {
+    "blocked_commit": "075f2973440c0d2da4379ab5b85abd0041dfb7f3",
+    "environment_readiness_commit": "3c4c28947777b3437ec95c1e559ffa76fcd32041",
+    "history": "Original preflight/offline-sync/environment-readiness files and execution.log retained; prior result version available in Git."
+  },
+  "environment": {
+    "path": "/private/tmp/dify-m02-python-complete",
+    "cache": "/private/tmp/dify-m02-uv-cache",
+    "preparation_thread": "01a0e91f-3aed-7e71-9a5e-72633b64c044",
+    "preparation_evidence_source": "independent Luna thread handoff",
+    "command": "uv sync --project api --locked --group dev --python 3.12.9 (default groups enabled)",
+    "exit_code": 0,
+    "uv": "0.11.19",
+    "python": "3.12.9",
+    "installed_report": 524,
+    "prepared_report": 188,
+    "distribution_count": 563,
+    "import_probe": {
+      "pytest": "9.1.1",
+      "pydantic-settings": "2.14.2"
+    },
+    "api_uv_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+    "repo_venv_modified": false
+  },
+  "verification": [
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py api/tests/unit_tests/services/test_login_config_service_extend.py api/tests/unit_tests/services/test_workspace_service.py api/tests/unit_tests/controllers/console/workspace/test_workspace.py api/tests/unit_tests/models/test_workflow_app_log_models.py api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py api/tests/unit_tests/controllers/common/test_schema.py api/tests/unit_tests/commands/test_generate_swagger_specs.py api/tests/unit_tests/controllers/test_swagger.py -q -x",
+      "exit_code": 0,
+      "passed": 146,
+      "warnings": 2,
+      "log": "focused-tests.log",
+      "note": "Final production source validated. The later test-only URL assertions were additionally validated by the following run."
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/test_feature.py -q --no-cov",
+      "exit_code": 0,
+      "passed": 29,
+      "warnings": 2,
+      "log": "http-routes.log"
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python api/dev/generate_swagger_specs.py --output-dir /private/tmp/dify-m02-openapi",
+      "exit_code": 0,
+      "result": "Four actual OpenAPI JSON exports generated. Affected response refs, no GET bodies, minimal license status, fork field isolation and required summary bools asserted.",
+      "evidence": "schema-verification.json"
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync ruff check [15 explicitly owned Python files]",
+      "exit_code": 0
+    },
+    {
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync ruff format --check [15 explicitly owned Python files]",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "openspec validate merge-upstream-1-17-1 --strict",
+      "exit_code": 0,
+      "output": "Change 'merge-upstream-1-17-1' is valid"
+    }
+  ],
+  "failed_runs_resolved": [
+    {
+      "log": "/private/tmp/dify-m02-tests-current.log",
+      "exit_code": 4,
+      "cause": "Earlier dev-only environment omitted pydantic_settings; no tests collected. Complete default-group environment resolves this."
+    },
+    {
+      "log": "/private/tmp/dify-m02-tests-complete.log",
+      "exit_code": 1,
+      "errors": 83,
+      "cause": "Full-schema SQLite could not parse existing fork PostgreSQL CURRENT_TIMESTAMP(0)."
+    },
+    {
+      "log": "/private/tmp/dify-m02-tests-complete-2.log",
+      "exit_code": 1,
+      "errors": 83,
+      "cause": "Next existing fork PostgreSQL default cast empty-string::character varying also unsupported by SQLite."
+    },
+    {
+      "log": "/private/tmp/dify-m02-tests-complete-3.log",
+      "exit_code": 1,
+      "passed": 70,
+      "failed": 1,
+      "cause": "New mapping fixture read EndUser.id before flush; corrected fixture ordering."
+    }
+  ],
+  "conflict_dispositions": [
+    {
+      "path": "api/controllers/console/__init__.py",
+      "status": "resolved",
+      "decision": "Restore the five fork module imports and __all__; keep upstream resource/admission registration. Every restored URL is unique in the real Flask URL map.",
+      "source_sha256": "e4e9bc708fea5ba8320a8a3a09b8ba448083135becc8f5def512d77f075163a2"
+    },
+    {
+      "path": "api/controllers/console/feature.py",
+      "status": "resolved",
+      "decision": "Retain upstream public and authenticated license handlers. Add isolated fork bootstrap/login routes, typed response, IP/signature/expiry/purpose validation, Cookie/Header support, and no-store.",
+      "source_sha256": "08bb14501fb7ad67e9dc25e18f9c280310ea6a156186a3b28a2236c059f1cc3d"
+    },
+    {
+      "path": "api/models/__init__.py",
+      "status": "resolved",
+      "decision": "Restore db compatibility export and SystemIntegrationExtend; the export is the existing engine db, not a second instance.",
+      "source_sha256": "e50308612aaf864292cb642e7c7051289c35f6e55fc4cfa854d5e2ba7c0d3993"
+    },
+    {
+      "path": "api/models/workflow.py",
+      "status": "resolved",
+      "decision": "Adapt fork end-user display mapping to explicit Session. Account-role logs remain upstream. Unused old draft-variable constraint alias is not restored; retain upstream user-scoped constraint.",
+      "source_sha256": "752c0dc27d05e4649a829daae650cd923f7d2cd4ab7f38f80030bd03c71b88e6"
+    },
+    {
+      "path": "api/services/feature_service.py",
+      "status": "resolved",
+      "decision": "Keep upstream unchanged. Its system-feature owner split is retained; fork fields live only in login_config_service_extend and LoginConfigResponse, without changing SystemFeatureModel.",
+      "source_sha256": "dd3035a2129ad3ed05bf97a1706d41d935b4ade55485f14c5df34b883fad7aee"
+    },
+    {
+      "path": "api/services/workspace_service.py",
+      "status": "resolved",
+      "decision": "Materialize first Account/Tenant ID comparison flags within existing summary Session. Preserve id/name/role/plan/credits and archived-workspace behavior.",
+      "source_sha256": "a60a0cf3b7628f6b8706dcc83634a10d99889462e17a19f48b4d35a394a555b4"
+    },
+    {
+      "path": "api/tests/unit_tests/controllers/console/test_feature.py",
+      "status": "resolved",
+      "decision": "Preserve upstream tests; add real Flask transport/admission and real SQLite summary checks, with deterministic external feature query stubs.",
+      "source_sha256": "06e846c17329d41c317463b66d2625bff7ec9b3fae5152bd3cdbac4ea5928db5"
+    }
+  ],
+  "security_matrix": [
+    {
+      "case": "Anonymous public system-features",
+      "result": "200 actual snapshot shape; branding exists, no ping, license status only."
+    },
+    {
+      "case": "login_config Cookie and Header",
+      "result": "Both paths equal; no secret or detailed license; HttpOnly/SameSite=Lax/max-age; no-store; integration values read from actual SQLite rows."
+    },
+    {
+      "case": "Invalid/missing/signature/expired/IP/purpose/no-exp bootstrap",
+      "result": "403 before feature or license query."
+    },
+    {
+      "case": "Anonymous and bootstrap replay at license route",
+      "result": "401 for absent/custom-header/Bearer/access-cookie, through actual login loader; license query not called."
+    },
+    {
+      "case": "Admitted Account + CSRF",
+      "result": "200 full license model for admitted account; CSRF rejection stops license query. Test supplies the admitted Account and deterministic feature query gateway."
+    }
+  ],
+  "summary": {
+    "fields": ["id", "name", "role", "plan", "credits", "admin_extend", "tenant_extend"],
+    "verification": "Actual persisted Account/Tenant/membership rows. owner/admin/editor/normal × first/non-first Account, each switched between first/other Tenant. Real admission and summary service; roles remain unchanged. Existing archived409 test passes."
+  },
+  "session_audit": {
+    "fork_modules_parsed": 59,
+    "direct_imported_service_calls": 44,
+    "evidence": "service-signatures.json",
+    "limitations": "AST signature audit covers resolved direct imported service class calls, not arbitrary dynamic dispatch. Cross-owner full behavior is validated by later nodes.",
+    "workflow": "Batch account projection uses tenant/app/end-user scope and explicit mapping precedence; invalid/missing mapping falls back to upstream EndUser. Real model accessor and actual query repository serialize scalar DTOs after session close. Existing ID-overlap/role/pagination/scope tests preserved and pass.",
+    "auto_merge_preserved": [
+      "constants login Cookie/Header names",
+      "controllers/common LoginStatusResponse fork fields",
+      "extensions/ext_commands extend_db registration",
+      "models/model Conversation explicit-session identity mapping"
+    ],
+    "sqlite_adapter": "Copies test metadata, only normalizes two exact PostgreSQL defaults on _extend tables; no production schema/ORM metadata edit."
+  },
+  "step_results": [
+    {
+      "task": "8.1",
+      "status": "passed",
+      "result": "Restored fork registration/exports on upstream application-service/admission/session architecture; real route imports and HTTP tests pass."
+    },
+    {
+      "task": "8.2",
+      "status": "passed",
+      "result": "Cookie/Header configuration, public/license security matrix and 8 role/account summary combinations across two workspaces pass."
+    },
+    {
+      "task": "8.3",
+      "status": "passed",
+      "result": "Parsed 59 fork modules, audited 44 direct imported service calls, mapped changed lazy properties. Fixed M02 workflow accessor and actual query repository; documented M03/M04-owned failures."
+    },
+    {
+      "task": "8.4",
+      "status": "passed",
+      "result": "All restored URLs uniquely registered; security wrappers retained. Tests and SQLite-only metadata adapter are versioned with implementation."
+    },
+    {
+      "task": "8.5",
+      "status": "passed",
+      "result": "146 focused/schema tests and 29 final HTTP tests pass; OpenAPI fields and response references asserted; scoped source and handoff evidence captured."
+    }
+  ],
+  "handoffs": [
+    {
+      "owner": "M03",
+      "path": "api/services/ding_talk_extend.py:381",
+      "issue": "RegisterService.register requires keyword-only session. Existing login/switch_tenant already supply db.session(). Must adapt in identity implementation."
+    },
+    {
+      "owner": "M04; M08 confirm ownership",
+      "path": "api/services/recommended_app_service_extend.py:34",
+      "issue": "App.tags removed; use tags_with_session and audit app_model_config_with_session in the same live Session. Do not treat restored route registration as business acceptance."
+    },
+    {
+      "owner": "M05",
+      "issue": "Use LoginConfigResponse (not public SystemFeatureModel). is_custom_auth2 boolean, rmb_to_usd_rate number, other fork IDs/logout strings; bootstrap now requires type=login_config, so renew cached old-purpose tokens. Keep Cookie/Header transport and no-store."
+    },
+    {
+      "owner": "M05/M06",
+      "issue": "CurrentWorkspaceSummaryResponse now requires admin_extend and tenant_extend bool; UI visibility flags do not grant backend role."
+    },
+    {
+      "owner": "M05/M08",
+      "issue": "Generate frontend Zod/TypeScript and OpenAPI Markdown in owner stage from final schema; temporary backend OpenAPI evidence is not a committed consumer contract or final lock."
+    }
+  ],
+  "downstream_status_propagation": {
+    "ready": ["M03"],
+    "remain_blocked": ["M04", "M05", "M06", "M08", "V01", "V02", "R01"],
+    "unchanged": [
+      "M07",
+      "A03",
+      "V03",
+      "V04",
+      "V05",
+      "V06",
+      "R02",
+      "D00",
+      "D01",
+      "D02",
+      "D03",
+      "D04"
+    ]
+  },
+  "known_limits": [
+    "No local integration/full API tests or long-running services. SQLite unit fixtures do not validate PostgreSQL migration/runtime behavior.",
+    "Feature query gateways are deterministic test inputs; no live Enterprise/license/SSO/model service was queried.",
+    "Upstream deprecation warnings remain (cgi, class-based Pydantic config).",
+    "Legacy api_host Redis write intentionally omitted after no consumer found; no global request-host cache introduced.",
+    "This node is scoped backend contract acceptance only; full source merge, deployment and production acceptance remain downstream."
+  ],
+  "checks": {
+    "source_hashes": "passed",
+    "head_and_empty_index": "passed",
+    "api_lock_unchanged": "passed",
+    "graph_preserved_non_descendants": "passed",
+    "ownership_tsv_six_columns": "passed",
+    "original_untracked_preserved": {
+      "count": 7735,
+      "passed": true
+    }
+  },
+  "commit_allowlist": [
+    "api/controllers/console/__init__.py",
+    "api/controllers/console/feature.py",
+    "api/controllers/console/workspace/workspace.py",
+    "api/models/__init__.py",
+    "api/models/workflow.py",
+    "api/models/workflow_log_extend.py",
+    "api/repositories/workflow_app_log_query_repository.py",
+    "api/services/login_config_service_extend.py",
+    "api/services/workspace_service.py",
+    "api/tests/unit_tests/conftest.py",
+    "api/tests/unit_tests/controllers/console/test_feature.py",
+    "api/tests/unit_tests/controllers/console/workspace/test_workspace.py",
+    "api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py",
+    "api/tests/unit_tests/services/test_login_config_service_extend.py",
+    "api/tests/unit_tests/services/test_workspace_service.py",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/execution.log",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/focused-tests.log",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/http-routes.log",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+    "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+    "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+    "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+    "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
+    "openspec/changes/merge-upstream-1-17-1/tasks.md"
+  ],
+  "followup_context_contract": {
+    "status": "passed",
+    "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
+    "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
+    "subtasks": ["8.6", "8.7"],
+    "registered_paths": [
+      "api/controllers/console/app/app_extend.py",
+      "api/services/recommended_app_service_extend.py",
+      "api/tests/unit_tests/controllers/console/app/test_app_extend.py",
+      "api/tests/unit_tests/services/test_recommended_app_service_extend.py"
+    ],
+    "reason": "Security review found message context identifiers were not bound to the current tenant/app, and app/Agent permissions were not checked. Original 8.1-8.5 acceptance remains historical evidence; node is reopened only for this bounded follow-up.",
+    "implementation_agent": "/root/m02_context_security",
+    "implementation_model": "gpt-6-astra",
+    "implementation_base_commit": "63f843a383",
+    "source_sha256": {
+      "api/controllers/console/app/app_extend.py": "ded4b12d5192c9ce2274bfec10194e4b4771c004bbe93c5a1166d07a24556301",
+      "api/services/recommended_app_service_extend.py": "ad6bcbcb5f10a6b3365f25f1315158d3c664128511b969f416b47f9a341f3d01",
+      "api/tests/unit_tests/controllers/console/app/test_app_extend.py": "0a476957e761ea8a2a8e381e20ed033780d3ac778cad37d5a3e8b84ab27f4619",
+      "api/tests/unit_tests/services/test_recommended_app_service_extend.py": "10df730e3e0dcdb3ee80909aa12fbe9041ee9132c51b4f2a66832465063b998a"
+    },
+    "implementation_summary": [
+      "Preserved HTTP 400 for missing/empty identifiers before shared schema validation.",
+      "Resolved Conversation→App and constrained tenant ownership; missing, soft-deleted, deleted-app, and cross-tenant rows return 404 before any context-row access.",
+      "Applied APP_VIEW_LAYOUT/APP_EDIT for PlainApp and AGENT_TEST_AND_RUN/AGENT_EDIT for AgentBehindApp; workflow-only Agent is denied.",
+      "Context service reads/deletes are further scoped by tenant, server-resolved app, conversation, and selected message id.",
+      "Registered the same /message/context route under console_ns to provide Pydantic query/RootModel schemas and avoid duplicate registration; no client app_id or generated file edits."
+    ],
+    "verification": [
+      {
+        "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python -m pytest api/tests/unit_tests/controllers/console/app/test_app_extend.py api/tests/unit_tests/services/test_recommended_app_service_extend.py -q --no-cov",
+        "exit_code": 0,
+        "passed": 36,
+        "warnings": 2
+      },
+      {
+        "command": "... uv run --project api --no-sync ruff check [the four registered paths]",
+        "exit_code": 0
+      },
+      {
+        "command": "... uv run --project api --no-sync ruff format --check [the four registered paths]",
+        "exit_code": 0,
+        "result": "4 files already formatted"
+      },
+      {
+        "command": "... uv run --project api --no-sync python api/dev/generate_swagger_specs.py --output-dir /private/tmp/dify-m02-context-openapi",
+        "exit_code": 0,
+        "result": "GET required conversation_id query → array(string); DELETE required conversation_id and message_id queries → string; operation IDs unchanged."
+      },
+      {
+        "command": "git diff --check -- [the four registered paths]",
+        "exit_code": 0
+      }
+    ],
+    "limitations": [
+      "No backend integration tests or live database were run.",
+      "LiteLLM remote price-table access failed during test setup and used its local backup; it did not affect the 36 focused tests or schema checks."
+    ],
+    "next_action": "M02 follow-up 8.6 and closure 8.7 passed; M05 11.6 is now unblocked to regenerate the registered message contract trio.",
+    "implementation_commit": "30410b8fff",
+    "independent_review": {
+      "status": "passed_no_findings",
+      "model": "gpt-6-luna",
+      "agent": "/root/m02_context_luna_review",
+      "reviewed_commit": "30410b8fff",
+      "scope": "read-only authorization, route uniqueness, required query and exact response schema review",
+      "focused_tests_requested": "36 context controller/service tests",
+      "swagger_artifact": "/private/tmp/dify-m02-context-openapi/console-openapi.json",
+      "reviewed_by": "/root/m02_context_luna_review",
+      "findings": [],
+      "verification": [
+        {
+          "command": "/private/tmp/dify-m02-python-complete/bin/python -m pytest api/tests/unit_tests/controllers/console/app/test_app_extend.py api/tests/unit_tests/services/test_recommended_app_service_extend.py -q --no-cov",
+          "exit_code": 0,
+          "passed": 36
+        },
+        {
+          "command": "Inspect /private/tmp/dify-m02-context-openapi/console-openapi.json",
+          "exit_code": 0,
+          "result": "One /message/context path; GET/DELETE required query parameters and array(string)/string schemas match."
+        }
+      ],
+      "limitations": [
+        "No live authenticated requests against a running service or database were exercised.",
+        "uv could not access its cache in the reviewer environment; the prepared isolated Python interpreter ran the same 36 focused tests successfully."
+      ]
+    }
+  }
+}

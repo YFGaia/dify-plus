@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "node_id": "V01",
+  "task_id": "15.1_15.2_candidate_backend_luna_regression",
+  "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+  "worktree_head": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+  "api_tree_matches_candidate": true,
+  "environment": {
+    "python_environment": "/private/tmp/dify-m02-python-complete",
+    "uv_cache_dir": "/private/tmp/dify-m02-uv-cache",
+    "sync_disabled": true
+  },
+  "checks": [
+    {
+      "name": "compileall",
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python -m compileall -q api",
+      "exit_code": 0,
+      "status": "passed",
+      "output": "WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`\nWARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`\nWARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`"
+    },
+    {
+      "name": "app_factory_import",
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync python -c \"import sys; sys.path.insert(0, 'api'); from app_factory import create_app\"",
+      "exit_code": 0,
+      "status": "passed",
+      "output": "WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`\nWARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`\nWARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`\nDEBUG:celery.utils.functional:\ndef send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):\n    return 1\n\nDEBUG:celery.utils.functional:\ndef document_indexing_sync_task(dataset_id, document_id):\n    return 1\n\nDEBUG:celery.utils.functional:\ndef batch_create_segment_to_index_task(*args, **kwargs):\n    return 1\n"
+    },
+    {
+      "name": "focused_pytest",
+      "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/test_apikey.py api/tests/unit_tests/services/test_account_service.py api/tests/unit_tests/core/app/workflow/test_persistence_layer.py",
+      "files": [
+        "api/tests/unit_tests/controllers/console/test_apikey.py",
+        "api/tests/unit_tests/services/test_account_service.py",
+        "api/tests/unit_tests/core/app/workflow/test_persistence_layer.py"
+      ],
+      "exit_code": 0,
+      "status": "passed",
+      "collected": 160,
+      "passed": 160,
+      "failed": 0,
+      "skipped": 0,
+      "pytest_warnings": 2,
+      "duration": "3.20s",
+      "output": "WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`\nWARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`\nWARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`\n\u001b[92m17:39:34 - LiteLLM:WARNING\u001b[0m: get_model_cost_map.py:271 - LiteLLM: Failed to fetch remote model cost map from https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json: [Errno 8] nodename nor servname provided, or not known. Falling back to local backup.\n........................................................................ [ 45%]\n........................................................................ [ 90%]\n................                                                         [100%]\n=============================== warnings summary ===============================\napi/core/rag/index_processor/index_processor_base.py:3\n  /Users/liuxingwang/go/src/dify-plus/api/core/rag/index_processor/index_processor_base.py:3: DeprecationWarning: 'cgi' is deprecated and slated for removal in Python 3.13\n    import cgi\n\napi/core/workflow/nodes/knowledge_retrieval/retrieval.py:20\n  /Users/liuxingwang/go/src/dify-plus/api/core/workflow/nodes/knowledge_retrieval/retrieval.py:20: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/\n    class SourceMetadata(BaseModel):\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n160 passed, 2 warnings in 3.20s"
+    }
+  ],
+  "warnings": [
+    "uv emitted 3 warnings on each command because api/providers/vdb and api/providers/trace contain non-directory workspace members (README.md and conftest.py).",
+    "Import emitted Celery task DEBUG output; command exit code was 0.",
+    "pytest emitted a LiteLLM remote model-cost-map fetch warning because network DNS was unavailable and it used its local backup.",
+    "pytest reported 2 deprecation warnings: cgi and a Pydantic class-based config."
+  ],
+  "scope": {
+    "source_or_test_files_modified": false,
+    "graph_or_task_files_modified": false,
+    "broad_m02_m03_m04_suites_rerun": false,
+    "historical_suite_results_claimed_as_candidate_results": false
+  },
+  "verdict": "passed",
+  "applicable_candidate": {
+    "commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+    "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+    "original_tested_candidate": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "api_tree_unchanged": true,
+    "reason": "The only non-metadata source changes after the V01-tested candidate are formatting in an OpenAPI TypeScript config and a Web browser test; API subtree is byte-identical."
+  }
+}

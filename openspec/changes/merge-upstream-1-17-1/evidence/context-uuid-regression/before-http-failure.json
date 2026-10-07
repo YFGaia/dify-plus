@@ -1,0 +1,13 @@
+{
+  "candidate": "difyplus-acceptance-api:953cf1c-n08-d431d0a6",
+  "actor": "ACTIVE synthetic admin",
+  "authenticated_summary_status": 200,
+  "current_tenant_id": "807337b2-ca2d-4eb7-bc48-d8ddb6e8b60f",
+  "app_detail_positive_status": 200,
+  "conversation_id": "c97bcc92-4593-4f94-a43c-8c7a35604a2b",
+  "context_get_status": 500,
+  "response_code": "unknown",
+  "first_source_frame": "api/services/recommended_app_service_extend.py:210",
+  "db_error": "psycopg2.errors.UndefinedFunction: operator does not exist: character varying = uuid",
+  "llm_generated_conversation": false
+}

@@ -1,123 +1,56 @@
 import type { ModelParameterRule } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import { InputVarType } from '@/app/components/workflow/types'
+import { env } from '@/env'
 import { PromptRole } from '@/models/debug'
 import { PipelineInputVarType } from '@/models/pipeline'
 import { AgentStrategy } from '@/types/app'
-import { DatasetAttr } from '@/types/feature'
 import pkg from '../package.json'
 
-const getBooleanConfig = (
-  envVar: string | undefined,
-  dataAttrKey: DatasetAttr,
-  defaultValue: boolean = true,
-) => {
-  if (envVar !== undefined && envVar !== '')
-    return envVar === 'true'
-  const attrValue = globalThis.document?.body?.getAttribute(dataAttrKey)
-  if (attrValue !== undefined && attrValue !== '')
-    return attrValue === 'true'
+const getStringConfig = (envVar: string | undefined, defaultValue: string) => {
+  if (envVar) return envVar
   return defaultValue
 }
 
-const getNumberConfig = (
-  envVar: string | undefined,
-  dataAttrKey: DatasetAttr,
-  defaultValue: number,
-) => {
-  if (envVar) {
-    const parsed = Number.parseInt(envVar)
-    if (!Number.isNaN(parsed) && parsed > 0)
-      return parsed
-  }
+const isLocalMarketplaceApiUrl = (url: string | undefined) =>
+  /^https?:\/\/(?:localhost|127\.0\.0\.1|\[::1\])(?::|\/)/i.test(url ?? '')
 
-  const attrValue = globalThis.document?.body?.getAttribute(dataAttrKey)
-  if (attrValue) {
-    const parsed = Number.parseInt(attrValue)
-    if (!Number.isNaN(parsed) && parsed > 0)
-      return parsed
-  }
-  return defaultValue
+// Docker entrypoint sets NEXT_PUBLIC_MARKETPLACE_API_PREFIX=${MARKETPLACE_API_URL}/api/v1.
+// MARKETPLACE_API_URL itself is the site origin (no /api/v1). Standalone marketplace
+// images may set MARKETPLACE_API_URL at runtime for SSR; normalize the same way
+// entrypoint does so console SSR does not call the HTML origin and fail Templates.
+const marketplaceApiPrefixFromUrl = (url: string) => {
+  const trimmed = url.replace(/\/$/, '')
+  return trimmed.endsWith('/api/v1') ? trimmed : `${trimmed}/api/v1`
 }
 
-const getStringConfig = (
-  envVar: string | undefined,
-  dataAttrKey: DatasetAttr,
-  defaultValue: string,
-) => {
-  if (envVar)
-    return envVar
+const runtimeMarketplaceApiUrl =
+  typeof globalThis.window === 'undefined' &&
+  process.env.MARKETPLACE_API_URL &&
+  !isLocalMarketplaceApiUrl(process.env.MARKETPLACE_API_URL)
+    ? marketplaceApiPrefixFromUrl(process.env.MARKETPLACE_API_URL)
+    : undefined
 
-  const attrValue = globalThis.document?.body?.getAttribute(dataAttrKey)
-  if (attrValue)
-    return attrValue
-  return defaultValue
-}
-
-/**
- * 在浏览器中，若配置的 API 地址为 localhost 或 127.0.0.1，则改为使用当前页面的 origin，
- * 避免 127.0.0.1 与 localhost 不同源导致 cookie 无法携带（登录后 /api/login/status 拿不到 console 的 access_token）。
- */
-function normalizeSameOriginApiPrefix(raw: string): string {
-  if (typeof globalThis.window === 'undefined' || !raw.startsWith('http'))
-    return raw
-  try {
-    const u = new URL(raw)
-    if (u.hostname === 'localhost' || u.hostname === '127.0.0.1')
-      return globalThis.window.location.origin + (u.pathname.replace(/\/$/, '') || '/')
-    return raw
-  }
-  catch {
-    return raw
-  }
-}
-
-const _apiPrefixRaw = getStringConfig(
-  process.env.NEXT_PUBLIC_API_PREFIX,
-  DatasetAttr.DATA_API_PREFIX,
+export const API_PREFIX = getStringConfig(
+  env.NEXT_PUBLIC_API_PREFIX,
   'http://localhost:5001/console/api',
 )
-const _publicApiPrefixRaw = getStringConfig(
-  process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX,
-  DatasetAttr.DATA_PUBLIC_API_PREFIX,
+export const PUBLIC_API_PREFIX = getStringConfig(
+  env.NEXT_PUBLIC_PUBLIC_API_PREFIX,
   'http://localhost:5001/api',
 )
-
-export const API_PREFIX = normalizeSameOriginApiPrefix(_apiPrefixRaw)
-export const PUBLIC_API_PREFIX = normalizeSameOriginApiPrefix(_publicApiPrefixRaw)
 export const MARKETPLACE_API_PREFIX = getStringConfig(
-  process.env.NEXT_PUBLIC_MARKETPLACE_API_PREFIX,
-  DatasetAttr.DATA_MARKETPLACE_API_PREFIX,
+  runtimeMarketplaceApiUrl || env.NEXT_PUBLIC_MARKETPLACE_API_PREFIX,
   'http://localhost:5002/api',
 )
-export const MARKETPLACE_URL_PREFIX = getStringConfig(
-  process.env.NEXT_PUBLIC_MARKETPLACE_URL_PREFIX,
-  DatasetAttr.DATA_MARKETPLACE_URL_PREFIX,
-  '',
-)
+export const MARKETPLACE_URL_PREFIX = getStringConfig(env.NEXT_PUBLIC_MARKETPLACE_URL_PREFIX, '')
 
-const EDITION = getStringConfig(
-  process.env.NEXT_PUBLIC_EDITION,
-  DatasetAttr.DATA_PUBLIC_EDITION,
-  'SELF_HOSTED',
-)
-
-export const IS_CE_EDITION = EDITION === 'SELF_HOSTED'
-export const IS_CLOUD_EDITION = EDITION === 'CLOUD'
-
-export const AMPLITUDE_API_KEY = getStringConfig(
-  process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY,
-  DatasetAttr.DATA_PUBLIC_AMPLITUDE_API_KEY,
-  '',
-)
+export const AMPLITUDE_API_KEY = getStringConfig(env.NEXT_PUBLIC_AMPLITUDE_API_KEY, '')
+export const COOKIEYES_SITE_KEY = getStringConfig(env.NEXT_PUBLIC_COOKIEYES_SITE_KEY, '')
+export const TURNSTILE_SITE_KEY = getStringConfig(env.NEXT_PUBLIC_TURNSTILE_SITE_KEY, '')
+export const WEB_PREFIX = env.NEXT_PUBLIC_WEB_PREFIX
 
 export const IS_DEV = process.env.NODE_ENV === 'development'
 export const IS_PROD = process.env.NODE_ENV === 'production'
-
-export const SUPPORT_MAIL_LOGIN = !!(
-  process.env.NEXT_PUBLIC_SUPPORT_MAIL_LOGIN
-  || globalThis.document?.body?.getAttribute('data-public-support-mail-login')
-)
-
 export const TONE_LIST = [
   {
     id: 1,
@@ -174,28 +107,15 @@ export const DEFAULT_COMPLETION_PROMPT_CONFIG = {
     assistant_prefix: '',
   },
 }
-
-export const getMaxToken = (modelId: string) => {
-  return modelId === 'gpt-4' || modelId === 'gpt-3.5-turbo-16k' ? 8000 : 4000
-}
-
 export const LOCALE_COOKIE_NAME = 'locale'
 
-const COOKIE_DOMAIN = getStringConfig(
-  process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
-  DatasetAttr.DATA_PUBLIC_COOKIE_DOMAIN,
-  '',
-).trim()
+const COOKIE_DOMAIN = getStringConfig(env.NEXT_PUBLIC_COOKIE_DOMAIN, '').trim()
+export const SOCKET_URL = getStringConfig(env.NEXT_PUBLIC_SOCKET_URL, 'ws://localhost:5001').trim()
 
-export const BATCH_CONCURRENCY = getNumberConfig(
-  process.env.NEXT_PUBLIC_BATCH_CONCURRENCY,
-  DatasetAttr.DATA_PUBLIC_BATCH_CONCURRENCY,
-  5, // default
-)
+export const BATCH_CONCURRENCY = env.NEXT_PUBLIC_BATCH_CONCURRENCY
 
 export const CSRF_COOKIE_NAME = () => {
-  if (COOKIE_DOMAIN)
-    return 'csrf_token'
+  if (COOKIE_DOMAIN) return 'csrf_token'
   const isSecure = API_PREFIX.startsWith('https://')
   return isSecure ? '__Host-csrf_token' : 'csrf_token'
 }
@@ -205,18 +125,12 @@ export const PASSPORT_LOCAL_STORAGE_NAME = (appCode: string) => `passport-${appC
 export const PASSPORT_HEADER_NAME = 'X-App-Passport'
 
 export const WEB_APP_SHARE_CODE_HEADER_NAME = 'X-App-Code'
-
-export const DEFAULT_VALUE_MAX_LEN = 48
-export const DEFAULT_PARAGRAPH_VALUE_MAX_LEN = 1000
-
-export const zhRegex = /^[\u4E00-\u9FA5]$/m
-export const emojiRegex = /^[\uD800-\uDBFF][\uDC00-\uDFFF]$/m
+const zhRegex = /^[\u4E00-\u9FA5]$/m
 export const emailRegex = /^[\w.!#$%&'*+\-/=?^{|}~]+@([\w-]+\.)+[\w-]{2,}$/m
 const MAX_ZN_VAR_NAME_LENGTH = 8
 const MAX_EN_VAR_VALUE_LENGTH = 30
 export const getMaxVarNameLength = (value: string) => {
-  if (zhRegex.test(value))
-    return MAX_ZN_VAR_NAME_LENGTH
+  if (zhRegex.test(value)) return MAX_ZN_VAR_NAME_LENGTH
 
   return MAX_EN_VAR_VALUE_LENGTH
 }
@@ -249,8 +163,6 @@ export const VAR_ITEM_TEMPLATE_IN_PIPELINE = {
 }
 
 export const appDefaultIconBackground = '#D5F5F6'
-
-export const NEED_REFRESH_APP_LIST_KEY = 'needRefreshAppList'
 
 export const DATASET_DEFAULT = {
   top_k: 4,
@@ -357,127 +269,69 @@ Thought: {{agent_scratchpad}}
   `,
 }
 
-export const VAR_REGEX
-  = /\{\{(#[\w-]{1,50}(\.\d+)?(\.[a-z_]\w{0,29}){1,10}#)\}\}/gi
+export const VAR_REGEX = /\{\{(#[\w-]{1,50}(\.\d+)?(\.[a-z_]\w{0,29}){1,10}#)\}\}/gi
 
 export const resetReg = () => (VAR_REGEX.lastIndex = 0)
 
-export const DISABLE_UPLOAD_IMAGE_AS_ICON
-  = process.env.NEXT_PUBLIC_DISABLE_UPLOAD_IMAGE_AS_ICON === 'true'
-
-export const GITHUB_ACCESS_TOKEN
-  = process.env.NEXT_PUBLIC_GITHUB_ACCESS_TOKEN || ''
+export const HITL_INPUT_REG = /\{\{(#\$output\.(?:[a-z_]\w{0,29}){1,10}#)\}\}/gi
+export const DISABLE_UPLOAD_IMAGE_AS_ICON = env.NEXT_PUBLIC_DISABLE_UPLOAD_IMAGE_AS_ICON
 
 export const SUPPORT_INSTALL_LOCAL_FILE_EXTENSIONS = '.difypkg,.difybndl'
 export const FULL_DOC_PREVIEW_LENGTH = 50
 
 export const JSON_SCHEMA_MAX_DEPTH = 10
 
-export const MAX_TOOLS_NUM = getNumberConfig(
-  process.env.NEXT_PUBLIC_MAX_TOOLS_NUM,
-  DatasetAttr.DATA_PUBLIC_MAX_TOOLS_NUM,
-  10,
-)
-export const MAX_PARALLEL_LIMIT = getNumberConfig(
-  process.env.NEXT_PUBLIC_MAX_PARALLEL_LIMIT,
-  DatasetAttr.DATA_PUBLIC_MAX_PARALLEL_LIMIT,
-  10,
-)
-export const TEXT_GENERATION_TIMEOUT_MS = getNumberConfig(
-  process.env.NEXT_PUBLIC_TEXT_GENERATION_TIMEOUT_MS,
-  DatasetAttr.DATA_PUBLIC_TEXT_GENERATION_TIMEOUT_MS,
-  60000,
-)
-export const LOOP_NODE_MAX_COUNT = getNumberConfig(
-  process.env.NEXT_PUBLIC_LOOP_NODE_MAX_COUNT,
-  DatasetAttr.DATA_PUBLIC_LOOP_NODE_MAX_COUNT,
-  100,
-)
-export const MAX_ITERATIONS_NUM = getNumberConfig(
-  process.env.NEXT_PUBLIC_MAX_ITERATIONS_NUM,
-  DatasetAttr.DATA_PUBLIC_MAX_ITERATIONS_NUM,
-  99,
-)
-export const MAX_TREE_DEPTH = getNumberConfig(
-  process.env.NEXT_PUBLIC_MAX_TREE_DEPTH,
-  DatasetAttr.DATA_PUBLIC_MAX_TREE_DEPTH,
-  50,
-)
+export const MAX_TOOLS_NUM = env.NEXT_PUBLIC_MAX_TOOLS_NUM
+export const MAX_PARALLEL_LIMIT = env.NEXT_PUBLIC_MAX_PARALLEL_LIMIT
+export const TEXT_GENERATION_TIMEOUT_MS = env.NEXT_PUBLIC_TEXT_GENERATION_TIMEOUT_MS
+export const WORKFLOW_GENERATION_TIMEOUT_MS = env.NEXT_PUBLIC_WORKFLOW_GENERATION_TIMEOUT_MS
+export const LOOP_NODE_MAX_COUNT = env.NEXT_PUBLIC_LOOP_NODE_MAX_COUNT
+export const MAX_ITERATIONS_NUM = env.NEXT_PUBLIC_MAX_ITERATIONS_NUM
+export const MAX_TREE_DEPTH = env.NEXT_PUBLIC_MAX_TREE_DEPTH
+export const MARKDOWN_FORM_FIELD_NAME_EXTRA_CHARS =
+  env.NEXT_PUBLIC_MARKDOWN_FORM_FIELD_NAME_EXTRA_CHARS
+export const MARKDOWN_FORM_FIELD_NAME_MAX_LENGTH =
+  env.NEXT_PUBLIC_MARKDOWN_FORM_FIELD_NAME_MAX_LENGTH
 
-export const ALLOW_UNSAFE_DATA_SCHEME = getBooleanConfig(
-  process.env.NEXT_PUBLIC_ALLOW_UNSAFE_DATA_SCHEME,
-  DatasetAttr.DATA_PUBLIC_ALLOW_UNSAFE_DATA_SCHEME,
-  false,
-)
-export const ENABLE_WEBSITE_JINAREADER = getBooleanConfig(
-  process.env.NEXT_PUBLIC_ENABLE_WEBSITE_JINAREADER,
-  DatasetAttr.DATA_PUBLIC_ENABLE_WEBSITE_JINAREADER,
-  true,
-)
-export const ENABLE_WEBSITE_FIRECRAWL = getBooleanConfig(
-  process.env.NEXT_PUBLIC_ENABLE_WEBSITE_FIRECRAWL,
-  DatasetAttr.DATA_PUBLIC_ENABLE_WEBSITE_FIRECRAWL,
-  true,
-)
-export const ENABLE_WEBSITE_WATERCRAWL = getBooleanConfig(
-  process.env.NEXT_PUBLIC_ENABLE_WEBSITE_WATERCRAWL,
-  DatasetAttr.DATA_PUBLIC_ENABLE_WEBSITE_WATERCRAWL,
-  false,
-)
-export const ENABLE_SINGLE_DOLLAR_LATEX = getBooleanConfig(
-  process.env.NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX,
-  DatasetAttr.DATA_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX,
-  false,
-)
+export const ALLOW_INLINE_STYLES = env.NEXT_PUBLIC_ALLOW_INLINE_STYLES
+export const ALLOW_UNSAFE_DATA_SCHEME = env.NEXT_PUBLIC_ALLOW_UNSAFE_DATA_SCHEME
+export const ENABLE_WEBSITE_JINAREADER = env.NEXT_PUBLIC_ENABLE_WEBSITE_JINAREADER
+export const ENABLE_WEBSITE_FIRECRAWL = env.NEXT_PUBLIC_ENABLE_WEBSITE_FIRECRAWL
+export const ENABLE_WEBSITE_WATERCRAWL = env.NEXT_PUBLIC_ENABLE_WEBSITE_WATERCRAWL
+export const ENABLE_SINGLE_DOLLAR_LATEX = env.NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX
+export const ENABLE_FEATURE_PREVIEW = env.NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW
 
 export const VALUE_SELECTOR_DELIMITER = '@@@'
 
 export const validPassword = /^(?=.*[a-z])(?=.*\d)\S{8,}$/i
 
-export const ZENDESK_WIDGET_KEY = getStringConfig(
-  process.env.NEXT_PUBLIC_ZENDESK_WIDGET_KEY,
-  DatasetAttr.NEXT_PUBLIC_ZENDESK_WIDGET_KEY,
-  '',
-)
+export const ZENDESK_WIDGET_KEY = getStringConfig(env.NEXT_PUBLIC_ZENDESK_WIDGET_KEY, '')
 export const ZENDESK_FIELD_IDS = {
-  ENVIRONMENT: getStringConfig(
-    process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_ENVIRONMENT,
-    DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_ENVIRONMENT,
-    '',
-  ),
-  VERSION: getStringConfig(
-    process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_VERSION,
-    DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_VERSION,
-    '',
-  ),
-  EMAIL: getStringConfig(
-    process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_EMAIL,
-    DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_EMAIL,
-    '',
-  ),
-  WORKSPACE_ID: getStringConfig(
-    process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_WORKSPACE_ID,
-    DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_WORKSPACE_ID,
-    '',
-  ),
-  PLAN: getStringConfig(
-    process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_PLAN,
-    DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_PLAN,
-    '',
-  ),
+  ENVIRONMENT: getStringConfig(env.NEXT_PUBLIC_ZENDESK_FIELD_ID_ENVIRONMENT, ''),
+  VERSION: getStringConfig(env.NEXT_PUBLIC_ZENDESK_FIELD_ID_VERSION, ''),
+  EMAIL: getStringConfig(env.NEXT_PUBLIC_ZENDESK_FIELD_ID_EMAIL, ''),
+  WORKSPACE_ID: getStringConfig(env.NEXT_PUBLIC_ZENDESK_FIELD_ID_WORKSPACE_ID, ''),
+  PLAN: getStringConfig(env.NEXT_PUBLIC_ZENDESK_FIELD_ID_PLAN, ''),
 }
+
+export const SUPPORT_EMAIL_ADDRESS = getStringConfig(env.NEXT_PUBLIC_SUPPORT_EMAIL_ADDRESS, '')
+
 export const APP_VERSION = pkg.version
 
-export const IS_MARKETPLACE = globalThis.document?.body?.getAttribute('data-is-marketplace') === 'true'
+export const IS_MARKETPLACE = env.NEXT_PUBLIC_IS_MARKETPLACE
 
 export const RAG_PIPELINE_PREVIEW_CHUNK_NUM = 20
 
-export const PROVIDER_WITH_PRESET_TONE = ['langgenius/openai/openai', 'langgenius/azure_openai/azure_openai']
+export const PROVIDER_WITH_PRESET_TONE = [
+  'langgenius/openai/openai',
+  'langgenius/azure_openai/azure_openai',
+]
 
 export const STOP_PARAMETER_RULE: ModelParameterRule = {
   default: [],
   help: {
-    en_US: 'Up to four sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.',
+    en_US:
+      'Up to four sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.',
     zh_Hans: '最多四个序列，API 将停止生成更多的 token。返回的文本将不包含停止序列。',
   },
   label: {

@@ -1,0 +1,92 @@
+time="2026-09-30T14:32:22+08:00" level=warning msg="The \"CERTBOT_EMAIL\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T14:32:22+08:00" level=warning msg="The \"CERTBOT_DOMAIN\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T14:32:22+08:00" level=warning msg="Found orphan containers ([difyplus-verify-postgres-20260930-migration]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+Upgrading extension migration chain only
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/etl_core/trans_comp/trans_json.py:76: SyntaxWarning: invalid escape sequence '\.'
+  :param include_path: path to expand and include. regex string to match from begin. using '|' for multiple ones. default is all. e.g. r"data\.k1", all sub-keys in data.k1 will be included.
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:128: SyntaxWarning: invalid escape sequence '\*'
+  :param file_pattern: the log file name pattern, e.g \*.LOG , access.log
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:463: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:542: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:627: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:723: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:815: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:901: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logger_hanlder.py:230: SyntaxWarning: invalid escape sequence '\s'
+  p2 = u'(?!{0})([\u4e00-\u9fa5\u0800-\u4e00\\w\\.\\-]+)\\s*{0}\\s*"\s*([^"]+?)\s*"'
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+Warning! You didn't set docs_url, redoc_url or openapi_url.
+API Documentation will be skipped.
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 001_recommended_list_sorted, recommended list sorted by usage frequency
+INFO  [alembic.runtime.migration] Running upgrade 001_recommended_list_sorted -> 002_recommended_apps_category, add_recommended_apps_category_join_extend
+INFO  [alembic.runtime.migration] Running upgrade 002_recommended_apps_category -> 003_tenant_model_sync_extend, add_tenant_model_sync_extend
+INFO  [alembic.runtime.migration] Running upgrade 003_tenant_model_sync_extend -> 004_ai_billing_forwarding, ai billing and forwarding two extend
+INFO  [alembic.runtime.migration] Running upgrade 004_ai_billing_forwarding -> 005_account_money_extend, add_account_money_extend
+INFO  [alembic.runtime.migration] Running upgrade 005_account_money_extend -> 006_end_user_account_joins, add_end_user_account_joins_extend
+INFO  [alembic.runtime.migration] Running upgrade 006_end_user_account_joins -> 007_account_money_monthly_stat, add_account_money_monthly_stat_extend
+INFO  [alembic.runtime.migration] Running upgrade 007_account_money_monthly_stat -> 008_account_layover_record, add_account_layover_record_extend
+INFO  [alembic.runtime.migration] Running upgrade 008_account_layover_record -> 009_api_token_money_extend, add_api_token_money_extend
+INFO  [alembic.runtime.migration] Running upgrade 009_api_token_money_extend -> 010_system_integration_extend, add_system_integration_extend
+INFO  [alembic.runtime.migration] Running upgrade 010_system_integration_extend -> 011_system_integration_fields, add_system_integration_extend_fields
+INFO  [alembic.runtime.migration] Running upgrade 011_system_integration_fields -> 012_account_money_extend_unique, add_account_money_extend_unique_constraint
+INFO  [alembic.runtime.migration] Running upgrade 012_account_money_extend_unique -> 013_app_extend, add_app_extend
+INFO  [alembic.runtime.migration] Running upgrade 013_app_extend -> 014_message_context_extend, add_message_context_extend
+INFO  [alembic.runtime.migration] Running upgrade 014_message_context_extend -> 015_code_execution_control, add_code_execution_control_extend
+INFO  [alembic.runtime.migration] Running upgrade 015_code_execution_control -> 016_drop_gva_admin_tables, drop_gva_admin_tables
+INFO  [alembic.runtime.migration] Running upgrade 016_drop_gva_admin_tables -> 017_migrate_recommended_cats, migrate_recommended_categories_to_native
+INFO  [alembic.runtime.migration] Running upgrade 017_migrate_recommended_cats -> 018_drop_recommended_cats, drop_recommended_category_tables
+INFO  [alembic.runtime.migration] Running upgrade 018_drop_recommended_cats -> 019_webapp_auth_switch, add_webapp_auth_enabled_to_app_extend
+INFO  [alembic.runtime.migration] Running upgrade 019_webapp_auth_switch -> 020_workflow_run_account, Create Dify Plus workflow-run ownership metadata table.
+Read back migration heads
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+c3f1a9b2e6d4 (head)
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+Warning! You didn't set docs_url, redoc_url or openapi_url.
+API Documentation will be skipped.
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+020_workflow_run_account (head)
+migration_exit=

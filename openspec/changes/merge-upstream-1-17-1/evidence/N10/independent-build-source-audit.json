@@ -1,0 +1,41 @@
+{
+  "node": "N10",
+  "classification": "confirmed current fullimage provider install defect from preexisting dirty lock virtual sources; package metadata re-resolution fragility",
+  "source_findings": {
+    "api_pyproject_default_groups": [
+      "kms",
+      "storage",
+      "tools",
+      "vdb-all",
+      "trace-all"
+    ],
+    "default_vdb_all_declares_qdrant": true,
+    "canonical_Dockerfile_sync": "uv sync --frozen --no-dev --no-editable",
+    "vdb_lock_members": 30,
+    "vdb_lock_virtual_members": 30,
+    "vdb_members_without_build_system": 30,
+    "runtime_canonical_N08_N09_registry_entrypoint_count": 0,
+    "runtime_QDRANT_distribution_installed": false,
+    "runtime_UV_NO_DEFAULT_GROUPS_UV_NO_GROUP_not_set": true,
+    "runtime_VECTOR_STORE": "qdrant",
+    "HEAD_lock_provider_members_editable": 38,
+    "preexisting_user_c1d83_provider_members_virtual": 38
+  },
+  "inference": "The current canonical image used preserved preexisting user c1d83 lock overlay, which makes38provider members virtual, so uv frozen only installs their dependency SDKs and omits package distributions/src/entrypoints. HEAD lock has all38editable, not this direct defect. Source38pyprojects missing build-system metadata allows re-resolution to virtual; explicit backend is the bounded reproducibility repair. Regenerated serialization is not owned dependency upgrade. HEAD existing lock+new metadata needs actual frozen install evidence, independent of restored dirty-lock candidate.",
+  "required_developer_scope": "review package/build-system and locked virtual sources for default VDB group and analogous declared trace entrypoints; minimum installable workspace package change retaining src discovery and entrypoint contract; regenerate lock preserving preexisting user dependency resolutions",
+  "required_acceptance": [
+    "uv frozen canonical fullimage includes actual default declared provider distributions and entrypoints",
+    "qdrant registry factory import/load succeeds and harmless isolated vector CRUD/query/delete beforeafter without embedding credentials",
+    "All8 trace distributions installed and representative/direct contracted modules import; actual external tracing integration remains external condition, no fabricated trace entrypoint contract",
+    "source/context/lock/build manifest and latest isolated/original23000 deployment affected readback"
+  ],
+  "runtime_report_source": "runtime_acceptance actual image41a5 and0567 metadata probes reported to coordinator; durable runtime evidence still requested",
+  "no_business_source_edits_by_auditor": true,
+  "confirmed_package_scope": {
+    "vdb": 30,
+    "trace": 8,
+    "total": 38,
+    "trace_contract": "core/ops/ops_trace_manager.py and unified_trace/registry.py direct dify_trace_* imports, no universal trace entrypoint claim"
+  },
+  "release_lock_boundary": "HEAD-only provider source correction delta is empty because HEAD alreadyeditable; do not stage user full dirtylock. Runtime candidate restored dirtyoverlay may differ bytes; release HEAD lock must independently frozen install/check before binding code-ready tag."
+}

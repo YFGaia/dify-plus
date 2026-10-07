@@ -1,0 +1,24 @@
+{
+  "captured_at_utc": "2026-09-30T17:38:33Z",
+  "runtime": {
+    "container": "difyplus-upstream1171-quota-selftest-20260930-api-1",
+    "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172"
+  },
+  "lookup": {
+    "provider": "langgenius/deepseek/deepseek",
+    "model": "deepseek-v4-flash",
+    "model_type": "llm",
+    "succeeded": true,
+    "context_size": 1000000,
+    "pricing_object_present": false,
+    "price_fields_returned": [],
+    "credential_validation_called": false,
+    "model_invoke_called": false
+  },
+  "source_contract": {
+    "schema_path": "ModelManager.get_model_instance -> ModelInstance.get_model_schema -> PluginModelRuntime.get_model_schema -> plugin dispatch model/schema",
+    "schema_request_is_not": "validate_provider_credentials or invoke_llm",
+    "price_authority_boundary": "The schema query returned no pricing object/fields for this model. Actual invocation usage is returned through the plugin invoke_llm result and persisted from LLMUsage by generation pipelines; establishing the charged price would require a model invocation, which was not performed.",
+    "model_list_price_boundary": "The ModelProviderService model-list DTO does not expose a pricing field; absence in that DTO/schema readback is not a zero-price claim."
+  }
+}

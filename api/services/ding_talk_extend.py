@@ -1,15 +1,38 @@
+"""DingTalk login integration helpers.
+
+The DingTalk endpoints are fork-specific optional integrations. Missing DingTalk
+SDK packages must not prevent the core API, workers, or workflow execution from
+starting, because most deployments do not enable this login path.
+"""
+
 import json
 import logging
 import secrets
 import time
+from typing import Any
 
 import requests
-from alibabacloud_dingtalk.oauth2_1_0 import models as dingtalkoauth_2__1__0_models
-from alibabacloud_dingtalk.oauth2_1_0.client import Client as dingtalkoauth2_1_0Client
-from alibabacloud_tea_openapi import models as open_api_models
-from alibabacloud_tea_util.client import Client as UtilClient
 from flask import request
-from pypinyin import lazy_pinyin
+
+try:
+    from alibabacloud_dingtalk.oauth2_1_0 import models as dingtalkoauth_2__1__0_models
+    from alibabacloud_dingtalk.oauth2_1_0.client import Client as dingtalkoauth2_1_0Client
+    from alibabacloud_tea_openapi import models as open_api_models
+    from alibabacloud_tea_util.client import Client as UtilClient
+except ModuleNotFoundError as exc:
+    dingtalkoauth_2__1__0_models = None
+    # 命名与上方 SDK 导入别名保持一致，便于降级赋值，故豁免 mixedCase 检查
+    dingtalkoauth2_1_0Client = None  # noqa: N816
+    open_api_models = None
+    UtilClient = None
+    DINGTALK_SDK_IMPORT_ERROR: ModuleNotFoundError | None = exc
+else:
+    DINGTALK_SDK_IMPORT_ERROR = None
+
+try:
+    from pypinyin import lazy_pinyin
+except ModuleNotFoundError:
+    lazy_pinyin = None
 
 from configs import dify_config
 from extensions.ext_database import db
@@ -25,12 +48,25 @@ DINGTALK_ACCOUNT_TOKEN = {"time": 0, "token": ""}
 
 class DingTalkService:
     @classmethod
-    def create_client(cls) -> dingtalkoauth2_1_0Client:
+    def _get_sdk_unavailable_error(cls) -> str:
+        if DINGTALK_SDK_IMPORT_ERROR is None:
+            return ""
+
+        package_name = DINGTALK_SDK_IMPORT_ERROR.name or "alibabacloud_dingtalk"
+        logger.warning("DingTalk SDK is unavailable: %s", DINGTALK_SDK_IMPORT_ERROR)
+        return f"DingTalk integration dependency is not installed: {package_name}"
+
+    @classmethod
+    def create_client(cls) -> Any:
         """
         使用 Token 初始化账号Client
         @return: Client
         @throws Exception
         """
+        dependency_error = cls._get_sdk_unavailable_error()
+        if dependency_error:
+            raise RuntimeError(dependency_error)
+
         config = open_api_models.Config()
         config.protocol = "https"
         config.region_id = "central"
@@ -55,8 +91,8 @@ class DingTalkService:
         import re
 
         # 处理路径中的数组索引，如 data[0].userName -> data.[0].userName
-        path = re.sub(r'\[(\d+)\]', r'.[\1]', path)
-        parts = path.split('.')
+        path = re.sub(r"\[(\d+)\]", r".[\1]", path)
+        parts = path.split(".")
         current = dictionary
 
         for part in parts:
@@ -64,7 +100,7 @@ class DingTalkService:
                 continue
 
             # 处理数组索引
-            array_match = re.match(r'\[(\d+)\]', part)
+            array_match = re.match(r"\[(\d+)\]", part)
             if array_match:
                 index = int(array_match.group(1))
                 if isinstance(current, list) and 0 <= index < len(current):
@@ -90,148 +126,33 @@ class DingTalkService:
         Returns:
             邮箱地址，获取失败返回空字符串
         """
+        from services.dingtalk_email_lookup_extend import lookup_email
+
         try:
-            # 解析config字段
-            if not integration.config:
+            config = json.loads(integration.config or "{}").get("email_api", {})
+            if not config.get("enabled", False):
                 return ""
-
-            config_data = json.loads(integration.config)
-            email_api_config = config_data.get("email_api", {})
-
-            # 检查是否启用
-            if not email_api_config.get("enabled", False):
-                return ""
-
-            # 获取配置参数
-            api_url = email_api_config.get("url", "")
-            method = email_api_config.get("method", "GET").upper()
-            param_field = email_api_config.get("request_param_field", "userId")
-            email_field = email_api_config.get("response_email_field", "data[0].userName")
-            body_type = email_api_config.get("body_type", "raw")
-            headers = email_api_config.get("headers", {})
-            authorization = email_api_config.get("authorization", {})
-            body_data = email_api_config.get("body_data", {})
-
-            if not api_url:
-                logger.warning("Third-party email API URL is not configured")
-                return ""
-
-            # 准备请求头
-            request_headers = dict(headers) if headers else {}
-
-            # 处理Authorization
-            auth = None
-            auth_type = authorization.get("type", "none")
-            if auth_type == "bearer":
-                token = authorization.get("token", "")
-                if token:
-                    request_headers["Authorization"] = f"Bearer {token}"
-            elif auth_type == "basic":
-                username = authorization.get("username", "")
-                password = authorization.get("password", "")
-                if username and password:
-                    from requests.auth import HTTPBasicAuth
-                    auth = HTTPBasicAuth(username, password)
-
-            # 构建请求数据
-            request_data = {}
-
-            # 处理Body数据（仅POST/PUT/DELETE）
-            if method in ["POST", "PUT", "DELETE"]:
-                if body_type == "form-data":
-                    # form-data: 合并body_data中的form_data
-                    form_data_items = body_data.get("form_data", [])
-                    for item in form_data_items:
-                        if isinstance(item, dict) and "key" in item and "value" in item:
-                            key = item.get("key", "").strip()
-                            value = item.get("value", "").strip()
-                            if key:
-                                request_data[key] = value
-                    # 确保主请求字段的值始终是userid（覆盖body_data中的值）
-                    request_data[param_field] = userid
-                    # form-data使用data参数
-                    response = requests.request(
-                        method, api_url, data=request_data,
-                        headers=request_headers, auth=auth, timeout=10
-                    )
-                elif body_type == "x-www-form-urlencoded":
-                    # x-www-form-urlencoded: 合并body_data中的urlencoded
-                    urlencoded_items = body_data.get("urlencoded", [])
-                    for item in urlencoded_items:
-                        if isinstance(item, dict) and "key" in item and "value" in item:
-                            key = item.get("key", "").strip()
-                            value = item.get("value", "").strip()
-                            if key:
-                                request_data[key] = value
-                    # 确保主请求字段的值始终是userid（覆盖body_data中的值）
-                    request_data[param_field] = userid
-                    # 确保Content-Type正确
-                    if "Content-Type" not in request_headers:
-                        request_headers["Content-Type"] = "application/x-www-form-urlencoded"
-                    response = requests.request(
-                        method, api_url, data=request_data,
-                        headers=request_headers, auth=auth, timeout=10
-                    )
-                else:  # raw (JSON)
-                    # raw: 合并body_data中的raw JSON
-                    raw_json = body_data.get("raw", "")
-                    if raw_json:
-                        try:
-                            raw_data = json.loads(raw_json)
-                            if isinstance(raw_data, dict):
-                                request_data.update(raw_data)
-                        except json.JSONDecodeError:
-                            logger.warning("Failed to parse raw JSON body: %s", raw_json)
-                    # 确保主请求字段的值始终是userid（覆盖raw JSON中的值）
-                    request_data[param_field] = userid
-                    # 确保Content-Type正确
-                    if "Content-Type" not in request_headers:
-                        request_headers["Content-Type"] = "application/json"
-                    response = requests.request(
-                        method, api_url, json=request_data,
-                        headers=request_headers, auth=auth, timeout=10
-                    )
-            else:  # GET请求
-                # GET请求：所有数据作为URL参数
-                response = requests.get(
-                    api_url, params=request_data,
-                    headers=request_headers, auth=auth, timeout=10
-                )
-
-            # 检查响应
-            if response.status_code != 200:
-                logger.error(f"Third-party email API returned status code: {response.status_code}")
-                return ""
-
-            # 解析响应
-            response_data = response.json()
-            email = cls.extract_data(response_data, email_field)
-
-            if email and isinstance(email, str) and "@" in email:
-                logger.info("Successfully retrieved email from third-party API for userid: %s", userid)
-                return email
-            else:
-                logger.warning("Failed to extract valid email from response using path: %s", email_field)
-                return ""
-
-        except json.JSONDecodeError as e:
-            logger.error("Failed to parse email API config: %s", e)
-            return ""
-        except requests.exceptions.RequestException as e:
-            logger.error("Failed to call third-party email API: %s", e)
-            return ""
-        except Exception as e:
-            logger.error("Unexpected error in get_email_from_third_party_api: %s", e)
+            result = lookup_email(userid, config)
+            return result.get("email", "") if result["result"] == "success" else ""
+        except Exception:
+            logger.warning("Enterprise email lookup failed; using DingTalk email fallback")
             return ""
 
     @classmethod
     def get_user_token(cls, code: str) -> (str, str):
+        dependency_error = cls._get_sdk_unavailable_error()
+        if dependency_error:
+            return "", dependency_error
+
         # get token
         client = cls.create_client()
         integration: SystemIntegrationExtend = (
-            db.session.query(SystemIntegrationExtend).filter(
+            db.session.query(SystemIntegrationExtend)
+            .filter(
                 SystemIntegrationExtend.status == True,
-                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK).first()
+                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK,
+            )
+            .first()
         )
         if integration is None:
             return "", "尚未配置钉钉登录"
@@ -251,12 +172,19 @@ class DingTalkService:
     @classmethod
     def get_access_token(cls) -> (str, str):
         global DINGTALK_ACCOUNT_TOKEN
+        dependency_error = cls._get_sdk_unavailable_error()
+        if dependency_error:
+            return "", dependency_error
+
         if DINGTALK_ACCOUNT_TOKEN["time"] > time.time():
             return DINGTALK_ACCOUNT_TOKEN["token"], ""
         integration: SystemIntegrationExtend = (
-            db.session.query(SystemIntegrationExtend).filter(
+            db.session.query(SystemIntegrationExtend)
+            .filter(
                 SystemIntegrationExtend.status == True,
-                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK).first()
+                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK,
+            )
+            .first()
         )
         if integration is None:
             return "", "尚未配置钉钉登录"
@@ -284,14 +212,17 @@ class DingTalkService:
     def auto_create_user(cls, userid: str) -> (str, str):
         # 获取集成配置
         integration: SystemIntegrationExtend = (
-            db.session.query(SystemIntegrationExtend).filter(
+            db.session.query(SystemIntegrationExtend)
+            .filter(
                 SystemIntegrationExtend.status == True,
-                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK).first()
+                SystemIntegrationExtend.classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK,
+            )
+            .first()
         )
 
         dingTalkToken, err = cls.get_access_token()
         responses = requests.post(
-            f'https://oapi.dingtalk.com/topapi/v2/user/get?access_token={dingTalkToken}',
+            f"https://oapi.dingtalk.com/topapi/v2/user/get?access_token={dingTalkToken}",
             json={"userid": userid},
         )
         # Check the response status code
@@ -301,7 +232,7 @@ class DingTalkService:
         if reqs["errcode"] != 0:
             return "", "Request for user information failed: " + userid + " " + json.dumps(reqs)
         # Check if the user exists
-        username = reqs["result"]['name']
+        username = reqs["result"]["name"]
 
         # 优先尝试从第三方API获取邮箱
         email = ""
@@ -314,12 +245,17 @@ class DingTalkService:
 
         # 最终降级：使用拼音生成邮箱
         if not email:
-            email = f"{''.join(lazy_pinyin(username))}@{dify_config.EMAIL_DOMAIN}"
-            logger.info("Using pinyin-generated email for user %s: %s", userid, email)
+            if lazy_pinyin is not None:
+                email = f"{''.join(lazy_pinyin(username))}@{dify_config.EMAIL_DOMAIN}"
+                logger.info("Using pinyin-generated email for user %s: %s", userid, email)
+            else:
+                email = f"{userid}@{dify_config.EMAIL_DOMAIN}"
+                logger.warning(
+                    "pypinyin is unavailable, using DingTalk userid as email local part for %s",
+                    userid,
+                )
 
-        account: Account = (
-            db.session.query(Account).filter(Account.email == email).first()
-        )
+        account: Account = db.session.query(Account).filter(Account.email == email).first()
         if account is None:
             # registered user
             try:
@@ -330,6 +266,7 @@ class DingTalkService:
                     name=username,
                     password=new_password,
                     language=dify_config.DEFAULT_LANGUAGE,
+                    session=db.session(),
                 )
             except EOFError as a:
                 return "", f"register user error: {str(a)}， info {json.loads(reqs)}"
@@ -342,9 +279,11 @@ class DingTalkService:
                     super_admin_tenant_id, account.id
                 )
                 if isCreate:
-                    TenantService.switch_tenant(account, super_admin_tenant_id)
+                    # switch_tenant/login 自上游 1.16.0 起要求显式 session（keyword-only 无默认值），
+                    # 此处沿用模块的全局 db.session（经 db.session() 取实体 Session）
+                    TenantService.switch_tenant(account, super_admin_tenant_id, session=db.session())
         # token jwt
-        token = AccountService.login(account, ip_address=extract_remote_ip(request))
+        token = AccountService.login(account, session=db.session(), ip_address=extract_remote_ip(request))
         return token, ""
 
     @classmethod
@@ -366,17 +305,21 @@ class DingTalkService:
             return None, "", f"Request failed, status code: {response.status_code}, msg: {response.text}"
         # Print the response content
         req = response.json()
-        if "statusCode" in req.keys() and req["statusCode"] != 200:
+        if "statusCode" in req and req["statusCode"] != 200:
             return None, "", f"Request failed,  msg: {req.message}"
         # 提取userid
         dingTalkToken, err = cls.get_access_token()
         unionIdResponse = requests.post(
             f"https://oapi.dingtalk.com/topapi/user/getbyunionid?access_token={dingTalkToken}",
-            json={"unionid": req["unionId"]}
+            json={"unionid": req["unionId"]},
         )
         # Check the response status code
         if unionIdResponse.status_code != 200:
-            return None, "", f"unionIdResponse failed, status code: {unionIdResponse.status_code}, msg: {unionIdResponse.text}"
+            return (
+                None,
+                "",
+                f"unionIdResponse failed, status code: {unionIdResponse.status_code}, msg: {unionIdResponse.text}",
+            )
         # Print the response content
         unionIdReq = unionIdResponse.json()
         if unionIdReq["errcode"] != 0:

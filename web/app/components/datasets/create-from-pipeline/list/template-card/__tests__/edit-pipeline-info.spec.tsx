@@ -1,0 +1,579 @@
+import type { ReactElement } from 'react'
+import type { PipelineTemplate } from '@/models/pipeline'
+import { Dialog, DialogContent } from '@langgenius/dify-ui/dialog'
+import { fireEvent, screen, render as testingLibraryRender, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { ChunkingMode } from '@/models/datasets'
+import EditPipelineInfo from '../edit-pipeline-info'
+
+const render = (ui: ReactElement) =>
+  testingLibraryRender(
+    <Dialog open>
+      <DialogContent>{ui}</DialogContent>
+    </Dialog>,
+  )
+
+const mockUpdatePipeline = vi.fn()
+const mockInvalidCustomizedTemplateList = vi.fn()
+
+vi.mock('@/service/use-pipeline', () => ({
+  useUpdateTemplateInfo: () => ({
+    mutateAsync: mockUpdatePipeline,
+  }),
+  useInvalidCustomizedTemplateList: () => mockInvalidCustomizedTemplateList,
+}))
+
+const { mockToastError } = vi.hoisted(() => ({
+  mockToastError: vi.fn(),
+}))
+
+vi.mock('@langgenius/dify-ui/toast', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@langgenius/dify-ui/toast')>()
+  return {
+    ...actual,
+    toast: {
+      ...actual.toast,
+      error: mockToastError,
+    },
+  }
+})
+
+const createPipelineTemplate = (overrides: Partial<PipelineTemplate> = {}): PipelineTemplate => ({
+  id: 'pipeline-1',
+  name: 'Test Pipeline',
+  description: 'Test pipeline description',
+  icon: {
+    icon_type: 'emoji',
+    icon: '📊',
+    icon_background: '#FFF4ED',
+    icon_url: '',
+  },
+  chunk_structure: ChunkingMode.text,
+  position: 0,
+  ...overrides,
+})
+
+const createImagePipelineTemplate = (): PipelineTemplate => ({
+  id: 'pipeline-2',
+  name: 'Image Pipeline',
+  description: 'Pipeline with image icon',
+  icon: {
+    icon_type: 'image',
+    icon: 'file-id-123',
+    icon_background: '',
+    icon_url: 'https://example.com/icon.png',
+  },
+  chunk_structure: ChunkingMode.text,
+  position: 1,
+})
+
+// EditPipelineInfo Component Tests
+
+describe('EditPipelineInfo', () => {
+  const defaultProps = {
+    onClose: vi.fn(),
+    pipeline: createPipelineTemplate(),
+  }
+  const getIconButton = () =>
+    screen.getByRole('button', {
+      name: 'common.operation.edit datasetPipeline.pipelineNameAndIcon',
+    })
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockToastError.mockReset()
+  })
+
+  describe('Rendering', () => {
+    it('should render title', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      expect(screen.getByRole('dialog', { name: /editPipelineInfo/i })).toBeInTheDocument()
+    })
+
+    it('should render close button', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      expect(screen.getByRole('button', { name: 'common.operation.close' })).toBeInTheDocument()
+    })
+
+    it('should render name input with initial value', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      const input = screen.getByDisplayValue('Test Pipeline')
+      expect(input).toBeInTheDocument()
+    })
+
+    it('should render description textarea with initial value', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      const textarea = screen.getByDisplayValue('Test pipeline description')
+      expect(textarea).toBeInTheDocument()
+    })
+
+    it('should render save and cancel buttons', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      expect(screen.getByText(/operation\.save/i)).toBeInTheDocument()
+      expect(screen.getByText(/operation\.cancel/i)).toBeInTheDocument()
+    })
+
+    it('should render name and icon label', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      expect(screen.getByText(/pipelineNameAndIcon/i)).toBeInTheDocument()
+    })
+
+    it('should render description label', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      expect(screen.getByText(/knowledgeDescription/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('User Interactions', () => {
+    it('should call onClose when close button is clicked', async () => {
+      const user = userEvent.setup()
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      await user.click(screen.getByRole('button', { name: 'common.operation.close' }))
+
+      expect(defaultProps.onClose).toHaveBeenCalledTimes(1)
+    })
+
+    it('should call onClose when cancel button is clicked', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const cancelButton = screen.getByText(/operation\.cancel/i)
+      fireEvent.click(cancelButton)
+
+      expect(defaultProps.onClose).toHaveBeenCalledTimes(1)
+    })
+
+    it('should update name when input changes', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const input = screen.getByDisplayValue('Test Pipeline')
+      fireEvent.change(input, { target: { value: 'New Pipeline Name' } })
+
+      expect(screen.getByDisplayValue('New Pipeline Name')).toBeInTheDocument()
+    })
+
+    it('should update description when textarea changes', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const textarea = screen.getByDisplayValue('Test pipeline description')
+      fireEvent.change(textarea, { target: { value: 'New description' } })
+
+      expect(screen.getByDisplayValue('New description')).toBeInTheDocument()
+    })
+
+    it('should submit with Enter from the name input', async () => {
+      const user = userEvent.setup()
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      await user.click(screen.getByRole('textbox', { name: 'datasetPipeline.pipelineNameAndIcon' }))
+      await user.keyboard('{Enter}')
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).toHaveBeenCalled()
+      })
+    })
+
+    it('should invalidate template list on successful save', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockInvalidCustomizedTemplateList).toHaveBeenCalled()
+      })
+    })
+
+    it('should call onClose on successful save', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(defaultProps.onClose).toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('Validation', () => {
+    it('should show error toast when name is empty', async () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const input = screen.getByDisplayValue('Test Pipeline')
+      fireEvent.change(input, { target: { value: '' } })
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockToastError).toHaveBeenCalledWith('datasetPipeline.editPipelineInfoNameRequired')
+      })
+    })
+
+    it('should not call updatePipeline when name is empty', async () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const input = screen.getByDisplayValue('Test Pipeline')
+      fireEvent.change(input, { target: { value: '' } })
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  // Icon Types Tests (Branch Coverage for lines 29-30, 36-37)
+  describe('Icon Types', () => {
+    it('should initialize with emoji icon type when pipeline has emoji icon', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      // Should render component with emoji icon
+      expect(getIconButton()).toBeInTheDocument()
+      expect(screen.getByDisplayValue('Test Pipeline')).toBeInTheDocument()
+    })
+
+    it('should initialize with image icon type when pipeline has image icon', async () => {
+      const imagePipeline = createImagePipelineTemplate()
+      // Verify test data has image icon type - this ensures the factory returns correct data
+      expect(imagePipeline.icon.icon_type).toBe('image')
+      expect(imagePipeline.icon.icon).toBe('file-id-123')
+      expect(imagePipeline.icon.icon_url).toBe('https://example.com/icon.png')
+
+      const props = {
+        onClose: vi.fn(),
+        pipeline: imagePipeline,
+      }
+      render(<EditPipelineInfo {...props} />)
+      // Component should initialize with image icon state
+      expect(screen.getByDisplayValue('Image Pipeline')).toBeInTheDocument()
+      expect(getIconButton()).toBeInTheDocument()
+    })
+
+    it('should render correctly with image icon and then update', () => {
+      // This test exercises both the initialization and update paths for image icon
+      const imagePipeline = createImagePipelineTemplate()
+      const props = {
+        ...defaultProps,
+        pipeline: imagePipeline,
+      }
+      render(<EditPipelineInfo {...props} />)
+
+      // Verify component rendered with image pipeline
+      expect(screen.getByDisplayValue('Image Pipeline')).toBeInTheDocument()
+
+      // Open icon picker
+      fireEvent.click(getIconButton())
+      expect(screen.getByPlaceholderText('Search emojis...')).toBeInTheDocument()
+    })
+
+    it('should save correct icon_info when starting with image icon type', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      const props = {
+        ...defaultProps,
+        pipeline: createImagePipelineTemplate(),
+      }
+      render(<EditPipelineInfo {...props} />)
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).toHaveBeenCalledWith(
+          expect.objectContaining({
+            icon_info: expect.objectContaining({
+              icon_type: 'image',
+              icon: 'file-id-123',
+            }),
+          }),
+          expect.any(Object),
+        )
+      })
+    })
+
+    it('should save correct icon_info when starting with emoji icon type', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).toHaveBeenCalledWith(
+          expect.objectContaining({
+            icon_info: expect.objectContaining({
+              icon_type: 'emoji',
+              icon: '📊',
+            }),
+          }),
+          expect.any(Object),
+        )
+      })
+    })
+
+    it('should revert to initial image icon when picker is closed without selection', async () => {
+      const props = {
+        ...defaultProps,
+        pipeline: createImagePipelineTemplate(),
+      }
+      render(<EditPipelineInfo {...props} />)
+
+      // Open picker
+      fireEvent.click(getIconButton())
+      expect(screen.getByPlaceholderText('Search emojis...')).toBeInTheDocument()
+
+      // Close without selection - should revert to original image icon
+      fireEvent.click(screen.getByRole('button', { name: /iconPicker\.cancel/ }))
+
+      await waitFor(() => {
+        expect(screen.queryByPlaceholderText('Search emojis...')).not.toBeInTheDocument()
+      })
+    })
+
+    it('should switch from image icon to emoji icon when selected', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      const props = {
+        ...defaultProps,
+        pipeline: createImagePipelineTemplate(),
+      }
+      render(<EditPipelineInfo {...props} />)
+
+      // Open picker and select emoji
+      fireEvent.click(getIconButton())
+      const emojiButton = document.querySelector('em-emoji')?.closest('button')
+      expect(emojiButton).toBeTruthy()
+      fireEvent.click(emojiButton!)
+      fireEvent.click(screen.getByRole('button', { name: '#E4FBCC' }))
+      fireEvent.click(screen.getByRole('button', { name: /iconPicker\.ok/ }))
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).toHaveBeenCalledWith(
+          expect.objectContaining({
+            icon_info: expect.objectContaining({
+              icon_type: 'emoji',
+              icon: expect.any(String),
+              icon_background: '#E4FBCC',
+            }),
+          }),
+          expect.any(Object),
+        )
+      })
+    })
+
+    it('should switch to the image tab in the real picker', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      fireEvent.click(getIconButton())
+      fireEvent.click(screen.getByRole('button', { name: /iconPicker\.image/ }))
+
+      expect(screen.getByRole('button', { name: /iconPicker\.ok/ })).toBeInTheDocument()
+    })
+  })
+
+  // AppIconPicker Tests (Branch Coverage)
+  describe('AppIconPicker', () => {
+    it('should not show picker initially', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      expect(screen.queryByPlaceholderText('Search emojis...')).not.toBeInTheDocument()
+    })
+
+    it('should open picker when icon is clicked', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      fireEvent.click(getIconButton())
+
+      expect(screen.getByPlaceholderText('Search emojis...')).toBeInTheDocument()
+    })
+
+    it('should close picker and update icon when emoji style is selected', async () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      fireEvent.click(getIconButton())
+
+      fireEvent.click(screen.getByRole('button', { name: '#E4FBCC' }))
+      fireEvent.click(screen.getByRole('button', { name: /iconPicker\.ok/ }))
+
+      await waitFor(() => {
+        expect(screen.queryByPlaceholderText('Search emojis...')).not.toBeInTheDocument()
+      })
+    })
+
+    it('should keep picker open when only switching to image tab', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      fireEvent.click(getIconButton())
+
+      fireEvent.click(screen.getByRole('button', { name: /iconPicker\.image/ }))
+
+      expect(screen.getByRole('button', { name: /iconPicker\.ok/ })).toBeInTheDocument()
+    })
+
+    it('should revert icon when picker is closed without selection', async () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      fireEvent.click(getIconButton())
+
+      fireEvent.click(screen.getByRole('button', { name: /iconPicker\.cancel/ }))
+
+      await waitFor(() => {
+        expect(screen.queryByPlaceholderText('Search emojis...')).not.toBeInTheDocument()
+      })
+    })
+
+    it('should save with new emoji icon selection', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      // Open picker and select new emoji
+      fireEvent.click(getIconButton())
+      fireEvent.click(screen.getByRole('button', { name: '#E4FBCC' }))
+      fireEvent.click(screen.getByRole('button', { name: /iconPicker\.ok/ }))
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).toHaveBeenCalledWith(
+          expect.objectContaining({
+            icon_info: expect.objectContaining({
+              icon_type: 'emoji',
+              icon: '📊',
+              icon_background: '#E4FBCC',
+            }),
+          }),
+          expect.any(Object),
+        )
+      })
+    })
+
+    it('should save after confirming a real emoji selection from an image icon', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      render(<EditPipelineInfo {...defaultProps} pipeline={createImagePipelineTemplate()} />)
+
+      fireEvent.click(getIconButton())
+      const emojiButton = document.querySelector('em-emoji')?.closest('button')
+      expect(emojiButton).toBeTruthy()
+      fireEvent.click(emojiButton!)
+      fireEvent.click(screen.getByRole('button', { name: '#E4FBCC' }))
+      fireEvent.click(screen.getByRole('button', { name: /iconPicker\.ok/ }))
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).toHaveBeenCalledWith(
+          expect.objectContaining({
+            icon_info: expect.objectContaining({
+              icon_type: 'emoji',
+              icon: expect.any(String),
+              icon_background: '#E4FBCC',
+            }),
+          }),
+          expect.any(Object),
+        )
+      })
+    })
+  })
+
+  // Save Request Tests
+  describe('Save Request', () => {
+    it('should send correct request with emoji icon', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      render(<EditPipelineInfo {...defaultProps} />)
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).toHaveBeenCalledWith(
+          expect.objectContaining({
+            template_id: 'pipeline-1',
+            name: 'Test Pipeline',
+            description: 'Test pipeline description',
+            icon_info: expect.objectContaining({
+              icon_type: 'emoji',
+            }),
+          }),
+          expect.any(Object),
+        )
+      })
+    })
+
+    it('should send correct request with image icon', async () => {
+      mockUpdatePipeline.mockImplementation((_data, callbacks) => {
+        callbacks.onSuccess()
+        return Promise.resolve()
+      })
+
+      const props = {
+        ...defaultProps,
+        pipeline: createImagePipelineTemplate(),
+      }
+      render(<EditPipelineInfo {...props} />)
+
+      const saveButton = screen.getByText(/operation\.save/i)
+      fireEvent.click(saveButton)
+
+      await waitFor(() => {
+        expect(mockUpdatePipeline).toHaveBeenCalledWith(
+          expect.objectContaining({
+            template_id: 'pipeline-2',
+            icon_info: expect.objectContaining({
+              icon_type: 'image',
+            }),
+          }),
+          expect.any(Object),
+        )
+      })
+    })
+  })
+
+  describe('Layout', () => {
+    it('should have close button in header', () => {
+      render(<EditPipelineInfo {...defaultProps} />)
+      const closeButton = screen.getByRole('button', { name: 'common.operation.close' })
+      expect(closeButton).toHaveClass('right-5', 'top-5')
+    })
+  })
+})

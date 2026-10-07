@@ -1,0 +1,59 @@
+{
+  "scope": "B01/B02 synthetic invitations normalized collision and existing member balance",
+  "mail_type_disabled_readonly_asserted": true,
+  "calls": [
+    {
+      "method": "POST",
+      "path": "/workspaces/current/members/invite-email",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/workspaces/current/members/invite-email",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/workspaces/current/members/invite-email",
+      "status": 201
+    },
+    {
+      "method": "POST",
+      "path": "/workspaces/current/members/invite-email",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/account/money",
+      "status": 200
+    }
+  ],
+  "secrets_printed_or_persisted": false,
+  "invitations": [
+    {
+      "synthetic_email": "dify.acceptance.20260930.alias@gmail.com",
+      "status": "success",
+      "message": null
+    },
+    {
+      "synthetic_email": "DifyAcceptance20260930Alias+probe@googlemail.com",
+      "status": "failed",
+      "message": "An account with an equivalent email already exists."
+    },
+    {
+      "synthetic_email": "DIFY.ACCEPTANCE.20260930.ALIAS@GMAIL.COM",
+      "status": "success",
+      "message": null
+    },
+    {
+      "synthetic_email": "ACCEPTANCE-MEMBER-01@example.invalid",
+      "status": "already_member",
+      "message": "Account already in workspace."
+    }
+  ],
+  "existing_member_after_legitimate_login_invite_balance": {
+    "total_quota": 23.1234567,
+    "used_quota": 0.0
+  },
+  "image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619"
+}

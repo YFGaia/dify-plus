@@ -8,7 +8,47 @@ from .account import (
     TenantAccountRole,
     TenantStatus,
 )
+from .agent import (
+    Agent,
+    AgentConfigDraft,
+    AgentConfigDraftType,
+    AgentConfigRevision,
+    AgentConfigRevisionOperation,
+    AgentConfigSnapshot,
+    AgentConfigVersionKind,
+    AgentDebugConversation,
+    AgentHomeSnapshot,
+    AgentIconType,
+    AgentKind,
+    AgentScope,
+    AgentSource,
+    AgentStatus,
+    AgentWorkingResourceStatus,
+    AgentWorkspace,
+    AgentWorkspaceBinding,
+    AgentWorkspaceOwnerType,
+    WorkflowAgentBindingType,
+    WorkflowAgentNodeBinding,
+)
 from .api_based_extension import APIBasedExtension, APIBasedExtensionPoint
+from .casdoor_avatar_file_guard_extend import CasdoorAvatarFileGuardExtend
+from .casdoor_extend import (
+    CasdoorAuditExtend,
+    CasdoorConfigRevisionExtend,
+    CasdoorIdentityExtend,
+    CasdoorIntegrationExtend,
+    CasdoorManagedMembershipExtend,
+    CasdoorNamespaceExtend,
+    CasdoorSyncIntentExtend,
+    CasdoorValidationExtend,
+)
+from .comment import (
+    WorkflowComment,
+    WorkflowCommentMention,
+    WorkflowCommentReply,
+)
+from .credential_permission import CredentialPermission
+from .credential_permission import CredentialType as CredentialPermissionType
 from .dataset import (
     AppDatasetJoin,
     Dataset,
@@ -26,17 +66,18 @@ from .dataset import (
     TidbAuthBinding,
     Whitelist,
 )
-
-# extend: db
-from .engine import db
+from .engine import db  # Fork model compatibility export.
 from .enums import (
     AppTriggerStatus,
     AppTriggerType,
     CreatorUserRole,
-    UserFrom,
+    PermissionEnum,
     WorkflowRunTriggeredFrom,
     WorkflowTriggerStatus,
 )
+from .execution_extra_content import ExecutionExtraContent, HumanInputContent
+from .human_input import HumanInputForm, HumanInputFormUploadFile, HumanInputFormUploadToken
+from .invitation_authority_extend import InvitationAuthorityIssuanceExtend, InvitationAuthorityLifecycleExtend
 from .model import (
     AccountTrialAppRecord,
     ApiRequest,
@@ -47,7 +88,9 @@ from .model import (
     AppMCPServer,
     AppMode,
     AppModelConfig,
+    AppStar,
     Conversation,
+    DatasetApiTokenBinding,
     DatasetRetrieverResource,
     DifySetup,
     EndUser,
@@ -70,7 +113,8 @@ from .model import (
     TrialApp,
     UploadFile,
 )
-from .oauth import DatasourceOauthParamConfig, DatasourceProvider
+from .oauth import DatasourceOauthParamConfig, DatasourceProvider, OAuthAccessToken
+from .onboarding import AccountStepByStepTourState
 from .provider import (
     LoadBalancingModelConfig,
     Provider,
@@ -82,8 +126,11 @@ from .provider import (
     TenantDefaultModel,
     TenantPreferredModelProvider,
 )
+from .skill import AgentSkillBinding, Skill, SkillDraftFile, SkillFileKind, SkillFileStorage, SkillVersion
+from .snippet import CustomizedSnippet, SnippetType
 from .source import DataSourceApiKeyAuthBinding, DataSourceOauthBinding
-from .system_extend import SystemIntegrationExtend  # Extend System Integration
+from .system_extend import SystemIntegrationExtend
+from .system_management_scope_extend import SystemManagementScopeExtend
 from .task import CeleryTask, CeleryTaskSet
 from .tools import (
     ApiToolProvider,
@@ -108,13 +155,18 @@ from .workflow import (
     WorkflowAppLog,
     WorkflowAppLogCreatedFrom,
     WorkflowArchiveLog,
+    WorkflowKind,
     WorkflowNodeExecutionModel,
     WorkflowNodeExecutionOffload,
     WorkflowNodeExecutionTriggeredFrom,
     WorkflowPause,
     WorkflowRun,
+    WorkflowRunArchiveBundle,
     WorkflowType,
+    WorkflowVersionCounter,
+    resolve_workflow_kind,
 )
+from .workflow_account_extend import WorkflowRunAccountExtend
 
 __all__ = [
     "APIBasedExtension",
@@ -122,7 +174,27 @@ __all__ = [
     "Account",
     "AccountIntegrate",
     "AccountStatus",
+    "AccountStepByStepTourState",
     "AccountTrialAppRecord",
+    "Agent",
+    "AgentConfigDraft",
+    "AgentConfigDraftType",
+    "AgentConfigRevision",
+    "AgentConfigRevisionOperation",
+    "AgentConfigSnapshot",
+    "AgentConfigVersionKind",
+    "AgentDebugConversation",
+    "AgentHomeSnapshot",
+    "AgentIconType",
+    "AgentKind",
+    "AgentScope",
+    "AgentSkillBinding",
+    "AgentSource",
+    "AgentStatus",
+    "AgentWorkingResourceStatus",
+    "AgentWorkspace",
+    "AgentWorkspaceBinding",
+    "AgentWorkspaceOwnerType",
     "ApiRequest",
     "ApiToken",
     "ApiToolProvider",
@@ -133,18 +205,32 @@ __all__ = [
     "AppMCPServer",
     "AppMode",
     "AppModelConfig",
+    "AppStar",
     "AppTrigger",
     "AppTriggerStatus",
     "AppTriggerType",
     "BuiltinToolProvider",
+    "CasdoorAuditExtend",
+    "CasdoorAvatarFileGuardExtend",
+    "CasdoorConfigRevisionExtend",
+    "CasdoorIdentityExtend",
+    "CasdoorIntegrationExtend",
+    "CasdoorManagedMembershipExtend",
+    "CasdoorNamespaceExtend",
+    "CasdoorSyncIntentExtend",
+    "CasdoorValidationExtend",
     "CeleryTask",
     "CeleryTaskSet",
     "Conversation",
     "ConversationVariable",
     "CreatorUserRole",
+    "CredentialPermission",
+    "CredentialPermissionType",
+    "CustomizedSnippet",
     "DataSourceApiKeyAuthBinding",
     "DataSourceOauthBinding",
     "Dataset",
+    "DatasetApiTokenBinding",
     "DatasetCollectionBinding",
     "DatasetKeywordTable",
     "DatasetPermission",
@@ -159,11 +245,18 @@ __all__ = [
     "DocumentSegment",
     "Embedding",
     "EndUser",
+    "ExecutionExtraContent",
     "ExporleBanner",
     "ExternalKnowledgeApis",
     "ExternalKnowledgeBindings",
+    "HumanInputContent",
+    "HumanInputForm",
+    "HumanInputFormUploadFile",
+    "HumanInputFormUploadToken",
     "IconType",
     "InstalledApp",
+    "InvitationAuthorityIssuanceExtend",
+    "InvitationAuthorityLifecycleExtend",
     "InvitationCode",
     "LoadBalancingModelConfig",
     "Message",
@@ -172,7 +265,9 @@ __all__ = [
     "MessageChain",
     "MessageFeedback",
     "MessageFile",
+    "OAuthAccessToken",
     "OperationLog",
+    "PermissionEnum",
     "PinnedConversation",
     "Provider",
     "ProviderModel",
@@ -183,7 +278,14 @@ __all__ = [
     "RecommendedApp",
     "SavedMessage",
     "Site",
-    "SystemIntegrationExtend",  # Extend System Integration
+    "Skill",
+    "SkillDraftFile",
+    "SkillFileKind",
+    "SkillFileStorage",
+    "SkillVersion",
+    "SnippetType",
+    "SystemIntegrationExtend",
+    "SystemManagementScopeExtend",
     "Tag",
     "TagBinding",
     "Tenant",
@@ -204,21 +306,30 @@ __all__ = [
     "TriggerOAuthTenantClient",
     "TriggerSubscription",
     "UploadFile",
-    "UserFrom",
     "Whitelist",
     "Workflow",
+    "WorkflowAgentBindingType",
+    "WorkflowAgentNodeBinding",
     "WorkflowAppLog",
     "WorkflowAppLogCreatedFrom",
     "WorkflowArchiveLog",
+    "WorkflowComment",
+    "WorkflowCommentMention",
+    "WorkflowCommentReply",
+    "WorkflowKind",
     "WorkflowNodeExecutionModel",
     "WorkflowNodeExecutionOffload",
     "WorkflowNodeExecutionTriggeredFrom",
     "WorkflowPause",
     "WorkflowRun",
+    "WorkflowRunAccountExtend",
+    "WorkflowRunArchiveBundle",
     "WorkflowRunTriggeredFrom",
     "WorkflowSchedulePlan",
     "WorkflowToolProvider",
     "WorkflowTriggerStatus",
     "WorkflowType",
-    "db",  # extend: db
+    "WorkflowVersionCounter",
+    "db",
+    "resolve_workflow_kind",
 ]

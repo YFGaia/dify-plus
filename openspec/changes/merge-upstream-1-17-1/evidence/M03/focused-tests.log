@@ -1,0 +1,24 @@
+COMMAND: /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/services/test_account_service.py api/tests/unit_tests/services/test_account_quota_service_extend.py api/tests/unit_tests/services/test_account_oauth_service.py api/tests/unit_tests/services/test_account_oauth_gateway_extend.py api/tests/unit_tests/services/test_account_oauth_adapters.py api/tests/unit_tests/controllers/console/auth/test_oauth.py api/tests/unit_tests/repositories/test_app_site_command_repository.py api/tests/unit_tests/services/test_app_site_service.py api/tests/unit_tests/services/test_webapp_auth_service_extend.py api/tests/unit_tests/controllers/console/app/test_site_extend.py api/tests/unit_tests/controllers/web/test_web_login.py api/tests/unit_tests/controllers/web/test_web_login_extend.py api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py api/tests/unit_tests/services/test_web_passport_service.py api/tests/unit_tests/controllers/web/test_web_passport.py api/tests/unit_tests/controllers/test_swagger.py
+CWD: /Users/liuxingwang/go/src/dify-plus
+ENV: UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache
+
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+[92m02:57:47 - LiteLLM:WARNING[0m: get_model_cost_map.py:271 - LiteLLM: Failed to fetch remote model cost map from https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json: [Errno 8] nodename nor servname provided, or not known. Falling back to local backup.
+........................................................................ [ 20%]
+........................................................................ [ 41%]
+........................................................................ [ 61%]
+........................................................................ [ 82%]
+.............................................................            [100%]
+=============================== warnings summary ===============================
+api/core/rag/index_processor/index_processor_base.py:3
+  /Users/liuxingwang/go/src/dify-plus/api/core/rag/index_processor/index_processor_base.py:3: DeprecationWarning: 'cgi' is deprecated and slated for removal in Python 3.13
+    import cgi
+
+api/core/workflow/nodes/knowledge_retrieval/retrieval.py:20
+  /Users/liuxingwang/go/src/dify-plus/api/core/workflow/nodes/knowledge_retrieval/retrieval.py:20: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class SourceMetadata(BaseModel):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+349 passed, 2 warnings in 7.07s

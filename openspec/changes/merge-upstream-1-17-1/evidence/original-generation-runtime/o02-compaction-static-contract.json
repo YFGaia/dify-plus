@@ -1,0 +1,100 @@
+{
+  "evidence_kind": "static source contract plus independently captured deployed SDK/schema metadata; no active Agent configuration or generation",
+  "native_sdk": {
+    "pydantic-ai-harness": "0.20.0",
+    "pydantic-ai-slim": "2.31.0",
+    "versions_match_api_and_agent_locks": true,
+    "deployed_agent_image_version_or_byte_verified": true,
+    "runtime_evidence": "sdk-compaction-schema-readonly.json",
+    "module_hashes_match_deployed": {
+      "summarizing_module_sha256": true,
+      "tiered_module_sha256": true,
+      "shared_module_sha256": true
+    },
+    "active_agent_configuration_observed": false
+  },
+  "activity": {
+    "model_invokes": 0,
+    "provider_requests": 0,
+    "agent_creations": 0,
+    "file_uploads": 0,
+    "network_mutations": 0,
+    "sidecar_owner_requests": 0
+  },
+  "next_gate": {
+    "status": "blockedapproval",
+    "action": "precise shared access-network sidecar join/recreate",
+    "no_bypass": "no network/host/relay/internal-owner workaround"
+  },
+  "context_window_contract": {
+    "source": "api/core/app/llm/model_access.py:129",
+    "origin": "same tenant selected model credential-bound schema CONTEXT_SIZE",
+    "validity": "positive int; bool rejected; missing invalid returns None; no name-based registry fallback",
+    "actual_context_size": 1000000,
+    "when_unknown": "no compaction capability emitted",
+    "source_runtime_evidence": "sdk-compaction-schema-readonly.json"
+  },
+  "compaction": {
+    "repository_source": "dify-agent/src/dify_agent/runtime/compaction.py:15",
+    "target_formula": "min(context_window_tokens * 4 // 5, context_window_tokens - max_tokens) for positive max_tokens",
+    "output_cap_current_proposal": 8,
+    "zero_or_negative_input_budget": "ValueError",
+    "tier_1": {
+      "kind": "ClearToolResults",
+      "keep_pairs": 3,
+      "clear_tool_inputs": false,
+      "max_tokens_constructor_placeholder": 1
+    },
+    "tier_2": {
+      "kind": "SummarizingCompaction",
+      "keep_messages": 20,
+      "preserve_first_user_message": true,
+      "incremental": true,
+      "max_tokens_constructor_placeholder": 1
+    },
+    "child_placeholder_is_real_trigger": false,
+    "tier_trigger": "request context token estimate > target; individual child triggers bypassed",
+    "summary_noop_boundary": "find_safe_cutoff(messages, keep_messages=20) <= 0 returns original messages without model call",
+    "estimation": "latest genuine provider input/output usage anchors prior context; later text estimated; absent usage uses about four chars per token heuristic",
+    "real_summary_generates": "one real child Agent request with ctx.usage; not a local string rewrite",
+    "native_summary_model": "same ctx.model when no override; same Model.settings merged by prepare_request; cap8 retained by source contract",
+    "native_summary_minimum_prompt_chars_without_history": 844,
+    "native_summary_instruction_chars": 101,
+    "deployed_sdk_settings_inheritance_source_verified": true,
+    "active_fixture_saved_max_tokens_observed": false,
+    "derived_target_if_future_fixture_max8": 800000,
+    "derived_target_is_active_configuration": false
+  },
+  "wire_protocol": {
+    "main_streaming": "DifyModel.request_stream emits target.stream=true",
+    "summary_default_request": "SDK Agent.run -> DifyModel.request emits target.stream=false",
+    "inner_gateway": "AgentLLMInnerService.invoke always uses provider stream=true and genuine SSE transport for both body flags",
+    "body_changes_required": false,
+    "current_v1_instrument": "only stream=true; 18 non-model checks do not cover legitimate summary false",
+    "private_v2_instrument": "Owned supporting v2 strict bool true/false; original false body/SSE and five non-bool zero-forward negatives;24 non-model HTTP checks passed, separate independent review pending.",
+    "provider_normalization": "short deepseek -> langgenius/deepseek/deepseek; legitimate SDK contract"
+  },
+  "future_bounded_acceptance": {
+    "rendered_system_prompt_and_user_query_budgets": "count separately; do not truncate or replace actual layer prompts to satisfy instrument char limit",
+    "clear_results_vs_summary": "distinct receipt requirements; registering capability or a no-op is not actual summarization",
+    "history_gate": "real legitimate message history and >target estimate required; do not SQL seed or change provider CONTEXT_SIZE to force trigger",
+    "forward_budget_scope": "2 forwarded inner API HTTP requests only; vendor retries and tool executions separate",
+    "blocked_transport_effect": "only static inspection allowed now; no Agent/composer/file/owner request",
+    "current_512_prompt_json_limit": "Insufficient for native standard summarizer template alone; raise only after reviewed actual rendered prompt budget, never truncate standard prompts.",
+    "actual_window_budget_boundary": "Selected original schema has CONTEXT_SIZE=1000000; source-derived future max8 input target800000 plus keep20 nonzero-cutoff/history requirements cannot be demonstrated by the current two-forward/512-character proposal. No schema change, history seeding, or large unapproved request permitted.",
+    "pricing_boundary": "Captured schema exposes no pricing object. Historical price0 usage is not a vendor free-pricing or complete billing proof."
+  },
+  "source_sha256": {
+    "dify-agent/src/dify_agent/runtime/compaction.py": "2b7fe9cb6f6459e19b1b66a6c7acab7311eb2611b749c7644319e874ccae49b5",
+    "dify-agent/src/dify_agent/runtime/runner.py": "162002cef627260b913a850f87478c1b4529a867a4bd0a2916a399643cfdb82f",
+    "dify-agent/src/dify_agent/adapters/llm/model.py": "e6e9380739f68330e28e1b1254ee650a81edd93fe76049a4ece0fc5a3e6d6177",
+    "dify-agent/src/dify_agent/adapters/llm/provider.py": "bb08cd381b69dde3b227965aedd25854f09c9ace0423d516d79891125e45157e",
+    "api/services/agent_llm_inner_service.py": "0e2b43de024b8cae1ae3e26cd30463c8216c09b0887e14a3157df49319683966",
+    "api/core/app/llm/model_access.py": "70fcd4810e31e802bb4ebe0735960167c7b764fd661b5344bb49a9f3ed34164e",
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai_harness/compaction/_summarizing_compaction.py": "3226ed58319d6499625fa430b7fb01e1dccd5bd2492a1563cdb52f73415be301",
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai_harness/compaction/_tiered_compaction.py": "e0f975e1c2208324c8b5d2d2aa8b51c53278ff029f007f9bf80a604169cade3b",
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai_harness/compaction/_shared.py": "914ba1bac99750c5b80683cd6ee770024cdbee75454de9d1ab2983525d104f49",
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai/models/__init__.py": "e3cada4fe3f93eac56bde4f3c2fb546f3d0f658dc2481c21fb6d2a6750c7cd80",
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai/settings.py": "b69e6631a40dba183244e78c4cfe319fcd62edb497d7673566e53962fb073274"
+  }
+}

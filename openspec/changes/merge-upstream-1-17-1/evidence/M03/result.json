@@ -1,0 +1,232 @@
+{
+  "node": "M03",
+  "status": "passed",
+  "pre_commit_head": "acf866871a50316ea514d35a9d04092bd3e32b20",
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "branch": "codex/merge-upstream-1.17.1",
+  "thread_id": "01a0e943-cafc-79a0-bf18-d9264fa3d5d7",
+  "deployable": false,
+  "steps": {
+    "9.1": {
+      "status": "passed",
+      "assertions": [
+        "setup/email/OAuth/invitation each creates exactly one quota in the account transaction",
+        "quota insert failure leaves neither new Account nor quota",
+        "existing login/repeated invitation do not reset quota",
+        "normalized-email aliases, seat limits and disabled registration preserve upstream rejection",
+        "DingTalk auto_create_user supplies actual Session and creates quota",
+        "late setup failure cleans only its newly created quota"
+      ],
+      "tests": ["test_account_quota_service_extend.py", "test_account_service.py"]
+    },
+    "9.2": {
+      "status": "passed",
+      "assertions": [
+        "active integration snapshot resolved before provider I/O; missing/disabled rejected",
+        "code string/dict token, Casdoor id_token, legacy token callback and all state fields supported",
+        "same-origin redirect, query escaping and fragment retained",
+        "upstream account/identity claim locks retained",
+        "custom OAuth2 independent from disabled GitHub/Google social login, setup gate retained"
+      ],
+      "tests": [
+        "test_account_oauth_gateway_extend.py",
+        "test_account_oauth_service.py",
+        "test_account_oauth_adapters.py",
+        "controllers/console/auth/test_oauth.py"
+      ]
+    },
+    "9.3": {
+      "status": "passed",
+      "assertions": [
+        "strict boolean/null request becomes fork-only change type",
+        "real Site+AppExtend atomic persistence and commit-failure rollback",
+        "cache invalidation occurs after Session transaction ends",
+        "both directions of stale Redis value recheck DB including delete/set failure",
+        "workspace owner chain unchanged"
+      ],
+      "tests": [
+        "test_site_extend.py",
+        "test_app_site_command_repository.py",
+        "test_webapp_auth_service_extend.py",
+        "test_app_site_service.py"
+      ]
+    },
+    "9.4": {
+      "status": "passed",
+      "assertions": [
+        "real signed Console Cookie and real SQLite Account/tenant admission",
+        "purpose/expired/missing/invalid/Bearer-only rejected",
+        "18 real JWT/DB NULL/true/false x logged/anonymous x completion/chat/workflow combinations",
+        "authenticated EndUser binding persists; anonymous bearer does not bind",
+        "missing code protected default, invalid code error, per-app DB isolation",
+        "existing web passport service/controller suites pass unchanged; fork not added to environment/passport"
+      ],
+      "tests": [
+        "test_web_login.py",
+        "test_web_login_extend.py",
+        "test_webapp_auth_switch_extend.py",
+        "test_web_passport_service.py",
+        "test_web_passport.py"
+      ]
+    },
+    "9.5": {
+      "status": "passed",
+      "assertions": [
+        "349 focused tests on final files pass",
+        "before/after file hashes identical",
+        "Swagger generation and six schema assertions pass",
+        "production lint clean, only four pre-existing unused lambda arguments in touched fixture",
+        "AST verifies completion change limited to is_end_login, billing and generation classes unchanged",
+        "OpenSpec/DAG/diff validation recorded in plan-checks.log"
+      ],
+      "evidence": [
+        "focused-tests.log",
+        "verified-inputs.json",
+        "schema-assertions.json",
+        "static-scope.json",
+        "lint.log",
+        "plan-checks.log"
+      ]
+    }
+  },
+  "verification": {
+    "pytest": {
+      "command": "/Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/services/test_account_service.py api/tests/unit_tests/services/test_account_quota_service_extend.py api/tests/unit_tests/services/test_account_oauth_service.py api/tests/unit_tests/services/test_account_oauth_gateway_extend.py api/tests/unit_tests/services/test_account_oauth_adapters.py api/tests/unit_tests/controllers/console/auth/test_oauth.py api/tests/unit_tests/repositories/test_app_site_command_repository.py api/tests/unit_tests/services/test_app_site_service.py api/tests/unit_tests/services/test_webapp_auth_service_extend.py api/tests/unit_tests/controllers/console/app/test_site_extend.py api/tests/unit_tests/controllers/web/test_web_login.py api/tests/unit_tests/controllers/web/test_web_login_extend.py api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py api/tests/unit_tests/services/test_web_passport_service.py api/tests/unit_tests/controllers/web/test_web_passport.py api/tests/unit_tests/controllers/test_swagger.py",
+      "environment": {
+        "UV_PROJECT_ENVIRONMENT": "/private/tmp/dify-m02-python-complete",
+        "UV_CACHE_DIR": "/private/tmp/dify-m02-uv-cache"
+      },
+      "exit_code": 0,
+      "passed": 349,
+      "warnings": 2,
+      "source_and_test_files_unchanged": true
+    },
+    "inputs": "verified-inputs.json",
+    "schema_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync python api/dev/generate_swagger_specs.py --output-dir /private/tmp/dify-m03-openapi-final",
+    "schema_exit_code": 0,
+    "schema_assertions": 6,
+    "static": "static-scope.json",
+    "lint_exit_code": 0,
+    "lint_note": "24 changed Python files clean; completion.py and DingTalk source differential lint clean; conftest has four unchanged ARG005 findings"
+  },
+  "changed_python_paths": [
+    "api/controllers/console/app/site.py",
+    "api/controllers/console/auth/oauth.py",
+    "api/controllers/console/auth/oauth_admission_extend.py",
+    "api/controllers/web/completion.py",
+    "api/controllers/web/login.py",
+    "api/extensions/ext_application_services.py",
+    "api/repositories/app_site_command_repository.py",
+    "api/services/account_oauth_gateway_extend.py",
+    "api/services/account_oauth_service.py",
+    "api/services/account_quota_service_extend.py",
+    "api/services/account_service.py",
+    "api/services/app_site_service_extend.py",
+    "api/services/ding_talk_extend.py",
+    "api/services/entities/account_oauth_entities.py",
+    "api/services/webapp_auth_service_extend.py",
+    "api/services/webapp_console_identity_extend.py",
+    "api/tests/unit_tests/controllers/console/app/test_site_extend.py",
+    "api/tests/unit_tests/controllers/console/auth/test_oauth.py",
+    "api/tests/unit_tests/controllers/web/conftest.py",
+    "api/tests/unit_tests/controllers/web/test_web_login.py",
+    "api/tests/unit_tests/controllers/web/test_web_login_extend.py",
+    "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py",
+    "api/tests/unit_tests/repositories/test_app_site_command_repository.py",
+    "api/tests/unit_tests/services/test_account_oauth_gateway_extend.py",
+    "api/tests/unit_tests/services/test_account_oauth_service.py",
+    "api/tests/unit_tests/services/test_account_quota_service_extend.py",
+    "api/tests/unit_tests/services/test_webapp_auth_service_extend.py"
+  ],
+  "delegation": [
+    {
+      "id": "/root/m03_site_tests",
+      "model": "gpt-6-luna",
+      "files": [
+        "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+        "api/tests/unit_tests/repositories/test_app_site_command_repository.py"
+      ],
+      "initial_result": "20 passed; actual setter/commit failure later strengthened by primary"
+    },
+    {
+      "id": "/root/m03_identity_tests",
+      "model": "gpt-6-luna",
+      "files": [
+        "api/tests/unit_tests/controllers/web/test_web_login.py",
+        "api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py"
+      ],
+      "initial_result": "41 passed; real persisted matrix later added by primary"
+    },
+    {
+      "id": "/root/m03_contract_review",
+      "model": "gpt-6-sol",
+      "files": [],
+      "result": "2 findings addressed: setup cleanup scope and bidirectional stale cache"
+    },
+    {
+      "id": "/root/m03_final_verification",
+      "model": "gpt-6-luna",
+      "files": [],
+      "result": "344 passed/1 failed due new test missing REMOTE_ADDR, fixture fixed; primary rerun345passed before final OAuth admission fix"
+    },
+    {
+      "id": "/root/m03_final_acceptance",
+      "model": "gpt-6-luna",
+      "files": [],
+      "result": "349 passed; exact final file hashes stable"
+    }
+  ],
+  "ownership": "research/host-ownership.tsv; completion.py::is_end_login explicitly transferred by parent; no billing changes",
+  "handoff": "handoff.md",
+  "limitations": [
+    "SQLite does not prove PostgreSQL lock concurrency",
+    "Account+quota atomic; workspace provisioning remains upstream separate commits",
+    "Provider HTTP/Redis/model generation mocked; no real SSO/network/browser/production acceptance",
+    "generated TypeScript/Zod/docs refresh belongs to M05/M08",
+    "A03 and environment/production authorization gates unchanged"
+  ],
+  "commit_note": "Commit SHA verified after commit by parent; not self-embedded.",
+  "prior_passed_status": "9.1-9.5 passed before M06 12.2 cross-owner finding",
+  "followups": {
+    "9.6_recommended_apps_page_status": {
+      "status": "passed",
+      "trigger": "M06 12.2 Sol analysis found AppPagination.recommended_apps is always set to an empty list.",
+      "owner": "M03",
+      "model": "gpt-6-astra",
+      "registered_paths": [
+        "api/controllers/console/app/app.py",
+        "api/tests/unit_tests/controllers/console/app/test_app_response_models.py"
+      ],
+      "scope": "Populate only current-page app IDs having RecommendedApp rows; retain the already-generated optional string[] contract.",
+      "tests_required": [
+        "synced app on current page is returned",
+        "unsynced app is absent",
+        "synced app outside current page is absent"
+      ],
+      "downstream_impact": "M04/M05 schema evidence remains valid; M06 12.2c is unblocked.",
+      "status_evidence": "evidence/M06/12.2-analysis.md",
+      "agent": "/root/m03_9_6_sync_status",
+      "base_commit": "f2424be34839fdb2a5d696ad451e3963bbc5b6bb",
+      "source_commit": "11fe1809f30c64d095d5a2a2ac81cc37eeb9e5c6",
+      "verification": {
+        "pytest": {
+          "command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache /Users/liuxingwang/.local/bin/uv run --project api --no-sync pytest -q --no-cov api/tests/unit_tests/controllers/console/app/test_app_response_models.py",
+          "exit_code": 0,
+          "passed": 29,
+          "warnings": ["1 pre-existing cgi deprecation warning"]
+        },
+        "ruff_format_check_exit_code": 0,
+        "ruff_check_exit_code": 0,
+        "git_diff_check_exit_code": 0
+      },
+      "assertions_passed": [
+        "synced app on current page appears in recommended_apps",
+        "unsynced current-page app is omitted",
+        "synced off-page and other-tenant apps are omitted",
+        "empty and missing pagination return an empty list without a recommendation query",
+        "response schema and generated optional string[] contract are unchanged"
+      ],
+      "commit_note": "Source and regression test committed separately before this status update; SHA verified after commit."
+    }
+  }
+}

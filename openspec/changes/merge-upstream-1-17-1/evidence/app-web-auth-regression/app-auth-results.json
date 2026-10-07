@@ -1,0 +1,113 @@
+[
+  {
+    "case": "fresh_app_default_auth_projection_not_physical_row_proof",
+    "mode": "completion",
+    "app_id": "14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1",
+    "auth": true,
+    "retention": null,
+    "enable_site": true
+  },
+  {
+    "case": "auth_on_anonymous_generation",
+    "mode": "completion",
+    "status": 401,
+    "code": "unauthorized"
+  },
+  {
+    "case": "bad_app_code",
+    "mode": "completion",
+    "status": 404,
+    "code": "not_found"
+  },
+  {
+    "case": "fresh_app_default_auth_projection_not_physical_row_proof",
+    "mode": "chat",
+    "app_id": "d5ad5804-7921-41d4-9b48-816da837f4e3",
+    "auth": true,
+    "retention": null,
+    "enable_site": true
+  },
+  {
+    "case": "auth_on_anonymous_generation",
+    "mode": "chat",
+    "status": 401,
+    "code": "unauthorized"
+  },
+  {
+    "case": "bad_app_code",
+    "mode": "chat",
+    "status": 404,
+    "code": "not_found"
+  },
+  {
+    "case": "fresh_app_default_auth_projection_not_physical_row_proof",
+    "mode": "workflow",
+    "app_id": "467aa2f3-139e-49b8-8683-d9d595e0acf2",
+    "auth": true,
+    "retention": null,
+    "enable_site": true
+  },
+  {
+    "case": "auth_on_anonymous_generation",
+    "mode": "workflow",
+    "status": 401,
+    "code": "unauthorized"
+  },
+  {
+    "case": "bad_app_code",
+    "mode": "workflow",
+    "status": 404,
+    "code": "not_found"
+  },
+  {
+    "case": "single_auth_toggle_readback",
+    "set": false,
+    "auth": false,
+    "retention": null,
+    "site_enabled": true,
+    "login_status": 200,
+    "projected_auth": false
+  },
+  {
+    "case": "single_auth_toggle_readback",
+    "set": true,
+    "auth": true,
+    "retention": null,
+    "site_enabled": true,
+    "login_status": 200,
+    "projected_auth": true
+  },
+  {
+    "case": "single_auth_toggle_readback",
+    "set": false,
+    "auth": false,
+    "retention": null,
+    "site_enabled": true,
+    "login_status": 200,
+    "projected_auth": false
+  },
+  {
+    "case": "single_site_toggle_readback",
+    "set": false,
+    "auth": false,
+    "site_enabled": false,
+    "passport_status": 404
+  },
+  {
+    "case": "single_site_toggle_readback",
+    "set": true,
+    "auth": false,
+    "site_enabled": true,
+    "passport_status": 200
+  },
+  {
+    "case": "console_context_anonymous",
+    "status": 401,
+    "code": "unauthorized"
+  },
+  {
+    "case": "console_context_owner_unknown_conversation",
+    "status": 404,
+    "code": "not_found"
+  }
+]

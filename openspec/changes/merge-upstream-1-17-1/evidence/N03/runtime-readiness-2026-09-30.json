@@ -1,0 +1,146 @@
+{
+  "date": "2026-09-30",
+  "scope": "isolated local N03 full-image/runtime readiness gate; no user DB or provider credential",
+  "api_image": {
+    "dockerfile": "api/Dockerfile",
+    "tag": "difyplus-acceptance-api:953cf1c-uuid-quota-3c632717",
+    "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+    "platform": "linux/arm64",
+    "buildx_details": "docker-desktop://dashboard/build/desktop-linux/desktop-linux/jlhz4aq4ft64czucm9ilzsm1s",
+    "temporary_dependency_seed_used": false
+  },
+  "source_and_lock_verification": {
+    "context_manifest_sha256": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+    "context_file_count": 4314,
+    "overlay_count_in_context": 12,
+    "production_source_overlays_in_image": 7,
+    "production_source_overlay_hashes_match": true,
+    "tests_excluded_by_dockerignore": 5,
+    "uv_lock_sha256_in_image": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57",
+    "installed_distribution_count": 411,
+    "installed_locked_version_mismatches": 0,
+    "installed_distributions_not_in_lock": 0,
+    "dify_agent": {
+      "version": "1.17.1",
+      "source": "file:///app/dify-agent",
+      "editable": false
+    },
+    "overlay_files": [
+      {
+        "path": "api/services/installed_app_service.py",
+        "sha256": "9d47a04e75926b5c9e5ad8fcd09d562753317358df6ea80a69867c016e7da81b"
+      },
+      {
+        "path": "api/services/recommended_app_service_extend.py",
+        "sha256": "ccfb4524e7790b740ba10bd484a63b0bbca8756006dcc89a657f0fe997bb9cb8"
+      },
+      {
+        "path": "api/events/event_handlers/__init__.py",
+        "sha256": "47307e74e6dc553cfdf77a6e1e1c0310a51d0c069d91e20e4b6577c2d61f3ce8"
+      },
+      {
+        "path": "api/events/event_handlers/create_app_statistics_when_app_created_extend.py",
+        "sha256": "5b6c8431a6807cd135ed0afd86bcd45be3046046645068057b3239f6ed381dba"
+      },
+      {
+        "path": "api/models/model_extend.py",
+        "sha256": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190"
+      },
+      {
+        "path": "api/uv.lock",
+        "sha256": "c1d83da95beb544d993d0a0c4fcd8ae2b87d74c8b4ff6bc1b9fbd44dd45a1a57"
+      },
+      {
+        "path": "api/services/system_manage_extend.py",
+        "sha256": "9673831d9616cdc85b672dc07743eb1dff18f5499e6a000535080dd557e21588"
+      }
+    ]
+  },
+  "runtime": {
+    "project": "difyplus-acceptance-20260930",
+    "public_host": "localhost (::1 only)",
+    "compose_overlay_sha256": "3f59f4cb58db83ac1c388c03f22f487aad0ea7da7c426beaa592841a1f31ef18",
+    "api": {
+      "tag": "difyplus-acceptance-api:953cf1c-uuid-quota-3c632717",
+      "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+      "health": "healthy",
+      "http_health": 200
+    },
+    "web": {
+      "tag": "difyplus-smoke-web:970b704e351f",
+      "image_id": "sha256:412b2cad11badfcfa25a3e19490aa329059245c7c07842b9c7d0230eeb4c8569",
+      "http_final": 200,
+      "redirect": "/signin?redirect_url=%2F"
+    },
+    "websocket": {
+      "tag": "difyplus-acceptance-api:953cf1c-uuid-quota-3c632717",
+      "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+      "handshake": "HTTP/1.1 101 Switching Protocols"
+    },
+    "worker": {
+      "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+      "queues": "standard upstream default including workflow_based_app_execution",
+      "registered_task_count": 87,
+      "registered_workflow_task": "tasks.app_generate.workflow_execute_task.workflow_based_app_execution_task",
+      "ready": true
+    },
+    "worker_gaia": {
+      "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+      "queues": [
+        "extend_high",
+        "extend_low"
+      ],
+      "registered_task_count": 87,
+      "registered_quota_task": "tasks.extend.update_account_money_when_workflow_node_execution_created_extend.update_account_money_when_workflow_node_execution_created_extend",
+      "ready": true
+    },
+    "worker_dataset": {
+      "image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+      "queues": [
+        "dataset",
+        "priority_dataset"
+      ],
+      "ready": true
+    },
+    "plugin_daemon": {
+      "tag": "langgenius/dify-plugin-daemon:0.6.10-local",
+      "image_id": "sha256:b67a1850529b5778e9a0ac8deae0545fba62d16b133ffabf83de998d3782cfa8",
+      "status": "running"
+    },
+    "nginx": {
+      "tag": "nginx:1.27-alpine",
+      "image_id": "sha256:96868d9fa38f469a86d2f25787e43ee9ad330339d30be260aa9f5a338bb03751",
+      "status": "running",
+      "entrypoint_fix": "acceptance override invokes POSIX sh due nginx alpine lacking bash"
+    },
+    "postgres": {
+      "image": "postgres:15.12-alpine",
+      "upstream_head": "c3f1a9b2e6d4",
+      "extension_head": "020_workflow_run_account"
+    },
+    "mysql": {
+      "image": "mysql:8.0.46",
+      "upstream_head": "c3f1a9b2e6d4",
+      "extension_head": "020_workflow_run_account"
+    },
+    "redis": {
+      "image": "redis:6.2-alpine",
+      "health": "healthy"
+    },
+    "qdrant": {
+      "image": "langgenius/qdrant:v1.8.3",
+      "health": "/healthz passed"
+    },
+    "sandbox": {
+      "image": "langgenius/dify-sandbox:0.2.15",
+      "health": "healthy"
+    },
+    "ssrf_proxy": {
+      "image": "ubuntu/squid:latest",
+      "status": "running"
+    },
+    "old_23000_user_stack": "untouched during this acceptance stack startup and validation"
+  },
+  "secrets_or_session_values_printed": false,
+  "model_provider_credentials_copied": false
+}

@@ -1,0 +1,538 @@
+{
+  "schema_version": 1,
+  "node_id": "M08",
+  "task_id": "14.9_v02_formatter_debt_candidate_followup",
+  "base_candidate_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+  "base_candidate_tree": "d94e6e1a034175165598bafe859d3f605b80beee",
+  "v02_16_6_report": {
+    "path": "evidence/V02/16.6-final-candidate-result.json",
+    "sha256_before_formatter": "79b2a7f2af589fc4f59eba483ace48d00d13203390a90f6dbe60c7fadfd4fe6d",
+    "sha256_after_formatter": "09eef2b100176239cabf35820d99075d015bef93d1a65a0edde4b310f36b82f5"
+  },
+  "failure_inventory": {
+    "v02_failure_path_count": 63,
+    "candidate_changed_vs_first_parent": 15,
+    "unchanged_baseline": 48,
+    "current_v02_web_source_or_test_paths_in_failure_inventory": 0
+  },
+  "formatter_scope": {
+    "v02_failure_paths": 63,
+    "coordinator_paths": 65,
+    "astra_paths": 3,
+    "unique_exact_paths_checked": 68,
+    "coordinator_files_changed": 60,
+    "astra_files_changed": 1
+  },
+  "semantic_checks": {
+    "coordinator_json_values_equal": 27,
+    "coordinator_markdown_wording_equal_except_table_alignment_and_literal_path_code_spans": 38,
+    "workflow_yaml_deep_equality": true,
+    "dify_ui_tsx_byte_identical": true,
+    "execution_graph_paths_marked_as_code": [
+      "api/controllers/console/__init__.py",
+      "api/events/**extend*"
+    ]
+  },
+  "validation": {
+    "vp_fmt_exact_paths_exit_code": 0,
+    "vp_fmt_exact_paths_count": 68,
+    "git_diff_check_exit_code": 0,
+    "dependency_install_or_network": false,
+    "tests_run": false,
+    "additional_exact_path_checks": [
+      {
+        "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "exit_code": 0
+      },
+      {
+        "paths": [
+          "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+          "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+          "openspec/changes/merge-upstream-1-17-1/tasks.md"
+        ],
+        "exit_code": 0
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": ".github/workflows/deploy-rag-dev.yml",
+      "owner": "Astra",
+      "sha256_before_format": "81c028560ceeedad48f9851188b816b691b05b2610aa29bdb16916453b63fe40",
+      "sha256_after_format": "1e75040c12bcab73804bfd34c8824734c5fe2a760216dc83b0a985a7be4e92e8",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/design.md",
+      "owner": "coordinator",
+      "sha256_before_format": "84311e7469eee44ca05ee0513052c5e4df846377720755284abccddc96500039",
+      "sha256_after_format": "912876ce3786214afa3a75a16d47e6a78f6944a6ec41fae7cf6579f57a321895",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/A00/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "28429bee06c07e05d92342374baaa281e2d735d03e7e07f9873f2be723f6874b",
+      "sha256_after_format": "f999665f3ce07c914534ab08d2f8dd2a9bf6d991a49adab806708d6bd37495d3",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/A02/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "652b16223afd18a027d9ff3109aebd496cd4f982c147968261b7d4f2cb95fd78",
+      "sha256_after_format": "60d3bd193835faded255688554991c43187c01ad84ebbb6fb136a3a3f310d0d3",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/A04/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "adf5e01e14d2269e438d5ee6a3df10af407b15040f5437ab7327a49186402523",
+      "sha256_after_format": "a864c163683e9e53014b5c888463f5365eb577832e00b29dc1dc65e0e3b77393",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M01/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "26787d9d414334c0169adc14eda5285243f4f632c7a7258f169c78660349bdfb",
+      "sha256_after_format": "95f3754d9e5d6f5ea83621531875c74d2b1ba2a4b3e3bb45b1e825103632f731",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M02/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "513cb8fa3ed74348e9dcbd352bf58701966abe58d27be8aff8e997e7a1f1d1b2",
+      "sha256_after_format": "d0b8d2681a77e99268d649f53064f17f7b4691e9d7697ef402aec2e1be3f31e0",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M02/schema-verification.json",
+      "owner": "coordinator",
+      "sha256_before_format": "dfb0be4de628c64c858b1f9f37797c8dd8c4080a18a1825416c6f16e5bfe2e74",
+      "sha256_after_format": "3c11e42fc624a27abb1b8bdebde6a5152f64801ce41709be7fea6e2148dd2be8",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M02/service-signatures.json",
+      "owner": "coordinator",
+      "sha256_before_format": "680a67a3a9cfb4596fea0d835c3cdd9f7f82c87f4a84d6bbd867ceb99046c3c6",
+      "sha256_after_format": "9fce5b059e5d08a687ac1ab4f8132693c78c6af0f323957aee92c4a3da35bb2b",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M03/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "51b842f73e7be1c24d8c8dbda4b00749ca0764e0fdf07df39fb57fb221dfa753",
+      "sha256_after_format": "ea1f4cbe0b308c001579e05fb04121a138515ec15d01f0f0ffc710e785ec1c7a",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M03/schema-assertions.json",
+      "owner": "coordinator",
+      "sha256_before_format": "2f78389fbfb7075cf3f65ab9e5a1efe0e20fbb9d1d8add7c9abf86a5137c4661",
+      "sha256_after_format": "418306f2de2938bbb6c4d32ecfc0032243d7973ccedc00ca5d8e3c65a4d2ab25",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M03/static-scope.json",
+      "owner": "coordinator",
+      "sha256_before_format": "9e38962a978b3240d6ce56a945c8c23fe32c8a2a24f90332ccc78ed1b94de0dd",
+      "sha256_after_format": "872ef5a9d6f1f39880858a05902470ef33864e9849639b5ae6a3068f70a92f3a",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M03/verified-inputs.json",
+      "owner": "coordinator",
+      "sha256_before_format": "c5bbd54ea72f687cfdd45e11121ec7c2d6c254e81be3d713d2414e9f7ca78ee6",
+      "sha256_after_format": "dbcfee1be719a82c08e08a86065636eb910b311fb40819ad1b6fcc27cb8db944",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M04/callers.json",
+      "owner": "coordinator",
+      "sha256_before_format": "5be86818dbaa006b8b1b6ea0b5372427b5dd8660563e7f02201b05543feae4d8",
+      "sha256_after_format": "e3758074129269a818d319b45eccacdb325a797ec20479e984a099937dcbd1a9",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M04/handoff.md",
+      "owner": "coordinator",
+      "sha256_before_format": "1dd68a2f2a9ec3af5c83f40f62d21be2449d04501e6fbb12e8f78f9378a1a39a",
+      "sha256_after_format": "7e88e194688eb6e65ac8d09c5406f4bf68425be1404e46cac32b1c1aab818091",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M04/independent-review.json",
+      "owner": "coordinator",
+      "sha256_before_format": "c588a073e87baa92a8177edfa1bb39bb8f0fa49a30e362575e17afdefc6fbf46",
+      "sha256_after_format": "2e607b343b2f3bc98dedabb795925c94dd4288d20ddb8a42cdafcfd90c6553aa",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M04/pre-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "299cac1fa510036fe35faa5bc69bd97794d466c9b5c233e4180e25636d210134",
+      "sha256_after_format": "e20c56bff0fbc396920f950bf6f7f4821ffbec8f2b49b2ccd43672d578c4140f",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M04/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "4df36fa114c3c2644ac44866e5b7c8a44804afe9198e33fd560cfc234c9365f5",
+      "sha256_after_format": "199a706f908f5023728bc3d4a1cd0cc2cd3141fdcacfbb92f7b35759e7e7207b",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M05/11.7-openapi-ts-config-format-followup.md",
+      "owner": "coordinator",
+      "sha256_before_format": "c904865954ed88c843c61900ad53db2a4c9719400df03a5eeb8a9c201112a187",
+      "sha256_after_format": "6d797bb1af01d8e61992be4a7d357c3860acffb3d181197b9671517b05f6f7a4",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "e36d50d03bcd88e3f680d3d57e8f0db37fb5297f01cb4b944402a7a4c13c5de7",
+      "sha256_after_format": "5050909f4dd9674f21995f869aa302fa06f29ec14bf17f2411539ee8ae1f066c",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M05/codegen-investigation.json",
+      "owner": "coordinator",
+      "sha256_before_format": "a0a31981096480297475b9c714355f4deda4c3245c505ced49d263238515e2c3",
+      "sha256_after_format": "1c4e1b3ceca3aa31fe98774d17eddb5a42e1086602b782825b4acd005437578e",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M05/pre-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "5f726ad3b1ba29f571245c8f0df33999ec96f14191b3b52a3c31c8d62cd6b026",
+      "sha256_after_format": "1a01c0335841b5fbf80153bbf9ee4d5707f35b3d1891b9abedd710879061d49f",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "aedf1ce621f44503be4997b118fad2383f01ef35d926f3a918795b348c95e358",
+      "sha256_after_format": "a2b56a7400b0cbb3c1f192196ded9a58f54cebc04ecba0a39a03f3dbc909f699",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.1b-path-registration.md",
+      "owner": "coordinator",
+      "sha256_before_format": "fbe0b521e263583427111eb364bab3d7af3e07f0abbcec4e488fe00dd3600f89",
+      "sha256_after_format": "e21df4fc4284ad97ad1ef3fc40f19a1d4e1707eb877394c936db452bd22e4ff1",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "c8694caf484a617ef529ea251bbfdf85385b414ca46099f2eb8eaca02c794a94",
+      "sha256_after_format": "5f32264e69fb0aa7e99f09ffe59087662e86879880f4850c9c9f4d3bf1ef2430",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.5e-post-fix-parity.md",
+      "owner": "coordinator",
+      "sha256_before_format": "48b4057323211927a6f43a6a6dbd8029a214d26a4b11ae42b07eb59b4bdc4b01",
+      "sha256_after_format": "a2aff5d3f5bc15ba894032edbeaab40d426bb75806ba5d4c03669ea54dbcf26f",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "dfb8805f0e24c6d546962fbaf6c64a062a23d39db757150d115e4bcad8231f7e",
+      "sha256_after_format": "b474f6b4ff0a636a89e18989f312c3a8cf3e93c609a2dd8b04b134faae5f5737",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6-final-aggregate.md",
+      "owner": "coordinator",
+      "sha256_before_format": "84f0b8cfaab646010434d574a7a0d20b803e9d8b9a2d4b28f88d0ecf4e4d3b91",
+      "sha256_after_format": "3d4db9e1a277c996bcebcf24a7bc260253c7ea553fbaa78de7a7419216d8191c",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6b-validation.md",
+      "owner": "coordinator",
+      "sha256_before_format": "7682cb864475ae7fc57917f00d3d0fc95c4d63f240edc194adf6e0fda5ae7c90",
+      "sha256_after_format": "57b9f80c79ead8a39b881520aa8f736333535b92384e83268c738d211e5d9fc4",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6d-verification.md",
+      "owner": "coordinator",
+      "sha256_before_format": "2fc7fe6add3685cadfd22e431f7f45163c874c29e15eb93a7bc2f1fb7b706ba5",
+      "sha256_after_format": "cabc0b2b0a341a4eb95d65c261c333218b16c07ec52932e65b62ecdf0a494ba1",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6e-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "7995a396b7343470d73b892be5204bde5b60bf51f8be22edbe63a55b4830d040",
+      "sha256_after_format": "86a2aa45e405888a8a78d9b5487e59f34854364ef78cb65181c9b310a41d5e0f",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6f-logstore-index-config-preservation.md",
+      "owner": "coordinator",
+      "sha256_before_format": "0fb785becc1a2096bc0ff3bb1b0390e731cc4a7cb77c8a7acc0d88a001809606",
+      "sha256_after_format": "c051bde13e7d0a8c987ba280c42b0f2c5046ad010584a3df059b415856efb576",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6h-verification.md",
+      "owner": "coordinator",
+      "sha256_before_format": "47e9b8872fea17a91d22200054d8cf3721204b60c1d2fbc0918cea494ee98fda",
+      "sha256_after_format": "5ab4bb87cd97a3993d3798e7b801c2b7a059cf8bd9cefb504d7773280a049d25",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6i-validation.md",
+      "owner": "coordinator",
+      "sha256_before_format": "ae54a1892b839518a47530d22d6ed688acddcf8c2edcbfd279d0a04f2504c1be",
+      "sha256_after_format": "315dca08d071d7f4062482e3cd75ae573d91846e1dea97bf85ada1d9323cfef7",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/12.6j-dependency-recovery.md",
+      "owner": "coordinator",
+      "sha256_before_format": "bbabf6b867f1c1897c2e3ebe41425bc719c5f8354e2baf1bedcfbeae36eae00a",
+      "sha256_after_format": "0e1e3d4fd47c855fe8b0ee4edac648cbde7a3982b926c2403d46b87aa95e3d7d",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "74b79262a5ea465800906ee63b57944d1f71c1e26a3f0bdac9efcd4ea072136e",
+      "sha256_after_format": "e0c7989bba991412fb656e01a129aab320a05df848d7853ad90e0cee3b6f5e71",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+      "owner": "coordinator",
+      "sha256_before_format": "e2c496b83baf15166b5ddacab2f091471cbe4817c80d775b18b88f03725dffaf",
+      "sha256_after_format": "e467ce7702635cdc1583a505fb013039c0711f00e0ea6869a65b2db943a277b4",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+      "owner": "coordinator",
+      "sha256_before_format": "75db8a290d2172265faa57bd001ae5fb94054a8f5f17722ce3d73519dae4ce64",
+      "sha256_after_format": "b4675de85cdc711c3382ca4b8714d3f6719107cf51fa0d6698cc27c0b21aab2a",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "f6b522f53a2ec4037c4d95c8701acf9255fc7032c218e146c218e9d2cd9ac6b9",
+      "sha256_after_format": "4341fee860c469006ccf1bccc513d6d8aeb3c3a3f43f261606616d24951b864d",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "1559ef5ec63108793e6aa831c72406be39b2105a476bb67c6817eb3d5c662217",
+      "sha256_after_format": "1f5681a2acdf394fe240f7601e0d723d77e64464e2e38b87da78ca76dbc898fd",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "94b17cbb176f437b10a072bdda96a0281fdcaff3895ef37e710c817e6746d81b",
+      "sha256_after_format": "bb6f5bb09fe1da46e5e44d83478edb0e680533659e0b2224e79e21f45ab26b2b",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+      "owner": "coordinator",
+      "sha256_before_format": "d6c7112e2f91295398c75c888a946d9ef621c24bc450acb0ae218dff794fd17f",
+      "sha256_after_format": "6b7b15afdf804d3c074d8a214bc9733923e6b54e976b8e44de9d631d1ec6e3b3",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+      "owner": "coordinator",
+      "sha256_before_format": "42ab76954e45d60d8557a7f34e125d21c9e5e2e60a2eaa24a40774d7e66a9be9",
+      "sha256_after_format": "d5872ef0787ea488a453dbcb759e6bc03d61cb23805fc73cd59a0a4b8833b4ff",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+      "owner": "coordinator",
+      "sha256_before_format": "96f09d381a1dfd6095774e0f3624a6fd891f3d509f4496344bdd1cab419e6472",
+      "sha256_after_format": "5dbbe69f31464be837bfaab71960e35c8a5c2151e0e865baf2fae12342b22515",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+      "owner": "coordinator",
+      "sha256_before_format": "267933ad5daea64156514e86b3032ee3dfec0e8759305fdc815f4c7cad28aaf0",
+      "sha256_after_format": "e101faf7c419fc1ec49724da3e1abe6380a622c009c5a06cb3320fecfbda643a",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+      "owner": "coordinator",
+      "sha256_before_format": "6adc2d355c557c55e5e4350500f6fbf77f6baefb2067b3fc6dc973575e47f1d8",
+      "sha256_after_format": "e806dffd2dde4d07062d2869a362ce3bb6552b092ab660cb64d137bcbb9a7dd9",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+      "owner": "coordinator",
+      "sha256_before_format": "4b2c28898ec3b152375f5b529fb2e61de2fe436c9200ab80ba0791674e78e38c",
+      "sha256_after_format": "968041a191607e4afd0a081472139473296fe43423b107be339bf5405cd357e2",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md",
+      "owner": "coordinator",
+      "sha256_before_format": "be5406214c5a4cedbcb73258fe91a270c5a6db3f58f75a740c487e0f3559ec1b",
+      "sha256_after_format": "87a2529dedf3f943a9a167ea46fbf71eb07dc9741c53eb71d55e8587c4811f56",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md",
+      "owner": "coordinator",
+      "sha256_before_format": "410ec06a79f1b21eb7a116cefac69785db6591d2c8ce3364c3a3d16d655c26d2",
+      "sha256_after_format": "daf7680b6b2eccb34ac9e9f42f389964e5a33ec03c839634b7fc37348cb1be47",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.8-final-candidate-structural-acceptance.md",
+      "owner": "coordinator",
+      "sha256_before_format": "cfc3d2e13007f3bd5ab11506d218cce0e3b1d2a8e4e7d02dfc462511a75ad95d",
+      "sha256_after_format": "cfc3d2e13007f3bd5ab11506d218cce0e3b1d2a8e4e7d02dfc462511a75ad95d",
+      "changed": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "80fe8c61d8641dbdcf4a9977fffa2ca1fa350ae5348d52fd226f2db22183373e",
+      "sha256_after_format": "6685de93b6ffb08cb21dd8aa452a27628136fe775b5f385ba582a006854843fa",
+      "changed": true,
+      "sha256_after_status_metadata_before_format": "87cd4ba0098502de36bc095df99c2c61a941bb8d1a0d904c9515f4e49a21c2fb",
+      "sha256_after_status_metadata_and_format": "c07e76faa75fc046480c755300cb49df649e8eb64727abc228b777eec0837370",
+      "post_format_status_update": "M08 result JSON now records the completed 14.9 follow-up and pending 14.10 new candidate acceptance; exact file formatter check passed."
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/V01/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "995e8f0dbb5c0f8853eea275cd653df14b41b8fc81e6bb9a75d6836da76efe77",
+      "sha256_after_format": "995e8f0dbb5c0f8853eea275cd653df14b41b8fc81e6bb9a75d6836da76efe77",
+      "changed": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.5-final-candidate-result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "3f0ba8f3d89585967c5ced0ab705a333bf56e45c7a23589449b74ea185782792",
+      "sha256_after_format": "3f0ba8f3d89585967c5ced0ab705a333bf56e45c7a23589449b74ea185782792",
+      "changed": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.6-final-candidate-result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "79b2a7f2af589fc4f59eba483ace48d00d13203390a90f6dbe60c7fadfd4fe6d",
+      "sha256_after_format": "09eef2b100176239cabf35820d99075d015bef93d1a65a0edde4b310f36b82f5",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+      "owner": "coordinator",
+      "sha256_before_format": "09bb157d09976d54b37f45d0aeae01cf8c66bd5b83d1995c0d6e1eba94e4d340",
+      "sha256_after_format": "3a53aa0cbc22be1e5c3adb89b63b6806241caaa4eeb05ba4a165477910aecf77",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/scheduling-optimization.md",
+      "owner": "coordinator",
+      "sha256_before_format": "97e722726bfa9f4fc9c3cdd50c6ab50181c7b8027e2b12dc98f729aa2cf13acc",
+      "sha256_after_format": "dc5a3391fbff952c39b421981d0def4ec715dd23d2ccdf16756e2bb2b3193204",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+      "owner": "coordinator",
+      "sha256_before_format": "b72f5c2170bdb059d356948e471c7596a635b134a88a93b754c4455f28d704f5",
+      "sha256_after_format": "ebd57a59ebbdcfac6d6d756f9f2e9c7658a2d3b0e89674bc8aae521a4753a77e",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+      "owner": "coordinator",
+      "sha256_before_format": "83e26ba39cc799892f1fb42964d3a2952b7879e4fb83ba8cec4df64ed393315d",
+      "sha256_after_format": "83e26ba39cc799892f1fb42964d3a2952b7879e4fb83ba8cec4df64ed393315d",
+      "changed": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/research/backend-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "af2e77ee98c8977cce77c0800e9d4454051ca93843f119e827bcfa437fdd6b50",
+      "sha256_after_format": "3e28cc495e78cfb7ffd4457ff5470419fcf77a617a1fccf248d2754b1d335245",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/research/deployment-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "e32d48211574440af2c2ccb911db9adf540856c4a09bb7f9be201711fc94a94d",
+      "sha256_after_format": "76dc0b264f0fd391c1f2320a4b20c565123315697b70e45001296f2486faf5a4",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/research/frontend-analysis.md",
+      "owner": "coordinator",
+      "sha256_before_format": "1a029b0947c61d6fbcbb162e313faa669554dc614775042cf89c65e5bda81114",
+      "sha256_after_format": "7b4e217032457a0c40f6889d3b453072b0ae3f44548b7d4fd0d4cfba9c05b89a",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/research/planning-checks.json",
+      "owner": "coordinator",
+      "sha256_before_format": "8ca7601fc99d833f2861df46eadf11fc09035993fe9b230f8a526754b46661db",
+      "sha256_after_format": "f83ce00ceb9a2952338ab8680397463d48a7cacd6094350566ee8db67354d78b",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/research/planning-validation.md",
+      "owner": "coordinator",
+      "sha256_before_format": "dc089ff0cfa70925a8db10eecb9404bc3baadcfd54556b84b8c47f819b95e150",
+      "sha256_after_format": "5b1daba18019c7271354741b12800a977a2d94e5bb121f3a28f792e9bdcc6e2b",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/runbook.md",
+      "owner": "coordinator",
+      "sha256_before_format": "79946e2197fa192adefc2ed97b9f6b0132da69955c860c0ca8fc0dcf4a1285e1",
+      "sha256_after_format": "1a8d513ac4babec5aba6708ebc309dc5f1e74681e5ed140fc1e598753bd6210f",
+      "changed": true
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/tasks.md",
+      "owner": "coordinator",
+      "sha256_before_format": "a4acb049bd0d572cbddfa093aba20c192c225eabe828a84bbc506a2f33434634",
+      "sha256_after_format": "a4acb049bd0d572cbddfa093aba20c192c225eabe828a84bbc506a2f33434634",
+      "changed": false
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+      "owner": "coordinator",
+      "sha256_before_format": "2f2e39b8ac535903c2f122f88f6a54cda64fec22f190d069e8c38bc3d5790aa7",
+      "sha256_after_format": "72fd5d7b62a468fa37e3d16e5e1538ee76a8594818e826f853046f1361f2e6c9",
+      "changed": true
+    },
+    {
+      "path": "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+      "owner": "Astra",
+      "sha256_before_format": "4cf2802234cb856a5344a4eb9b24db5ffee74a2e6612b2c25a783375c11e8b24",
+      "sha256_after_format": "4cf2802234cb856a5344a4eb9b24db5ffee74a2e6612b2c25a783375c11e8b24",
+      "changed": false
+    },
+    {
+      "path": "packages/dify-ui/src/dialog/index.stories.tsx",
+      "owner": "Astra",
+      "sha256_before_format": "7b8199eca1356dc5147e4574f2a5029678818cbb17b31d8a20cb9c57dd132dfa",
+      "sha256_after_format": "7b8199eca1356dc5147e4574f2a5029678818cbb17b31d8a20cb9c57dd132dfa",
+      "changed": false
+    }
+  ]
+}

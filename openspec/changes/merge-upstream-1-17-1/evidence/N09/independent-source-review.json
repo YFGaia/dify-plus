@@ -1,0 +1,19 @@
+{
+  "node": "N09",
+  "reviewer": "merge_audit independent read-only backend review",
+  "verdict": "No issues found.",
+  "source_sha256": {
+    "api/services/recommended_app_service_extend.py": "a218fb7c088b296e70248b01bd96913b1978fae9622a61d6de5ff31b96517bee",
+    "api/tests/unit_tests/services/test_context_uuid_scope_extend.py": "7efc45c601150b2643ea734f472e1860fb7f81f6f9f21fb2249c6ecb04da7653"
+  },
+  "scope": "Only projection casts native UUID to legacy varchar(36), imports and docstring; predicates/read-delete/schema unchanged",
+  "checks": {
+    "AST_identical_to_accepted_N08_after_normalizing_projection_imports_docstring": true,
+    "tenant_app_conversation_not_deleted_predicates_preserved": true,
+    "shared_read_delete_scope_projection": true,
+    "PG_VARCHAR36_MySQL_CHAR36_compilation_test": true,
+    "marker_column_not_cast_no_schema_migration": true
+  },
+  "developer_tests": "80 context+N01 focused passed2.81s; targeted-tests.log",
+  "runtime_boundary": "Source review only. Actual positive+foreign rejection/PGMySQL rollback/canonical image/original23000 remain gates."
+}

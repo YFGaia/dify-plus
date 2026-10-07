@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-30",
+  "kind": "read_only_seed_recipe_and_manifest_review",
+  "verdict": "No issues found.",
+  "source_context_sha256": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+  "recipe_sha256": "88843339d307860c2acf2a6fb3cb0e186c8252273a86ca598bc7ccf9fbdf4d20",
+  "scope": "Only FROM dependency seed, copy of its venv, forced current dify-agent reinstall added; full current API copy/production stage unchanged",
+  "reported_seed_dependency_versions": "449 installed exact current lock versions; no mismatch",
+  "lock_boundary": "package names/versions530of530 same; platform wheel hash sets differ3 packages; uv frozen sync completed by runtime",
+  "current_dify_agent_rule": "current sources copied before uv --reinstall-package dify-agent; final contained installation/path/hash must still be checked by runtime",
+  "production_release_reproducibility": "pending standard repository Dockerfile build; temporary seeded recipe is local acceptance only",
+  "reviewer_ran_docker_or_business_verification": false,
+  "runtime_reported_built_image_id": "sha256:539a2dc3d5874683cdf2824455a3ab2dc51f462e453c62ce14e0f166548dedac",
+  "verification_gap": "Actual inside-image provenance/hash/dependency checks, init/migration and business services still runtime gates"
+}

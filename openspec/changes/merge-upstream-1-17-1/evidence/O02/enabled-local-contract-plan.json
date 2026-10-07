@@ -1,0 +1,53 @@
+{
+  "scope": "original O02 enabled/disabled acceptance split after full-scope review; source freeze unchanged",
+  "facts": {
+    "onceoff_closed_collab_human_timeout_passed": true,
+    "shared_collab_enabled_observed": true,
+    "agent_services_started_for_ssrf_not_business_proof": true
+  },
+  "local_check_owners": [
+    {
+      "id": "agent_metadata_files_manifest",
+      "owner": "app_center API files; runtime JWE stub route; audit independent readback",
+      "steps": [
+        "Legitimate owner Console AgentPOST201 and manifestGET200/version actual",
+        "synthetic text file product upload/attach/list/preview/download/hash/delete",
+        "codec actual5min JWE with same Agent/App/tenant/user/version chain; dedicatedproxy manifest200 generic403; body/token not persisted"
+      ],
+      "status": "legalAgent/version fixture passed; rest pending"
+    },
+    {
+      "id": "collaboration",
+      "owner": "runtime",
+      "steps": [
+        "two canonical authenticated sid connections namespace /",
+        "user_connect.workflow_id actualApp.id; ack/leader/online observed",
+        "harmlessmouse_move marker observed by other sid",
+        "existingforeignApp deny; disconnect ownedsids cleanup"
+      ],
+      "status": "dispatched exact source/API schema and synthetic IDs"
+    },
+    {
+      "id": "human_input",
+      "owner": "app_center product workflow; audit readback",
+      "steps": [
+        "ownStart-HumanInput-End graph noLLM/noemail",
+        "actual pause form recipientConsole",
+        "GET form and POST inputs{} actionAccept",
+        "actual resume events/terminal run/DB output"
+      ],
+      "status": "dispatched no-model minimum schema; harness must follow actualGraphon persisted adapter"
+    },
+    {
+      "id": "archive",
+      "owner": "runtime selectedflags/guard; audit source",
+      "steps": [
+        "selectedactual ARCHIVE_STORAGE_ENABLED bool/edition readback",
+        "iffalse, actualdisabled/editionguard onCloud-onlypaid archive endpoint",
+        "iftrue, legitimateconfiguredS3 archivewrite/read/download scope requires actualstorage"
+      ],
+      "status": "pending selectedbool; nofakeCloud/S3/noLLM assumption"
+    }
+  ],
+  "external_boundary": "Generated Agent execution needs a legitimate configured model and selectedruntime; zero-token workflow or Agentmetadata does not satisfy generatedtool/files/pause flow. Collaboration and HumanInput can execute without LLM; archive depends storage/edition rather than LLM."
+}

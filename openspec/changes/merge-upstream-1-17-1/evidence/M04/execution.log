@@ -1,0 +1,65 @@
+cwd: /Users/liuxingwang/go/src/dify-plus
+M04 local implementation, branch codex/merge-upstream-1.17.1
+Input: e83bdfe536eb114aa5dee17ddec539d9a71ab99e
+Fixed upstream: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+No dependency sync, lock edits, repository venv rebuild, real services or production access.
+
+All Python commands use:
+UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete
+UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache
+uv run --project api --no-sync
+
+Read: api/AGENTS.md, API_SCHEMA_GUIDE, execution graph, tasks 10.1-10.5,
+M04 pre-analysis, M03 handoff/result, A04, backend-analysis section 2,
+contract matrix C09/C10/C13/C14; source comparison against fork 1c3368ed and fixed upstream.
+
+Initial controller run: 37 passed, 2 failed (legacy quota bypass fixture signature and SQLite uuid_generate_v4 default).
+Changed module-local tests to exercise actual quota; registered SQLite UUID function in owned tests.
+Controller expanded run: 101 passed, 2 warnings.
+Hook test iteration corrected fixture class names, Account construction and fixture metadata; no production hook rewrite.
+Expanded hook/controller run: 100 passed, 2 warnings.
+First whole focused run: 366 passed, 4 failed (3 external broker attempts in existing persistence tests; 1 upstream four-query expectation omitting fork context query).
+Registered memory test ownership before correction; isolated broker in persistence test fixture and asserted exactly one context/two file queries.
+Whole focused run: 370 passed.
+Integration-agent review: removed proposed historical token-message join deletion; final delete test asserts history retained.
+Final frozen-source command:
+sh openspec/changes/merge-upstream-1-17-1/evidence/M04/verify.sh
+Exit 0; 370 passed, 2 warnings in 7.51s. focused-tests.log contains final output.
+51 SHA256 inputs unchanged before/after final run (verified-inputs.json).
+
+Static command:
+uv run --project api --no-sync python openspec/changes/merge-upstream-1-17-1/evidence/M04/verify_static.py
+Exit 0; 16 immutable-boundary checks, 36 decorator callers, 51 hashes.
+
+Lint command:
+uv run --project api --no-sync ruff check api/controllers/console/apikey.py api/controllers/service_api/wraps.py api/core/app/apps/advanced_chat/generate_task_pipeline.py api/tests/unit_tests/controllers/console/test_apikey.py api/tests/unit_tests/controllers/service_api/test_wraps.py api/tests/unit_tests/controllers/service_api/test_billing_extend.py api/tests/unit_tests/core/app/test_billing_hooks_extend.py api/tests/unit_tests/core/app/workflow/test_persistence_layer.py api/tests/unit_tests/core/memory/test_token_buffer_memory.py
+Exit 0; all checks passed (lint.log).
+
+Schema command:
+uv run --project api --no-sync python api/dev/generate_swagger_specs.py --output-dir /private/tmp/dify-m04-openapi
+Exit 0; six OpenAPI 3 schema assertions passed (schema-assertions.json).
+Initial assertion script looked for legacy definitions; corrected to components.schemas and requestBody. No schema generation or source failure.
+
+Commits, each with empty prior index and exact staged path check:
+521eb98761517347f28a18dcdfdcf646c389ddb8 Service API and scope registration (7 files)
+a65840a41a85de545811b8b879891a9f5d5ad278 app quota CRUD (2 files)
+08e130ed1dbe7f8c0907a9171b76406836eeb668 chatflow guard and hooks tests (4 files)
+Final evidence commit is identified by Git history, avoiding self-referential SHA.
+M04 ready; tasks 10.1-10.4 implemented/self-tested, 10.5 independent acceptance pending.
+
+Final plan command: openspec validate merge-upstream-1-17-1 --strict
+Exit 0; valid. DAG/unique ownership/tasks/frozen hashes checks exit 0.
+Final graph evidence link audit: all M04 evidence paths exist; ready and 10.5 unchecked.
+
+Independent Luna acceptance: PASS
+Review thread: 01a0e987-dcbb-79b0-b535-68612b57bb1f
+Model: gpt-6-luna
+Tested HEAD: 615efae14dcff1d02ea51d5c4b61e403df76ec5b
+Command: sh openspec/changes/merge-upstream-1-17-1/evidence/M04/verify.sh
+Exit 0; 370 passed, 2 warnings.
+Ruff: exit 0; all 9 changed Python files passed.
+OpenSpec strict: exit 0.
+Verified input hashes: 51/51 matched.
+Code review: no new findings; see independent-review.json.
+Limit: source node passed; deployment and environment gates remain open.
+Graph transition: M04 ready -> passed; tasks 10.1-10.5 complete.

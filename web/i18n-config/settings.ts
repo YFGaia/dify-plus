@@ -1,5 +1,5 @@
 import type { InitOptions } from 'i18next'
-import { namespacesCamelCase } from './resources'
+import { defaultNS, namespaces } from './resources'
 
 export function getInitOptions(): InitOptions {
   return {
@@ -7,8 +7,10 @@ export function getInitOptions(): InitOptions {
     load: 'currentOnly',
     fallbackLng: 'en-US',
     partialBundledLanguages: true,
+    defaultNS,
+    enableSelector: 'optimize',
     keySeparator: false,
-    ns: namespacesCamelCase,
+    ns: namespaces,
     interpolation: {
       escapeValue: false,
     },

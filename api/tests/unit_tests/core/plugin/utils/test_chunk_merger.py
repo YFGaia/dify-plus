@@ -4,7 +4,9 @@ import pytest
 
 from core.agent.entities import AgentInvokeMessage
 from core.plugin.utils.chunk_merger import FileChunk, merge_blob_chunks
-from core.tools.entities.tool_entities import ToolInvokeMessage
+from core.plugin.utils.converter import convert_parameters_to_plugin_format
+from core.tools.entities.tool_entities import ToolInvokeMessage, ToolParameter, ToolSelector
+from graphon.file import File, FileTransferMethod, FileType
 
 
 class TestChunkMerger:
@@ -458,3 +460,117 @@ class TestChunkMerger:
         assert len(result) == 1
         assert isinstance(result[0].message, ToolInvokeMessage.BlobMessage)
         assert result[0].message.blob == b"FirstSecondThird"
+
+
+class TestConverter:
+    def test_convert_parameters_to_plugin_format_with_single_file_and_selector(self):
+        file_param = File(
+            tenant_id="tenant-1",
+            file_type=FileType.IMAGE,
+            transfer_method=FileTransferMethod.REMOTE_URL,
+            remote_url="https://example.com/file.png",
+            storage_key="",
+        )
+        selector = ToolSelector(
+            provider_id="org/plugin/provider",
+            credential_id=None,
+            tool_name="search",
+            tool_description="search tool",
+            tool_configuration={"k": "v"},
+            tool_parameters={
+                "query": ToolSelector.Parameter(
+                    name="query",
+                    type=ToolParameter.ToolParameterType.STRING,
+                    required=True,
+                    description="query",
+                    default="python",
+                    options=[],
+                )
+            },
+        )
+        params = {"file": file_param, "selector": selector, "plain": 123}
+
+        converted = convert_parameters_to_plugin_format(params)
+
+        assert converted["file"]["url"] == "https://example.com/file.png"
+        assert converted["selector"]["provider_id"] == "org/plugin/provider"
+        assert converted["plain"] == 123
+
+    def test_convert_parameters_to_plugin_format_with_lists_and_passthrough_values(self):
+        file_one = File(
+            tenant_id="tenant-1",
+            file_type=FileType.DOCUMENT,
+            transfer_method=FileTransferMethod.REMOTE_URL,
+            remote_url="https://example.com/a.txt",
+            storage_key="",
+        )
+        file_two = File(
+            tenant_id="tenant-1",
+            file_type=FileType.DOCUMENT,
+            transfer_method=FileTransferMethod.REMOTE_URL,
+            remote_url="https://example.com/b.txt",
+            storage_key="",
+        )
+        selector_one = ToolSelector(
+            provider_id="org/plugin/provider",
+            credential_id="cred-1",
+            tool_name="t1",
+            tool_description="tool 1",
+            tool_configuration={},
+            tool_parameters={},
+        )
+        selector_two = ToolSelector(
+            provider_id="org/plugin/provider",
+            credential_id="cred-2",
+            tool_name="t2",
+            tool_description="tool 2",
+            tool_configuration={},
+            tool_parameters={},
+        )
+
+        params = {
+            "files": [file_one, file_two],
+            "selectors": [selector_one, selector_two],
+            "empty_list": [],
+            "mixed_list": [file_one, "raw"],
+            "none_value": None,
+        }
+
+        converted = convert_parameters_to_plugin_format(params)
+
+        assert [item["url"] for item in converted["files"]] == [
+            "https://example.com/a.txt",
+            "https://example.com/b.txt",
+        ]
+        assert [item["tool_name"] for item in converted["selectors"]] == ["t1", "t2"]
+        assert converted["empty_list"] == []
+        assert converted["mixed_list"] == [file_one, "raw"]
+        assert converted["none_value"] is None
+
+    def test_merge_blob_chunks_rejects_declared_size_above_limit(self):
+        """A declared total_length above the limit is rejected before allocation."""
+
+        def mock_generator() -> Generator[ToolInvokeMessage, None, None]:
+            yield ToolInvokeMessage(
+                type=ToolInvokeMessage.MessageType.BLOB_CHUNK,
+                message=ToolInvokeMessage.BlobChunkMessage(
+                    id="file1", sequence=0, total_length=1025, blob=b"x", end=False
+                ),
+            )
+
+        with pytest.raises(ValueError, match="File is too large"):
+            list(merge_blob_chunks(mock_generator(), max_file_size=1024))
+
+    def test_merge_blob_chunks_rejects_absurd_declared_size(self):
+        """An absurd declared total_length raises ValueError, not MemoryError/OverflowError."""
+
+        def mock_generator() -> Generator[ToolInvokeMessage, None, None]:
+            yield ToolInvokeMessage(
+                type=ToolInvokeMessage.MessageType.BLOB_CHUNK,
+                message=ToolInvokeMessage.BlobChunkMessage(
+                    id="file1", sequence=0, total_length=2**62, blob=b"x", end=False
+                ),
+            )
+
+        with pytest.raises(ValueError, match="File is too large"):
+            list(merge_blob_chunks(mock_generator()))

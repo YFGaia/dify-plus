@@ -1,0 +1,431 @@
+{
+  "schema_version": 1,
+  "source_changed": false,
+  "git_changed": false,
+  "all_calls_paused": true,
+  "old_package": {
+    "http_generation_attempts": 16,
+    "unique_matrix_cells": 12,
+    "repeated_rejections_harness_error": 3,
+    "total_rejections": 6,
+    "successful_generations": 10,
+    "actual_output_tokens": 80,
+    "actual_usage_source": "independent persisted messages and LLM node usage",
+    "retries_allowed": false
+  },
+  "independent_packages": {
+    "active_stop": {
+      "package": "B09-independent-stream-stop",
+      "prior_package_sealed_attempts": 16,
+      "budget": {
+        "generation_posts": 2,
+        "stop_posts": 1,
+        "output_per_call": 8,
+        "total_output": 16,
+        "prompt_characters": 512
+      },
+      "generation_http_attempts": 1,
+      "stop_http_attempts": 1,
+      "status": "stopped_pending_independent_db",
+      "app_id": "c4b431dd-028a-43dd-9789-59fab1687346",
+      "receipts": [
+        {
+          "app_id": "c4b431dd-028a-43dd-9789-59fab1687346",
+          "generation_dispatched": true,
+          "stop_dispatched": true,
+          "events": [
+            {
+              "event": "workflow_started",
+              "node_type": null,
+              "node_id": null,
+              "observed_at": "2026-09-30T15:01:29.566Z"
+            },
+            {
+              "event": "node_started",
+              "node_type": "start",
+              "node_id": "start",
+              "observed_at": "2026-09-30T15:01:29.671Z"
+            },
+            {
+              "event": "node_finished",
+              "node_type": "start",
+              "node_id": "start",
+              "observed_at": "2026-09-30T15:01:29.677Z"
+            },
+            {
+              "event": "node_started",
+              "node_type": "llm",
+              "node_id": "llm",
+              "observed_at": "2026-09-30T15:01:29.776Z"
+            },
+            {
+              "event": "workflow_finished",
+              "node_type": null,
+              "node_id": null,
+              "observed_at": "2026-09-30T15:01:29.895Z"
+            }
+          ],
+          "terminal": "stopped",
+          "usage": null,
+          "model_output_text_recorded": false,
+          "owner_summary_http": 200,
+          "owner_role": "owner",
+          "tenant_id": "f3e7ebbc-1757-421b-b63e-7dc7d63bca75",
+          "app_detail_http": 200,
+          "app_mode": "workflow",
+          "passport_http": 200,
+          "dispatch_time": "2026-09-30T15:01:29.410Z",
+          "generation_http": 200,
+          "task_id": "7b9be279-e2ef-4ac9-886a-6893f77557aa",
+          "run_id": "228b9432-cebc-4be9-8f99-6f3fc7870640",
+          "stop_trigger": "llm_node_started",
+          "before_stop_detail_http": 200,
+          "before_stop_status": "running",
+          "stop_dispatch_time": "2026-09-30T15:01:29.813Z",
+          "stop_http": 200,
+          "stop_result": "success",
+          "terminal_observed_at": "2026-09-30T15:01:29.895Z",
+          "after_detail_http": 200,
+          "after_status": "stopped",
+          "verdict": "stopped_pending_independent_db"
+        }
+      ]
+    },
+    "parent_chain": {
+      "package": "B11-independent-parent-chain",
+      "prior_package_sealed_attempts": 16,
+      "budget": {
+        "generation_posts": 2,
+        "output_per_call": 8,
+        "total_output": 16,
+        "total_prompt_characters": 512
+      },
+      "generation_http_attempts": 2,
+      "successes": 2,
+      "app_id": "fbefc3f5-1e0f-42bc-b22b-9e6675b3554e",
+      "conversation_id": "65b8e3b5-2a2d-4f85-9b3b-ff85d0026ff9",
+      "starting_parent_message_id": "1d7362b6-8c82-4775-ba98-a105378c0a89",
+      "receipts": [
+        {
+          "round": 4,
+          "parent_message_id": "1d7362b6-8c82-4775-ba98-a105378c0a89",
+          "requested_conversation_id": "65b8e3b5-2a2d-4f85-9b3b-ff85d0026ff9",
+          "console_cookie_present": true,
+          "query_characters": 2,
+          "terminal": true,
+          "answer_text_recorded": false,
+          "dispatch_time": "2026-09-30T15:05:23.134Z",
+          "generation_dispatched": true,
+          "http": 200,
+          "task_id": "82da9cc8-0ddd-450e-a052-e6cfe9f43476",
+          "message_id": "72c4d580-1ce2-4625-aa56-87fd34e59d15",
+          "conversation_id": "65b8e3b5-2a2d-4f85-9b3b-ff85d0026ff9",
+          "terminal_event": "message_end",
+          "terminal_time": "2026-09-30T15:05:24.179Z",
+          "verdict": "terminal_success_pending_db"
+        },
+        {
+          "round": 5,
+          "parent_message_id": "72c4d580-1ce2-4625-aa56-87fd34e59d15",
+          "requested_conversation_id": "65b8e3b5-2a2d-4f85-9b3b-ff85d0026ff9",
+          "console_cookie_present": true,
+          "query_characters": 2,
+          "terminal": true,
+          "answer_text_recorded": false,
+          "dispatch_time": "2026-09-30T15:05:24.185Z",
+          "generation_dispatched": true,
+          "http": 200,
+          "task_id": "33a9406f-cd3c-4739-b6ac-8d5d127b4252",
+          "message_id": "b9df9883-ad99-408a-9c9f-ad7ec3fe3d04",
+          "conversation_id": "65b8e3b5-2a2d-4f85-9b3b-ff85d0026ff9",
+          "terminal_event": "message_end",
+          "terminal_time": "2026-09-30T15:05:25.049Z",
+          "verdict": "terminal_success_pending_db"
+        }
+      ],
+      "status": "sealed_pending_independent_readback",
+      "prepare": {
+        "summary_http": 200,
+        "role": "owner",
+        "tenant_id": "f3e7ebbc-1757-421b-b63e-7dc7d63bca75",
+        "detail_http": 200,
+        "mode": "chat",
+        "retention_number": 1,
+        "output_cap": 8,
+        "webapp_auth": false,
+        "passport_http": 200,
+        "ready": true
+      }
+    },
+    "completed_usage_stop": {
+      "package": "B09-independent-completed-usage-stop",
+      "prior_package_sealed_attempts": 16,
+      "budget": {
+        "generation_posts": 1,
+        "stop_posts": 1,
+        "output_per_call": 8,
+        "total_output": 16,
+        "prompt_characters": 512
+      },
+      "generation_http_attempts": 1,
+      "stop_http_attempts": 1,
+      "status": "stopped_pending_independent_db",
+      "app_id": "c4b431dd-028a-43dd-9789-59fab1687346",
+      "receipts": [
+        {
+          "app_id": "c4b431dd-028a-43dd-9789-59fab1687346",
+          "generation_dispatched": true,
+          "stop_dispatched": true,
+          "events": [
+            {
+              "event": "workflow_started",
+              "node_type": null,
+              "node_id": null,
+              "observed_at": "2026-09-30T15:09:18.801Z"
+            },
+            {
+              "event": "node_started",
+              "node_type": "start",
+              "node_id": "start",
+              "observed_at": "2026-09-30T15:09:18.904Z"
+            },
+            {
+              "event": "node_finished",
+              "node_type": "start",
+              "node_id": "start",
+              "observed_at": "2026-09-30T15:09:18.915Z"
+            },
+            {
+              "event": "node_started",
+              "node_type": "llm",
+              "node_id": "llm",
+              "observed_at": "2026-09-30T15:09:19.022Z"
+            },
+            {
+              "event": "node_finished",
+              "node_type": "llm",
+              "node_id": "llm",
+              "observed_at": "2026-09-30T15:09:19.692Z"
+            },
+            {
+              "event": "node_started",
+              "node_type": "llm",
+              "node_id": "llm2",
+              "observed_at": "2026-09-30T15:09:19.793Z"
+            },
+            {
+              "event": "workflow_finished",
+              "node_type": null,
+              "node_id": null,
+              "observed_at": "2026-09-30T15:09:19.910Z"
+            }
+          ],
+          "terminal": "stopped",
+          "usage": null,
+          "model_output_text_recorded": false,
+          "owner_summary_http": 200,
+          "owner_role": "owner",
+          "tenant_id": "f3e7ebbc-1757-421b-b63e-7dc7d63bca75",
+          "app_detail_http": 200,
+          "app_mode": "workflow",
+          "passport_http": 200,
+          "dispatch_time": "2026-09-30T15:09:18.733Z",
+          "generation_http": 200,
+          "task_id": "35417b0b-7ac8-4c6b-a1da-6eef7c8ce423",
+          "run_id": "791e985c-22f5-4f91-b9e6-1ef288d6b3a5",
+          "first_llm_finished": true,
+          "first_llm_storage_http": 200,
+          "first_llm_stored": {
+            "status": "succeeded",
+            "node_id": "llm",
+            "total_tokens": 46,
+            "prompt_tokens": null,
+            "completion_tokens": null
+          },
+          "stop_trigger": "second_llm_started_after_first_stored_usage",
+          "before_stop_detail_http": 200,
+          "before_stop_status": "running",
+          "stop_dispatch_time": "2026-09-30T15:09:19.808Z",
+          "stop_http": 200,
+          "stop_result": "success",
+          "terminal_observed_at": "2026-09-30T15:09:19.910Z",
+          "after_detail_http": 200,
+          "after_status": "stopped",
+          "verdict": "stopped_pending_independent_db"
+        }
+      ]
+    }
+  },
+  "context_api": {
+    "http": 200,
+    "conversation_id": "65b8e3b5-2a2d-4f85-9b3b-ff85d0026ff9",
+    "marker_ids": [
+      "b9df9883-ad99-408a-9c9f-ad7ec3fe3d04",
+      "72c4d580-1ce2-4625-aa56-87fd34e59d15",
+      "1d7362b6-8c82-4775-ba98-a105378c0a89",
+      "2ea007e6-9b6c-4803-85b0-8bde4cc28069",
+      "216f53a2-a2b9-486e-a3c0-3141384ff24f"
+    ],
+    "marker_count": 5
+  },
+  "workflow_revision": {
+    "app_id": "c4b431dd-028a-43dd-9789-59fab1687346",
+    "save_http": 200,
+    "publish_http": 200,
+    "read_http": 200,
+    "published_workflow_id": "47ce94b6-07a6-446e-a7f1-5c2be0328558",
+    "nodes": [
+      {
+        "id": "start",
+        "type": "start"
+      },
+      {
+        "id": "llm",
+        "type": "llm",
+        "output_cap": 8
+      },
+      {
+        "id": "end",
+        "type": "end"
+      },
+      {
+        "id": "llm2",
+        "type": "llm",
+        "output_cap": 8
+      }
+    ],
+    "edges": [
+      {
+        "source": "start",
+        "target": "llm"
+      },
+      {
+        "source": "llm2",
+        "target": "end"
+      },
+      {
+        "source": "llm",
+        "target": "llm2"
+      }
+    ],
+    "previous_published_workflow_id": "906a9075-aab8-460d-beed-e6b99ae1afe9",
+    "previous_graph_sha256": "fad204210d5441380a710709df826ca53265ff2061346b524b9578f149b39841",
+    "no_generation_dispatched": true
+  },
+  "runtime_boundaries": {
+    "parent_chain": "exact persisted parent chain 3->4->5; two calls each prompt39/output8/price0; actual Memory control=false 6 messages, control=true0; provider prompt not captured",
+    "active_stop": "run stopped with zero recorded tokens; stop control passed, completed usage proof supplied separately",
+    "completed_usage_stop": "independent DB confirms run stopped total46; first LLM38prompt+8output=46 persisted; second interrupted LLM usage unknown; completed-node usage preservation passed, interrupted partial-token billing boundary unproven"
+  },
+  "auth_probe_history": {
+    "wrong_summary_route_404": "harness read-only pathname corrected before dispatch",
+    "summary_without_matching_csrf_401": "insufficient evidence to attribute token expiration; legal existing-session refresh200 and subsequent matching-CSRF owner summary200",
+    "metadata_retention_path": "initial nested model_config check absent; actual retention_number is App detail root; corrected before new generation"
+  },
+  "cleanup_scope": {
+    "original_tenant": "f3e7ebbc-1757-421b-b63e-7dc7d63bca75",
+    "owned_apps": [
+      "78e5a513-53f4-4e55-a3f4-a9c54690c0a7",
+      "fbefc3f5-1e0f-42bc-b22b-9e6675b3554e",
+      "c4b431dd-028a-43dd-9789-59fab1687346"
+    ],
+    "product_deletes_not_started": false,
+    "retain_until_consumers_release": true,
+    "protected_original_app": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+    "before_baselines_private_only": true,
+    "product_receipts": {
+      "scope": [
+        "78e5a513-53f4-4e55-a3f4-a9c54690c0a7",
+        "fbefc3f5-1e0f-42bc-b22b-9e6675b3554e",
+        "c4b431dd-028a-43dd-9789-59fab1687346"
+      ],
+      "protected_original_app": "d7af1af0-d92f-4d78-bbfa-8802de395199",
+      "status": "product_deleted_async_cleanup_pending",
+      "delete_dispatches": 3,
+      "receipts": [
+        {
+          "app_id": "78e5a513-53f4-4e55-a3f4-a9c54690c0a7",
+          "before_http": 200,
+          "delete_dispatched": true,
+          "delete_http": 204,
+          "after_http": 404
+        },
+        {
+          "app_id": "fbefc3f5-1e0f-42bc-b22b-9e6675b3554e",
+          "before_http": 200,
+          "delete_dispatched": true,
+          "delete_http": 204,
+          "after_http": 404
+        },
+        {
+          "app_id": "c4b431dd-028a-43dd-9789-59fab1687346",
+          "before_http": 200,
+          "delete_dispatched": true,
+          "delete_http": 204,
+          "after_http": 404
+        }
+      ],
+      "identity": {
+        "http": 200,
+        "tenant_id": "f3e7ebbc-1757-421b-b63e-7dc7d63bca75",
+        "role": "owner"
+      }
+    },
+    "status": "blocked_pending_explicit_user_authorization_after_automatic_review_rejection",
+    "first_broken_transition": {
+      "component": "original configured worker",
+      "CELERY_QUEUES": "workflow_based_app_execution",
+      "CELERY_WORKER_QUEUES": "workflow_based_app_execution",
+      "app_deletion_consumer": false,
+      "source_default_app_deletion_queue_present": true,
+      "attribution": "existing deployment queue override; source regression not established"
+    },
+    "scope_validation": {
+      "owned_app_count": 3,
+      "fork_extension_rows_validated": 6,
+      "context_rows_validated": 6,
+      "account_join_rows": 0,
+      "original_app_excluded": true,
+      "core_maintenance_dispatched": false,
+      "fork_transaction_dispatched": false
+    },
+    "strategy": "Paused: product DELETE204 already committed for three synthetic App rows; standard deletion queue and associated rows remain. No destructive maintenance/consumer/SQL retry before explicit user response.",
+    "automatic_review": {
+      "action": "same-image short app_deletion-only consumer of three owned synthetic App deletion tasks",
+      "rejected": true,
+      "reason": "irreversible deletion without sufficiently explicit authorization",
+      "consumer_started": false,
+      "tasks_consumed": 0,
+      "direct_task_run_dispatched": false,
+      "fork_sql_executed": false,
+      "queue_purged": false
+    },
+    "pending_exact_core_counts": {
+      "apps": 0,
+      "app_model_configs": 4,
+      "sites": 3,
+      "workflows": 3,
+      "workflow_runs": 5,
+      "workflow_node_executions": 14,
+      "conversations": 5,
+      "messages": 9,
+      "end_users": 6,
+      "app_extend": 3,
+      "app_statistics_extend": 3,
+      "message_context_extend": 6,
+      "end_user_account_joins_extend": 0
+    }
+  },
+  "runtime_evidence_private_paths": [
+    "/private/tmp/dify-original-generation-acceptance-20260930/final-context-and-stop-readback-20260930T150344Z.private.json",
+    "/private/tmp/dify-original-generation-acceptance-20260930/runtime-readback-20260930T145727Z.private.json"
+  ],
+  "independent_acceptance": {
+    "review": "original-generation-runtime/independent-runtime-readback-review.json",
+    "B05": "passed selected twelve-cell auth/generation contract with actual outputs",
+    "B11": "passed real parent-linked thread plus scoped Context API and Memory marker processing; provider prompt not captured",
+    "B09": "passed active stop and completed-LLM usage persistence; interrupted second-node usage unknown",
+    "initial_receipts_preserved": true,
+    "cleanup": "blockedapproval; consumer/direct-task/forkSQL/purge0"
+  }
+}

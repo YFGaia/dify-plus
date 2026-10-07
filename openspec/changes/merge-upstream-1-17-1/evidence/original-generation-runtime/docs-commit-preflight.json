@@ -1,0 +1,125 @@
+{
+  "verification_source": "committed_release_archive_with_reviewed_docs",
+  "base_HEAD": "0585d27cb1b81bc36a282a447fb1d3376d8fe20e",
+  "archive_directory": "/private/tmp/dify-generation-docs-0585-release-archive",
+  "source55_unchanged": true,
+  "release_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+  "worktree_lock_is_not_release_input": true,
+  "workspace_frozen_checker": "failed api/uv.lock because concurrent user/unrelated worktree lock differs from reviewed merge dirty/committed lock; not overwritten/staged",
+  "tag_unchanged": "fork-merged-1.17.1 -> e91c4d89",
+  "secret_scan_flags": 0,
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "openspec/changes/merge-upstream-1-17-1/evidence/current-graph-reference-check.py"
+      ],
+      "exit_code": 0,
+      "stdout": "PASS: DAG, passed references, N01 exact reviewed source milestone, N02 complete durable frozen source inventory, N02/N05/N06 dependencies and29 scene IDs /24 local /4 historical /1 production"
+    },
+    {
+      "command": [
+        "openspec",
+        "validate",
+        "merge-upstream-1-17-1",
+        "--strict"
+      ],
+      "exit_code": 0,
+      "stdout": "Change 'merge-upstream-1-17-1' is valid"
+    }
+  ],
+  "paths": [
+    {
+      "path": "docs/dify-plus/1.17.1合并验收记录.md",
+      "sha256": "30a0a81d49eea24f5aa8408265968cd6cad6bb29e10a2472d5d3884f4d6fad50"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/acceptance-ledger-2026-09-30.md",
+      "sha256": "d5dae6c62f211e8327239cca50c85c994bed7f1ab0569163487024897ea55071"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/acceptance-ledger-state-2026-09-30.json",
+      "sha256": "7416bf672912372e483ebbb47987243338b479176d7f573b5313e9f3e6d55d3e"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/external-conditions-2026-09-30.json",
+      "sha256": "e1eb53fafb96138dba88bb2864512dfb78a7956958f22cc6bd1826617608d4ed"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/full-scope-completion-audit-2026-09-30.json",
+      "sha256": "9bcc1b50fec6bb447ecde2f44d64a1ed927777aaf3adb658b82a1b5f47f723ee"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+      "sha256": "63ab3be62bc08703d8fd6bd08d566d705766bc4cf7046a9c15235cc4b9e4e6f9"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+      "sha256": "be660927f4b20f6c9d6bf076e9a42341b3ab38aa5a9971984cfcd4ef1e90e25b"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/tasks.md",
+      "sha256": "e707ddb4d81443ce16ece3fe57e4d1c42238b0886c1563a101e403a08d5f5b01"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/verification-matrix.md",
+      "sha256": "487fc2e83dd5306b514d9fc2f57c2ec340cad43d34e23e6b4157a32a4e5678b8"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/original-readonly-first-relative-html-probe.json",
+      "sha256": "999375ff4205cd73cd44689846deed8ec3f18d6bf52e81d52632555754d11cb8"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/app-web-auth-regression/original-readonly-generation-feasibility.json",
+      "sha256": "370ee242a504f8a7acce5b370424f3d4d6f44f7c4760acada9084a626aa65a5b"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/agent-topology-no-model-preparation.json",
+      "sha256": "6a1fb5db879e821eafa3ca46937471ba7eae717830ef0f766ff08bd3ab6d8026"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/caller-results.json",
+      "sha256": "f9db3a813461dbf2df2992183faa55b627d1f5e521d15448d955d5b58ea7643c"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-actual-readback.json",
+      "sha256": "ecef794724f194c32fda777ddfe3616c32e8cba6993c73e5cfd0f7eb250f116f"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-caller-transport-review.json",
+      "sha256": "09540db941d22e6daa3e28f381176dab5ed3a8d6503763cbd5d4da39f548a52a"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-retention-semantics-review.json",
+      "sha256": "28dc90e0d28f3466b23b5262d94babfd4674ee85e722c5bbcc8e383f7d791993"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/independent-runtime-readback-review.json",
+      "sha256": "36499ed28c11e471669d95c28a10ffecf8c859cb700a51b24977af30f1a5e385"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-runtime/supplemental-caller-packages.json",
+      "sha256": "326c9f10a590e7a8a2e74311fd0e2693092f5d0155a9432d60618aae34280bef"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-generation-sse-contract-audit-2026-09-30.json",
+      "sha256": "850fb8c24fb2ce18bcf9451b356f2019a2b0f37fc204e5cc35e0f990f7da215b"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-provider-baseline-review-2026-09-30.json",
+      "sha256": "087923cb1ca20f5297fbd0ff521346695216346a865fdc6ce9cae3bd94e12fa6"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/original-provider-generation-plan-2026-09-30.json",
+      "sha256": "152448e71c1d1823e20f438af5ae0c1924d3896025de627fbc8d44269ed87469"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/remaining-action-matrix-2026-09-30.json",
+      "sha256": "b3678d1a84c3d43ea4359235a6a8a8e8756edc1e50d9b6de251b03eccda96b14"
+    },
+    {
+      "path": "openspec/changes/merge-upstream-1-17-1/evidence/remaining-runtime-feasibility-small-packages-2026-09-30.json",
+      "sha256": "b1cde034ccae4313d2286bed83cb89fd4fdb72c18ab043aebaa3de0a7f5f6f4e"
+    }
+  ]
+}

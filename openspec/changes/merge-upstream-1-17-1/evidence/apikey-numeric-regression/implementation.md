@@ -1,0 +1,9 @@
+# K01 API-key quota numeric response regression
+
+Independent runtime K01 product API quota PUT returned200, but a subsequent GET returned all five quota amounts as JSON strings (including 1.1234567, 2.7654321 and 0E-7), contrary to ApiKeyItem float|None fields. Independent live sample/request evidence is owned by merge_audit. No token value is included here.
+
+Root cause: _merge_token_with_quota_extend validated the base token before using setattr to assign ORM Numeric/Decimal quota values. Assignment bypassed Pydantic validation; Decimal serialization emitted strings. The minimal repair merges only the named quota fields into validated token data and then validates the combined ApiKeyItem. Thus the existing declared float response schema governs JSON output while database Decimal storage, seven-decimal accounting, limits, usage, identity/timestamps and permissions remain unchanged. No schema or migration change.
+
+Three new real SQLite ORM commit/expire/refetch tests exercise actual unwrapped list controller responses: populated Decimal numeric values (including 7 decimals and zero), legacy missing stats/defaults, and nullable rows. They assert JSON float types/values, unchanged Decimal ORM values and token identity/lifecycle. Existing API-key lifecycle and authorization tests are retained. Focused suite: 27 passed in 2.18s, 2 existing Pydantic deprecation warnings. Ruff0.16.6 check and format pass. Initial current source response failure was established independently in real runtime, not inferred from tests.
+
+Source-only verification: final canonical API image rebuild and live K01 GET numeric replay remain pending independently. Source frozen at HEAD953cf1c1ef88258197c72b98e89fcd1dab85ac39 plus source.sha256 paths. No staging/commit. Earlier N01/N04/N07 manifests remain immutable.

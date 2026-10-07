@@ -5,8 +5,11 @@ from collections.abc import Generator, Mapping, Sequence
 from mimetypes import guess_extension
 from typing import TYPE_CHECKING, Any, Union
 
+from sqlalchemy.orm import Session
+
 from core.app.app_config.entities import ExternalDataVariableEntity, PromptTemplateEntity
 from core.app.apps.base_app_queue_manager import AppQueueManager, PublishFrom
+from core.app.apps.exc import GenerateTaskStoppedError
 from core.app.entities.app_invoke_entities import (
     AppGenerateEntity,
     EasyUIBasedAppGenerateEntity,
@@ -21,36 +24,30 @@ from core.app.entities.queue_entities import (
 )
 from core.app.features.annotation_reply.annotation_reply import AnnotationReplyFeature
 from core.app.features.hosting_moderation.hosting_moderation import HostingModerationFeature
+from core.db.session_factory import session_factory
 from core.external_data_tool.external_data_fetch import ExternalDataFetch
-from core.file.enums import FileTransferMethod, FileType
 from core.memory.token_buffer_memory import TokenBufferMemory
 from core.model_manager import ModelInstance
-from core.model_runtime.entities.llm_entities import LLMResult, LLMResultChunk, LLMResultChunkDelta, LLMUsage
-from core.model_runtime.entities.message_entities import (
-    AssistantPromptMessage,
-    ImagePromptMessageContent,
-    PromptMessage,
-    TextPromptMessageContent,
-)
-from core.model_runtime.entities.model_entities import ModelPropertyKey
-from core.model_runtime.errors.invoke import InvokeBadRequestError
 from core.moderation.input_moderation import InputModeration
 from core.prompt.advanced_prompt_transform import AdvancedPromptTransform
 from core.prompt.entities.advanced_prompt_entities import ChatModelMessage, CompletionModelPromptTemplate, MemoryConfig
 from core.prompt.simple_prompt_transform import ModelMode, SimplePromptTransform
 from core.tools.tool_file_manager import ToolFileManager
-from extensions.ext_database import db
-
-# extend: start messages_context_handling
-from extensions.ext_redis import redis_client
-from models.enums import CreatorUserRole
+from graphon.file import FileTransferMethod, FileType
+from graphon.model_runtime.entities.llm_entities import LLMResult, LLMResultChunk, LLMResultChunkDelta, LLMUsage
+from graphon.model_runtime.entities.message_entities import (
+    AssistantPromptMessage,
+    ImagePromptMessageContent,
+    PromptMessage,
+    TextPromptMessageContent,
+)
+from graphon.model_runtime.entities.model_entities import ModelPropertyKey
+from graphon.model_runtime.errors.invoke import InvokeBadRequestError
+from models.enums import CreatorUserRole, MessageFileBelongsTo
 from models.model import App, AppMode, Message, MessageAnnotation, MessageFile
-from models.model_extend import AppExtend, MessageContextExtend
-
-# extend: stop messages_context_handling
 
 if TYPE_CHECKING:
-    from core.file.models import File
+    from graphon.file import File
 
 _logger = logging.getLogger(__name__)
 
@@ -90,15 +87,22 @@ class AppRunner:
                 ):
                     model_config.parameters[parameter_rule.name] = max_tokens
 
-    # Extend: start messages_context_handling
+    # Extend: start messages_context_handling（1.13.3 合并时丢失，1.14.2 合并恢复）
     def add_messages_context(self, prompt_messages, app_id, conversation_id, message_id):
-        key = "retention_number_{}".format(app_id)
+        """记忆上下文：当对话轮数超过应用配置的保留条数时，登记一条上下文分割记录。"""
+        # 延迟导入，避免 core.app ↔ models 顶层循环依赖；
+        # db 也必须在此导入——上游 1.16.0 已移除本模块顶层的 ext_database import。
+        from extensions.ext_database import db
+        from extensions.ext_redis import redis_client
+        from models.model_extend import AppExtend, MessageContextExtend
+
+        key = f"retention_number_{app_id}"
         retention_number = redis_client.get(key)
         if retention_number is None:
-            app_extend: AppExtend = (
-                db.session.query(AppExtend).filter(AppExtend.app_id == app_id).first()
-            )
-            if app_extend is None:
+            app_extend: AppExtend | None = db.session.query(AppExtend).filter(AppExtend.app_id == app_id).first()
+            # app_extend 行可能由其它 per-app 配置（如 WebApp 认证开关）创建，
+            # retention_number 为 NULL 与行不存在同义：未配置记忆上下文，直接跳过
+            if app_extend is None or app_extend.retention_number is None:
                 return
             retention_number = int(app_extend.retention_number)
             redis_client.set(key, app_extend.retention_number)
@@ -106,11 +110,14 @@ class AppRunner:
             retention_number = int(retention_number)
         if (len(prompt_messages) + 2) / 2 > retention_number:
             # 插入替换
-            db.session.add(MessageContextExtend(
-                conversation_id=conversation_id,
-                message_id=message_id,
-            ))
+            db.session.add(
+                MessageContextExtend(
+                    conversation_id=conversation_id,
+                    message_id=message_id,
+                )
+            )
             db.session.commit()
+
     # Extend: stop messages_context_handling
 
     def organize_prompt_messages(
@@ -262,22 +269,23 @@ class AppRunner:
         :param tenant_id: tenant id for multimodal output
         :return:
         """
-        if not stream and isinstance(invoke_result, LLMResult):
-            self._handle_invoke_result_direct(
-                invoke_result=invoke_result,
-                queue_manager=queue_manager,
-            )
-        elif stream and isinstance(invoke_result, Generator):
-            self._handle_invoke_result_stream(
-                invoke_result=invoke_result,
-                queue_manager=queue_manager,
-                agent=agent,
-                message_id=message_id,
-                user_id=user_id,
-                tenant_id=tenant_id,
-            )
-        else:
-            raise NotImplementedError(f"unsupported invoke result type: {type(invoke_result)}")
+        match invoke_result:
+            case LLMResult() if not stream:
+                self._handle_invoke_result_direct(
+                    invoke_result=invoke_result,
+                    queue_manager=queue_manager,
+                )
+            case _ if stream and isinstance(invoke_result, Generator):
+                self._handle_invoke_result_stream(
+                    invoke_result=invoke_result,
+                    queue_manager=queue_manager,
+                    agent=agent,
+                    message_id=message_id,
+                    user_id=user_id,
+                    tenant_id=tenant_id,
+                )
+            case _:
+                raise NotImplementedError(f"unsupported invoke result type: {type(invoke_result)}")
 
     def _handle_invoke_result_direct(
         self,
@@ -324,46 +332,63 @@ class AppRunner:
         prompt_messages: list[PromptMessage] = []
         text = ""
         usage = None
-        for result in invoke_result:
-            if not agent:
-                queue_manager.publish(QueueLLMChunkEvent(chunk=result), PublishFrom.APPLICATION_MANAGER)
-            else:
-                queue_manager.publish(QueueAgentMessageEvent(chunk=result), PublishFrom.APPLICATION_MANAGER)
+        try:
+            for result in invoke_result:
+                if not agent:
+                    queue_manager.publish(QueueLLMChunkEvent(chunk=result), PublishFrom.APPLICATION_MANAGER)
+                else:
+                    queue_manager.publish(QueueAgentMessageEvent(chunk=result), PublishFrom.APPLICATION_MANAGER)
 
-            message = result.delta.message
-            if isinstance(message.content, str):
-                text += message.content
-            elif isinstance(message.content, list):
-                for content in message.content:
-                    if isinstance(content, str):
-                        text += content
-                    elif isinstance(content, TextPromptMessageContent):
-                        text += content.data
-                    elif isinstance(content, ImagePromptMessageContent):
-                        if message_id and user_id and tenant_id:
-                            try:
-                                self._handle_multimodal_image_content(
-                                    content=content,
-                                    message_id=message_id,
-                                    user_id=user_id,
-                                    tenant_id=tenant_id,
-                                    queue_manager=queue_manager,
-                                )
-                            except Exception:
-                                _logger.exception("Failed to handle multimodal image output")
-                        else:
-                            _logger.warning("Received multimodal output but missing required parameters")
-                    else:
-                        text += content.data if hasattr(content, "data") else str(content)
+                message = result.delta.message
+                match message.content:
+                    case str():
+                        text += message.content
+                    case list():
+                        for content in message.content:
+                            match content:
+                                case TextPromptMessageContent():
+                                    text += content.data
+                                case ImagePromptMessageContent():
+                                    if message_id and user_id and tenant_id:
+                                        try:
+                                            with session_factory.create_session() as session:
+                                                message_file_id = self._handle_multimodal_image_content(
+                                                    session=session,
+                                                    content=content,
+                                                    message_id=message_id,
+                                                    user_id=user_id,
+                                                    tenant_id=tenant_id,
+                                                    queue_manager=queue_manager,
+                                                )
+                                                session.commit()
+                                            if message_file_id:
+                                                queue_manager.publish(
+                                                    QueueMessageFileEvent(message_file_id=message_file_id),
+                                                    PublishFrom.APPLICATION_MANAGER,
+                                                )
+                                                _logger.info(
+                                                    "QueueMessageFileEvent published for message_file_id: %s",
+                                                    message_file_id,
+                                                )
+                                        except Exception:
+                                            _logger.exception("Failed to handle multimodal image output")
+                                    else:
+                                        _logger.warning("Received multimodal output but missing required parameters")
+                                case _:
+                                    text += content.data if hasattr(content, "data") else str(content)
 
-            if not model:
-                model = result.model
+                if not model:
+                    model = result.model
 
-            if not prompt_messages:
-                prompt_messages = list(result.prompt_messages)
+                if not prompt_messages:
+                    prompt_messages = list(result.prompt_messages)
 
-            if result.delta.usage:
-                usage = result.delta.usage
+                if result.delta.usage:
+                    usage = result.delta.usage
+        except GenerateTaskStoppedError:
+            # Explicitly close provider stream to stop in-flight token generation ASAP.
+            invoke_result.close()
+            raise
 
         if usage is None:
             usage = LLMUsage.empty_usage()
@@ -386,7 +411,8 @@ class AppRunner:
         user_id: str,
         tenant_id: str,
         queue_manager: AppQueueManager,
-    ):
+        session: Session,
+    ) -> str | None:
         """
         Handle multimodal image content from LLM response.
         Save the image and create a MessageFile record.
@@ -407,7 +433,7 @@ class AppRunner:
 
         if not image_url and not base64_data:
             _logger.warning("Image content has neither URL nor base64 data")
-            return
+            return None
 
         tool_file_manager = ToolFileManager()
 
@@ -441,38 +467,30 @@ class AppRunner:
                 )
                 _logger.info("Image saved successfully, tool_file_id: %s", tool_file.id)
             else:
-                return
+                return None
         except Exception:
             _logger.exception("Failed to save image file")
-            return
+            return None
 
-        # Create MessageFile record
+        # Create MessageFile record.
+        # Use an independent session so this side-effect write does not
+        # commit or close the caller's request-scoped session.
         message_file = MessageFile(
             message_id=message_id,
             type=FileType.IMAGE,
             transfer_method=FileTransferMethod.TOOL_FILE,
-            belongs_to="assistant",
+            belongs_to=MessageFileBelongsTo.ASSISTANT,
             url=f"/files/tools/{tool_file.id}",
             upload_file_id=tool_file.id,
             created_by_role=(
-                CreatorUserRole.ACCOUNT
-                if queue_manager.invoke_from in {InvokeFrom.DEBUGGER, InvokeFrom.EXPLORE}
-                else CreatorUserRole.END_USER
+                CreatorUserRole.ACCOUNT if queue_manager.invoke_from.runs_as_account() else CreatorUserRole.END_USER
             ),
             created_by=user_id,
         )
 
-        db.session.add(message_file)
-        db.session.commit()
-        db.session.refresh(message_file)
-
-        # Publish QueueMessageFileEvent
-        queue_manager.publish(
-            QueueMessageFileEvent(message_file_id=message_file.id),
-            PublishFrom.APPLICATION_MANAGER,
-        )
-
-        _logger.info("QueueMessageFileEvent published for message_file_id: %s", message_file.id)
+        session.add(message_file)
+        session.flush()
+        return message_file.id
 
     def moderation_for_inputs(
         self,
@@ -558,7 +576,7 @@ class AppRunner:
         )
 
     def query_app_annotations_to_reply(
-        self, app_record: App, message: Message, query: str, user_id: str, invoke_from: InvokeFrom
+        self, app_record: App, message: Message, query: str, user_id: str, invoke_from: InvokeFrom, session: Session
     ) -> MessageAnnotation | None:
         """
         Query app annotations to reply
@@ -571,5 +589,10 @@ class AppRunner:
         """
         annotation_reply_feature = AnnotationReplyFeature()
         return annotation_reply_feature.query(
-            app_record=app_record, message=message, query=query, user_id=user_id, invoke_from=invoke_from
+            app_record=app_record,
+            message=message,
+            query=query,
+            user_id=user_id,
+            invoke_from=invoke_from,
+            session=session,
         )

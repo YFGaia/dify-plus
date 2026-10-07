@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "node_id": "V02",
+  "task_id": "16.11_final_candidate_after_uk-UA_locale_repair",
+  "candidate_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+  "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+  "status": "blocked",
+  "first_failed_gate": "web build",
+  "summary": "pnpm check, lint:tss, and i18n:check passed; i18n passed on an identical same-archive retry after the initial sandbox Unix-socket EPERM. The corrected web-project unit invocation loaded web/vite.config.ts and passed 222 tests across 20 files. The first actual failing gate was pnpm --dir web build: Turbopack rejected the required web/node_modules symlink to the checkout outside the archive filesystem root. build:vinext was not run.",
+  "snapshot": {
+    "path": "/private/tmp/dify-v02-16.11.eMaf9d",
+    "creation": "git archive d2fea9989725c79afdeec3eba4eaa6e0e260e480 | tar -x -C /private/tmp/dify-v02-16.11.eMaf9d",
+    "archive_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+    "verified_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+    "git_metadata_present": false,
+    "disposable_archive_not_worktree": true,
+    "structural_acceptance": {
+      "path": "evidence/M08/14.18-final-candidate-structural-acceptance.md",
+      "sha256": "fbaed006adf7c126d9c088f75fb9ffbd1e1e1c39453f49308f72c0af6bdd41c2"
+    }
+  },
+  "environment": {
+    "node": "v24.20.0",
+    "node_path": "/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin/node",
+    "node_sha256": "9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a",
+    "pnpm": "12.3.4",
+    "pnpm_path": "/private/tmp/dify-m01-unblock/tools/native/package/pnpm",
+    "pnpm_sha256": "99ccfa6b57e73c693ec2c9760a978f063b001df8f462e89fce3a30be3d641f3",
+    "vp_skip_install": "1",
+    "verify_deps_before_run": false,
+    "dependency_install_or_sync": false,
+    "network_access_for_dependencies": false
+  },
+  "dependency_overlay": [
+    {
+      "snapshot_path": "node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "web/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/web/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "packages/dify-ui/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/dify-ui/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "packages/contracts/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/contracts/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "packages/iconify-collections/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/iconify-collections/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "packages/jotai-tanstack-form/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/jotai-tanstack-form/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "packages/migrate-no-unchecked-indexed-access/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/migrate-no-unchecked-indexed-access/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "packages/nuqs-jotai/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/nuqs-jotai/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "packages/dev-proxy/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/packages/dev-proxy/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "cli/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/cli/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "e2e/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/e2e/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    },
+    {
+      "snapshot_path": "sdks/nodejs-client/node_modules",
+      "target": "/Users/liuxingwang/go/src/dify-plus/sdks/nodejs-client/node_modules",
+      "exists": true,
+      "snapshot_link": true,
+      "resolves": true
+    }
+  ],
+  "excluded_generated_path": "web/.next/node_modules",
+  "input_hashes": {
+    "package.json_sha256": "1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f",
+    "pnpm-lock.yaml_sha256": "b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824",
+    "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+    "browser_spec_sha256": "93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120"
+  },
+  "reused_evidence": {
+    "frozen_lock_consistency": {
+      "source": "prior V02/M01 evidence",
+      "package_and_lock_hashes_match": true,
+      "install_or_sync_rerun": false
+    },
+    "V01": {
+      "api_tree_matches": true,
+      "result": "160 passed, 0 failed, 0 skipped; 2 warnings",
+      "result_sha256": "995e8f0dbb5c0f8853eea275cd653df14b41b8fc81e6bb9a75d6836da76efe77",
+      "status": "reused"
+    },
+    "M08_14_7_browser": {
+      "repository_inventory_count": 26,
+      "registered_api_key_scope_count": 1,
+      "file": "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+      "sha256": "93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120",
+      "prior_result": "1 file, 2 Chromium tests passed",
+      "rerun": false,
+      "other_inventory_paths_not_run": 25
+    }
+  },
+  "gates": [
+    {
+      "name": "pnpm check",
+      "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false check",
+      "exit_code": 0,
+      "status": "passed",
+      "formatter_files_passed": 8950,
+      "formatter_duration_seconds": 2.905,
+      "lint_errors": 0,
+      "lint_warnings": 1931,
+      "lint_files": 6910,
+      "lint_duration_seconds": 27.3,
+      "other_warnings": ["Node ESLintPoorConcurrencyWarning"]
+    },
+    {
+      "name": "lint:tss",
+      "command": "pnpm --config.verify-deps-before-run=false --dir web lint:tss",
+      "exit_code": 0,
+      "status": "passed",
+      "collected_or_checked": 6266,
+      "passed": 6266,
+      "failed": 0,
+      "elapsed_seconds": 13
+    },
+    {
+      "name": "i18n:check",
+      "attempts": [
+        {
+          "sandbox": "default",
+          "exit_code": 1,
+          "status": "environment_eprem_before_checker_start",
+          "elapsed_seconds": 0,
+          "error": "tsx listen EPERM on /var/folders/xn/kxnfh8dd50dbn_wm94rgt9qr0000gp/T/tsx-502/65678.pipe"
+        },
+        {
+          "sandbox": "restrictions_lifted",
+          "exit_code": 0,
+          "status": "passed",
+          "elapsed_seconds": 1,
+          "locale_count": 24,
+          "missing_keys": 0,
+          "summary": "All i18n files are in sync"
+        }
+      ],
+      "attribution": "first failure was sandbox Unix-socket restriction; identical command passes when restrictions are lifted"
+    },
+    {
+      "name": "focused unit suite",
+      "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit features/system-features service/console app/components/app/access-point app/components/api-key",
+      "cwd": "/private/tmp/dify-v02-16.11.eMaf9d",
+      "resolved_package_cwd": "/private/tmp/dify-v02-16.11.eMaf9d/web",
+      "project_config_loaded": "web/vite.config.ts",
+      "project_config_sha256": "2f38f98a582b64bd1bf6d73384d1e66ea3fe9b9790f1bb4f287e0c164d18c54e",
+      "exit_code": 0,
+      "status": "passed",
+      "collected_files": 20,
+      "collected_tests": 222,
+      "passed": 222,
+      "failed": 0,
+      "vitest_duration_seconds": 3.42,
+      "elapsed_seconds": 4,
+      "invalid_prior_invocation_is_not_counted": true
+    },
+    {
+      "name": "web build",
+      "command": "pnpm --config.verify-deps-before-run=false --dir web build",
+      "cwd": "/private/tmp/dify-v02-16.11.eMaf9d",
+      "exit_code": 1,
+      "status": "blocked_by_dependency_overlay_symlink_boundary",
+      "elapsed_seconds": 5,
+      "runtime": "Next.js 16.3.4 / Turbopack",
+      "error": "Symlink [project]/web/node_modules is invalid, it points out of the filesystem root",
+      "panic_log": "/var/folders/xn/kxnfh8dd50dbn_wm94rgt9qr0000gp/T/next-panic-59f982dbc5778d5f3b3b590b6cb6364d.log",
+      "attribution": "Turbopack rejects the required existing dependency symlink from the clean archive to the workspace path"
+    }
+  ],
+  "stop_boundary": {
+    "first_failed_gate": "pnpm --config.verify-deps-before-run=false --dir web build",
+    "not_run": ["pnpm --config.verify-deps-before-run=false --dir web build:vinext"],
+    "reason": "The Next.js production build failed at the registered dependency overlay boundary; stop-first rule prevents later build."
+  },
+  "browser_inventory": {
+    "count": 26,
+    "paths": [
+      "app/__tests__/home-banner.browser.spec.tsx",
+      "app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+      "app/components/base/chat/chat/answer/__tests__/feedback-focus.browser.spec.tsx",
+      "app/components/base/date-and-time-picker/date-picker/__tests__/index.browser.spec.tsx",
+      "app/components/base/file-uploader/file-uploader-in-chat-input/__tests__/file-image-item.browser.spec.tsx",
+      "app/components/base/keyboard-sortable/__tests__/keyboard-sortable.browser.spec.tsx",
+      "app/components/datasets/create-from-pipeline/list/template-card/__tests__/focus.browser.spec.tsx",
+      "app/components/main-nav/__tests__/card-grid.browser.spec.tsx",
+      "app/components/main-nav/components/__tests__/web-apps-section.browser.spec.tsx",
+      "app/components/plugins/marketplace/creator-profile/__tests__/view-layout.browser.spec.tsx",
+      "app/components/plugins/marketplace/home/__tests__/home-catalog-alignment.browser.spec.tsx",
+      "app/components/plugins/marketplace/home/__tests__/home-catalog-handoff.browser.spec.tsx",
+      "app/components/plugins/marketplace/home/__tests__/home-search-mobile-layout.browser.spec.tsx",
+      "app/components/plugins/marketplace/home/__tests__/home-trending-layout.browser.spec.tsx",
+      "app/components/plugins/marketplace/home/__tests__/home-trending-swipe.browser.spec.tsx",
+      "app/components/plugins/marketplace/home/__tests__/marketplace-search-autocomplete.browser.spec.tsx",
+      "app/components/plugins/marketplace/home/__tests__/preserve-sticky-search-scroll.browser.spec.tsx",
+      "app/components/plugins/marketplace/list/__tests__/list-with-collection-layout.browser.spec.tsx",
+      "app/components/plugins/marketplace/list/__tests__/list-wrapper-scroll.browser.spec.tsx",
+      "app/components/plugins/marketplace/list/__tests__/search-results-layout.browser.spec.tsx",
+      "app/components/plugins/marketplace/templates/__tests__/template-collection-list-layout.browser.spec.tsx",
+      "app/components/snippet-list/__tests__/reflow.browser.spec.tsx",
+      "app/components/workflow/__tests__/keyboard-node-movement.browser.spec.tsx",
+      "app/components/workflow/comment/comment-movement.browser.spec.tsx",
+      "app/components/workflow/nodes/_base/components/__tests__/node-resizer.browser.spec.tsx",
+      "app/components/workflow/note-node/note-editor/plugins/link-editor-plugin/__tests__/focus.browser.spec.tsx"
+    ],
+    "registered_scope": "API-key quota browser spec only; exact M08/14.7 hash reused",
+    "reused_result": "2/2 Chromium tests",
+    "rerun": false
+  },
+  "warnings": [
+    "ESLint emitted 1,931 warnings in 6,910 files and Node emitted ESLintPoorConcurrencyWarning.",
+    "V01 reused evidence has two pytest warnings."
+  ],
+  "source_or_test_mutation": false,
+  "graph_or_tasks_or_index_mutation": false,
+  "staged_or_committed": false,
+  "outputs": {
+    "log_path": "evidence/V02/16.11-final-candidate.log",
+    "log_sha256": "44e4421b7c6a4ee5cfeb528026916b6414e3a8526910b79ad72afbeaade2f184",
+    "log_bytes": 1025610,
+    "result_path": "evidence/V02/16.11-final-candidate-result.json"
+  },
+  "invalid_harness_invocation": {
+    "command": "pnpm --config.verify-deps-before-run=false exec vp test run --project unit web/features/system-features web/service/console web/app/components/app/access-point web/app/components/api-key",
+    "cwd": "/private/tmp/dify-v02-16.11.eMaf9d",
+    "archive_project_config": "web/vite.config.ts",
+    "project_config_loaded": false,
+    "exit_code": 1,
+    "collected_files": 0,
+    "collected_tests": 0,
+    "error": "No projects matched the filter \"unit\"",
+    "classification": "invalid harness invocation; command used archive-root-relative web/... filters without loading web package config; not a candidate source/test failure; original output retained in log"
+  },
+  "vitest_config": {
+    "path": "web/vite.config.ts",
+    "sha256": "2f38f98a582b64bd1bf6d73384d1e66ea3fe9b9790f1bb4f287e0c164d18c54e"
+  },
+  "conclusion": "blocked_dependency_overlay_symlink_boundary"
+}

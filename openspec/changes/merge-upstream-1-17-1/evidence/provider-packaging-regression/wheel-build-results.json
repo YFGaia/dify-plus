@@ -1,0 +1,273 @@
+{
+  "python": "3.12.9",
+  "backend_setuptools": "80.10.2",
+  "build_isolation": false,
+  "results": [
+    {
+      "name": "dify-trace-aliyun",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 0,
+      "wheel": "dify_trace_aliyun-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-trace-arize-phoenix",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 0,
+      "wheel": "dify_trace_arize_phoenix-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-trace-langfuse",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 0,
+      "wheel": "dify_trace_langfuse-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-trace-langsmith",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 0,
+      "wheel": "dify_trace_langsmith-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-trace-mlflow",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 0,
+      "wheel": "dify_trace_mlflow-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-trace-opik",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 0,
+      "wheel": "dify_trace_opik-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-trace-tencent",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 0,
+      "wheel": "dify_trace_tencent-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-trace-weave",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 0,
+      "wheel": "dify_trace_weave-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-alibabacloud-mysql",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_alibabacloud_mysql-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-analyticdb",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_analyticdb-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-baidu",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_baidu-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-chroma",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_chroma-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-clickzetta",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_clickzetta-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-couchbase",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_couchbase-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-elasticsearch",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 2,
+      "wheel": "dify_vdb_elasticsearch-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-hologres",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_hologres-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-huawei-cloud",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_huawei_cloud-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-iris",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_iris-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-lindorm",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_lindorm-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-matrixone",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_matrixone-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-milvus",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_milvus-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-myscale",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_myscale-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-oceanbase",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 2,
+      "wheel": "dify_vdb_oceanbase-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-opengauss",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_opengauss-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-opensearch",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_opensearch-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-oracle",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_oracle-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-pgvecto-rs",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_pgvecto_rs-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-pgvector",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_pgvector-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-qdrant",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_qdrant-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-relyt",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_relyt-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-tablestore",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_tablestore-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-tencent",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_tencent-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-tidb-on-qdrant",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_tidb_on_qdrant-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-tidb-vector",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_tidb_vector-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-upstash",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_upstash-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-vastbase",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_vastbase-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-vikingdb",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_vikingdb-0.0.1-py3-none-any.whl"
+    },
+    {
+      "name": "dify-vdb-weaviate",
+      "built": true,
+      "contains_module": true,
+      "vector_entrypoints": 1,
+      "wheel": "dify_vdb_weaviate-0.0.1-py3-none-any.whl"
+    }
+  ]
+}

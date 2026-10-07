@@ -1,0 +1,60 @@
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/README.md`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/vdb/conftest.py`
+WARN Ignoring non-directory workspace member: `/Users/liuxingwang/go/src/dify-plus/api/providers/trace/README.md`
+============================= test session starts ==============================
+platform darwin -- Python 3.12.9, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/liuxingwang/go/src/dify-plus/api
+configfile: pytest.ini
+plugins: mock-3.15.1, cov-7.1.0, Faker-40.38.0, anyio-4.14.1, xdist-3.8.0, timeout-2.4.0, opik-1.11.2, langsmith-0.8.18, env-1.7.0, hypothesis-6.167.1
+timeout: 60.0s
+timeout method: signal
+timeout func_only: False
+collected 78 items
+
+api/tests/unit_tests/controllers/web/test_webapp_passport_scope_extend.py . [  1%]
+.........................                                                [ 33%]
+api/tests/unit_tests/controllers/web/test_wraps.py ...                   [ 37%]
+api/tests/unit_tests/controllers/web/test_web_passport.py .....          [ 43%]
+api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py . [ 44%]
+...............................                                          [ 84%]
+api/tests/unit_tests/libs/test_passport.py ............                  [100%]
+
+=============================== warnings summary ===============================
+api/core/rag/index_processor/index_processor_base.py:3
+  /Users/liuxingwang/go/src/dify-plus/api/core/rag/index_processor/index_processor_base.py:3: DeprecationWarning: 'cgi' is deprecated and slated for removal in Python 3.13
+    import cgi
+
+api/core/workflow/nodes/knowledge_retrieval/retrieval.py:20
+  /Users/liuxingwang/go/src/dify-plus/api/core/workflow/nodes/knowledge_retrieval/retrieval.py:20: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    class SourceMetadata(BaseModel):
+
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_issue_and_verify_token
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_handle_different_payload_types
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_reject_modified_token
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_reject_token_with_different_secret_key
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_use_hs256_algorithm
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_reject_expired_token
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_handle_large_payload
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_handle_special_characters_in_payload
+  /private/tmp/dify-m02-python-complete/lib/python3.12/site-packages/jwt/api_jwt.py:147: InsecureKeyLengthWarning: The HMAC key is 27 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    return self._jws.encode(
+
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_issue_and_verify_token
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_handle_different_payload_types
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_reject_modified_token
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_reject_expired_token
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_handle_large_payload
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_handle_special_characters_in_payload
+  /private/tmp/dify-m02-python-complete/lib/python3.12/site-packages/jwt/api_jwt.py:368: InsecureKeyLengthWarning: The HMAC key is 27 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    decoded = self.decode_complete(
+
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_reject_token_with_different_secret_key
+  /private/tmp/dify-m02-python-complete/lib/python3.12/site-packages/jwt/api_jwt.py:368: InsecureKeyLengthWarning: The HMAC key is 30 bytes long, which is below the minimum recommended length of 32 bytes for SHA256. See RFC 7518 Section 3.2.
+    decoded = self.decode_complete(
+
+tests/unit_tests/libs/test_passport.py::TestPassportService::test_should_reject_token_with_wrong_algorithm
+  /private/tmp/dify-m02-python-complete/lib/python3.12/site-packages/jwt/api_jwt.py:147: InsecureKeyLengthWarning: The HMAC key is 27 bytes long, which is below the minimum recommended length of 64 bytes for SHA512. See RFC 7518 Section 3.2.
+    return self._jws.encode(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 78 passed, 18 warnings in 2.36s ========================

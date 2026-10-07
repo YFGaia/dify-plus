@@ -2,7 +2,7 @@
   background: center/contain url('./assets/github.svg') no-repeat;
 }
 
-html[data-theme="dark"] .githubIcon {
+html[data-theme='dark'] .githubIcon {
   background: center/contain url('./assets/github-dark.svg') no-repeat;
 }
 
@@ -12,11 +12,10 @@ html[data-theme="dark"] .githubIcon {
 
 /* Extend: start 钉钉快捷登录按钮 */
 .dingIcon {
-    background: center/contain url('./assets/ding.svg');
+  background: center/contain url('./assets/ding.svg');
 }
 
 .oauth2Icon {
-    background: center/contain url('./assets/oauth2.svg');
+  background: center/contain url('./assets/oauth2.svg');
 }
 /* Extend: stop 钉钉快捷登录按钮 */
-

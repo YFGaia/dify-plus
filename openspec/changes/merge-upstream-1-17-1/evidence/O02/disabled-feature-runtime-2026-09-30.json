@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-30T11:17:05.551429+00:00",
+  "scope": "isolated disabled-feature runtime check in disposable API container; no shared service restart",
+  "candidate_image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+  "baseline_live_api": {
+    "http_status": 200,
+    "enable_collaboration_mode": true
+  },
+  "disposable_api_overrides": {
+    "enable_collaboration_mode": false,
+    "enable_human_input_timeout_task": false
+  },
+  "results": {
+    "api_app_initialized": true,
+    "system_features_http_status": 200,
+    "system_features_enable_collaboration_mode": false,
+    "human_input_timeout_config_enabled": false,
+    "human_input_timeout_beat_schedule_present": false
+  },
+  "scope_boundary": "Only a public feature GET and in-process Celery schedule inspection; no API/worker restart, app data mutation, or secret values captured"
+}

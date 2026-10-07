@@ -1,0 +1,354 @@
+[
+  {
+    "caller": "api/commands/extend.py",
+    "line": 120,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.rebuild_control_mail_cache",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/app/ding_talk_extend.py",
+    "line": 25,
+    "callee": "services.ding_talk_extend.DingTalkService.get_user_info",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/app/ding_talk_extend.py",
+    "line": 47,
+    "callee": "services.ding_talk_extend.DingTalkService.user_third_party",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 56,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.get_config",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 131,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.get_config",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 363,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.list_emails",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 69,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.set_config",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 88,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.test_dingtalk_connection",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 110,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.dingtalk_test_callback",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 144,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.set_config",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 166,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.test_oauth2_connection",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 191,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.test_email_api",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 216,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.get_forward_tokens",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 232,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.create_forward_token",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 251,
+    "callee": "services.system_manage_extend.SystemIntegrationManageService.delete_forward_token",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 295,
+    "callee": "services.system_manage_extend.QuotaManageService.get_quota_list",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 328,
+    "callee": "services.system_manage_extend.QuotaManageService.set_user_quota",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 376,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.add_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/controllers/console/system_manage_extend.py",
+    "line": 399,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.remove_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/services/ding_talk_extend.py",
+    "line": 402,
+    "callee": "services.account_service.AccountService.login",
+    "required_keywords": ["session"],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/services/ding_talk_extend.py",
+    "line": 381,
+    "callee": "services.account_service.RegisterService.register",
+    "required_keywords": ["session"],
+    "missing": ["session"],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/services/ding_talk_extend.py",
+    "line": 394,
+    "callee": "services.account_service_extend.TenantExtendService.create_default_tenant_member_if_not_exist",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/services/ding_talk_extend.py",
+    "line": 400,
+    "callee": "services.account_service.TenantService.switch_tenant",
+    "required_keywords": ["session"],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/services/model_service_extend.py",
+    "line": 13,
+    "callee": "services.account_service_extend.TenantExtendService.get_sync_all_model",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/services/model_service_extend.py",
+    "line": 51,
+    "callee": "services.account_service_extend.TenantExtendService.get_sync_all_provider",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 47,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.add_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 81,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.add_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 105,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.remove_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 127,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.rebuild_control_mail_cache",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 128,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.rebuild_control_mail_cache",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 59,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.add_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 69,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.add_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 95,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.remove_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 119,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.remove_email",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_code_execution_control_service_extend.py",
+    "line": 140,
+    "callee": "services.system_manage_extend.CodeExecutionControlService.rebuild_control_mail_cache",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 80,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.set_webapp_auth_enabled",
+    "required_keywords": ["session"],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 93,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.set_webapp_auth_enabled",
+    "required_keywords": ["session"],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 104,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.set_webapp_auth_enabled",
+    "required_keywords": ["session"],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 37,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.is_webapp_auth_enabled",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 45,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.is_webapp_auth_enabled",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 52,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.is_webapp_auth_enabled",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 59,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.is_webapp_auth_enabled",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 66,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.is_webapp_auth_enabled",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  },
+  {
+    "caller": "api/tests/unit_tests/services/test_webapp_auth_service_extend.py",
+    "line": 72,
+    "callee": "services.webapp_auth_service_extend.WebAppAuthExtendService.is_webapp_auth_enabled",
+    "required_keywords": [],
+    "missing": [],
+    "kwargs_unpack": false
+  }
+]

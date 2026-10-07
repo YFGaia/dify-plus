@@ -1,0 +1,84 @@
+{
+  "date": "2026-09-30",
+  "scope": "isolated acceptance compose only",
+  "compose_project": "difyplus-acceptance-20260930",
+  "startup": {
+    "initial_up_exit_code": 1,
+    "initial_error_class": "container_name_conflict",
+    "final_state": "all three target services running; no unrelated services restarted",
+    "internal_fixture_credentials": {
+      "generated": true,
+      "private_env_mode_600": true,
+      "values_recorded": false
+    }
+  },
+  "services": {
+    "agent_backend": {
+      "image": "langgenius/dify-agent-backend:1.17.1",
+      "state": "running",
+      "restart_count": 0
+    },
+    "local_sandbox": {
+      "image": "langgenius/dify-agent-local-sandbox:1.17.1",
+      "state": "running",
+      "health": "healthy",
+      "restart_count": 0
+    },
+    "agent_ssrf_proxy": {
+      "image": "ccr.ccs.tencentyun.com/yfgaia/ubuntu-squid:latest",
+      "state": "running",
+      "restart_count": 0
+    }
+  },
+  "credential_contract_checks": {
+    "server_secret_is_43_char_urlsafe_and_decodes_to_32_bytes": true,
+    "backend_and_sandbox_auth_tokens_match": true,
+    "agent_api_token_nonempty": true,
+    "agent_plugin_key_matches_plugin_server_key": true,
+    "inner_api_key_matches_api_plugin_inner_key": true,
+    "api_caller_token_matches_agent_token_in_current_api_container": false,
+    "api_caller_token_mapping_prepared_in_private_env_for_next_api_candidate": true,
+    "credential_values_recorded": false
+  },
+  "probes": [
+    {
+      "target_class": "agent_backend:/agent-stub/config/manifest",
+      "proxy": "agent_ssrf_proxy",
+      "http_status": 401,
+      "squid_result": "TCP_MISS/401",
+      "result": "allowed_by_proxy; real application route reached its authorization gate; no authorization supplied; response body discarded"
+    },
+    {
+      "target_class": "agent_backend:/healthz",
+      "proxy": "agent_ssrf_proxy",
+      "http_status": 403,
+      "squid_result": "TCP_DENIED/403",
+      "result": "denied_by_agent_proxy_scope"
+    },
+    {
+      "target_class": "api:/files/",
+      "proxy": "agent_ssrf_proxy",
+      "http_status": 404,
+      "squid_result": "TCP_MISS/404",
+      "result": "allowed_by_proxy; application returned 404; response body discarded"
+    },
+    {
+      "target_class": "agent_backend:/agent-stub/config/manifest",
+      "proxy": "generic_ssrf_proxy",
+      "http_status": 403,
+      "squid_result": "TCP_DENIED/403",
+      "result": "generic_proxy_scope_not_expanded; response body discarded"
+    },
+    {
+      "target_class": "api:/files/",
+      "proxy": "generic_ssrf_proxy",
+      "http_status": 403,
+      "squid_result": "TCP_DENIED/403",
+      "result": "generic_proxy_scope_not_expanded"
+    }
+  ],
+  "limits": [
+    "Only explicitly allowed local Agent/API routes were probed; no unrelated internal host was contacted.",
+    "No response body, credential value, model call, or user database data was read or stored."
+  ]
+}

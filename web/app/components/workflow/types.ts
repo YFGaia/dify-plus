@@ -1,12 +1,11 @@
-import type {
-  Edge as ReactFlowEdge,
-  Node as ReactFlowNode,
-  Viewport,
-  XYPosition,
-} from 'reactflow'
+import type { Edge as ReactFlowEdge, Node as ReactFlowNode, Viewport, XYPosition } from 'reactflow'
 import type { Plugin, PluginMeta } from '@/app/components/plugins/types'
 import type { Collection, Tool } from '@/app/components/tools/types'
-import type { BlockClassificationEnum, PluginDefaultValue } from '@/app/components/workflow/block-selector/types'
+import type {
+  BlockClassification,
+  BlockDefaultValue,
+  PluginDefaultValue,
+} from '@/app/components/workflow/block-selector/types'
 import type {
   DefaultValueForm,
   ErrorHandleTypeEnum,
@@ -17,10 +16,17 @@ import type { VarType as VarKindType } from '@/app/components/workflow/nodes/too
 import type { ChatVarType } from '@/app/components/workflow/panel/chat-variable-panel/type'
 import type { SchemaTypeDefinition } from '@/service/use-common'
 import type { Resolution, TransferMethod } from '@/types/app'
-import type { FileResponse, NodeTracing, PanelProps } from '@/types/workflow'
+import type {
+  FileResponse,
+  HumanInputFilledFormData,
+  HumanInputFormData,
+  NodeTracing,
+  PanelProps,
+} from '@/types/workflow'
 
 export enum BlockEnum {
   Start = 'start',
+  StartPlaceholder = 'start-placeholder',
   End = 'end',
   Answer = 'answer',
   LLM = 'llm',
@@ -40,9 +46,11 @@ export enum BlockEnum {
   IterationStart = 'iteration-start',
   Assigner = 'assigner', // is now named as VariableAssigner
   Agent = 'agent',
+  AgentV2 = 'agent-v2',
   Loop = 'loop',
   LoopStart = 'loop-start',
   LoopEnd = 'loop-end',
+  HumanInput = 'human-input',
   DataSource = 'datasource',
   DataSourceEmpty = 'datasource-empty',
   KnowledgeBase = 'knowledge-index',
@@ -54,6 +62,7 @@ export enum BlockEnum {
 export enum ControlMode {
   Pointer = 'pointer',
   Hand = 'hand',
+  Comment = 'comment',
 }
 export enum ErrorHandleMode {
   Terminated = 'terminated',
@@ -75,7 +84,7 @@ export type CommonNodeType<T = {}> = {
   _singleRunningStatus?: NodeRunningStatus
   _isCandidate?: boolean
   _isBundled?: boolean
-  _children?: { nodeId: string, nodeType: BlockEnum }[]
+  _children?: { nodeId: string; nodeType: BlockEnum }[]
   _isEntering?: boolean
   _showAddVariablePopup?: boolean
   _holdAddVariablePopup?: boolean
@@ -85,6 +94,7 @@ export type CommonNodeType<T = {}> = {
   _retryIndex?: number
   _dataSourceStartToAdd?: boolean
   _isTempNode?: boolean
+  _openInlineAgentPanel?: boolean
   isInIteration?: boolean
   iteration_id?: string
   selected?: boolean
@@ -105,8 +115,8 @@ export type CommonNodeType<T = {}> = {
   subscription_id?: string
   provider_id?: string
   _dimmed?: boolean
-  _pluginInstallLocked?: boolean
-} & T & Partial<PluginDefaultValue>
+} & T &
+  Partial<PluginDefaultValue>
 
 export type CommonEdgeType = {
   _hovering?: boolean
@@ -126,8 +136,7 @@ export type CommonEdgeType = {
 }
 
 export type Node<T = {}> = ReactFlowNode<CommonNodeType<T>>
-export type SelectedNode = Pick<Node, 'id' | 'data'>
-export type NodeProps<T = unknown> = { id: string, data: CommonNodeType<T> }
+export type NodeProps<T = unknown> = { id: string; data: CommonNodeType<T> }
 export type NodePanelProps<T> = {
   id: string
   data: CommonNodeType<T>
@@ -145,11 +154,13 @@ export type ValueSelector = string[] // [nodeId, key | obj key path]
 
 export type Variable = {
   variable: string
-  label?: string | {
-    nodeType: BlockEnum
-    nodeName: string
-    variable: string
-  }
+  label?:
+    | string
+    | {
+        nodeType: BlockEnum
+        nodeName: string
+        variable: string
+      }
   value_selector: ValueSelector
   value_type?: VarType
   variable_type?: VarKindType
@@ -159,11 +170,22 @@ export type Variable = {
   isParagraph?: boolean
 }
 
+export type LLMCompletionParams = Record<string, unknown>
+
+export type LLMEnvironmentVariableValue = {
+  provider: string
+  name: string
+  mode: string
+  completion_params?: LLMCompletionParams
+}
+
+export type EnvironmentVariableValue = string | number | LLMEnvironmentVariableValue
+
 export type EnvironmentVariable = {
   id: string
   name: string
-  value: any
-  value_type: 'string' | 'number' | 'secret'
+  value: EnvironmentVariableValue
+  value_type: 'string' | 'number' | 'secret' | 'llm'
   description: string
 }
 
@@ -181,17 +203,11 @@ export type GlobalVariable = {
   description: string
 }
 
-export type VariableWithValue = {
-  key: string
-  value: string
-}
-
 export enum InputVarType {
   textInput = 'text-input',
   paragraph = 'paragraph',
   select = 'select',
   number = 'number',
-  checkbox = 'checkbox',
   url = 'url',
   files = 'files',
   json = 'json', // obj, array
@@ -201,19 +217,22 @@ export enum InputVarType {
   singleFile = 'file',
   multiFiles = 'file-list',
   loop = 'loop', // loop input
+  checkbox = 'checkbox',
 }
 
 export type InputVar = {
   type: InputVarType
-  label: string | {
-    nodeType: BlockEnum
-    nodeName: string
-    variable: string
-    isChatVar?: boolean
-  }
+  label:
+    | string
+    | {
+        nodeType: BlockEnum
+        nodeName: string
+        variable: string
+        isChatVar?: boolean
+      }
   variable: string
   max_length?: number
-  default?: string | number
+  default?: string | number | boolean
   required: boolean
   hint?: string
   options?: string[]
@@ -226,11 +245,8 @@ export type InputVar = {
   json_schema?: string | Record<string, any> // for jsonObject type
 } & Partial<UploadFileSetting>
 
-export type ModelConfig = {
-  provider: string
-  name: string
-  mode: string
-  completion_params: Record<string, any>
+export type ModelConfig = LLMEnvironmentVariableValue & {
+  completion_params: LLMCompletionParams
 }
 
 export enum PromptRole {
@@ -266,7 +282,7 @@ export type Memory = {
   role_prefix?: RolePrefix
   window: {
     enabled: boolean
-    size: number | string | null
+    size: number | null
   }
   query_prompt_template: string
 }
@@ -321,7 +337,7 @@ export type NodeOutPutVar = {
 
 export type NodeDefault<T = {}> = {
   metaData: {
-    classification: BlockClassificationEnum
+    classification: BlockClassification
     sort: number
     type: BlockEnum
     title: string
@@ -336,13 +352,22 @@ export type NodeDefault<T = {}> = {
   }
   defaultValue: Partial<T>
   defaultRunInputData?: Record<string, any>
-  checkValid: (payload: T, t: any, moreDataForCheckValid?: any) => { isValid: boolean, errorMessage?: string }
-  getOutputVars?: (payload: T, allPluginInfoList: Record<string, ToolWithProvider[]>, ragVariables?: Var[], utils?: {
-    schemaTypeDefinitions?: SchemaTypeDefinition[]
-  }) => Var[]
+  checkValid: (
+    payload: T,
+    t: any,
+    moreDataForCheckValid?: any,
+  ) => { isValid: boolean; errorMessage?: string }
+  getOutputVars?: (
+    payload: T,
+    allPluginInfoList: Record<string, ToolWithProvider[]>,
+    ragVariables?: Var[],
+    utils?: {
+      schemaTypeDefinitions?: SchemaTypeDefinition[]
+    },
+  ) => Var[]
 }
 
-export type OnSelectBlock = (type: BlockEnum, pluginDefaultValue?: PluginDefaultValue) => void
+export type OnSelectBlock = (type: BlockEnum, defaultValue?: BlockDefaultValue) => void
 
 export enum WorkflowRunningStatus {
   Waiting = 'waiting',
@@ -350,6 +375,7 @@ export enum WorkflowRunningStatus {
   Succeeded = 'succeeded',
   Failed = 'failed',
   Stopped = 'stopped',
+  Paused = 'paused',
 }
 
 export enum WorkflowVersion {
@@ -367,6 +393,7 @@ export enum NodeRunningStatus {
   Exception = 'exception',
   Retry = 'retry',
   Stopped = 'stopped',
+  Paused = 'paused',
 }
 
 export type OnNodeAdd = (
@@ -374,7 +401,7 @@ export type OnNodeAdd = (
     nodeType: BlockEnum
     sourceHandle?: string
     targetHandle?: string
-    pluginDefaultValue?: PluginDefaultValue
+    pluginDefaultValue?: BlockDefaultValue
   },
   oldNodesPayload: {
     prevNodeId?: string
@@ -383,11 +410,6 @@ export type OnNodeAdd = (
     nextNodeTargetHandle?: string
   },
 ) => void
-
-export type CheckValidRes = {
-  isValid: boolean
-  errorMessage?: string
-}
 
 export type RunFile = {
   type: string
@@ -426,6 +448,8 @@ export type WorkflowRunningData = {
     exceptions_count?: number
   }
   tracing?: NodeTracing[]
+  humanInputFormDataList?: HumanInputFormData[]
+  humanInputFilledFormDataList?: HumanInputFilledFormData[]
 }
 
 export type HistoryWorkflowData = {
@@ -498,14 +522,14 @@ export type ChildNodeTypeCount = {
   [key: string]: number
 }
 
-export const TRIGGER_NODE_TYPES = [
+const TRIGGER_NODE_TYPES = [
   BlockEnum.TriggerSchedule,
   BlockEnum.TriggerWebhook,
   BlockEnum.TriggerPlugin,
 ] as const
 
 // Type-safe trigger node type extracted from TRIGGER_NODE_TYPES array
-export type TriggerNodeType = typeof TRIGGER_NODE_TYPES[number]
+export type TriggerNodeType = (typeof TRIGGER_NODE_TYPES)[number]
 
 export function isTriggerNode(nodeType: BlockEnum): boolean {
   return TRIGGER_NODE_TYPES.includes(nodeType as any)

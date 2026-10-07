@@ -1,60 +1,147 @@
+from collections.abc import Iterable, Mapping
+from datetime import datetime
+from uuid import UUID
+
 import flask_restx
-from flask import request  # 二开部分 - 密钥额度限制
-from flask_restx import Resource, fields, marshal_with
+from flask import has_request_context, request
+from flask_restx import Resource
 from flask_restx._http import HTTPStatus
-from sqlalchemy import select
-from sqlalchemy.orm import (
-    Session,
-    aliased,  # 二开部分 - 密钥额度限制
-)
+from pydantic import BaseModel, Field, field_validator
+from sqlalchemy import func, or_, select, update
+from sqlalchemy.orm import Session
 from werkzeug.exceptions import Forbidden
 
-from extensions.ext_database import db
-from libs.helper import TimestampField
-from libs.login import current_account_with_tenant, login_required
-from models.api_token_money_extend import ApiTokenMoneyExtend  # 二开部分 - 密钥额度限制
+from configs import dify_config
+from controllers.common.rbac import AgentBehindApp, DatasetId, PlainApp, RBACCheck
+from controllers.common.schema import register_response_schema_models, register_schema_models
+from controllers.common.session import with_session
+from fields.base import ResponseModel
+from libs.helper import dump_response, to_timestamp
+from libs.login import login_required
+from models import Account
+from models.api_token_money_extend import ApiTokenMoneyExtend
 from models.dataset import Dataset
+from models.enums import ApiTokenType
 from models.model import ApiToken, App
+from services.api_token_service import ApiTokenCache
+from services.app_service import AppService
 
 from . import console_ns
-from .wraps import account_initialization_required, edit_permission_required, setup_required
-
-api_key_fields = {
-    "id": fields.String,
-    "type": fields.String,
-    "token": fields.String,
-    "last_used_at": TimestampField,
-    "created_at": TimestampField,
-    # 二开部分begin - 密钥额度限制
-    "description": fields.String,
-    "accumulated_quota": fields.Float,
-    "day_limit_quota": fields.Float,
-    "month_limit_quota": fields.Float,
-    "month_used_quota": fields.Float,
-    "day_used_quota": fields.Float,
-    # 二开部分end - 密钥额度限制
-}
-
-api_key_item_model = console_ns.model("ApiKeyItem", api_key_fields)
-
-api_key_list = {"data": fields.List(fields.Nested(api_key_item_model), attribute="items")}
-
-api_key_list_model = console_ns.model(
-    "ApiKeyList", {"data": fields.List(fields.Nested(api_key_item_model), attribute="items")}
+from .wraps import (
+    RBACPermission,
+    account_initialization_required,
+    edit_permission_required,
+    rbac_permission_required,
+    setup_required,
+    with_current_tenant_id,
+    with_current_user,
 )
 
 
-def _get_resource(resource_id, tenant_id, resource_model):
-    if resource_model == App:
-        with Session(db.engine) as session:
-            resource = session.execute(
-                select(resource_model).filter_by(id=resource_id, tenant_id=tenant_id)
-            ).scalar_one_or_none()
-    else:
-        with Session(db.engine) as session:
-            resource = session.execute(
-                select(resource_model).filter_by(id=resource_id, tenant_id=tenant_id)
-            ).scalar_one_or_none()
+class ApiKeyItem(ResponseModel):
+    id: str
+    type: str
+    token: str
+    # Dataset keys only: the knowledge bases this key is bound to. Empty = the key can
+    # access every dataset in the tenant (default). App keys are always empty.
+    dataset_ids: list[str] = []
+    last_used_at: int | None = None
+    created_at: int | None = None
+    description: str | None = None
+    accumulated_quota: float | None = None
+    day_limit_quota: float | None = None
+    month_limit_quota: float | None = None
+    day_used_quota: float | None = None
+    month_used_quota: float | None = None
+
+    @field_validator("last_used_at", "created_at", mode="before")
+    @classmethod
+    def _normalize_timestamp(cls, value: datetime | int | None) -> int | None:
+        return to_timestamp(value)
+
+
+class ApiKeyQuotaPayload(BaseModel):
+    description: str = Field(default="默认", max_length=50)
+    day_limit_quota: float = Field(default=-1, allow_inf_nan=False)
+    month_limit_quota: float = Field(default=-1, allow_inf_nan=False)
+
+    @field_validator("day_limit_quota", "month_limit_quota")
+    @classmethod
+    def validate_limit(cls, value: float) -> float:
+        if value < 0 and value != -1:
+            raise ValueError("Quota must be non-negative or -1 (unlimited)")
+        return value
+
+
+class ApiKeyQuotaUpdatePayload(ApiKeyQuotaPayload):
+    id: str
+
+
+DEFAULT_QUOTA_EXTEND = {
+    "description": "",
+    "accumulated_quota": 0.0,
+    "day_limit_quota": -1.0,
+    "month_limit_quota": -1.0,
+    "day_used_quota": 0.0,
+    "month_used_quota": 0.0,
+}
+
+
+def _merge_token_with_quota_extend(token: ApiToken, quota: ApiTokenMoneyExtend | None) -> ApiKeyItem:
+    # Attribute reads reload expired ORM rows after commit. Never merge quota.id
+    # or quota timestamps into the token's identity/lifecycle fields.
+    token_data = ApiKeyItem.model_validate(token, from_attributes=True).model_dump()
+    quota_data = {
+        name: getattr(quota, name) if quota is not None else default for name, default in DEFAULT_QUOTA_EXTEND.items()
+    }
+    # Validate after merging so ORM Numeric/Decimal values honor the float response contract.
+    return ApiKeyItem.model_validate({**token_data, **quota_data})
+
+
+class ApiKeyList(ResponseModel):
+    data: list[ApiKeyItem]
+
+
+register_response_schema_models(console_ns, ApiKeyItem, ApiKeyList)
+register_schema_models(console_ns, ApiKeyQuotaPayload, ApiKeyQuotaUpdatePayload)
+
+
+def mask_api_token(token: str) -> str:
+    """Mask a secret token for list responses.
+
+    Reveal-once: the full secret is only returned by the create endpoint. List
+    endpoints expose just enough (prefix + last 4) to identify a key, never the
+    full value, so an existing key's secret cannot be retrieved after creation.
+    """
+    if len(token) <= 8:
+        return "***"
+    return f"{token[:5]}...{token[-4:]}"
+
+
+def build_masked_api_key_list(
+    api_tokens: Iterable[ApiToken],
+    bindings_by_token: Mapping[str, list[str]] | None = None,
+) -> ApiKeyList:
+    """Build an ApiKeyList from ORM tokens with their secrets masked.
+
+    ``bindings_by_token`` maps an api_token id to the dataset ids it is bound to
+    (from DatasetApiTokenBinding); tokens absent from the map are unbound (empty =
+    access all). App-key lists omit it entirely.
+    """
+    bindings_by_token = bindings_by_token or {}
+    items: list[ApiKeyItem] = []
+    for api_token in api_tokens:
+        item = ApiKeyItem.model_validate(api_token, from_attributes=True)
+        item.token = mask_api_token(item.token)
+        item.dataset_ids = bindings_by_token.get(str(api_token.id), [])
+        items.append(item)
+    return ApiKeyList(data=items)
+
+
+def _get_resource(resource_id, tenant_id, resource_model, *, session: Session):
+    resource = session.execute(
+        select(resource_model).filter_by(id=resource_id, tenant_id=tenant_id)
+    ).scalar_one_or_none()
 
     if resource is None:
         flask_restx.abort(HTTPStatus.NOT_FOUND, message=f"{resource_model.__name__} not found.")
@@ -65,57 +152,65 @@ def _get_resource(resource_id, tenant_id, resource_model):
 class BaseApiKeyListResource(Resource):
     method_decorators = [account_initialization_required, login_required, setup_required]
 
-    resource_type: str | None = None
+    resource_type: ApiTokenType | None = None
     resource_model: type | None = None
     resource_id_field: str | None = None
     token_prefix: str | None = None
     max_keys = 10
 
-    @marshal_with(api_key_list_model)
-    def get(self, resource_id):
-        assert self.resource_id_field is not None, "resource_id_field must be set"
-        resource_id = str(resource_id)
-        _, current_tenant_id = current_account_with_tenant()
-
-        _get_resource(resource_id, current_tenant_id, self.resource_model)
-        # keys = db.session.scalars(
-        #     select(ApiToken).where(
-        #         ApiToken.type == self.resource_type, getattr(ApiToken, self.resource_id_field) == resource_id
-        #     )
-        # ).all()
-
-        # --------------------- 二开部分begin - 密钥额度限制 ---------------------
-        # 定义别名，用于后续的join操作
-        ApiTokenAlias = aliased(ApiToken)
-
-        # 连表查询
-        api_token_money_extend_query = (
-            db.session.query(ApiTokenMoneyExtend, ApiTokenAlias)
-            .join(ApiTokenAlias, ApiTokenMoneyExtend.app_token_id == ApiTokenAlias.id)
-            .filter(
-                ApiTokenAlias.type == self.resource_type, getattr(ApiTokenAlias, self.resource_id_field) == resource_id
-            )
-            .all()
+    @with_session(write=False)
+    def get(self, session: Session, resource_id: str, current_tenant_id: str) -> dict[str, object]:
+        return dump_response(
+            ApiKeyList,
+            self._get_api_key_list(resource_id, current_tenant_id, session=session),
         )
-        # 将两个表的数据合并到一个字典中
-        keys = []
-        for api_token, api_token_money_extend in api_token_money_extend_query:
-            merged_data = {**api_token.__dict__, **api_token_money_extend.__dict__}
-            keys.append(merged_data)
-        # --------------------- 二开部分end - 密钥额度限制 ---------------------
-        return {"items": keys}
 
-    @marshal_with(api_key_item_model)
-    @edit_permission_required
-    def post(self, resource_id):
+    def _get_api_key_list(self, resource_id: str, current_tenant_id: str, *, session: Session) -> ApiKeyList:
         assert self.resource_id_field is not None, "resource_id_field must be set"
-        resource_id = str(resource_id)
-        _, current_tenant_id = current_account_with_tenant()
-        _get_resource(resource_id, current_tenant_id, self.resource_model)
-        current_key_count = (
-            db.session.query(ApiToken)
-            .where(ApiToken.type == self.resource_type, getattr(ApiToken, self.resource_id_field) == resource_id)
-            .count()
+
+        _get_resource(resource_id, current_tenant_id, self.resource_model, session=session)
+        keys = session.scalars(
+            select(ApiToken).where(
+                or_(ApiToken.tenant_id == current_tenant_id, ApiToken.tenant_id.is_(None)),
+                ApiToken.type == self.resource_type,
+                getattr(ApiToken, self.resource_id_field) == resource_id,
+            )
+        ).all()
+        # App and agent keys keep their existing (unmasked) list behavior; reveal-once
+        # masking is scoped to dataset keys, which build their list in datasets.py.
+        if self.resource_type == ApiTokenType.APP:
+            quotas = session.scalars(
+                select(ApiTokenMoneyExtend).where(
+                    ApiTokenMoneyExtend.app_token_id.in_([key.id for key in keys]),
+                    ApiTokenMoneyExtend.is_deleted.is_(False),
+                )
+            ).all()
+            by_token = {quota.app_token_id: quota for quota in quotas}
+            return ApiKeyList(data=[_merge_token_with_quota_extend(key, by_token.get(key.id)) for key in keys])
+        return ApiKeyList(data=[ApiKeyItem.model_validate(key, from_attributes=True) for key in keys])
+
+    @edit_permission_required
+    @with_session
+    def post(self, session: Session, resource_id: str, current_tenant_id: str) -> tuple[dict[str, object], int]:
+        return dump_response(
+            ApiKeyItem,
+            self._create_api_key(resource_id, current_tenant_id, session=session),
+        ), 201
+
+    def _create_api_key(self, resource_id: str, current_tenant_id: str, *, session: Session) -> ApiToken | ApiKeyItem:
+        assert self.resource_id_field is not None, "resource_id_field must be set"
+        resource = _get_resource(resource_id, current_tenant_id, self.resource_model, session=session)
+        if isinstance(resource, App):
+            AppService.ensure_agent_app_access_ready(resource, session=session)
+        current_key_count: int = (
+            session.scalar(
+                select(func.count(ApiToken.id)).where(
+                    or_(ApiToken.tenant_id == current_tenant_id, ApiToken.tenant_id.is_(None)),
+                    ApiToken.type == self.resource_type,
+                    getattr(ApiToken, self.resource_id_field) == resource_id,
+                )
+            )
+            or 0
         )
 
         if current_key_count >= self.max_keys:
@@ -125,152 +220,133 @@ class BaseApiKeyListResource(Resource):
                 custom="max_keys_exceeded",
             )
 
-        key = ApiToken.generate_api_key(self.token_prefix or "", 24)
+        key = ApiToken.generate_api_key(self.token_prefix or "", 24, session=session)
+        assert self.resource_type is not None, "resource_type must be set"
         api_token = ApiToken()
         setattr(api_token, self.resource_id_field, resource_id)
         api_token.tenant_id = current_tenant_id
         api_token.token = key
         api_token.type = self.resource_type
-        db.session.add(api_token)
-        db.session.commit()
-
-        # --------------------- 二开部分Begin - 密钥额度限制 ---------------------
-        content_type = request.headers.get("Content-Type")
-        if content_type == "application/json":
-            try:
-                data = request.get_json(silent=True)
-            except:
-                data = {}
-        else:
-            data = {}
-        if data is None:
-            data = {}
-
-        # 获取day_limit_quota和month_limit_quota，如果不存在则使用默认值-1
-        day_limit_quota = data.get("day_limit_quota", -1)
-        month_limit_quota = data.get("month_limit_quota", -1)
-        description = data.get("description", "默认")
-        db.session.add(
-            ApiTokenMoneyExtend(
+        session.add(api_token)
+        quota = None
+        if self.resource_type == ApiTokenType.APP:
+            payload = ApiKeyQuotaPayload.model_validate(
+                request.get_json(silent=True) or {} if has_request_context() else {}
+            )
+            session.flush()
+            quota = ApiTokenMoneyExtend(
                 app_token_id=api_token.id,
-                description=description,
                 accumulated_quota=0,
                 day_used_quota=0,
                 month_used_quota=0,
-                day_limit_quota=day_limit_quota,
-                month_limit_quota=month_limit_quota,
+                **payload.model_dump(),
             )
-        )
-        db.session.commit()
-        # --------------------- 二开部分End - 密钥额度限制 ---------------------
+            session.add(quota)
+        session.commit()
+        return _merge_token_with_quota_extend(api_token, quota) if quota is not None else api_token
 
-        return api_token, 201
-
-    # --------------------- 二开部分Begin - 密钥额度限制 ---------------------
-    @marshal_with(api_key_fields)
-    def put(self, resource_id):
-        resource_id = str(resource_id)
-        current_user, current_tenant_id = current_account_with_tenant()
-        _get_resource(resource_id, current_tenant_id, self.resource_model)
-
+    def _update_api_key(
+        self,
+        resource_id: str,
+        current_tenant_id: str,
+        current_user: Account,
+        payload: ApiKeyQuotaUpdatePayload,
+        *,
+        session: Session,
+    ) -> ApiKeyItem:
+        assert self.resource_id_field is not None, "resource_id_field must be set"
+        _get_resource(resource_id, current_tenant_id, self.resource_model, session=session)
         if not current_user.is_admin_or_owner:
             raise Forbidden()
-
-        content_type = request.headers.get("Content-Type")
-        if content_type == "application/json":
-            try:
-                data = request.get_json(silent=True)
-            except:
-                data = {}
-        else:
-            data = {}
-        if data is None:
-            data = {}
-        api_key_id = data.get("id", "")
-
-        key = (
-            db.session.query(ApiToken)
-            .filter(
+        key = session.scalar(
+            select(ApiToken).where(
+                or_(ApiToken.tenant_id == current_tenant_id, ApiToken.tenant_id.is_(None)),
                 getattr(ApiToken, self.resource_id_field) == resource_id,
-                ApiToken.type == self.resource_type,
-                ApiToken.id == api_key_id,
+                ApiToken.type == ApiTokenType.APP,
+                ApiToken.id == payload.id,
             )
-            .first()
         )
-
         if key is None:
-            flask_restx.abort(404, message="API密钥未找到")
-
-        data = request.get_json()
-
-        # 更新ApiTokenMoneyExtend表中的相关字段
-        api_token_money_extend = ApiTokenMoneyExtend.query.filter_by(app_token_id=api_key_id).first()
-        if api_token_money_extend:
-            if 'description' in data:
-                api_token_money_extend.description = data['description']
-            if 'day_limit_quota' in data:
-                api_token_money_extend.day_limit_quota = data['day_limit_quota']
-            if 'month_limit_quota' in data:
-                api_token_money_extend.month_limit_quota = data['month_limit_quota']
-
-        db.session.commit()
-
-        # 重新查询以获取更新后的数据
-        updated_key = (
-            db.session.query(ApiToken, ApiTokenMoneyExtend)
-            .join(ApiTokenMoneyExtend, ApiToken.id == ApiTokenMoneyExtend.app_token_id)
-            .filter(ApiToken.id == api_key_id)
-            .first()
+            flask_restx.abort(HTTPStatus.NOT_FOUND, message="API key not found")
+        quota = session.scalar(
+            select(ApiTokenMoneyExtend).where(
+                ApiTokenMoneyExtend.app_token_id == key.id,
+                ApiTokenMoneyExtend.is_deleted.is_(False),
+            )
         )
-
-        if updated_key:
-            api_token, api_token_money_extend = updated_key
-            merged_data = {**api_token.__dict__, **api_token_money_extend.__dict__}
-            return merged_data, 200
-        else:
-            flask_restx.abort(500, message="更新API密钥时发生错误")
-    # --------------------- 二开部分End - 密钥额度限制 ---------------------
+        if quota is None:
+            quota = ApiTokenMoneyExtend(app_token_id=key.id, **DEFAULT_QUOTA_EXTEND)
+            session.add(quota)
+        for name, value in payload.model_dump(exclude={"id"}, exclude_unset=True).items():
+            setattr(quota, name, value)
+        session.commit()
+        ApiTokenCache.delete(key.token, key.type)
+        return _merge_token_with_quota_extend(key, quota)
 
 
 class BaseApiKeyResource(Resource):
     method_decorators = [account_initialization_required, login_required, setup_required]
 
-    resource_type: str | None = None
+    resource_type: ApiTokenType | None = None
     resource_model: type | None = None
     resource_id_field: str | None = None
 
-    def delete(self, resource_id: str, api_key_id: str):
-        assert self.resource_id_field is not None, "resource_id_field must be set"
-        current_user, current_tenant_id = current_account_with_tenant()
-        _get_resource(resource_id, current_tenant_id, self.resource_model)
+    @with_session
+    def delete(
+        self,
+        session: Session,
+        resource_id: str,
+        api_key_id: str,
+        current_tenant_id: str,
+        current_user: Account,
+    ) -> tuple[str, int]:
+        self._delete_api_key(resource_id, api_key_id, current_tenant_id, current_user, session=session)
+        return "", 204
 
-        if not current_user.is_admin_or_owner:
+    def _delete_api_key(
+        self,
+        resource_id: str,
+        api_key_id: str,
+        current_tenant_id: str,
+        current_user: Account,
+        *,
+        session: Session,
+    ) -> None:
+        assert self.resource_id_field is not None, "resource_id_field must be set"
+        _get_resource(resource_id, current_tenant_id, self.resource_model, session=session)
+
+        if not dify_config.RBAC_ENABLED and not current_user.is_admin_or_owner:
             raise Forbidden()
 
-        key = (
-            db.session.query(ApiToken)
+        key = session.scalar(
+            select(ApiToken)
             .where(
+                or_(ApiToken.tenant_id == current_tenant_id, ApiToken.tenant_id.is_(None)),
                 getattr(ApiToken, self.resource_id_field) == resource_id,
                 ApiToken.type == self.resource_type,
                 ApiToken.id == api_key_id,
             )
-            .first()
+            .limit(1)
         )
 
         if key is None:
             flask_restx.abort(HTTPStatus.NOT_FOUND, message="API key not found")
 
-        db.session.query(ApiToken).where(ApiToken.id == api_key_id).delete()
-        db.session.commit()
+        # Invalidate cache before deleting from database
+        # Type assertion: key is guaranteed to be non-None here because abort() raises
+        assert key is not None  # nosec - for type checker only
+        ApiTokenCache.delete(key.token, key.type)
 
-        # 二开部分Begin - 密钥额度限制
-        db.session.query(ApiTokenMoneyExtend).filter(ApiTokenMoneyExtend.app_token_id == api_key_id).update(
-            {ApiTokenMoneyExtend.is_deleted: True}
-        )
-        db.session.commit()
-        # 二开部分End - 密钥额度限制
-
-        return {"result": "success"}, 204
+        if self.resource_type == ApiTokenType.APP:
+            session.execute(
+                update(ApiTokenMoneyExtend)
+                .where(
+                    ApiTokenMoneyExtend.app_token_id == key.id,
+                )
+                .values(is_deleted=True)
+            )
+        session.delete(key)
+        session.commit()
 
 
 @console_ns.route("/apps/<uuid:resource_id>/api-keys")
@@ -278,21 +354,71 @@ class AppApiKeyListResource(BaseApiKeyListResource):
     @console_ns.doc("get_app_api_keys")
     @console_ns.doc(description="Get all API keys for an app")
     @console_ns.doc(params={"resource_id": "App ID"})
-    @console_ns.response(200, "Success", api_key_list_model)
-    def get(self, resource_id):  # type: ignore
+    @console_ns.response(200, "API keys retrieved successfully", console_ns.models[ApiKeyList.__name__])
+    @with_current_tenant_id
+    @edit_permission_required
+    @rbac_permission_required(
+        RBACCheck(RBACPermission.APP_RELEASE_AND_VERSION, PlainApp("resource_id")),
+        RBACCheck(RBACPermission.AGENT_ACCESS_POINT_VIEW, AgentBehindApp("resource_id")),
+    )
+    @with_session(write=False)
+    def get(self, session: Session, current_tenant_id: str, resource_id: UUID) -> dict[str, object]:
         """Get all API keys for an app"""
-        return super().get(resource_id)
+        return dump_response(
+            ApiKeyList,
+            self._get_api_key_list(str(resource_id), current_tenant_id, session=session),  # pyrefly: ignore[unnecessary-type-conversion]
+        )
 
+    @console_ns.expect(console_ns.models[ApiKeyQuotaPayload.__name__])
     @console_ns.doc("create_app_api_key")
     @console_ns.doc(description="Create a new API key for an app")
     @console_ns.doc(params={"resource_id": "App ID"})
-    @console_ns.response(201, "API key created successfully", api_key_item_model)
+    @console_ns.response(201, "API key created successfully", console_ns.models[ApiKeyItem.__name__])
     @console_ns.response(400, "Maximum keys exceeded")
-    def post(self, resource_id):  # type: ignore
+    @with_current_tenant_id
+    @edit_permission_required
+    @rbac_permission_required(
+        RBACCheck(RBACPermission.APP_RELEASE_AND_VERSION, PlainApp("resource_id")),
+        RBACCheck(RBACPermission.AGENT_ACCESS_POINT_MANAGE, AgentBehindApp("resource_id")),
+    )
+    @with_session
+    def post(self, session: Session, current_tenant_id: str, resource_id: UUID) -> tuple[dict[str, object], int]:
         """Create a new API key for an app"""
-        return super().post(resource_id)
+        return dump_response(
+            ApiKeyItem,
+            self._create_api_key(str(resource_id), current_tenant_id, session=session),  # pyrefly: ignore[unnecessary-type-conversion]
+        ), 201
 
-    resource_type = "app"
+    @console_ns.expect(console_ns.models[ApiKeyQuotaUpdatePayload.__name__])
+    @console_ns.response(200, "API key quota updated", console_ns.models[ApiKeyItem.__name__])
+    @with_current_user
+    @with_current_tenant_id
+    @edit_permission_required
+    @rbac_permission_required(
+        RBACCheck(RBACPermission.APP_RELEASE_AND_VERSION, PlainApp("resource_id")),
+        RBACCheck(RBACPermission.AGENT_ACCESS_POINT_MANAGE, AgentBehindApp("resource_id")),
+    )
+    @with_session
+    def put(
+        self,
+        session: Session,
+        current_tenant_id: str,
+        current_user: Account,
+        resource_id: UUID,
+    ) -> tuple[dict[str, object], int]:
+        payload = ApiKeyQuotaUpdatePayload.model_validate(console_ns.payload or {})
+        return dump_response(
+            ApiKeyItem,
+            self._update_api_key(
+                str(resource_id),
+                current_tenant_id,
+                current_user,
+                payload,
+                session=session,
+            ),
+        ), 200
+
+    resource_type = ApiTokenType.APP
     resource_model = App
     resource_id_field = "app_id"
     token_prefix = "app-"
@@ -304,35 +430,74 @@ class AppApiKeyResource(BaseApiKeyResource):
     @console_ns.doc(description="Delete an API key for an app")
     @console_ns.doc(params={"resource_id": "App ID", "api_key_id": "API key ID"})
     @console_ns.response(204, "API key deleted successfully")
-    def delete(self, resource_id, api_key_id):
+    @with_current_user
+    @with_current_tenant_id
+    @rbac_permission_required(
+        RBACCheck(RBACPermission.APP_RELEASE_AND_VERSION, PlainApp("resource_id")),
+        RBACCheck(RBACPermission.AGENT_ACCESS_POINT_MANAGE, AgentBehindApp("resource_id")),
+    )
+    @with_session
+    def delete(
+        self,
+        session: Session,
+        current_tenant_id: str,
+        current_user: Account,
+        resource_id: UUID,
+        api_key_id: UUID,
+    ) -> tuple[str, int]:
         """Delete an API key for an app"""
-        return super().delete(resource_id, api_key_id)
+        self._delete_api_key(
+            str(resource_id),  # pyrefly: ignore[unnecessary-type-conversion]
+            str(api_key_id),
+            current_tenant_id,
+            current_user,
+            session=session,
+        )
+        return "", 204
 
-    resource_type = "app"
+    resource_type = ApiTokenType.APP
     resource_model = App
     resource_id_field = "app_id"
 
 
+# Dataset service-API keys are also managed at the workspace level (create with a set of
+# knowledge bases, list, delete) by DatasetApiKeyApi in
+# controllers/console/datasets/datasets.py, using DatasetApiTokenBinding for scoping.
+# The per-dataset routes below remain for callers that key an API token to a single dataset.
 @console_ns.route("/datasets/<uuid:resource_id>/api-keys")
 class DatasetApiKeyListResource(BaseApiKeyListResource):
     @console_ns.doc("get_dataset_api_keys")
     @console_ns.doc(description="Get all API keys for a dataset")
     @console_ns.doc(params={"resource_id": "Dataset ID"})
-    @console_ns.response(200, "Success", api_key_list_model)
-    def get(self, resource_id):  # type: ignore
+    @console_ns.response(200, "API keys retrieved successfully", console_ns.models[ApiKeyList.__name__])
+    @with_current_tenant_id
+    @edit_permission_required
+    @rbac_permission_required(RBACCheck(RBACPermission.DATASET_API_KEY_MANAGE, DatasetId("resource_id")))
+    @with_session(write=False)
+    def get(self, session: Session, current_tenant_id: str, resource_id: UUID) -> dict[str, object]:
         """Get all API keys for a dataset"""
-        return super().get(resource_id)
+        return dump_response(
+            ApiKeyList,
+            self._get_api_key_list(str(resource_id), current_tenant_id, session=session),  # pyrefly: ignore[unnecessary-type-conversion]
+        )
 
     @console_ns.doc("create_dataset_api_key")
     @console_ns.doc(description="Create a new API key for a dataset")
     @console_ns.doc(params={"resource_id": "Dataset ID"})
-    @console_ns.response(201, "API key created successfully", api_key_item_model)
+    @console_ns.response(201, "API key created successfully", console_ns.models[ApiKeyItem.__name__])
     @console_ns.response(400, "Maximum keys exceeded")
-    def post(self, resource_id):  # type: ignore
+    @with_current_tenant_id
+    @edit_permission_required
+    @rbac_permission_required(RBACCheck(RBACPermission.DATASET_API_KEY_MANAGE, DatasetId("resource_id")))
+    @with_session
+    def post(self, session: Session, current_tenant_id: str, resource_id: UUID) -> tuple[dict[str, object], int]:
         """Create a new API key for a dataset"""
-        return super().post(resource_id)
+        return dump_response(
+            ApiKeyItem,
+            self._create_api_key(str(resource_id), current_tenant_id, session=session),  # pyrefly: ignore[unnecessary-type-conversion]
+        ), 201
 
-    resource_type = "dataset"
+    resource_type = ApiTokenType.DATASET
     resource_model = Dataset
     resource_id_field = "dataset_id"
     token_prefix = "ds-"
@@ -344,10 +509,28 @@ class DatasetApiKeyResource(BaseApiKeyResource):
     @console_ns.doc(description="Delete an API key for a dataset")
     @console_ns.doc(params={"resource_id": "Dataset ID", "api_key_id": "API key ID"})
     @console_ns.response(204, "API key deleted successfully")
-    def delete(self, resource_id, api_key_id):
+    @with_current_user
+    @with_current_tenant_id
+    @rbac_permission_required(RBACCheck(RBACPermission.DATASET_API_KEY_MANAGE, DatasetId("resource_id")))
+    @with_session
+    def delete(
+        self,
+        session: Session,
+        current_tenant_id: str,
+        current_user: Account,
+        resource_id: UUID,
+        api_key_id: UUID,
+    ) -> tuple[str, int]:
         """Delete an API key for a dataset"""
-        return super().delete(resource_id, api_key_id)
+        self._delete_api_key(
+            str(resource_id),  # pyrefly: ignore[unnecessary-type-conversion]
+            str(api_key_id),
+            current_tenant_id,
+            current_user,
+            session=session,
+        )
+        return "", 204
 
-    resource_type = "dataset"
+    resource_type = ApiTokenType.DATASET
     resource_model = Dataset
     resource_id_field = "dataset_id"

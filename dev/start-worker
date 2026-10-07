@@ -21,6 +21,7 @@ show_help() {
   echo ""
   echo "Available queues:"
   echo "  dataset                - RAG indexing and document processing"
+  echo "  dataset_summary        - LLM-heavy summary index generation (isolated from indexing)"
   echo "  workflow               - Workflow triggers (community edition)"
   echo "  workflow_professional  - Professional tier workflows (cloud edition)"
   echo "  workflow_team         - Team tier workflows (cloud edition)"
@@ -98,18 +99,15 @@ if [[ -n "${ENV_FILE}" ]]; then
   set +a
 fi
 
-# If no queues specified, use edition-based defaults
+# If no queues are specified, use product-edition defaults
 if [[ -z "${QUEUES}" ]]; then
-  # Get EDITION from environment, default to SELF_HOSTED (community edition)
-  EDITION=${EDITION:-"SELF_HOSTED"}
-
-  # Configure queues based on edition
-  if [[ "${EDITION}" == "CLOUD" ]]; then
+  # Configure queues based on product edition
+  if [[ "${DEPLOYMENT_EDITION:-COMMUNITY}" == "CLOUD" ]]; then
     # Cloud edition: separate queues for dataset and trigger tasks
-    QUEUES="dataset,priority_dataset,priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow_professional,workflow_team,workflow_sandbox,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention"
+    QUEUES="dataset,dataset_summary,priority_dataset,priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow_professional,workflow_team,workflow_sandbox,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention,workflow_based_app_execution"
   else
-    # Community edition (SELF_HOSTED): dataset and workflow have separate queues
-    QUEUES="dataset,priority_dataset,priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention"
+    # Self-hosted editions: dataset and workflow have separate queues
+    QUEUES="dataset,dataset_summary,priority_dataset,priority_pipeline,pipeline,mail,ops_trace,app_deletion,plugin,workflow_storage,conversation,workflow,schedule_poller,schedule_executor,triggered_workflow_dispatcher,trigger_refresh_executor,retention,workflow_based_app_execution"
   fi
 
   echo "No queues specified, using edition-based defaults: ${QUEUES}"

@@ -1,0 +1,49 @@
+V02 retry: 16.5_final_candidate_clean_snapshot_frontend_gates
+Candidate commit: 97f94625d2d51fe1780f69aaecce5a56d3073db4
+Expected tree: d94e6e1a034175165598bafe859d3f605b80beee
+Archive source invocation: git archive --format=tar 97f94625d2d51fe1780f69aaecce5a56d3073db4 | tar -xf - -C /private/tmp/dify-v02-16.5.CZU9MM
+Snapshot: /private/tmp/dify-v02-16.5.CZU9MM
+Snapshot tree identity verified from the candidate commit; snapshot has no .git metadata and is not a worktree or branch.
+Symlinks: snapshot/node_modules -> /Users/liuxingwang/go/src/dify-plus/node_modules; snapshot/web/node_modules -> /Users/liuxingwang/go/src/dify-plus/web/node_modules.
+
+Environment:
+Node: v24.20.0
+pnpm: 12.3.4
+VP_SKIP_INSTALL=1
+Node SHA-256: 9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a
+pnpm SHA-256: 99ccfa6b57e73c693ec2c9760a978f063b001df8f462e89fce3a30be3d641f3
+package.json SHA-256: 1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f
+pnpm-lock.yaml SHA-256: b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824
+Frozen lockfile consistency was reused from V02 attempt 1/M01 because package and lock hashes are unchanged. No explicit install was run.
+
+Browser scope inventory:
+Only one browser spec exists in the registered access-point/api-key target directories: web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx.
+Snapshot spec SHA-256: 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120; matches M08/14.7 exactly.
+Reused M08/14.7 result: one file, two Chromium tests collected, two passed. The spec was not rerun.
+
+CHECK 1 — pnpm check
+Command:
+PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm check
+Working directory: /private/tmp/dify-v02-16.5.CZU9MM
+Exit code: 1
+Exact output:
+Scope: all 13 workspace projects
+✓ Lockfile passes supply-chain policies (verified 11h ago)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+packages/dev-proxy prepare$ pnpm run build
+. prepare$ vp config
+. prepare: .git can't be found
+. prepare: Done
+packages/dev-proxy prepare: [ERROR] Refusing to run pnpm@12.3.4: its npm registry signature could not be verified (@pnpm/exe.darwin-arm64@12.3.4: fetch failed; @pnpm/exe@12.3.4: fetch failed; pnpm@12.3.4: fetch failed). The bytes selected by this project's lockfile/registry do not match a published, signed pnpm release.
+packages/dev-proxy prepare: This can indicate a tampered lockfile or a malicious/unreachable registry. Set pmOnFail to ignore to skip the version switch if this is unexpected.
+packages/dev-proxy prepare: Failed
+Error: ERR_PNPM_EXECUTOR_LIFECYCLE_SCRIPT_FAILED
+
+  × installing dependencies
+  ╰─▶ /private/tmp/dify-v02-16.5.CZU9MM/packages/dev-proxy prepare: pnpm run build exited with exit status: 1
+
+pnpm check exited before vp check began. No candidate source/test path failures were emitted. The dependency lifecycle attempted signature verification despite VP_SKIP_INSTALL=1; no dependency sync completed.
+
+Later gates skipped by first-failure rule: lint:tss, i18n:check, unit suite, browser rerun, web build, build:vinext.
+Only the two registered evidence files were written. No source/test, graph, task, or Git state was changed.

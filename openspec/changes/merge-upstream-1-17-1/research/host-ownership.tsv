@@ -1,0 +1,52 @@
+target_path	owner_node	verify_node	fork_source_path	target_state	owner_basis
+api/services/account_initialization_service.py	M03	V01	api/services/account_service.py	exists_in_1.17.1	all real account creation paths now need quota initialization
+api/services/app_site_service.py	M03	V01	api/controllers/console/app/site.py	exists_in_1.17.1	site update moved behind AppSiteService
+api/services/webapp_access_query_service.py	M03	V01	api/controllers/web/login.py	exists_in_1.17.1	new access query must preserve per-app gate
+api/services/webapp_auth_service.py	M03	V01	api/controllers/web/login.py	exists_in_1.17.1	new passport boundary must preserve built-in gate
+api/extensions/ext_application_services.py	M03	V01	api/controllers/console/auth/oauth.py	exists_in_1.17.1	new provider registry must register fork OAuth gateway
+api/services/account_oauth_service.py	M03	V01	api/controllers/console/auth/oauth.py	exists_in_1.17.1	new OAuth account flow replaces legacy callback
+web/service/console/browser.ts	M05	V02	web/service/client.ts	exists_in_1.17.1	browser transport replaces deleted Console client
+web/service/console/server.ts	M05	V02	web/features/system-features/server.ts	exists_in_1.17.1	server transport must carry public snapshot semantics
+web/service/console/contract-loader.ts	M05	V02	web/service/console-router-loader.ts	exists_in_1.17.1	new contract loader replaces deleted router loader
+packages/contracts/console.ts	M05	V02	web/contract/router-extend.ts	exists_in_1.17.1	new contract aggregate must include fork segment
+web/app/components/app/access-point/built-in-access-points/web-app-card.tsx	M06	V02	web/app/components/app/overview/app-card.tsx	exists_in_1.17.1	built-in WebApp card replaces deleted overview switch host
+web/app/components/app/access-point/shared/use-access-point-actions.ts	M06	V02	web/app/components/app/overview/app-card.tsx	exists_in_1.17.1	access-point save action owns the fork field write
+web/service/webapp-address.ts	M06	V02	web/service/webapp-auth.ts	exists_in_1.17.1	address-scoped passport replaces share-code-only calls
+web/app/components/apps/app-card/index.tsx	M06	V02	web/app/components/apps/app-card.tsx	exists_in_1.17.1	new card split receives sync controls
+web/app/components/apps/app-card/interactions.tsx	M06	V02	web/app/components/apps/app-card.tsx	exists_in_1.17.1	new card interaction menu receives sync actions
+web/app/components/api-key/api-key-modal.tsx	M08	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	M06 modal/quota host retained; M08 14.2i scoped responsive-width handoff, with V02 browser verification
+web/app/components/api-key/api-key-table.tsx	M06	V02	web/app/components/develop/secret-key/secret-key-modal.tsx	exists_in_1.17.1	new unified table receives quota display
+web/app/components/main-nav/components/workspace-card.tsx	M06	V02	web/app/components/main-nav/components/account-money-extend.tsx	exists_in_1.17.1	new sidebar location for personal balance
+web/features/home/template-card.tsx	M06	V02	web/app/components/explore/app-card/index.tsx	exists_in_1.17.1	active HomeContent template card in 1.17.1; preserve its live host behavior
+web/i18n/lo-LA/extend.json	M06	V02	web/i18n/en-US/extend.json	create_for_fork	new upstream locale needs fork namespace file
+api/services/login_config_service_extend.py	M02	V01	M02 common contracts	M02_registered	fork-only login configuration and response model; public SystemFeatureModel unchanged
+api/models/workflow_log_extend.py	M02	V01	M02 common contracts	M02_registered	session-bound batch projection of fork log identity mappings
+api/repositories/workflow_app_log_query_repository.py	M02	V01	M02 common contracts	M02_registered	new upstream log DTO construction bypasses the former model property; restore fork mapping in this session
+api/tests/unit_tests/services/test_login_config_service_extend.py	M02	V01	M02 common contracts	M02_registered	direct tests of fork configuration allowlist
+api/tests/unit_tests/services/test_workspace_service.py	M02	V01	M02 common contracts	M02_registered	summary actual-session role and tenant matrix
+api/tests/unit_tests/controllers/console/workspace/test_workspace.py	M02	V01	M02 common contracts	M02_registered	summary response schema and archived-workspace contract
+api/tests/unit_tests/models/test_workflow_app_log_models.py	M02	V01	M02 common contracts	M02_registered	log accessor and persisted mapping regressions
+api/tests/unit_tests/repositories/test_workflow_app_log_query_repository.py	M02	V01	M02 common contracts	M02_registered	real log endpoint repository projection and session-lifetime regression
+api/tests/unit_tests/conftest.py	M02	V01	api/models/*extend.py	exists_in_1.17.1	SQLite metadata-copy adapter for existing fork PostgreSQL timestamp defaults; production schema unchanged
+api/services/account_quota_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/account_oauth_gateway_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/entities/account_oauth_entities.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/ding_talk_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/app_site_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/repositories/app_site_command_repository.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/webapp_auth_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/services/webapp_console_identity_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/services/test_account_quota_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/services/test_account_oauth_gateway_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/services/test_webapp_auth_service_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/repositories/test_app_site_command_repository.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/controllers/console/app/test_site_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/controllers/console/auth/test_oauth.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/controllers/web/test_web_login_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/tests/unit_tests/controllers/web/test_webapp_auth_switch_extend.py	M03	V01	M03 identity and site contracts	M03_registered	quota atomic creation, OAuth gateway, site transaction or built-in identity regression
+api/controllers/web/completion.py::is_end_login	M03	V01	contract-matrix.md C05	M03_hunk_transfer_approved	Main agent approved Console identity hunk only; is_money_limit and all billing logic remain M04
+api/tests/unit_tests/controllers/web/conftest.py	M03	V01	M03 generation identity tests	M03_registered	Restore missing SimpleNamespace import in existing identity fixture only
+api/tests/unit_tests/services/test_account_oauth_service.py	M03	V01	contract-matrix.md C02	M03_test_host	OAuth2 token fallback and upstream claim locks
+api/tests/unit_tests/controllers/web/test_web_login.py	M03	V01	contract-matrix.md C05	M03_test_host	Existing status fixture and identity contract coverage
+api/controllers/console/auth/oauth_admission_extend.py	M03	V01	M03 OAuth2 SSO contract	M03_new_host	Keep custom integration admission separate from GitHub Google social switch
+web/app/components/apps/app-list-catalog.tsx	M06	V02	web/app/components/apps/list.tsx	exists_in_1.17.1	new catalog host aggregates paginated app cards and must preserve page-scoped sync state

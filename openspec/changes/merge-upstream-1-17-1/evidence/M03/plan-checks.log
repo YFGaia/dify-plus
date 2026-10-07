@@ -1,0 +1,3 @@
+Change 'merge-upstream-1-17-1' is valid
+DAG acyclic; ready/passed dependencies passed; only M03/M04/M05 node statuses changed; A03/environment/production unchanged.
+All 27 changed Python files parse; verified file hashes match. WebPassport controller/service and workflow source byte-identical to input HEAD. Git index empty and input HEAD unchanged. git diff --check exit0.

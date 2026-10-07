@@ -1,0 +1,29 @@
+R01 source merge candidate acceptance
+Recorded at: 2026-09-29T15:59:10Z
+
+Candidate
+- branch: codex/merge-upstream-1.17.1
+- commit/tree: 970b704e351f8b98d1f0450e5dd50734b5d21e8c / ccb16e6692f53c68fe13e2ca51036649c707735d
+- direct parent: 42fe3f904d6bd469ce887561a94909da882c4bb6
+- at acceptance verification time, current HEAD equaled the candidate: yes
+- upstream 1.17.1 ancestor: 8387590ace4a094de812b7847fc6a4c3a27cd52b (yes)
+- M00 merge ancestor: 948fefb69ae87abefa7e91a13968213696b3e310 (yes)
+- M00 parents: b17761ed0166e8ef49474da418b95a9462adbb9c and 8387590ace4a094de812b7847fc6a4c3a27cd52b
+- API tree: 895c0be99faafa5314806ddb2c0553c6062c7f67
+- unresolved index entries: 0; index diff: none; product source diff after candidate: none
+
+Quota invariants
+- Account total_quota/used_quota remain separate from API Key day_limit_quota/month_limit_quota/accumulated_quota.
+- M08/14.19 records hashes for the five account/API-key quota implementation files and confirms the quota-management page and navigation route.
+- V02/16.15: pnpm check exit 0 in 40.02s; default Next build exit 0 in 100.05s; Vinext exit 0 in 50.04s. The Next route table lists /system-manage-extend/quota-management. Vinext stdout has no route table, so a separate generated client/server artifact inspection found the path in the Vite manifest and route chunks and recorded SHA-256 for 25 matching artifacts.
+- V02/16.15 result SHA-256: 1ee29a4ac6743ec768d8118737e12963269631c8e044a48305bbeded5a9aae80; raw log SHA-256: 5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483; Git blob SHA-1: b3a9471a2848c981a25a770021a185110f461a7a; normalized staged-content SHA-256: 61d0551310c2a26c8fbfa140465128f56810e42df84e8b36dc4c7e63a62c7fe9 (only 3 CRLF pairs became LF).
+
+Regression evidence
+- V01 API checks: compileall and app factory import passed; focused pytest 160 passed, 0 failed; API tree matches this candidate.
+- Reused unchanged-input frontend evidence: lint:tss 6266/6266; i18n 24 locales with 0 missing keys; focused unit tests 222/222 across 20 files; quota-related Chromium spec 2/2.
+- Full pnpm check: 0 errors; 1931 lint warnings across 6910 files remain as warnings, not blocking failures.
+- V02 archive mutation report was a symlink-hash false positive: web/CLAUDE.md is a symlink to AGENTS.md; sequential exact-candidate check/Next/Vinext verification found no target content change and an empty diff. Source checkout, index, and existing web/.next cache remained unchanged.
+
+Release boundary
+- R01 verdict: passed, code-ready.
+- A03 actual-environment inventory remains blocked because read-only access to deployment/business data is not authorized. V03-V06 and R02 are not run. D00-D04 production gates are not run and require separate explicit production authorization. No deployment or production readiness is claimed.

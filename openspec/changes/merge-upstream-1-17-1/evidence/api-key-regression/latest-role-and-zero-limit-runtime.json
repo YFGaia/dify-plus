@@ -1,0 +1,91 @@
+{
+  "scope": "K01 member selected guards and B08 noLLM day/month zero guard",
+  "image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619",
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/account/profile",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/datasets/api-keys",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/datasets/api-keys",
+      "status": 403
+    },
+    {
+      "method": "POST",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "http://localhost:25442/v1/info",
+      "status": 403
+    },
+    {
+      "method": "PUT",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "http://localhost:25442/v1/info",
+      "status": 403
+    },
+    {
+      "method": "PUT",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "http://localhost:25442/v1/info",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/apps/507d0a6b-9504-4266-8f05-630a50846f2c/api-keys/f4ca1e0b-f598-497f-981c-70b433bd6c5e",
+      "status": 204
+    }
+  ],
+  "secrets_printed_or_persisted": false,
+  "member_selected_key_guards": "4 actual403 after legitimate member login200; owner session untouched",
+  "daily_zero_guard": {
+    "status": 403,
+    "error_code": "The daily call limit for this key has been reached, the call failed!",
+    "before_dispatch": true
+  },
+  "monthly_zero_guard": {
+    "status": 403,
+    "error_code": "The monthly call limit for this key has been reached, the call failed!",
+    "before_dispatch": true
+  },
+  "minus1_info_bypasses_finite_guard": true,
+  "guard_key_deleted": true,
+  "fixture_mutations": "Only own synthetic app key; new member API session; no owner auth/workspace mutation. Initial script assertion wrongly checked English word in Chinese message; corrected to declared English error code, no product defect."
+}

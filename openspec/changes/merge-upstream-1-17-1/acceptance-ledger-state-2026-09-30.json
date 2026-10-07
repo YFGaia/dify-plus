@@ -1,0 +1,1547 @@
+{
+  "date": "2026-09-30",
+  "prior_accepted_context": "3c632717c28c1e52d2434525e19e30510c3ead75411f3f0b50f96242c9a296ad",
+  "latest_candidate_gate": "N09_N10_latest_HEADlock445d_source_image_affected_runtime_original_delivery_passed",
+  "rules": [
+    "Counts are per current evidence completeness; readiness/DBheads are partial business proof",
+    "Parent observations require dedicated durable result before fullscene pass",
+    "Historical and currentproof kept distinct; no wholesale oldevidence reuse",
+    "N07affectsquota pagination/source/image; exactunchanged scope mayreuse after latestmanifestcompare"
+  ],
+  "scenes": [
+    {
+      "id": "G01",
+      "name": "全部冲突处置与新宿主",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "N02 current immutable base4301files +reviewed12overlays and preserved acceptedmerge ancestor; sourcefreeze passed, behavior matrix still separate",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/M08/result.json",
+        "evidence/N02/result.json",
+        "evidence/N07/source-freeze-result.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "G01.conflict91_disposition_hosts",
+          "status": "passed",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/M08/result.json",
+            "evidence/N07/source-freeze-result.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "G01.current_source_archive_preserves_merge",
+          "status": "passed",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/N02/result.json",
+            "evidence/N07/source-freeze-result.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "G02",
+      "name": "四个tag后提交行为保留",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "N02 current immutable base4301files +reviewed12overlays and preserved acceptedmerge ancestor; sourcefreeze passed, behavior matrix still separate",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/M08/result.json",
+        "evidence/N02/result.json",
+        "evidence/coverage-holes-2026-09-30.md",
+        "verification-matrix.md"
+      ],
+      "required_subchecks": [
+        {
+          "id": "G02.four_posttag_source_changes_preserved",
+          "status": "passed",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/M08/result.json",
+            "evidence/N02/result.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "G02.auth_and_context_actual_scene_mapping_B05_B06_B11",
+          "status": "passed",
+          "execution_scope": "source",
+          "evidence": [
+            "verification-matrix.md",
+            "evidence/coverage-holes-2026-09-30.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "B01",
+      "name": "setup/邮箱/OAuth/邀请/已有账号额度",
+      "scope": "local-current",
+      "current_status": "partial-current-proof",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [
+        "Freshowner actual/install setup/autologin completed",
+        "Ten authorized invitations create11accounts/quota rows; emaildisabled/no outgoingmail",
+        "Owner actualactivation of admininvite rejected403 invitation_account_mismatch; legit recipient roles ongoing",
+        "Latest role/N01 scope accepted from final-role-results; auth probe401 was missingCSRF, not established rotation defect",
+        "Synthetic Gmail invitation created one account+quota15USD/0used; googlemail normalizedcollisionfailed leaves0alias/orphan0; casevariant resend sameaccount; 12accounts allquotaexact1; memberlogin/reinvite preserves23.1234567"
+      ],
+      "remaining": "B01.enabled_external_oauth_account_init",
+      "evidence": [
+        "evidence/identity-alias-runtime/api-results.json",
+        "evidence/identity-alias-runtime/db-readback.json",
+        "evidence/role-permissions-runtime/final-role-results.md",
+        "evidence/role-permissions-runtime/owner-control-and-auth-negative.json",
+        "evidence/role-permissions-runtime/owner-results.md"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B01.fresh_setup_invite_activation_correct_actor",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B01.one_initial_quota_and_existing_login_not_reset",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/identity-alias-runtime/api-results.json",
+            "evidence/identity-alias-runtime/db-readback.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B01.failed_transaction_no_partial_account_quota",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/identity-alias-runtime/api-results.json",
+            "evidence/identity-alias-runtime/db-readback.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B01.enabled_external_oauth_account_init",
+          "status": "blocked-condition",
+          "execution_scope": "external",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor",
+          "condition_minimum": "Authorized real OAuth/SSO client/issuer, registered callback, synthetic provider identity and known invite/registration policy.",
+          "unverified_behavior": "Actual enabled callback/state validation, ACTIVE account/membership/quota uniqueness, session and tenant API readback."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": [
+        "B01.enabled_external_oauth_account_init"
+      ]
+    },
+    {
+      "id": "B02",
+      "name": "normalized_email碰撞",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "Account lookup exact originalemail thenlowercase fallback; normalized alias gate onlycreation uniqueness, does not merge existing accounts; current account_service.py unchanged Gitbase in sourcefreeze.",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [
+        "Actual newGmail/googlemail collisionfailure and casefallbacksameaccount; all12logicalaccounts preserved, no normalized-alias auto-login/merge. Historicalduplicate data execution remains explicit D02deferred."
+      ],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/N07/source-freeze-result.json",
+        "evidence/identity-alias-runtime/api-results.json",
+        "evidence/identity-alias-runtime/db-readback.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B02.gmail_googlemail_case_alias_collision_invite_login",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/identity-alias-runtime/api-results.json",
+            "evidence/identity-alias-runtime/db-readback.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B02.existing_duplicate_not_merged_or_crosslogged",
+          "status": "source_verified",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/identity-alias-runtime/db-readback.json",
+            "evidence/N07/source-freeze-result.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "B03",
+      "name": "GitHub/Google/OAuth2/Casdoor/钉钉真实SSO",
+      "scope": "local-current",
+      "current_status": "partial-current-proof",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [
+        "Actual localprovider github/google/oauth2/casdoor/dingtalk/invalidnamespace returns400/403/404 without following redirects; no externalconfigured callback tested"
+      ],
+      "remaining": "B03.enabled_provider_callback_state_invite_session_api",
+      "evidence": [
+        "evidence/role-permissions-runtime/final-role-results.md",
+        "evidence/sso-disabled-runtime/result.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B03.unconfigured_provider_disabled_and_error_paths",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/sso-disabled-runtime/result.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B03.enabled_provider_callback_state_invite_session_api",
+          "status": "blocked-condition",
+          "execution_scope": "external",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor",
+          "condition_minimum": "Authorized real OAuth/SSO client/issuer, registered callback, synthetic provider identity and known invite/registration policy.",
+          "unverified_behavior": "Actual enabled callback/state validation, ACTIVE account/membership/quota uniqueness, session and tenant API readback."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": [
+        "B03.enabled_provider_callback_state_invite_session_api"
+      ]
+    },
+    {
+      "id": "B04",
+      "name": "login_config双阶段/SSR/错误与脱敏",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/app-web-auth-regression/existing-web-contract-tests.log",
+        "evidence/app-web-auth-regression/local-subchecks.md",
+        "evidence/app-web-auth-regression/login-config-results.json",
+        "evidence/app-web-auth-regression/browser-login-config-results.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B04.cookie_header_bootstrap_config_privacy",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/login-config-results.json",
+            "evidence/app-web-auth-regression/local-subchecks.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B04.missing_bad_signature_wrongIP_reject",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/login-config-results.json",
+            "evidence/app-web-auth-regression/local-subchecks.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B04.SSR_identity_not_cached_ping_config",
+          "status": "source_verified",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/app-web-auth-regression/local-subchecks.md",
+            "evidence/app-web-auth-regression/existing-web-contract-tests.log"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B04.browser_bootstrap_refresh_no_ping_config_display",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/browser-login-config-results.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "B05",
+      "name": "WebApp认证12组合和跨应用边界",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [
+        "Original API full HEAD-lock release image445d; original model/price/credentials untouched; independent-actual-readback.json records scoped product/DB/runtime observations. No new verification by this projection update."
+      ],
+      "current_business_proof": [
+        "Actual three-mode auth12unique cells:3auth-on anonymous rejection cells with no generated records and9positive terminal responses;3duplicate rejection probes explicitly preserved as harness history, not additional unique coverage. Initial package16HTTP/6reject/10terminalsuccess with independent actual output80; signed and anonymous EndUser separation proved. No positive-price accounting claim."
+      ],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+        "evidence/N08/independent-source-review.json",
+        "evidence/N08/runtime-passport-scope-2026-09-30.json",
+        "evidence/app-web-auth-regression/app-auth-results.json",
+        "evidence/app-web-auth-regression/local-subchecks.md",
+        "evidence/original-generation-runtime/caller-results.json",
+        "evidence/original-generation-runtime/supplemental-caller-packages.json",
+        "evidence/original-generation-runtime/independent-actual-readback.json",
+        "evidence/original-generation-runtime/independent-runtime-readback-review.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B05.on_blocks_anonymous_and_bad_code_three_modes",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/app-auth-results.json",
+            "evidence/app-web-auth-regression/local-subchecks.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B05.off_authenticated_and_anonymous_actual_generation_12_matrix",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+            "evidence/original-provider-generation-plan-2026-09-30.json",
+            "evidence/original-generation-runtime/caller-results.json",
+            "evidence/original-generation-runtime/supplemental-caller-packages.json",
+            "evidence/original-generation-runtime/independent-actual-readback.json",
+            "evidence/original-generation-runtime/independent-runtime-readback-review.json"
+          ],
+          "executor": "app_center_root_cause product/generation; runtime_acceptance independent readback",
+          "condition_minimum": "Existing authorized original-tenant provider/model with private valid owner product session and bounded exact fixture scope; no positive price required.",
+          "unverified_behavior": "Actual required 12 auth/site generation cases for three modes; guards/zero-token workflow do not replace model generation.",
+          "boundary": "Actual12unique on/off×signed/anonymous×3modes:3distinct401/no generatedrecords,9terminalsuccess cells.3extra401 phaseharness repeats preserved. RealIDs linked/unlinkeddisjoint andownerlinks match, actualinitialpackage80output. Price0/no nonzerocharging claim; cleanup separate approvalblocked."
+        },
+        {
+          "id": "B05.cross_app_identity_scope",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N08/runtime-passport-scope-2026-09-30.json",
+            "evidence/N08/independent-source-review.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "B06",
+      "name": "两个开关/environment passport/logout/401",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/app-web-auth-regression/app-auth-results.json",
+        "evidence/app-web-auth-regression/environment-results.json",
+        "evidence/app-web-auth-regression/local-subchecks.md",
+        "evidence/app-web-auth-regression/ui-auth-toggle-results.json",
+        "evidence/app-web-auth-regression/ui-site-toggle-results.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B06.auth_site_singlefield_save_refetch_independent",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/app-auth-results.json",
+            "evidence/app-web-auth-regression/local-subchecks.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B06.environment_disabled_route_and_web_logout_scope",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/environment-results.json",
+            "evidence/app-web-auth-regression/local-subchecks.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B06.real_UI_switch_save_refresh_cache",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/ui-auth-toggle-results.json",
+            "evidence/app-web-auth-regression/ui-site-toggle-results.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "B07",
+      "name": "Console/Explore/WebApp真实计费与RMB/USD对账",
+      "scope": "local-current",
+      "current_status": "pending",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "B07.console_explore_webapp_nonzero_usage_actor_RMB_USD_reconcile; B07.anonymous_billing_baseline_separately_recorded",
+      "evidence": [
+        "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B07.console_explore_webapp_nonzero_usage_actor_RMB_USD_reconcile",
+          "status": "blocked-condition",
+          "execution_scope": "external",
+          "evidence": [
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor",
+          "condition_minimum": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+          "unverified_behavior": "Actual nonzero Console/Explore/WebApp actor/run and USD/RMB reconciliation; anonymous billing separately measured."
+        },
+        {
+          "id": "B07.anonymous_billing_baseline_separately_recorded",
+          "status": "blocked-condition",
+          "execution_scope": "external",
+          "evidence": [
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor",
+          "condition_minimum": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+          "unverified_behavior": "Actual nonzero Console/Explore/WebApp actor/run and USD/RMB reconciliation; anonymous billing separately measured."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": [
+        "B07.console_explore_webapp_nonzero_usage_actor_RMB_USD_reconcile",
+        "B07.anonymous_billing_baseline_separately_recorded"
+      ]
+    },
+    {
+      "id": "B08",
+      "name": "Service API五模式与额度边界/租户",
+      "scope": "local-current",
+      "current_status": "partial-current-proof",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "B08.five_mode_nonzero_daily_monthly_total_balance_boundary",
+      "evidence": [
+        "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+        "evidence/api-key-regression/latest-numeric-key-crud-runtime.json",
+        "evidence/api-key-regression/latest-role-and-zero-limit-runtime.json",
+        "evidence/center-tags-sync-runtime/api-results.json",
+        "evidence/center-tags-sync-runtime/db-readback.json",
+        "evidence/api-key-regression/cross-tenant-key-runtime.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B08.workflow_service_token_run_join",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/center-tags-sync-runtime/api-results.json",
+            "evidence/center-tags-sync-runtime/db-readback.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B08.five_mode_nonzero_daily_monthly_total_balance_boundary",
+          "status": "blocked-condition",
+          "execution_scope": "external",
+          "evidence": [
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor",
+          "condition_minimum": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+          "unverified_behavior": "Five-mode real daily/monthly/account/key boundary charge and rejection; accumulated usage is not lifetime cap."
+        },
+        {
+          "id": "B08.cross_tenant_reject",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/api-key-regression/cross-tenant-key-runtime.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B08.default_minus1_and_day_month_zero_reject_before_dispatch",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/api-key-regression/latest-role-and-zero-limit-runtime.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": [
+        "B08.five_mode_nonzero_daily_monthly_total_balance_boundary"
+      ]
+    },
+    {
+      "id": "B09",
+      "name": "workflow恢复/停止/retry计费",
+      "scope": "local-current",
+      "current_status": "partial-current-proof",
+      "source_static_proof": "Current fullsource unchanged workflow node quota task blob versus fixedmergebase, except separately reviewed quota/key/scope paths; current real no-model workflows/nestedTool + gaia dispatch/ack. Nonzero retry billing remains external, no new idempotency claim.",
+      "fresh_runtime_proof": [
+        "Original API full HEAD-lock release image445d; original model/price/credentials untouched; independent-actual-readback.json records scoped product/DB/runtime observations. No new verification by this projection update."
+      ],
+      "current_business_proof": [
+        "Historical no-model StartEnd and native ToolV2 save/refetch/reload/publish/run passed. Later actual running LLM stop produced stopped terminal; interrupted usage remains unknown. Separate doubleLLM run: first completed38input+8output=46usage retained, secondstarted thenstopped, run total46 and second partial providerusage unknown. Existing-run resume/configuredretry/nonzerocharge remain unverified."
+      ],
+      "remaining": "B09.stop_resume_retry_usage_preserved_LLM_attribution",
+      "evidence": [
+        "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+        "evidence/N05/workflow-runtime-readback-2026-09-30.json",
+        "evidence/N08/independent-manifest-review.json",
+        "evidence/O01/gaia-extend-task-delivery-ack-2026-09-30.json",
+        "evidence/workflow-tool-runtime/result.md",
+        "evidence/original-generation-runtime/supplemental-caller-packages.json",
+        "evidence/original-generation-runtime/independent-runtime-readback-review.json",
+        "evidence/original-generation-runtime/caller-results.json",
+        "evidence/original-generation-runtime/independent-actual-readback.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B09.real_start_end_run_detail_draft_publish",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N05/workflow-runtime-readback-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B09.supported_tool_save_refetch_publish_run",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/workflow-tool-runtime/result.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B09.stop_resume_retry_usage_preserved_LLM_attribution",
+          "status": "blocked-condition",
+          "execution_scope": "external",
+          "evidence": [
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor",
+          "condition_minimum": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+          "unverified_behavior": "Real LLM stop/retry/resume terminal state and expected nonzero attribution preserved."
+        },
+        {
+          "id": "B09.no_new_dispatch_bypass_source_scope",
+          "status": "source_verified",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/N08/independent-manifest-review.json",
+            "evidence/O01/gaia-extend-task-delivery-ack-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B09.active_LLM_stop_and_actual_usage_identity",
+          "status": "passed",
+          "execution_scope": "local",
+          "executor": "app_center_root_cause single caller; runtime_acceptance independent run/usage readback",
+          "evidence": [
+            "evidence/original-generation-runtime/supplemental-caller-packages.json",
+            "evidence/original-generation-runtime/independent-runtime-readback-review.json",
+            "evidence/original-generation-runtime/caller-results.json",
+            "evidence/original-generation-runtime/independent-actual-readback.json"
+          ],
+          "condition_minimum": "Reuse owned original B05 workflow after its proofs preserved, separate max2 generation POST/max1stop/output8 each/total16 hard budget; existing model, no App/graph/provider mutation",
+          "unverified_behavior": "Actual stop while run not terminal; stop200 ack alone insufficient. Real stopped state and completed LLM usage/task/run/actor identity preserved; late success classified race. New rerun is not resume or configured retry.",
+          "boundary": "Actual first run running beforeStop->stopped; its incomplete LLM provider usage UNKNOWN despite storedtotal0. Separate doubleLLM version firstcompleted38+8 preserved; secondstarted thenStop->stopped total46, partialsecondusage UNKNOWN. No existing-run resume/configuredretry/nonzerocharging passed."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": [
+        "B09.stop_resume_retry_usage_preserved_LLM_attribution"
+      ]
+    },
+    {
+      "id": "B10",
+      "name": "月初/每日重置和beat队列",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [
+        "Latestfullimage independentemptytemporaryPGdatabase doubleheads; frozen4key/2accountquotaonly direct daily/month/account task.run snapshot4/4/2 exact7dec then reset/limits/cumulativecounterpreserved; onlytemporarydatabase dropped"
+      ],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/B10/direct-task-runtime.json",
+        "evidence/N03/runtime-readiness-2026-09-30.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B10.unique_registration_switch_queue",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/B10/direct-task-runtime.json",
+            "evidence/N03/runtime-readiness-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "B10.isolated_direct_daily_month_account_reset_snapshot",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/B10/direct-task-runtime.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "B11",
+      "name": "retention/匿名context/跨租户权限",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [
+        "Original API full HEAD-lock release image445d; original model/price/credentials untouched; independent-actual-readback.json records scoped product/DB/runtime observations. No new verification by this projection update."
+      ],
+      "current_business_proof": [
+        "Actual three initial same-conversation messages had null parent links and did not prove continuous history; preserved as fixture limitation. Correct supplemental parent3->4->5 chain generated two actual8-token outputs; five marker IDs and legitimate Console context GET200 match real messages. TokenBufferMemory false=6messages/3pairs vs true=0 matches existing reset contract; provider prompt was not captured."
+      ],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+        "evidence/app-web-auth-regression/existing-config-context-tests.log",
+        "evidence/app-web-auth-regression/local-subchecks.md",
+        "evidence/app-web-auth-regression/physical-app-extend.json",
+        "evidence/app-web-auth-regression/null-auth-http-results.json",
+        "evidence/context-uuid-regression/latest-head-runtime-http-results.json",
+        "evidence/original-generation-runtime/supplemental-caller-packages.json",
+        "evidence/original-generation-runtime/independent-runtime-readback-review.json",
+        "evidence/original-generation-runtime/caller-results.json",
+        "evidence/original-generation-runtime/independent-actual-readback.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "B11.missing_AppExtend_authdefault_and_authonly_null_retention",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/physical-app-extend.json",
+            "evidence/app-web-auth-regression/local-subchecks.md"
+          ],
+          "executor": "app_center_root_cause"
+        },
+        {
+          "id": "B11.explicit_null_auth_persisted_default",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/app-web-auth-regression/null-auth-http-results.json"
+          ],
+          "executor": "app_center_root_cause"
+        },
+        {
+          "id": "B11.anonymous_no_Console_context",
+          "status": "source_verified",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/app-web-auth-regression/local-subchecks.md",
+            "evidence/app-web-auth-regression/existing-config-context-tests.log"
+          ],
+          "executor": "app_center_root_cause"
+        },
+        {
+          "id": "B11.real_secondtenant_Conversation_context_GET_DELETE_reject",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/context-uuid-regression/latest-head-runtime-http-results.json"
+          ],
+          "executor": "app_center_root_cause",
+          "boundary": "Latest HEAD-lock445d fullimage: actual legal A/B identity200; sameB context200; Aforeign GET/DELETE404 and unchangedB marker; BpositiveDELETE200 thenempty; admin productrestoredA/OwnerA unchanged. Tenant/Conversation syntheticORM scope fixture, no LLMgeneration."
+        },
+        {
+          "id": "B11.authenticated_multiturn_retention_truncation",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/original-generation-runtime/supplemental-caller-packages.json",
+            "evidence/original-generation-runtime/independent-runtime-readback-review.json",
+            "evidence/original-generation-runtime/independent-retention-semantics-review.json",
+            "evidence/original-generation-runtime/caller-results.json",
+            "evidence/original-generation-runtime/independent-actual-readback.json"
+          ],
+          "executor": "app_center_root_cause product/generation; runtime_acceptance independent readback",
+          "condition_minimum": "Existing authorized original-tenant provider/model with private valid owner product session and bounded exact fixture scope; no positive price required.",
+          "unverified_behavior": "Actual generated authenticated multi-turn retention truncation; ORM context scope fixtures do not prove generated history.",
+          "boundary": "Actual generated parent3→4→5, persisted5messages/5validmarkers and retention1 activeconfig; real TokenBufferMemory control false6/true0 and Console2005markers. Initial unlinked requests are recorded harness gap. No provider-prompt capture or nonzerocharge claim."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "K01",
+      "name": "app/dataset/environment key额度与关联",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [
+        "Latest1a8 fullimage independent owner API actual numeric/default/7dec/invalid400/appCRUD and dataset binding/masking/delete passed; noLLM/other role/tenant proof claimed"
+      ],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/V02/result.json",
+        "evidence/api-key-regression/key-static-contract.json",
+        "evidence/api-key-regression/latest-numeric-key-crud-runtime.json",
+        "evidence/api-key-regression/latest-role-and-zero-limit-runtime.json",
+        "evidence/api-key-regression/cross-tenant-key-runtime.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "K01.app_quota_create_edit_numeric_7dec_default_minus1_delete",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/api-key-regression/latest-numeric-key-crud-runtime.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "K01.workspace_dataset_bound_unbound_dedup_mask_delete",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/api-key-regression/latest-numeric-key-crud-runtime.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "K01.owner_member_key_API_permissions",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/api-key-regression/latest-role-and-zero-limit-runtime.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "K01.cross_tenant_key_reject",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/api-key-regression/cross-tenant-key-runtime.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "K01.environment_no_quota_controls_and_accumulated_counter",
+          "status": "source_verified",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/api-key-regression/key-static-contract.json",
+            "evidence/V02/result.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "F01",
+      "name": "应用中心installed可见/打开/分类/标签/搜索/排序/去重/Home",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [
+        "Canonical fullimage synthetic workflows created/saved/published/synced/installed via product APIs",
+        "Each newApp has exactlyone zero-usage stats row",
+        "One syntheticapp stats row targeteddelete to0; centerlist stillreturns thatapp; installeddetail/parameters200",
+        "Latest role/N01 scope accepted from final-role-results; auth probe401 was missingCSRF, not established rotation defect"
+      ],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/N01/published-app-missing-stats-runtime-2026-09-30.json",
+        "evidence/N01/result.json",
+        "evidence/role-permissions-runtime/final-role-results.md",
+        "evidence/center-tags-sync-runtime/ui-results.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "F01.published_installed_missingstats_cards_open",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N01/result.json",
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit"
+        },
+        {
+          "id": "F01.category_tag_search_sort_dedup",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/center-tags-sync-runtime/ui-results.json"
+          ],
+          "executor": "merge_audit"
+        },
+        {
+          "id": "F01.default_home_no_redirect_explicit_destination",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/center-tags-sync-runtime/ui-results.json"
+          ],
+          "executor": "merge_audit"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "F02",
+      "name": "模板同步/取消/缓存/manager与fork权限",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/center-tags-sync-runtime/api-results.json",
+        "evidence/api-key-regression/cross-tenant-key-runtime.json",
+        "evidence/center-tags-sync-runtime/ui-results.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "F02.workspace_summary_manager_fork_permission_matrix",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/center-tags-sync-runtime/api-results.json",
+            "evidence/api-key-regression/cross-tenant-key-runtime.json"
+          ],
+          "executor": "merge_audit"
+        },
+        {
+          "id": "F02.sync_cancel_cache_refresh_member_reject",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/center-tags-sync-runtime/ui-results.json",
+            "evidence/center-tags-sync-runtime/api-results.json"
+          ],
+          "executor": "merge_audit"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "F03",
+      "name": "系统管理owner/admin/member入口/URL/API",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [
+        "Owner menu/directquotaURL renders",
+        "Owner quota/integration/token/code-control sixactualreads200",
+        "Latest role/N01 scope accepted from final-role-results; auth probe401 was missingCSRF, not established rotation defect"
+      ],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/role-permissions-runtime/final-role-results.md",
+        "evidence/role-permissions-runtime/owner-results.md",
+        "evidence/role-permissions-runtime/owner-role-api.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "F03.owner_navigation_directurl_api",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "F03.admin_noUI_managementAPI_allowed_current_baseline",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "F03.member_noUI_managementAPI_denied",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "F04",
+      "name": "系统管理额度/集成/forward token/代码执行",
+      "scope": "local-current",
+      "current_status": "partial-current-proof",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [
+        "11rows realUI10+1pages; two targetwrites7dec/APIreadback; page2edit/searchedit-clear/pagesize30then10 passed",
+        "forwardtoken create/read/delete/removal passed",
+        "code-control create/read/delete/cache_synced/removal passed",
+        "Latest role/N01 scope accepted from final-role-results; auth probe401 was missingCSRF, not established rotation defect"
+      ],
+      "remaining": "F04.enabled_dingtalk_oauth2_email_actual_test",
+      "evidence": [
+        "evidence/N07/fullimage-runtime-verification-2026-09-30.json",
+        "evidence/role-permissions-runtime/final-role-results.md",
+        "evidence/role-permissions-runtime/owner-control-and-auth-negative.json",
+        "evidence/role-permissions-runtime/owner-results.md",
+        "evidence/role-permissions-runtime/owner-role-api.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "F04.quota_owner_admin_write_member_reject_precision_readback",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "F04.token_codecontrol_CRUD_cache_cleanup",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "F04.sameused_pages_edit_refetch_latestimage",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N07/fullimage-runtime-verification-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "F04.enabled_dingtalk_oauth2_email_actual_test",
+          "status": "blocked-condition",
+          "execution_scope": "external",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor",
+          "condition_minimum": "Authorized DingTalk/OAuth client/callback and explicit synthetic SMTP destination when email enabled. Isolated MAIL_TYPE stays empty until that setup.",
+          "unverified_behavior": "Real enabled login callback/session and bounded synthetic email delivery, no production recipient."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": [
+        "F04.enabled_dingtalk_oauth2_email_actual_test"
+      ]
+    },
+    {
+      "id": "F05",
+      "name": "当前源码工具链/双构建及真实镜像产物",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "Frontend tracked source/locks identical970b V02accepted; N02 exactscope reuse plus canonicalAPI build/411lockprovenance",
+      "fresh_runtime_proof": [
+        "Canonical full API image7prodhashmatched",
+        "Unchanged fullWeb image exactID running/HTTP200"
+      ],
+      "current_business_proof": [],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/N02/result.json",
+        "evidence/N03/canonical-image-verification.json",
+        "evidence/N03/runtime-readiness-2026-09-30.json",
+        "evidence/N07/fullimage-runtime-verification-2026-09-30.json",
+        "evidence/V02/result.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "F05.frontend_exact_unchanged_source_locks_24locales_checks_units_browser_dualbuild",
+          "status": "passed",
+          "execution_scope": "source",
+          "evidence": [
+            "evidence/V02/result.json",
+            "evidence/N02/result.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        },
+        {
+          "id": "F05.actual_full_API_Web_artifacts_identity",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N03/runtime-readiness-2026-09-30.json",
+            "evidence/N07/fullimage-runtime-verification-2026-09-30.json"
+          ],
+          "executor": "merge_audit aggregation; evidence original executor"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "D01",
+      "name": "完整镜像空库双链/账号",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "fourmodel andquota actualdualengine source-overlay checks passed; notfullimageORM",
+      "fresh_runtime_proof": [
+        "Canonical image emptyPG15.12 andMySQL8.0.46 bothheads c3f1a9b2e6d4/020_workflow_run_account",
+        "FreshPG owner/account quota setup observed"
+      ],
+      "current_business_proof": [],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/N03/runtime-readiness-2026-09-30.json",
+        "evidence/model-uuid-regression/implementation.md",
+        "evidence/quota-upsert-regression/implementation.md",
+        "evidence/role-permissions-runtime/final-role-results.md"
+      ],
+      "required_subchecks": [
+        {
+          "id": "D01.empty_PG_MySQL_both_migration_heads",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N03/runtime-readiness-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance"
+        },
+        {
+          "id": "D01.fresh_PG_setup_account",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/role-permissions-runtime/final-role-results.md"
+          ],
+          "executor": "runtime_acceptance"
+        },
+        {
+          "id": "D01.latest_fullimage_dualengine_4models_quota_write_read_rollback",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N04/fullimage-dualengine-orm-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance"
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "D02",
+      "name": "历史存量双链",
+      "scope": "historical-deferred",
+      "current_status": "deferred",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "prior explicit userhistoricalupgrade deferral; nocurrentproduction/historyacceptance implied",
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "D03",
+      "name": "历史破坏Agent变更数据处置",
+      "scope": "historical-deferred",
+      "current_status": "deferred",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "prior explicit userhistoricalupgrade deferral; nocurrentproduction/historyacceptance implied",
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "D04",
+      "name": "历史模型凭据去重与解密",
+      "scope": "historical-deferred",
+      "current_status": "deferred",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "prior explicit userhistoricalupgrade deferral; nocurrentproduction/historyacceptance implied",
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "D05",
+      "name": "新安装向量/知识库真实闭环与历史升级分开",
+      "scope": "local-current",
+      "current_status": "partial-current-proof",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [
+        "Qdrantv1.8.3 healthzpassed; datasetworkerready"
+      ],
+      "current_business_proof": [
+        "Real Economy document upload/index complete one segment/keyword hit actual content; embeddingprovider count0; vector gate external"
+      ],
+      "remaining": "D05.high_quality_vector_counts_retrieval_grpc_TLS_config",
+      "evidence": [
+        "evidence/N03/runtime-readiness-2026-09-30.json",
+        "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+        "evidence/N10/head-lock-full-image-runtime-2026-09-30.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "D05.economy_upload_async_index_keyword_retrieve_read",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance"
+        },
+        {
+          "id": "D05.own_samples_delete_rebuild_file_consistency",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N04/delete-rebuild-economy-runtime-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance"
+        },
+        {
+          "id": "D05.high_quality_vector_counts_retrieval_grpc_TLS_config",
+          "status": "blocked-condition",
+          "execution_scope": "external",
+          "evidence": [
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance",
+          "condition_minimum": "Authorized embedding provider/model, dimension-matched isolated high-quality dataset and actual selected vector/gRPC/TLS configuration.",
+          "unverified_behavior": "Real product high-quality upload/index/vector count/retrieval and selected transport. Installed registry/Qdrant CRUD already locally passed."
+        },
+        {
+          "id": "D05.default_provider_backend_installed_registry_load_and_isolated_Qdrant_CRUD",
+          "status": "passed",
+          "execution_scope": "local",
+          "executor": "app_center_root_cause source; runtime_acceptance image/isolated CRUD; merge_audit independent review",
+          "evidence": [
+            "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+            "evidence/N10/independent-full-image-runtime-review.json"
+          ],
+          "required_result": "Full canonical image declared default backend distributions/entrypoints and factory import load, isolated harmless Qdrant CRUD/query/delete without embedding calls. Real high-quality embedding business separate external.",
+          "boundary": "Local provider install/factory/load/QdrantCRUD passes; highqualityembedding remains external."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": [
+        "D05.high_quality_vector_counts_retrieval_grpc_TLS_config"
+      ]
+    },
+    {
+      "id": "O01",
+      "name": "镜像/Ingress/队列/自动迁移关闭",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [
+        "API/Web200 WS101; canonicalmain/gaia/dataset ready and expectedqueues/87tasksregistered; migrationsdisabled"
+      ],
+      "current_business_proof": [
+        "Actual gaia two tasks received+succeeded and actual dataset indexing consumed; no charge proof claimed"
+      ],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/N03/runtime-readiness-2026-09-30.json",
+        "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json",
+        "evidence/N07/fullimage-runtime-verification-2026-09-30.json",
+        "evidence/O01/gaia-extend-task-delivery-ack-2026-09-30.json",
+        "evidence/O01/original-23000-bounded-plugin-invocation-2026-09-30.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "O01.API_Web_WS_queue_topology_disable_auto_migration",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/N03/runtime-readiness-2026-09-30.json",
+            "evidence/N07/fullimage-runtime-verification-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance"
+        },
+        {
+          "id": "O01.gaia_actual_delivery_ack_and_dataset_task_consumption",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/O01/gaia-extend-task-delivery-ack-2026-09-30.json",
+            "evidence/N04/economy-keyword-retrieval-runtime-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance"
+        },
+        {
+          "id": "O01.plugin_enabled_operation_and_registry_identity",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/O01/original-23000-bounded-plugin-invocation-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance",
+          "boundary": "OriginalHEAD445d exactpublishedworkflow uniqueLLM normalModelManager/ModelInstance→realplugin onebounded invoke8outputtokens;45total/price0USD response nonempty. Same exacttenant daemon uniqueinstallation/langgenius deepseek0.0.24/version/identifier/installationid match. Componentoperation/identity only, no ConsoleAPI/fullworkflow/keynonzeroaccounting claim; no repeatedcall."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "O02",
+      "name": "Agent/协同/归档/Human Input启用或关闭态",
+      "scope": "local-current",
+      "current_status": "partial-current-proof",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "O02.generated_agent_run_tool_call_memory_compaction",
+      "evidence": [
+        "evidence/N03/runtime-readiness-2026-09-30.json",
+        "evidence/O02/disabled-feature-runtime-2026-09-30.json",
+        "evidence/provider-packaging-regression/legal-agent-fixture-result.json",
+        "evidence/provider-packaging-regression/agent-config-files-runtime.json",
+        "evidence/provider-packaging-regression/human-input-runtime.json",
+        "evidence/provider-packaging-regression/socketio-enabled-runtime.json",
+        "evidence/O02/archive-disabled-independent-runtime.json",
+        "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+        "evidence/original-generation-runtime/o02-sidecar-runtime-health.json",
+        "evidence/original-generation-runtime/independent-o02-runtime-health-review.json",
+        "evidence/original-generation-runtime/independent-o02-network-mode-review.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "O02.actual_disabled_flags_effective_no_dependency_startup_break",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/O02/disabled-feature-runtime-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance"
+        },
+        {
+          "id": "O02.enabled_agent_collab_archive_human_input_realflow_if_enabled",
+          "status": "superseded_scope_split",
+          "execution_scope": "conditional",
+          "evidence": [
+            "evidence/N03/runtime-readiness-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance",
+          "boundary": "Onceoff closed proof is valid, but selected shared collab is true and optional Agent services started; replaced by explicit local subchecks, not counted as enabled pass."
+        },
+        {
+          "id": "O02.agent_authenticated_stub_manifest_same_chain",
+          "status": "passed",
+          "execution_scope": "local",
+          "executor": "runtime_acceptance signed actual context; audit independent proof",
+          "required_result": "Legitimate product-created Agent/version/tenant/user context through real codec, same stubmanifest200/generic403, no bodies/tokens saved.",
+          "evidence": [
+            "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+            "evidence/O02/agent-stub-first-transition-audit.json"
+          ],
+          "boundary": "Legitimate productAgent/version and actual JWE: dedicatedproxy200/schema/Agent/version/kind match; generic403. Effective Agent DIFY_AGENT_INNER_API_KEY explicitly matches API loaded INNER_API_KEY_FOR_PLUGIN via isolated LOCAL_ACCEPTANCE_PLUGIN_INNER_KEY. Initial404 was fixture credential mapping, not source bug; inputalias was not configproof. No model generation claim."
+        },
+        {
+          "id": "O02.enabled_collaboration_authenticated_join_relay_scope_cleanup",
+          "status": "passed",
+          "execution_scope": "local",
+          "executor": "runtime_acceptance WS; audit source contract",
+          "required_result": "Two authenticated sid joins use actual App.id, observed same-room relay/online/leader, existing foreign scope rejection, disconnect cleanup. WS101 alone does not pass.",
+          "evidence": [
+            "evidence/provider-packaging-regression/socketio-enabled-runtime.json"
+          ],
+          "boundary": "HEAD-lock445d real WebSocket8 checks: canonicalowner identity/App positive, two distinct sids/leader/online/status, observedmarkerrelay, existingforeignApp join+relay401/no sid mapping, sender-only disconnect leader handoff and allowned cleanup preserving room baselines. Zero modelcalls."
+        },
+        {
+          "id": "O02.human_input_pause_submit_resume_no_model",
+          "status": "passed",
+          "execution_scope": "local",
+          "executor": "app_center_root_cause product workflow; audit independent source/readback",
+          "required_result": "Real Start/HumanInput/End graph save/debug or publication; actual paused form, legitimate console GET/submit Accept, resumed terminal run/DB output; no email, fixture rows or model invocation substitute.",
+          "evidence": [
+            "evidence/provider-packaging-regression/human-input-runtime.json"
+          ],
+          "boundary": "Actual product-created graph and CONSOLErecipient form, pause/Accept submit/async resume/terminal persisted HTTP runreadback succeeded0tokens; no fabricated forms/email/modelcall. Finished SSEreadback passed after paused-snapshot harness adjustment."
+        },
+        {
+          "id": "O02.archive_selected_disabled_guard_or_enabled_storage_readback",
+          "status": "passed",
+          "execution_scope": "local",
+          "executor": "runtime_acceptance selected flags/guard; audit source contract",
+          "required_result": "Read selected runtime ARCHIVE_STORAGE_ENABLED bool and edition; if disabled, actual disabled/edition admission response. Enabled archive must actual storage/bundle/readback with authorized storage, not imply LLM prerequisite.",
+          "evidence": [
+            "evidence/O02/archive-disabled-independent-runtime.json"
+          ],
+          "boundary": "Actual HEAD445d loaded COMMUNITY/ARCHIVE_STORAGE_ENABLED=false/opendal; disabled ArchiveStorage client raises before network, validowner summary200, actualpersisted WorkflowRun succeeded0tokens200/3succeeded nodes200; archives list404 Community admission guard. No enabled archive/S3/paidCloud claim."
+        },
+        {
+          "id": "O02.agent_metadata_config_files_product_CRUD",
+          "status": "passed",
+          "execution_scope": "local",
+          "executor": "app_center product API; merge_audit independent evidence review",
+          "evidence": [
+            "evidence/provider-packaging-regression/legal-agent-fixture-result.json",
+            "evidence/provider-packaging-regression/agent-config-files-runtime.json"
+          ],
+          "required_result": "Legitimate new Agent/version, ten actual file upload/attach/list/preview/download contenthash/delete/manifest restored sameversion andempty; noLLM/no signedURL retained."
+        },
+        {
+          "id": "O02.generated_agent_run_tool_call_memory_compaction",
+          "status": "pending",
+          "execution_scope": "local",
+          "executor": "runtime_acceptance sidecar/guard/network preparation; app_center_root_cause productownedAgent and single generatedcaller after root plan dispatch; merge_audit independent contract/readback",
+          "evidence": [
+            "evidence/O02/archive-disabled-independent-runtime.json",
+            "evidence/provider-packaging-regression/legal-agent-fixture-result.json",
+            "evidence/original-generation-runtime/independent-actual-readback.json",
+            "evidence/remaining-runtime-feasibility-small-packages-2026-09-30.json",
+            "evidence/original-generation-runtime/independent-o02-guard-v2-review.json",
+            "evidence/original-generation-runtime/independent-o02-compaction-contract-review.json",
+            "evidence/original-generation-runtime/sdk-compaction-schema-readonly.json"
+          ],
+          "condition_minimum": "Existing original DeepSeek tool capability is available. Human authorization for exact sidecar API shared-access-network join/recreate is pending; five services have container-local readiness but host/owner gate is unpassed. Actual selected model CONTEXT_SIZE=1000000 gives target800000 with proposed cap8, and Summary keep_messages20 requires >20 genuine messages/safe cutoff. Complete compaction needs an authorized already-configured smaller-window model or separately approved real-history/input-scale budget; do not override schema, seed assistant history, or substitute tiny tool/no-op capability. Existing published workflow max_tokens64 is distinct from proposed owned Agent cap8; actual Agent config remains uncreated.",
+          "unverified_behavior": "Complete original selected Agent generated run, actual tool execution, memory/compaction and Home/Workspace/Sandbox readback; health/config/files/JWE alone cannot close whole requirement.",
+          "loaded_local_agent_shell_enabled": true,
+          "reclassified_from": {
+            "id": "O02.generated_agent_run_tool_selected_layers",
+            "scope": "external",
+            "history_commit": "43e2d6a06acc795b1daa1dd4aba0d0b701965d1a",
+            "reason": "Original configured model/tool capability already available; absent local topology and enforceable budget preparation are local implementation work, not permanent external-provider absence."
+          }
+        }
+      ],
+      "remaining_local": [
+        "O02.generated_agent_run_tool_call_memory_compaction"
+      ],
+      "remaining_external": [],
+      "scope_note": "Onceoff disabled and selected enabled no-model historical paths remain passed. Full generated Agent/tool/memory/compaction is local pending: exact network authorization, legitimate new fixture and separately reviewed model/input/tool budgets. Existing model support means provider-zero isolation does not make the whole requirement externally unavailable.",
+      "current_no_model_sidecar_checkpoint": {
+        "status": "partial_internal_readiness_transport_blocked_approval",
+        "evidence": "evidence/original-generation-runtime/independent-o02-runtime-health-review.json",
+        "services_running": 5,
+        "container_health": 200,
+        "dependency_TCP": 4,
+        "host_active_bindings": 0,
+        "host_owner_gate": "unpassed",
+        "new_Agents": 0,
+        "file_uploads": 0,
+        "model_calls": 0,
+        "required_human_action": "authorize exact sidecarAPI join existingshared accessnetwork and recreate; no bypass"
+      }
+    },
+    {
+      "id": "O03",
+      "name": "通用和Agent SSRF边界",
+      "scope": "local-current",
+      "current_status": "passed",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "All scoped required checks satisfied; source_verified/conditional boundaries explicit.",
+      "evidence": [
+        "evidence/O03/generic-ssrf-proxy-runtime-2026-09-30.json",
+        "evidence/O03/agent-ssrf-proxy-runtime-2026-09-30.json"
+      ],
+      "required_subchecks": [
+        {
+          "id": "O03.generic_allowhost_deniedhost_actual_proxy",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/O03/generic-ssrf-proxy-runtime-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance"
+        },
+        {
+          "id": "O03.agent_specific_scope_no_generic_whitelist_expansion",
+          "status": "passed",
+          "execution_scope": "local",
+          "evidence": [
+            "evidence/O03/agent-ssrf-proxy-runtime-2026-09-30.json"
+          ],
+          "executor": "runtime_acceptance",
+          "boundary": "Actual manifest endpoint reaches401 auth gate via Agent proxy; same endpoint denied403 by generic. Files route application404 versus generic403. Business manifest200 separately tracked; no model invocation."
+        }
+      ],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "O04",
+      "name": "历史整套旧版本恢复；本地新安装恢复另见29.8",
+      "scope": "historical-deferred",
+      "current_status": "deferred",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "prior explicit userhistoricalupgrade deferral; nocurrentproduction/historyacceptance implied",
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
+    },
+    {
+      "id": "O05",
+      "name": "生产放行和观察",
+      "scope": "production-gated",
+      "current_status": "production-not-authorized",
+      "source_static_proof": "historical source evidence only unless exact frozen scope referenced",
+      "fresh_runtime_proof": [],
+      "current_business_proof": [],
+      "remaining": "actual productionenvironment/userreleaseauthorization and observationwindow",
+      "evidence": [],
+      "remaining_local": [],
+      "remaining_external": []
+    }
+  ],
+  "counts": {
+    "passed": 16,
+    "partial-current-proof": 7,
+    "pending": 1,
+    "deferred": 4,
+    "production-not-authorized": 1
+  },
+  "external_conditions": [
+    {
+      "scenes": [
+        "B01",
+        "B03",
+        "F04"
+      ],
+      "condition": "Authorized enabled-provider configuration and legitimate test actor. OAuth GitHub/Google client ID/secret + callback URL; OAuth2/Casdoor/DingTalk issuer/authorize/token/userinfo and mappings as respective existing contract; actual provider callbacks/account initial quota/system integration readback unverified. Current disabled/error gates passed.",
+      "evidence": "evidence/sso-disabled-runtime/result.json"
+    },
+    {
+      "scenes": [
+        "B07",
+        "B08",
+        "B09"
+      ],
+      "condition": "Nonzero pricing and bounded authorized spend required for actual charge/limits/currency/stop-retry accounting. B05 generation and B11 retention now local pending against existing original provider.",
+      "evidence": "evidence/n05-design/nonzero-billing-acceptance.md"
+    },
+    {
+      "scenes": [
+        "D05"
+      ],
+      "condition": "After local N10 backend installation gate passes: authorized embedding provider/model/credentials, dimension and any required gRPC/TLS settings. Real high-quality document embed/index/vector counts and query hit unverified. Economy keyword+delete/rebuild passed; provider package defect is local separate gate.",
+      "evidence": "evidence/N10/independent-build-source-audit.json"
+    },
+    {
+      "scenes": [
+        "O02"
+      ],
+      "condition": "Working authorized isolated provider/model supporting Agent tool calls, model name and bounded small-spend budget; legitimate product Agent configuration with selected tool/runtime layers, internal sandbox credentials already healthy. No copy of original credentials or new original-business fixture.",
+      "unverified_behavior": "Real generated Agent run plus actual selected tool/Home/Workspace/Sandbox execution and terminal/readback. Metadata/files/JWE manifest success proves configuration scope, not generated Agent operation.",
+      "evidence": "evidence/external-conditions-2026-09-30.json"
+    }
+  ],
+  "completion_summary": {
+    "local_missing_subcheck_count": 1,
+    "local_missing": [
+      "O02.generated_agent_run_tool_call_memory_compaction"
+    ],
+    "external_missing_subcheck_count": 8,
+    "external_only_scenes": [
+      "B01",
+      "B03",
+      "B07",
+      "B08",
+      "B09",
+      "F04",
+      "D05"
+    ]
+  },
+  "latest_api_image": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+  "latest_context": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6",
+  "previous_local_checkpoint_before_original_provider_reassessment": {
+    "local_missing_subcheck_count": 0,
+    "local_missing": [],
+    "external_missing_subcheck_count": 11,
+    "external_only_scenes": [
+      "B01",
+      "B03",
+      "B05",
+      "B07",
+      "B08",
+      "B09",
+      "B11",
+      "F04",
+      "D05",
+      "O02"
+    ]
+  }
+}

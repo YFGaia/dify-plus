@@ -15,32 +15,31 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
-logger = logging.getLogger('alembic.env')
+logger = logging.getLogger("alembic.env")
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # 将当前目录的父目录(api目录)添加到Python路径中，以便能够导入models模块
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 # 获取当前运行的应用数据库引擎和URL
 def get_engine():
     try:
-        return current_app.extensions['sqlalchemy'].db.engine
+        return current_app.extensions["sqlalchemy"].db.engine
     except (KeyError, AttributeError):
-        return current_app.extensions['migrate'].db.engine
+        return current_app.extensions["migrate"].db.engine
 
 
 def get_engine_url():
     try:
-        return get_engine().url.render_as_string(hide_password=False).replace(
-            '%', '%%')
+        return get_engine().url.render_as_string(hide_password=False).replace("%", "%%")
     except AttributeError:
-        return str(get_engine().url).replace('%', '%%')
+        return str(get_engine().url).replace("%", "%%")
 
 
 # 使用当前应用的数据库URL替换配置文件中的URL
-config.set_main_option('sqlalchemy.url', get_engine_url())
+config.set_main_option("sqlalchemy.url", get_engine_url())
 
 from models import db
 
@@ -89,7 +88,7 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, 
+            connection=connection,
             target_metadata=target_metadata,
             version_table="alembic_version_extend",
         )
@@ -101,4 +100,4 @@ def run_migrations_online():
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    run_migrations_online() 
+    run_migrations_online()

@@ -2,12 +2,16 @@ import logging
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
-from werkzeug.exceptions import InternalServerError, NotFound
+from sqlalchemy.orm import Session
+from werkzeug.exceptions import BadRequest, InternalServerError, NotFound
 
 import services
-from controllers.common.schema import register_schema_models
+from controllers.common.fields import GeneratedAppResponse, SimpleResultResponse
+from controllers.common.schema import register_response_schema_models, register_schema_models
+from controllers.console.app.wraps import with_session
 from controllers.web import web_ns
 from controllers.web.error import (
+    AgentNotPublishedError,
     AppUnavailableError,
     CompletionRequestError,
     ConversationCompletedError,
@@ -19,18 +23,20 @@ from controllers.web.error import (
 )
 from controllers.web.error import InvokeRateLimitError as InvokeRateLimitHttpError
 from controllers.web.wraps import WebApiResource
+from core.app.apps.agent_app.errors import AgentAppNotPublishedError
 from core.app.entities.app_invoke_entities import InvokeFrom
 from core.errors.error import (
     ModelCurrentlyNotSupportError,
     ProviderTokenNotInitError,
     QuotaExceededError,
 )
-from core.model_runtime.errors.invoke import InvokeError
+from graphon.model_runtime.errors.invoke import InvokeError
 from libs import helper
 from libs.helper import uuid_value
-from models.model import AppMode
+from models.model import App, AppMode, EndUser
 from services.app_generate_service import AppGenerateService
 from services.app_task_service import AppTaskService
+from services.conversation_service import ConversationService
 from services.errors.llm import InvokeRateLimitError
 
 logger = logging.getLogger(__name__)
@@ -44,32 +50,22 @@ from controllers.web.error_extend import (
     WebAuthRequiredErrorExtend,
 )
 from extensions.ext_database import db
-from libs.passport import PassportService
-from libs.token import extract_access_token
 from models.account_money_extend import AccountMoneyExtend
-from services.account_service import AccountService
 from services.app_generate_service_extend import AppGenerateServiceExtend
+from services.webapp_auth_service_extend import WebAppAuthExtendService
+from services.webapp_console_identity_extend import get_console_account_extend
 
 
 def is_end_login(end_user):
+    """extend: 从 WebApp 当前请求中解析 Console 用户，并在首次识别时绑定 external_user_id。"""
     user_info = None
     try:
-        # 从 cookie 中读取 access_token
-        auth_token = extract_access_token(request)
-        if not auth_token:
-            return None
-            
-        # 验证 access_token
-        decoded = PassportService().verify(auth_token)
-        user_id = decoded.get("user_id")
-        
-        # 加载 Console 用户信息
-        user_info = AccountService.load_logged_in_account(account_id=user_id)
-        
+        user_info = get_console_account_extend(request, session=db.session())
+
         # 绑定 end_user 与 Console 用户
         if user_info is not None:
             if end_user.external_user_id is None:
-                end_user.external_user_id = user_id
+                end_user.external_user_id = user_info.id
                 db.session.commit()  # 提交绑定关系
     except Exception:
         logging.exception("load_logged_in_account error")
@@ -80,6 +76,7 @@ def is_end_login(end_user):
 
 # 额度限制
 def is_money_limit(end_user) -> bool:
+    """extend: 依据 end_user 关联账户额度判断是否超限，异常时按安全默认值拦截。"""
     try:
         # TODO 需要写入缓存，读缓存
         account_money = (
@@ -93,13 +90,29 @@ def is_money_limit(end_user) -> bool:
         return False
     except:
         return True
+
+
 # extend: 您必须登录才能访问您的帐户扩展功能
 
 
+def _resolve_agent_app_streaming(*, app_mode: AppMode, response_mode: str | None) -> bool:
+    """Agent App runtime is SSE-only until backend blocking runs are supported."""
+    if app_mode != AppMode.AGENT:
+        return response_mode == "streaming"
+    if response_mode == "blocking":
+        raise BadRequest("Agent App only supports streaming response mode.")
+    return True
+
+
 class CompletionMessagePayload(BaseModel):
-    inputs: dict[str, Any] = Field(description="Input variables for the completion")
+    inputs: dict[str, Any] = Field(
+        description="Input variables for the completion",
+    )
     query: str = Field(default="", description="Query text for completion")
-    files: list[dict[str, Any]] | None = Field(default=None, description="Files to be processed")
+    files: list[dict[str, Any]] | None = Field(
+        default=None,
+        description="Files to be processed",
+    )
     response_mode: Literal["blocking", "streaming"] | None = Field(
         default=None, description="Response mode: blocking or streaming"
     )
@@ -107,9 +120,14 @@ class CompletionMessagePayload(BaseModel):
 
 
 class ChatMessagePayload(BaseModel):
-    inputs: dict[str, Any] = Field(description="Input variables for the chat")
+    inputs: dict[str, Any] = Field(
+        description="Input variables for the chat",
+    )
     query: str = Field(description="User query/message")
-    files: list[dict[str, Any]] | None = Field(default=None, description="Files to be processed")
+    files: list[dict[str, Any]] | None = Field(
+        default=None,
+        description="Files to be processed",
+    )
     response_mode: Literal["blocking", "streaming"] | None = Field(
         default=None, description="Response mode: blocking or streaming"
     )
@@ -126,6 +144,7 @@ class ChatMessagePayload(BaseModel):
 
 
 register_schema_models(web_ns, CompletionMessagePayload, ChatMessagePayload)
+register_response_schema_models(web_ns, GeneratedAppResponse, SimpleResultResponse)
 
 
 # define completion api for user
@@ -144,13 +163,15 @@ class CompletionApi(WebApiResource):
             500: "Internal Server Error",
         }
     )
-    def post(self, app_model, end_user):
+    @web_ns.response(200, "Success", web_ns.models[GeneratedAppResponse.__name__])
+    @with_session
+    def post(self, session: Session, app_model: App, end_user: EndUser):
         if app_model.mode != AppMode.COMPLETION:
             raise NotCompletionAppError()
 
         # ----------------- start You must log in to access your account extend ---------------
-        # no login
-        if is_end_login(end_user) is None:
+        # no login（per-app 认证开关关闭时允许匿名访问；已登录用户短路跳过开关查询）
+        if is_end_login(end_user) is None and WebAppAuthExtendService.is_webapp_auth_enabled(app_model.id):
             raise WebAuthRequiredErrorExtend()
         # ----------------- stop You must log in to access your account extend ---------------
 
@@ -177,9 +198,15 @@ class CompletionApi(WebApiResource):
             )  # Extend: App Center -
             # Recommended list sorted by usage frequency
             response = AppGenerateService.generate(
-                app_model=app_model, user=end_user, args=args, invoke_from=InvokeFrom.WEB_APP, streaming=streaming
+                session=session,
+                app_model=app_model,
+                user=end_user,
+                args=args,
+                invoke_from=InvokeFrom.WEB_APP,
+                streaming=streaming,
             )
 
+            # response-contract:ignore compact_generate_response
             return helper.compact_generate_response(response)
         except services.errors.conversation.ConversationNotExistsError:
             raise NotFound("Conversation Not Exists.")
@@ -188,6 +215,8 @@ class CompletionApi(WebApiResource):
         except services.errors.app_model_config.AppModelConfigBrokenError:
             logger.exception("App model config broken.")
             raise AppUnavailableError()
+        except AgentAppNotPublishedError:
+            raise AgentNotPublishedError()
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
         except QuotaExceededError:
@@ -218,7 +247,8 @@ class CompletionStopApi(WebApiResource):
             500: "Internal Server Error",
         }
     )
-    def post(self, app_model, end_user, task_id):
+    @web_ns.response(200, "Success", web_ns.models[SimpleResultResponse.__name__])
+    def post(self, app_model: App, end_user: EndUser, task_id: str):
         if app_model.mode != AppMode.COMPLETION:
             raise NotCompletionAppError()
 
@@ -229,7 +259,7 @@ class CompletionStopApi(WebApiResource):
             app_mode=AppMode.value_of(app_model.mode),
         )
 
-        return {"result": "success"}, 200
+        return SimpleResultResponse(result="success").model_dump(mode="json"), 200
 
 
 @web_ns.route("/chat-messages")
@@ -247,10 +277,12 @@ class ChatApi(WebApiResource):
             500: "Internal Server Error",
         }
     )
-    def post(self, app_model, end_user):
+    @web_ns.response(200, "Success", web_ns.models[GeneratedAppResponse.__name__])
+    @with_session
+    def post(self, session: Session, app_model: App, end_user: EndUser):
         # ----------------- start You must log in to access your account extend ---------------
-        # no login
-        if is_end_login(end_user) is None:
+        # no login（per-app 认证开关关闭时允许匿名访问；已登录用户短路跳过开关查询）
+        if is_end_login(end_user) is None and WebAppAuthExtendService.is_webapp_auth_enabled(app_model.id):
             raise WebAuthRequiredErrorExtend()
         # ----------------- stop You must log in to access your account extend ---------------
 
@@ -260,13 +292,13 @@ class ChatApi(WebApiResource):
         # ----------------- 二开部分End - 余额判断-----------------
 
         app_mode = AppMode.value_of(app_model.mode)
-        if app_mode not in {AppMode.CHAT, AppMode.AGENT_CHAT, AppMode.ADVANCED_CHAT}:
+        if app_mode not in {AppMode.CHAT, AppMode.AGENT_CHAT, AppMode.ADVANCED_CHAT, AppMode.AGENT}:
             raise NotChatAppError()
 
         payload = ChatMessagePayload.model_validate(web_ns.payload or {})
         args = payload.model_dump(exclude_none=True)
 
-        streaming = payload.response_mode == "streaming"
+        streaming = _resolve_agent_app_streaming(app_mode=app_mode, response_mode=payload.response_mode)
         args["auto_generate_name"] = False
 
         # 获取 Console 用户 ID，直接作为 from_account_id 传递
@@ -278,12 +310,26 @@ class ChatApi(WebApiResource):
             AppGenerateServiceExtend.calculate_cumulative_usage(
                 app_model=app_model,
                 args=args,
-            )  # Extend: App
-            # Center - Recommended list sorted by usage frequency
+            )  # Extend: App Center - Recommended list sorted by usage frequency
+            # Eagerly validate conversation to avoid hanging on invalid conversation_id
+            if payload.conversation_id:
+                ConversationService.get_conversation(
+                    app_model=app_model,
+                    conversation_id=payload.conversation_id,
+                    user=end_user,
+                    session=session,
+                )
+
             response = AppGenerateService.generate(
-                app_model=app_model, user=end_user, args=args, invoke_from=InvokeFrom.WEB_APP, streaming=streaming
+                session=session,
+                app_model=app_model,
+                user=end_user,
+                args=args,
+                invoke_from=InvokeFrom.WEB_APP,
+                streaming=streaming,
             )
 
+            # response-contract:ignore compact_generate_response
             return helper.compact_generate_response(response)
         except services.errors.conversation.ConversationNotExistsError:
             raise NotFound("Conversation Not Exists.")
@@ -292,6 +338,8 @@ class ChatApi(WebApiResource):
         except services.errors.app_model_config.AppModelConfigBrokenError:
             logger.exception("App model config broken.")
             raise AppUnavailableError()
+        except AgentAppNotPublishedError:
+            raise AgentNotPublishedError()
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
         except QuotaExceededError:
@@ -324,9 +372,10 @@ class ChatStopApi(WebApiResource):
             500: "Internal Server Error",
         }
     )
-    def post(self, app_model, end_user, task_id):
+    @web_ns.response(200, "Success", web_ns.models[SimpleResultResponse.__name__])
+    def post(self, app_model: App, end_user: EndUser, task_id: str):
         app_mode = AppMode.value_of(app_model.mode)
-        if app_mode not in {AppMode.CHAT, AppMode.AGENT_CHAT, AppMode.ADVANCED_CHAT}:
+        if app_mode not in {AppMode.CHAT, AppMode.AGENT_CHAT, AppMode.ADVANCED_CHAT, AppMode.AGENT}:
             raise NotChatAppError()
 
         AppTaskService.stop_task(
@@ -336,4 +385,4 @@ class ChatStopApi(WebApiResource):
             app_mode=app_mode,
         )
 
-        return {"result": "success"}, 200
+        return SimpleResultResponse(result="success").model_dump(mode="json"), 200

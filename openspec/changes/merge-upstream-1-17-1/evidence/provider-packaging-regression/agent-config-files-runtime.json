@@ -1,0 +1,57 @@
+{
+  "model_invocations": 0,
+  "resource_scope": "new synthetic Agent only",
+  "configuration_values_or_signed_urls_stored": false,
+  "results": [
+    {
+      "case": "initial_list",
+      "status": 200,
+      "items": 0
+    },
+    {
+      "case": "upload",
+      "status": 201
+    },
+    {
+      "case": "attach_config_file",
+      "status": 201
+    },
+    {
+      "case": "list_refetch",
+      "status": 200,
+      "items": 1
+    },
+    {
+      "case": "preview_hash",
+      "status": 200,
+      "content_matches": true,
+      "binary": false
+    },
+    {
+      "case": "download_request",
+      "status": 200
+    },
+    {
+      "case": "download_bytes",
+      "status": 200,
+      "content_matches": true,
+      "bytes": 54
+    },
+    {
+      "case": "delete_reference",
+      "status": 200,
+      "result": "success"
+    },
+    {
+      "case": "list_after_delete",
+      "status": 200,
+      "items": 0
+    },
+    {
+      "case": "manifest_after_restore",
+      "status": 200,
+      "version_matches": true,
+      "file_items": 0
+    }
+  ]
+}

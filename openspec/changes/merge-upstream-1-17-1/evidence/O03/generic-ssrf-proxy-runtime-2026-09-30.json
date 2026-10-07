@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-30T11:12:27.668890+00:00",
+  "scope": "generic SSRF proxy allow/deny runtime smoke in isolated acceptance stack",
+  "api_image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+  "client": "api.core.helper.ssrf_proxy.make_request",
+  "external_calls": 1,
+  "cases": [
+    {
+      "target_class": "harmless_public_http_host",
+      "method": "GET",
+      "outcome": "allowed",
+      "http_status": 200,
+      "body_saved": false
+    },
+    {
+      "target_class": "acceptance_stack_private_api_health",
+      "method": "GET",
+      "outcome": "blocked_by_proxy",
+      "exception_type": "ToolSSRFError",
+      "target_data_read": false
+    }
+  ],
+  "agent_specific": {
+    "status": "blocked",
+    "reason": "agent_ssrf_proxy and agent backend service are not running in the isolated acceptance topology; no agent-specific request was made"
+  },
+  "credentials_or_request_bodies_saved": false
+}

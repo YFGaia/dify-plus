@@ -1,0 +1,10 @@
+{
+  "method": "read-only PostgreSQL SELECT of dedicated synthetic app IDs",
+  "results": [
+    {"app_id": "d5ad5804-7921-41d4-9b48-816da837f4e3", "mode": "chat", "app_extend_rows": 0},
+    {"app_id": "14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1", "mode": "completion", "app_extend_rows": 0},
+    {"app_id": "467aa2f3-139e-49b8-8683-d9d595e0acf2", "mode": "workflow", "app_extend_rows": 1, "webapp_auth_enabled": false, "retention_number": null}
+  ],
+  "explicit_null_auth_column_exercised": false,
+  "database_writes": 0
+}

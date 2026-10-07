@@ -1,0 +1,19 @@
+{
+  "observed_at_utc": "2026-09-30T14:18:35+00:00",
+  "baseline_private_file_mode_0600": true,
+  "baseline_private_file_sha256": "3bfc294cd63051a27b1d0077ba0069b418b4ffb522281779d8a1bdcac421b305",
+  "private_file_values_not_copied": true,
+  "target_app_matches_original": true,
+  "target_tenant_matches_original": true,
+  "owner_matches_original": true,
+  "app_and_published_workflow_state_hashes_present": true,
+  "generation_fixture_state_before_app_center_setup": {
+    "tenant3_apps_created": 0,
+    "generation_attempts": 0
+  },
+  "account_quota_snapshot_present": true,
+  "credentials_or_tokens_read_or_exported": false,
+  "mutations": false,
+  "ordering_evidence": "runtime executor saved baseline and notified app_center before product-create phase; no fixture write or model call executed by reviewer",
+  "boundary": "Private actual DB baseline reviewed structurally. Browser baseline separately executor-owned. This is preflight only, not matrix or cleanup pass."
+}

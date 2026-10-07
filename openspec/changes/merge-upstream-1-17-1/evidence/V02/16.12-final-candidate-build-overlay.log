@@ -1,0 +1,69 @@
+V02/16.12 build-only retry
+Candidate commit: d2fea9989725c79afdeec3eba4eaa6e0e260e480
+Candidate tree: 2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5
+Fresh archive: /private/tmp/dify-v02-16.12.VBhO06 (created by git archive commit | tar -x; no Git metadata)
+Node v24.20.0 SHA-256 9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a
+pnpm 12.3.4 SHA-256 99ccfa6b57e73c693ec2ec9760a978f063b001df8f462e89fce3a30be3d641f3
+Environment: VP_SKIP_INSTALL=1; --config.verify-deps-before-run=false; no install/sync/network.
+web/node_modules: cloned with cp -cR /Users/liuxingwang/go/src/dify-plus/web/node_modules /private/tmp/dify-v02-16.12.VBhO06/web/node_modules; real directory, not symlink. Source/archive manifests match exactly: SHA-256 4f00c2c4c5f07d658d65bcaf92ca0ec38b6d1df75bee86613123000e8012b326; 719 entries. Clone size: 41,959,424 bytes; regular files: 523. Root node_modules/.modules.yaml SHA-256 b1b316f7f6a0d64a2fa9d27e6186edaf28d416acc09297fae9ad90b6d9f1129c.
+Other existing dependency overlays (symlink target; each resolved):
+  node_modules -> /Users/liuxingwang/go/src/dify-plus/node_modules
+  packages/dify-ui/node_modules -> /Users/liuxingwang/go/src/dify-plus/packages/dify-ui/node_modules
+  packages/contracts/node_modules -> /Users/liuxingwang/go/src/dify-plus/packages/contracts/node_modules
+  packages/iconify-collections/node_modules -> /Users/liuxingwang/go/src/dify-plus/packages/iconify-collections/node_modules
+  packages/jotai-tanstack-form/node_modules -> /Users/liuxingwang/go/src/dify-plus/packages/jotai-tanstack-form/node_modules
+  packages/migrate-no-unchecked-indexed-access/node_modules -> /Users/liuxingwang/go/src/dify-plus/packages/migrate-no-unchecked-indexed-access/node_modules
+  packages/nuqs-jotai/node_modules -> /Users/liuxingwang/go/src/dify-plus/packages/nuqs-jotai/node_modules
+  packages/dev-proxy/node_modules -> /Users/liuxingwang/go/src/dify-plus/packages/dev-proxy/node_modules
+  cli/node_modules -> /Users/liuxingwang/go/src/dify-plus/cli/node_modules
+  e2e/node_modules -> /Users/liuxingwang/go/src/dify-plus/e2e/node_modules
+  sdks/nodejs-client/node_modules -> /Users/liuxingwang/go/src/dify-plus/sdks/nodejs-client/node_modules
+web/.next/node_modules excluded.
+Reused V02/16.11: check (8,950 formatted; ESLint 0 errors/1,931 warnings), lint:tss 6,266, i18n 24 locales/0 missing (same-archive elevated-sandbox retry), focused unit 20 files/222 passed. V02/16.11 result SHA-256 67bb3e88c1b6de7fc1e8df2846aac9a0c8c53b3818bfd69f77fe1a6ba93441b5; log SHA-256 44e4421b7c6a4ee5cfeb528026916b6414e3a8526910b79ad72afbeaade2f184.
+Reused V01: API tree 895c0be99faafa5314806ddb2c0553c6062c7f67; 160/160 passed, 2 warnings; result SHA-256 995e8f0dbb5c0f8853eea275cd653df14b41b8fc81e6bb9a75d6836da76efe77.
+Reused M08/14.7: quota modal spec SHA-256 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120; Chromium 2/2 passed; no rerun.
+
+=== BUILD 1: web build ===
+COMMAND: PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false --dir web build
+$ next build
+▲ Next.js 16.3.4 (Turbopack)
+✓ Running next.config.ts took 395ms
+
+  Creating an optimized production build ...
+
+-----
+[1m[31mFATAL[39m[0m: An unexpected Turbopack error occurred. A panic log has been written to /var/folders/xn/kxnfh8dd50dbn_wm94rgt9qr0000gp/T/next-panic-9c7bda8a5b0d013ab900aae47616dc14.log.
+
+To help make Turbopack better, report this error by clicking here: https://bugs.nextjs.org/search?category=turbopack-error-report&title=Turbopack%20Error%3A%20Symlink%20%5Bproject%5D%2Fweb%2Fnode_modules%2Fnext%20is%20invalid%2C%20it%20points%20out%20of%20the%20filesystem%20root&body=Turbopack%20version%3A%20%60299180d3%60%0ANext.js%20version%3A%20%600.0.0%60%0A%0AError%20message%3A%0A%60%60%60%0ASymlink%20%5Bproject%5D%2Fweb%2Fnode_modules%2Fnext%20is%20invalid%2C%20it%20points%20out%20of%20the%20filesystem%20root%0A%0ADebug%20info%3A%0A-%20Execution%20of%20get_all_written_entrypoints_with_issues_operation%20failed%0A-%20Execution%20of%20EntrypointsOperation%3A%3Anew%20failed%0A-%20Execution%20of%20all_entrypoints_write_to_disk_operation%20failed%0A-%20Execution%20of%20output_assets_operation%20failed%0A-%20Execution%20of%20Project%3A%3Aget_all_endpoint_groups_with_app_route_filter%20failed%0A-%20Execution%20of%20Project%3A%3Aentrypoints_with_app_route_filter%20failed%0A-%20Execution%20of%20AppProject%3A%3Aroutes_with_filter%20failed%0A-%20Execution%20of%20directory_tree_to_entrypoints_internal%20failed%0A-%20Execution%20of%20try_get_next_package%20failed%0A-%20Execution%20of%20resolve%20failed%0A-%20Execution%20of%20resolve_internal%20failed%0A-%20Execution%20of%20find_package%20failed%0A-%20Symlink%20%5Bproject%5D%2Fweb%2Fnode_modules%2Fnext%20is%20invalid%2C%20it%20points%20out%20of%20the%20filesystem%20root%0A%60%60%60&labels=Turbopack,Turbopack%20Panic%20Backtrace
+-----
+
+
+> Build error occurred
+Error [TurbopackInternalError]: Symlink [project]/web/node_modules/next is invalid, it points out of the filesystem root
+
+Debug info:
+- Execution of get_all_written_entrypoints_with_issues_operation failed
+- Execution of EntrypointsOperation::new failed
+- Execution of all_entrypoints_write_to_disk_operation failed
+- Execution of output_assets_operation failed
+- Execution of Project::get_all_endpoint_groups_with_app_route_filter failed
+- Execution of Project::entrypoints_with_app_route_filter failed
+- Execution of AppProject::routes_with_filter failed
+- Execution of directory_tree_to_entrypoints_internal failed
+- Execution of try_get_next_package failed
+- Execution of resolve failed
+- Execution of resolve_internal failed
+- Execution of find_package failed
+- Symlink [project]/web/node_modules/next is invalid, it points out of the filesystem root
+    at ignore-listed frames {
+  type: 'TurbopackInternalError',
+  location: undefined
+}
+[ELIFECYCLE] Command failed with exit code 1.
+EXIT_CODE=1 ELAPSED_SECONDS=3
+
+=== BUILD 1 RESULT / STOP ===
+`pnpm --dir web build` exited 1 after 3 seconds. Next.js 16.3.4 Turbopack failed because `[project]/web/node_modules/next` is a symlink outside the archive filesystem root.
+Archive `web/node_modules` itself is a real COW-cloned directory (not a symlink), but its `next` entry remains a symlink. Literal target: `../../node_modules/.pnpm/next@16.3.4_@babel+core@7.29.7_supports-color@11.0.0__@playwright+test@1.62.1_@types+no_fb0d8e6761f3c2c604b44c68e2c43cca/node_modules/next`; resolved target is under `/Users/liuxingwang/go/src/dify-plus/node_modules/.pnpm/.../node_modules/next`. The COW clone did not materialize nested package symlinks.
+Conclusion: harness blocked at the dependency overlay filesystem boundary. No source defect is inferred. Per first-failure rule, `pnpm --dir web build:vinext` was not run and no workaround was attempted.
+Source/test/index files were not modified by this task; no install, sync, network, staging, or commit was performed. Only the registered 16.12 result and log paths are written.

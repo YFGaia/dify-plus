@@ -1,0 +1,24 @@
+[
+  {
+    "case": "app_deploy_feature",
+    "status": 200,
+    "enable_app_deploy": false
+  },
+  {
+    "case": "environment_api_disabled_path",
+    "endpoint": "/api/environment/[synthetic-code]/passport",
+    "status": 404,
+    "is_json": false
+  },
+  {
+    "case": "environment_api_disabled_path",
+    "endpoint": "/api/environment/[synthetic-code]/login/status",
+    "status": 404,
+    "is_json": false
+  },
+  {
+    "case": "public_logout_not_console",
+    "status": 200,
+    "result": "success"
+  }
+]

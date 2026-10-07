@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-30",
+  "scope": "isolated canonical acceptance stack standard worker-gaia execution for the successful no-model Start-to-End run",
+  "api_image_id": "sha256:9b175d34b4e1bfde92a453e1baae4e6e306ce70e17562c0155734ba249fba429",
+  "worker_service": "worker-gaia",
+  "worker_queue": "extend_high",
+  "task_name": "tasks.extend.update_account_money_when_workflow_node_execution_created_extend",
+  "workflow_run_id": "1766592f-f00c-4f0e-a043-4f6e29c89d87",
+  "workflow_run_status": "succeeded",
+  "workflow_run_node_executions": {
+    "start": "succeeded",
+    "end": "succeeded"
+  },
+  "source_contract": "WorkflowPersistenceLayer enqueues the extension task for each successful node execution; task handler returns before billing for any non-LLM node.",
+  "runtime_logs": [
+    {
+      "time_utc": "2026-09-30 09:34:48.964",
+      "state": "received"
+    },
+    {
+      "time_utc": "2026-09-30 09:34:48.986",
+      "state": "succeeded"
+    },
+    {
+      "time_utc": "2026-09-30 09:34:50.088",
+      "state": "received"
+    },
+    {
+      "time_utc": "2026-09-30 09:34:50.105",
+      "state": "succeeded"
+    }
+  ],
+  "delivery_ack": "2 task deliveries received and succeeded, matching the two successful graph nodes in the single synthetic run; no task arguments or credentials captured.",
+  "billing_claim": "none; both nodes were non-LLM, total_tokens=0, so this proves queue delivery/ack only, not non-zero charge.",
+  "user_23000_data_modified": false
+}

@@ -1,141 +1,102 @@
-import type { Viewport } from 'next'
-import { Provider as JotaiProvider } from 'jotai'
+import type { ThemeProviderProps } from 'next-themes'
+import type { Metadata, Viewport } from '@/next'
+import { ToastHost } from '@langgenius/dify-ui/toast'
+import { TooltipProvider } from '@langgenius/dify-ui/tooltip'
+import { HydrationBoundary } from '@tanstack/react-query'
+import { Provider as JotaiProvider } from 'jotai/react'
 import { ThemeProvider } from 'next-themes'
-// extend: dockefile 构建访问不到google，改成本地
-import localFont from 'next/font/local'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
-import GlobalPublicStoreProvider from '@/context/global-public-context'
-import { TanstackQueryInitializer } from '@/context/query-client'
+import { IS_PROD } from '@/config'
+import { getDatasetMap } from '@/env'
+import { SystemFeaturesBootstrapBoundary } from '@/features/system-features/bootstrap-boundary'
+import {
+  dehydrateSystemFeatures,
+  getOptionalSystemFeatures,
+} from '@/features/system-features/server'
 import { getLocaleOnServer } from '@/i18n-config/server'
-import { DatasetAttr } from '@/types/feature'
-import { cn } from '@/utils/classnames'
-import { ToastProvider } from './components/base/toast'
-import BrowserInitializer from './components/browser-initializer'
+import { headers } from '@/next/headers'
+import { getApplicationTitle } from '@/utils/document-title'
+import { basePath } from '@/utils/var'
+import { CloudAnalytics } from './components/base/analytics-consent/cloud-analytics'
+import { PartnerStackCookieRecorder } from './components/billing/partner-stack/cookie-recorder'
+import { AgentationLoader } from './components/devtools/agentation-loader'
 import { ReactScanLoader } from './components/devtools/react-scan/loader'
 import { I18nServerProvider } from './components/provider/i18n-server'
-import { PWAProvider } from './components/provider/serwist'
-import SentryInitializer from './components/sentry-initializer'
-import RoutePrefixHandle from './routePrefixHandle'
+import { TanStackQueryProvider } from './query-provider'
+import '@/service/console/server'
 import './styles/globals.css'
-import './styles/markdown.scss'
+import './styles/markdown.css'
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
   viewportFit: 'cover',
-  userScalable: false,
 }
-// extend: start dockefile 构建访问不到google，改成本地
-const instrumentSerif = localFont({
-  src: [
-    {
-      path: './fonts/InstrumentSerif-Regular.ttf',
-      weight: '400',
-      style: 'normal',
-    },
-    {
-      path: './fonts/InstrumentSerif-Italic.ttf',
-      weight: '400',
-      style: 'italic',
-    },
-  ],
-  variable: '--font-instrument-serif',
-})
-// extend: stop dockefile 构建访问不到google，改成本地
 
-const LocaleLayout = async ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
-  const locale = await getLocaleOnServer()
+export async function generateMetadata(): Promise<Metadata> {
+  const systemFeatures = await getOptionalSystemFeatures()
+  const branding = systemFeatures?.branding
+  const applicationTitle = getApplicationTitle(branding)
+  const brandedFavicon = branding?.enabled ? branding.favicon : undefined
 
-  const datasetMap: Record<DatasetAttr, string | undefined> = {
-    [DatasetAttr.DATA_API_PREFIX]: process.env.NEXT_PUBLIC_API_PREFIX,
-    [DatasetAttr.DATA_PUBLIC_API_PREFIX]: process.env.NEXT_PUBLIC_PUBLIC_API_PREFIX,
-    [DatasetAttr.DATA_MARKETPLACE_API_PREFIX]: process.env.NEXT_PUBLIC_MARKETPLACE_API_PREFIX,
-    [DatasetAttr.DATA_MARKETPLACE_URL_PREFIX]: process.env.NEXT_PUBLIC_MARKETPLACE_URL_PREFIX,
-    [DatasetAttr.DATA_PUBLIC_EDITION]: process.env.NEXT_PUBLIC_EDITION,
-    [DatasetAttr.DATA_PUBLIC_AMPLITUDE_API_KEY]: process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY,
-    [DatasetAttr.DATA_PUBLIC_COOKIE_DOMAIN]: process.env.NEXT_PUBLIC_COOKIE_DOMAIN,
-    [DatasetAttr.DATA_PUBLIC_SUPPORT_MAIL_LOGIN]: process.env.NEXT_PUBLIC_SUPPORT_MAIL_LOGIN,
-    [DatasetAttr.DATA_PUBLIC_SENTRY_DSN]: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    [DatasetAttr.DATA_PUBLIC_MAINTENANCE_NOTICE]: process.env.NEXT_PUBLIC_MAINTENANCE_NOTICE,
-    [DatasetAttr.DATA_PUBLIC_SITE_ABOUT]: process.env.NEXT_PUBLIC_SITE_ABOUT,
-    [DatasetAttr.DATA_PUBLIC_TEXT_GENERATION_TIMEOUT_MS]: process.env.NEXT_PUBLIC_TEXT_GENERATION_TIMEOUT_MS,
-    [DatasetAttr.DATA_PUBLIC_MAX_TOOLS_NUM]: process.env.NEXT_PUBLIC_MAX_TOOLS_NUM,
-    [DatasetAttr.DATA_PUBLIC_MAX_PARALLEL_LIMIT]: process.env.NEXT_PUBLIC_MAX_PARALLEL_LIMIT,
-    [DatasetAttr.DATA_PUBLIC_TOP_K_MAX_VALUE]: process.env.NEXT_PUBLIC_TOP_K_MAX_VALUE,
-    [DatasetAttr.DATA_PUBLIC_INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH]: process.env.NEXT_PUBLIC_INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH,
-    [DatasetAttr.DATA_PUBLIC_LOOP_NODE_MAX_COUNT]: process.env.NEXT_PUBLIC_LOOP_NODE_MAX_COUNT,
-    [DatasetAttr.DATA_PUBLIC_MAX_ITERATIONS_NUM]: process.env.NEXT_PUBLIC_MAX_ITERATIONS_NUM,
-    [DatasetAttr.DATA_PUBLIC_MAX_TREE_DEPTH]: process.env.NEXT_PUBLIC_MAX_TREE_DEPTH,
-    [DatasetAttr.DATA_PUBLIC_ALLOW_UNSAFE_DATA_SCHEME]: process.env.NEXT_PUBLIC_ALLOW_UNSAFE_DATA_SCHEME,
-    [DatasetAttr.DATA_PUBLIC_ENABLE_WEBSITE_JINAREADER]: process.env.NEXT_PUBLIC_ENABLE_WEBSITE_JINAREADER,
-    [DatasetAttr.DATA_PUBLIC_ENABLE_WEBSITE_FIRECRAWL]: process.env.NEXT_PUBLIC_ENABLE_WEBSITE_FIRECRAWL,
-    [DatasetAttr.DATA_PUBLIC_ENABLE_WEBSITE_WATERCRAWL]: process.env.NEXT_PUBLIC_ENABLE_WEBSITE_WATERCRAWL,
-    [DatasetAttr.DATA_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX]: process.env.NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX,
-    [DatasetAttr.NEXT_PUBLIC_ZENDESK_WIDGET_KEY]: process.env.NEXT_PUBLIC_ZENDESK_WIDGET_KEY,
-    [DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_ENVIRONMENT]: process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_ENVIRONMENT,
-    [DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_VERSION]: process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_VERSION,
-    [DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_EMAIL]: process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_EMAIL,
-    [DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_WORKSPACE_ID]: process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_WORKSPACE_ID,
-    [DatasetAttr.NEXT_PUBLIC_ZENDESK_FIELD_ID_PLAN]: process.env.NEXT_PUBLIC_ZENDESK_FIELD_ID_PLAN,
-    [DatasetAttr.DATA_PUBLIC_BATCH_CONCURRENCY]: process.env.NEXT_PUBLIC_BATCH_CONCURRENCY,
+  return {
+    title: {
+      default: applicationTitle,
+      template: `%s - ${applicationTitle}`,
+    },
+    icons: brandedFavicon
+      ? { icon: brandedFavicon, apple: brandedFavicon }
+      : { icon: `${basePath}/favicon.ico` },
   }
+}
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const datasetMap = getDatasetMap()
+  const [locale, requestHeaders] = await Promise.all([
+    getLocaleOnServer(),
+    headers(),
+    getOptionalSystemFeatures(),
+  ])
+  const dehydratedState = dehydrateSystemFeatures()
+  const nonce = IS_PROD ? (requestHeaders.get('x-nonce') ?? undefined) : undefined
+  const themeProviderProps: Omit<ThemeProviderProps, 'children'> = {
+    attribute: 'data-theme',
+    defaultTheme: 'system',
+    enableSystem: true,
+    disableTransitionOnChange: true,
+  }
+  if (nonce !== undefined) themeProviderProps.nonce = nonce
 
   return (
-    <html lang={locale ?? 'en'} className={cn('h-full', instrumentSerif.variable)} suppressHydrationWarning>
+    <html lang={locale ?? 'en'} className="h-full" suppressHydrationWarning>
       <head>
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#1C64F2" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Dify" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/icon-192x192.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icon-192x192.png" />
-        <meta name="msapplication-TileColor" content="#1C64F2" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
+        <ReactScanLoader />
       </head>
-      <body
-        className="color-scheme h-full select-auto"
-        {...datasetMap}
-      >
-        <PWAProvider>
-          <ReactScanLoader />
+      <body className="h-full bg-background-body" {...datasetMap}>
+        <CloudAnalytics />
+        <div className="isolate h-full">
           <JotaiProvider>
-            <ThemeProvider
-              attribute="data-theme"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-              enableColorScheme={false}
-            >
+            <ThemeProvider {...themeProviderProps}>
               <NuqsAdapter>
-                <BrowserInitializer>
-                  <SentryInitializer>
-                    <TanstackQueryInitializer>
-                      <I18nServerProvider>
-                        <ToastProvider>
-                          <GlobalPublicStoreProvider>
-                            {children}
-                          </GlobalPublicStoreProvider>
-                        </ToastProvider>
-                      </I18nServerProvider>
-                    </TanstackQueryInitializer>
-                  </SentryInitializer>
-                </BrowserInitializer>
+                <TanStackQueryProvider>
+                  <HydrationBoundary state={dehydratedState}>
+                    <I18nServerProvider>
+                      <ToastHost timeout={5000} limit={3} />
+                      <SystemFeaturesBootstrapBoundary>
+                        <PartnerStackCookieRecorder />
+                        <TooltipProvider delay={300} closeDelay={200}>
+                          {children}
+                        </TooltipProvider>
+                      </SystemFeaturesBootstrapBoundary>
+                    </I18nServerProvider>
+                  </HydrationBoundary>
+                </TanStackQueryProvider>
               </NuqsAdapter>
             </ThemeProvider>
           </JotaiProvider>
-          <RoutePrefixHandle />
-        </PWAProvider>
+          <AgentationLoader />
+        </div>
       </body>
     </html>
   )
 }
-
-export default LocaleLayout

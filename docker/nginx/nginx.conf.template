@@ -16,8 +16,40 @@ http {
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
 
-    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" '
+    # Never retain authorization queries, including rejected or unrouted requests.
+    # Keep ordinary request lines unchanged; encoded paths are conservative because
+    # malformed request parsing may not provide a normalized $uri.
+    map $request $query_safe_request {
+        default $request;
+        "~*^[^ ]+ +[^ ]*[?&](code|state|init|init_token|invite_token|handoff|id_token_hint|access_token|refresh_token|token)=" "$request_method [sensitive-query] $server_protocol";
+        # Encoded query keys can bypass literal parameter names on ordinary paths.
+        # Do not decode untrusted queries: suppress all percent-containing queries.
+        "~^[^ ]+ +[^? ]*[?][^ ]*%" "$request_method [encoded-query] $server_protocol";
+        "~^[^ ]+ +[^? ]*%" "$request_method [encoded-path] $server_protocol";
+    }
+
+    # Fixed path categories also exclude opaque handles in Casdoor descendants.
+    # /signin can be mounted beneath a configured Console base path.
+    map $uri $privacy_safe_request {
+        default $query_safe_request;
+        "" "$request_method [invalid-request] $server_protocol";
+        ~^/console/api/auth/casdoor(/|$) "$request_method /console/api/auth/casdoor $server_protocol";
+        ~^/console/api/system-manage-extend/integration/casdoor(/|$) "$request_method /console/api/system-manage-extend/integration/casdoor $server_protocol";
+        ~^/console/api/account/casdoor-identity(/|$) "$request_method /console/api/account/casdoor-identity $server_protocol";
+        ~^/(.*/)?signin(/|$) "$request_method /signin $server_protocol";
+    }
+
+    # Referer is untrusted and can carry a sensitive query to any asset/API path.
+    # Drop all queries/fragments/encoded forms instead of parsing parameter names.
+    map $http_referer $privacy_safe_referer {
+        default $http_referer;
+        "~[?#%]" "[redacted]";
+        ~*/(auth/casdoor|system-manage-extend/integration/casdoor|account/casdoor-identity)(/|$) "[redacted]";
+        ~*/signin(/|$) "[redacted]";
+    }
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$privacy_safe_request" '
+                      '$status $body_bytes_sent "$privacy_safe_referer" '
                       '"$http_user_agent" "$http_x_forwarded_for"';
 
     access_log  /var/log/nginx/access.log  main;

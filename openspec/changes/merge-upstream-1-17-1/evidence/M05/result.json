@@ -1,0 +1,522 @@
+{
+  "node": "M05",
+  "status": "passed",
+  "implementation": "complete",
+  "deployable": false,
+  "branch": "codex/merge-upstream-1.17.1",
+  "analysis_head": "3620896b7afe8122f5e4873450031cc942c8c175",
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "pre_analysis": {
+    "status": "complete",
+    "model": "gpt-6-sol",
+    "agent": "/root/m05_analysis",
+    "evidence": "evidence/M05/pre-analysis.md",
+    "working_tree_modified": false
+  },
+  "design_decisions": [
+    "Generated Console contracts are the sole owner for login_config_bootstrap and login_config; those DTOs are distinct from public system-features.",
+    "Validate public snapshot shape before cache/hydration and preserve SSR optional/hard error semantics.",
+    "Regenerate workspace summary contract for admin_extend and tenant_extend; never hand-edit generated files.",
+    "Keep handwritten codeExecutionControl DTO/runtime as sole owner of GET/POST/DELETE; precisely filter the generated duplicates and verify actual POST 201 handling.",
+    "A04 C03 is_custom_auth2_button is absent from M02 schema; record the gap and do not fabricate the field."
+  ],
+  "subtasks": {
+    "11.1": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m05_11_1_resume",
+      "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
+      "registered_changed_paths": 45,
+      "summary": [
+        "Generated loginConfig and loginConfigBootstrap contracts now own the login endpoints; the handwritten duplicate file was removed.",
+        "Registered the handwritten systemManage segment as the sole owner of the three code-execution-control operations and declared POST successStatus 201.",
+        "Browser login_config requests first bootstrap, validate the generated response, include cookies, disable caching, and attach the token only to that request. A 403 is propagated; a later call bootstraps a fresh token.",
+        "Generator removes only OPTIONS /extend/{path} and exact duplicate GET/POST/DELETE routes, failing closed if the handwritten route contract drifts. It retains five extend business methods and thirteen other systemManageExtend operations.",
+        "Nine focused transport tests exercise the generated/bootstrap and handwritten operations through the real loader/oRPC/fetch path; three existing fixtures were updated for generated 1.17.1 fields."
+      ],
+      "checks": [
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir packages/contracts run gen-api-contract (native Node 24.20.0 / pnpm 12.3.4; isolated UV environment)",
+          "exit_code": 0,
+          "assertions": "64 jobs; standard generation rerun produced byte-identical output across 191 generated files."
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit service/console/client.spec.ts -t 'fork Console transport'",
+          "exit_code": 0,
+          "assertions": "9 passed."
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit service/console/client.spec.ts",
+          "exit_code": 1,
+          "assertions": "51 passed, 6 failed. Original-HEAD isolated snapshot: 42 passed, the same 6 failures. Failures are missing cn dependency resolution and five stale QueryClient.query assertions; no dependency/mock workaround was added."
+        },
+        {
+          "command": "vp check on production M05 source files",
+          "exit_code": 0,
+          "assertions": "Formatting, lint, and type checks passed for six files."
+        },
+        {
+          "command": "vp check including web/service/console/client.spec.ts",
+          "exit_code": 1,
+          "assertions": "Only existing QueryClient.query type errors in the broader test file; no new errors attributed to this implementation."
+        },
+        {
+          "command": "contracts TypeScript typecheck (tsc --noEmit)",
+          "exit_code": 0
+        },
+        {
+          "command": "git diff --check on all M05 implementation paths",
+          "exit_code": 0
+        },
+        {
+          "command": "M05 working-tree source/generated path audit against execution-graph.json registration",
+          "exit_code": 0,
+          "assertions": "45 actual leaf paths; 45 registered or owned; 0 unregistered."
+        },
+        {
+          "command": "openspec validate merge-upstream-1-17-1 --strict",
+          "exit_code": 0,
+          "assertions": "Change valid."
+        }
+      ],
+      "independent_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m05_11_1_luna_audit",
+        "status": "passed_no_p1_p2",
+        "findings": "Confirmed registered path scope, exact generator filters, unique contract ownership, request-local token/header behavior against backend CORS/header handling, 201 assertion, and same six baseline failures.",
+        "limitation": "Independent focused-test rerun hung without output and was stopped; review relied on captured Astra test output."
+      },
+      "limitations": [
+        "No live browser, real cross-origin Cookie/CORS, or production environment validation; later V02 acceptance remains required.",
+        "The broader client test file still has six failures that reproduce at the original HEAD; they are recorded rather than hidden.",
+        "Only 11.1 is complete. SSR/public snapshot behavior (11.2), workspace summary/permission atom migration (11.3), contract matrix review (11.4), and M05 node acceptance (11.5) remain pending."
+      ],
+      "evidence_logs": [
+        "/private/tmp/dify-m05-11-1-generation-final.log",
+        "/private/tmp/dify-m05-11-1-focused-tests.log",
+        "/private/tmp/dify-m05-11-1-tests-final.log",
+        "/private/tmp/dify-m05-11-1-head-baseline-verified.log",
+        "/private/tmp/dify-m05-11-1-production-check.log",
+        "/private/tmp/dify-m05-11-1-check-final.log",
+        "/private/tmp/dify-m05-11-1-contract-typecheck.log"
+      ]
+    },
+    "11.2": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m05_11_2_ssr_contracts",
+      "source_commit_before_subtask": "21bdeec37cacaac22f9f9c3308de381041ceab9b",
+      "changed_paths": [
+        "web/features/system-features/snapshot.ts",
+        "web/features/system-features/client.ts",
+        "web/features/system-features/server.ts",
+        "web/features/system-features/extend.ts",
+        "web/features/system-features/__tests__/server.spec.ts",
+        "web/features/system-features/__tests__/system-features.spec.ts",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv"
+      ],
+      "summary": [
+        "Added a public snapshot validator based on the generated schema; require core bootstrap fields, strip unknown/fork data, and expose license status without detailed seats or expiry.",
+        "Validate public snapshot data before client cache insertion and SSR hydration; keep optional SSR failures soft and hard consumers throwing/retryable with QueryClient.fetchQuery.",
+        "Added identity/workspace-scoped login_config query keys with staleTime 0, gcTime 0, retry disabled, and an SSR guard; validate generated login_config before caching.",
+        "Compose the view from the public snapshot plus only real fork login_config fields. Removed fabricated is_custom_auth2_button and use the backend boolean is_custom_auth2.",
+        "Registered new source/test ownership paths before implementation. No UI, workspace summary, permission atoms, dependencies, or generated files were changed."
+      ],
+      "checks": [
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit features/system-features/__tests__/server.spec.ts features/system-features/__tests__/system-features.spec.ts",
+          "exit_code": 0,
+          "assertions": "20 passed."
+        },
+        {
+          "command": "vp check web/features/system-features",
+          "exit_code": 0,
+          "assertions": "10 files formatted; 9 files passed lint and type checks."
+        },
+        {
+          "command": "git diff --check on M05 11.2 source/test paths",
+          "exit_code": 0
+        },
+        {
+          "command": "Expanded feature, Console SSR, and hydration suite",
+          "exit_code": 1,
+          "assertions": "18 passed, 4 failed, 2 suite imports failed due the existing unresolved packages/dify-ui/src/cn.ts dependency; no dependency or mock workaround was introduced."
+        }
+      ],
+      "independent_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m05_11_2_luna_review",
+        "status": "passed_no_p1_p2",
+        "findings": "Confirmed SSR fetchQuery error semantics, public schema/limited license projection before cache or hydration, identity-scoped login config, SSR network guard, public-first fork-field projection, A04 alignment, path ownership, and no 11.3/UI spillover.",
+        "limitation": "Independent focused-test command ran without output for 26 seconds and was stopped (exit 130); implementation task log contains the successful 20/20 focused run."
+      },
+      "follow_up": [
+        "M06 must migrate web/app/components/main-nav/components/account-money-extend.tsx to fetch login_config with the current account/workspace identity. Its current asSystemFeaturesExtend(publicSnapshot) call receives the 7.26 fallback and no longer reads configured RMB_TO_USD_RATE. M06 owns web/app/**; preserve this handoff before M06 acceptance."
+      ],
+      "limitations": [
+        "The account-money UI consumer follow-up is assigned to M06; until then it uses the default RMB rate rather than the fork login_config value.",
+        "No real browser, cross-origin cookie/CORS, actual account switching, or production environment test; later V02 acceptance remains required.",
+        "Expanded Console SSR/hydration tests still encounter the existing unresolved cn dependency. Full repository checks remain for later integration gates.",
+        "Only 11.1 and 11.2 are complete. Workspace summary/permission atom migration (11.3), contract matrix review (11.4), and M05 node acceptance (11.5) remain pending."
+      ],
+      "evidence_logs": [
+        "/private/tmp/dify-m05-11-2-tests-final.log",
+        "/private/tmp/dify-m05-11-2-check-final.log",
+        "/private/tmp/dify-m05-11-2-suite.log"
+      ]
+    },
+    "11.3": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m05_11_3_workspace_atoms",
+      "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
+      "registered_scope_commits": ["396f8aff2add33879b44de1f01eed8a4bfd689fe", "cc0eb704da"],
+      "changed_paths": [
+        "web/context/app-context-defaults.ts",
+        "web/context/app-context-extend.ts",
+        "web/context/app-context-normalizers.ts",
+        "web/context/__tests__/console-bootstrap.spec.tsx",
+        "web/context/__tests__/workspace-summary-extend.spec.ts",
+        "web/contract/base.ts",
+        "web/service/use-system-manage.ts",
+        "web/app/(commonLayout)/system-manage-extend/code-execution-control/page.tsx",
+        "web/app/(commonLayout)/system-manage-extend/code-execution-control/__tests__/page.spec.tsx"
+      ],
+      "summary": [
+        "The current workspace summary normalizer validates against the generated response schema, preserves admin_extend and tenant_extend, and keeps the upstream role fallback.",
+        "Initial workspace state grants neither fork permission; permission atoms now consume schema-validated booleans directly instead of masking absent fields with ?? false.",
+        "Migrated the code-execution-control page, its test mock, and use-system-manage hook from the removed client entrypoint to the current Console client. Updated stale contract/loader ownership comments without changing page behavior.",
+        "Permission refresh tests cover generated Console query to normalizer to Jotai atoms, pending state, malformed responses, role boundaries, and a fresh session cache. Workspace switching continues to use the existing full-page reload boundary; logout clears QueryClient."
+      ],
+      "checks": [
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit context/__tests__/workspace-summary-extend.spec.ts",
+          "exit_code": 0,
+          "assertions": "11 passed."
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit context/__tests__/workspace-summary-extend.spec.ts context/__tests__/console-bootstrap.spec.tsx",
+          "exit_code": 0,
+          "assertions": "24 passed."
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp check <9 M05 source/test files>",
+          "exit_code": 0,
+          "assertions": "9 files formatted; lint and type checks passed without warnings."
+        },
+        {
+          "command": "git diff --check and scan for stale @/service/client, service/console-router-loader, and service-local ./client imports in the affected paths",
+          "exit_code": 0
+        },
+        {
+          "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit app/(commonLayout)/system-manage-extend/code-execution-control/__tests__/page.spec.tsx",
+          "exit_code": 1,
+          "assertions": "Suite collection stopped at the existing unresolved packages/dify-ui/src/cn.ts import from cn; 0 tests executed, with no dependency or test mock workaround."
+        }
+      ],
+      "evidence_logs": [
+        "/private/tmp/dify-m05-11-3-permissions-tests.log",
+        "/private/tmp/dify-m05-11-3-affected-tests.log",
+        "/private/tmp/dify-m05-11-3-check-final.log"
+      ],
+      "limitations": [
+        "No live browser or real account/workspace switch was exercised; existing full-page navigation and logout QueryClient clearing remain the isolation boundary.",
+        "The code-execution-control page suite cannot collect while the existing cn dependency is unresolved; independent permission and bootstrap suites passed."
+      ],
+      "independent_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m05_11_3_luna_review",
+        "status": "passed_no_p1_p2",
+        "findings": "Confirmed generated schema fields are required booleans; query select rejects malformed summaries and returns safe empty workspace state; fork bits remain distinct from upstream owner/admin/dataset_operator role grants; current logout/switch lifecycle clears or replaces the query cache; all nine changed paths are registered.",
+        "checks": [
+          {
+            "command": "PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH ./node_modules/.bin/vp test run --project unit context/__tests__/workspace-summary-extend.spec.ts context/__tests__/console-bootstrap.spec.tsx",
+            "exit_code": 0,
+            "assertions": "2 files, 24 tests passed."
+          },
+          {
+            "command": "pnpm --config.verify-deps-before-run=false --dir web exec vp test run --project unit app/(commonLayout)/system-manage-extend/code-execution-control/__tests__/page.spec.tsx",
+            "exit_code": 1,
+            "assertions": "Collection failed before tests (0 executed) because existing packages/dify-ui/src/cn.ts cannot resolve cn."
+          }
+        ],
+        "limitations": [
+          "No real browser or account-to-workspace switch was exercised; deferred to V02/M05 final acceptance.",
+          "The code-execution-control page suite is not passing; it is blocked at collection by the unresolved existing cn dependency."
+        ]
+      },
+      "commit": "c0ac97edd4"
+    },
+    "11.4": {
+      "status": "passed",
+      "analysis": {
+        "model": "gpt-6-sol",
+        "agent": "/root/m05_11_4_contract_matrix",
+        "status": "complete_read_only",
+        "field_and_error_matrix": [
+          {
+            "contract": "C01 login_config_bootstrap",
+            "finding": "Backend and generated response agree on ok:boolean/token:string; HttpOnly, SameSite=Lax, one-hour cookie, and no-store. Browser bootstraps before config, sends only request-scoped header plus cookie; 403 is propagated and next call reboots. CORS permits the header.",
+            "evidence": [
+              "api/controllers/console/feature.py",
+              "web/service/console/browser.ts",
+              "web/service/console/client.spec.ts",
+              "api/extensions/ext_blueprints.py"
+            ]
+          },
+          {
+            "contract": "C02 public system-features",
+            "finding": "Generated DTO exposes license.status only; client and SSR validate core shape and project away extra fork/license details before caching/dehydration; optional/hard failure semantics covered.",
+            "evidence": [
+              "packages/contracts/generated/api/console/system-features/types.gen.ts",
+              "web/features/system-features/snapshot.ts",
+              "web/features/system-features/__tests__/server.spec.ts"
+            ]
+          },
+          {
+            "contract": "C03 login_config",
+            "finding": "Generated DTO matches six backend fields: is_custom_auth2:boolean, logout URL, DingTalk enabled and two IDs, and rmb_to_usd_rate:number; public-first composition and 403 behavior match. Identity/workspace key, gcTime 0, retry false, and SSR request guard are present. is_custom_auth2_button is absent and not fabricated.",
+            "evidence": [
+              "api/services/login_config_service_extend.py",
+              "packages/contracts/generated/api/console/login-config/types.gen.ts",
+              "web/features/system-features/client.ts",
+              "web/features/system-features/extend.ts"
+            ]
+          },
+          {
+            "contract": "C04 detailed license",
+            "finding": "Detailed seats/expiry stay in a separate endpoint; backend denies anonymous/bootstrap identity with 401 and allows authenticated Console access.",
+            "evidence": [
+              "api/controllers/console/feature.py",
+              "api/tests/unit_tests/controllers/console/test_feature.py",
+              "web/app/components/header/license-badge/index.tsx"
+            ]
+          },
+          {
+            "contract": "C08 current workspace summary",
+            "finding": "Backend/generated DTO require admin_extend and tenant_extend booleans; archived workspace returns 409; role flags remain independent and account/workspace isolation uses current logout-clear and full-page-switch boundaries. The original select-only validation allowed malformed raw HTTP 200 to enter TanStack's underlying cache; the implementation now validates in queryFn before cache write and retains select to guard hydration or other same-key cache writers. Focused tests confirm the raw query state is error and the malformed response is absent from cache.",
+            "evidence": [
+              "api/services/workspace_service.py",
+              "api/controllers/console/workspace/workspace.py",
+              "web/context/workspace-state.ts",
+              "web/context/__tests__/workspace-summary-extend.spec.ts"
+            ]
+          },
+          {
+            "contract": "systemManage codeExecutionControl",
+            "finding": "Handwritten GET/POST/DELETE is the sole runtime owner; POST status 201, response/list/cache_synced fields, and backend 400/403/404 errors agree.",
+            "evidence": [
+              "web/contract/console/system-manage.ts",
+              "api/controllers/console/system_manage_extend.py",
+              "web/service/console/client.spec.ts"
+            ]
+          }
+        ],
+        "required_follow_up": "Completed: generated summary schema parsing now runs in queryFn before TanStack caches the raw HTTP response; select remains as protection for hydration and other same-key cache writers. Missing permission fields produce query error with no cached response and all permission atoms false.",
+        "handoffs": [
+          "M06 must connect loginConfigQueryOptions to account-money-extend.tsx to consume configured RMB_TO_USD_RATE.",
+          "V02 must exercise Cookie/CORS, 401/403/409, and account/workspace switching in a real browser."
+        ]
+      },
+      "scope_registration": {
+        "path": "web/context/workspace-state.ts",
+        "owner_node": "M05",
+        "verify_node": "V02",
+        "registered_before_implementation": true
+      },
+      "implementation": {
+        "model": "gpt-6-astra",
+        "agent": "/root/m05_11_4_precache_impl",
+        "source_commit_before_subtask": "47143d8f51b5b61bb898703816437a487d679050",
+        "commit": "fceb461237f2f175160c8bf56da242f1c4a412c6",
+        "changed_paths": [
+          "web/context/workspace-state.ts",
+          "web/context/__tests__/workspace-summary-extend.spec.ts"
+        ],
+        "summary": [
+          "Wrapped the generated workspace summary queryFn so generated schema validation and role fallback finish before TanStack writes HTTP data to its raw query cache.",
+          "Kept select validation to protect hydration and other same-key cache writers; existing query key, retry behavior, and 409 propagation are unchanged.",
+          "Added regressions for each missing permission field, raw query cache absence, false permission atoms, and malformed preseeded same-key data."
+        ]
+      },
+      "checks": [
+        {
+          "command": "Pre-fix regression reproduction for context/__tests__/workspace-summary-extend.spec.ts using Node 24.20.0",
+          "exit_code": 1,
+          "expected": true,
+          "assertions": "Reproduced prior defect: 9 passed, 2 failed because malformed HTTP 200 remained a successful cached query."
+        },
+        {
+          "command": "Focused workspace-summary unit spec using Node 24.20.0",
+          "exit_code": 0,
+          "assertions": "12 passed."
+        },
+        {
+          "command": "Focused workspace-summary plus Console bootstrap unit specs using Node 24.20.0",
+          "exit_code": 0,
+          "assertions": "25 passed across 2 files."
+        },
+        {
+          "command": "vp check on web/context/workspace-state.ts and web/context/__tests__/workspace-summary-extend.spec.ts",
+          "exit_code": 0,
+          "assertions": "Both files formatted; lint and type checks clean."
+        },
+        {
+          "command": "git diff --check on the two M05 11.4 paths",
+          "exit_code": 0
+        }
+      ],
+      "independent_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m05_11_4_luna_review",
+        "status": "passed_no_blocking_findings",
+        "findings": "Confirmed validation occurs before the raw query cache write and retained select protects malformed hydrated/preseeded data. Query key and inherited retry behavior remain intact. Tests cover each missing bit, raw cache absence, false permissions, and 409 preservation.",
+        "limitations": [
+          "Validation exceptions use the existing retry policy; retry semantics were intentionally left unchanged."
+        ]
+      },
+      "limitations": [
+        "Real browser Cookie/CORS validation and account/workspace identity switching remain in V02.",
+        "loginConfigQueryOptions still has no production consumer; account-money exchange-rate wiring belongs to M06."
+      ]
+    },
+    "11.5": {
+      "status": "passed",
+      "analysis": {
+        "model": "gpt-6-sol",
+        "agent": "/root/m05_11_5_sol_acceptance",
+        "status": "complete_read_only",
+        "source_commit": "abe3b9ae33b99a373bc3445e0919b6ab21349fe5",
+        "findings": [
+          "Legacy Console service/client and loader entrypoints are absent from the working tree and have no active imports; generated Console login endpoints and handwritten fork systemManage remain separately owned.",
+          "SSR snapshot handling validates the actual public feature shape before cache/hydration; ping-only input is rejected. Detailed license remains behind authenticated Console access; anonymous public features expose only the public status.",
+          "Workspace admin_extend and tenant_extend are required generated-schema booleans. The 11.4 queryFn validates before raw cache write, and select protects hydrated or other same-key cache values; atoms read validated permission bits.",
+          "Handwritten systemManage remains the sole GET/POST/DELETE codeExecutionControl contract/runtime owner; generator excludes exact duplicate operations and fails on drift."
+        ],
+        "source_evidence": [
+          "web/features/system-features/snapshot.ts",
+          "web/features/system-features/client.ts",
+          "web/features/system-features/server.ts",
+          "api/controllers/console/feature.py",
+          "web/context/workspace-state.ts",
+          "web/context/__tests__/workspace-summary-extend.spec.ts",
+          "web/contract/console/system-manage.ts",
+          "web/contract/router-extend.ts",
+          "web/service/console/contract-loader.ts",
+          "packages/contracts/openapi-ts.api.config.ts"
+        ],
+        "recommendation": "Pass M05 source-node acceptance. This does not mark the merged branch deployable or replace V02 real-browser verification."
+      },
+      "limitations": [
+        "V02 still must verify real Cookie/CORS behavior and account/workspace switching in a browser.",
+        "M06 still must connect account-money-extend to loginConfigQueryOptions for the configured RMB_TO_USD_RATE.",
+        "Existing unresolved cn import prevents collection of the broader SSR/hydration and code-execution page suites; the 11.3 limitation and zero executed page cases are recorded above."
+      ]
+    },
+    "11.8_v02_contract_reconciliation": {
+      "status": "passed",
+      "summary": "Cache updater preserves false and defaults missing app auth setting to true; three workspace fixtures include required false extension flags; scoped check had zero errors and one existing warning; two suites passed 53/53.",
+      "evidence": "evidence/M05/11.8-v02-contract-reconciliation.md",
+      "source_sha256": {
+        "web/app/components/app-sidebar/app-info/use-app-info-actions.ts": "271f3954a957f94360514df417e18d87d46001c640826c2a737b26e73d70b829",
+        "web/test/console/state-fixture.ts": "7a6153c313a1aa98828968f2d66753a9af07be9f6d1bc4c038b28f860de9a113",
+        "web/test/console/current-workspace.ts": "7556fe9178fd35d834ee68b8a32f28026927c405e0ede60e332aca5104666400",
+        "web/app/components/main-nav/components/__tests__/workspace-card.spec.tsx": "9ffc7ee3c932b1eb6e9ce78b0871fc78da5976a217ea4b8b8bb5be61b7cfbf6d"
+      },
+      "evidence_sha256": "70755ff3753dfeebcdbe62bc8e0955ccfc560454604d6eb5e79f81c459e691fa",
+      "focused_tests": "53 passed"
+    }
+  },
+  "known_limits": [
+    "Real browser Cookie/CORS validation and actual identity switching are deferred to V02.",
+    "A04 C03 is_custom_auth2_button is absent from the M02 response schema and is not fabricated.",
+    "The expanded Console SSR/hydration suite still encounters existing missing cn dependency errors.",
+    "The current account-money UI caller needs M06 migration to consume login_config and configured RMB_TO_USD_RATE.",
+    "M05 source node acceptance is passed; the merge remains non-deployable until downstream M06-M08, V01/V02, and environment gates pass.",
+    "M05 11.3 code-execution-control page suite collection is blocked by the existing unresolved cn dependency; its behavior has scoped type/lint checks, but the page suite has 0 executed cases.",
+    "Workspace permission refresh was validated through generated query/normalizer/atom tests and existing full-page/logout cache boundaries, not a live browser identity switch."
+  ],
+  "codegen_investigation": "evidence/M05/codegen-investigation.json",
+  "codegen_analysis": "evidence/M05/codegen-analysis.md",
+  "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
+  "tasks_complete": ["11.1", "11.2", "11.3", "11.4", "11.5", "11.6", "11.8"],
+  "next_subtask": "M06/M08",
+  "followup_context_contract": {
+    "status": "passed",
+    "source_handoff": "evidence/M06/result.json#/preflight/contract_handoff",
+    "source_commit": "58ae912797e82c09f22b7497481e45f30f425877",
+    "subtask": "11.6",
+    "registered_paths": [
+      "packages/contracts/generated/api/console/message/orpc.gen.ts",
+      "packages/contracts/generated/api/console/message/types.gen.ts",
+      "packages/contracts/generated/api/console/message/zod.gen.ts"
+    ],
+    "contract_shapes": {
+      "GET /message/context": "required query conversation_id:string; response string[]",
+      "DELETE /message/context": "required query conversation_id:string and message_id:string; response string ok"
+    },
+    "reason": "Generated message contracts are already registered and M05-owned. Standard generation must wait for the M02 backend schema/security repair; generated files must not be hand-edited.",
+    "unblocked_by_commit": "30410b8fff",
+    "next_action": "11.6 is accepted. M06 12.1b is now unblocked; register its frontend host and focused test paths before dispatching a fresh Astra implementation task.",
+    "implementation_model": "gpt-6-astra",
+    "client_thread_id": "client-new-thread:4acf1563-275f-4815-830a-ed6d978bd43c",
+    "worktree_base_commit": "4e1b5964cc99d6471130f446671696d2203d98a7",
+    "observed_worktree_changes": [
+      "packages/contracts/generated/api/console/message/orpc.gen.ts",
+      "packages/contracts/generated/api/console/message/types.gen.ts",
+      "packages/contracts/generated/api/console/message/zod.gen.ts"
+    ],
+    "source_commit_before_generation": "0858f09cbdc2c0f5d052179b3afa2351d2ad0fe3",
+    "standard_command": "UV_PROJECT_ENVIRONMENT=/private/tmp/dify-m02-python-complete UV_CACHE_DIR=/private/tmp/dify-m02-uv-cache UV_NO_SYNC=1 PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false --dir packages/contracts run gen-api-contract",
+    "standard_exit_code": 0,
+    "toolchain": {
+      "node": "24.20.0",
+      "pnpm": "12.3.4",
+      "openapi_ts": "0.98.2"
+    },
+    "generator_result": {
+      "swagger_exports": 4,
+      "openapi_ts_jobs": 64,
+      "formatted_files": 191,
+      "exit_code": 0
+    },
+    "schema_assertions": {
+      "get_query": "required conversation_id:string",
+      "get_response": "array<string> (resolved from MessageContextResponse component)",
+      "delete_query": "required conversation_id:string and message_id:string",
+      "delete_response": "string (resolved from DeleteMessageContextResponse component)",
+      "assertion_result": "passed"
+    },
+    "changed_paths": [
+      "packages/contracts/generated/api/console/message/orpc.gen.ts",
+      "packages/contracts/generated/api/console/message/types.gen.ts",
+      "packages/contracts/generated/api/console/message/zod.gen.ts"
+    ],
+    "generated_paths_sha256": {
+      "packages/contracts/generated/api/console/message/orpc.gen.ts": "42e07031dbc4539633e536eb5557f391cb48437b5b25050847799d867156f1a6",
+      "packages/contracts/generated/api/console/message/types.gen.ts": "ee5103ac3c36267cb64f6bdbd45bc51547c420f45b8b179797bb95e9de611983",
+      "packages/contracts/generated/api/console/message/zod.gen.ts": "5f21e79fb8e687b8270f56685f470e7008174eb704bd8965590892bff3eb1c91"
+    },
+    "task_worktree_match": {
+      "status": "byte_identical_to_root_standard_generation",
+      "base_commit": "4e1b5964cc99d6471130f446671696d2203d98a7",
+      "paths": "the three registered generated message contract files"
+    },
+    "evidence": "evidence/M05/11.6-message-contract-generation.log",
+    "execution_owner": "integration_agent_standard_generator_rerun",
+    "execution_note": "The registered files were regenerated through the package standard command in the root checkout and byte-matched the Astra task worktree. The new task had not returned a readable thread result at acceptance time.",
+    "implementation_commit": "5177f98e1589117341ac152890d53d6abb3707ff"
+  },
+  "formatting_followup": {
+    "status": "passed",
+    "subtask": "11.7_openapi_ts_config_format_followup",
+    "registered_path": "packages/contracts/openapi-ts.api.config.ts",
+    "trigger": "V02 pnpm check found inherited M05-owned format debt; focused read-only vp fmt --check confirms the exact file is nonformatted.",
+    "source_candidate": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "report": "evidence/M05/11.7-openapi-ts-config-format-followup.md",
+    "report_sha256": "b4eeb988813e44dc3e76e5be6b7e9c7ff67f52402aa5eff43ecf1385d84a781a",
+    "source_sha256_after": "b9ba490dd66e161cd9216fc61ede65bd1c77d08fe321218a2e9d04d1397724ca",
+    "implementation_commit": "c304fe188e949733fa4ac1697004e3b99d9db95d"
+  }
+}

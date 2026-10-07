@@ -1,0 +1,29 @@
+[
+  {
+    "path": "/apps/352b9c1f-e947-45d1-a6d1-55ed148cea2c/workflows/draft/run",
+    "status": 200
+  },
+  {
+    "path": "/workspaces/current/tool-provider/workflow/create",
+    "status": 200
+  },
+  {
+    "path": "/workspaces/current/tool-provider/workflow/get?workflow_app_id=352b9c1f-e947-45d1-a6d1-55ed148cea2c",
+    "status": 200
+  },
+  {
+    "tool_detail_keys": [
+      "name",
+      "label",
+      "workflow_tool_id",
+      "workflow_app_id",
+      "icon",
+      "description",
+      "parameters",
+      "output_schema",
+      "tool",
+      "synced",
+      "privacy_policy"
+    ]
+  }
+]

@@ -2,15 +2,60 @@ import ssl
 from datetime import timedelta
 from typing import Any
 
-import pytz
+import pytz  # type: ignore[import-untyped]
 from celery import Celery, Task
 from celery.schedules import crontab
+from celery.signals import beat_init
+from typing_extensions import TypedDict
 
 from configs import dify_config
 from dify_app import DifyApp
+from enums import DeploymentEdition
+from extensions.redis_names import normalize_redis_key_prefix
+from extensions.workflow_warm_shutdown import setup_workflow_warm_shutdown_handler
 
 
-def _get_celery_ssl_options() -> dict[str, Any] | None:
+class _CelerySentinelKwargsDict(TypedDict):
+    socket_timeout: float | None
+    password: str | None
+
+
+class CelerySentinelTransportDict(TypedDict, total=False):
+    master_name: str | None
+    sentinel_kwargs: _CelerySentinelKwargsDict
+    global_keyprefix: str
+
+
+class CelerySSLOptionsDict(TypedDict):
+    ssl_cert_reqs: int
+    ssl_ca_certs: str | None
+    ssl_certfile: str | None
+    ssl_keyfile: str | None
+
+
+class CeleryBeatScheduleEntry(TypedDict):
+    task: str
+    schedule: crontab | timedelta
+
+
+class CasdoorAvatarBeatScheduleEntry(CeleryBeatScheduleEntry):
+    options: dict[str, Any]
+
+
+def _enqueue_initial_community_telemetry_heartbeat(sender: Any, **_: Any) -> None:
+    task_name = "community_telemetry.send_heartbeat"
+    if "community_telemetry_heartbeat" not in sender.app.conf.beat_schedule:
+        return
+
+    task = sender.app.tasks.get(task_name)
+    if task is not None:
+        task.apply_async()
+
+
+beat_init.connect(_enqueue_initial_community_telemetry_heartbeat, weak=False)
+
+
+def get_celery_ssl_options() -> CelerySSLOptionsDict | None:
     """Get SSL configuration for Celery broker/backend connections."""
     # Only apply SSL if we're using Redis as broker/backend
     if not dify_config.BROKER_USE_SSL:
@@ -33,14 +78,41 @@ def _get_celery_ssl_options() -> dict[str, Any] | None:
 
     ssl_cert_reqs = cert_reqs_map.get(dify_config.REDIS_SSL_CERT_REQS, ssl.CERT_NONE)
 
-    ssl_options = {
-        "ssl_cert_reqs": ssl_cert_reqs,
-        "ssl_ca_certs": dify_config.REDIS_SSL_CA_CERTS,
-        "ssl_certfile": dify_config.REDIS_SSL_CERTFILE,
-        "ssl_keyfile": dify_config.REDIS_SSL_KEYFILE,
-    }
+    return CelerySSLOptionsDict(
+        ssl_cert_reqs=ssl_cert_reqs,
+        ssl_ca_certs=dify_config.REDIS_SSL_CA_CERTS,
+        ssl_certfile=dify_config.REDIS_SSL_CERTFILE,
+        ssl_keyfile=dify_config.REDIS_SSL_KEYFILE,
+    )
 
-    return ssl_options
+
+def get_celery_broker_transport_options() -> CelerySentinelTransportDict | dict[str, Any]:
+    """Get broker transport options (e.g. Redis Sentinel) for Celery connections."""
+    transport_options: CelerySentinelTransportDict | dict[str, Any]
+    if dify_config.CELERY_USE_SENTINEL:
+        transport_options = CelerySentinelTransportDict(
+            master_name=dify_config.CELERY_SENTINEL_MASTER_NAME,
+            sentinel_kwargs=_CelerySentinelKwargsDict(
+                socket_timeout=dify_config.CELERY_SENTINEL_SOCKET_TIMEOUT,
+                password=dify_config.CELERY_SENTINEL_PASSWORD,
+            ),
+        )
+    else:
+        transport_options = {}
+
+    global_keyprefix = get_celery_redis_global_keyprefix()
+    if global_keyprefix:
+        transport_options["global_keyprefix"] = global_keyprefix
+
+    return transport_options
+
+
+def get_celery_redis_global_keyprefix() -> str | None:
+    """Return the Redis transport prefix for Celery when namespace isolation is enabled."""
+    normalized_prefix = normalize_redis_key_prefix(dify_config.REDIS_KEY_PREFIX)
+    if not normalized_prefix:
+        return None
+    return f"{normalized_prefix}:"
 
 
 def init_app(app: DifyApp) -> Celery:
@@ -53,16 +125,7 @@ def init_app(app: DifyApp) -> Celery:
                 init_request_context()
                 return self.run(*args, **kwargs)
 
-    broker_transport_options = {}
-
-    if dify_config.CELERY_USE_SENTINEL:
-        broker_transport_options = {
-            "master_name": dify_config.CELERY_SENTINEL_MASTER_NAME,
-            "sentinel_kwargs": {
-                "socket_timeout": dify_config.CELERY_SENTINEL_SOCKET_TIMEOUT,
-                "password": dify_config.CELERY_SENTINEL_PASSWORD,
-            },
-        }
+    broker_transport_options = get_celery_broker_transport_options()
 
     celery_app = Celery(
         app.name,
@@ -80,10 +143,16 @@ def init_app(app: DifyApp) -> Celery:
         worker_hijack_root_logger=False,
         timezone=pytz.timezone(dify_config.LOG_TZ or "UTC"),
         task_ignore_result=True,
+        task_annotations=dify_config.CELERY_TASK_ANNOTATIONS,
     )
 
+    if dify_config.CELERY_BACKEND == "redis":
+        celery_app.conf.update(
+            result_backend_transport_options=broker_transport_options,
+        )
+
     # Apply SSL configuration if enabled
-    ssl_options = _get_celery_ssl_options()
+    ssl_options = get_celery_ssl_options()
     if ssl_options:
         celery_app.conf.update(
             broker_use_ssl=ssl_options,
@@ -98,18 +167,41 @@ def init_app(app: DifyApp) -> Celery:
 
     celery_app.set_default()
     app.extensions["celery"] = celery_app
+    setup_workflow_warm_shutdown_handler()
 
     imports = [
+        "tasks.casdoor_avatar_initial_task_extend",
+        "tasks.app_generate",  # workflow-based app execution (streaming workflow/advanced-chat)
         "tasks.async_workflow_tasks",  # trigger workers
+        "tasks.collect_agent_resources_task",  # retired Agent resource collection
         "tasks.trigger_processing_tasks",  # async trigger processing
-        "tasks.extend.update_account_money_when_workflow_node_execution_created_extend",  # 二开部分 - workflow计费任务
         "tasks.generate_summary_index_task",  # summary index generation
         "tasks.regenerate_summary_index_task",  # summary index regeneration
+        "tasks.initialize_created_app_rbac_access_task",  # app access initialization
+        "tasks.install_default_plugins_task",  # tenant default plugin installation
+        "tasks.new_agent_beta_task",  # New Agent Beta eligibility checks
+        "tasks.refresh_billing_vector_space_task",  # billing vector-space cache refresh
+        "tasks.app_generate.resume_agent_app_task",  # ENG-635: Agent v2 chat ask_human resume
+        "tasks.workflow_run_archive_download_tasks",  # workflow-run archive download preparation
     ]
     day = dify_config.CELERY_BEAT_SCHEDULER_TIME
 
     # if you add a new task, please add the switch to CeleryScheduleTasksConfig
-    beat_schedule = {}
+    beat_schedule: dict[str, CeleryBeatScheduleEntry] = {}
+    if dify_config.ENABLE_CASDOOR_AVATAR_INITIAL_RECOVERY_TASK:
+        imports.append("tasks.casdoor_avatar_recovery_task_extend")
+        avatar_schedule: CasdoorAvatarBeatScheduleEntry = {
+            "task": "tasks.casdoor_avatar_recovery_task_extend.dispatch_casdoor_avatar_initial_pending",
+            "schedule": timedelta(seconds=dify_config.CASDOOR_AVATAR_INITIAL_RECOVERY_INTERVAL_SECONDS),
+            "options": {"queue": "extend_low", "retry": False, "ignore_result": True},
+        }
+        beat_schedule["casdoor_avatar_initial_recovery"] = avatar_schedule
+    if dify_config.ENABLE_CONVERSATION_CLEANUP_TASK:
+        imports.append("tasks.delete_conversation_task")
+        beat_schedule["conversation_cleanup_sweeper"] = {
+            "task": "tasks.delete_conversation_task.sweep_deleted_conversations",
+            "schedule": timedelta(minutes=dify_config.CONVERSATION_CLEANUP_TASK_INTERVAL),
+        }
     if dify_config.ENABLE_CLEAN_EMBEDDING_CACHE_TASK:
         imports.append("schedule.clean_embedding_cache_task")
         beat_schedule["clean_embedding_cache_task"] = {
@@ -152,6 +244,12 @@ def init_app(app: DifyApp) -> Celery:
             "task": "schedule.queue_monitor_task.queue_monitor_task",
             "schedule": timedelta(minutes=dify_config.QUEUE_MONITOR_INTERVAL or 30),
         }
+    if dify_config.ENABLE_HUMAN_INPUT_TIMEOUT_TASK:
+        imports.append("tasks.human_input_timeout_tasks")
+        beat_schedule["human_input_form_timeout"] = {
+            "task": "human_input_form_timeout.check_and_resume",
+            "schedule": timedelta(minutes=dify_config.HUMAN_INPUT_TIMEOUT_TASK_INTERVAL),
+        }
     if dify_config.ENABLE_CHECK_UPGRADABLE_PLUGIN_TASK and dify_config.MARKETPLACE_ENABLED:
         imports.append("schedule.check_upgradable_plugin_task")
         imports.append("tasks.process_tenant_plugin_autoupgrade_check_task")
@@ -173,6 +271,12 @@ def init_app(app: DifyApp) -> Celery:
             "task": "schedule.clean_workflow_runs_task.clean_workflow_runs_task",
             "schedule": crontab(minute="0", hour="0"),
         }
+    if dify_config.ENABLE_CLEAN_OAUTH_ACCESS_TOKENS_TASK:
+        imports.append("schedule.clean_oauth_access_tokens_task")
+        beat_schedule["clean_oauth_access_tokens_task"] = {
+            "task": "schedule.clean_oauth_access_tokens_task.clean_oauth_access_tokens_task",
+            "schedule": crontab(minute="0", hour="5", day_of_month=f"*/{day}"),
+        }
     if dify_config.ENABLE_WORKFLOW_SCHEDULE_POLLER_TASK:
         imports.append("schedule.workflow_schedule_task")
         beat_schedule["workflow_schedule_task"] = {
@@ -185,27 +289,53 @@ def init_app(app: DifyApp) -> Celery:
             "task": "schedule.trigger_provider_refresh_task.trigger_provider_refresh",
             "schedule": timedelta(minutes=dify_config.TRIGGER_PROVIDER_REFRESH_INTERVAL),
         }
-    # ---------------------------- 二开部分 Begin ----------------------------
-    # 添加二开的定时任务imports
-    imports.append("schedule.update_account_used_quota_extend")  # 每月重置账号额度
-    imports.append("schedule.update_api_token_daily_used_quota_task_extend")  # 重置密钥日额度
-    imports.append("schedule.update_api_token_monthly_used_quota_task_extend")  # 重置密钥月额度
 
-    # 每月1号00:00，重置账号额度
-    beat_schedule["update_account_used_quota"] = {
-        "task": "schedule.update_account_used_quota_extend.update_account_used_quota_extend",
-        "schedule": crontab(minute="0", hour="0", day_of_month="1"),
-    }
-    # 每天00:00，重置密钥日额度
-    beat_schedule["update_api_token_daily_used_quota_task_extend"] = {
-        "task": "schedule.update_api_token_daily_used_quota_task_extend.update_api_token_daily_used_quota_task_extend",
-        "schedule": crontab(minute="0", hour="0"),
-    }
-    # 每月1号00:00，重置密钥月额度
-    beat_schedule["update_api_token_monthly_used_quota_task_extend"] = {
-        "task": "schedule.update_api_token_monthly_used_quota_task_extend.update_api_token_monthly_used_quota_task_extend",
-        "schedule": crontab(minute="0", hour="0", day_of_month="1"),
-    }
+    if dify_config.ENABLE_API_TOKEN_LAST_USED_UPDATE_TASK:
+        imports.append("schedule.update_api_token_last_used_task")
+        beat_schedule["batch_update_api_token_last_used"] = {
+            "task": "schedule.update_api_token_last_used_task.batch_update_api_token_last_used",
+            "schedule": timedelta(minutes=dify_config.API_TOKEN_LAST_USED_UPDATE_INTERVAL),
+        }
+
+    if (
+        dify_config.DEPLOYMENT_EDITION == DeploymentEdition.COMMUNITY
+        and not dify_config.DISABLE_TELEMETRY
+        and not dify_config.DO_NOT_TRACK
+        and not dify_config.CI
+    ):
+        imports.append("tasks.community_telemetry_task")
+        beat_schedule["community_telemetry_heartbeat"] = {
+            "task": "community_telemetry.send_heartbeat",
+            "schedule": timedelta(minutes=dify_config.TELEMETRY_HEARTBEAT_INTERVAL_MINUTES),
+        }
+
+    if dify_config.DEPLOYMENT_EDITION == DeploymentEdition.ENTERPRISE and dify_config.ENTERPRISE_TELEMETRY_ENABLED:
+        imports.append("tasks.enterprise_telemetry_task")
+
+    # ---------------------------- 二开部分 Begin ----------------------------
+    # 添加二开的定时任务imports（开关 ENABLE_EXTEND_QUOTA_RESET_TASKS 定义在 configs/extend）
+    if dify_config.ENABLE_EXTEND_QUOTA_RESET_TASKS:
+        imports.append("schedule.update_account_used_quota_extend")  # 每月重置账号额度
+        imports.append("schedule.update_api_token_daily_used_quota_task_extend")  # 重置密钥日额度
+        imports.append("schedule.update_api_token_monthly_used_quota_task_extend")  # 重置密钥月额度
+
+        # 每月1号00:00，重置账号额度
+        beat_schedule["update_account_used_quota"] = {
+            "task": "schedule.update_account_used_quota_extend.update_account_used_quota_extend",
+            "schedule": crontab(minute="0", hour="0", day_of_month="1"),
+        }
+        # 每天00:00，重置密钥日额度
+        beat_schedule["update_api_token_daily_used_quota_task_extend"] = {
+            "task": "schedule.update_api_token_daily_used_quota_task_extend"
+            ".update_api_token_daily_used_quota_task_extend",
+            "schedule": crontab(minute="0", hour="0"),
+        }
+        # 每月1号00:00，重置密钥月额度
+        beat_schedule["update_api_token_monthly_used_quota_task_extend"] = {
+            "task": "schedule.update_api_token_monthly_used_quota_task_extend"
+            ".update_api_token_monthly_used_quota_task_extend",
+            "schedule": crontab(minute="0", hour="0", day_of_month="1"),
+        }
     # ---------------------------- 二开部分 End ----------------------------
 
     celery_app.conf.update(beat_schedule=beat_schedule, imports=imports)

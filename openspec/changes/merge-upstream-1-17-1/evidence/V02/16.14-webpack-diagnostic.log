@@ -1,0 +1,2111 @@
+[2026-09-29T14:43:48.308445+00:00] Preflight passed; original cache inventory: {"allocated_bytes": 8491085824, "regular_files": 29344, "directories": 1054, "key_manifests": {"BUILD_ID": "2018879d1701eb214ec6483d0c8029a419e391ca3d0d6bdb0fa136737785aeca", "build-manifest.json": "615f2dfbc1358ea0f83e05871cbfb960dd6f29729379e2577f7f35465d20e500", "routes-manifest.json": "3aea2717f8815cd70e7e259022476e0815d712cb02cb16e03dd931585c7cab5e", "prerender-manifest.json": "637e06a92a898c7b02fd5136c6b43d86dee52c751690a7874f92de4817c2db35", "required-server-files.json": "4ad6e87a5e23718db53378ceffbd25555a53249858c373fb9e3a7b725258c292"}}
+[2026-09-29T14:43:48.308666+00:00] Starting: /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false --dir web exec next build --webpack --debug
+▲ Next.js 16.3.4 (webpack)
+✓ Running next.config.ts took 376ms
+
+  Creating an optimized production build ...
+⚠ Compiled with warnings in 42s
+
+../node_modules/.pnpm/browserslist@4.28.1/node_modules/browserslist/node.js
+Critical dependency: require function is used in a way in which dependencies cannot be statically extracted
+
+Import trace for requested module:
+../node_modules/.pnpm/browserslist@4.28.1/node_modules/browserslist/node.js
+../node_modules/.pnpm/browserslist@4.28.1/node_modules/browserslist/index.js
+../node_modules/.pnpm/@serwist+turbopack@9.5.7_@swc+helpers@0.5.23_@typescript+typescript6@6.0.2_esbuild-wasm_6331e3326c4449cc80d586d370eb39a6/node_modules/@serwist/turbopack/dist/index.js
+./app/serwist/[path]/route.ts
+
+../node_modules/.pnpm/browserslist@4.28.1/node_modules/browserslist/node.js
+Critical dependency: require function is used in a way in which dependencies cannot be statically extracted
+
+Import trace for requested module:
+../node_modules/.pnpm/browserslist@4.28.1/node_modules/browserslist/node.js
+../node_modules/.pnpm/browserslist@4.28.1/node_modules/browserslist/index.js
+../node_modules/.pnpm/@serwist+turbopack@9.5.7_@swc+helpers@0.5.23_@typescript+typescript6@6.0.2_esbuild-wasm_6331e3326c4449cc80d586d370eb39a6/node_modules/@serwist/turbopack/dist/index.js
+./app/serwist/[path]/route.ts
+
+✓ Compiled successfully in 70s
+  Skipping validation of types
+  Finished TypeScript config validation in 4ms ...
+  Collecting page data using 9 workers ...
+✓ Running next.config.ts took 442ms
+  Generating static pages using 9 workers (0/47) ...
+Error: Static generation failed due to dynamic usage on /webapp-reset-password/set-password, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.e (.next/server/app/(shareLayout)/webapp-reset-password/set-password/page.js:1:24312)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /webapp-signin/check-code, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /webapp-signin, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /account couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/app/account/(commonLayout)/page.js:5:10060)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/app/account/(commonLayout)/page.js:5:9826) {
+  description: "Route /account couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /account couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/app/account/(commonLayout)/page.js:5:10060)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/app/account/(commonLayout)/page.js:5:9826) {
+  description: "Route /account couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /account couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/app/account/(commonLayout)/page.js:5:10060)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/app/account/(commonLayout)/page.js:5:9826) {
+  description: "Route /account couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /account, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /account/oauth/authorize, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /activate, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /device, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /init, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.h (.next/server/app/init/page.js:1:4923)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /forgot-password, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /install, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.e (.next/server/app/install/page.js:1:1736)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /oauth-callback, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.e (.next/server/app/oauth-callback/page.js:1:4133)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /reset-password, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.g (.next/server/app/reset-password/set-password/page.js:1:20934)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /reset-password/check-code, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.e (.next/server/app/reset-password/check-code/page.js:1:8694)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /reset-password/set-password, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.e (.next/server/app/reset-password/set-password/page.js:1:8416)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /signup/check-code, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.e (.next/server/app/signup/check-code/page.js:1:23108)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /signin/check-code, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.e (.next/server/app/signin/check-code/page.js:1:12312)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /signin, reason: `await searchParams`, `searchParams.then`, or similar
+    at C (.next/server/chunks/95731.js:164:34588)
+    at Object.get (.next/server/chunks/11155.js:205:66501)
+    at Module.g (.next/server/app/signin/page.js:1:3782)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /signin/invite-settings, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /signup, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.g (.next/server/app/signup/set-password/page.js:1:10679)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /signup/set-password, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/chunks/17589.js:1:613)
+    at Module.e (.next/server/app/signup/set-password/page.js:1:13804)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+  Generating static pages using 9 workers (11/47) 
+  Generating static pages using 9 workers (23/47) 
+Error: Dynamic server usage: Route /datasets/connect couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/connect couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets/connect couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/connect couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets/connect couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/connect couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /datasets/connect, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.g (.next/server/chunks/9113.js:1:30947)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /datasets/create-from-pipeline couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/create-from-pipeline couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets/create-from-pipeline couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/create-from-pipeline couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets/create-from-pipeline couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/create-from-pipeline couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /datasets/create-from-pipeline, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.g (.next/server/chunks/35868.js:1:45301)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /_not-found, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /datasets/new/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/new/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets/new/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/new/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets/new/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/new/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /datasets/new/create, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.g (.next/server/app/(commonLayout)/datasets/new/create/page.js:1:47910)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /datasets/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets/create couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /datasets/create, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.g (.next/server/app/(commonLayout)/@detailSidebar/datasets/create/page.js:1:5956)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /agents couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /agents couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /agents couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /agents couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /agents couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /agents couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /agents, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.g (.next/server/app/(commonLayout)/agents/page.js:1:106492)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /apps couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /apps couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /apps couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /apps couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /apps couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /apps couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /apps, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.g (.next/server/app/(commonLayout)/apps/page.js:1:67737)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /datasets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /datasets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /datasets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /datasets, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /marketplace couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /marketplace couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /marketplace couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /marketplace couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /marketplace couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /marketplace couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /marketplace, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route / couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route / couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route / couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route / couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route / couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route / couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.r (.next/server/app/(commonLayout)/page.js:1:32742)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /skills couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /skills couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /skills couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /skills couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /skills couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /skills couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /skills, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.g (.next/server/app/(commonLayout)/skills/page.js:1:38407)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /explore/apps-center-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /explore/apps-center-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /explore/apps-center-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /explore/apps-center-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /explore/apps-center-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /explore/apps-center-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /explore/apps-center-extend, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /plugins couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /plugins couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /plugins couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /plugins couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /plugins couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /plugins couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /plugins, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /snippets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /snippets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /snippets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /snippets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /snippets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /snippets couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /snippets, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /system-manage-extend/code-execution-control couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/code-execution-control couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /system-manage-extend/code-execution-control couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/code-execution-control couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /system-manage-extend/code-execution-control couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/code-execution-control couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /system-manage-extend/code-execution-control, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /education/apply couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /education/apply couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /education/apply couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /education/apply couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /education/apply couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /education/apply couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+  Generating static pages using 9 workers (35/47) 
+Error: Static generation failed due to dynamic usage on /education/apply, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /system-manage-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /system-manage-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /system-manage-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /system-manage-extend, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /webapp-reset-password/check-code, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.e (.next/server/app/(shareLayout)/webapp-reset-password/check-code/page.js:1:6150)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /system-manage-extend/quota-management couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/quota-management couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /system-manage-extend/quota-management couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/quota-management couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /system-manage-extend/quota-management couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/quota-management couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /system-manage-extend/quota-management, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /tools couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /tools couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /tools couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /tools couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /tools couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /tools couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /tools, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Static generation failed due to dynamic usage on /webapp-reset-password, reason: cookies
+    at C (.next/server/chunks/95731.js:164:34588)
+    at n (.next/server/chunks/74359.js:56:46979)
+    at B (.next/server/chunks/49043.js:13:27519)
+    at e (.next/server/app/oauth-callback/page.js:1:2279)
+    at Module.g (.next/server/chunks/17589.js:1:9937)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /education/verify couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /education/verify couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /education/verify couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /education/verify couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /education/verify couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /education/verify couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /education/verify, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+Error: Dynamic server usage: Route /system-manage-extend/system-integration couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/system-integration couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /system-manage-extend/system-integration couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/system-integration couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Dynamic server usage: Route /system-manage-extend/system-integration couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at C (.next/server/chunks/95731.js:164:34588)
+    at m (.next/server/chunks/74359.js:56:53012)
+    at <unknown> (.next/server/chunks/31052.js:1:22234)
+    at r (.next/server/chunks/31052.js:1:22375)
+    at queryFn (.next/server/chunks/84212.js:1:7846)
+    at Object.g [as fn] (.next/server/chunks/51657.js:1:170599)
+    at u (.next/server/chunks/51657.js:1:161417)
+    at Object.start (.next/server/chunks/51657.js:1:161944)
+    at B.fetch (.next/server/chunks/51657.js:1:172358)
+    at F.query (.next/server/chunks/51657.js:1:178046)
+    at v (.next/server/chunks/84212.js:1:7612) {
+  description: "Route /system-manage-extend/system-integration couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Error: Static generation failed due to dynamic usage on /system-manage-extend/system-integration, reason: connection
+    at C (.next/server/chunks/95731.js:164:34588)
+    at k (.next/server/chunks/29640.js:1:4474)
+    at n (.next/server/chunks/49043.js:13:23390)
+    at Module.C (.next/server/chunks/49043.js:13:12028)
+    at <unknown> (.next/server/chunks/11155.js:218:702)
+    at <unknown> (.next/server/chunks/95731.js:148:37894)
+    at <unknown> (.next/server/chunks/95731.js:148:38136)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at i.startActiveSpan (.next/server/chunks/95731.js:148:20464)
+    at e.startActiveSpan (.next/server/chunks/95731.js:148:20997)
+    at y.runWithActiveSpan (.next/server/chunks/95731.js:148:38113)
+    at <unknown> (.next/server/chunks/95731.js:148:37397)
+    at e.with (.next/server/chunks/95731.js:148:11282)
+    at i.with (.next/server/chunks/95731.js:148:5550)
+    at y.trace (.next/server/chunks/95731.js:148:37371)
+    at D.Object.assign.$$original (.next/server/chunks/11155.js:218:589)
+    at R (.next/server/chunks/11155.js:218:3972)
+    at <unknown> (.next/server/chunks/11155.js:218:4309)
+    at S (.next/server/chunks/11155.js:218:4331)
+    at U (.next/server/chunks/11155.js:218:6869)
+    at async x (.next/server/chunks/11155.js:205:84856)
+✓ Generating static pages using 9 workers (47/47) in 3.9s
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+
+Redirects
+┌ source: /:path+/
+├ destination: /:path+
+└ permanent: true
+
+┌ source: /explore/apps
+├ destination: /
+└ permanent: true
+
+┌ source: /education-apply
+├ destination: /education/apply
+└ permanent: true
+
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /account
+├ ƒ /account/oauth/authorize
+├ ƒ /activate
+├ ƒ /agent/[token]
+├ ƒ /agents
+├ ƒ /agents/[agentId]
+├ ƒ /agents/[agentId]/access
+├ ƒ /agents/[agentId]/access-config
+├ ƒ /agents/[agentId]/configure
+├ ƒ /agents/[agentId]/logs
+├ ƒ /agents/[agentId]/monitoring
+├ ƒ /app/[appId]/access-config
+├ ƒ /app/[appId]/access-point
+├ ƒ /app/[appId]/annotations
+├ ƒ /app/[appId]/configuration
+├ ƒ /app/[appId]/deploy
+├ ƒ /app/[appId]/logs
+├ ƒ /app/[appId]/overview
+├ ƒ /app/[appId]/user_overview_extend
+├ ƒ /app/[appId]/workflow
+├ ƒ /apps
+├ ƒ /auth/refresh
+├ ƒ /chat/[token]
+├ ƒ /chatbot/[token]
+├ ƒ /completion/[token]
+├ ƒ /datasets
+├ ƒ /datasets/[datasetId]/access-config
+├ ƒ /datasets/[datasetId]/api
+├ ƒ /datasets/[datasetId]/documents
+├ ƒ /datasets/[datasetId]/documents/[documentId]
+├ ƒ /datasets/[datasetId]/documents/[documentId]/settings
+├ ƒ /datasets/[datasetId]/documents/create
+├ ƒ /datasets/[datasetId]/documents/create-from-pipeline
+├ ƒ /datasets/[datasetId]/hitTesting
+├ ƒ /datasets/[datasetId]/pipeline
+├ ƒ /datasets/[datasetId]/settings
+├ ƒ /datasets/connect
+├ ƒ /datasets/create
+├ ƒ /datasets/create-from-pipeline
+├ ƒ /datasets/new/[knowledgeSpaceId]
+├ ƒ /datasets/new/[knowledgeSpaceId]/documents
+├ ƒ /datasets/new/[knowledgeSpaceId]/documents/[documentId]
+├ ƒ /datasets/new/[knowledgeSpaceId]/sources
+├ ƒ /datasets/new/[knowledgeSpaceId]/sources/new
+├ ƒ /datasets/new/create
+├ ƒ /device
+├ ƒ /education/apply
+├ ƒ /education/verify
+├ ƒ /environment/chat/[token]
+├ ƒ /environment/workflow/[token]
+├ ƒ /explore/apps-center-extend
+├ ƒ /explore/installed/[appId]
+├ ƒ /forgot-password
+├ ƒ /form/[token]
+├ ƒ /init
+├ ƒ /install
+├ ƒ /installed/[appId]
+├ ƒ /integrations/[[...slug]]
+├ ƒ /marketplace
+├ ƒ /marketplace/creator/[uniqueHandle]
+├ ƒ /oauth-callback
+├ ƒ /plugins
+├ ƒ /reset-password
+├ ƒ /reset-password/check-code
+├ ƒ /reset-password/set-password
+├   /serwist/[path]
+│ ├ ● /serwist/sw.js.map
+│ └ ● /serwist/sw.js
+├ ƒ /signin
+├ ƒ /signin/check-code
+├ ƒ /signin/invite-settings
+├ ƒ /signup
+├ ƒ /signup/check-code
+├ ƒ /signup/set-password
+├ ƒ /skills
+├ ƒ /skills/[skillId]
+├ ƒ /snippets
+├ ƒ /snippets/[snippetId]
+├ ƒ /snippets/[snippetId]/orchestrate
+├ ƒ /system-manage-extend
+├ ƒ /system-manage-extend/code-execution-control
+├ ƒ /system-manage-extend/quota-management
+├ ƒ /system-manage-extend/system-integration
+├ ƒ /templates/[[...category]]
+├ ƒ /tools
+├ ƒ /webapp-reset-password
+├ ƒ /webapp-reset-password/check-code
+├ ƒ /webapp-reset-password/set-password
+├ ƒ /webapp-signin
+├ ƒ /webapp-signin/check-code
+└ ƒ /workflow/[token]
+
+
+ƒ Proxy (Middleware)
+
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+
+[2026-09-29T14:45:21.364941+00:00] Build ended rc=0, duration=93.05
+[2026-09-29T14:45:22.465990+00:00] Restoration verified; generated output and temporary backup removed.

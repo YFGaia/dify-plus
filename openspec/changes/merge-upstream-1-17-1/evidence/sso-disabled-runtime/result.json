@@ -1,0 +1,76 @@
+{
+  "scope": "B03 unconfigured provider local admission/error; no external network or enabled SSO claim",
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/oauth/login/github",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/oauth/login/google",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/oauth/login/oauth2",
+      "status": 400
+    },
+    {
+      "method": "GET",
+      "path": "/oauth/login/casdoor",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/oauth/login/dingtalk",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/oauth/login/not-a-provider",
+      "status": 403
+    }
+  ],
+  "secrets_printed_or_persisted": false,
+  "provider_results": [
+    {
+      "provider": "github",
+      "status": 403,
+      "error_code": "forbidden",
+      "error": null
+    },
+    {
+      "provider": "google",
+      "status": 403,
+      "error_code": "forbidden",
+      "error": null
+    },
+    {
+      "provider": "oauth2",
+      "status": 400,
+      "error_code": null,
+      "error": "Invalid provider"
+    },
+    {
+      "provider": "casdoor",
+      "status": 403,
+      "error_code": "forbidden",
+      "error": null
+    },
+    {
+      "provider": "dingtalk",
+      "status": 403,
+      "error_code": "forbidden",
+      "error": null
+    },
+    {
+      "provider": "not-a-provider",
+      "status": 403,
+      "error_code": "forbidden",
+      "error": null
+    }
+  ],
+  "outbound_provider_redirect_followed": false,
+  "image_id": "sha256:51347867bb65e505d37ba1730db71192ba30904035e2eece6d1c43bb2e108619"
+}

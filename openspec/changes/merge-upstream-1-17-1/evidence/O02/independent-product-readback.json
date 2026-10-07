@@ -1,0 +1,24 @@
+{
+  "scope": "Independent ordinary product GET on actual synthetic fixtures; no auth mutations/no API business writes/no model invocation",
+  "candidate_boundary": "Endpoint source unchanged; final bundle image binding comes from runtime deployment proof",
+  "results": [
+    {
+      "case": "agent_files",
+      "status": 200,
+      "owned_files_restored_empty": true
+    },
+    {
+      "case": "agent_manifest",
+      "status": 200,
+      "actual_version_matches": true,
+      "files_empty": true
+    },
+    {
+      "case": "human_final_run",
+      "status": 200,
+      "actual_terminal_status": "succeeded",
+      "actual_total_tokens": 0
+    }
+  ],
+  "values_or_credentials_retained": false
+}

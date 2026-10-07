@@ -1,0 +1,38 @@
+{
+  "reviewed_at_utc": "2026-09-30T17:15:47.211892+00:00",
+  "timezone": "Asia/Shanghai",
+  "review_kind": "Independent exact-diff/byte/record review, no reexecution or model requests",
+  "previous_review": "independent-o02-guard-review.json",
+  "frozen_manifest": "o02-guard-v2-source-manifest.json",
+  "guard_sha256": "1b5ca6b04ec845c96d69c68c78a10feca621034fc5ab6738aee7dc4736679e0c",
+  "preflight_sha256": "3c38ee9b41cf0a227773de63e0177049f64b25f758f66d3237709338b9174a00",
+  "repo_bytes_equal_tmp_v2": true,
+  "frozen_paths_hash_match": true,
+  "old18proof_unchanged": true,
+  "recorded_nonmodel_cases": 24,
+  "all_recorded_cases_passed": true,
+  "verdict": "Accepted strict JSON boolean stream compatibility instrument; no live generated-Agent or compaction acceptance",
+  "exact_change": "Admit type(target.stream) is bool instead of only True; forward original body bytes unchanged. No changed actor/model/cap/route/ledger admission.",
+  "new_contract_checks": [
+    "Legitimate SDK false-stream request reaches actual nonmodel HTTP sink once; original request and SSE response hash/header preserved",
+    "String true/false, integer1/0, null each400 before forwarding or slot reservation"
+  ],
+  "unchanged_boundaries": [
+    "Single active process/immutable fixed upstream and fixture policy",
+    "Two durable reserved API-forward slots, not vendor retry attempts or tool execution count",
+    "Only LLM invoke POST, no metadata/control GET gateway",
+    "Unknown forward outcome consumes slot and is not retried",
+    "Current cap8/prompt-json512; summary template itself exceeds512 so future model/input budgets need separate review",
+    "Recorded sink is explicit transport_probe only, no fake model/usage or real provider invocation"
+  ],
+  "activity": {
+    "review_provider_requests": 0,
+    "new_Agents": 0,
+    "uploads": 0,
+    "network_mutations": 0
+  },
+  "authorization_blocks_unchanged": [
+    "Exact shared-access-network join/recreate",
+    "Exact3generation fixture cleanup"
+  ]
+}

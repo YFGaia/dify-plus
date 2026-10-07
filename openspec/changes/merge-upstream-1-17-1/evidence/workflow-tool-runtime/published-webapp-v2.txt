@@ -1,0 +1,62 @@
+[p2 "Acceptance Workflow Tool Parent 2026-09-30 - Dify" | space "Dify Plus 合并验收应用中心"(9): 2 managed, 0 untracked — p1 "访问点 · Quota smoke chat - Dify", p2* "Acceptance Workflow Tool Parent 2026-09-30 - Dify"]
+root
+  container
+    container
+      container
+        container
+          text "🔧"
+          text "Acceptance Workflow Tool Parent 2026-09-30"
+          button "更多" [ref=1, loc=css:button[aria-label="更多"]]
+        tablist
+          tab [ref=2]
+            text "运行一次"
+          tab [ref=3]
+            text "批量运行"
+      tabpanel "运行一次" [ref=4, loc=role:tabpanel[name="运行一次"]]
+        form
+          button [ref=5]
+            text "清空"
+          button [ref=6]
+            svg_root
+            text "运行"
+      container
+        text "POWERED BY"
+        image
+    container
+      container
+        container
+          container
+            button [ref=7]
+              image "工作流运行成功"
+              text "工作流"
+            container
+              container
+                text "START"
+                svg_root
+              container
+                text "🤖"
+                text "ACCEPTANCE MARKER ECHO"
+                svg_root
+              container
+                svg_root
+                text "END"
+                svg_root
+          container
+            text "结果"
+            text "详情"
+        container
+          table
+            table_row
+              table_cell
+          container
+            paragraph
+              text "{"marker": "B09_PARENT_CONFIG_V2"}"
+            unordered_list
+              list_item
+                text "{'marker': 'B09_PARENT_CONFIG_V2'}"
+          table
+            table_row
+              table_cell
+      button "复制" [ref=8, loc=css:button[aria-label="复制"]]
+  alert
+  region "Notifications"

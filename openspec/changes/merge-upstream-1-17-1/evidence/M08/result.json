@@ -1,0 +1,969 @@
+{
+  "node": "M08",
+  "status": "passed",
+  "subtasks": {
+    "14.1_conflict_path_reconciliation_analysis": {
+      "id": "14.1_conflict_path_reconciliation_analysis",
+      "status": "completed_read_only",
+      "owner": "M08",
+      "model": "gpt-6-sol",
+      "base_commit": "b680479655a21f5c535298bc0ea4ba3154242090",
+      "registered_paths": ["openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md"],
+      "scope": "Read-only reconcile all 91 original M00 conflict paths against M01-M07 committed implementations, owner/host tables, evidence and current HEAD. Produce one exact-row mapping for final disposition, owning implementation commit, final host/new location, validating test/evidence, and unresolved uncertainty. Do not change source, ownership TSVs, graph/tasks, lockfiles or Git index; write only the registered analysis report.",
+      "dependencies": [
+        "M01:passed",
+        "M02:passed",
+        "M03:passed",
+        "M04:passed",
+        "M05:passed",
+        "M06:passed",
+        "M07:passed"
+      ],
+      "acceptance": [
+        "All 91 original M00 paths represented exactly once in the proposed mapping.",
+        "Cross-check each row against current tree and committed evidence; distinguish verified disposition from owner-table inference.",
+        "Explicitly enumerate unresolved path/host/evidence gaps; do not claim M08 acceptance or modify source."
+      ],
+      "implementation_agent": "/root/m08_conflict_reconciliation_analysis",
+      "thread_id": "01a0ebf4-986f-7a13-864a-4b035e2ee48d",
+      "host_id": "local",
+      "independent_review": {
+        "status": "accepted_for_14_1_only",
+        "reviewer_model": "gpt-6-luna",
+        "reviewer_agent": "/root/m08_luna_audit",
+        "evidence": "evidence/M08/14.1-analysis.md",
+        "report_sha256": "94b17cbb176f437b10a072bdda96a0281fdcaff3895ef37e710c817e6746d81b",
+        "source_inventory_count": 91,
+        "m00_resolution_count": 91,
+        "report_rows": 91,
+        "path_set_exact": true,
+        "reported_unresolved_rows": 17,
+        "quota_scope_review": "Nine quota hooks plus one OAuth hook are covered. Existing contract keeps account personal quota separate from upstream Cloud quota and API key day/month limits; no independent token total limit is claimed.",
+        "m08_overall_accepted": false,
+        "findings_for_follow_up": [
+          "Owner disposition for unresolved deleted paths",
+          "Register and review overlap ownership for web/features/home/template-card.tsx",
+          "Candidate HEAD semantic, orphan-host and final-lock checks remain pending"
+        ]
+      }
+    },
+    "14.2_final_lock_and_orphan_scan": {
+      "id": "14.2_final_lock_and_orphan_scan",
+      "status": "completed_read_only",
+      "owner": "M08",
+      "model": "gpt-6-astra",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md"
+      ],
+      "scope": "Read-only audit of M01 final lock ownership, package/lock drift, final generated contract freshness, orphan/legacy imports and security wrapper reachability, and four fork follow-up commits. Produce one evidence report listing exact checks, findings, impacted paths, and next owner. Do not modify source, package or lock files, generated contracts, ownership tables, tasks, graph, result JSON, Git index, or commits; write only the registered evidence report.",
+      "dependencies": [
+        "M01:passed",
+        "M05:passed",
+        "M06:passed",
+        "M07:passed",
+        "M08/14.1:completed_read_only"
+      ],
+      "acceptance": [
+        "Confirm which exact final lock/generated outputs require refresh, or prove existing outputs are current without repeating generation unnecessarily.",
+        "Record orphan/legacy import/security-wrapper findings and verify all four fork follow-up commits remain in the fixed candidate ancestry.",
+        "Preserve account personal quota separation and existing API key day/month limits; do not claim a token total cap.",
+        "Report exact paths and next owner; leave unresolved or cross-owner changes for coordinator dispatch."
+      ],
+      "implementation_agent": "/root/m08_astra_14_2",
+      "thread_id": null,
+      "host_id": "local",
+      "report_sha256": "d6c7112e2f91295398c75c888a946d9ef621c24bc450acb0ae218dff794fd17f",
+      "result": "No lock or generated contract refresh is required by current input hashes; final static import/security/quota scan recorded. One retired account balance wrapper chain and 14 deleted conflict paths require registered follow-up."
+    },
+    "14.2a_retire_orphan_account_money_wrapper": {
+      "id": "14.2a_retire_orphan_account_money_wrapper",
+      "status": "passed",
+      "owner": "M08",
+      "model": "gpt-6-astra",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "web/service/common-extend.ts",
+        "web/models/common-extend.ts",
+        "oxlint-suppressions.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-orphan-cleanup.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-luna-verification.md"
+      ],
+      "scope": "After the M06 account-balance migration, remove only the zero-import legacy account/money REST wrapper, its DTO, and the single oxlint suppression keyed to that deleted wrapper. Keep the active account-money-extend component, Console generated API, backend account/money route, personal quota model, API-key day/month quota behavior, and other legacy services untouched. Write implementation evidence only to the registered M08 report; do not edit graph/result/tasks/ownership tables, stage, or commit.",
+      "dependencies": ["M08/14.2:completed_read_only"],
+      "acceptance": [
+        "Confirm exact current reference scan before deletion.",
+        "Delete only the two registered dead source files and remove only their one oxlint suppression entry.",
+        "Record replacement path and preserved quota boundary; no quota endpoint, model, account balance UI or API-key limit is removed."
+      ],
+      "implementation_agent": "/root/m08_orphan_cleanup",
+      "thread_id": null,
+      "host_id": "local",
+      "implementation_report_sha256": "2c564449bde6e6ce1d249001fdf511353ff26aaf9b61cb95c6d9a7e02b6aa473",
+      "independent_review": {
+        "status": "accepted",
+        "reviewer_model": "gpt-6-luna",
+        "reviewer_agent": "/root/m08_orphan_cleanup_luna",
+        "evidence": "evidence/M08/14.2a-luna-verification.md",
+        "report_sha256": "9bea126ae8d29a27b03685ce415f32449d53f952e539c365649ba2c5f2face55",
+        "command": "VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin/node node_modules/vitest/vitest.mjs run --project unit app/components/api-key/__tests__/api-key-modal.spec.tsx app/components/main-nav/__tests__/index.spec.tsx",
+        "runtime": "Node 24.20.0; Vitest 4.1.11",
+        "result": "2 files, 115/115 tests passed; no P1/P2/P3",
+        "limits": [
+          "No backend runtime, database migration, full-suite, container, deployment or production acceptance."
+        ]
+      },
+      "implementation_report": "evidence/M08/14.2a-orphan-cleanup.md"
+    },
+    "14.2b_deleted_path_and_template_host_disposition": {
+      "id": "14.2b_deleted_path_and_template_host_disposition",
+      "status": "completed_read_only",
+      "owner": "M08",
+      "model": "gpt-6-sol",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md"
+      ],
+      "scope": "Read-only owner disposition for the 14 deleted M00 conflict paths listed unresolved in evidence/M08/14.1-analysis.md, plus verify the active web/features/home/template-card.tsx host and proposed overlap registration. For each deleted path, compare fork/base/upstream history and current host/tests; identify migrated equivalent, intentional upstream removal, or unresolved owner decision with exact source and evidence. Do not edit code, tests, ownership tables, graph/tasks/result, run tests, stage, or commit; write only the registered report.",
+      "dependencies": ["M08/14.2:completed_read_only"],
+      "acceptance": [
+        "Account for exactly the 14 deleted conflict paths from 14.1, once each.",
+        "Tie every disposition to exact current source/test or upstream history; retain unresolved status when evidence is insufficient.",
+        "Confirm template-card host/import and M06 preservation rationale."
+      ],
+      "implementation_agent": "/root/m08_deleted_path_disposition",
+      "thread_id": null,
+      "host_id": "local",
+      "report_sha256": "42ab76954e45d60d8557a7f34e125d21c9e5e2e60a2eaa24a40774d7e66a9be9",
+      "result": "All 14 deleted paths and active TemplateCard host have a traceable disposition; Home TagFilter semantics, API Key role mapping, and quota table visual width remain open for follow-up."
+    },
+    "14.2c_project_documentation_disposition": {
+      "id": "14.2c_project_documentation_disposition",
+      "status": "completed_read_only",
+      "owner": "M08",
+      "model": "gpt-6-sol",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+        "AGENTS.md",
+        "README.md",
+        "docs/dify-plus/README.md"
+      ],
+      "scope": "Read-only compare fork-parent and 1.17.1-selected AGENTS.md/README.md with current candidate and surviving docs. Identify Dify-Plus-specific operating guidance, custom feature/deployment/upgrade information removed by M00, what is stale, and exact current source/docs for a concise integration. Preserve current upstream README content and avoid unsupported quota claims. Write only the registered analysis report. Coordinator may edit only registered AGENTS.md, README.md and docs/dify-plus/README.md after review; you do not edit any docs, source, tests, graph/result/tasks/ownership tables, run tests, stage or commit.",
+      "dependencies": ["M08/14.1:completed_read_only", "M08/14.2:completed_read_only"],
+      "acceptance": [
+        "Enumerate material fork-only AGENTS and README content removed by M00.",
+        "Verify target docs/images exist and current version/migration facts before recommending links or claims.",
+        "Explicitly distinguish account personal quota and API-key day/month limits; no API-key total cap claim.",
+        "Give a path-specific integration recommendation; do not edit the documents."
+      ],
+      "implementation_agent": "/root/m08_project_documentation_disposition",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": ["AGENTS.md", "README.md", "docs/dify-plus/README.md"],
+      "report_sha256": "96f09d381a1dfd6095774e0f3624a6fd891f3d509f4496344bdd1cab419e6472",
+      "result": "Read-only documentation disposition is complete; coordinator integration edits are pending."
+    },
+    "14.2d_documentation_contract_integration": {
+      "id": "14.2d_documentation_contract_integration",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "model": "gpt-6-sol",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/dify-plus/README.md",
+        "docs/dify-plus/二开功能详解-后端与数据层.md",
+        "docs/dify-plus/合并规划-upstream-1.17.1.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md"
+      ],
+      "scope": "Integrate the reviewed Dify-Plus documentation disposition into the upstream 1.17.1 candidate. Preserve the current upstream README and add a concise fork section; restore stable fork operating guidance in AGENTS.md; update the docs index so 1.16 documents and the old deployment guide are explicitly historical and the active source graph/runbook/Plus Compose entry are linked; correct account/API-key quota semantics; label the 1.17.1 planning file as a historical snapshot and link live execution status. Exact editable paths are registered_paths only. Do not claim production deployment or API-key lifetime quota cap.",
+      "dependencies": ["M08/14.2c:completed_read_only"],
+      "acceptance": [
+        "README retains upstream text and adds only evidence-backed Plus feature and migration entry points.",
+        "AGENTS documents stable fork module map and current migration chain without a pinned stale baseline.",
+        "Docs index distinguishes historical 1.16 and legacy 1.12 deployment material from current 1.17.1 source runbook.",
+        "Quota wording distinguishes AccountMoneyExtend account balance from API Key daily/monthly caps and accumulated usage.",
+        "Planning snapshot no longer represents the merge as not started; it points to live DAG status.",
+        "Report lists exact edited paths and content claims with source references."
+      ],
+      "implementation_agent": "/root",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/dify-plus/README.md",
+        "docs/dify-plus/二开功能详解-后端与数据层.md",
+        "docs/dify-plus/合并规划-upstream-1.17.1.md"
+      ],
+      "report_sha256": "9f94aa7b03850b1a59301d5c001597d33b5a0bb106d3fc8f82a806b8279d17fa",
+      "result": "Restored fork documentation entries and corrected current execution, migration, historical-doc, and quota boundaries. Fifteen relative links and git diff whitespace checks passed."
+    },
+    "14.2e_preserve_manager_only_api_key_management": {
+      "id": "14.2e_preserve_manager_only_api_key_management",
+      "status": "passed",
+      "owner": "M08",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "web/app/components/app/access-point/shared/api-secret-key-button.tsx",
+        "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md"
+      ],
+      "scope": "Preserve the Dify-Plus workspace-manager-only UI boundary for App API Key management after upstream moved the entry into AccessPoint. Keep AccessPoint ACL as an additional gate. In the shared app-key button, block and skip API-key list queries for non-managers even when the AccessPoint prop is true; pass only the effective permission to the modal. Apply to app and environment-scoped app keys without changing Dataset API keys, backend authorization, quota contracts, or other AccessPoint actions. Edit only the two registered source/spec paths and write implementation evidence only to the registered report.",
+      "dependencies": [
+        "M08/14.2b:completed_read_only",
+        "M08/14.2d_documentation_contract_integration:passed"
+      ],
+      "acceptance": [
+        "Workspace managers with AccessPoint permission retain app and environment API Key workflows.",
+        "Non-managers cannot trigger app-key list queries or open/manage the modal even when the passed AccessPoint permission is true.",
+        "Dataset key behavior, daily/monthly limit flows, and backend authorization remain untouched.",
+        "Focused unit tests cover the manager gate and existing no-AccessPoint-permission gate.",
+        "Report records exact scope and source behavior."
+      ],
+      "implementation_agent": "/root/m08_api_key_boundary_astra",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [
+        "web/app/components/app/access-point/shared/api-secret-key-button.tsx",
+        "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx"
+      ],
+      "implementation_report_sha256": "267933ad5daea64156514e86b3032ee3dfec0e8759305fdc815f4c7cad28aaf0",
+      "report_sha256": "267933ad5daea64156514e86b3032ee3dfec0e8759305fdc815f4c7cad28aaf0",
+      "result": "Workspace-manager-only App API Key UI boundary implemented and independently verified after schema-valid fixture correction; Luna rerun passed 9/9. Dataset keys, backend authorization, and quota contracts were untouched.",
+      "independent_review": {
+        "status": "passed_after_fixture_followup",
+        "reviewer_model": "gpt-6-luna",
+        "report": "evidence/M08/14.2h-luna-verification.md",
+        "report_sha256": "aa0deeb771c5aa5427ae7c2f1c41c638eab0d4c23ab1b20d8856c088bdc7b4ff",
+        "tests_passed": 9,
+        "tests_failed": 0,
+        "initial_failed_attempt": {
+          "report": "evidence/M08/14.2e-luna-verification.md",
+          "report_sha256": "3a936bfdbcc946649d5850e28e44f65d5bef1ef23fae8540f04a3f7d8de3a669",
+          "disposition": "schema-invalid test fixture corrected in 14.2g; rerun passed in 14.2h"
+        }
+      }
+    },
+    "14.2f_home_template_tagfilter_disposition": {
+      "id": "14.2f_home_template_tagfilter_disposition",
+      "status": "completed_read_only",
+      "owner": "M08/coordinator",
+      "model": "gpt-6-sol",
+      "base_commit": "b17761ed0166e8ef49474da418b95a9462adbb9c",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md"
+      ],
+      "scope": "Resolve the old Home catalog TagFilter disposition using source-level evidence only. Compare the fork implementation at the registered base with the TagFilter value contract, current RecommendedAppResponse category schema, current Home category/search behavior, and installed-app tag filter. Determine whether a working user-visible tag filter was lost or the removed control had mismatched values. Do not edit code, tests, ownership tables, graph/result/tasks, stage, commit, or run tests; write only the registered report.",
+      "dependencies": ["M08/14.2b:completed_read_only"],
+      "acceptance": [
+        "Quote exact source paths/expressions showing tag values and catalog category values.",
+        "Distinguish Home recommended catalog from installed fork apps.",
+        "If old behavior cannot match by contract, record the narrowest safe disposition and the data contract needed before reviving the feature."
+      ],
+      "implementation_agent": "/root",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [],
+      "report_sha256": "384419c1920064dd05e38dfac506bed407c78cdcb8d03e730dbd1901c382c2ec",
+      "result": "The deleted Home TagFilter had no valid ID/category mapping; preserve current Home categories and installed-app tag filtering, and require an API relation before adding catalog tag filtering."
+    },
+    "14.2e_luna_verification": {
+      "id": "14.2e_luna_verification",
+      "status": "failed",
+      "owner": "M08",
+      "model": "gpt-6-luna",
+      "reasoning_effort": "low",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md"
+      ],
+      "scope": "Independently verify Astra implementation of the workspace-manager-only App API Key boundary. Read only the two registered component/spec paths and implementation report, then run only `app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx` under the Web unit project using the existing Node 24.20/Vitest runtime with install skipped. Do not rerun quota modal or main-nav suites, install dependencies, edit source/tests, modify graph/result/tasks/ownership, stage, or commit. Write only the registered verification report.",
+      "dependencies": ["M08/14.2e:implementation_complete"],
+      "acceptance": [
+        "All tests in the single focused spec pass.",
+        "Confirm manager and ACL positive/negative behavior, query suppression, and permission-revocation cleanup from the test assertions and source diff.",
+        "State exactly what the unit test does not prove, including visual layout/backend/deployment."
+      ],
+      "implementation_agent": "/root/m08_api_key_boundary_luna",
+      "thread_id": null,
+      "host_id": "local",
+      "report_sha256": "3a936bfdbcc946649d5850e28e44f65d5bef1ef23fae8540f04a3f7d8de3a669",
+      "result": "Spec failed 2/9. The workspace role fixture omitted schema-required admin_extend and tenant_extend; owner atom fell back to normal. Repair registered."
+    },
+    "14.2g_fix_manager_role_test_fixture": {
+      "id": "14.2g_fix_manager_role_test_fixture",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "model": "gpt-6-sol",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md"
+      ],
+      "scope": "Correct only the registered API-secret-key-button test fixture so current-workspace role snapshots satisfy the generated schema required by workspace-state. Include required admin_extend and tenant_extend fields for manager positive cases and workspace-role revocation. Do not change component source, alter expected product behavior, install dependencies, stage, commit, or run tests. Then document the exact fixture defect and correction in the registered report.",
+      "dependencies": ["M08/14.2e_luna_verification:failed"],
+      "acceptance": [
+        "Manager tests seed a valid CurrentWorkspaceSummaryResponse and observe manager roles rather than the fallback normal role.",
+        "Role revocation seeds a schema-valid editor summary.",
+        "No production source change; only test fixture and registered report change."
+      ],
+      "implementation_agent": "/root",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [
+        "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx"
+      ],
+      "report_sha256": "735ac0e573619a96c6bd9a6f02ba71104fe6439e3917d2612dd2b1c27e6f85a3",
+      "result": "Test-only schema-valid workspace fixture correction complete; independent rerun registered."
+    },
+    "14.2h_luna_verification_after_fixture_fix": {
+      "id": "14.2h_luna_verification_after_fixture_fix",
+      "status": "passed",
+      "owner": "M08",
+      "model": "gpt-6-luna",
+      "reasoning_effort": "low",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md"
+      ],
+      "scope": "Rerun Luna independent validation of the same API-secret-key-button spec after the required workspace summary fixture correction. Inspect the registered test diff/report and run only the exact single unit spec from web with the existing Node 24.20/Vitest 4.1.11 runtime and VP_SKIP_INSTALL=1. Do not rerun other suites, install dependencies, modify source/tests/graph/result/tasks/ownership, stage, or commit; write only the registered report.",
+      "dependencies": ["M08/14.2g:passed"],
+      "acceptance": [
+        "Focused spec passes all cases; report records exact command and counts.",
+        "Confirm role fixtures reach manager positive and role-revocation cases.",
+        "Describe unit-only limitations; no backend, visual, DB, or deploy claim."
+      ],
+      "implementation_agent": "/root/m08_api_key_boundary_luna_rerun",
+      "thread_id": null,
+      "host_id": "local",
+      "report_sha256": "aa0deeb771c5aa5427ae7c2f1c41c638eab0d4c23ab1b20d8856c088bdc7b4ff",
+      "result": "Focused API Secret Key Button unit spec passed 9/9 after schema-valid workspace fixtures; confirms manager role gate, ACL gate, query suppression, and dialog cleanup on permission revocation. Unit-only; no backend, visual, DB, or deploy claim."
+    },
+    "14.2i_responsive_quota_modal_layout_browser_acceptance": {
+      "id": "14.2i_responsive_quota_modal_layout_browser_acceptance",
+      "status": "passed",
+      "owner": "M08",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+        "evidence/M08/14.2i-quota-modal-layout.md"
+      ],
+      "scope": "Restore the fork's responsive App API Key modal width in the new shared modal host and prove the quota-table layout in Chromium. The fork parent used 90vw with a 1200px maximum; the candidate currently fixes the modal at w-200 (50rem), while quota-table columns have a much wider combined width. Update only the modal width and the registered browser spec. Render the actual ApiKeyModal app scope with one quota-bearing row at desktop 1440x900 and narrow 390x844 viewports. Keep any horizontal overflow inside the table's scroll container, make the rightmost row actions reachable, and prevent document/dialog viewport overflow. Do not change quota data or limits, permissions, API behavior, translations, lockfiles, or other tests. Run only the registered browser spec using the installed Node 24.20/Vitest runtime with installation skipped; write only the registered report in addition to the two code paths. Do not edit graph/result/tasks/ownership, stage, or commit.",
+      "dependencies": ["M08/14.2e_preserve_manager_only_api_key_management:passed"],
+      "acceptance": [
+        "The app API Key modal restores the responsive fork width contract: approximately 90vw capped at 1200px on desktop and bounded by the viewport on narrow screens.",
+        "A browser-mode test renders the actual ApiKeyModal and quota row at 1440x900 and 390x844; dialog stays within the viewport with no document-level horizontal overflow.",
+        "Quota table horizontal scrolling is confined to the table container and can reveal the rightmost row action.",
+        "The exact test command, browser collection/count, measured geometry, file hashes, and limitations are recorded; no other test suite is run."
+      ],
+      "implementation_agent": "/root/m08_quota_modal_layout_astra",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx"
+      ],
+      "report_sha256": "6adc2d355c557c55e5e4350500f6fbf77f6baefb2067b3fc6dc973575e47f1d8",
+      "result": "Astra Chromium single-spec acceptance passed 2/2 at 1440x900 and 390x844; measured responsive dialog bounds and confined table scrolling. Independent Luna review is registered as 14.2j.",
+      "independent_review": {
+        "status": "accepted",
+        "reviewer_model": "gpt-6-luna",
+        "reviewer_agent": "/root/m08_quota_modal_layout_luna_review",
+        "review_subtask": "14.2j_luna_quota_modal_browser_review",
+        "evidence": "evidence/M08/14.2j-luna-verification.md",
+        "report_sha256": "4b2c28898ec3b152375f5b529fb2e61de2fe436c9200ab80ba0791674e78e38c",
+        "result": "Input hashes matched; focused browser spec passed 2/2 with matching geometry and reachable delete confirmation."
+      }
+    },
+    "14.2j_luna_quota_modal_browser_review": {
+      "id": "14.2j_luna_quota_modal_browser_review",
+      "status": "passed",
+      "owner": "M08",
+      "model": "gpt-6-luna",
+      "reasoning_effort": "low",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": ["evidence/M08/14.2j-luna-verification.md"],
+      "scope": "Independently inspect the registered 14.2i modal source, browser spec and evidence report against their recorded SHA-256 identities, then rerun only web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx in the existing Node 24.20/Vitest 4.1.11 Chromium Browser Mode runtime with VP_SKIP_INSTALL=1. Reuse the existing chromium_headless_shell-1208 executable at /Users/liuxingwang/Library/Caches/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-mac-arm64/chrome-headless-shell via the documented Vitest startVitest + vite-plus/test/browser-playwright invocation. Validate both 1440x900 and 390x844 cases, table-only horizontal scrolling, and reachable delete action. Do not install anything, run other suites, edit source/tests/graph/tasks/ownership, stage or commit; write only evidence/M08/14.2j-luna-verification.md. If the documented browser runtime is unavailable, report the exact blocker without broadening scope.",
+      "dependencies": ["M08/14.2i_responsive_quota_modal_layout_browser_acceptance:passed"],
+      "acceptance": [
+        "Recorded source, spec and implementation-report hashes match the inspected snapshot.",
+        "Only the registered Chromium browser spec runs; both viewport cases pass and the exact command, counts, runtime and measured assertions are reported.",
+        "Review accurately limits the result to fixture-backed component browser acceptance; no live API or deployment claim."
+      ],
+      "implementation_agent": "/root/m08_quota_modal_layout_astra",
+      "review_agent": "/root/m08_quota_modal_layout_luna_review",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": ["evidence/M08/14.2j-luna-verification.md"],
+      "input_hashes": {
+        "web/app/components/api-key/api-key-modal.tsx": "68f1d7553884ffe99a926340d0452f1d4944293a148f99f7253129e022d15218",
+        "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx": "600070bed0a71e7ecba9c0dcfa06fe729f456b82b6ba39f3f0bf9658386fb31a",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md": "6adc2d355c557c55e5e4350500f6fbf77f6baefb2067b3fc6dc973575e47f1d8"
+      },
+      "dispatch_status": "dispatched",
+      "result": "Luna independent Chromium review passed 2/2 at 1440x900 and 390x844; all 3 input hashes matched, measured geometry matched 14.2i, and the real rightmost delete action opened confirmation in both viewports. Unit fixture only; no live API/deploy claim.",
+      "report_sha256": "4b2c28898ec3b152375f5b529fb2e61de2fe436c9200ab80ba0791674e78e38c",
+      "runtime": "Node 24.20.0; Vitest 4.1.11; Chrome for Testing 145.0.7632.6"
+    },
+    "14.4_conflict_ownership_final_reconciliation": {
+      "id": "14.4_conflict_ownership_final_reconciliation",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
+      ],
+      "scope": "Reconcile exactly the 91 original M00 conflict paths against M00/result.json, evidence/M08/14.1-analysis.md, the M01-M07 ownership/evidence chain and completed M08 follow-ups 14.2a/b/d/f/e/h/i/j. Record each path’s final disposition, final host/new path and acceptance evidence in conflict-ownership.tsv. For the 14 former deletions, use 14.2b’s path-level disposition with the later completed tag-filter, manager-gate and modal-layout resolutions. Keep V01/V02 explicitly pending; mapping closure is not candidate runtime acceptance. Preserve all other 117 registered rows. Do not edit source/tests, stage, or commit. Write only the registered reconciliation report and the ownership table.",
+      "dependencies": [
+        "M08/14.1_conflict_path_reconciliation_analysis:completed_read_only",
+        "M08/14.2b_deleted_path_and_template_host_disposition:completed_read_only",
+        "M08/14.2f_home_template_tagfilter_disposition:completed_read_only",
+        "M08/14.2e_preserve_manager_only_api_key_management:passed",
+        "M08/14.2h_luna_verification_after_fixture_fix:passed",
+        "M08/14.2j_luna_quota_modal_browser_review:passed"
+      ],
+      "acceptance": [
+        "The original 91 M00 path set equals the table and evidence mapping exactly once each.",
+        "Each original row records its final M00 disposition, current host/new path, M00 and M-node/M08 evidence, and pending verifier state.",
+        "All deleted-path follow-ups are closed by evidence; no false claim that V01/V02 or M08 overall have passed.",
+        "The other 117 table rows remain present and unchanged except schema extension blanks."
+      ],
+      "implementation_agent": "/root",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [
+        "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
+      ],
+      "report_sha256": "33f5e45e4f035243f18705cba63fef23541f120723a3d463496def5aa7bc2ed1",
+      "ownership_table_sha256": "b997fba191adaf75ffe50df4ef0a23a0ff7fe675f6e9cf33696149ef289985e9",
+      "result": "All 91 original M00 paths were mapped exactly once to final disposition, existing host and evidence; classifications 39 upstream, 32 manual-merge, 14 deleted-with-disposition, 1 generated, 5 renamed. New hosts exist. V01 (38) and V02 (45) remain pending; 8 rows are M08-owned. The other 117 registrations retain their original six columns. No source or index change.",
+      "validation": {
+        "m00_path_count": 91,
+        "report_rows": 91,
+        "owner_rows": 91,
+        "path_set_exact": true,
+        "duplicates": 0,
+        "disposition_counts": {
+          "upstream": 39,
+          "manual-merge": 32,
+          "delete": 14,
+          "generated": 1,
+          "renamed": 5
+        },
+        "verifier_counts": {
+          "M08": 8,
+          "V01": 38,
+          "V02": 45
+        },
+        "additional_rows_preserved": 117,
+        "new_hosts_present": true,
+        "git_diff_check": "passed",
+        "candidate_runtime_acceptance": "pending"
+      }
+    },
+    "14.3_candidate_source_commit": {
+      "id": "14.3_candidate_source_commit",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "base_commit": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "registered_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/dify-plus/README.md",
+        "docs/dify-plus/二开功能详解-后端与数据层.md",
+        "docs/dify-plus/合并规划-upstream-1.17.1.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv",
+        "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
+        "openspec/changes/merge-upstream-1-17-1/research/overlap-ownership.tsv",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md",
+        "oxlint-suppressions.json",
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx",
+        "web/app/components/app/access-point/shared/api-secret-key-button.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+        "web/models/common-extend.ts",
+        "web/service/common-extend.ts",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-luna-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-orphan-cleanup.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
+      ],
+      "scope": "Create the scoped M08 candidate source commit on the already authorized current branch. Stage only the exact registered paths. Include the M08 source/documentation fixes, focused specs, dispositions, owner matrix and evidence. Verify the staged name set equals this allowlist and git diff --cached --check passes. Commit the candidate without creating another upstream merge commit. Do not stage any user-owned untracked skill/config directories or other paths. Record commit SHA, parent, changed path set and limitations in M08 result after commit; keep V01/V02 pending until they run against this exact candidate commit.",
+      "dependencies": [
+        "M08/14.2j_luna_quota_modal_browser_review:passed",
+        "M08/14.4_conflict_ownership_final_reconciliation:passed"
+      ],
+      "acceptance": [
+        "Index starts empty and contains only the registered M08 paths.",
+        "Scoped staged diff passes whitespace check; source and docs preserve the independent personal quota and API Key day/month limit contracts.",
+        "A candidate source commit is created on codex/merge-upstream-1.17.1; M00 remains an ancestor and no new upstream merge commit is created.",
+        "Candidate commit identity and exact scope are recorded; V01/V02 remain explicitly pending."
+      ],
+      "implementation_agent": "/root",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [
+        "AGENTS.md",
+        "README.md",
+        "docs/dify-plus/README.md",
+        "docs/dify-plus/二开功能详解-后端与数据层.md",
+        "docs/dify-plus/合并规划-upstream-1.17.1.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/research/conflict-ownership.tsv",
+        "openspec/changes/merge-upstream-1-17-1/research/host-ownership.tsv",
+        "openspec/changes/merge-upstream-1-17-1/research/overlap-ownership.tsv",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md",
+        "oxlint-suppressions.json",
+        "web/app/components/api-key/api-key-modal.tsx",
+        "web/app/components/app/access-point/__tests__/api-secret-key-button.spec.tsx",
+        "web/app/components/app/access-point/shared/api-secret-key-button.tsx",
+        "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+        "web/models/common-extend.ts",
+        "web/service/common-extend.ts",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.1-analysis.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2-integration-scan.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-luna-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2a-orphan-cleanup.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2b-deleted-path-disposition.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2c-doc-disposition.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2d-documentation-integration.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-luna-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2e-manager-only-apikey-boundary.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2f-home-template-tagfilter-disposition.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2g-test-fixture-correction.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2h-luna-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2i-quota-modal-layout.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.2j-luna-verification.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.4-conflict-ownership-reconciliation.md"
+      ],
+      "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "candidate_parent": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+      "changed_path_count": 34,
+      "registered_path_set_exact": true,
+      "m00_ancestor": true,
+      "result": "Scoped candidate source commit created at ba33fe26dc21ae3a308f14a61999009fc2849779 (parent ac5fca9ace9401734bca31d87b03548b9ff83b18), exactly 34 registered paths; M00 ancestry verified. All remaining user-owned untracked directories were excluded. V01/V02 are still pending."
+    },
+    "14.5_m08_structural_acceptance": {
+      "id": "14.5_m08_structural_acceptance",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.5-source-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md"
+      ],
+      "scope": "Run M08 structural candidate acceptance against the committed source candidate. Check the unresolved Git index, conflict markers, M00 merge ancestry/parents, M01-M07 ancestry, exact 91-path owner mapping and final hosts, ten billing/OAuth hook evidence, retired orphan wrapper reachability, and the independent personal-quota/API-key day-month contract. Bind every result to the exact candidate commit and report limits. Do not run broad suites here; V01/V02 are separate candidate verification gates. Write only the registered acceptance/status records.",
+      "dependencies": [
+        "M08/14.3_candidate_source_commit:passed",
+        "M08/14.4_conflict_ownership_final_reconciliation:passed"
+      ],
+      "acceptance": [
+        "No unmerged index entries or conflict markers.",
+        "M00 remains a two-parent ancestor of the candidate and M01-M07 commits remain ancestors.",
+        "All 91 M00 paths have exact disposition/host/evidence mapping; no missing or orphan host.",
+        "The ten billing/OAuth integration points and quota separation have candidate-source evidence.",
+        "M08 can pass only if its own acceptance criteria are complete; V01/V02 remain separately pending."
+      ],
+      "implementation_agent": "/root",
+      "thread_id": null,
+      "host_id": "local",
+      "editable_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.5-source-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md"
+      ],
+      "report_sha256": "8cccedd7caea25aa161fbdf83972ea93813aeea65182caee42dcbd7771d56017",
+      "candidate_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "checks": {
+        "unmerged_index": 0,
+        "conflict_markers": 0,
+        "orphan_wrapper_references": 0,
+        "m00_two_parent_ancestor": true,
+        "m01_m07_commits_checked": 42,
+        "original_conflict_paths_exact": 91,
+        "candidate_hosts_present": 91,
+        "quota_oauth_hooks_present": 10,
+        "quota_boundary": "personal account quota separate from API-key day/month limits; no lifetime key cap claim"
+      },
+      "result": "M08 structural acceptance passed against the committed candidate; V01 and V02 remain unrun and are ready as separate nodes."
+    },
+    "14.6_format_candidate_quota_browser_spec": {
+      "id": "14.6_format_candidate_quota_browser_spec",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "model": "gpt-6-astra",
+      "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "registered_paths": [
+        "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.6-format-candidate-quota-browser-spec.md"
+      ],
+      "report_sha256": "be5406214c5a4cedbcb73258fe91a270c5a6db3f58f75a740c487e0f3559ec1b",
+      "result": "Exact formatter passed; candidate browser spec hash is 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120; one Chromium file collected two tests and both passed. Changes are limited to formatter normalization in the vi.hoisted typed fixture; assertions and fixture values are preserved. Independent Luna review pending."
+    },
+    "14.7_luna_review_formatted_quota_browser_spec": {
+      "id": "14.7_luna_review_formatted_quota_browser_spec",
+      "status": "passed",
+      "owner": "M08",
+      "model": "gpt-6-luna",
+      "base_commit": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+      "registered_paths": [
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.7-luna-verification.md"
+      ],
+      "report_sha256": "410ec06a79f1b21eb7a116cefac69785db6591d2c8ce3364c3a3d16d655c26d2",
+      "result": "Independent Luna verified exact formatted spec hash and reran only the Chromium browser file; 1 file, 2/2 tests passed with matching geometry."
+    },
+    "14.8_recandidate_and_structural_acceptance": {
+      "id": "14.8_recandidate_and_structural_acceptance",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "model": "gpt-6-astra",
+      "base_commit": "c304fe188e949733fa4ac1697004e3b99d9db95d",
+      "candidate_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+      "tree": "d94e6e1a034175165598bafe859d3f605b80beee",
+      "registered_paths": [
+        "evidence/M08/result.json",
+        "evidence/M08/14.8-final-candidate-structural-acceptance.md",
+        "execution-graph.json",
+        "execution-graph.md",
+        "tasks.md"
+      ],
+      "report_sha256": "cfc3d2e13007f3bd5ab11506d218cce0e3b1d2a8e4e7d02dfc462511a75ad95d",
+      "result": "Updated source candidate is a descendant of M05/11.7 and original candidate; structural conflict/path/quota checks pass. API tree SHA1 is unchanged from the V01 tested candidate."
+    },
+    "14.9_v02_formatter_debt_candidate_followup": {
+      "id": "14.9_v02_formatter_debt_candidate_followup",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "model": "gpt-6-sol",
+      "base_commit": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+      "registered_paths": [
+        "evidence/M08/14.9-v02-formatter-debt-remediation.md",
+        "evidence/M08/14.9-v02-formatter-path-manifest.json",
+        "evidence/M08/14.9-v02-formatter-debt-remediation.log"
+      ],
+      "report_sha256": "7f68d19e842adbfb2374f4d4787274e1892a2ef0184e3e9c53e56a09d3f86da5",
+      "result": "V02/16.6 reported 63 exact formatter failures; the 14.9 remediation formatted all 68 unique paths (63 failures plus current evidence/status additions). JSON values and Markdown wording were preserved; upstream workflow YAML parsed equal; Dify UI TSX files stayed byte-identical. Exact formatter check passed. A new candidate and structural acceptance are next."
+    },
+    "14.10_final_candidate_and_structural_acceptance": {
+      "status": "passed",
+      "candidate_commit": "95101d76b955481ce6c9519596aeea426680fa71",
+      "candidate_tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+      "parent": "97f94625d2d51fe1780f69aaecce5a56d3073db4",
+      "commit_allowlist_count": 73,
+      "committed_changed_path_count": 71,
+      "unchanged_allowlist_paths": [
+        "packages/dify-ui/src/dialog/__tests__/index.spec.tsx",
+        "packages/dify-ui/src/dialog/index.stories.tsx"
+      ],
+      "commit_sha": "95101d76b955481ce6c9519596aeea426680fa71",
+      "structural_report": "evidence/M08/14.10-final-candidate-structural-acceptance.md",
+      "structural_report_sha256": "5861a90abca83bba99072710a761ea92047d76660fb6e244cc81e83162c5fe95",
+      "m00_two_parent_ancestor": true,
+      "m01_m07_ancestor_count": 42,
+      "resolved_original_conflict_paths": 91,
+      "missing_final_hosts": 0,
+      "billing_oauth_anchors": 10,
+      "v01_api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+      "v01_report_sha256": "995e8f0dbb5c0f8853eea275cd653df14b41b8fc81e6bb9a75d6836da76efe77",
+      "v01_160_of_160_reused": true,
+      "quota_preservation": "AccountMoneyExtend total_quota/used_quota and /account/money remain separate from Cloud quota; API Key day/month model, CRUD, and Service API admission anchors remain.",
+      "index_conflicts": 0,
+      "source_conflict_markers": 0,
+      "legacy_web_reference_hits": 0,
+      "verdict": "passed_structural_acceptance_v02_pending",
+      "documentation_formatter_exit_code": 0,
+      "openspec_strict_exit_code": 0
+    },
+    "14.12_oxlint_disable_description": {
+      "status": "passed",
+      "summary": "Added accurate same-line reason; one-path scoped check and diff check passed.",
+      "evidence": "evidence/M08/14.12-oxlint-disable-description.md",
+      "source_sha256": "895c12431f63000746027b46052a1b50748f00c89e9aad2845bd83f8106fcf39",
+      "evidence_sha256": "92fb83d7bd01b0465b1f97710773c048d8b8700d5594506df9b375c7c68ffd00"
+    },
+    "14.11_retention_number_restoration": {
+      "status": "passed",
+      "summary": "Restored default 5/environment override, detail response loading, debug Context value/setter, and publish payload. Targeted tests: 19/19 and publish utility 16/16; scoped check and diff check passed.",
+      "evidence": "evidence/M08/14.11-retention-number-restoration.md",
+      "source_sha256": {
+        "web/app/components/app/configuration/hooks/use-configuration.ts": "e31dbec18bd1435ca8615c010adf1343019a578af8be9ecd0d6731f3ee4e3318",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/use-configuration-loader.ts": "edca057d91893f1d7ac1d2a22fa83d43a70952d7fbb3f3a1e02121ab2affc60d",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/use-configuration-publish.ts": "1b2d2228dbaf2f06e4a86e3498dfc27f5d680e4932f9f225e7604d1150a229f9",
+        "web/app/components/app/configuration/hooks/configuration-lifecycle/publish.ts": "c0f2e1f39e695e9f9d22e9b04c94799034abe6a784a8b4eba18ff7ecb8699a42",
+        "web/app/components/app/configuration/hooks/build-configuration-context.ts": "fbabc1c55514f7762c7c239e1480705fa3aa3caf21868894aaf3acb09dd0b38e",
+        "web/app/components/app/configuration/hooks/__tests__/use-configuration.spec.tsx": "8e2d9cb5dae65bc7fa731655d7de09f4d4eff0a0c264f32b96d42d0e24103395"
+      },
+      "evidence_sha256": "4664b9821828fd4f11851edac98203c51ca68be4509e668cc988f6e864c02bc1"
+    },
+    "14.13_independent_v02_fix_verification": {
+      "status": "passed",
+      "summary": "Independent Luna review found no blockers. Four focused specs passed: 88/88; quota paths unchanged and all 12 source paths registered.",
+      "evidence": "evidence/M08/14.13-independent-v02-fix-verification.md",
+      "evidence_sha256": "11f6ca94b26cc9bc8036073f94f0b647d06526ce19c485b5a7a656c0edd76138",
+      "test_summary": "4 files, 88 tests passed"
+    },
+    "14.14_recandidate_after_v02_root_cause_repairs": {
+      "status": "passed",
+      "candidate_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+      "candidate_tree": "219f855a099258cbb712daae55e5a365390189ac",
+      "evidence": "evidence/M08/14.14-recandidate-structural-acceptance.md",
+      "evidence_sha256": "5bf4c2813b239c39cff2b510a5d6b5984798fb9c8f393f94da075d60b4c5c0a4",
+      "staged_path_count": 27,
+      "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67"
+    },
+    "14.15_v02_evidence_format_followup": {
+      "status": "passed",
+      "summary": "Formatted the seven V02/16.9-reported coordinator paths plus tasks.md. Exact 12-path formatter check and git diff --check passed; no product source/test path changed.",
+      "evidence": "evidence/M08/14.15-v02-evidence-format-followup.md",
+      "evidence_sha256": "378a8c08f7e39b1ffec66e8d433cd5ea12c2442e2da011f1b2b102031b2c4111",
+      "formatted_file_count": 8,
+      "final_exact_path_check": "12 files passed vp fmt --check; git diff --check passed",
+      "product_source_or_test_changed": false,
+      "staged_or_committed": false
+    },
+    "14.16_recandidate_after_metadata_formatting": {
+      "status": "passed",
+      "base_commit": "686a5cfa5614ea45b0d9973e52014b07c13b07e7",
+      "candidate_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+      "candidate_tree": "badf6fb2196fe201185a1e81883504eb35cbffc0",
+      "evidence": "evidence/M08/14.16-recandidate-structural-acceptance.md",
+      "evidence_sha256": "3b185d76f07d31bacb495883b551b115746a527f1842cc4ae79a2ac036c4e65b",
+      "staged_path_count": 13,
+      "registered_path_set_exact": true,
+      "api_tree_sha1": "895c0be99faafa5314806ddb2c0553c6062c7f67",
+      "conflict_path_count": 91,
+      "conflict_path_status": "91/91 resolved",
+      "m00_ancestor": true,
+      "source_or_test_bytes_changed": false,
+      "quota_boundary": "personal AccountMoneyExtend quota remains separate from upstream Cloud quota; API Key daily/monthly limits remain"
+    },
+    "14.17_ukrainian_i18n_parity": {
+      "id": "14.17_ukrainian_i18n_parity",
+      "status": "passed",
+      "owner": "M08/Astra",
+      "model": "gpt-6-astra",
+      "reasoning_effort": "high",
+      "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+      "registered_paths": [
+        "web/i18n/uk-UA/layout.json",
+        "web/i18n/uk-UA/oauth.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md"
+      ],
+      "scope": "Repair only the supported uk-UA locale parity exposed by V02/16.10: add the missing layout and oauth translation namespace files using the exact en-US key sets and accurate Ukrainian strings. Preserve flat key names and product terms. Do not change application code, other locales, tests, graph/tasks/result, stage, or commit. Write the implementation report at the registered M08 evidence path.",
+      "dependencies": [
+        "V02/16.10 same-candidate retry reached i18n checker and reported 19 missing keys in uk-UA layout/oauth"
+      ],
+      "acceptance": [
+        "Both JSON files parse and their key sets exactly match en-US layout/oauth respectively",
+        "All 19 missing keys receive Ukrainian translations with no English fallback placeholders",
+        "Targeted i18n check for layout/oauth and uk-UA passes",
+        "Only the two registered locale files and implementation report change"
+      ],
+      "dispatch_status": "completed",
+      "report_sha256": "87c183df488a8e620f915e02d5c9a9cc0eea66bf15700fa4d127c9753da8e117",
+      "locale_sha256": {
+        "web/i18n/uk-UA/layout.json": "2abd6e3cbfbd9fc15b6febb31c2c34cbd3542bfe857406ed28df0ccf203d2233",
+        "web/i18n/uk-UA/oauth.json": "6913c80196bb45035d1ec478e2087a0be712d5d501ebab0cd7237a747d62f02a"
+      },
+      "result": "19 Ukrainian translations added; JSON and exact en-US key parity passed; targeted i18n checker passed after same-command sandbox retry."
+    },
+    "14.18_final_candidate_structural_acceptance": {
+      "id": "14.18_final_candidate_structural_acceptance",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "model": "coordinator",
+      "reasoning_effort": "high",
+      "base_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+      "registered_paths": [
+        "web/i18n/uk-UA/layout.json",
+        "web/i18n/uk-UA/oauth.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.18-final-candidate-structural-acceptance.md"
+      ],
+      "commit_allowlist": [
+        "web/i18n/uk-UA/layout.json",
+        "web/i18n/uk-UA/oauth.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.16-recandidate-structural-acceptance.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/14.17-ukrainian-locale-parity.md",
+        "openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate-result.json",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/16.10-final-candidate.log",
+        "openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.json",
+        "openspec/changes/merge-upstream-1-17-1/execution-graph.md",
+        "openspec/changes/merge-upstream-1-17-1/tasks.md"
+      ],
+      "scope": "Freeze the post-14.17 source candidate as a direct child of 783859de3ebc098f2c9916516c831d92e547a913. Stage only the exact registered commit_allowlist, including the two uk-UA namespace files and coordinator evidence/state updates already registered here. The 14.18 acceptance report is written after the commit and remains outside this candidate to avoid self-referential hashes. Do not stage unrelated untracked directories, make unrelated edits, or create branches/worktrees.",
+      "dependencies": [
+        "M08/14.16:passed",
+        "M08/14.17:passed",
+        "V02/16.10:blocked_at_i18n with exact same-archive retry evidence"
+      ],
+      "acceptance": [
+        "The staged path set equals commit_allowlist exactly; ignored log is force-added only by its exact registered path.",
+        "Candidate is a direct child of 783859de3ebc098f2c9916516c831d92e547a913 and its tree contains the exact 19-key uk-UA translations plus registered state/evidence updates.",
+        "M00 two-parent merge ancestry, M01-M07 implementation ancestry, all 91 conflict-path dispositions, and no unresolved index/conflict markers are preserved.",
+        "API subtree hash remains 895c0be99faafa5314806ddb2c0553c6062c7f67; personal total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota remains cumulative usage.",
+        "Report records commit/tree, exact path allowlist, source and evidence hashes, structural scans, and OpenSpec/format checks without claiming V02 or production acceptance."
+      ],
+      "dispatch_status": "completed",
+      "candidate_commit": "d2fea9989725c79afdeec3eba4eaa6e0e260e480",
+      "candidate_tree": "2ea520aa0c8bbb54c95c5ac5c53fe22b5f9f6de5",
+      "parent_commit": "783859de3ebc098f2c9916516c831d92e547a913",
+      "report_sha256": "fbaed006adf7c126d9c088f75fb9ffbd1e1e1c39453f49308f72c0af6bdd41c2",
+      "result": "11/11 commit allowlist exact; direct-child ancestry, M00 merge ancestry, 91/91 resolved conflict mapping, no conflict markers/unmerged index, unchanged API subtree and quota boundary, exact locale parity, formatting and strict OpenSpec validation passed."
+    },
+    "14.19_final_candidate_after_M01_build_script_change": {
+      "id": "14.19_final_candidate_after_M01_build_script_change",
+      "status": "passed",
+      "owner": "M08/coordinator",
+      "model": "coordinator",
+      "reasoning_effort": "high",
+      "base_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+      "candidate_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+      "registered_paths": [
+        "evidence/M08/14.18-final-candidate-structural-acceptance.md",
+        "evidence/M08/result.json",
+        "evidence/V02/16.11-final-candidate-result.json",
+        "evidence/V02/16.11-final-candidate.log",
+        "evidence/V02/16.12-final-candidate-build-overlay-result.json",
+        "evidence/V02/16.12-final-candidate-build-overlay.log",
+        "evidence/V02/16.13-exact-candidate-checkout-build-result.json",
+        "evidence/V02/16.13-exact-candidate-checkout-build.log",
+        "evidence/V02/16.14-webpack-diagnostic-result.json",
+        "evidence/V02/16.14-webpack-diagnostic.log",
+        "evidence/V02/result.json",
+        "execution-graph.json",
+        "execution-graph.md",
+        "tasks.md",
+        "evidence/M08/14.19-final-candidate-structural-acceptance.md"
+      ],
+      "commit_allowlist": [
+        "evidence/M08/14.18-final-candidate-structural-acceptance.md",
+        "evidence/M08/result.json",
+        "evidence/V02/16.11-final-candidate-result.json",
+        "evidence/V02/16.11-final-candidate.log",
+        "evidence/V02/16.12-final-candidate-build-overlay-result.json",
+        "evidence/V02/16.12-final-candidate-build-overlay.log",
+        "evidence/V02/16.13-exact-candidate-checkout-build-result.json",
+        "evidence/V02/16.13-exact-candidate-checkout-build.log",
+        "evidence/V02/16.14-webpack-diagnostic-result.json",
+        "evidence/V02/16.14-webpack-diagnostic.log",
+        "evidence/V02/result.json",
+        "execution-graph.json",
+        "execution-graph.md",
+        "tasks.md"
+      ],
+      "scope": "Freeze a metadata/evidence candidate directly on the M01/7.5 commit. Include the prior M08/14.18 report and exact V02/16.11-16.14 reports/logs plus coordinator state. The post-commit 14.19 acceptance report is registered but excluded from this commit to avoid self-reference. Do not touch unrelated paths, source code, tests, dependencies or lockfiles; do not create branches/worktrees.",
+      "dependencies": [
+        "M08/14.18 accepted parent d2fea9989725c79afdeec3eba4eaa6e0e260e480.",
+        "M01/7.5 passed and committed as 42fe3f904d6bd469ce887561a94909da882c4bb6; clean-archive pnpm check passed.",
+        "Independent Sol review of 42fe3f904d6bd469ce887561a94909da882c4bb6 passed; API tree and quota boundary are unchanged.",
+        "V02/16.11-16.14 evidence is registered; 16.14 is diagnostic only and does not pass V02."
+      ],
+      "acceptance": [
+        "The staged path set equals commit_allowlist exactly; raw logs are force-added only at registered paths and remain byte-identical.",
+        "The new candidate is a direct child of 42fe3f904d6bd469ce887561a94909da882c4bb6 and retains upstream 1.17.1 and M00 two-parent merge ancestry.",
+        "No application source, tests, dependencies or lockfiles change in the M08 metadata candidate; api subtree remains 895c0be99faafa5314806ddb2c0553c6062c7f67.",
+        "Account total_quota/used_quota remains separate from API Key day/month limits and accumulated_quota; /system-manage-extend/quota-management remains reachable.",
+        "All 91 conflict paths stay resolved with no conflict markers or unmerged index; strict OpenSpec and exact-path formatting pass, excluding raw tool logs to preserve source evidence.",
+        "Report records candidate commit/tree, path allowlist and evidence hashes; no V02 default-build, R01, deployment or production pass is claimed."
+      ],
+      "dispatch_status": "completed",
+      "independent_review": {
+        "status": "passed",
+        "model": "gpt-6-sol",
+        "candidate_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+        "result": "Exact three-path M01 commit; only the build script source value changed. Upstream/M00 ancestry, api subtree, quota models and navigation route were verified.",
+        "scope_limit": "Structural review only; V02 production builds remain outstanding."
+      },
+      "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+      "parent_commit": "42fe3f904d6bd469ce887561a94909da882c4bb6",
+      "report_sha256": "a90d5f3a852aa276fb1baf697882c6c8e589fae857e456c024bcd98eb21b16f2",
+      "result": "14/14 allowlist exact; upstream/M00 ancestry, unchanged 91-path ownership map, no unmerged index/conflict markers, exact API subtree and separate quota behavior verified. Strict OpenSpec and exact-path formatting passed. V02 remains outstanding."
+    }
+  },
+  "updated_at": "2026-09-29",
+  "next_subtask": "A03/authorized_read_only_environment_inventory",
+  "candidate_source_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+  "candidate_source_commit_before_followup": {
+    "sha": "ba33fe26dc21ae3a308f14a61999009fc2849779",
+    "parent": "ac5fca9ace9401734bca31d87b03548b9ff83b18",
+    "registered_path_count": 34,
+    "registered_path_set_exact": true,
+    "m00_ancestor": true
+  },
+  "v02_failure_followup": {
+    "status": "M08/14.10 structural acceptance passed for candidate 95101d76b955481ce6c9519596aeea426680fa71; V02/16.7 is registered against the exact candidate.",
+    "candidate_commit": "95101d76b955481ce6c9519596aeea426680fa71",
+    "failure_report": "evidence/V02/16.6-final-candidate-result.json",
+    "candidate_owned_format_path": "web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx",
+    "independent_m05_format_path": "packages/contracts/openapi-ts.api.config.ts",
+    "failure_report_sha256": "09eef2b100176239cabf35820d99075d015bef93d1a65a0edde4b310f36b82f5",
+    "formatter_followup_report": "evidence/M08/14.9-v02-formatter-debt-remediation.md",
+    "formatter_path_manifest": "evidence/M08/14.9-v02-formatter-path-manifest.json",
+    "candidate_tree": "ec530d435c3e8ac6697dcecb8f10cb1c584d42e6",
+    "structural_acceptance_report": "evidence/M08/14.10-final-candidate-structural-acceptance.md",
+    "structural_acceptance_report_sha256": "5861a90abca83bba99072710a761ea92047d76660fb6e244cc81e83162c5fe95"
+  },
+  "candidate_source_tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+  "downstream_status": {
+    "V02": {
+      "status": "passed",
+      "candidate_commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+      "result": "evidence/V02/16.15-final-candidate-build-result.json",
+      "result_sha256": "1ee29a4ac6743ec768d8118737e12963269631c8e044a48305bbeded5a9aae80",
+      "log_sha256": "5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483"
+    },
+    "R01": {
+      "status": "passed",
+      "readiness_state": "code-ready",
+      "result": "evidence/R01/result.json",
+      "result_sha256": "b3f8ab320a2a79fa54c2312be11a2dda140e08ee29350ebb36af61bd5a1ebc01"
+    },
+    "A03": {
+      "status": "blocked",
+      "reason": "Actual deployment and business-data read-only access has not been authorized."
+    },
+    "production_claimed": false
+  }
+}

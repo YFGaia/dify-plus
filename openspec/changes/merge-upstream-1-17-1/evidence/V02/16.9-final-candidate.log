@@ -1,0 +1,34 @@
+$ vp check && vp run lint:eslint
+[1m[31merror:[39m[0m Formatting issues found
+openspec/changes/merge-upstream-1-17-1/evidence/M05/11.8-v02-contract-reconciliation.md (5ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M05/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M06/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/14.13-independent-v02-fix-verification.md (6ms)
+openspec/changes/merge-upstream-1-17-1/evidence/M08/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/evidence/V02/result.json (0ms)
+openspec/changes/merge-upstream-1-17-1/execution-graph.json (3ms)
+
+Found formatting issues in 7 files (2032ms, 10 threads). Run `vp check --fix` to fix them.
+[ELIFECYCLE] Command failed with exit code 1.
+
+--- V02 / 16.9 run metadata ---
+Candidate commit: 686a5cfa5614ea45b0d9973e52014b07c13b07e7
+Candidate tree: 219f855a099258cbb712daae55e5a365390189ac
+Archive path: /private/tmp/dify-v02-16.9.RITiyw
+Archive creation: git archive 686a5cfa5614ea45b0d9973e52014b07c13b07e7 | tar -x -C /private/tmp/dify-v02-16.9.RITiyw
+Archive has no Git metadata; source commit/tree were verified against the source repository objects before running.
+Structural acceptance reused: evidence/M08/14.14-recandidate-structural-acceptance.md, SHA-256 5bf4c2813b239c39cff2b510a5d6b5984798fb9c8f393f94da075d60b4c5c0a4.
+Runtime: Node v24.20.0, /private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin/node, SHA-256 9d050fd455b56426e25d4d603c7c501cbb2630348e836cf221dcce748e90588a.
+Package manager: pnpm 12.3.4, /private/tmp/dify-m01-unblock/tools/native/package/pnpm, SHA-256 99ccfa6b57e73c693ec2ec9760a978f063b001df8f462e89fce3a30be3d641f3.
+Environment: VP_SKIP_INSTALL=1; --config.verify-deps-before-run=false; no dependency install/sync or network requested.
+Dependency overlay (all existing workspace links): node_modules, web/node_modules, packages/dify-ui/node_modules, packages/contracts/node_modules, packages/iconify-collections/node_modules, packages/jotai-tanstack-form/node_modules, packages/migrate-no-unchecked-indexed-access/node_modules, packages/nuqs-jotai/node_modules, packages/dev-proxy/node_modules, cli/node_modules, e2e/node_modules, sdks/nodejs-client/node_modules. Every link target was verified to exist. web/.next/node_modules was absent/excluded.
+package.json SHA-256: 1314a38a6c6c0be4e955392c5fd889534fc0dfe5ef7769707aaa596b22f3475f.
+pnpm-lock.yaml SHA-256: b308195b487914ac23676b3f00c08e97beedae2cc095addac1b35f8d9d11f824; matches prior frozen dependency evidence, which was reused without install/sync.
+Command: PATH=/private/tmp/dify-m01-unblock/node-release/node-v24.20.0-darwin-arm64/bin:$PATH VP_SKIP_INSTALL=1 /private/tmp/dify-m01-unblock/tools/native/package/pnpm --config.verify-deps-before-run=false check
+Command exit: 1. pnpm check ran `vp check && vp run lint:eslint`; `vp check` stopped in formatting, so lint:eslint did not run.
+First failed gate: pnpm check / vp check formatter. Seven formatting paths were reported: evidence/M05/11.8-v02-contract-reconciliation.md, evidence/M05/result.json, evidence/M06/result.json, evidence/M08/14.13-independent-v02-fix-verification.md, evidence/M08/result.json, evidence/V02/result.json, execution-graph.json. Formatter reported 2,032 ms. Hashes of these snapshot files are included in 16.9-final-candidate-result.json.
+Warnings: none reported by the failed formatter invocation. Total candidate file scan count was not printed by the tool; seven failing paths were explicitly enumerated.
+Stop boundary: lint:eslint, web lint:tss, web i18n:check, registered unit suites (system-features/console/access-point/api-key), and both web builds were not run because of first-failure rule.
+Browser inventory: 26 `*.browser.spec.*` files exist under web excluding node_modules and .next. In the registered API-key quota scope, the relevant file is `web/app/components/api-key/__tests__/api-key-modal-layout.browser.spec.tsx`, SHA-256 93d0239aae9fed0db61c5e2cecf793bacef67d1af7a81395369e16583759b120, exact match to M08/14.7; reused prior Chromium result 1 file / 2 tests passed, no rerun. The other 25 repository browser specs were outside this registered feature-specific browser evidence and were not run.
+V01 reuse: candidate API tree SHA-1 895c0be99faafa5314806ddb2c0553c6062c7f67 matches V01 tested API tree; reuse 160 passed, 0 failed, 0 skipped, 2 warnings from evidence/V01/result.json (SHA-256 995e8f0dbb5c0f8853eea275cd653df14b41b8fc81e6bb9a75d6836da76efe77).
+No source, tests, graph, tasks, staging, or commit were changed by this task. Only the registered V02/16.9 result and log are written.

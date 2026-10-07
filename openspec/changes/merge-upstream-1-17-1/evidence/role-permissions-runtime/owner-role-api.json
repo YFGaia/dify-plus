@@ -1,0 +1,116 @@
+[
+  {
+    "path": "/workspaces/current/summary",
+    "status": 200,
+    "fields": [
+      "id",
+      "name",
+      "role",
+      "plan",
+      "credits",
+      "admin_extend",
+      "tenant_extend"
+    ],
+    "role": "owner"
+  },
+  {
+    "path": "/system-manage-extend/quota-management?page=1&page_size=100",
+    "status": 200,
+    "fields": [
+      "list",
+      "total",
+      "page",
+      "page_size"
+    ],
+    "total": 11,
+    "quota_rows": [
+      {
+        "email": "acceptance-member-02@example.invalid",
+        "total_quota": 15,
+        "used_quota": 0
+      },
+      {
+        "email": "acceptance-member-03@example.invalid",
+        "total_quota": 15,
+        "used_quota": 0
+      },
+      {
+        "email": "acceptance-member-04@example.invalid",
+        "total_quota": 15,
+        "used_quota": 0
+      },
+      {
+        "email": "acceptance-member-05@example.invalid",
+        "total_quota": 15,
+        "used_quota": 0
+      },
+      {
+        "email": "acceptance-member-06@example.invalid",
+        "total_quota": 15,
+        "used_quota": 0
+      },
+      {
+        "email": "acceptance-member-07@example.invalid",
+        "total_quota": 15,
+        "used_quota": 0
+      },
+      {
+        "email": "acceptance-member-08@example.invalid",
+        "total_quota": 15,
+        "used_quota": 0
+      },
+      {
+        "email": "acceptance-member-01@example.invalid",
+        "total_quota": 23.1234567,
+        "used_quota": 0
+      },
+      {
+        "email": "acceptance-member-09@example.invalid",
+        "total_quota": 35.5678912,
+        "used_quota": 0
+      }
+    ]
+  },
+  {
+    "path": "/system-manage-extend/integration/dingtalk",
+    "status": 200,
+    "fields": [
+      "status",
+      "corp_id",
+      "agent_id",
+      "app_key",
+      "app_id",
+      "app_secret",
+      "config"
+    ]
+  },
+  {
+    "path": "/system-manage-extend/integration/oauth2",
+    "status": 200,
+    "fields": [
+      "status",
+      "corp_id",
+      "agent_id",
+      "app_key",
+      "app_id",
+      "app_secret",
+      "config"
+    ]
+  },
+  {
+    "path": "/system-manage-extend/forward-tokens",
+    "status": 200,
+    "fields": [
+      "tokens"
+    ],
+    "count": 0
+  },
+  {
+    "path": "/system-manage-extend/code-execution-control",
+    "status": 200,
+    "fields": [
+      "items"
+    ],
+    "count": 0
+  }
+]

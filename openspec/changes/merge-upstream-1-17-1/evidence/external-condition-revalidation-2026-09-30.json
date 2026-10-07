@@ -1,0 +1,13 @@
+{
+  "verification_kind": "Runtime executor reported actual current product GETs, not a repeated model or integration attempt",
+  "executor": "runtime_acceptance",
+  "system_features_status": 200,
+  "provider_summary_status": 200,
+  "selected_edition": "COMMUNITY",
+  "configured_llm_provider_count": 0,
+  "configured_embedding_provider_count": 0,
+  "email_setup": false,
+  "social_oauth_or_sso_enabled": false,
+  "remaining_external_required": 11,
+  "boundary": "Original tenant model-plugin45tokens/price0 component works but does not provide isolated credentials, positive pricing, SSO callback or embedding/Agent-tool configuration. No user provider/price/credentials changed or copied."
+}

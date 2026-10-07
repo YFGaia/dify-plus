@@ -1,0 +1,4 @@
+{
+  "argv": ["env", "-i", "PATH=/opt/homebrew/bin:/usr/bin:/bin", "UV_OFFLINE=1", "UV_CACHE_DIR=/private/tmp/i23c2p1-independent-uv", "PYTHON_DOTENV_DISABLED=1", "uv", "run", "--project", "/Users/liuxingwang/go/src/dify-plus/api", "--no-sync", "ruff", "format", "--isolated", "--check", "/Users/liuxingwang/go/src/dify-plus/api/tests/unit_tests/repositories/test_casdoor_avatar_dispatch_repository_independent.py"],
+  "cwd": "/Users/liuxingwang/go/src/dify-plus"
+}

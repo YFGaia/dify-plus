@@ -19,12 +19,7 @@ const VALUE_LIMIT = {
 }
 
 const key = 'month_limit_quota'
-const MonthLimitItemExtend: FC<Props> = ({
-  className,
-  value,
-  enable,
-  onChange,
-}) => {
+const MonthLimitItemExtend: FC<Props> = ({ className, value, enable, onChange }) => {
   const { t } = useTranslation()
   const handleParamChange = (key: string, value: number) => {
     let notOutRangeValue = Number.parseFloat(value.toFixed(2))
@@ -36,8 +31,8 @@ const MonthLimitItemExtend: FC<Props> = ({
     <ParamItem
       className={className}
       id={key}
-      name={t('apiKeyModal.monthLimitItemName', { ns: 'extend' })}
-      tip={t('apiKeyModal.noLimitTips', { ns: 'extend' }) as string}
+      name={t(($) => $['apiKeyModal.monthLimitItemName'], { ns: 'extend' })}
+      tip={t(($) => $['apiKeyModal.noLimitTips'], { ns: 'extend' }) as string}
       {...VALUE_LIMIT}
       value={value}
       enable={enable}

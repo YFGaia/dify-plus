@@ -1,0 +1,151 @@
+{
+  "id": "996b1f39-41ff-4bc8-a59f-4768849436c6",
+  "graph": {
+    "nodes": [
+      {
+        "id": "start",
+        "data": {
+          "type": "start",
+          "title": "Start",
+          "variables": []
+        },
+        "type": "custom",
+        "position": {
+          "x": 30,
+          "y": 100
+        },
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "width": 244,
+        "height": 100
+      },
+      {
+        "id": "tool",
+        "data": {
+          "type": "tool",
+          "title": "Acceptance Marker Echo",
+          "provider_id": "14965c4b-9654-4ee9-b6df-ea0a61e5c58d",
+          "provider_type": "workflow",
+          "provider_name": "Acceptance Marker Echo",
+          "tool_name": "acceptance_marker_echo_20260930",
+          "tool_label": "Acceptance Marker Echo",
+          "tool_node_version": "2",
+          "tool_configurations": {
+            "marker": {
+              "type": "constant",
+              "value": "B09_PARENT_CONFIG_V1"
+            }
+          },
+          "tool_parameters": {},
+          "is_team_authorization": true
+        },
+        "type": "custom",
+        "position": {
+          "x": 334,
+          "y": 100
+        },
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "width": 244,
+        "height": 100
+      },
+      {
+        "id": "end",
+        "data": {
+          "type": "end",
+          "title": "End",
+          "outputs": [
+            {
+              "variable": "marker_text",
+              "value_type": "string",
+              "value_selector": [
+                "tool",
+                "text"
+              ]
+            },
+            {
+              "variable": "marker_json",
+              "value_type": "array[object]",
+              "value_selector": [
+                "tool",
+                "json"
+              ]
+            }
+          ]
+        },
+        "type": "custom",
+        "position": {
+          "x": 638,
+          "y": 100
+        },
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "width": 244,
+        "height": 100
+      }
+    ],
+    "edges": [
+      {
+        "id": "start-tool",
+        "source": "start",
+        "target": "tool",
+        "sourceHandle": "source",
+        "targetHandle": "target",
+        "type": "custom",
+        "data": {
+          "sourceType": "start",
+          "targetType": "tool",
+          "isInIteration": false,
+          "isInLoop": false
+        }
+      },
+      {
+        "id": "tool-end",
+        "source": "tool",
+        "target": "end",
+        "sourceHandle": "source",
+        "targetHandle": "target",
+        "type": "custom",
+        "data": {
+          "sourceType": "tool",
+          "targetType": "end",
+          "isInIteration": false,
+          "isInLoop": false
+        }
+      }
+    ],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 0.8
+    }
+  },
+  "features": {
+    "file_upload": {},
+    "text_to_speech": {
+      "enabled": false,
+      "voice": "",
+      "language": ""
+    },
+    "sensitive_word_avoidance": {
+      "enabled": false
+    }
+  },
+  "hash": "0953c665eedb6692b00c857db0fe47f8c2563f4c696d06d0e474372ff9c9f3f9",
+  "version": "draft",
+  "version_number": null,
+  "marked_name": "",
+  "marked_comment": "",
+  "created_by": {
+    "id": "b9f66aac-74db-4546-8858-8b43f36d3386",
+    "name": "Acceptance Owner",
+    "email": "acceptance-owner@example.invalid"
+  },
+  "created_at": 1790761543,
+  "updated_by": null,
+  "updated_at": 1790761543,
+  "tool_published": false,
+  "environment_variables": [],
+  "conversation_variables": [],
+  "rag_pipeline_variables": []
+}

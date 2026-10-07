@@ -1,0 +1,724 @@
+{
+  "node": "M07",
+  "status": "passed",
+  "implementation": "source_static_acceptance_passed",
+  "deployable": false,
+  "branch": "codex/merge-upstream-1.17.1",
+  "source_commit_before_subtask": "3681a3fed24805cdc4a0fdde09798985c2d92796",
+  "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+  "subtasks": {
+    "13.1": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m07_13_1_core_compose",
+      "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
+      "summary": [
+        "Updated all six fork API service image references and the fork Web image tag to 1.17.1 while retaining private image names.",
+        "Added 36 upstream core environment entries and aligned three existing execution/scaling defaults.",
+        "Added upstream API, worker, and beat healthchecks; worker and beat healthchecks remain disabled by default.",
+        "Kept fork workers, sandbox-full, fork feature switches, Agent retention, service topology, dependencies, volumes, networks, ports, and commands intact."
+      ],
+      "upstream_sources": [
+        "refs/tags/1.17.1:docker/docker-compose.yaml",
+        "refs/tags/1.17.1:docker/docker-compose-template.yaml",
+        "refs/tags/1.17.1:docker/envs/core-services/shared.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/api.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/worker.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/worker-beat.env.example"
+      ],
+      "checks": [
+        {
+          "command": "git diff --check -- docker/docker-compose.dify-plus.yaml",
+          "exit_code": 0
+        },
+        {
+          "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB and CERTBOT variables in the isolated empty environment; no complete config was printed."
+        },
+        {
+          "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml --profile '*' config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB and CERTBOT variables in the isolated empty environment; no complete config was printed."
+        },
+        {
+          "command": "docker compose --profile '*' config --format json | jq -e <private image, fork service, timeout, feature switch, and retention assertions>",
+          "exit_code": 0,
+          "assertions": "Seven versioned fork image references, worker-gaia, worker-dataset, sandbox-full, upstream execution defaults, Agent v2 disabled, and 259200-second retention. Only the jq boolean was emitted."
+        },
+        {
+          "command": "Compare added/updated Compose environment keys to the exact 1.17.1 shared/api/worker/worker-beat env samples",
+          "exit_code": 0,
+          "assertions": "39 added or changed keys checked; 0 missing from upstream samples."
+        }
+      ],
+      "compose_version": "2.36.2-desktop.1",
+      "limitations": [
+        "No private image pull, digest, container runtime, or real environment verification was performed.",
+        "13.2–13.6 remain pending; this is not M07 node acceptance or a deployable release."
+      ]
+    },
+    "13.2": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m07_13_2_migration",
+      "source_commit_before_subtask": "4f16d29b011bca49b46ee59d810de98eb26b6ada",
+      "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
+      "summary": [
+        "Forced MIGRATION_ENABLED=false in the shared API/worker environment so a legacy .env value cannot re-enable automatic migrations in business containers.",
+        "Added an explicit migration profile with one replica and restart=no, using the private API 1.17.1 image.",
+        "Runs flask db upgrade then flask extend_db upgrade and records both current revisions; a failure stops the sequence and leaves a nonzero exit with recovery guidance.",
+        "Operator flow keeps business services stopped until both chains and data are checked; the compose comment forbids scaling or concurrent release jobs."
+      ],
+      "upstream_and_local_inputs": [
+        "upstream 8387590ace4a094de812b7847fc6a4c3a27cd52b docker/docker-compose.yaml and api/docker/entrypoint.sh",
+        "fork api/docker/entrypoint.sh and api/commands/extend.py; confirmed upgrade-db lock contention may exit successfully without migrating"
+      ],
+      "checks": [
+        {
+          "command": "git diff --check -- docker/docker-compose.dify-plus.yaml",
+          "exit_code": 0
+        },
+        {
+          "command": "docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB/CERTBOT values in isolated empty environment."
+        },
+        {
+          "command": "docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml --profile '*' config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB/CERTBOT values in isolated empty environment."
+        },
+        {
+          "command": "Compose config assertions for default, migration profile, and external MIGRATION_ENABLED=true",
+          "exit_code": 0
+        },
+        {
+          "command": "Mock Flask shell execution of the rendered migration command, success and four injected failure locations",
+          "exit_code": 0,
+          "assertions": "Serial order and current commands verified; each failure preserved exit code 23 and prevented later commands."
+        }
+      ],
+      "limitations": [
+        "No live database, container, or image was started or pulled; real migration execution, data validation, and recovery remain unverified.",
+        "Single execution is an operator/release-topology constraint; no distributed lock prevents a manually concurrent job from another Compose project."
+      ]
+    },
+    "13.3": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m07_13_3_agent_plugin_ingress",
+      "source_commit_before_subtask": "21bdeec37cacaac22f9f9c3308de381041ceab9b",
+      "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
+      "summary": [
+        "Moved API/worker and Agent backend onto the shared DIFY_AGENT_API_TOKEN contract; preserved the old shellctl variable as a lower-priority fallback.",
+        "Updated Agent backend/local sandbox to 1.17.1; added dedicated Agent SSRF proxy, isolated networks, common Squid template mount, and persistent home/workspace volumes.",
+        "Updated private plugin daemon to 0.6.10-local and attached required networks while preserving fork queues and worker topology.",
+        "Aligned Web Turnstile/Vinext values and upstream defaults; removed the obsolete PM2 value after confirming no consumer.",
+        "Preserved Agent disabled policy and 259200-second run retention; updated run and shellctl settings for 1.17.1."
+      ],
+      "upstream_sources": [
+        "refs/tags/1.17.1:docker/docker-compose-template.yaml",
+        "refs/tags/1.17.1:docker/envs/core-services/api.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/shared.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/dify-agent.env.example",
+        "refs/tags/1.17.1:docker/envs/core-services/web.env.example",
+        "refs/tags/1.17.1:api/configs/extra/agent_backend_config.py",
+        "refs/tags/1.17.1:dify-agent/src/dify_agent/server/settings.py"
+      ],
+      "unchanged_upstream_files": [
+        "api/docker/entrypoint.sh",
+        "web/Dockerfile",
+        "web/docker/entrypoint.sh",
+        "docker/nginx/conf.d/default.conf.template",
+        "docker/ssrf_proxy/squid-agent.conf.template",
+        "docker/ssrf_proxy/squid-common.conf.template",
+        "docker/ssrf_proxy/squid.conf.template",
+        "docker/ssrf_proxy/docker-entrypoint.sh",
+        "docker/ssrf_proxy/docker-agent-entrypoint.sh"
+      ],
+      "checks": [
+        {
+          "command": "python3 /private/tmp/m07-13-3-check.py",
+          "exit_code": 0,
+          "assertions": "83 static and isolated Web launch assertions; no containers, images, network, or real credentials."
+        },
+        {
+          "command": "docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB/CERTBOT values in empty environment."
+        },
+        {
+          "command": "docker compose --env-file /dev/null -f docker/docker-compose.dify-plus.yaml --profile '*' config --quiet",
+          "exit_code": 0,
+          "warnings": "Unset DB/CERTBOT values in empty environment."
+        },
+        {
+          "command": "bash docker/ssrf_proxy/test_agent_ssrf_allowlist_unit.sh",
+          "exit_code": 0
+        },
+        {
+          "command": "bash -n on the four relevant entrypoints",
+          "exit_code": 0
+        },
+        {
+          "command": "git diff --check -- docker/docker-compose.dify-plus.yaml",
+          "exit_code": 0
+        }
+      ],
+      "environment_constraints": [
+        "macOS Bash 3.2 cannot execute the upstream worker entrypoint Bash 4 lowercase expansion; worker queue coverage was verified statically against the exact upstream entrypoint without altering source."
+      ],
+      "limitations": [
+        "No image pull, container startup, live nginx/Squid/Agent test, or real environment access.",
+        "Private image supply and digest are not verified; Agent credentials must be configured consistently before enabling Agent v2.",
+        "M07 13.4 environment sample policy, 13.5 CI, and 13.6 node acceptance remain pending."
+      ]
+    },
+    "13.4": {
+      "status": "passed",
+      "model": "gpt-6-astra",
+      "agent": "/root/m07_13_4_env_examples",
+      "source_commit_before_subtask": "8ef95f6a929ac6f6e811386619d02b497d354c26",
+      "implementation_commit": "1b1ddf4eb3",
+      "changed_paths": [
+        "docker/.env.example",
+        "docker/envs/core-services/dify-agent.env.example",
+        "docker/envs/core-services/shared.env.example",
+        "docker/envs/core-services/web.env.example"
+      ],
+      "summary": [
+        "Compared all ten root/core service samples against fork-merged-1.16.0 and upstream 1.17.1; regenerated an item-by-item 906-row TSV with each disposition and basis.",
+        "Kept optional Agent retention in the Agent service sample at the fork policy of 259200 seconds; root sample points operators to that optional setting.",
+        "Set Agent v2 sample defaults false; blanked the sample control-plane token and Agent Stub JWE secret and documented required configuration and matching API/backend token.",
+        "Documented that fork Compose uses explicit environment mappings instead of service env_file; unmapped provider options require an explicit service environment override.",
+        "Kept E2B fallback and shellctl legacy fallback behavior; preserved upstream UV_CACHE_DIR duplicate."
+      ],
+      "upstream_commit": "8387590ace4a094de812b7847fc6a4c3a27cd52b",
+      "fork_baseline": "fork-merged-1.16.0",
+      "variable_audit": {
+        "path": "evidence/M07/env-variable-audit.tsv",
+        "summary_path": "evidence/M07/env-variable-audit-summary.json",
+        "rows": 906,
+        "classification_columns": ["action_vs_fork_1_16_0", "action_vs_upstream_1_17_1", "basis"]
+      },
+      "sample_files_unchanged_from_upstream": [
+        "docker/envs/core-services/api.env.example",
+        "docker/envs/core-services/local-sandbox.env.example",
+        "docker/envs/core-services/plugin-daemon.env.example",
+        "docker/envs/core-services/sandbox.env.example",
+        "docker/envs/core-services/worker-beat.env.example",
+        "docker/envs/core-services/worker.env.example"
+      ],
+      "checks": [
+        {
+          "command": "python3 /private/tmp/m07-env-scope-check.py",
+          "exit_code": 0,
+          "assertions": "Default and all-profile Compose render (19/43 services), startup scope, prior-value fallbacks, nested database defaults, and optional environment overrides passed; only expected unset sample certificate warnings remain."
+        },
+        {
+          "command": "python3 /private/tmp/m07-13-4-env-audit.py",
+          "exit_code": 0,
+          "assertions": "Regenerated all ten sample comparisons: 906 rows; shared.env has one pre-existing UV_CACHE_DIR duplicate."
+        },
+        {
+          "command": "python3 /private/tmp/m07-13-4-check.py",
+          "exit_code": 0,
+          "assertions": "52 text/Compose assertions and five isolated Compose config renders passed, covering default/all profiles, migration disabled, Agent disabled, retention, token mapping, and legacy/new sandbox token precedence."
+        },
+        {
+          "command": "git diff --check -- docker/.env.example docker/envs/core-services/{dify-agent,shared,web}.env.example",
+          "exit_code": 0
+        },
+        {
+          "command": "docker compose config warnings",
+          "exit_code": 0,
+          "assertions": "Only unset sample CERTBOT_DOMAIN/CERTBOT_EMAIL warnings in isolated renders."
+        }
+      ],
+      "limitations": [
+        "No image pulls, containers, private .env reads, credentials, or live environment were used.",
+        "agent_backend starts unconditionally and its configured Agent Stub URL makes a non-empty DIFY_AGENT_SERVER_SECRET_KEY necessary even while Agent v2 is disabled; the blank sample is intentionally a prompt to configure a secret before startup."
+      ],
+      "follow_up": {
+        "trigger": "M07 13.6 Luna acceptance found that docker/.env.example still contains optional/provider settings while repository AGENTS.md limits the root sample to variables required for a default Compose deployment to start.",
+        "completed_analysis": "Sol classified all 244 current root variables: 2 strict startup entries, 242 optional entries, with 5 documentation destinations added to the relevant service samples.",
+        "next_action": "Apply the minimal root sample and Compose fallback correction, regenerate the per-variable audit, rerun isolated default/all-profile Compose assertions, then ask a fresh Luna for 13.6 acceptance."
+      },
+      "startup_scope_analysis": {
+        "model": "gpt-6-sol",
+        "agent": "/root/m07_env_exact_scope",
+        "status": "complete_read_only",
+        "source_commit": "abe3b9ae33d21fcb3ebc6abfaeef1946591fd456",
+        "root_sample_variable_count": 244,
+        "root_sample_disposition": {
+          "keep_for_default_startup": ["COMPOSE_PROFILES", "DIFY_AGENT_SERVER_SECRET_KEY"],
+          "move_or_remove_as_optional": 242,
+          "optional_already_in_core_service_samples": 237,
+          "optional_without_service_sample_destination": [
+            "SERVER_CONSOLE_API_URL",
+            "FILES_URL",
+            "INTERNAL_FILES_URL",
+            "PLUGIN_MAX_FILE_SIZE",
+            "MARKETPLACE_URL"
+          ]
+        },
+        "preserve_effective_fork_defaults_before_removing_root_assignments": {
+          "CELERY_WORKER_AMOUNT": "4",
+          "POSTGRES_MAX_CONNECTIONS": "200",
+          "WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED": "true",
+          "NGINX_SOCKET_IO_UPSTREAM": "api_websocket:5001",
+          "VECTOR_STORE": "weaviate",
+          "nested PostgreSQL connection": "user=postgres, password=difyai123456, database=dify"
+        },
+        "secret_key_finding": "Root sample no longer lists optional SECRET_KEY. Fork Compose uses an empty fallback to activate api/configs/secret_key.py storage-backed generation. Every API-mode or worker process inheriting SECRET_KEY must mount the same app storage; api_websocket and worker_beat currently do not, so their Compose volumes require repair before accepting this policy.",
+        "compose_loading": "Fork Compose has no env_file entries; it interpolates docker/.env through explicit environment mappings. Copying a core service sample alone does not configure fork services. Upstream Compose loads service env_file plus ./.env, though explicit environment mappings can override sample values.",
+        "runtime_destination_mapping": {
+          "SERVER_CONSOLE_API_URL": "docker/envs/core-services/web.env.example",
+          "FILES_URL": "docker/envs/core-services/shared.env.example",
+          "INTERNAL_FILES_URL": "docker/envs/core-services/shared.env.example",
+          "PLUGIN_MAX_FILE_SIZE": "docker/envs/core-services/shared.env.example (requires explicit fork service environment override because current fork Compose has no mapping)",
+          "MARKETPLACE_URL": "docker/envs/core-services/web.env.example"
+        },
+        "limits": [
+          "Source/config analysis only; no actual credentials, containers, private images, or live deployment were used."
+        ]
+      },
+      "independent_review": {
+        "status": "initial_blocker_repaired",
+        "model": "gpt-6-luna",
+        "agent": "/root/m07_secret_key_audit",
+        "reviewed_source_commit": "4048e97aeb00a05cc5c6c6ccfce21036092d357d",
+        "findings": [
+          "Root sample policy, the two retained strict-startup variables, all five optional sample destinations, the 906-row audit, and the corrected Compose defaults passed static review.",
+          "api_websocket inherits SECRET_KEY and runs in API mode but lacks ./volumes/app/storage:/app/api/storage. Exact upstream 1.17.1 mounts this volume and includes init_permissions; restore both so empty-key persistence is shared and writable.",
+          "worker_beat inherits SECRET_KEY and initializes the common app factory, but has no shared storage volume. With the new blank-key generation behavior it can create a separate ephemeral key; mount the same app storage before accepting the policy.",
+          "API, worker, worker-gaia, and worker-dataset already mount the same app storage. plugin_daemon uses a separate storage root and its own SERVER_KEY; no Dify SECRET_KEY use was found, but remove unnecessary propagation if the code owner confirms it is safe."
+        ],
+        "checks_run_by_reviewer": [
+          "Static inspection of Compose, app_factory, entrypoint, secret-key persistence helper, and exact upstream 1.17.1 Compose. No containers, tests, or docker compose config were run."
+        ],
+        "next_action": "The shared-storage blocker was repaired and re-reviewed below; resolve the first-start key-generation race and init_permissions failure masking before accepting 13.4."
+      },
+      "repair": {
+        "status": "implemented_and_reviewed_risk_resolution_required",
+        "model": "gpt-6-astra",
+        "agent": "/root/m07_shared_secret_storage_repair",
+        "source_commit_before_repair": "f4ef2f546394a432b7a3f40e5c38befe0a74b897",
+        "source_commit_after_repair": "122e7529c26ac9e79126382a94e0da5602f4ef68",
+        "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
+        "summary": [
+          "api_websocket now waits for init_permissions to complete successfully and mounts ./volumes/app/storage:/app/api/storage, matching upstream 1.17.1.",
+          "worker_beat now mounts the same app storage as API and worker services so the blank-key persistence helper sees the shared .dify_secret_key."
+        ],
+        "checks": [
+          {
+            "command": "python3 /private/tmp/m07-13-3-check.py",
+            "exit_code": 0,
+            "assertions": "83 M07 13.3 assertions passed."
+          },
+          {
+            "command": "python3 /private/tmp/m07-13-4-check.py",
+            "exit_code": 0,
+            "assertions": "52 environment and Compose assertions plus five isolated Compose renders passed."
+          },
+          {
+            "command": "python3 /private/tmp/m07-env-scope-check.py",
+            "exit_code": 1,
+            "assertions": "Original snapshot checker rejects the expected api_websocket volume addition because it only permits environment differences."
+          },
+          {
+            "command": "python3 /private/tmp/m07-shared-storage-scope-check.py",
+            "exit_code": 0,
+            "assertions": "Narrow temporary copy of the snapshot checker permits only the two added storage mounts and the api_websocket init_permissions dependency; default/all-profile render 19/43 services and verify shared storage, dependencies, networks, and environment overrides."
+          },
+          {
+            "command": "docker compose config --quiet with docker/.env.example, default and --profile '*'",
+            "exit_code": 0,
+            "assertions": "Both isolated Compose configurations parsed; only unset sample CERTBOT_EMAIL/CERTBOT_DOMAIN warnings."
+          },
+          {
+            "command": "git diff --check",
+            "exit_code": 0
+          }
+        ],
+        "limitations": [
+          "No image pull or container startup; real-volume permissions and first-start concurrency behavior remain unverified.",
+          "Existing init_permissions script can mask chown/touch failure with a trailing echo; not changed in this scoped repair.",
+          "Worker startup test coverage remains static under macOS Bash 3.2."
+        ],
+        "next_action": "Resolve or explicitly constrain first-start secret-key generation concurrency and make init_permissions fail nonzero when chown/touch fails; then rerun the Compose assertions and fresh Luna review before marking 13.4 passed."
+      },
+      "post_repair_review": {
+        "status": "risk_resolution_required",
+        "model": "gpt-6-luna",
+        "agent": "/root/m07_storage_fix_luna_review",
+        "source_commit": "122e7529c26ac9e79126382a94e0da5602f4ef68",
+        "findings": [
+          "api_websocket now matches upstream init_permissions dependency and shared storage mount; worker_beat and all API/worker services share the same app storage bind. No unintended environment, network, image, profile, or topology changes were found.",
+          "Default and all-profile Compose renders passed with 19 and 43 services. Root env sample contains exactly the two strict startup entries; the 906-row variable audit and five retained Compose defaults plus nested PostgreSQL defaults were verified.",
+          "Concurrent first startup remains unsafe for generated SECRET_KEY: multiple processes can all observe a missing key, generate different values, and overwrite the shared persisted file because resolve_secret_key has no lock or atomic create.",
+          "The init_permissions shell command ends with an unconditional echo, so failed chown/touch can still exit zero and satisfy service_completed_successfully; real host volume permissions and container startup were not exercised."
+        ],
+        "checks_run_by_reviewer": [
+          "Static diff review against exact upstream 1.17.1.",
+          "Isolated default and all-profile docker compose config --quiet; 19/43 services rendered; no containers started."
+        ],
+        "limitations": [
+          "No real-volume permission verification, image pull, container startup, or multi-process first-start test."
+        ],
+        "next_action": "Use a fresh Sol analysis to check the minimal safe startup serialization and fail-closed init_permissions changes, then implement and re-review in fresh tasks."
+      },
+      "startup_risk_analysis": {
+        "status": "completed_read_only",
+        "model": "gpt-6-sol",
+        "agent": "/root/m07_key_startup_risk_analysis",
+        "source_commit": "c64cb30a3e",
+        "findings": [
+          "Adding api: service_healthy to key consumers is not a general guarantee: Gunicorn may have multiple workers, API can be scaled, and migration or direct starts can race. It also does not cover --no-deps or another Compose project.",
+          "Recommended Compose-level serialization: add a one-shot private API image init_secret_key service. After init_permissions succeeds, initialize the configured storage adapter and call resolve_secret_key once without printing the value. Gate api, api_websocket, worker, worker-gaia, worker-dataset, worker_beat, and migration on init_secret_key service_completed_successfully.",
+          "This provides a single key seed before the listed Compose consumers, avoids API/worker/agent dependency cycles, and preserves explicit SECRET_KEY behavior. Manual bypasses and cross-project starts remain operationally constrained; general storage compare-and-set would require reopening M02 and registering backend source/tests.",
+          "Change the init_permissions command to `chown ... && touch ... || exit 1` so either failure returns nonzero and cannot be masked by the success echo. This preserves existing marker behavior.",
+          "The migration release command uses --no-deps, so its documented preflight must explicitly complete init_permissions and init_secret_key before running the migration service."
+        ],
+        "acceptance_gates": [
+          "Default and all-profile Compose configs render without dependency cycles; every API/worker/migration key consumer waits for init_secret_key.",
+          "The seed service uses the same storage environment and volume and does not emit the generated secret.",
+          "init_permissions exits nonzero when chown or touch fails and preserves existing marker short-circuit behavior.",
+          "Document that --no-deps, direct container runs, and cross-project concurrent starts require operators to seed/serialize the key first."
+        ],
+        "limitations": [
+          "No code, tests, or containers were run by the Sol analysis.",
+          "This Compose gate serializes the default declared service graph but does not provide a distributed storage compare-and-set guarantee for manual bypasses or multiple Compose projects."
+        ],
+        "next_action": "A fresh Astra implementation task adds the seed gate, fail-closed storage initialization, and migration command guidance, then runs isolated default/all-profile assertions before another Luna review."
+      },
+      "prior_status_history": [
+        {
+          "status": "repair_required",
+          "reason": "prior Luna review found concurrent key initialization and init_permissions false-success risks"
+        }
+      ],
+      "startup_gate_implementation": {
+        "status": "passed",
+        "model": "gpt-6-astra",
+        "agent": "/root/m07_seed_key_gate",
+        "source_commit_before_subtask": "58ae912797e82c09f22b7497481e45f30f425877",
+        "changed_paths": ["docker/docker-compose.dify-plus.yaml"],
+        "source_sha256": "089311a9810bd98e84e495b49cb061a3b586eec38264503e3c4be45bfd35a072",
+        "summary": [
+          "Added one-shot private API init_secret_key service that initializes the configured shared storage adapter and invokes resolve_secret_key once without emitting the key.",
+          "Gated migration, API, WebSocket, worker, worker-gaia, worker-dataset, and worker_beat on successful initialization while preserving their existing dependencies.",
+          "Made init_permissions fail closed for chown/touch and documented both init jobs as --no-deps migration preconditions."
+        ],
+        "checks": [
+          {
+            "command": "python3 /private/tmp/m07-seed-key-gate-check.py",
+            "exit_code": 0,
+            "assertions": "358 scoped assertions; default/all-profile renders 20/44 services; dependency graph, shared environment/storage, explicit/S3 parity, four shell failure cases, seven persistence helper cases; no emitted key."
+          },
+          {
+            "command": "python3 /private/tmp/m07-13-4-check.py",
+            "exit_code": 0,
+            "assertions": "52 retained 13.4 environment/Compose assertions passed."
+          },
+          {
+            "command": "python3 /private/tmp/m07-13-3-seed-aware-check.py",
+            "exit_code": 0,
+            "assertions": "83 assertions passed with only the authorized seed-gate delta normalized."
+          },
+          {
+            "command": "python3 /private/tmp/m07-shared-storage-seed-aware-check.py",
+            "exit_code": 0,
+            "assertions": "Prior shared-storage assertions passed with only the seed-gate delta normalized."
+          },
+          {
+            "command": "bash docker/ssrf_proxy/test_agent_ssrf_allowlist_unit.sh",
+            "exit_code": 0
+          },
+          {
+            "command": "git diff --check -- docker/docker-compose.dify-plus.yaml",
+            "exit_code": 0
+          }
+        ],
+        "historical_checker_notes": [
+          "The original 13.3 snapshot checker rejects the intentionally added init_secret_key service because it disallows any new service; its seed-aware temporary copy passes.",
+          "The original shared-storage snapshot checker rejects the intentionally changed dependencies; its narrowly normalized temporary copy passes. Original scripts remain unchanged."
+        ],
+        "limitations": [
+          "No containers, image pulls, private .env reads, real host storage, or private image execution.",
+          "Compose dependency gate does not cover --no-deps, direct container runs, or concurrent Compose projects; operators must initialize and serialize these paths.",
+          "No distributed compare-and-set was added; general cross-project concurrency would require a storage-level atomicity change."
+        ],
+        "next_action": "Accepted after independent Luna review; documented Compose bypass/cross-project serialization boundary remains.",
+        "implementation_commit": "1b1ddf4eb3",
+        "post_implementation_review": {
+          "status": "passed",
+          "reviewer": "independent gpt-6-luna subtask /root/m07_13_4_luna_review",
+          "target_commit": "1b1ddf4eb3a84a903022767d68e466f5bbe82cdb",
+          "scope": "Read-only static review of Compose seed gate, seven consumer dependencies, init_permissions fail-closed behavior, migration guidance, default-disabled Agent v2 and blank token examples.",
+          "findings": [
+            {
+              "priority": "none",
+              "result": "No P1/P2 blockers. init_secret_key gates migration, API, WebSocket, worker, worker-gaia, worker-dataset, and worker_beat."
+            },
+            {
+              "priority": "P3",
+              "result": "--no-deps, direct container starts, and concurrent separate Compose projects bypass or exceed the Compose dependency DAG; operators must initialize first and serialize those paths."
+            }
+          ],
+          "evidence": "evidence/M07/13.4-independent-review.md",
+          "limits": [
+            "No deployment or container run",
+            "No real volume or secret inspection",
+            "Dedicated assertion results are recorded from the implementation task and were not rerun by this reviewer"
+          ]
+        }
+      },
+      "post_implementation_review": {
+        "status": "passed_with_nonblocking_p3",
+        "reviewer": "independent gpt-6-luna subtask /root/m07_13_4_luna_review",
+        "target_commit": "1b1ddf4eb3a84a903022767d68e466f5bbe82cdb",
+        "scope": "Read-only static review of Compose seed gate, seven consumer dependencies, init_permissions fail-closed behavior, migration guidance, default-disabled Agent v2 and blank token examples.",
+        "findings": [
+          {
+            "priority": "none",
+            "result": "No P1/P2 blockers. init_secret_key gates migration, API, WebSocket, worker, worker-gaia, worker-dataset, and worker_beat."
+          },
+          {
+            "priority": "P3",
+            "result": "--no-deps, direct container starts, and concurrent separate Compose projects bypass or exceed the Compose dependency DAG; operators must initialize first and serialize those paths."
+          }
+        ],
+        "evidence": "evidence/M07/13.4-independent-review.md",
+        "limits": [
+          "No deployment or container run",
+          "No real volume or secret inspection",
+          "Dedicated assertion results are recorded from the implementation task and were not rerun by this reviewer"
+        ],
+        "superseded_client_thread_id": "client-new-thread:a254696f-72b5-40b0-b23d-9a4aceda17a3",
+        "dispatch_channel": "codex_fork_same_directory",
+        "created_from_commit": "45217934dcce960cdf62c36b9536964fde366778",
+        "provisioning_note": "The already-completed independent Luna review in evidence/M07/13.4-independent-review.md was accepted; a redundant same-scope fresh conversation was stopped.",
+        "review_status": "passed",
+        "superseded_duplicate_review_thread_id": "01a0eb20-f978-71e3-9dbf-396839a34414"
+      }
+    },
+    "13.5": {
+      "status": "passed",
+      "model": "gpt-6-sol",
+      "agent": "/root/m07_13_5_ci_analysis",
+      "source_commit_before_subtask": "396f8aff2add33879b44de1f01eed8a4bfd689fe",
+      "changed_paths": [],
+      "evidence": "evidence/M07/ci-analysis.md",
+      "summary": [
+        "Both registered GitHub workflows are byte-identical to upstream 1.17.1; fork build validation uses push:false and official push/manifest jobs are repository-guarded.",
+        "The current codex/merge-upstream-1.17.1 branch is outside configured build-push branch/tag filters; no CI run is claimed.",
+        "Recorded GitLab tag-triggered private API/Web multi-architecture supply as a separate chain. Static review found manifest files are not declared as artifacts and same-service architectures share the manifest filename; arbitrary tags also update latest."
+      ],
+      "checks": [
+        {
+          "command": "git diff --exit-code 1.17.1 -- .github/workflows/build-push.yml .github/workflows/docker-build.yml",
+          "exit_code": 0,
+          "assertions": "Both registered GitHub workflow files are unchanged from upstream 1.17.1."
+        }
+      ],
+      "limitations": [
+        "GitLab manifest transport/collision issue is a static inference; the pipeline was not run.",
+        "No real credentials, image pushes, tags, digests, or host pulls were verified. Repairing .gitlab-ci.yml would require path registration and a separately scoped implementation task."
+      ]
+    },
+    "13.6": {
+      "status": "passed_static_acceptance",
+      "initial_review": {
+        "model": "gpt-6-luna",
+        "agent": "/root/m07_13_6_luna_acceptance",
+        "static_source_result": "Compose default/all-profile, matrix, migration, token, network/volume, and diff assertions passed; source-level acceptance is otherwise ready.",
+        "open_findings": [
+          {
+            "priority": "P2",
+            "finding": "Private GitLab image supply may fail because architecture manifest files are not transferred as artifacts and filenames collide; static inference only, no pipeline run."
+          },
+          {
+            "priority": "P2",
+            "finding": "agent_backend requires non-empty JWE server secret with configured Stub URL even when Agent v2 is false; explicitly documented, deployment configuration still required."
+          },
+          {
+            "priority": "P2/P3",
+            "finding": "Root env sample policy requires only default-startup variables but sample retains many optional/provider settings; must reconcile against repo AGENTS.md before final node acceptance."
+          }
+        ],
+        "checks": [
+          {
+            "command": "docker compose default and all-profile config --quiet",
+            "exit_code": 0
+          },
+          {
+            "command": "all-profile image/service matrix assertions",
+            "exit_code": 0
+          },
+          {
+            "command": "external MIGRATION_ENABLED=true override assertions",
+            "exit_code": 0
+          },
+          {
+            "command": "git diff --check on Compose/env/GitLab CI",
+            "exit_code": 0
+          }
+        ],
+        "deployment_boundary": "Source node review does not establish deployability; no private image pull/digest, real credentials, containers, database migration, proxy, or Agent runtime was tested."
+      },
+      "follow_up_revalidation": {
+        "status": "completed_with_p2_resolved",
+        "model": "gpt-6-sol",
+        "title": "M07 13.6 Compose 与镜像矩阵验收",
+        "base_commit": "9b6937464d6cb845a10a3193230ee6683ca3eecb",
+        "dispatch_channel": "codex_shared_local",
+        "registered_paths": [
+          "docker/docker-compose.dify-plus.yaml",
+          "api/docker/entrypoint.sh",
+          "docker/envs/core-services/api.env.example",
+          "docker/envs/core-services/dify-agent.env.example",
+          "docker/envs/core-services/local-sandbox.env.example",
+          "docker/envs/core-services/plugin-daemon.env.example",
+          "docker/envs/core-services/sandbox.env.example",
+          "docker/envs/core-services/shared.env.example",
+          "docker/envs/core-services/worker-beat.env.example",
+          "docker/envs/core-services/worker.env.example",
+          "docker/ssrf_proxy/squid-agent.conf.template",
+          "docker/ssrf_proxy/squid-common.conf.template",
+          "docker/ssrf_proxy/squid.conf.template",
+          ".github/workflows/build-push.yml",
+          ".github/workflows/docker-build.yml",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/result.json",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/ci-analysis.md",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit-summary.json",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/env-variable-audit.tsv",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/path-registration.json",
+          "openspec/changes/merge-upstream-1-17-1/evidence/M07/pre-analysis.md"
+        ],
+        "scope": "One-shot, read-only local audit of M07 13.6 at current branch HEAD; revalidate prior findings against current Compose/env/CI source, fork image matrix, registration and evidence boundaries. No edits, commits, containers, private pulls, secrets, or network.",
+        "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
+        "thread_id": "01a0eb47-c6b5-7c90-985a-e00b6d53bd6c",
+        "superseded_worktree_attempt": {
+          "status": "superseded_unresolved_provisioning",
+          "model": "gpt-6-sol",
+          "client_thread_id": "client-new-thread:c343887d-4f89-4fe7-8872-0a2e0db7c8bb",
+          "title": "M07 13.6 Compose 与镜像矩阵验收",
+          "base_commit": "8d39ba7c1ed9779285c66c3c10d2245c4257179f",
+          "dispatch_channel": "codex_project_worktree",
+          "reason": "No resolvable threadId appeared in list_threads after provisioning; superseded by a one-shot local read-only Sol thread."
+        },
+        "reviewer_model": "gpt-6-sol",
+        "review_target_commit": "7f96eefd6c758be81e25f3535f5bb43c9cc8d073",
+        "findings": [
+          {
+            "priority": "P2",
+            "title": "GitLab multi-architecture manifest file transport",
+            "details": "API/Web architecture jobs write shared manifest_api.txt/manifest_web.txt without declaring artifacts; downstream manifest jobs need/read those paths. No pipeline run evidence. Prefer explicit already-pushed per-architecture tags to remove transport dependency and collision."
+          },
+          {
+            "priority": "resolved_tracking",
+            "title": "Old review provisioning state",
+            "details": "Superseded by ae1ffe3e42 and the accessible local review conversation."
+          },
+          {
+            "priority": "P3",
+            "title": "JWE server secret deploy prerequisite",
+            "details": "Compose Agent Stub URL requires nonempty valid JWE secret even when Agent v2 is disabled; documented but real value unverified."
+          }
+        ],
+        "passed_checks": [
+          "Private API/Web tags retained for fork services",
+          "Fork Compose path covered despite no text conflict",
+          "Root env example follows AGENTS.md boundary",
+          "GitHub fork validation workflows use push false",
+          "Default and all-profile compose config --quiet passed in isolated review"
+        ],
+        "limits": [
+          "No GitLab pipeline execution",
+          "No private image pull/digest verification",
+          "No secrets, containers, proxy, migrations, or runtime validation"
+        ],
+        "next_action": "Implement and statically verify minimal .gitlab-ci.yml manifest creation fix; keep M07 13.6 open until follow-up review.",
+        "review_result": {
+          "status": "passed_with_nonblocking_deployment_limits",
+          "blocking_findings": [],
+          "previous_P2": "resolved by c707b8fcdc58b30bb45785426cc586ec848f05af; manifest jobs explicitly reference pushed amd64/arm64 tags",
+          "checks": [
+            "YAML parsed",
+            "four build jobs and two manifest jobs verified",
+            "architecture tag pushes and manifest inputs verified",
+            "needs edges preserved",
+            "no manifest txt references",
+            "registry/login/image variables unchanged"
+          ],
+          "limits": [
+            "No GitLab pipeline run",
+            "No private image digest or host pull verification",
+            "No secrets or container/runtime validation"
+          ],
+          "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
+        },
+        "reviewer": "/root/m07_13_6_luna_manifest_fix_review",
+        "resolved_by_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+        "follow_up_review": "evidence/M07/13.6-manifest-fix-followup-review.md"
+      },
+      "artifact_fix": {
+        "status": "passed",
+        "model": "gpt-6-astra",
+        "thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
+        "title": "M07 13.6 Astra 修复 GitLab manifest 传递",
+        "base_commit": "845324c66d",
+        "dispatch_channel": "codex_shared_local",
+        "registered_paths": [".gitlab-ci.yml"],
+        "scope": "Fix only .gitlab-ci.yml so the API/Web manifest jobs consume already-pushed explicit amd64/arm64 tags instead of missing/colliding cross-job manifest text artifacts; static-only verification.",
+        "review_evidence": "evidence/M07/13.6-independent-review.md",
+        "evidence": "evidence/M07/result.json#/subtasks/13.6/artifact_fix",
+        "implementation_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+        "verification": {
+          "astra_static": "YAML parsed; exact scoped diff; all six shell scripts pass sh -n; git diff --check passed",
+          "independent_luna": "passed, no P1/P2/P3; target .gitlab-ci.yml byte-identical to c707b8fcdc58b30bb45785426cc586ec848f05af",
+          "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md"
+        },
+        "limits": ["No GitLab pipeline execution", "No network or private registry access"],
+        "observation": "Manifest jobs now explicitly consume the already-pushed per-architecture tags; no GitLab pipeline execution was claimed."
+      },
+      "artifact_follow_up_review": {
+        "status": "passed",
+        "model": "gpt-6-luna",
+        "thread_id": "01a0eb51-38be-7641-ad06-5c98228b034b",
+        "title": "M07 13.6 Luna 复核 GitLab manifest 修复",
+        "base_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+        "dispatch_channel": "codex_shared_local",
+        "registered_paths": [".gitlab-ci.yml"],
+        "scope": "Independent read-only review of manifest tags vs build tags, API/Web job wiring, and removal of txt/artifacts dependency.",
+        "implementation_thread_id": "01a0eb4f-1818-7e70-8047-fa503161a19a",
+        "evidence": "evidence/M07/13.6-manifest-fix-followup-review.md",
+        "review_target_commit": "c707b8fcdc58b30bb45785426cc586ec848f05af",
+        "reviewer_model": "gpt-6-luna",
+        "findings": [],
+        "verification": {
+          "service_tag_mapping": "API/Web each reference the exact amd64 and arm64 tags pushed by matching build jobs",
+          "manifest_file_transport": "no manifest_api.txt or manifest_web.txt references remain",
+          "job_dependencies": "each manifest needs the two matching architecture jobs",
+          "workflow_and_registry": "tag-only rule, shared registry login, push/build behavior retained",
+          "checks": "YAML parse, shell syntax, target diff check passed"
+        },
+        "limits": [
+          "No GitLab pipeline or private registry operations",
+          "No image push/digest/manifest publication verification"
+        ]
+      },
+      "acceptance_boundary": "Source/static acceptance passed; not deployment evidence."
+    }
+  },
+  "tasks_complete": ["13.1", "13.2", "13.3", "13.4", "13.5", "13.6"],
+  "next_subtask": "complete",
+  "known_limits": [
+    "No private image pull, tag/digest or deployment-host verification has been performed; GitHub build validation is not private fork image supply evidence.",
+    "agent_backend requires a configured JWE server secret while its Agent Stub URL is set, including with Agent v2 disabled.",
+    "No GitLab pipeline execution, private image digest/pull, deployment secret, container start, database migration, or Agent runtime evidence; source acceptance does not imply deployability."
+  ],
+  "reconciliation_note": "Root reconciled completed child statuses with graph after independent Sol preflight; no pipeline/runtime validation added."
+}

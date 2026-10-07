@@ -1,0 +1,35 @@
+{
+  "tenant_b_id": "807337b2-ca2d-4eb7-bc48-d8ddb6e8b60f",
+  "admin_id": "08f47ef2-98da-4e73-a049-201c5fd6c099",
+  "app_b_id": "644081fd-d6e4-4c15-87d2-019449df0368",
+  "dataset_b_id": "d8c46657-4207-4449-89c9-349d19093e3a",
+  "conversation_b_id": "c97bcc92-4593-4f94-a43c-8c7a35604a2b",
+  "message_b_id": "0daea1f2-feb3-47c5-951c-18e9429eb0c0",
+  "context_b_id": "d7d3c43d-4ba6-4a41-9c1f-f3f0b1a3d4af",
+  "enduser_b_id": "2bf93a62-4e71-4eda-8e0d-604cdadd4aaf",
+  "enduser_account_join_b_id": "f963183c-7c61-4246-92f1-dd0630e41594",
+  "app_extend_b_id": "4b162e0f-2851-4007-90e4-a2fb028f70b7",
+  "app_extend_auth_is_null": true,
+  "retention_number": 17,
+  "fixture_creation": "authorized ORM Tenant plus standard membership service; not UI workspace creation",
+  "workspace_creation_allowed": false,
+  "admin_initial_memberships": [
+    {
+      "tenant_id": "f12143c1-4eab-48ec-92cf-0b4fb1f051d2",
+      "role": "admin",
+      "current": true
+    }
+  ],
+  "owner_initial_memberships": [
+    {
+      "tenant_id": "f12143c1-4eab-48ec-92cf-0b4fb1f051d2",
+      "role": "owner",
+      "current": true
+    }
+  ],
+  "owner_membership_unchanged": true,
+  "app_b_positive_detail_status": 200,
+  "app_b_initial_keys_count": 0,
+  "dataset_b_positive_status": 200,
+  "llm_calls": 0
+}

@@ -1,0 +1,47 @@
+{
+  "candidate_image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "loaded_public_config": {
+    "ARCHIVE_STORAGE_ENABLED": false,
+    "DEPLOYMENT_EDITION": "COMMUNITY",
+    "STORAGE_TYPE": "opendal",
+    "AGENT_SHELL_ENABLED": true
+  },
+  "results": [
+    {
+      "case": "identity",
+      "status": 200,
+      "identity_response_present": true
+    },
+    {
+      "case": "ordinary_run",
+      "status": 200,
+      "actual_terminal_status": "succeeded",
+      "actual_total_tokens": 0
+    },
+    {
+      "case": "ordinary_nodes",
+      "status": 200,
+      "node_count": 3,
+      "node_statuses": [
+        "succeeded",
+        "succeeded",
+        "succeeded"
+      ]
+    },
+    {
+      "case": "archive_list_community_guard",
+      "status": 404,
+      "safe_error_code": "not_found"
+    }
+  ],
+  "boundary": "Real selected Community/disabled configuration, archive route edition404 and ordinary workflow log/node persisted reads. No archive S3 client/network operation or enabled archive assertion; read-only requests, no model invocation/auth mutation.",
+  "actual_runtime_disabled_client_guard": {
+    "loaded_flag_asserted_false": true,
+    "actual_guard_raised": true,
+    "exception_class": "ArchiveStorageNotConfiguredError",
+    "network_or_storage_operation_performed": false
+  },
+  "verdict": "passed_selected_disabled_scope",
+  "auth_harness_note": "Initial private session ordinary GET401; sole authorized authwriter legally refreshed synthetic product token, file reread and all ordinarypositive requests200. No source defect inferred.",
+  "agent_scope_boundary": "Single actual loaded flag independently read true; generated Agent/tool operation still requires actual legal isolated model/config fixture; archive selectedfalse unrelated."
+}

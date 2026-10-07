@@ -1,0 +1,10 @@
+[1m[2mnote:[0m[0m You are running [94m`vp test`[39m as a Vite+ built-in command. If you meant to run the test npm script, use [94m`vpr test`[39m instead.
+
+ RUN  v4.1.11 /Users/liuxingwang/go/src/dify-plus/web
+
+
+ Test Files  3 passed (3)
+      Tests  73 passed (73)
+   Start at  18:24:53
+   Duration  790ms (transform 462ms, setup 352ms, import 314ms, tests 752ms, environment 401ms)
+

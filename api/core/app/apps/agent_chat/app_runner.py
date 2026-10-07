@@ -2,6 +2,7 @@ import logging
 from typing import cast
 
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from core.agent.cot_chat_agent_runner import CotChatAgentRunner
 from core.agent.cot_completion_agent_runner import CotCompletionAgentRunner
@@ -12,13 +13,13 @@ from core.app.apps.base_app_queue_manager import AppQueueManager, PublishFrom
 from core.app.apps.base_app_runner import AppRunner
 from core.app.entities.app_invoke_entities import AgentChatAppGenerateEntity
 from core.app.entities.queue_entities import QueueAnnotationReplyEvent
+from core.db.session_factory import create_session
 from core.memory.token_buffer_memory import TokenBufferMemory
 from core.model_manager import ModelInstance
-from core.model_runtime.entities.llm_entities import LLMMode
-from core.model_runtime.entities.model_entities import ModelFeature, ModelPropertyKey
-from core.model_runtime.model_providers.__base.large_language_model import LargeLanguageModel
 from core.moderation.base import ModerationError
-from extensions.ext_database import db
+from graphon.model_runtime.entities.llm_entities import LLMMode
+from graphon.model_runtime.entities.model_entities import ModelFeature, ModelPropertyKey
+from graphon.model_runtime.model_providers.base.large_language_model import LargeLanguageModel
 from models.model import App, Conversation, Message
 
 logger = logging.getLogger(__name__)
@@ -35,9 +36,13 @@ class AgentChatAppRunner(AppRunner):
         queue_manager: AppQueueManager,
         conversation: Conversation,
         message: Message,
+        session: Session,
     ):
-        """
-        Run assistant application
+        """Run the assistant application with bounded explicit transactions.
+
+        The setup session is committed and released before the multi-step agent
+        runner begins model or tool I/O.
+
         :param application_generate_entity: application generate entity
         :param queue_manager: application queue manager
         :param conversation: conversation
@@ -47,7 +52,10 @@ class AgentChatAppRunner(AppRunner):
         app_config = application_generate_entity.app_config
         app_config = cast(AgentChatAppConfig, app_config)
         app_stmt = select(App).where(App.id == app_config.app_id)
-        app_record = db.session.scalar(app_stmt)
+        with create_session() as read_session:
+            app_record = read_session.scalar(app_stmt)
+            if app_record:
+                read_session.expunge(app_record)
         if not app_record:
             raise ValueError("App not found")
 
@@ -111,7 +119,10 @@ class AgentChatAppRunner(AppRunner):
                 query=query,
                 user_id=application_generate_entity.user_id,
                 invoke_from=application_generate_entity.invoke_from,
+                session=session,
             )
+            session.commit()
+            session.close()
 
             if annotation_reply:
                 queue_manager.publish(
@@ -182,21 +193,25 @@ class AgentChatAppRunner(AppRunner):
 
         # change function call strategy based on LLM model
         llm_model = cast(LargeLanguageModel, model_instance.model_type_instance)
-        model_schema = llm_model.get_model_schema(model_instance.model, model_instance.credentials)
+        model_schema = llm_model.get_model_schema(model_instance.model_name, model_instance.credentials)
         if not model_schema:
             raise ValueError("Model schema not found")
 
         if {ModelFeature.MULTI_TOOL_CALL, ModelFeature.TOOL_CALL}.intersection(model_schema.features or []):
             agent_entity.strategy = AgentEntity.Strategy.FUNCTION_CALLING
         conversation_stmt = select(Conversation).where(Conversation.id == conversation.id)
-        conversation_result = db.session.scalar(conversation_stmt)
-        if conversation_result is None:
-            raise ValueError("Conversation not found")
         msg_stmt = select(Message).where(Message.id == message.id)
-        message_result = db.session.scalar(msg_stmt)
+        with create_session() as read_session:
+            conversation_result = read_session.scalar(conversation_stmt)
+            if conversation_result is None:
+                raise ValueError("Conversation not found")
+
+            message_result = read_session.scalar(msg_stmt)
+            if message_result is not None:
+                read_session.expunge(message_result)
+            read_session.expunge(conversation_result)
         if message_result is None:
             raise ValueError("Message not found")
-        db.session.close()
 
         runner_cls: type[FunctionCallAgentRunner] | type[CotChatAgentRunner] | type[CotCompletionAgentRunner]
         # start agent runner
@@ -214,6 +229,7 @@ class AgentChatAppRunner(AppRunner):
             raise ValueError(f"Invalid agent strategy: {agent_entity.strategy}")
 
         runner = runner_cls(
+            session=session,
             tenant_id=app_config.tenant_id,
             application_generate_entity=application_generate_entity,
             conversation=conversation_result,
@@ -228,7 +244,11 @@ class AgentChatAppRunner(AppRunner):
             model_instance=model_instance,
         )
 
+        session.commit()
+        session.close()
+
         invoke_result = runner.run(
+            session=session,
             message=message,
             query=query,
             inputs=inputs,

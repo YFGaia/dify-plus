@@ -1,0 +1,4 @@
+manifest_sha256=ccd43abd29650fa05543d3a367a83b1f20a7d44c0e54452e77f4f20e67cb51d7
+versions_py_count=20
+frozen_overlay_read_only=true
+api_image=sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b linux/arm64

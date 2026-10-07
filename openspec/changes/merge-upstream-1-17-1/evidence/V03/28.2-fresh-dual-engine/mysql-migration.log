@@ -1,0 +1,326 @@
+time="2026-09-30T14:38:42+08:00" level=warning msg="The \"CERTBOT_EMAIL\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T14:38:42+08:00" level=warning msg="The \"CERTBOT_DOMAIN\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T14:38:42+08:00" level=warning msg="The \"SECRET_KEY\" variable is not set. Defaulting to a blank string."
+time="2026-09-30T14:38:42+08:00" level=warning msg="Found orphan containers ([difyplus-verify-mysql-20260930-migration]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+Upgrading upstream migration chain
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/etl_core/trans_comp/trans_json.py:76: SyntaxWarning: invalid escape sequence '\.'
+  :param include_path: path to expand and include. regex string to match from begin. using '|' for multiple ones. default is all. e.g. r"data\.k1", all sub-keys in data.k1 will be included.
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:128: SyntaxWarning: invalid escape sequence '\*'
+  :param file_pattern: the log file name pattern, e.g \*.LOG , access.log
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:463: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:542: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:627: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:723: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:815: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logtail_config_detail.py:901: SyntaxWarning: invalid escape sequence '\w'
+  :param topicFormat: "none", "group_topic" or regex to extract value from file path e.g. "/test/(\w+).log" will extract each file as topic, default is "none"
+/app/api/.venv/lib/python3.12/site-packages/aliyun/log/logger_hanlder.py:230: SyntaxWarning: invalid escape sequence '\s'
+  p2 = u'(?!{0})([\u4e00-\u9fa5\u0800-\u4e00\\w\\.\\-]+)\\s*{0}\\s*"\s*([^"]+?)\s*"'
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+INFO  [alembic.runtime.migration] Context impl MySQLImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 64b051264f32, init
+INFO  [alembic.runtime.migration] Running upgrade 64b051264f32 -> 9f4e3427ea84, add created by role
+INFO  [alembic.runtime.migration] Running upgrade 9f4e3427ea84 -> a45f4dfde53b, add language to recommend apps
+INFO  [alembic.runtime.migration] Running upgrade a45f4dfde53b -> 614f77cecc48, add last active at
+INFO  [alembic.runtime.migration] Running upgrade 614f77cecc48 -> e32f6ccb87c6, e08af0a69ccefbb59fa80c778efee300bb780980
+INFO  [alembic.runtime.migration] Running upgrade e32f6ccb87c6 -> d3d503a3471c, add is_deleted to conversations
+INFO  [alembic.runtime.migration] Running upgrade d3d503a3471c -> a5b56fb053ef, app config add speech_to_text
+INFO  [alembic.runtime.migration] Running upgrade a5b56fb053ef -> 2beac44e5f5f, add is_universal in apps
+INFO  [alembic.runtime.migration] Running upgrade 2beac44e5f5f -> 7ce5a52e4eee, add tool providers
+INFO  [alembic.runtime.migration] Running upgrade 7ce5a52e4eee -> 8d2d099ceb74, add_qa_model_support
+INFO  [alembic.runtime.migration] Running upgrade 8d2d099ceb74 -> 16fa53d9faec, add provider model support
+INFO  [alembic.runtime.migration] Running upgrade 16fa53d9faec -> e35ed59becda, modify quota limit field type
+INFO  [alembic.runtime.migration] Running upgrade e35ed59becda -> bf0aec5ba2cf, add provider order
+INFO  [alembic.runtime.migration] Running upgrade bf0aec5ba2cf -> 5022897aaceb, add model name in embedding
+INFO  [alembic.runtime.migration] Running upgrade 5022897aaceb -> 2c8af9671032, add_qa_document_language
+INFO  [alembic.runtime.migration] Running upgrade 2c8af9671032 -> e8883b0148c9, add_dataset_model_name
+INFO  [alembic.runtime.migration] Running upgrade e8883b0148c9 -> 853f9b9cd3b6, add message price unit
+INFO  [alembic.runtime.migration] Running upgrade 853f9b9cd3b6 -> 4bcffcd64aa4, update_dataset_model_field_null_available
+INFO  [alembic.runtime.migration] Running upgrade 4bcffcd64aa4 -> 6dcb43972bdc, add_dataset_retriever_resource
+INFO  [alembic.runtime.migration] Running upgrade 6dcb43972bdc -> 77e83833755c, add_app_config_retriever_resource
+INFO  [alembic.runtime.migration] Running upgrade 77e83833755c -> 6e2cfb077b04, add_dataset_collection_binding
+INFO  [alembic.runtime.migration] Running upgrade 6e2cfb077b04 -> ab23c11305d4, add dataset query variable at app model configs.
+INFO  [alembic.runtime.migration] Running upgrade ab23c11305d4 -> 2e9819ca5b28, add_tenant_id_in_api_token
+INFO  [alembic.runtime.migration] Running upgrade 2e9819ca5b28 -> b3a09c049e8e, add advanced prompt templates
+INFO  [alembic.runtime.migration] Running upgrade b3a09c049e8e -> 968fff4c0ab9, add_api_based_extension
+INFO  [alembic.runtime.migration] Running upgrade 968fff4c0ab9 -> a9836e3baeee, add external_data_tools in app model config
+INFO  [alembic.runtime.migration] Running upgrade a9836e3baeee -> 8fe468ba0ca5, add gpt4v supports
+INFO  [alembic.runtime.migration] Running upgrade 8fe468ba0ca5 -> fca025d3b60f, add-dataset-retrieval-model
+INFO  [alembic.runtime.migration] Running upgrade fca025d3b60f -> e1901f623fd0, add-annotation-reply
+INFO  [alembic.runtime.migration] Running upgrade e1901f623fd0 -> 46976cc39132, add-annotation-histoiry-score
+INFO  [alembic.runtime.migration] Running upgrade 46976cc39132 -> f2a6fc85e260, add_anntation_history_message_id
+INFO  [alembic.runtime.migration] Running upgrade f2a6fc85e260 -> 714aafe25d39, add_anntation_history_match_response
+INFO  [alembic.runtime.migration] Running upgrade 714aafe25d39 -> 246ba09cbbdb, add_app_anntation_setting
+INFO  [alembic.runtime.migration] Running upgrade 246ba09cbbdb -> 88072f0caa04, add custom config in tenant
+INFO  [alembic.runtime.migration] Running upgrade 88072f0caa04 -> 187385f442fc, modify provider model name length
+INFO  [alembic.runtime.migration] Running upgrade 187385f442fc -> 89c7899ca936, empty message
+INFO  [alembic.runtime.migration] Running upgrade 89c7899ca936 -> 3ef9b2b6bee6, add_assistant_app
+INFO  [alembic.runtime.migration] Running upgrade 3ef9b2b6bee6 -> ad472b61a054, add api provider icon
+INFO  [alembic.runtime.migration] Running upgrade ad472b61a054 -> 8ec536f3c800, rename api provider credentials
+INFO  [alembic.runtime.migration] Running upgrade 8ec536f3c800 -> 00bacef91f18, rename api provider description
+INFO  [alembic.runtime.migration] Running upgrade 00bacef91f18 -> f25003750af4, add created/updated at
+INFO  [alembic.runtime.migration] Running upgrade f25003750af4 -> c71211c8f604, add tool_invoke_model_log
+INFO  [alembic.runtime.migration] Running upgrade c71211c8f604 -> 114eed84c228, remove tool id from model invoke
+INFO  [alembic.runtime.migration] Running upgrade 114eed84c228 -> 4829e54d2fee, change message chain id to nullable
+INFO  [alembic.runtime.migration] Running upgrade 4829e54d2fee -> 053da0c1d756, add api tool privacy
+INFO  [alembic.runtime.migration] Running upgrade 053da0c1d756 -> 4823da1d26cf, add tool file
+INFO  [alembic.runtime.migration] Running upgrade 4823da1d26cf -> 9fafbd60eca1, add message file belongs to
+INFO  [alembic.runtime.migration] Running upgrade 9fafbd60eca1 -> 8ae9bc661daa, add tool conversation variables idx
+INFO  [alembic.runtime.migration] Running upgrade 8ae9bc661daa -> 23db93619b9d, add message files into agent thought
+INFO  [alembic.runtime.migration] Running upgrade 23db93619b9d -> de95f5c77138, migration serpapi_api_key
+INFO  [alembic.runtime.migration] Running upgrade de95f5c77138 -> b24be59fbb04, empty message
+INFO  [alembic.runtime.migration] Running upgrade b24be59fbb04 -> dfb3b7f477da, add-tool-index
+INFO  [alembic.runtime.migration] Running upgrade dfb3b7f477da -> 380c6aa5a70d, add tool labels to agent thought
+INFO  [alembic.runtime.migration] Running upgrade 380c6aa5a70d -> 16830a790f0f, empty message
+INFO  [alembic.runtime.migration] Running upgrade 16830a790f0f -> a8f9b3c45e4a, add_tenant_id_db_index
+INFO  [alembic.runtime.migration] Running upgrade a8f9b3c45e4a -> 17b5ab037c40, add-keyworg-table-storage-type
+INFO  [alembic.runtime.migration] Running upgrade 17b5ab037c40 -> a8d7385a7b66, add-embeddings-provider-name
+INFO  [alembic.runtime.migration] Running upgrade a8d7385a7b66 -> b289e2408ee2, add workflow
+INFO  [alembic.runtime.migration] Running upgrade b289e2408ee2 -> cc04d0998d4d, set model config column nullable
+INFO  [alembic.runtime.migration] Running upgrade cc04d0998d4d -> f9107f83abab, add desc for apps
+INFO  [alembic.runtime.migration] Running upgrade f9107f83abab -> 42e85ed5564d, conversation columns set nullable
+INFO  [alembic.runtime.migration] Running upgrade 42e85ed5564d -> b5429b71023c, messages columns set nullable
+INFO  [alembic.runtime.migration] Running upgrade b5429b71023c -> 563cf8bf777b, enable tool file without conversation id
+INFO  [alembic.runtime.migration] Running upgrade 563cf8bf777b -> e2eacc9a1b63, add status for message
+INFO  [alembic.runtime.migration] Running upgrade e2eacc9a1b63 -> c3311b089690, add tool meta
+INFO  [alembic.runtime.migration] Running upgrade c3311b089690 -> 3c7cac9521c6, add-tags-and-binding-table
+INFO  [alembic.runtime.migration] Running upgrade 3c7cac9521c6 -> 47cc7df8c4f3, modify default model name length
+INFO  [alembic.runtime.migration] Running upgrade 47cc7df8c4f3 -> 5fda94355fce, Custom Disclaimer
+INFO  [alembic.runtime.migration] Running upgrade 5fda94355fce -> 7bdef072e63a, add workflow tool
+INFO  [alembic.runtime.migration] Running upgrade 7bdef072e63a -> 3b18fea55204, add tool label bings
+INFO  [alembic.runtime.migration] Running upgrade 3b18fea55204 -> 9e98fbaffb88, add workflow tool version
+INFO  [alembic.runtime.migration] Running upgrade 9e98fbaffb88 -> 03f98355ba0e, add workflow tool label and tool bindings idx
+INFO  [alembic.runtime.migration] Running upgrade 03f98355ba0e -> 64a70a7aab8b, add workflow run index
+INFO  [alembic.runtime.migration] Running upgrade 64a70a7aab8b -> 4e99a8df00ff, add load balancing
+INFO  [alembic.runtime.migration] Running upgrade 4e99a8df00ff -> 7b45942e39bb, add-api-key-auth-binding
+INFO  [alembic.runtime.migration] Running upgrade 7b45942e39bb -> 4ff534e1eb11, add workflow to site
+INFO  [alembic.runtime.migration] Running upgrade 4ff534e1eb11 -> b69ca54b9208, add chatbot color theme
+INFO  [alembic.runtime.migration] Running upgrade 4ff534e1eb11 -> 04c602f5dc9b, update AppModelConfig and add table TracingAppConfig
+INFO  [alembic.runtime.migration] Running upgrade 04c602f5dc9b -> c031d46af369, remove app model config trace config and rename trace app config
+INFO  [alembic.runtime.migration] Running upgrade c031d46af369 -> 2a3aebbbf4bb, add app tracing
+INFO  [alembic.runtime.migration] Running upgrade 2a3aebbbf4bb, b69ca54b9208 -> 63f9175e515b, merge branches
+INFO  [alembic.runtime.migration] Running upgrade 63f9175e515b -> b2602e131636, add workflow_run_id index for message
+INFO  [alembic.runtime.migration] Running upgrade b2602e131636 -> 7e6a8693e07a, add table dataset_permissions
+INFO  [alembic.runtime.migration] Running upgrade 7e6a8693e07a -> 161cadc1af8d, add dataset permission tenant id
+INFO  [alembic.runtime.migration] Running upgrade 161cadc1af8d -> 408176b91ad3, 'add_max_active_requests'
+INFO  [alembic.runtime.migration] Running upgrade 408176b91ad3 -> fecff1c3da27, remove extra tracing app config table and add idx_dataset_permissions_tenant_id
+INFO  [alembic.runtime.migration] Running upgrade fecff1c3da27 -> 6e957a32015b, add-embedding-cache-created_at_index
+INFO  [alembic.runtime.migration] Running upgrade 6e957a32015b -> 8e5588e6412e, add environment variable to workflow model
+INFO  [alembic.runtime.migration] Running upgrade 8e5588e6412e -> 53bf8af60645, update model
+INFO  [alembic.runtime.migration] Running upgrade 53bf8af60645 -> eeb2e349e6ac, increase max model_name length
+INFO  [alembic.runtime.migration] Running upgrade eeb2e349e6ac -> 1787fbae959a, update tools original_url length
+INFO  [alembic.runtime.migration] Running upgrade 1787fbae959a -> 63a83fcf12ba, support conversation variables
+INFO  [alembic.runtime.migration] Running upgrade 63a83fcf12ba -> 8782057ff0dc, add conversations.dialogue_count
+INFO  [alembic.runtime.migration] Running upgrade 8782057ff0dc -> a6be81136580, app and site icon type
+INFO  [alembic.runtime.migration] Running upgrade a6be81136580 -> 2dbe42621d96, rename workflow__conversation_variables to workflow_conversation_variables
+INFO  [alembic.runtime.migration] Running upgrade 2dbe42621d96 -> d0187d6a88dd, add created_by and updated_by to app, modelconfig, and site
+INFO  [alembic.runtime.migration] Running upgrade d0187d6a88dd -> 030f4915f36a, add use_icon_as_answer_icon fields for app and site
+INFO  [alembic.runtime.migration] Running upgrade 030f4915f36a -> 675b5321501b, add node_execution_id into node_executions
+INFO  [alembic.runtime.migration] Running upgrade 675b5321501b -> d57ba9ebb251, add parent_message_id to messages
+INFO  [alembic.runtime.migration] Running upgrade d57ba9ebb251 -> 6af6a521a53e, update-retrieval-resource
+INFO  [alembic.runtime.migration] Running upgrade 6af6a521a53e -> 33f5fac87f29, external_knowledge_api
+INFO  [alembic.runtime.migration] Running upgrade 33f5fac87f29 -> d8e744d88ed6, fix wrong service-api history
+INFO  [alembic.runtime.migration] Running upgrade d8e744d88ed6 -> bbadea11becb, add name and size to tool_files
+INFO  [alembic.runtime.migration] Running upgrade bbadea11becb -> 0251a1c768cc, add-tidb-auth-binding
+INFO  [alembic.runtime.migration] Running upgrade 0251a1c768cc -> 43fa78bc3b7d, add_white_list
+INFO  [alembic.runtime.migration] Running upgrade 43fa78bc3b7d -> d3f6769a94a3, Add upload_files.source_url
+INFO  [alembic.runtime.migration] Running upgrade d3f6769a94a3 -> 93ad8c19c40b, rename conversation variables index name
+INFO  [alembic.runtime.migration] Running upgrade 93ad8c19c40b -> f4d7ce70a7ca, update upload_files.source_url
+INFO  [alembic.runtime.migration] Running upgrade f4d7ce70a7ca -> d07474999927, update type of custom_disclaimer to TEXT
+INFO  [alembic.runtime.migration] Running upgrade d07474999927 -> 09a8d1878d9b, update workflows graph, features and updated_at
+INFO  [alembic.runtime.migration] Running upgrade 09a8d1878d9b -> 01d6889832f7, add_created_at_index_for_messages
+INFO  [alembic.runtime.migration] Running upgrade 01d6889832f7 -> cf8f4fc45278, add exceptions_count field to WorkflowRun model
+INFO  [alembic.runtime.migration] Running upgrade cf8f4fc45278 -> 11b07f66c737, remove unused tool_providers
+INFO  [alembic.runtime.migration] Running upgrade 11b07f66c737 -> e1944c35e15e, add retry_index field to node-execution model
+INFO  [alembic.runtime.migration] Running upgrade e1944c35e15e -> d7999dfa4aae, remove workflow_node_executions.retry_index if exists
+INFO  [alembic.runtime.migration] Running upgrade d7999dfa4aae -> e19037032219, parent-child-index
+INFO  [alembic.runtime.migration] Running upgrade e19037032219 -> 923752d42eb6, add_auto_disabled_dataset_logs
+INFO  [alembic.runtime.migration] Running upgrade 923752d42eb6 -> a91b476a53de, change workflow_runs.total_tokens to bigint
+INFO  [alembic.runtime.migration] Running upgrade a91b476a53de -> ddcc8bbef391, increase max length of builtin tool provider
+INFO  [alembic.runtime.migration] Running upgrade ddcc8bbef391 -> 08ec4f75af5e, add_tenant_plugin_permisisons
+INFO  [alembic.runtime.migration] Running upgrade 08ec4f75af5e -> 4413929e1ec2, extend_provider_name_column
+INFO  [alembic.runtime.migration] Running upgrade 4413929e1ec2 -> 5511c782ee4c, extend provider column
+INFO  [alembic.runtime.migration] Running upgrade 5511c782ee4c -> ee79d9b1c156, add marked_name and marked_comment in workflows
+INFO  [alembic.runtime.migration] Running upgrade ee79d9b1c156 -> f051706725cc, add_rate_limit_logs
+INFO  [alembic.runtime.migration] Running upgrade f051706725cc -> d20049ed0af6, add_metadata_function
+INFO  [alembic.runtime.migration] Running upgrade d20049ed0af6 -> 6a9f914f656c, change documentsegment and childchunk indexes
+INFO  [alembic.runtime.migration] Running upgrade 6a9f914f656c -> d28f2004b072, add index for workflow_conversation_variables.conversation_id
+INFO  [alembic.runtime.migration] Running upgrade d28f2004b072 -> 2adcbe1f5dfb, add WorkflowDraftVariable model
+INFO  [alembic.runtime.migration] Running upgrade 2adcbe1f5dfb -> 4474872b0ee6, `workflow_draft_varaibles` add `node_execution_id` column, add an index for `workflow_node_executions`.
+INFO  [alembic.runtime.migration] Running upgrade 4474872b0ee6 -> 0ab65e1cc7fa, remove sequence_number from workflow_runs
+INFO  [alembic.runtime.migration] Running upgrade 0ab65e1cc7fa -> 58eb7bdb93fe, add mcp server tool and app server
+INFO  [alembic.runtime.migration] Running upgrade 58eb7bdb93fe -> 1c9ba48be8e4, add uuidv7 function in SQL
+INFO  [alembic.runtime.migration] Running upgrade 1c9ba48be8e4 -> 71f5020c6470, tool oauth
+INFO  [alembic.runtime.migration] Running upgrade 71f5020c6470 -> 1a83934ad6d1, update models
+INFO  [alembic.runtime.migration] Running upgrade 1a83934ad6d1 -> 375fe79ead14, oauth_refresh_token
+INFO  [alembic.runtime.migration] Running upgrade 375fe79ead14 -> 8bcc02c9bd07, add_tenant_plugin_autoupgrade_table
+INFO  [alembic.runtime.migration] Running upgrade 8bcc02c9bd07 -> 532b3f888abf, manual dataset field update
+INFO  [alembic.runtime.migration] Running upgrade 532b3f888abf -> fa8b0fa6f407, add timeout for tool_mcp_providers
+INFO  [alembic.runtime.migration] Running upgrade fa8b0fa6f407 -> e8446f481c1e, Add provider multi credential support
+INFO  [alembic.runtime.migration] Running upgrade e8446f481c1e -> 0e154742a5fa, Add provider model multi credential support
+INFO  [alembic.runtime.migration] Running upgrade 0e154742a5fa -> 8d289573e1da, empty message
+INFO  [alembic.runtime.migration] Running upgrade 8d289573e1da -> b95962a3885c, chore: add workflow app log run id index
+INFO  [alembic.runtime.migration] Running upgrade b95962a3885c -> c20211f18133, add_headers_to_mcp_provider
+INFO  [alembic.runtime.migration] Running upgrade c20211f18133 -> cf7c38a32b2d, Add credential status for provider table
+INFO  [alembic.runtime.migration] Running upgrade cf7c38a32b2d -> 68519ad5cd18, knowledge_pipeline_migrate
+INFO  [alembic.runtime.migration] Running upgrade 68519ad5cd18 -> d98acf217d43, add app_mode for messsage
+INFO  [alembic.runtime.migration] Running upgrade d98acf217d43 -> ae662b25d9bc, remove-builtin-template-user
+INFO  [alembic.runtime.migration] Running upgrade ae662b25d9bc -> 03f8dcbc611e, add WorkflowPause model
+INFO  [alembic.runtime.migration] Running upgrade 03f8dcbc611e -> 669ffd70119c, introduce_trigger
+INFO  [alembic.runtime.migration] Running upgrade 669ffd70119c -> 09cfdda155d1, mysql adaptation
+INFO  [alembic.runtime.migration] Running upgrade 09cfdda155d1 -> 7bb281b7a422, Add workflow_pauses_reasons table
+INFO  [alembic.runtime.migration] Running upgrade 7bb281b7a422 -> d57accd375ae, support-multi-modal
+INFO  [alembic.runtime.migration] Running upgrade d57accd375ae -> 03ea244985ce, add type column not null default tool
+INFO  [alembic.runtime.migration] Running upgrade 03ea244985ce -> 7df29de0f6be, add credit pool
+INFO  [alembic.runtime.migration] Running upgrade 7df29de0f6be -> 905527cc8fd3, add workflow_run_created_at_id_idx
+INFO  [alembic.runtime.migration] Running upgrade 905527cc8fd3 -> 3334862ee907, feat: add created_at id index to messages
+INFO  [alembic.runtime.migration] Running upgrade 3334862ee907 -> 288345cd01d1, change workflow node execution workflow_run index
+INFO  [alembic.runtime.migration] Running upgrade 288345cd01d1 -> 9e6fa5cbcd80, make message annotation question not nullable
+INFO  [alembic.runtime.migration] Running upgrade 9e6fa5cbcd80 -> f9f6d18a37f9, add table explore banner and trial
+INFO  [alembic.runtime.migration] Running upgrade f9f6d18a37f9 -> 9d77545f524e, create workflow_archive_logs
+INFO  [alembic.runtime.migration] Running upgrade 9d77545f524e -> 788d3099ae3a, add summary index feature
+INFO  [alembic.runtime.migration] Running upgrade 788d3099ae3a -> e8c3b3c46151, Add human input related db models
+INFO  [alembic.runtime.migration] Running upgrade e8c3b3c46151 -> c3df22613c99, drop server_default for app trail related tables
+INFO  [alembic.runtime.migration] Running upgrade c3df22613c99 -> f55813ffe2c8, add unique constraint to tenant_default_models
+INFO  [alembic.runtime.migration] Running upgrade f55813ffe2c8 -> fce013ca180e, fix index to optimize message clean job performance
+INFO  [alembic.runtime.migration] Running upgrade fce013ca180e -> e288952f2994, add partial indexes on conversations for app_id with created_at and updated_at
+INFO  [alembic.runtime.migration] Running upgrade e288952f2994 -> 0ec65df55790, add indexes for human_input_forms query patterns
+INFO  [alembic.runtime.migration] Running upgrade 0ec65df55790 -> 6b5f9f8b1a2c, add user_id and switch workflow_draft_variables unique key to user scope
+INFO  [alembic.runtime.migration] Running upgrade 6b5f9f8b1a2c -> 8574b23a38fd, add qdrant_endpoint to tidb_auth_bindings
+INFO  [alembic.runtime.migration] Running upgrade 8574b23a38fd -> 227822d22895, Add workflow comments table
+INFO  [alembic.runtime.migration] Running upgrade 227822d22895 -> a4f2d8c9b731, add recommended app categories
+INFO  [alembic.runtime.migration] Running upgrade a4f2d8c9b731 -> c6a9f4b12d3e, add agent domain models
+INFO  [alembic.runtime.migration] Running upgrade c6a9f4b12d3e -> f8b6b7e9c421, add agent config revisions
+INFO  [alembic.runtime.migration] Running upgrade f8b6b7e9c421 -> 97e2e1a644e8, add workflow_version to workflow_agent_node_bindings
+INFO  [alembic.runtime.migration] Running upgrade 97e2e1a644e8 -> d4a5e1f3c9b7, add oauth_access_tokens table
+INFO  [alembic.runtime.migration] Running upgrade d4a5e1f3c9b7 -> 7885bd53f9a9, add workflow agent runtime sessions
+INFO  [alembic.runtime.migration] Running upgrade 7885bd53f9a9 -> a1b2c3d4e5f6, add credential visibility and permission table
+INFO  [alembic.runtime.migration] Running upgrade a1b2c3d4e5f6 -> 121e7346074d, unify agent runtime sessions table
+INFO  [alembic.runtime.migration] Running upgrade 121e7346074d -> 8d4c2a1b9f03, Add human input upload token and file association tables
+INFO  [alembic.runtime.migration] Running upgrade 8d4c2a1b9f03 -> 2b3c4d5e6f70, add customized snippets
+INFO  [alembic.runtime.migration] Running upgrade 2b3c4d5e6f70 -> 3df4dbcc1e21, add identity mode to mcp tool provider
+INFO  [alembic.runtime.migration] Running upgrade 3df4dbcc1e21 -> 7bad07dc267d, add agent_drive_files (agent drive KV)
+INFO  [alembic.runtime.migration] Running upgrade 7bad07dc267d -> 0b2f2c8a9d1e, add agent role
+INFO  [alembic.runtime.migration] Running upgrade 0b2f2c8a9d1e -> 9f4b7c2d1a80, add agent active config has model
+INFO  [alembic.runtime.migration] Running upgrade 9f4b7c2d1a80 -> b7c2d9e8a1f4, add tenant account join last opened at
+INFO  [alembic.runtime.migration] Running upgrade b7c2d9e8a1f4 -> f6a7b8c9d012, add plugin auto upgrade category
+INFO  [alembic.runtime.migration] Running upgrade f6a7b8c9d012 -> f5e8a9c0d2b3, add learn dify flag to recommended apps
+INFO  [alembic.runtime.migration] Running upgrade f5e8a9c0d2b3 -> c4d5e6f7a8b9, add app stars
+INFO  [alembic.runtime.migration] Running upgrade c4d5e6f7a8b9 -> c167a72a00eb, add ask_human pause correlation to agent_runtime_sessions
+INFO  [alembic.runtime.migration] Running upgrade c167a72a00eb -> d2f1a4b8c3e0, add conversation_id to human_input_forms for agent v2 chat hitl
+INFO  [alembic.runtime.migration] Running upgrade d2f1a4b8c3e0 -> a7c4e9d2f681, add resource maintainers
+INFO  [alembic.runtime.migration] Running upgrade a7c4e9d2f681 -> 4f7b2c8d9a10, normalize legacy end user type
+INFO  [alembic.runtime.migration] Running upgrade 4f7b2c8d9a10 -> b2515f9d4c2a, agent drive skill metadata refactor
+INFO  [alembic.runtime.migration] Running upgrade b2515f9d4c2a -> c8f4a6b2d3e1, add agent debug conversations
+INFO  [alembic.runtime.migration] Running upgrade c8f4a6b2d3e1 -> d9e8f7a6b5c4, add cloud only flag to recommended apps
+INFO  [alembic.runtime.migration] Running upgrade d9e8f7a6b5c4 -> a6f1c9d2e8b4, add input placeholder to sites
+INFO  [alembic.runtime.migration] Running upgrade a6f1c9d2e8b4 -> e4f5a6b7c8d9, add agent config drafts
+INFO  [alembic.runtime.migration] Running upgrade e4f5a6b7c8d9 -> a2b3c4d5e6f7, add agent backing app id
+INFO  [alembic.runtime.migration] Running upgrade a2b3c4d5e6f7 -> c3d4e5f6a7b8, add agent active config is published
+INFO  [alembic.runtime.migration] Running upgrade c3d4e5f6a7b8 -> 7a1c2d9e4b60, add workflow run archive bundle index table
+INFO  [alembic.runtime.migration] Running upgrade 7a1c2d9e4b60 -> 3c9f8e2a1d7b, add workflow-run archive bundle cursor indexes
+INFO  [alembic.runtime.migration] Running upgrade 3c9f8e2a1d7b -> b8c9d0e1f2a3, add step by step tour state
+INFO  [alembic.runtime.migration] Running upgrade b8c9d0e1f2a3 -> d2825e7b9c10, scope agent debug conversations by draft type
+INFO  [alembic.runtime.migration] Running upgrade d2825e7b9c10 -> 6f5a9c2d8e1b, add telemetry fields to dify_setups
+INFO  [alembic.runtime.migration] Running upgrade 6f5a9c2d8e1b -> 2f39536b3feb, add agent home snapshot ledger
+INFO  [alembic.runtime.migration] Running upgrade 2f39536b3feb -> f6e4c5686857, replace agent runtime sessions with workspaces and bindings
+INFO  [alembic.runtime.migration] Running upgrade f6e4c5686857 -> e4708db55c1d, make home snapshot references nullable
+INFO  [alembic.runtime.migration] Running upgrade e4708db55c1d -> a1c7f4e9b3d2, add workflow version number
+INFO  [alembic.runtime.migration] Running upgrade a1c7f4e9b3d2 -> f3a9c2d17b4e, add oauth provider app auto_authorize
+INFO  [alembic.runtime.migration] Running upgrade f3a9c2d17b4e -> 56124e050600, add conversation cleanup index
+INFO  [alembic.runtime.migration] Running upgrade 56124e050600 -> 89919253ca7a, remove agent drive
+INFO  [alembic.runtime.migration] Running upgrade 89919253ca7a -> fbdfcf5f5a6e, clean legacy agent soul files
+INFO  [alembic.runtime.migration] Running upgrade fbdfcf5f5a6e -> 925e75620b69, simplify agent v2 output contract
+INFO  [alembic.runtime.migration] Running upgrade 925e75620b69 -> a4f8d2c9e1b0, add workspace skill management
+INFO  [alembic.runtime.migration] Running upgrade a4f8d2c9e1b0 -> 9b7c6d5e4f3a, add normalized email to accounts
+INFO  [alembic.runtime.migration] Running upgrade 9b7c6d5e4f3a -> 5578e028b2f2, migrate legacy model types
+INFO  [alembic.runtime.migration] Running upgrade 5578e028b2f2 -> c3f1a9b2e6d4, add dataset_api_token_bindings
+Upgrading fork extension migration chain
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+Warning! You didn't set docs_url, redoc_url or openapi_url.
+API Documentation will be skipped.
+INFO  [alembic.runtime.migration] Context impl MySQLImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 001_recommended_list_sorted, recommended list sorted by usage frequency
+INFO  [alembic.runtime.migration] Running upgrade 001_recommended_list_sorted -> 002_recommended_apps_category, add_recommended_apps_category_join_extend
+INFO  [alembic.runtime.migration] Running upgrade 002_recommended_apps_category -> 003_tenant_model_sync_extend, add_tenant_model_sync_extend
+INFO  [alembic.runtime.migration] Running upgrade 003_tenant_model_sync_extend -> 004_ai_billing_forwarding, ai billing and forwarding two extend
+INFO  [alembic.runtime.migration] Running upgrade 004_ai_billing_forwarding -> 005_account_money_extend, add_account_money_extend
+INFO  [alembic.runtime.migration] Running upgrade 005_account_money_extend -> 006_end_user_account_joins, add_end_user_account_joins_extend
+INFO  [alembic.runtime.migration] Running upgrade 006_end_user_account_joins -> 007_account_money_monthly_stat, add_account_money_monthly_stat_extend
+INFO  [alembic.runtime.migration] Running upgrade 007_account_money_monthly_stat -> 008_account_layover_record, add_account_layover_record_extend
+INFO  [alembic.runtime.migration] Running upgrade 008_account_layover_record -> 009_api_token_money_extend, add_api_token_money_extend
+INFO  [alembic.runtime.migration] Running upgrade 009_api_token_money_extend -> 010_system_integration_extend, add_system_integration_extend
+INFO  [alembic.runtime.migration] Running upgrade 010_system_integration_extend -> 011_system_integration_fields, add_system_integration_extend_fields
+INFO  [alembic.runtime.migration] Running upgrade 011_system_integration_fields -> 012_account_money_extend_unique, add_account_money_extend_unique_constraint
+INFO  [alembic.runtime.migration] Running upgrade 012_account_money_extend_unique -> 013_app_extend, add_app_extend
+INFO  [alembic.runtime.migration] Running upgrade 013_app_extend -> 014_message_context_extend, add_message_context_extend
+INFO  [alembic.runtime.migration] Running upgrade 014_message_context_extend -> 015_code_execution_control, add_code_execution_control_extend
+INFO  [alembic.runtime.migration] Running upgrade 015_code_execution_control -> 016_drop_gva_admin_tables, drop_gva_admin_tables
+INFO  [alembic.runtime.migration] Running upgrade 016_drop_gva_admin_tables -> 017_migrate_recommended_cats, migrate_recommended_categories_to_native
+INFO  [alembic.runtime.migration] Running upgrade 017_migrate_recommended_cats -> 018_drop_recommended_cats, drop_recommended_category_tables
+INFO  [alembic.runtime.migration] Running upgrade 018_drop_recommended_cats -> 019_webapp_auth_switch, add_webapp_auth_enabled_to_app_extend
+INFO  [alembic.runtime.migration] Running upgrade 019_webapp_auth_switch -> 020_workflow_run_account, Create Dify Plus workflow-run ownership metadata table.
+Recording resulting migration revisions
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+INFO  [alembic.runtime.migration] Context impl MySQLImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+c3f1a9b2e6d4 (head)
+DEBUG:celery.utils.functional:
+def send_workflow_comment_mention_email_task(language, to, mentioned_name, commenter_name, app_name, comment_content, app_url):
+    return 1
+
+DEBUG:celery.utils.functional:
+def document_indexing_sync_task(dataset_id, document_id):
+    return 1
+
+DEBUG:celery.utils.functional:
+def batch_create_segment_to_index_task(*args, **kwargs):
+    return 1
+
+Warning! You didn't set docs_url, redoc_url or openapi_url.
+API Documentation will be skipped.
+INFO  [alembic.runtime.migration] Context impl MySQLImpl.
+INFO  [alembic.runtime.migration] Will assume non-transactional DDL.
+020_workflow_run_account (head)
+Both migration chains completed; verify data before starting business services.
+migration_exit=0

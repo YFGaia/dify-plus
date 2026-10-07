@@ -1,0 +1,564 @@
+{
+  "source_base": "3c4c28947777b3437ec95c1e559ffa76fcd32041",
+  "scope": "generated schema excerpt; no live external service",
+  "paths": {
+    "/login_config": {
+      "get": {
+        "operationId": "get_login_config_api",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginConfigResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "403": {
+            "description": "Missing or invalid login_config token"
+          }
+        },
+        "tags": ["console"]
+      }
+    },
+    "/login_config_bootstrap": {
+      "get": {
+        "operationId": "get_login_config_bootstrap_api",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginConfigBootstrapResponse"
+                }
+              }
+            },
+            "description": "Success"
+          }
+        },
+        "tags": ["console"]
+      }
+    },
+    "/system-features": {
+      "get": {
+        "description": "Get the non-sensitive bootstrap snapshot exposed before Console or Web authentication. This is not a general feature registry.\nAuthentication configuration must be available before the authentication flow can be selected.\nAuthenticated license detail is served separately by SystemFeatureLicenseApi.",
+        "operationId": "get_system_features",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemFeatureModel"
+                }
+              }
+            },
+            "description": "Success"
+          }
+        },
+        "summary": "Get the non-sensitive bootstrap snapshot exposed before authentication",
+        "tags": ["console"]
+      }
+    },
+    "/system-features/license": {
+      "get": {
+        "description": "Get license status and usage detail\nAuthenticated counterpart to the license *status* exposed on the public\nsystem-features endpoint.",
+        "operationId": "get_system_license",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseModel"
+                }
+              }
+            },
+            "description": "Success"
+          }
+        },
+        "summary": "Get full license detail (status, expiry, workspace/seat usage)",
+        "tags": ["console"]
+      }
+    },
+    "/workspaces/current/summary": {
+      "get": {
+        "operationId": "get_current_workspace_summary_api",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentWorkspaceSummaryResponse"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "409": {
+            "description": "Current workspace is archived"
+          }
+        },
+        "tags": ["console"]
+      }
+    }
+  },
+  "schemas": {
+    "LoginConfigResponse": {
+      "description": "Console-only login configuration, serialized from the fork service result.",
+      "properties": {
+        "branding": {
+          "$ref": "#/components/schemas/BrandingModel",
+          "default": {
+            "application_title": "",
+            "enabled": false,
+            "favicon": "",
+            "login_page_logo": "",
+            "workspace_logo": ""
+          }
+        },
+        "deployment_edition": {
+          "$ref": "#/components/schemas/DeploymentEdition"
+        },
+        "ding_talk": {
+          "default": false,
+          "title": "Ding Talk",
+          "type": "boolean"
+        },
+        "ding_talk_client_id": {
+          "default": "",
+          "title": "Ding Talk Client Id",
+          "type": "string"
+        },
+        "ding_talk_corp_id": {
+          "default": "",
+          "title": "Ding Talk Corp Id",
+          "type": "string"
+        },
+        "enable_app_deploy": {
+          "default": false,
+          "title": "Enable App Deploy",
+          "type": "boolean"
+        },
+        "enable_change_email": {
+          "default": true,
+          "title": "Enable Change Email",
+          "type": "boolean"
+        },
+        "enable_collaboration_mode": {
+          "default": true,
+          "title": "Enable Collaboration Mode",
+          "type": "boolean"
+        },
+        "enable_creators_platform": {
+          "default": false,
+          "title": "Enable Creators Platform",
+          "type": "boolean"
+        },
+        "enable_email_code_login": {
+          "default": false,
+          "title": "Enable Email Code Login",
+          "type": "boolean"
+        },
+        "enable_email_password_login": {
+          "default": true,
+          "title": "Enable Email Password Login",
+          "type": "boolean"
+        },
+        "enable_explore_banner": {
+          "default": false,
+          "title": "Enable Explore Banner",
+          "type": "boolean"
+        },
+        "enable_learn_app": {
+          "default": true,
+          "title": "Enable Learn App",
+          "type": "boolean"
+        },
+        "enable_marketplace": {
+          "default": false,
+          "title": "Enable Marketplace",
+          "type": "boolean"
+        },
+        "enable_social_oauth_login": {
+          "default": false,
+          "title": "Enable Social Oauth Login",
+          "type": "boolean"
+        },
+        "enable_step_by_step_tour": {
+          "default": false,
+          "title": "Enable Step By Step Tour",
+          "type": "boolean"
+        },
+        "is_allow_register": {
+          "default": false,
+          "title": "Is Allow Register",
+          "type": "boolean"
+        },
+        "is_custom_auth2": {
+          "default": false,
+          "title": "Is Custom Auth2",
+          "type": "boolean"
+        },
+        "is_custom_auth2_logout": {
+          "default": "",
+          "title": "Is Custom Auth2 Logout",
+          "type": "string"
+        },
+        "is_email_setup": {
+          "default": false,
+          "title": "Is Email Setup",
+          "type": "boolean"
+        },
+        "knowledge_fs_enabled": {
+          "default": false,
+          "title": "Knowledge Fs Enabled",
+          "type": "boolean"
+        },
+        "license": {
+          "$ref": "#/components/schemas/LicenseStatusModel",
+          "default": {
+            "status": "none"
+          }
+        },
+        "plugin_installation_permission": {
+          "$ref": "#/components/schemas/PluginInstallationPermissionModel",
+          "default": {
+            "plugin_installation_scope": "all",
+            "restrict_to_marketplace_only": false
+          }
+        },
+        "rbac_enabled": {
+          "default": false,
+          "title": "Rbac Enabled",
+          "type": "boolean"
+        },
+        "rmb_to_usd_rate": {
+          "default": 7.26,
+          "title": "Rmb To Usd Rate",
+          "type": "number"
+        },
+        "sso_enforced_for_signin": {
+          "default": false,
+          "title": "Sso Enforced For Signin",
+          "type": "boolean"
+        },
+        "sso_enforced_for_signin_protocol": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/SSOProtocol"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "webapp_auth": {
+          "$ref": "#/components/schemas/WebAppAuthModel"
+        }
+      },
+      "required": [
+        "branding",
+        "deployment_edition",
+        "ding_talk",
+        "ding_talk_client_id",
+        "ding_talk_corp_id",
+        "enable_app_deploy",
+        "enable_change_email",
+        "enable_collaboration_mode",
+        "enable_creators_platform",
+        "enable_email_code_login",
+        "enable_email_password_login",
+        "enable_explore_banner",
+        "enable_learn_app",
+        "enable_marketplace",
+        "enable_social_oauth_login",
+        "enable_step_by_step_tour",
+        "is_allow_register",
+        "is_custom_auth2",
+        "is_custom_auth2_logout",
+        "is_email_setup",
+        "knowledge_fs_enabled",
+        "license",
+        "plugin_installation_permission",
+        "rbac_enabled",
+        "rmb_to_usd_rate",
+        "sso_enforced_for_signin",
+        "sso_enforced_for_signin_protocol",
+        "webapp_auth"
+      ],
+      "title": "LoginConfigResponse",
+      "type": "object"
+    },
+    "LoginConfigBootstrapResponse": {
+      "properties": {
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "token": {
+          "title": "Token",
+          "type": "string"
+        }
+      },
+      "required": ["ok", "token"],
+      "title": "LoginConfigBootstrapResponse",
+      "type": "object"
+    },
+    "SystemFeatureModel": {
+      "description": "Non-sensitive bootstrap snapshot exposed before Console or Web authentication.",
+      "properties": {
+        "branding": {
+          "$ref": "#/components/schemas/BrandingModel",
+          "default": {
+            "application_title": "",
+            "enabled": false,
+            "favicon": "",
+            "login_page_logo": "",
+            "workspace_logo": ""
+          }
+        },
+        "deployment_edition": {
+          "$ref": "#/components/schemas/DeploymentEdition"
+        },
+        "enable_app_deploy": {
+          "default": false,
+          "title": "Enable App Deploy",
+          "type": "boolean"
+        },
+        "enable_change_email": {
+          "default": true,
+          "title": "Enable Change Email",
+          "type": "boolean"
+        },
+        "enable_collaboration_mode": {
+          "default": true,
+          "title": "Enable Collaboration Mode",
+          "type": "boolean"
+        },
+        "enable_creators_platform": {
+          "default": false,
+          "title": "Enable Creators Platform",
+          "type": "boolean"
+        },
+        "enable_email_code_login": {
+          "default": false,
+          "title": "Enable Email Code Login",
+          "type": "boolean"
+        },
+        "enable_email_password_login": {
+          "default": true,
+          "title": "Enable Email Password Login",
+          "type": "boolean"
+        },
+        "enable_explore_banner": {
+          "default": false,
+          "title": "Enable Explore Banner",
+          "type": "boolean"
+        },
+        "enable_learn_app": {
+          "default": true,
+          "title": "Enable Learn App",
+          "type": "boolean"
+        },
+        "enable_marketplace": {
+          "default": false,
+          "title": "Enable Marketplace",
+          "type": "boolean"
+        },
+        "enable_social_oauth_login": {
+          "default": false,
+          "title": "Enable Social Oauth Login",
+          "type": "boolean"
+        },
+        "enable_step_by_step_tour": {
+          "default": false,
+          "title": "Enable Step By Step Tour",
+          "type": "boolean"
+        },
+        "is_allow_register": {
+          "default": false,
+          "title": "Is Allow Register",
+          "type": "boolean"
+        },
+        "is_email_setup": {
+          "default": false,
+          "title": "Is Email Setup",
+          "type": "boolean"
+        },
+        "knowledge_fs_enabled": {
+          "default": false,
+          "title": "Knowledge Fs Enabled",
+          "type": "boolean"
+        },
+        "license": {
+          "$ref": "#/components/schemas/LicenseStatusModel",
+          "default": {
+            "status": "none"
+          }
+        },
+        "plugin_installation_permission": {
+          "$ref": "#/components/schemas/PluginInstallationPermissionModel",
+          "default": {
+            "plugin_installation_scope": "all",
+            "restrict_to_marketplace_only": false
+          }
+        },
+        "rbac_enabled": {
+          "default": false,
+          "title": "Rbac Enabled",
+          "type": "boolean"
+        },
+        "sso_enforced_for_signin": {
+          "default": false,
+          "title": "Sso Enforced For Signin",
+          "type": "boolean"
+        },
+        "sso_enforced_for_signin_protocol": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/SSOProtocol"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "webapp_auth": {
+          "$ref": "#/components/schemas/WebAppAuthModel"
+        }
+      },
+      "required": [
+        "branding",
+        "deployment_edition",
+        "enable_app_deploy",
+        "enable_change_email",
+        "enable_collaboration_mode",
+        "enable_creators_platform",
+        "enable_email_code_login",
+        "enable_email_password_login",
+        "enable_explore_banner",
+        "enable_learn_app",
+        "enable_marketplace",
+        "enable_social_oauth_login",
+        "enable_step_by_step_tour",
+        "is_allow_register",
+        "is_email_setup",
+        "knowledge_fs_enabled",
+        "license",
+        "plugin_installation_permission",
+        "rbac_enabled",
+        "sso_enforced_for_signin",
+        "sso_enforced_for_signin_protocol",
+        "webapp_auth"
+      ],
+      "title": "SystemFeatureModel",
+      "type": "object"
+    },
+    "LicenseModel": {
+      "properties": {
+        "expired_at": {
+          "default": "",
+          "title": "Expired At",
+          "type": "string"
+        },
+        "license_expiry_notice_enabled": {
+          "default": false,
+          "title": "License Expiry Notice Enabled",
+          "type": "boolean"
+        },
+        "seats": {
+          "$ref": "#/components/schemas/LicenseLimitationModel",
+          "default": {
+            "enabled": false,
+            "limit": 0,
+            "size": 0
+          }
+        },
+        "status": {
+          "$ref": "#/components/schemas/LicenseStatus",
+          "default": "none"
+        },
+        "workspaces": {
+          "$ref": "#/components/schemas/LicenseLimitationModel",
+          "default": {
+            "enabled": false,
+            "limit": 0,
+            "size": 0
+          }
+        }
+      },
+      "required": ["expired_at", "license_expiry_notice_enabled", "seats", "status", "workspaces"],
+      "title": "LicenseModel",
+      "type": "object"
+    },
+    "CurrentWorkspaceSummaryResponse": {
+      "properties": {
+        "admin_extend": {
+          "title": "Admin Extend",
+          "type": "boolean"
+        },
+        "credits": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Remaining credits in the effective pool; -1 means unlimited.",
+          "title": "Credits"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "plan": {
+          "anyOf": [
+            {
+              "$ref": "#/components/schemas/CloudPlan"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "role": {
+          "$ref": "#/components/schemas/TenantAccountRole"
+        },
+        "tenant_extend": {
+          "title": "Tenant Extend",
+          "type": "boolean"
+        }
+      },
+      "required": ["admin_extend", "credits", "id", "name", "plan", "role", "tenant_extend"],
+      "title": "CurrentWorkspaceSummaryResponse",
+      "type": "object"
+    },
+    "LicenseStatusModel": {
+      "properties": {
+        "status": {
+          "$ref": "#/components/schemas/LicenseStatus",
+          "default": "none"
+        }
+      },
+      "required": ["status"],
+      "title": "LicenseStatusModel",
+      "type": "object"
+    }
+  },
+  "generated_files_sha256": {
+    "console-openapi.json": "a001d09c590ae05481a964f49646a18b2403404e99cab86214fa381f925d3b06",
+    "openapi-openapi.json": "79da89686e05ca9fead85351f8a1f103ef4b649a778935d2ced575e10a242751",
+    "web-openapi.json": "713b0d02d975b1f4192ecdde6dbf9527781c9241a893c50d2eaec4031cddcc1c",
+    "service-openapi.json": "92012cfaef48db5b00dd60db0aff1c92306a724348e9d7a830a793ee988e99ec"
+  },
+  "assertions": "passed"
+}

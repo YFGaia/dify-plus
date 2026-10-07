@@ -1,0 +1,39 @@
+# Override to use locally available images for merge verification testing.
+# Usage: docker compose -f docker-compose.dify-plus.yaml -f docker-compose.local-images.yaml ...
+#
+# Maps private registry images to locally available equivalents:
+# - API/Worker/WebSocket: acceptance image with N-series fixes
+# - Web: smoke image from code-ready candidate
+# - Infrastructure: standard Docker Hub images
+services:
+  # --- Fork API services → local acceptance image ---
+  init_secret_key:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+  migration:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+  api:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+  api_websocket:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+  worker:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+  worker-gaia:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+  worker-dataset:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+  worker_beat:
+    image: difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6
+  web:
+    image: difyplus-smoke-web:970b704e351f
+
+  # --- Infrastructure → standard Docker Hub images ---
+  sandbox:
+    image: langgenius/dify-sandbox:0.2.15
+  sandbox-full:
+    image: langgenius/dify-sandbox:0.2.15
+  plugin_daemon:
+    image: langgenius/dify-plugin-daemon:0.6.10-local
+  nginx:
+    image: nginx:latest
+  weaviate:
+    image: semitechnologies/weaviate:1.19.0

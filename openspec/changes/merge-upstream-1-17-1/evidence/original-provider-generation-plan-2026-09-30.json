@@ -1,0 +1,111 @@
+{
+  "status": "authorized_local_pending",
+  "reason": "B05 actual generation and B11 generated retention do not require positive pricing. Original tenant configured model actual O01 component success makes bounded product fixtures executable; isolated provider zero is not a global blocker.",
+  "source_unchanged": true,
+  "candidate_image": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+  "owners": {
+    "product_auth_fixture_generation": "app_center_root_cause",
+    "independent_baseline_marker_cleanup_readback": "runtime_acceptance",
+    "planning_review": "merge_audit"
+  },
+  "fixture_scope": "Exactly three dedicated original-tenant completion/chat/workflow Apps. Reuse only existing provider/model identifiers; original App/config/provider/pricing/keys remain unchanged; no credential export or copy.",
+  "matrix": {
+    "modes": [
+      "completion",
+      "chat",
+      "workflow"
+    ],
+    "cells_per_mode": [
+      {
+        "auth": true,
+        "actor": "anonymous",
+        "expected": "401; no model call/new generation run"
+      },
+      {
+        "auth": true,
+        "actor": "valid Console owner",
+        "expected": "actual model generation and successful terminal/readback"
+      },
+      {
+        "auth": false,
+        "actor": "anonymous",
+        "expected": "actual model generation and successful terminal/readback"
+      },
+      {
+        "auth": false,
+        "actor": "valid Console owner",
+        "expected": "actual model generation and successful terminal/readback"
+      }
+    ],
+    "expected_rejections": 3,
+    "expected_successes": 9
+  },
+  "retention": {
+    "mode": "classic chat",
+    "retention_number": 1,
+    "minimum_rounds": 3,
+    "maximum_rounds": 4,
+    "reuse_first_matrix_signed_round": true,
+    "required": "Real successful same-conversation generated messages; persisted marker belongs to generated Message; Console context API200; actual TokenBufferMemory over real generated history removes marker and earlier items and clears name metadata. Internal memory component readback is separately labelled, not claimed as captured provider prompt.",
+    "reuse_matrix_signed_rounds": 2,
+    "maximum_rounds_current_remaining_budget": 3
+  },
+  "budget": {
+    "http_generation_requests_hard_max": 16,
+    "includes_rejections": true,
+    "automatic_retries": false,
+    "max_output_tokens_per_call": 8,
+    "total_output_tokens_hard_max": 128,
+    "total_prompt_characters_hard_max": 4000,
+    "query_and_system_prompt_each_max_characters": 128
+  },
+  "baseline_cleanup": {
+    "before": "Persist private account quota plus original App/model/provider/price hashes before any product writes or calls; exact created IDs tracked privately.",
+    "after": "Actual reported usage/price0 reconciliation; never assume unmeasured quota unchanged. Exact product delete three Apps and scoped async residue checks; original configuration hashes unchanged; no blanket DB cleanup."
+  },
+  "execution_started_by_audit": false,
+  "source_references": [
+    "api/controllers/web/completion.py",
+    "api/controllers/web/workflow.py",
+    "api/controllers/console/app/model_config.py",
+    "api/core/app/apps/base_app_runner.py",
+    "api/core/memory/token_buffer_memory.py"
+  ],
+  "prior_requirement_evidence": "verification-matrix.md",
+  "configured_model_evidence": "evidence/O01/original-23000-bounded-plugin-invocation-2026-09-30.json",
+  "generation_auth_contract": {
+    "passport_request": "GET /api/passport with X-App-Code, optional user_id; access_token response remains private",
+    "generation": "X-App-Code plus X-App-Passport from issued passport (or supported app-specific passport cookie); signed cases separately carry legitimate Console cookie and its matching CSRF header; anonymous cases omit all Console cookies",
+    "source": "api/libs/token.py::extract_webapp_passport; api/controllers/web/wraps.py::decode_jwt_token",
+    "corrected_harness_note": "Initial coordinator suggestion to use Authorization Bearer as generation passport was incorrect. Developer read actual extractor and corrected before fixture writes/calls; no production source failure inferred."
+  },
+  "before_baseline_review": "evidence/original-provider-baseline-review-2026-09-30.json",
+  "authorized_execution_revision_after_harness_duplicate": {
+    "reported_by": "app_center_root_cause, confirmed by coordinator",
+    "generation_http_attempts_already_used": 6,
+    "actual_statuses": "six anonymous auth-on 401 rejects, including duplicated three-mode phase",
+    "successful_model_calls_so_far": 0,
+    "output_tokens_so_far": 0,
+    "failure_classification": "harness phase env did not reach Ego worker; not production source regression",
+    "remaining_execution": "Nine positive matrix calls consume cumulative15 generation HTTP; chat onSigned/offSigned reuse same actual conversation as rounds1/2, then exactly one round3 reaches hard16. No auto fourth round or retry permitted under current authorization.",
+    "all_duplicate_attempts_must_be_preserved_in_runtime_evidence": true
+  },
+  "B11_original_fixture_gap": {
+    "observed": "Three generated messages shared conversation but all parent_message_id NULL; actual Memory false2/true0 is one independent latest thread, not proof of real multi-turn truncation.",
+    "classification": "Fixture request omitted Web parent_message_id linkage; no source regression established. Coordinator initial contract did not explain parent linkage.",
+    "contract": "Web ChatMessagePayload exposes parent_message_id; nonServiceAPI ChatAppGenerator passes it through; extract_thread_messages NULL means new thread and break."
+  },
+  "authorized_B11_parent_chain_package": {
+    "status": "authorized after B09 separate package and preservation of existing16 proof",
+    "generation_calls_hard_max": 2,
+    "max_output_tokens_each": 8,
+    "total_output_tokens_hard_max": 16,
+    "prompt_characters_hard_max": 512,
+    "retries": false,
+    "chain": "Existing third Message -> new fourth (parent_id=third) -> new fifth (parent_id=fourth), same existing signed EndUser/conversation/app",
+    "no_rewrite_old_DB_parents": true,
+    "no_new_App": true,
+    "new_package_counter_separate": true,
+    "required": "Actual 3-linked completed message thread (latest third plus two new), Memory false6 vs true cutoff/name cleanup, markers belongs to same actual Messages; component readback not captured provider prompt."
+  }
+}

@@ -1,9 +1,58 @@
 import re
 from datetime import datetime
+from decimal import Decimal
 
 import pytest
+from sqlalchemy.orm import Session
 
-from core.ops.utils import generate_dotted_order, validate_project_name, validate_url, validate_url_with_path
+import core.ops.utils as utils_module
+from core.ops.utils import (
+    filter_none_values,
+    generate_dotted_order,
+    get_message_data,
+    measure_time,
+    replace_text_with_content,
+    validate_integer_id,
+    validate_project_name,
+    validate_url,
+    validate_url_with_path,
+)
+from models.enums import ConversationFromSource
+from models.model import Message
+
+
+class _DatabaseBinding:
+    """Expose the real SQLite session used by the message lookup helper."""
+
+    session: Session
+
+    def __init__(self, session: Session) -> None:
+        self.session = session
+
+
+@pytest.fixture
+def message_session(sqlite_session: Session, monkeypatch: pytest.MonkeyPatch) -> Session:
+    """Bind the message lookup helper to the shared SQLite test session."""
+
+    monkeypatch.setattr(utils_module, "db", _DatabaseBinding(sqlite_session))
+    return sqlite_session
+
+
+def _message(message_id: str) -> Message:
+    message = Message(
+        id=message_id,
+        app_id="app-id",
+        conversation_id="conversation-id",
+        query="question",
+        message={"role": "user", "content": "question"},
+        answer="answer",
+        message_unit_price=Decimal("0.0001"),
+        answer_unit_price=Decimal("0.0001"),
+        currency="USD",
+        from_source=ConversationFromSource.API,
+    )
+    message._inputs = {}
+    return message
 
 
 class TestValidateUrl:
@@ -106,6 +155,30 @@ class TestValidateUrlWithPath:
         with pytest.raises(ValueError, match="URL must start with https:// or http://"):
             validate_url_with_path("example.com", "https://default.com")
 
+    def test_restricted_scheme_accepts_allowed_scheme(self):
+        """Test https-only validation keeps the path of an https URL"""
+        result = validate_url_with_path(
+            "https://langsmith.internal/api", "https://default.com", allowed_schemes=("https",)
+        )
+        assert result == "https://langsmith.internal/api"
+
+    def test_restricted_scheme_rejects_http(self):
+        """Test https-only validation rejects http and names only https in the error"""
+        with pytest.raises(ValueError) as excinfo:
+            validate_url_with_path("http://langsmith.internal/api", "https://default.com", allowed_schemes=("https",))
+        assert str(excinfo.value) == "URL must start with https://"
+
+    def test_default_schemes_keep_original_error_message(self):
+        """Test the two-scheme default keeps the exact message existing providers assert on"""
+        with pytest.raises(ValueError) as excinfo:
+            validate_url_with_path("ftp://example.com", "https://default.com")
+        assert str(excinfo.value) == "URL must start with https:// or http://"
+
+    def test_surrounding_whitespace_is_stripped(self):
+        """Test surrounding whitespace is removed while the path is preserved"""
+        result = validate_url_with_path("  https://example.com/api/v1  ", "https://default.com")
+        assert result == "https://example.com/api/v1"
+
 
 class TestValidateProjectName:
     """Test cases for validate_project_name function"""
@@ -187,3 +260,90 @@ class TestGenerateDottedOrder:
         result = generate_dotted_order(run_id, start_time, None)
 
         assert "." not in result
+
+    def test_dotted_order_with_string_start_time(self):
+        """Test dotted_order generation with string start_time."""
+        start_time = "2025-12-23T04:19:55.111000"
+        run_id = "test-run-id"
+        result = generate_dotted_order(run_id, start_time)
+
+        assert result == "20251223T041955111000Ztest-run-id"
+
+
+class TestFilterNoneValues:
+    """Test cases for filter_none_values function"""
+
+    def test_filter_none_values(self):
+        data = {"a": 1, "b": None, "c": "test", "d": datetime(2025, 1, 1, 12, 0, 0)}
+        result = filter_none_values(data)
+        assert result == {"a": 1, "c": "test", "d": "2025-01-01T12:00:00"}
+
+    def test_filter_none_values_empty(self):
+        assert filter_none_values({}) == {}
+
+
+@pytest.mark.parametrize("sqlite_session", [(Message,)], indirect=True)
+class TestGetMessageData:
+    """Test cases for get_message_data function"""
+
+    def test_get_message_data(self, message_session: Session):
+        target = _message("message-id")
+        unrelated = _message("other-message-id")
+        message_session.add_all((target, unrelated))
+        message_session.commit()
+
+        result = get_message_data("message-id")
+
+        assert result is target
+        assert result.id == "message-id"
+
+
+class TestMeasureTime:
+    """Test cases for measure_time function"""
+
+    def test_measure_time(self):
+        with measure_time() as timing_info:
+            assert "start" in timing_info
+            assert isinstance(timing_info["start"], datetime)
+            assert timing_info["end"] is None
+
+        assert timing_info["end"] is not None
+        assert isinstance(timing_info["end"], datetime)
+        assert timing_info["end"] >= timing_info["start"]
+
+
+class TestReplaceTextWithContent:
+    """Test cases for replace_text_with_content function"""
+
+    def test_replace_text_with_content_dict(self):
+        data = {"text": "hello", "other": "world"}
+        assert replace_text_with_content(data) == {"content": "hello", "other": "world"}
+
+    def test_replace_text_with_content_nested(self):
+        data = {"text": "v1", "nested": {"text": "v2", "list": [{"text": "v3"}]}}
+        expected = {"content": "v1", "nested": {"content": "v2", "list": [{"content": "v3"}]}}
+        assert replace_text_with_content(data) == expected
+
+    def test_replace_text_with_content_list(self):
+        data = [{"text": "v1"}, "v2"]
+        assert replace_text_with_content(data) == [{"content": "v1"}, "v2"]
+
+    def test_replace_text_with_content_primitive(self):
+        assert replace_text_with_content(123) == 123
+        assert replace_text_with_content("text") == "text"
+
+
+class TestValidateIntegerId:
+    """Test cases for validate_integer_id function"""
+
+    def test_valid_integer_id(self):
+        assert validate_integer_id("123") == "123"
+        assert validate_integer_id("  456  ") == "456"
+
+    def test_invalid_integer_id_raises_error(self):
+        with pytest.raises(ValueError, match="ID must be a valid integer"):
+            validate_integer_id("abc")
+
+    def test_empty_integer_id_raises_error(self):
+        with pytest.raises(ValueError, match="ID must be a valid integer"):
+            validate_integer_id("")

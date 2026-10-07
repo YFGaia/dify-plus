@@ -10,6 +10,7 @@ import 'dayjs/locale/fr'
 import 'dayjs/locale/hi'
 import 'dayjs/locale/id'
 import 'dayjs/locale/it'
+import 'dayjs/locale/nl'
 import 'dayjs/locale/ja'
 import 'dayjs/locale/ko'
 import 'dayjs/locale/pl'
@@ -28,10 +29,13 @@ dayjs.extend(relativeTime)
 
 export const useFormatTimeFromNow = () => {
   const locale = useLocale()
-  const formatTimeFromNow = useCallback((time: number) => {
-    const dayjsLocale = localeMap[locale] ?? 'en'
-    return dayjs(time).locale(dayjsLocale).fromNow()
-  }, [locale])
+  const formatTimeFromNow = useCallback(
+    (time: number) => {
+      const dayjsLocale = localeMap[locale] ?? 'en'
+      return dayjs(time).locale(dayjsLocale).fromNow()
+    },
+    [locale],
+  )
 
   return { formatTimeFromNow }
 }

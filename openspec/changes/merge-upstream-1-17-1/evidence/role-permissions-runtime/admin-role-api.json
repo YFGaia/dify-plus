@@ -1,0 +1,77 @@
+{
+  "workspace": {
+    "status": 200,
+    "role": "admin"
+  },
+  "reads": {
+    "/system-manage-extend/quota-management?page=1&page_size=10": {
+      "status": 200,
+      "keys": [
+        "list",
+        "total",
+        "page",
+        "page_size"
+      ]
+    },
+    "/system-manage-extend/integration/dingtalk": {
+      "status": 200,
+      "keys": [
+        "status",
+        "corp_id",
+        "agent_id",
+        "app_key",
+        "app_id",
+        "app_secret",
+        "config"
+      ]
+    },
+    "/system-manage-extend/integration/oauth2": {
+      "status": 200,
+      "keys": [
+        "status",
+        "corp_id",
+        "agent_id",
+        "app_key",
+        "app_id",
+        "app_secret",
+        "config"
+      ]
+    },
+    "/system-manage-extend/forward-tokens": {
+      "status": 200,
+      "keys": [
+        "tokens"
+      ]
+    },
+    "/system-manage-extend/code-execution-control": {
+      "status": 200,
+      "keys": [
+        "items"
+      ]
+    }
+  },
+  "quota_write": {
+    "status": 200,
+    "result": "success"
+  },
+  "quota_readback": {
+    "status": 200,
+    "data": {
+      "list": [
+        {
+          "account_id": "8a8580ad-1581-4300-9b23-98bc6c32d57f",
+          "ranking": 1,
+          "name": "acceptance-member-02",
+          "email": "acceptance-member-02@example.invalid",
+          "avatar": null,
+          "used_quota": 0,
+          "total_quota": 41.2345678,
+          "balance": 41.2345678
+        }
+      ],
+      "total": 1,
+      "page": 1,
+      "page_size": 30
+    }
+  }
+}

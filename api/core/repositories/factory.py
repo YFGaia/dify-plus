@@ -5,18 +5,45 @@ This module provides a Django-like settings system for repository implementation
 allowing users to configure different repository backends through string paths.
 """
 
-from typing import Union
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import Literal, Protocol
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
 from configs import dify_config
-from core.workflow.repositories.workflow_execution_repository import WorkflowExecutionRepository
-from core.workflow.repositories.workflow_node_execution_repository import WorkflowNodeExecutionRepository
+from graphon.entities import WorkflowExecution, WorkflowNodeExecution
 from libs.module_loading import import_string
 from models import Account, EndUser
 from models.enums import WorkflowRunTriggeredFrom
 from models.workflow import WorkflowNodeExecutionTriggeredFrom
+
+
+@dataclass
+class OrderConfig:
+    """Configuration for ordering node execution instances."""
+
+    order_by: list[str]
+    order_direction: Literal["asc", "desc"] | None = None
+
+
+class WorkflowExecutionRepository(Protocol):
+    def save(self, execution: WorkflowExecution): ...
+
+
+class WorkflowNodeExecutionRepository(Protocol):
+    def save(self, execution: WorkflowNodeExecution): ...
+
+    def save_synchronously(self, execution: WorkflowNodeExecution) -> None: ...
+
+    def save_execution_data(self, execution: WorkflowNodeExecution): ...
+
+    def get_by_workflow_execution(
+        self,
+        workflow_execution_id: str,
+        order_config: OrderConfig | None = None,
+    ) -> Sequence[WorkflowNodeExecution]: ...
 
 
 class RepositoryImportError(Exception):
@@ -36,19 +63,23 @@ class DifyCoreRepositoryFactory:
     @classmethod
     def create_workflow_execution_repository(
         cls,
-        session_factory: Union[sessionmaker, Engine],
-        user: Union[Account, EndUser],
+        session_factory: sessionmaker | Engine,
+        tenant_id: str,
+        user: Account | EndUser,
         app_id: str,
         triggered_from: WorkflowRunTriggeredFrom,
+        from_account_id: str | None = None,
     ) -> WorkflowExecutionRepository:
         """
         Create a WorkflowExecutionRepository instance based on configuration.
 
         Args:
             session_factory: SQLAlchemy sessionmaker or engine
-            user: Account or EndUser object
+            tenant_id: Tenant that owns the workflow execution
+            user: Account or EndUser used for creator attribution
             app_id: Application ID
             triggered_from: Source of the execution trigger
+            from_account_id: Request-validated Console actor, or the original persisted actor on resume
 
         Returns:
             Configured WorkflowExecutionRepository instance
@@ -62,9 +93,11 @@ class DifyCoreRepositoryFactory:
             repository_class = import_string(class_path)
             return repository_class(
                 session_factory=session_factory,
+                tenant_id=tenant_id,
                 user=user,
                 app_id=app_id,
                 triggered_from=triggered_from,
+                from_account_id=from_account_id,
             )
         except (ImportError, Exception) as e:
             raise RepositoryImportError(f"Failed to create WorkflowExecutionRepository from '{class_path}': {e}") from e
@@ -72,8 +105,9 @@ class DifyCoreRepositoryFactory:
     @classmethod
     def create_workflow_node_execution_repository(
         cls,
-        session_factory: Union[sessionmaker, Engine],
-        user: Union[Account, EndUser],
+        session_factory: sessionmaker | Engine,
+        tenant_id: str,
+        user: Account | EndUser,
         app_id: str,
         triggered_from: WorkflowNodeExecutionTriggeredFrom,
     ) -> WorkflowNodeExecutionRepository:
@@ -82,7 +116,8 @@ class DifyCoreRepositoryFactory:
 
         Args:
             session_factory: SQLAlchemy sessionmaker or engine
-            user: Account or EndUser object
+            tenant_id: Tenant that owns the workflow node execution
+            user: Account or EndUser used for creator attribution
             app_id: Application ID
             triggered_from: Source of the execution trigger
 
@@ -98,6 +133,7 @@ class DifyCoreRepositoryFactory:
             repository_class = import_string(class_path)
             return repository_class(
                 session_factory=session_factory,
+                tenant_id=tenant_id,
                 user=user,
                 app_id=app_id,
                 triggered_from=triggered_from,

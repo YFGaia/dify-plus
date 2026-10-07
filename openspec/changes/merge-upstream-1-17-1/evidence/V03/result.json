@@ -1,0 +1,151 @@
+{
+  "node": "V03",
+  "status": "blocked",
+  "recorded_at_utc": "2026-09-30T05:15:43Z",
+  "candidate": {
+    "commit": "970b704e351f8b98d1f0450e5dd50734b5d21e8c",
+    "tree": "ccb16e6692f53c68fe13e2ca51036649c707735d",
+    "api_image_id": "sha256:5e159ddcab422a4a609e042eec9b17460e07024e03c821f93b7e06ea87647f6b",
+    "api_platform": "linux/arm64"
+  },
+  "subtasks": {
+    "18.1_target_images_and_isolation": {
+      "status": "partial",
+      "result": "Candidate API/Web images ran in isolated projects with project-scoped volumes and no production storage, queue, or database connections. No registry digest or supply provenance was established; fork-private plugin-daemon image pull returned manifest unknown and the local rehearsal used the matching upstream plugin-daemon image through a temporary override."
+    },
+    "18.2_empty_and_old_copy_migration": {
+      "status": "partial",
+      "postgres_empty_database": {
+        "status": "passed",
+        "main_head": "c3f1a9b2e6d4",
+        "extension_head": "020_workflow_run_account",
+        "evidence": "evidence/V03/local-compose-2026-09-30.md"
+      },
+      "mysql_empty_database": {
+        "status": "failed",
+        "version": "8.0.46",
+        "image_id": "sha256:b7e118f56c5963e079252e0d6e2978c9c010eb7fc7aaaec100e367796b5dd08f",
+        "extension_revision": "001_recommended_list_sorted (source file 06b18b329024_recommended_list_sorted_by_usage_.py; down_revision is null)",
+        "main_head_after_failure": "c3f1a9b2e6d4",
+        "extension_head_after_failure": null,
+        "post_failure_schema_readback": "145 base tables; zero rows in alembic_version_extend; the only table matching the extension suffix pattern was alembic_version_extend; app_statistics_extend, account_money_extend, and api_token_money_extend were absent",
+        "static_uuid_default_scan": {
+          "migration_file_count": 13,
+          "revision_ids": [
+            "001_recommended_list_sorted",
+            "002_recommended_apps_category",
+            "003_tenant_model_sync_extend",
+            "004_ai_billing_forwarding",
+            "005_account_money_extend",
+            "006_end_user_account_joins",
+            "007_account_money_monthly_stat",
+            "008_account_layover_record",
+            "009_api_token_money_extend",
+            "013_app_extend",
+            "014_message_context_extend",
+            "015_code_execution_control",
+            "018_drop_recommended_cats"
+          ],
+          "runtime_tested": ["001_recommended_list_sorted"],
+          "result": "The same literal uuid_generate_v4() server-default expression occurs in all 13 extension migration files. Later revisions were not reached or runtime-tested on MySQL."
+        },
+        "failure": "MySQL error 3770: default expression uuid_generate_v4() is disallowed while creating app_statistics_extend in extension migration 06b18b329024."
+      },
+      "old_database_copy": "not_run; no user-owned copy was provided or accessed"
+    },
+    "18.3_migration_data_risk_audit": {
+      "status": "source_audit_only",
+      "result": "Read-only inspection identified session-table removal without row copy, legacy Agent JSON/table cleanup, one-way Agent output cleanup, normalized-email backfill without a unique constraint, and model/credential canonicalization with duplicate deletion and reference rewrites. No old rows, before/after counts, reference closure, winner correctness, or credential decryptability were available to validate. See mysql-empty-2026-09-30.md."
+    },
+    "18.4_supported_database_engine_matrix": {
+      "status": "mysql_empty_database_failed",
+      "result": "The empty PostgreSQL migration chain completed. The empty MySQL 8.0.46 chain failed in the extension migration before reaching an extension head. The production engine and any broader supported-engine matrix remain unverified."
+    },
+    "18.5_node_acceptance": {
+      "status": "blocked",
+      "result": "The PostgreSQL empty-database heads match the expected values, but MySQL failed and old-copy data differences, destructive-data disposition, registry image provenance, and target-environment evidence remain outstanding."
+    }
+  },
+  "isolated_business_flow": {
+    "status": "partial",
+    "result": "Fresh PostgreSQL initialization, administrator login, quota read/write (15 USD to 16 USD and restored to 15 USD), Web/API startup, and DeepSeek plugin 0.0.24 installation were observed. A fresh read-only check of the installed provider's configuration panel showed only '添加 API 密钥' and no saved entry. A real model call and usage readback remain pending. No key value was read or recorded.",
+    "evidence": "evidence/V03/local-compose-2026-09-30.md"
+  },
+  "checks": [
+    {
+      "name": "PostgreSQL empty-database dual migration",
+      "exit_code": 0,
+      "result": "Heads c3f1a9b2e6d4 / 020_workflow_run_account; prior isolated run, not repeated."
+    },
+    {
+      "name": "Authenticated quota UI read/write",
+      "result": "15.0000 USD read, changed to 16.0000 USD, restored and read back as 15.0000 USD; prior isolated run, not repeated."
+    },
+    {
+      "name": "DeepSeek plugin install",
+      "result": "Plugin Daemon task 01a0f098-87fe-7896-8bda-40c0e26f7fe0 completed and provider version 0.0.24 appeared in UI; prior isolated run, not repeated."
+    },
+    {
+      "name": "MySQL 8.0.46 empty-database migration",
+      "exit_code": 1,
+      "result": "Main migration head c3f1a9b2e6d4 was recorded. Extension migration failed on MySQL error 3770 while creating app_statistics_extend; alembic_version_extend exists with no revision row. No retry was performed."
+    },
+    {
+      "name": "Post-failure MySQL schema readback",
+      "result": "Read only: 145 base tables, 0 extension-head rows, and no extension business tables matching the queried names; the only table matching *_extend was alembic_version_extend. No business row values were read."
+    },
+    {
+      "name": "Static UUID default scan across extension migrations",
+      "exit_code": 0,
+      "result": "A read-only source scan found the literal uuid_generate_v4() expression in 13 extension migration files. Only the first revision was reached on MySQL; later revisions remain untested."
+    },
+    {
+      "name": "Static migration source audit",
+      "result": "Read-only inspection only; no business rows or database credentials were used."
+    },
+    {
+      "name": "DeepSeek credential presence UI check",
+      "result": "Provider card version 0.0.24 was visible. Its configuration panel showed only '添加 API 密钥'; no saved entry was visible. No key field value was read and no provider setting was changed."
+    },
+    {
+      "name": "Repository validation after evidence update",
+      "result": "jq empty on execution-graph.json and this result: exit 0; git diff --check: exit 0; openspec validate merge-upstream-1-17-1 --strict: exit 0 (Change 'merge-upstream-1-17-1' is valid)."
+    }
+  ],
+  "evidence": [
+    "evidence/V03/execution.log",
+    "evidence/V03/local-compose-2026-09-30.md",
+    "evidence/V03/mysql-empty-2026-09-30.md"
+  ],
+  "known_limits": [
+    "No actual deployment, production database, or real business data was inspected or changed.",
+    "The MySQL failure was observed on a fresh isolated database; no source workaround or retry was applied.",
+    "The source scan found the same UUID-default expression in 12 later extension migration files; their MySQL runtime behavior is unknown because the first revision failed.",
+    "No old-library database copy, vector store, production engine/version, or published image digest was available for this run.",
+    "Static migration review does not establish before/after data safety, decrypted credential usability, or completion of the V03 audit.",
+    "V03 remains blocked; tasks 18.1-18.5 remain unchecked."
+  ],
+  "fresh_install_followup": {
+    "status": "passed_scope_limited",
+    "scope": "fresh PostgreSQL/MySQL migration schema and personal/API-token quota ORM; source overlays, no released image or historical-data acceptance",
+    "evidence": "evidence/V03/28.2-fresh-dual-engine/result.json",
+    "versions_manifest_sha256": "ccd43abd29650fa05543d3a367a83b1f20a7d44c0e54452e77f4f20e67cb51d7",
+    "model_overlay": {
+      "manifest_sha256": "63a4819a6b316ddd4ad54b4a6edbe2de9db817c3a12616b263a7238ba5e81988",
+      "files": {
+        "account_money_extend.py": "15fc8540874015d21b4ecd2df6d5d5c815805bc0bcb7e7ce8d83f3506707c714",
+        "api_token_money_extend.py": "c4fbac65df991a52ab23bfe1c677034b9a70e47c8507e04128fa47663f60cc26"
+      },
+      "mounts": "two individual source files, read-only; API image unchanged"
+    }
+  },
+  "isolated_business_flow_followup": {
+    "status": "passed_actual_response_and_identity; positive_charge_unverified",
+    "result": "Restored WebSocket sync and dedicated workflow execution consumer. Latest request persisted succeeded with OK/49 tokens and trusted current-account attribution. Internal recorded price0USD; personal used quota0/total15 unchanged. Provider credentials existed in current tenant. Prior UI absence inference corrected.",
+    "evidence": [
+      "evidence/V05/28.3-deepseek-real-call.json",
+      "evidence/V05/28.5-workflow-interaction-recovery.md",
+      "evidence/V05/28.7-worker-runtime-recovery.md"
+    ]
+  }
+}

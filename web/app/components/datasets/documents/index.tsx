@@ -1,31 +1,52 @@
 'use client'
+
 import type { FC } from 'react'
-import { useRouter } from 'next/navigation'
-import { useCallback, useEffect } from 'react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { useAtomValue } from 'jotai'
+import { useCallback } from 'react'
 import Loading from '@/app/components/base/loading'
 import { useDatasetDetailContextWithSelector } from '@/context/dataset-detail'
-import { useProviderContext } from '@/context/provider-context'
+import { workspacePermissionKeysAtom } from '@/context/permission-state'
+import { userProfileQueryOptions } from '@/features/account-profile/client'
 import { DataSourceType } from '@/models/datasets'
-import { useDocumentList, useInvalidDocumentDetail, useInvalidDocumentList } from '@/service/knowledge/use-document'
+import { useRouter } from '@/next/navigation'
+import {
+  useDocumentList,
+  useInvalidDocumentDetail,
+  useInvalidDocumentList,
+} from '@/service/knowledge/use-document'
 import { useChildSegmentListKey, useSegmentListKey } from '@/service/knowledge/use-segment'
 import { useInvalid } from '@/service/use-base'
+import { getDatasetACLCapabilities } from '@/utils/permission'
 import useEditDocumentMetadata from '../metadata/hooks/use-edit-dataset-metadata'
 import DocumentsHeader from './components/documents-header'
 import EmptyElement from './components/empty-element'
 import List from './components/list'
-import useDocumentsPageState from './hooks/use-documents-page-state'
+import { useDocumentsPageState } from './hooks/use-documents-page-state'
 
 type IDocumentsProps = {
   datasetId: string
 }
 
+const POLLING_INTERVAL = 2500
+const TERMINAL_INDEXING_STATUSES = new Set(['completed', 'paused', 'error'])
+const FORCED_POLLING_STATUSES = new Set(['queuing', 'indexing', 'paused'])
+
 const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
   const router = useRouter()
-  const { plan } = useProviderContext()
-  const isFreePlan = plan.type === 'sandbox'
 
-  const dataset = useDatasetDetailContextWithSelector(s => s.dataset)
+  const dataset = useDatasetDetailContextWithSelector((s) => s.dataset)
+  const { data: currentUserId } = useSuspenseQuery({
+    ...userProfileQueryOptions(),
+    select: (data) => data.profile.id,
+  })
+  const workspacePermissionKeys = useAtomValue(workspacePermissionKeysAtom)
   const embeddingAvailable = !!dataset?.embedding_available
+  const datasetACLCapabilities = getDatasetACLCapabilities(dataset?.permission_keys, {
+    currentUserId,
+    resourceMaintainer: dataset?.maintainer,
+    workspacePermissionKeys,
+  })
 
   // Use custom hook for page state management
   const {
@@ -44,9 +65,6 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
     handleLimitChange,
     selectedIds,
     setSelectedIds,
-    timerCanRun,
-    updatePollingState,
-    adjustPageForTotal,
   } = useDocumentsPageState()
 
   // Fetch document list
@@ -59,18 +77,18 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
       status: normalizedStatusFilterValue,
       sort: sortValue,
     },
-    refetchInterval: timerCanRun ? 2500 : 0,
+    refetchInterval: (query) => {
+      const shouldForcePolling =
+        normalizedStatusFilterValue !== 'all' &&
+        FORCED_POLLING_STATUSES.has(normalizedStatusFilterValue)
+      const documents = query.state.data?.data
+      if (!documents) return POLLING_INTERVAL
+      const hasIncompleteDocuments = documents.some(
+        ({ indexing_status }) => !TERMINAL_INDEXING_STATUSES.has(indexing_status),
+      )
+      return shouldForcePolling || hasIncompleteDocuments ? POLLING_INTERVAL : false
+    },
   })
-
-  // Update polling state when documents change
-  useEffect(() => {
-    updatePollingState(documentsRes)
-  }, [documentsRes, updatePollingState])
-
-  // Adjust page when total changes
-  useEffect(() => {
-    adjustPageForTotal(documentsRes)
-  }, [documentsRes, adjustPageForTotal])
 
   // Invalidation hooks
   const invalidDocumentList = useInvalidDocumentList(datasetId)
@@ -107,20 +125,20 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
 
   // Route to document creation page
   const routeToDocCreate = useCallback(() => {
+    if (!datasetACLCapabilities.canUse) return
     if (dataset?.runtime_mode === 'rag_pipeline') {
       router.push(`/datasets/${datasetId}/documents/create-from-pipeline`)
       return
     }
     router.push(`/datasets/${datasetId}/documents/create`)
-  }, [dataset?.runtime_mode, datasetId, router])
+  }, [dataset?.runtime_mode, datasetACLCapabilities.canUse, datasetId, router])
 
   const total = documentsRes?.total || 0
   const documentsList = documentsRes?.data
 
   // Render content based on loading and data state
   const renderContent = () => {
-    if (isListLoading)
-      return <Loading type="app" />
+    if (isListLoading && !documentsRes) return <Loading type="app" />
 
     if (total > 0) {
       return (
@@ -131,8 +149,8 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
           onUpdate={handleUpdate}
           selectedIds={selectedIds}
           onSelectedIdChange={setSelectedIds}
-          statusFilterValue={normalizedStatusFilterValue}
           remoteSortValue={sortValue}
+          onSortChange={handleSortChange}
           pagination={{
             total,
             limit,
@@ -148,7 +166,7 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
     const isDataSourceNotion = dataset?.data_source_type === DataSourceType.NOTION
     return (
       <EmptyElement
-        canAdd={embeddingAvailable}
+        canAdd={embeddingAvailable && datasetACLCapabilities.canUse}
         onClick={routeToDocCreate}
         type={isDataSourceNotion ? 'sync' : 'upload'}
       />
@@ -161,7 +179,9 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
         datasetId={datasetId}
         dataSourceType={dataset?.data_source_type}
         embeddingAvailable={embeddingAvailable}
-        isFreePlan={isFreePlan}
+        canManageMetadata={datasetACLCapabilities.canEdit}
+        canAddDocument={datasetACLCapabilities.canUse}
+        canEditDocument={datasetACLCapabilities.canEdit}
         statusFilterValue={statusFilterValue}
         sortValue={sortValue}
         inputValue={inputValue}
@@ -181,9 +201,7 @@ const Documents: FC<IDocumentsProps> = ({ datasetId }) => {
         onBuiltInEnabledChange={setBuiltInEnabled}
         onAddDocument={routeToDocCreate}
       />
-      <div className="flex h-0 grow flex-col px-6 pt-4">
-        {renderContent()}
-      </div>
+      <div className="flex h-0 grow flex-col px-6 pt-4">{renderContent()}</div>
     </div>
   )
 }

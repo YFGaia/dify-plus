@@ -1,0 +1,83 @@
+{
+  "date": "2026-09-30",
+  "candidate": {
+    "tag": "difyplus-acceptance-api:953cf1c-n08-d431d0a6",
+    "image_id": "sha256:0567cc1430de64cb194e086d52708a7f97cda9073f105f4fa54a3037d668792d",
+    "context_sha256": "d431d0a6c0266667649cceb30bcf2139aa6e71b4c8f1f848f0918afc74a0d1f6"
+  },
+  "transport": {
+    "api_health_http": 200,
+    "direct_websocket_handshake": "open"
+  },
+  "passport_scope_cases": [
+    {
+      "case": "same_app",
+      "mode": "completion",
+      "http_status": 200,
+      "actual_returned_app_matches_target": true
+    },
+    {
+      "case": "cross_app",
+      "mode": "completion",
+      "http_status": 401,
+      "actual_returned_app_matches_target": null
+    },
+    {
+      "case": "no_explicit_code",
+      "mode": "completion",
+      "http_status": 200,
+      "actual_returned_app_matches_passport_app": true
+    },
+    {
+      "case": "cross_app",
+      "mode": "chat",
+      "http_status": 401,
+      "actual_returned_app_matches_target": null
+    },
+    {
+      "case": "same_app",
+      "mode": "chat",
+      "http_status": 200,
+      "actual_returned_app_matches_target": true
+    },
+    {
+      "case": "no_explicit_code",
+      "mode": "chat",
+      "http_status": 200,
+      "actual_returned_app_matches_passport_app": true
+    },
+    {
+      "case": "same_app",
+      "mode": "workflow",
+      "http_status": 200,
+      "actual_returned_app_matches_target": true
+    },
+    {
+      "case": "no_explicit_code",
+      "mode": "workflow",
+      "http_status": 200,
+      "actual_returned_app_matches_passport_app": true
+    },
+    {
+      "case": "query_same_app",
+      "http_status": 200,
+      "actual_app_logged_in": true,
+      "assertion_passed": true
+    },
+    {
+      "case": "query_cross_app",
+      "http_status": 200,
+      "actual_app_logged_in": false,
+      "assertion_passed": true
+    },
+    {
+      "case": "query_header_conflict",
+      "http_status": 200,
+      "actual_app_logged_in": false,
+      "assertion_passed": true
+    }
+  ],
+  "total_cases": 11,
+  "result": "passed",
+  "data_policy": "Only synthetic read-only requests; no credentials/passports/app codes stored in this evidence."
+}

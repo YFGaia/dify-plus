@@ -1,0 +1,32 @@
+{
+  "reviewed_at_utc": "2026-09-30T16:10:10.791389+00:00",
+  "timezone": "Asia/Shanghai",
+  "review_kind": "Independent source/record review; no reexecution, model invocation or deployment",
+  "guard_sha256": "60c44a5bb2a4a007d2166137d877d21d6aefd7c339caabfe1d6025a58563a8a0",
+  "preflight_sha256": "ef0294c4c0192366eb531ffe13e52161545326c92ac84bf7c33716b6850c28de",
+  "recorded_cases": 18,
+  "recorded_cases_passed": 18,
+  "record_hash_matches_reviewed_source": true,
+  "verdict": "accepted as single-instance LLM POST acceptance instrument; not metadata/control gateway or full Agent acceptance",
+  "actual_contract": "api/services/entities/agent_llm_inner.py AgentLLMInvokeRequest caller/target fields; original opaque payload passes unchanged to authoritative API validation",
+  "accepted": [
+    "constant-time internal-key comparison before request admission",
+    "policy-scoped actor/app/tenant/agent/version/model and output parameters",
+    "one run binding, deterministic invocation identity and duplicate denial",
+    "durable before-send slot reservation plus no release for unknown outcome",
+    "transparent original request bytes and response status/headers/SSE stream",
+    "18 recorded real-loopback non-model cases including concurrency, restart and unknown-send"
+  ],
+  "required_deployment_constraints": [
+    "one active process/instance only; threading RLock is not a cross-process ledger lock",
+    "fixed private upstream address and immutable full fixture policy; no untrusted upstream input",
+    "fixture owner-chain validity must be established separately and remain validated by genuine API",
+    "do not route metadata or control requests through this POST-only instrument"
+  ],
+  "boundaries": [
+    "limits two admitted forwarded LLM requests, not underlying plugin SDK retry attempts or tool executions",
+    "max_tokens 8 may be unsuitable for structured tool JSON; any different cap requires a separately reviewed policy/budget",
+    "non-model transport sink is not provider/business proof",
+    "no services started, Agent created or model call by this review"
+  ]
+}

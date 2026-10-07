@@ -1,0 +1,18 @@
+{
+  "status": 200,
+  "total": 11,
+  "rows": [
+    {
+      "email": "acceptance-member-01@example.invalid",
+      "total_quota": 23.1234567,
+      "used_quota": 0,
+      "balance": 23.1234567
+    },
+    {
+      "email": "acceptance-member-09@example.invalid",
+      "total_quota": 34.4567891,
+      "used_quota": 0,
+      "balance": 34.4567891
+    }
+  ]
+}

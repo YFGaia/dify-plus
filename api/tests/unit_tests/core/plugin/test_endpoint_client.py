@@ -8,12 +8,24 @@ This test module covers the endpoint client operations including:
 Tests follow the Arrange-Act-Assert pattern for clarity.
 """
 
+from collections.abc import Callable
 from unittest.mock import MagicMock, patch
 
+import httpx
 import pytest
 
 from core.plugin.impl.endpoint import PluginEndpointClient
 from core.plugin.impl.exc import PluginDaemonInternalServerError
+
+
+@pytest.fixture(autouse=True)
+def _patch_shared_httpx_client():
+    """Patch module-level client methods to delegate to module httpx.request/stream."""
+    with (
+        patch("core.plugin.impl.base._httpx_client.request", side_effect=lambda **kw: httpx.request(**kw)),
+        patch("core.plugin.impl.base._httpx_client.stream", side_effect=lambda **kw: httpx.stream(**kw)),
+    ):
+        yield
 
 
 class TestPluginEndpointClientDelete:
@@ -31,13 +43,9 @@ class TestPluginEndpointClientDelete:
         return PluginEndpointClient()
 
     @pytest.fixture
-    def mock_config(self):
+    def mock_config(self, config_overrides: Callable[..., None]):
         """Mock plugin daemon configuration."""
-        with (
-            patch("core.plugin.impl.base.dify_config.PLUGIN_DAEMON_URL", "http://127.0.0.1:5002"),
-            patch("core.plugin.impl.base.dify_config.PLUGIN_DAEMON_KEY", "test-api-key"),
-        ):
-            yield
+        config_overrides(PLUGIN_DAEMON_URL="http://127.0.0.1:5002", PLUGIN_DAEMON_KEY="test-api-key")
 
     def test_delete_endpoint_success(self, endpoint_client, mock_config):
         """Test successful endpoint deletion.
@@ -64,7 +72,7 @@ class TestPluginEndpointClientDelete:
             "data": True,
         }
 
-        with patch("httpx.request", return_value=mock_response):
+        with patch("httpx.request", return_value=mock_response, autospec=True):
             # Act
             result = endpoint_client.delete_endpoint(
                 tenant_id=tenant_id,
@@ -102,7 +110,7 @@ class TestPluginEndpointClientDelete:
             ),
         }
 
-        with patch("httpx.request", return_value=mock_response):
+        with patch("httpx.request", return_value=mock_response, autospec=True):
             # Act
             result = endpoint_client.delete_endpoint(
                 tenant_id=tenant_id,
@@ -139,7 +147,7 @@ class TestPluginEndpointClientDelete:
             ),
         }
 
-        with patch("httpx.request", return_value=mock_response):
+        with patch("httpx.request", return_value=mock_response, autospec=True):
             # Act & Assert
             with pytest.raises(PluginDaemonInternalServerError) as exc_info:
                 endpoint_client.delete_endpoint(
@@ -174,7 +182,7 @@ class TestPluginEndpointClientDelete:
             "message": '{"error_type": "PluginDaemonInternalServerError", "message": "Record Not Found"}',
         }
 
-        with patch("httpx.request", return_value=mock_response):
+        with patch("httpx.request", return_value=mock_response, autospec=True):
             # Act
             result = endpoint_client.delete_endpoint(
                 tenant_id=tenant_id,
@@ -222,7 +230,7 @@ class TestPluginEndpointClientDelete:
             ),
         }
 
-        with patch("httpx.request") as mock_request:
+        with patch("httpx.request", autospec=True) as mock_request:
             # Act - first call
             mock_request.return_value = mock_response_success
             result1 = endpoint_client.delete_endpoint(
@@ -266,7 +274,7 @@ class TestPluginEndpointClientDelete:
             "message": '{"error_type": "PluginDaemonUnauthorizedError", "message": "unauthorized access"}',
         }
 
-        with patch("httpx.request", return_value=mock_response):
+        with patch("httpx.request", return_value=mock_response, autospec=True):
             # Act & Assert
             with pytest.raises(Exception) as exc_info:
                 endpoint_client.delete_endpoint(

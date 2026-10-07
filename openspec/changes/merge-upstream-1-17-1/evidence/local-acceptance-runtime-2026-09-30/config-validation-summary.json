@@ -1,0 +1,32 @@
+{
+  "config_quiet_exit": 0,
+  "static_assertions": "passed",
+  "validator_started_runtime": false,
+  "secrets": "only validation placeholders; resolved JSON not stored or printed",
+  "host": "localhost",
+  "bind_host": "::1",
+  "project": "difyplus-acceptance-20260930",
+  "checks": [
+    "isolated volumes/loopback ports: api",
+    "isolated volumes/loopback ports: api_websocket",
+    "isolated volumes/loopback ports: web",
+    "isolated volumes/loopback ports: plugin_daemon",
+    "isolated volumes/loopback ports: worker",
+    "isolated volumes/loopback ports: worker-gaia",
+    "isolated volumes/loopback ports: worker-dataset",
+    "isolated volumes/loopback ports: nginx",
+    "isolated volumes/loopback ports: db_postgres",
+    "isolated volumes/loopback ports: db_mysql",
+    "isolated volumes/loopback ports: redis",
+    "isolated volumes/loopback ports: qdrant",
+    "isolated volumes/loopback ports: ssrf_proxy",
+    "isolated volumes/loopback ports: sandbox",
+    "isolated volumes/loopback ports: init_permissions",
+    "isolated volumes/loopback ports: init_secret_key",
+    "isolated volumes/loopback ports: migration",
+    "isolated volumes/loopback ports: migration_mysql",
+    "isolated volumes/loopback ports: mysql_probe",
+    "isolated volumes/loopback ports: worker_beat"
+  ],
+  "image_readiness_verified_by_validator": false
+}

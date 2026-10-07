@@ -4,6 +4,7 @@ import { SupportUploadFileTypes } from '../../workflow/types'
 export const CONTEXT_PLACEHOLDER_TEXT = '{{#context#}}'
 export const HISTORY_PLACEHOLDER_TEXT = '{{#histories#}}'
 export const QUERY_PLACEHOLDER_TEXT = '{{#query#}}'
+export const REQUEST_URL_PLACEHOLDER_TEXT = '{{#url#}}'
 export const CURRENT_PLACEHOLDER_TEXT = '{{#current#}}'
 export const ERROR_MESSAGE_PLACEHOLDER_TEXT = '{{#error_message#}}'
 export const LAST_RUN_PLACEHOLDER_TEXT = '{{#last_run#}}'
@@ -13,39 +14,34 @@ export const UPDATE_DATASETS_EVENT_EMITTER = 'prompt-editor-context-block-update
 export const UPDATE_HISTORY_EVENT_EMITTER = 'prompt-editor-history-block-update-role'
 
 export const checkHasContextBlock = (text: string) => {
-  if (!text)
-    return false
+  if (!text) return false
   return text.includes(CONTEXT_PLACEHOLDER_TEXT)
 }
 
 export const checkHasHistoryBlock = (text: string) => {
-  if (!text)
-    return false
+  if (!text) return false
   return text.includes(HISTORY_PLACEHOLDER_TEXT)
 }
 
 export const checkHasQueryBlock = (text: string) => {
-  if (!text)
-    return false
+  if (!text) return false
   return text.includes(QUERY_PLACEHOLDER_TEXT)
 }
-
 /*
-* {{#1711617514996.name#}} => [1711617514996, name]
-* {{#1711617514996.sys.query#}} => [sys, query]
-*/
+ * {{#1711617514996.name#}} => [1711617514996, name]
+ * {{#1711617514996.sys.query#}} => [sys, query]
+ */
 export const getInputVars = (text: string): ValueSelector[] => {
-  if (!text || typeof text !== 'string')
-    return []
+  if (!text || typeof text !== 'string') return []
 
   const allVars = text.match(/\{\{#([^#]*)#\}\}/g)
   if (allVars && allVars?.length > 0) {
     // {{#context#}}, {{#query#}} is not input vars
     const inputVars = allVars
-      .filter(item => item.includes('.'))
+      .filter((item) => item.includes('.'))
       .map((item) => {
         const valueSelector = item.replace('{{#', '').replace('#}}', '').split('.')
-        if (valueSelector[1] === 'sys' && /^\d+$/.test(valueSelector[0]))
+        if (valueSelector[1] === 'sys' && /^\d+$/.test(valueSelector[0]!))
           return valueSelector.slice(1)
 
         return valueSelector
@@ -57,7 +53,25 @@ export const getInputVars = (text: string): ValueSelector[] => {
 
 export const FILE_EXTS: Record<string, string[]> = {
   [SupportUploadFileTypes.image]: ['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP', 'SVG'],
-  [SupportUploadFileTypes.document]: ['TXT', 'MD', 'MDX', 'MARKDOWN', 'PDF', 'HTML', 'XLSX', 'XLS', 'DOC', 'DOCX', 'CSV', 'EML', 'MSG', 'PPTX', 'PPT', 'XML', 'EPUB'],
+  [SupportUploadFileTypes.document]: [
+    'TXT',
+    'MD',
+    'MDX',
+    'MARKDOWN',
+    'PDF',
+    'HTML',
+    'XLSX',
+    'XLS',
+    'DOC',
+    'DOCX',
+    'CSV',
+    'EML',
+    'MSG',
+    'PPTX',
+    'PPT',
+    'XML',
+    'EPUB',
+  ],
   [SupportUploadFileTypes.audio]: ['MP3', 'M4A', 'WAV', 'AMR', 'MPGA'],
   [SupportUploadFileTypes.video]: ['MP4', 'MOV', 'MPEG', 'WEBM'],
 }

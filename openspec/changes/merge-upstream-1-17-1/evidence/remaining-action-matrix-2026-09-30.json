@@ -1,0 +1,102 @@
+{
+  "local_matrix_missing": 1,
+  "external_required": 8,
+  "external_scenes": 7,
+  "source_and_tag_unchanged": true,
+  "whole_goal_complete": false,
+  "actions": [
+    {
+      "id": "O02.no_model_original_provider_sidecar_preparation",
+      "status": "blocked_approval_for_exact_shared_access_network_join",
+      "executor": "runtime_acceptance static Compose plan; merge_audit contract review; root dispatch",
+      "next_action": "Exact shared-network human authorization -> actual host/owner gate; SDK/schema/activecatalog/instrument no-model review is complete. No unapproved network/host/relay/internal-owner workaround.",
+      "evidence": "evidence/original-generation-runtime/independent-o02-network-mode-review.json"
+    },
+    {
+      "id": "generation_fixture_cleanup",
+      "status": "blocked-approval",
+      "executor": "runtime_acceptance queueconsumer only after user explicit approval; app_center exactforkresidue cleanup aftercore0",
+      "next_action": "Wait human approval exact3ownedApps relatedrecords; no directtask/fork/queuepurge bypass",
+      "evidence": "evidence/original-generation-runtime/independent-actual-readback.json"
+    },
+    {
+      "id": "B01.enabled_external_oauth_account_init",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
+      "minimum_configuration": "Authorized real OAuth/SSO client/issuer, registered callback, synthetic provider identity and known invite/registration policy.",
+      "unverified_behavior": "Actual enabled callback/state validation, ACTIVE account/membership/quota uniqueness, session and tenant API readback."
+    },
+    {
+      "id": "B03.enabled_provider_callback_state_invite_session_api",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
+      "minimum_configuration": "Authorized real OAuth/SSO client/issuer, registered callback, synthetic provider identity and known invite/registration policy.",
+      "unverified_behavior": "Actual enabled callback/state validation, ACTIVE account/membership/quota uniqueness, session and tenant API readback."
+    },
+    {
+      "id": "B07.console_explore_webapp_nonzero_usage_actor_RMB_USD_reconcile",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Actual nonzero Console/Explore/WebApp actor/run and USD/RMB reconciliation; anonymous billing separately measured."
+    },
+    {
+      "id": "B07.anonymous_billing_baseline_separately_recorded",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Actual nonzero Console/Explore/WebApp actor/run and USD/RMB reconciliation; anonymous billing separately measured."
+    },
+    {
+      "id": "B08.five_mode_nonzero_daily_monthly_total_balance_boundary",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Five-mode real daily/monthly/account/key boundary charge and rejection; accumulated usage is not lifetime cap."
+    },
+    {
+      "id": "B09.stop_resume_retry_usage_preserved_LLM_attribution",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
+      "minimum_configuration": "Working authorized model/provider on isolated fixtures; positive pricing and bounded spend for charge checks. Credentials remain internal.",
+      "unverified_behavior": "Real LLM stop/retry/resume terminal state and expected nonzero attribution preserved."
+    },
+    {
+      "id": "F04.enabled_dingtalk_oauth2_email_actual_test",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
+      "minimum_configuration": "Authorized DingTalk/OAuth client/callback and explicit synthetic SMTP destination when email enabled. Isolated MAIL_TYPE stays empty until that setup.",
+      "unverified_behavior": "Real enabled login callback/session and bounded synthetic email delivery, no production recipient."
+    },
+    {
+      "id": "D05.high_quality_vector_counts_retrieval_grpc_TLS_config",
+      "status": "unverified_condition",
+      "executor": "root obtains exact configuration/authorization then bounded executor",
+      "minimum_configuration": "Authorized embedding provider/model, dimension-matched isolated high-quality dataset and actual selected vector/gRPC/TLS configuration.",
+      "unverified_behavior": "Real product high-quality upload/index/vector count/retrieval and selected transport. Installed registry/Qdrant CRUD already locally passed."
+    },
+    {
+      "id": "O02.generated_agent_run_tool_call_memory_compaction",
+      "status": "local_pending",
+      "executor": "runtime/app_center per bounded dispatch; audit independent review",
+      "minimum_configuration": "Existing original DeepSeek tool capability is available. Human authorization for exact sidecar API shared-access-network join/recreate is pending; five services have container-local readiness but host/owner gate is unpassed. Actual selected model CONTEXT_SIZE=1000000 gives target800000 with proposed cap8, and Summary keep_messages20 requires >20 genuine messages/safe cutoff. Complete compaction needs an authorized already-configured smaller-window model or separately approved real-history/input-scale budget; do not override schema, seed assistant history, or substitute tiny tool/no-op capability. Existing published workflow max_tokens64 is distinct from proposed owned Agent cap8; actual Agent config remains uncreated.",
+      "unverified_behavior": "CompletegeneratedAgenttool/memory/compaction +selectedruntimeactual; no-modelpreparation alone insufficient"
+    },
+    {
+      "id": "legacy_upgrade_and_old_version_restore",
+      "status": "deferred_by_prior_user_scope",
+      "executor": "root/executor after actualpriorversioninventory/snapshots",
+      "next_action": "A03/V03 actual old deployment inventory and matching old PG/MySQL snapshot/version; V04 old vector upgrade; V06 old-version consistent-point full restore including Redis replay and stated RTO/RPO. D00-D04/O05 authorized production window/single executor/backup thresholds/observation. Fresh/current clone does not replace old-version gates."
+    },
+    {
+      "id": "production_delivery",
+      "status": "not_authorized",
+      "executor": "production singleexecutor after specific authorization/window/thresholds/signoff",
+      "next_action": "Do not push or deploy automatically"
+    }
+  ],
+  "active_model_catalog_evidence": "evidence/original-generation-runtime/independent-active-model-catalog-review.json",
+  "safe_runtime_actions_without_new_authorization_or_configuration": 0,
+  "additional_model_schema_evidence": "evidence/original-generation-runtime/independent-v4-flash-price-schema-review.json",
+  "remaining_price_scope": "Both activeLLM windows1m. SelectedFlash schema and additionalv4Flash schema expose no pricing object; actual invocation usage/price is unverified for v4Flash. No credentials/model/price mutation or additional call authorized by metadata."
+}

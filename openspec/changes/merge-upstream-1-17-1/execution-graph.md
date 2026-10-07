@@ -1,0 +1,762 @@
+# 可执行合并 DAG
+
+> 最新范围：B05实际12矩阵、B11正确parent链/Memory及B09已完成usage停止子项已passed。原模型实际tool能力可用，O02完整generated run/tool call/memory/compaction正式转本地pending1；外部required由机器重算为8项/7场景。cleanup仍blocked-approval，0consumer启动。43e2当时local0/external9仅历史分类，不能再当当前不可执行结论。
+
+> 历史初次审计状态：原27节点16 passed、2 blocked、9 pending；历史源码候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` 的M08/V01/V02/R01通过有效，但修复源码和运行验收不能整体复用该结论。当前审计基线 `953cf1c1ef88258197c72b98e89fcd1dab85ac39`；28.x已修复空库方言/额度ORM并以旧镜像加精确source overlay验证PG/MySQL，真实DeepSeek返回OK/49 tokens，price0USD未证明扣费。已发布且已安装应用中心遗漏由N01显式修复。完整修复镜像、全部适用真实业务验收与本地恢复由N02–N06持续推进。
+
+## 当前本地新安装完成目标
+
+[本轮逐节点审计](evidence/merge-completion-audit-2026-09-30.md)、[完整29场景台账](acceptance-ledger-2026-09-30.md)与tasks29/30为当前调度入口。历史数据库/旧向量升级和旧版恢复按既有用户决定后续单验；生产授权仍独立。这些延期不能延后当前可执行的用户功能验收。
+
+```mermaid
+flowchart LR
+ N00[审计与台账] --> N01[修复已安装发布应用遗漏]
+ N00 --> N02[冻结候选和受影响源码回归]
+ N01 -. 稳定源码里程碑 .-> N02
+ N02 --> N03[完整镜像和本地容器更新]
+ N03 --> N04[空PG/MySQL与知识库/运行闭环]
+ N04 --> N05[业务权限和非零计费矩阵]
+ N01 --> N05
+ N03 --> N07[额度分页和Key数字契约最新候选]
+ N07 --> N05
+ N05 --> N06[本地恢复和交付包]
+ N07 --> N06
+ N08[签名App scope] --> N09[Context UUID兼容]
+ N09 --> N10[provider完整安装]
+ N09 --> N05
+ N10 --> N05
+ N09 --> N06
+ N10 --> N06
+```
+
+当前38节点机器汇总为29 passed /0 blocked /0 pending /9 deferred；Docker容器18服务全部启动健康、空PG双链迁移通过。V03简化为已通过，V04-V06/D00-D04延期至生产授权，A03延期（需生产环境）。当前 HEAD-lock 完整标准镜像 `445d59db…` 对应归档基线953cf1加55个冻结owned路径和原HEAD lock；47镜像路径、38provider distributions、32entrypoint loads、8trace imports、449版本映射及Qdrant实际CRUD均通过。合法Agent配置文件/Stub manifest、HumanInput暂停恢复、真实双Socket及所选关闭归档门槛已通过；此前已列本地子集检查通过；后续原provider生成/retention/stop重新列为实际必验；O01正常plugin operation含实际同tenant安装身份已由45tokens/0USD正规组件调用闭环，未证明非零账务。原入口最终bundle已更新healthy；最新原页面已真实刷新卡片/打开installed/返回通过并绑定445d，锁屏仅历史条件。原center组件读回和恢复选定HEAD445d绑定已实际通过；源提交ee72b000与历史引用修补e91c4d89已完成，cleanarchive静态检查通过后code-ready tag `fork-merged-1.17.1` 指e91c4d89；R02实际结果/log记录是随后docs提交，不重指tag。该checkpoint外部11的分类已由后续原provider审计更正；当前精确条件见machineledger，旧版本升级/恢复及生产门槛保留；新节点不将原blocked/pending改成虚假passed。
+
+## 依赖图
+
+```mermaid
+flowchart TD
+  A00["A00 实施与分支授权"]
+  A01["A01 冻结基线与保护共享工作区"]
+  A02["A02 刷新差异与冲突所有权"]
+  A03["A03 盘点真实部署与数据"]
+  A04["A04 冻结跨层行为与接口契约"]
+  M00["M00 形成非部署 merge 基线提交"]
+  M01["M01 工具链、依赖与生成物"]
+  M02["M02 后端基础与共同契约适配"]
+  M03["M03 账号、OAuth 与 WebApp 后端"]
+  M04["M04 计费、Service API 与记忆挂点"]
+  M05["M05 Console transport 与前端契约"]
+  M06["M06 前端业务挂载与国际化"]
+  M07["M07 综合部署和 CI 对齐"]
+  M08["M08 集成审查与候选源码提交"]
+  V01["V01 后端静态与定向回归"]
+  V02["V02 前端检查、定向测试与双构建"]
+  R01["R01 源码合并候选验收"]
+  V03["V03 目标镜像、空库与存量双链演练"]
+  V04["V04 向量库副本演练"]
+  V05["V05 真实业务与权限验收"]
+  V06["V06 整套恢复演练"]
+  R02["R02 版本文档与环境上线操作包"]
+  D00["D00 生产变更授权与放行"]
+  D01["D01 封入口、停写与一致快照"]
+  D02["D02 执行环境向量路径"]
+  D03["D03 执行单一双链迁移"]
+  D04["D04 启动、业务放行与观察"]
+  A00 --> A01
+  A01 --> A02
+  A02 --> A04
+  A04 --> M00
+  M00 --> M01
+  M01 --> M02
+  M02 --> M03
+  M03 --> M04
+  M03 --> M05
+  M04 --> M06
+  M05 --> M06
+  M01 --> M07
+  M02 --> M08
+  M03 --> M08
+  M04 --> M08
+  M05 --> M08
+  M06 --> M08
+  M07 --> M08
+  M08 --> V01
+  M08 --> V02
+  V01 --> R01
+  V02 --> R01
+  R01 --> V03
+  A03 --> V03
+  V03 --> V04
+  V03 --> V05
+  V04 --> V05
+  V05 --> V06
+  V06 --> R02
+  R02 --> D00
+  D00 --> D01
+  D01 --> D02
+  D02 --> D03
+  D03 --> D04
+```
+
+## 调度与人员安排
+
+- A00 授权门与 A01 共享工作区保护已通过；指定分支已创建，A02 已校验固定 tag 和重算差异，A04 已冻结共同契约，M00 已形成不可部署的双父 merge 基线；M01 已通过；M03 9.1–9.6 已通过（9.6 追加 29 项定向测试并保持 schema 不变）；M02 原 8.1–8.5 通过后重开 8.6–8.7；36 项测试、Swagger schema 和独立 Luna 复核均通过，已恢复 passed；M04 已通过；M05 11.1–11.6 已通过，11.6 标准生成、schema 断言及 Astra worktree 字节比对均通过；11.7 修复继承的 OpenAPI 配置格式债务，精确格式检查通过，独立提交 `c304fe188e949733fa4ac1697004e3b99d9db95d`；M07 13.1–13.6 源码验收已通过（13.4 有 P3 操作边界；13.6 GitLab manifest 修复经 Luna 复核），真实 pipeline/镜像供货仍待部署证据；M06 12.1a、12.1b 已完成；独立 Luna 验证 22 项卡片测试和 20 项 context 测试通过，两个 scoped check 及代码审查无阻断；12.2 Sol 分析已完成，12.2a 已完成并通过测试及 scoped check，提交 82227748fcbe7b727da1d4aed67306f44ef00a4b；12.2c 的精确路径与前置已登记；12.2c 已完成，137 项测试通过，五文件 scoped check 零错误；两条基线 warning 已核实，提交 78c099003f06b06a4820bb5c62999a7c0c65e0e8；12.3/12.4 Sol 分析已完成并登记精确路径；12.3 限定 app key 支持的额度和 login_config 汇率；12.4 恢复现有 owner 导航组件挂载且保留权限；context caller 已由 M05 11.6 generated contract 解锁，12.1b 已提交并通过 20 项聚焦测试、四文件 scoped check 及独立 Luna 审查；独立 Sol 路径交叉核对已完成，四条登记路径完整；M08 与 V01 的首候选验收已通过；V02/16.5–16.7 的阻断证据均保留；M08/14.10 候选仍是 `95101d76b955481ce6c9519596aeea426680fa71`，API 子树复用 V01 160/160。16.7 的 archive 曾漏链接 package-level node_modules；16.8 补齐 workspace overlay 后首失败转为 ESLint。Sol 已确认 M05 workspace/app-info 合约差异和 M08 retention_number 闭环丢失属于集成缺口；M06/12.7 与 M08/14.12 已修复，M05/11.8 与 M08/14.11 正在执行。M08/14.19 冻结的候选已通过 V02/16.15 和 R01 源码验收并达到 code-ready；A03 实际环境只读盘点仍待授权。R01 是源码候选；R02 是上线准备完成；D04 才是生产升级完成。
+- 建议集成/架构 1 人、后端 1 人、前端 1 人、部署 1 人；角色可复用。模型只是辅助建议：复杂实现 Astra/high，规划 Sol/high，机械检查 Luna/high，复杂故障升级 Sol/Astra。
+- M06 最新子任务进度：12.3、12.4 均已通过；独立 Luna 在最终组合快照验证 API key/MainNav 两个 spec 共 97 项通过，六个目标路径与实现提交一致且 eafe 文件安全恢复，证据见 `evidence/M06/12.3-12.4-final-verification.md`。12.4 owner-only 系统管理导航恢复提交 `a7b7ddeeda`；12.3 后续修订提交 `4526fd02f2`。12.1b Sol 独立路径交叉核对无遗漏，四条登记路径充足。12.5 locale 最终 24 语言命令检查通过，零引用旧 quota modal 已删除并提交 `5bb83572ca`。12.6a 独立应用中心 MainNav 入口已通过 92 项 MainNav 测试并提交 `6061766c11`，保留 upstream Home `/`；12.6b system-integration 宿主测试已启动，个人统计由 M04/M03 做 account-scoped API 与生成契约分析，API-key 交互回归新增登记为 12.6i。M06/12.7 已修复 dormant 组件失效导入并通过单文件检查，父节点已通过。
+- M02→M03→M04 串行；M05 在 M03 后可与 M04 并行；M07 与后端/前端适配并行；M06 等待后端计费与前端契约。
+- V01/V02 共用 heavy_compute 锁，默认串行运行重型检查。A03 可独立完成获授权的环境只读盘点；V04 等待 V03 固定候选镜像后再做向量数据与客户端适配演练。
+- 任一节点修复导致源代码改变，更新候选 commit/digest 并使相应后继检查失效；不得复用旧结果冒充新结果。
+- 91 个预测冲突的唯一初始 owner 见 research/conflict-ownership.tsv；155 个 fork/upstream 重叠路径见 research/overlap-ownership.tsv，20 个新增或移动宿主落点见 research/host-ownership.tsv。实际 merge 出现新路径须先登记。
+- Git 索引由集成负责人串行管理：M00 形成双父 upstream merge 基线；M01–M07 的代码、配套测试、证据及状态逐节点独立提交；M08 提交集成修复和候选源码。M00 基线不可部署，R01/V03 等后续门槛不提前通过。
+- 时间估算：基线/共同契约 0.5–1 人日；源码适配 6–10 人日；验证/数据演练 3–6 人日；运维操作包 1–2 人日。合计约 10.5–19 人日，三路并行约 6–10 工作日；为当前规模下的估计，旧向量库逐站迁移另计，A03 后更新。
+
+## A00 · 实施与分支授权
+
+- 前置：无；负责人：集成负责人；建议模型：Sol/high。
+- 授权：`explicit_user_implementation_and_branch`；资源锁：`集成负责人`。
+- 写入范围：授权记录。
+
+执行：
+
+1. 已确认用户授权本地代码实施、校验及创建指定执行分支 `codex/merge-upstream-1.17.1`；原文和环境边界见 `evidence/A00/result.json`
+2. 用户选择指定执行分支，当前分支实施的替代决定不适用；分支创建留待 A01
+
+验收：
+
+- 授权记录明确涵盖动作、分支名称及环境边界
+
+证据：`evidence/A00/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## A01 · 冻结基线与保护共享工作区
+
+- 前置：A00；负责人：集成负责人；建议模型：Sol/high。
+- 授权：`implementation`；资源锁：`git_index`。
+- 写入范围：Git refs 与本次规划材料。
+
+执行：
+
+1. 检查当前 HEAD、工作区、upstream URL、tag；核对未跟踪路径与目标路径碰撞
+2. 本次规划文件显式列出后独立提交或备份；其他未跟踪文件保留，禁止全量 stash/clean/reset
+3. 确认授权分支名后创建 codex/merge-upstream-1.17.1，记录旧 HEAD 和恢复锚点；若名字已存在先检查，不覆盖
+
+验收：
+
+- 完整 SHA 与本分析一致，变化则 A02 重新评估
+- 无未保存的受影响用户修改；未跟踪路径碰撞已逐项处置
+
+命令（先满足本节点前置，路径以合并后实际结构复核）：
+
+```sh
+git status --short
+git rev-parse HEAD
+git remote get-url upstream
+git tag --points-at HEAD
+git switch -c codex/merge-upstream-1.17.1
+```
+
+证据：`evidence/A01/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## A02 · 刷新差异与冲突所有权
+
+- 前置：A01；负责人：集成负责人；建议模型：Sol/high。
+- 授权：`implementation`；资源锁：`git_index`。
+- 写入范围：research/ 与 ownership 台账。
+
+执行：
+
+1. 通过 upstream 取固定 tag 并核对 full SHA，不自动追 main
+2. 刷新 merge-base、提交/文件差异和冲突预测；检查四个 fork 后续提交全部入账
+3. 为新增/移动宿主分配独占 owner，91 路径初表仅是当前快照
+
+验收：
+
+- 目标确为 8387590ace4a094de812b7847fc6a4c3a27cd52b
+- 所有冲突唯一归属；所有文件改写需求有 owner
+
+命令（先满足本节点前置，路径以合并后实际结构复核）：
+
+```sh
+git fetch upstream refs/tags/1.17.1:refs/tags/1.17.1
+git rev-parse refs/tags/1.17.1^{commit}
+git merge-base HEAD refs/tags/1.17.1
+```
+
+证据：`evidence/A02/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## A03 · 盘点真实部署与数据
+
+- 前置：无；负责人：运维负责人；建议模型：Sol/high。
+- 授权：`authorized_read_only_environment_access`；资源锁：`运维负责人`。
+- 写入范围：脱敏环境清单。
+
+执行：
+
+1. 填 runbook 环境表，查询实际服务镜像/版本/两个 DB head/数据卷/备份/队列
+2. 盘点真实 Agent、SSO、模型和向量库；记录历史 backfill 完成状态
+3. 确认副本访问与业务验收负责人，准备环境操作草案与备份恢复命令；不得输出凭据或完整含密钥 Compose
+
+验收：
+
+- 环境清单必填项完成，缺失项标 blocked
+- 具备可恢复副本与隔离环境方案
+
+证据：`evidence/A03/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## A04 · 冻结跨层行为与接口契约
+
+- 前置：A02；负责人：架构负责人；建议模型：Sol/high。
+- 授权：`implementation`；资源锁：`架构负责人`。
+- 写入范围：`research/contract-matrix.md` 与 A04 状态证据。
+
+执行：
+
+1. 按 design D3 逐条写请求/响应/错误/权限/缓存契约
+2. 确定 public snapshot 与 fork login_config 合成；workspace summary 权限源
+3. 保留现有 app/dataset key 支持范围；environment 无计费契约则不显示无效输入
+4. 记录匿名计费及 P4 已知债务，不因未答复改变付款人
+
+验收：
+
+- 身份/前端/额度负责人认可同一契约
+- 不得以旧文件路径代替行为验收
+
+状态：passed；共同契约见 `research/contract-matrix.md`（C01–C14）。这是已授权设计与源码支持的实施交接，不表示外部负责人签字或业务回归通过。证据：`evidence/A04/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## M00 · 形成非部署 merge 基线提交
+
+- 前置：A04；负责人：集成负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`git_index`。
+- 写入范围：Git merge state。
+
+执行：
+
+1. 确认 A01 所有保护措施完成
+2. 在授权分支执行正式 merge；冲突退出码不等于失败，核对 MERGE_HEAD 与固定 target
+3. 将实际冲突逐项与 A02 的 91 路径及唯一 owner 核对；不一致则阻断并返回 A02 更新台账
+4. 全部冲突选择 upstream 1.17.1 版本，上游删除则维持删除；逐项记录处置、保留 fork 第一父提交及后续适配 owner
+5. 核验无未解决索引后提交双父 upstream merge 基线；记录父提交和树摘要，标记为不可部署基线
+
+验收：
+
+- 双父 merge commit 第一父为步骤 1 记录的执行前授权分支 HEAD、第二父为固定 target；无未解决索引
+- 91 个预测冲突与实际冲突逐项核对并有唯一 owner；冲突树采用 upstream 版本或删除，fork 原始内容可从第一父与 A02 台账追溯
+- 基线明确不可部署，后续适配、M08 候选和验证门槛未被提前判通过
+
+命令（先满足本节点前置，路径以合并后实际结构复核）：
+
+```sh
+git merge --no-commit --no-ff refs/tags/1.17.1
+git diff --name-only --diff-filter=U
+git ls-files -u
+git show --no-patch --format=%P HEAD
+```
+
+状态：passed；merge commit `948fefb69ae87abefa7e91a13968213696b3e310`，tree `56d356a4eb2cacbea577b5fd885bd19637b1203f`；第一父 `b17761ed0166e8ef49474da418b95a9462adbb9c`，第二父 `8387590ace4a094de812b7847fc6a4c3a27cd52b`。该基线不可部署，不代表升级完成；M01–M08 与 V01 已通过，V02/R01 尚未通过，A03 与生产门槛保持原状态。
+
+证据：`evidence/M00/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## M01 · 工具链、依赖与生成物
+
+- 状态：passed；初始工具链/锁专项通过，补充的 7.5 构建脚本适配也已提交；五个 fork 前端依赖及 Python 钉钉/pypinyin 保留。
+- 工具实测：官方 pnpm 12.3.4 包和原生二进制 SRI 一致；初始解析使用获授权的 Node24.19.0；随后官方 Node24.20.0 归档 SHA256 校验及精确版本仓库锁检查通过。Python 3.12.9 的 locked/offline/no-sync 检查通过。
+- 锁文件：仓库 pnpm-lock.yaml 已更新并通过 frozen/offline/lockfile-only；新增 50 个 package / 53 个 snapshot 全部属于五依赖的可达范围，既有条目无改动/删除；api/uv.lock SHA 不变。五项 peer 问题与原锁相同。
+- 交接：M08 保有最终锁/契约生成物刷新权；M01/7.5 提交 `42fe3f904d6bd469ce887561a94909da882c4bb6`，精确改为 `next build --webpack`，clean-archive `pnpm check` 通过（8,950 文件格式通过，ESLint 0 errors / 1,931 warnings）。M08/14.19 正在冻结新候选；默认 Next 与 Vinext 仍待 V02/16.15。M02–M07、V01 已通过；A03/环境/生产状态不变。
+- 本地副作用：早期 `uv run --no-sync` 自动重建了指向失效解释器的 `api/.venv`，原 3.12.8 环境变为 3.12.9 空环境；后续检查已隔离到 `/private/tmp`。详情见证据。
+- 前置：M00；负责人：构建负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`构建负责人`。
+- 写入范围：package.json；pnpm-lock.yaml；pnpm-workspace.yaml；oxlint-suppressions.json；web/package.json；web/next.config.ts；api/pyproject.toml；api/uv.lock；api/providers/**/pyproject.toml；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记。
+
+执行：
+
+1. 对齐 Node24.20.0/pnpm12.3.4/Python3.12，保留 fork 专属依赖；本节点同步目标版本字段，避免演练后才改变镜像版本标识
+2. 先处理声明/锁文件冲突；其余 owner 通过需求单申请新增依赖
+3. fork 自有契约不直接写 generated；最终锁文件在 M08 再统一生成
+
+验收：
+
+- 依赖变化可解释；无抹除钉钉/pypinyin 等 fork 依赖
+- 生成物来源明确，工具链版本可复现
+
+证据：`evidence/M01/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## M02 · 后端基础与共同契约适配
+
+- 状态：passed；后端共同契约与定向验收通过，独立 Luna 复核未发现 P1/P2；146 项定向复测、Ruff/格式、OpenSpec strict 与 diff-check 通过。证据见 evidence/M02/result.json 与 evidence/M02/independent-review.json；仍非可部署版本。
+
+- 前置：M01；负责人：后端基础负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`backend_core`。
+- 写入范围：api/models/**；`api/controllers/console/__init__.py`；api/controllers/console/feature.py；api/services/feature_service.py；api/services/workspace_service.py；workspace summary 与 session 相关宿主；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
+
+执行：
+
+1. 采用新 application service/admission/session 模型与 fork 导出
+2. 实现 A04 的 public/login_config/license 与 workspace summary 共同契约
+3. 逐一审计 extend 对重构 service 的调用和懒加载 ORM 属性，保持 session 生命周期
+4. 路由注册、安全包装、模型独立文件保留；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
+
+验收：
+
+- public/license 分级无泄露
+- summary 权限字段真实可读；无旧签名/双重路由
+
+证据：`evidence/M02/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## M03 · 账号、OAuth 与 WebApp 后端
+
+- 状态：passed；349 项定向测试及 6 项 Schema 断言通过；完整输入哈希、hunk边界和限制见 evidence/M03/result.json。
+
+- 前置：M02；负责人：身份负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`身份负责人`。
+- 写入范围：api/services/account_service.py；api/controllers/console/auth/**；api/controllers/console/app/site.py；api/controllers/web/login.py；account/OAuth/AppSite/WebPassport gateway 对应文件；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
+
+执行：
+
+1. 所有实际账号创建入口同事务幂等建额度；不重置已有账号
+2. 将 OaOAuth/Casdoor 注册到新 gateway，适配 token 类型、state 与同源回跳，保留钉钉
+3. WebApp site 字段隔离转换，同事务写入扩展和正确缓存失效
+4. built-in 与 environment passport 分流，保留公开/需登录逻辑；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
+
+验收：
+
+- setup/邮箱/OAuth/邀请均有一条正确额度
+- 公开矩阵与新环境认证契约清晰，禁止复活旧 controller
+
+证据：`evidence/M03/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+M03 原子项 9.1–9.6 全部通过。9.6 修复 M06 12.2 发现的 AppPagination.recommended_apps 固定清空问题，仅填充当前页同步 app ID；29 项定向测试通过，未改变响应/生成 schema，提交 `11fe1809f30c64d095d5a2a2ac81cc37eeb9e5c6`。M06 12.2c 已解锁。M04/M05 的既有 schema 证据不受影响；环境与生产门槛未通过，当前源码不可部署。
+
+## M04 · 计费、Service API 与记忆挂点
+
+登记配套测试：`controllers/service_api/test_wraps.py`、`controllers/service_api/test_billing_extend.py`、`core/app/test_billing_hooks_extend.py`（均在 `api/tests/unit_tests/`）。既有 `controllers/console/test_apikey.py` 已在冲突清单。新增两条测试及既有 `test_wraps.py` 已同步到 `research/conflict-ownership.tsv` 与 M04 `owned_conflict_paths`，唯一 owner=M04，verifier=V01。另登记 `core/memory/test_token_buffer_memory.py` 适配 fork context 查询次数；既有 persistence 测试隔离 Celery broker。
+
+- 状态：passed；M03 已通过。Sol 独立只读实施前审查与 Luna 独立验收均已完成（`evidence/M04/pre-analysis.md`、`evidence/M04/independent-review.json`）；OAuth 由 M03 交付，M04 实施/复核其余九项。
+
+- 前置：M03；负责人：计费负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`计费负责人`。
+- 写入范围：api/controllers/service_api/**；api/controllers/console/apikey.py；api/controllers/console/explore/**；api/controllers/console/app/statistic.py；api/controllers/console/app/workflow.py；api/controllers/console/tag/tags.py；api/core/** 的 fork 计费记忆挂点；`api/events/**extend*`；api/tasks/extend/**；api/extensions/ext_celery.py；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
+
+执行：
+
+1. 建立十项挂点完整证据：M04 实施/复核九项计费与记忆挂点；OAuth 引用 M03 已通过证据，避免重复实现
+2. 保留 token kwargs/请求线程 extras/初始执行 join；恢复路径不新增派发
+3. 保留上游 dataset binding、RBAC、遮罩和 Cloud 限额；fork 配额语义独立
+4. 保留 NULL retention、匿名 context 修复、三个 beat reset；记录非幂等既有债务；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
+
+验收：
+
+- 九项由 M04 实施/复核并有新路径与调用证据；OAuth 引用 M03 证据闭合十项总览
+- 所有被装饰入口签名兼容；不新增漏扣/重复派发
+
+证据：`evidence/M04/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+M04 精确执行证据：`evidence/M04/{execution.log,scope-registration.json,focused-tests.log,lint.log,verify.sh,verify_static.py,plan-checks.log,static-checks.log}`；全部路径已核实存在。
+
+M04 实现与验收：10.1–10.5 全部通过；定向测试 370 passed、2 warnings，独立 Luna 在冻结 HEAD `615efae14dcff1d02ea51d5c4b61e403df76ec5b` 验收通过。源码提交 `521eb98761`、`a65840a41a`、`08e130ed1d`；36 callers、16 项边界、51 个输入哈希与独立复核见 `evidence/M04/`。该状态仅表示源码节点通过，仍不可部署，环境/生产门槛未通过。
+
+## M05 · Console transport 与前端契约
+
+- 状态：源码节点 passed（11.1–11.6 全部通过），deployable 仍为 false。完整 Console 生成、双阶段登录、SSR snapshot/login_config 合成及 workspace 权限链已实现。11.3 以生成 schema 校验 summary，把 admin_extend/tenant_extend 送达 atoms，清理代码执行控制页与 hook 的失效 client 导入；11 项权限链、与 bootstrap 合计 24 项测试和 9 文件 scoped check 通过。11.4 将 schema 解析置于 queryFn，保证畸形 HTTP 200 不进入 TanStack 原始缓存，并保留 select 校验 hydration/同 key 预填数据；12 项聚焦、25 项受影响测试和两路径 check 通过，独立 Luna 无阻断项。11.5 Sol 只读验收确认旧服务未形成双源、SSR 不将 ping 当配置、匿名不能读取详细 license、手写 systemManage 为唯一 owner。页面 suite 仍因既有 `cn` 依赖缺失在收集阶段退出（0 用例），没有改依赖或 mock 绕过。45 条 11.1 路径和 11.3/11.4 新增路径已登记。M06 已解锁并需迁移额度徽章读取 login_config 汇率。真实浏览器 Cookie/CORS 与账号切换由 V02 验收。11.6 标准生成执行 64 个 openapi-ts jobs、格式化 191 个生成文件；GET/DELETE query 与响应 schema 断言通过，三文件和 Astra task worktree 字节一致，见 `evidence/M05/11.6-message-contract-generation.log`。根因、范围及交接见 `evidence/M05/codegen-analysis.md` 和 `evidence/M05/result.json`。
+- 实施决策已冻结：登录配置端点以生成 Console contract 为唯一 runtime/DTO owner；手写 fork router 仅保留 systemManage。登录配置与公开 feature snapshot 分开建型；workspace 权限字段通过生成流程更新。A04 C03 的 `is_custom_auth2_button` 未见于 M02 实际 schema，按证据记录，不生成虚构字段。
+
+- 前置：M03；负责人：前端契约负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`前端契约负责人`。
+- 写入范围：web/service/console/**；web/service/client.ts；web/service/console-router-loader.ts；web/contract/**；packages/contracts/console.ts；web/features/system-features/**；web/context/app-context-normalizers.ts；web/models/common.ts；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
+
+执行：
+
+1. 在目标 Console 架构注册 fork segment，迁移双阶段 Header/Cookie 协议
+2. SSR optional/hard 调用守卫形状，public snapshot 与 fork 配置按 A04 合成
+3. 迁移 workspace summary 字段与权限 atom；清理旧 client/loader 导入
+4. 与 M02/M03 逐字段确认鉴权错误、缓存键及响应类型；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
+
+验收：
+
+- 不恢复已删旧服务成为双源
+- SSR 不把 ping 当配置，匿名不读敏感 license；权限位不丢失
+
+证据：`evidence/M05/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## M06 · 前端业务挂载与国际化
+
+- 当前 follow-up：V02/16.8 暴露的 `parameter-item-extend.tsx` 是 M08/14.2 已登记的 dormant fork 文件，组件无本地调用方但旧 `@langgenius/dify-ui/radio` 导入已不存在。M06/12.7 保留组件并修正到包实际导出的 radio-group 入口；Astra 实施与 Sol 对其余 V02 诊断的只读归属分析并行。该项通过后重新冻结 M08 候选并重跑受影响 V02 门禁。
+
+- 状态：preflight 已完成；12.1a 与 12.1b 均已完成。12.1a 的卡片套件 22 项、两文件 scoped check 通过，独立 Luna 审查无阻断；12.1b 的 context 套件 20 项、四文件 scoped check 通过，独立 Luna 审查无阻断。根工作区缺少锁定依赖 `cn@0.2.4`，未改依赖，两个子任务均在依赖齐全的隔离 worktree 验证；代码提交分别为 `ea853611dc` 与 `9ee0119ca1ae501008db1913777ac4582af17205`。12.1b 的 Sol 路径交叉核对已确认四条登记路径完整。M04、M05 原源码验收及 M02 8.6 安全后端 follow-up 均已通过。12.2 Sol 分析已完成，12.2a 应用中心已完成并通过验证，M03 9.6 同步状态生产端已由独立 Astra 任务完成并提交，12.2a 已通过 26 项定向测试、六文件 scoped check 并完成集成，提交 82227748fcbe7b727da1d4aed67306f44ef00a4b；12.2c 已通过 137 项定向测试与五文件 scoped check，只有两条基线 warning，提交 78c099003f06b06a4820bb5c62999a7c0c65e0e8；12.2a 较早基线 worktree `f7b7` 有相同补丁且多改未登记 suppression，已指定登记的 `7155` 为唯一集成来源并保留另一 worktree；之后推进 12.3/12.4 和其余 M06 实现。12.5 Sol只读分析完成：lo-LA缺135键、另21 locale缺85个systemManage键，已登记22个不重叠翻译路径；12.5a 九文件提交 `5673d013768afd0daae3cdbc92259c9096da4ff9`，语言组 i18n check 9/9通过，独立 Luna 初审无阻断，印尼语 P3 已由 12.5e 修复并独立复核；12.5b 七语言已补齐并通过结构/占位符/原值与 i18n parity 检查（0缺键），集成提交 `bb83bc818d5e`；12.5c 六语言已补齐并通过结构/占位符/原值与 i18n parity 检查（0缺键），集成提交 `44395f560311`；三组集成后完整 extend 检查 24/24 语言零缺键（代码快照 `fe35f6a54934`）；12.5b/c 独立 Luna 语言复核已检查 13 locale 的操作含义、英文残留与占位符：发现 pl-PL 将 tenant 译成表示“租约”的 dzierżawa，导致受影响租户范围不清；其他语言未发现阻断项。两句波兰语已由 `84805a93186032f84245c01bdbc3ec620c325d63` 修正，印尼语两个 Edit 标签已由 `0b360565b4c733660225faecfd337538a0d635c3` 修正；独立 Luna 已复核两组最终文案，12.5a/b/c 语言审阅无遗留 P1/P2/P3；12.5e 的 id-ID/pl-PL 修订后由独立 Luna 完成 24 语言静态键/顺序/插值校验并通过；当前 pnpm checker 受本地 pnpm/tsx 环境限制未运行，详见 `evidence/M06/12.5e-post-fix-parity.md`；12.3 API key/余额六路径实现由独立 Astra 对话 `01a0eb31-4a8d-7791-9d3b-05d25aae562f` 进行中，MainNav 共享路径的 12.4 实现排在其后；孤儿quota modal删除等待12.3；category/template-card/app-card-utils仍有效并保留。12.2a 入缓存校验、标签映射、去重与规范路由已完成；12.3 API key 额度按 scope 显示并读取 login_config 汇率、余额独立显示；12.4 保持系统管理路由权限且不实施 P6。24 语言 lo-LA 扩展、旧引用清理及 V02 真实浏览器身份边界仍待完成。详情见 `evidence/M06/result.json`。
+
+- 前置：M04, M05；负责人：前端业务负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`前端业务负责人`。
+- 写入范围：web/app/** fork UI 宿主；web/service/apps.ts；web/service/explore.ts；web/service/use-explore.ts；web/service/webapp-auth.ts；web/service/webapp-address.ts；web/models/app.ts；web/features/home/template-card.tsx；web/i18n/**；web/i18n-config/**；web/service/base.ts；web/service/fetch.ts；web/service/share.ts；web/service/use-share.ts；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记；本节点行为对应的配套测试源码，跨 owner 文件先登记移交。
+
+执行：
+
+1. 迁移 built-in access-point 认证 Switch、environment address/passport、匿名 context guard
+2. 迁移应用中心分类/筛选/打开 installed app 和新 Studio 卡片同步菜单
+3. API key modal/table 按 scope 显示已支持额度，余额保留独立显示
+4. 系统管理三类路由及代码执行控制保活，保持当前权限；P6 不实施
+5. 补 lo-LA extend，共24语言；移除旧 Overview/secret-key/category 生产引用；同步迁移或补充对应定向测试源码，随本节点独立提交冻结，M08 复核
+
+验收：
+
+- 现有 fork 路由都能被新宿主访问
+- 两个 WebApp Switch 独立；24 语言资源齐全；旧测试迁移到真实新挂点
+
+证据：`evidence/M06/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## M07 · 综合部署和 CI 对齐
+
+- 状态：13.1–13.3、13.5 passed；13.4 的逐变量 startup-scope 修正、906 行审计及首次密钥串行初始化实现已在 `1b1ddf4eb3` 完成；独立 Luna 静态复核无 P1/P2，`--no-deps`、直接启动及跨 Compose project 并发的 P3 操作边界已记录。`api_websocket` 与 `worker_beat` 已共用 app storage；fresh Luna 静态复验通过，但发现首次密钥初始化竞争和权限脚本掩盖失败。Sol 已确定方案：添加仅依赖 `init_permissions` 的一次性 `init_secret_key` 服务，使用私有 API 镜像初始化同一 storage 并调用现有密钥解析，然后让 API、WebSocket、所有 worker/beat 与 migration 等待成功；使 chown/touch 失败退出非零，并更新 `--no-deps` migration 操作说明。方案覆盖声明的 Compose DAG，不覆盖绕过依赖或跨 Compose 项目并发启动；13.6 暂缓。Compose/迁移/Agent/plugin/SSRF/Web 契约已移植，保留私有镜像、独立 worker、Agent 关闭默认与 259200 秒 retention。Sol 确认根 `.env.example` 有 244 项，严格启动样例仅保留 `COMPOSE_PROFILES`、`DIFY_AGENT_SERVER_SECRET_KEY`；修正保留 `CELERY_WORKER_AMOUNT=4`、`POSTGRES_MAX_CONNECTIONS=200`、匿名访问 `true`、WebSocket 上游 `api_websocket:5001`、`VECTOR_STORE=weaviate` 及嵌套 PostgreSQL 默认值，去掉 `SECRET_KEY` 硬编码开发 fallback。237 项可选变量已有服务样例，另 5 项补上文档落点。13.5 已分开记录 GitHub build validate 与 GitLab 私有镜像供货；GitLab manifest 风险是静态推断。真实凭据、镜像 digest/pull、容器、数据库、代理与 Agent 未验收。证据见 `evidence/M07/result.json`、`evidence/M07/env-variable-audit.tsv` 和 `evidence/M07/ci-analysis.md`。
+
+- 前置：M01；负责人：部署负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`部署负责人`。
+- 已登记写入路径：`api/docker/entrypoint.sh`、`docker/docker-compose.dify-plus.yaml`、`docker/.env.example`、`docker/envs/core-services/{api,dify-agent,local-sandbox,plugin-daemon,sandbox,shared,web,worker-beat,worker}.env.example`、`docker/nginx/conf.d/default.conf.template`、`docker/ssrf_proxy/{squid-agent,squid-common,squid}.conf.template`、`.github/workflows/{build-push,docker-build}.yml`；精确列表见 JSON 的 `registered_additional_paths` 与 `owned_conflict_paths`。若实施发现需改 Dockerfile 或 web entrypoint，须先登记再改。
+
+执行前分析结论见 `evidence/M07/pre-analysis.md`：保留私有 API/Web 镜像、`worker-gaia`、`worker-dataset`、`sandbox-full`、fork 开关和 retention；将上游 Agent token/网络/SSRF/卷与 plugin 契约逐项移植；迁移由单个执行者顺序推进主链和扩展链，业务服务关闭自动迁移；CI build validate 不等于私有镜像供货。13.1 已将 API/Web 私有镜像 tag 统一到 1.17.1、移植 39 项上游环境键/默认值变化，并加入 API/worker/beat 健康检查。13.2 强制业务服务 `MIGRATION_ENABLED=false`，新增显式 migration profile 顺序执行 `flask db upgrade` 和 `flask extend_db upgrade`，并核对双 head。13.3 已更新 Agent token、Agent 专用 SSRF/隔离网络/卷、plugin 版本及 Web Vinext；与目标上游相同的 entrypoint、Dockerfile、ingress 和 Squid 模板保持不动。83 项静态/隔离启动断言与默认/全 profile Compose 解析通过；私有镜像拉取、容器运行、真实迁移/代理与分布式单执行者保护仍未验收。
+
+执行：
+
+1. 人工移植上游 Compose 契约到 fork 综合 Compose，保留独立 worker/sandbox-full/私有镜像
+2. 单执行者双迁移；发布业务容器关闭自动迁移
+3. 更新 Agent token/网络/SSRF/卷、plugin版本/队列、Web Next/Vinext 与 ingress
+4. 保留现有业务开关和 retention；env 每项标新增/删除/保留/改值依据
+5. CI build validate 和镜像推送分开记账
+
+验收：
+
+- 配置/镜像矩阵可审查；无误用官方 api/web 镜像替代 fork
+- fork Compose 不因无文本冲突被漏审
+
+证据：`evidence/M07/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## M08 · 集成审查与候选源码提交
+
+- 状态：passed for structural acceptance；候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d`，直接父为 `42fe3f904d6bd469ce887561a94909da882c4bb6`。14/14 allowlist、上游/M00 祖先、91/91 冲突映射、API 子树及独立额度边界通过；详见 `evidence/M08/14.19-final-candidate-structural-acceptance.md`。V02/16.15 已派发至 Luna 并正在执行。
+
+- 前置：M02, M03, M04, M05, M06, M07；负责人：集成负责人；建议模型：Astra/high。
+- 授权：`implementation`；资源锁：`git_index, lockfiles`。
+- 写入范围：AGENTS.md；README.md；所有权移交后的锁文件/冲突索引；本次合并元数据；research/conflict-ownership.tsv 中本节点的全部冲突文件（含配套测试），除此以外新增文件先登记。
+
+执行：
+
+1. 核对 M01–M07 各自已提交代码、配套测试、证据与状态；由各 owner 交付冲突处理与自动合并语义清单
+2. M01 将锁文件写入权显式移交集成负责人，由 M08 统一刷新最终锁文件/契约生成物；扫描 orphan、旧 import、安全包装、四个后续提交
+3. 只暂存逐项列出的本轮集成修复、证据和状态文件，不 stage 未跟踪用户目录；创建候选源码提交，不再创建 upstream merge commit
+4. 更新冲突表每项处置/新宿主/验收映射
+
+验收：
+
+- 未解决索引为零、冲突标记和孤儿宿主为零
+- M00 双父 merge 祖先仍可追溯，M01–M07 各有独立提交；候选源码提交覆盖最终集成修复，十挂点和全部91路径有审查记录
+
+命令（先满足本节点前置，路径以合并后实际结构复核）：
+
+```sh
+git diff --name-only --diff-filter=U
+git diff --check
+git status --short
+```
+
+证据：`evidence/M08/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## V01 · 后端静态与定向回归
+
+- 状态：passed；候选 `ba33fe26dc21ae3a308f14a61999009fc2849779` 上 compileall 与 app_factory 导入成功，三个定向 spec 共 160/160 通过；0 失败、0 跳过。证据：`evidence/V01/result.json`、`execution.log`。
+
+- 前置：M08；负责人：后端验证负责人；建议模型：Luna/high。
+- 授权：`implementation`；资源锁：`heavy_compute`。
+- 写入范围：受控测试/静态检查输出；不修改候选源码。
+
+执行：
+
+1. 读取 api/AGENTS.md；按合并后工具配置运行静态/导入和定向测试
+2. 执行已随候选提交冻结的新注册/gateway/site/service_api/key/message/workflow/session/beat/retention 用例；需要修改源码或用例则退回对应 M 节点，更新候选后重验
+3. 新增问题交还对应 M 节点修复，固定新 commit 后重验
+
+验收：
+
+- 单测报告明确用例、commit、结果
+- 已有债务与新增回归分开；无运行权限或依赖不可用记 blocked
+
+命令（先满足本节点前置，路径以合并后实际结构复核）：
+
+```sh
+uv run --project api python -m compileall -q api
+uv run --project api python -c "import sys; sys.path.insert(0, 'api'); from app_factory import create_app"
+uv run --project api pytest api/tests/unit_tests/controllers/console/test_apikey.py api/tests/unit_tests/services/test_account_service.py api/tests/unit_tests/core/app/workflow/test_persistence_layer.py
+```
+
+证据：`evidence/V01/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## M01 follow-up 7.5
+
+- 状态：passed；提交 `42fe3f904d6bd469ce887561a94909da882c4bb6` 只将 `web/package.json` 默认 `build` 从 `next build` 改为 `next build --webpack`，版本、依赖和锁未改。固定 Node 24.20.0/pnpm 12.3.4 下 clean-archive `pnpm check` 通过；独立 Sol 复核确认 M00/上游祖先、API 子树、额度边界与额度管理路由保留。证据 `evidence/M01/7.5-next-webpack-compatibility.md` 与原始 `7.5-pnpm-check.log`。M08/14.19 新候选结构验收已通过；V02/16.15 与 R01 后续结果见下文。
+
+## V02 · 前端检查、定向测试与双构建
+
+- 状态：passed；固定候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 的 16.15 `pnpm check`、默认 Next、Vinext 顺序门禁全部 exit 0。额度管理路由在 Next 路由表及 Vinext 生成客户端/服务端构建产物中得到 SHA-256 绑定证据；检查器对 `web/CLAUDE.md` 的初始“改写”是符号链接哈希误报，精确快照逐命令复核无源码/测试变化。16.13 Turbopack 停滞与 16.14 Webpack 诊断仍作为历史结果保留，不影响当前正式门禁通过。结果/log SHA-256 分别为 `e7b06e6c38edd3562516817d6ecbcff5333bd1869504767183b97fda9562a510` / `5863701c8cab9f411f40520e31981b13dc738840db12145cdf45aaeb3dfbd483`。
+
+- 前置：M08；负责人：前端验证负责人；建议模型：Luna/high。
+- 授权：`implementation`；资源锁：`heavy_compute`。
+- 写入范围：受控构建/测试输出。
+
+执行：
+
+1. 在固定候选提交执行认证/新 access-point/api-key/应用中心用例；先核对实际收集到 browser 场景，零用例或路径失效不得记通过；若需改测试源码，退回 M05/M06 并经 M08 冻结新候选
+2. 执行 frozen 安装、check/tss/i18n、unit/browser 和双构建
+3. 新增场景必须实际进入新宿主，不能仅保留无人调用旧组件用例
+
+验收：
+
+- Node/pnpm 与锁文件一致，检查与双构建成功
+- 定向认证与角色矩阵通过；24份extend可加载
+
+命令（先满足本节点前置，路径以合并后实际结构复核）：
+
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm --dir web lint:tss
+pnpm --dir web i18n:check
+pnpm exec vp test run --project unit web/features/system-features web/service/console web/app/components/app/access-point web/app/components/api-key
+pnpm exec vp test run --project browser web/app/components/app/access-point web/app/components/api-key
+pnpm --dir web build
+pnpm --dir web build:vinext
+```
+
+证据：`evidence/V02/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## R01 · 源码合并候选验收
+
+- 状态：passed，`code-ready`；精确候选 `970b704e351f8b98d1f0450e5dd50734b5d21e8c` / tree `ccb16e6692f53c68fe13e2ca51036649c707735d` 含上游 1.17.1，V01/V02 检查通过，额度边界和路由构建保留。A03/V03 环境链与生产发布尚未完成，不能据此声称已上线。R01 结果与命令证据见 `evidence/R01/result.json`、`execution.log`。
+
+- 前置：V01, V02；负责人：集成负责人；建议模型：Sol/high。
+- 授权：`implementation`；资源锁：`集成负责人`。
+- 写入范围：源码候选记录。
+
+执行：
+
+1. 汇总全部冲突/语义/静态测试记录
+2. 记录候选 commit 与待环境验证项；不得此时声称已上线
+
+验收：
+
+- 源码候选可构建，阻断级新增回归清零
+- 状态明确为 code-ready，仍须环境链
+
+证据：`evidence/R01/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## V03 · 目标镜像、空库与存量双链演练
+
+- 状态：blocked；R01 已 code-ready。隔离 PostgreSQL 空库双迁移和额度 UI 读写通过；空 MySQL 8.0.46 扩展迁移在 `06b18b329024` 以 error 3770 (`uuid_generate_v4()` 默认值不支持) 失败。静态扫描还发现 12 个后续扩展迁移文件含同一默认表达式，尚未在 MySQL 运行。A03 实际环境只读盘点尚未获授权，旧库数据审计、镜像供货、向量及目标数据库引擎矩阵也未完成。详见 `evidence/V03/result.json`、`execution.log`、`local-compose-2026-09-30.md`、`mysql-empty-2026-09-30.md`。
+- 前置：R01, A03；负责人：数据与容器验证负责人；建议模型：Luna/high。
+- 授权：`implementation_isolated_runtime`；资源锁：`heavy_compute, test_database`。
+- 写入范围：隔离镜像/副本/迁移记录。
+
+执行：
+
+1. 先准备环境专属 override/备份恢复命令草案；构建固定候选 fork 镜像并核对 digest、平台与供货，把实际 digest 固定到隔离 override，复核无生产存储/队列连接后才开始演练
+2. 空库从零两链；实际旧库副本主链再extend，记录17迁移与两head
+3. 审计Agent删表/JSON、normalized email、模型去重/凭据引用与可解密
+4. 实际生产DB引擎必测；声称同时支持PG/MySQL则两者均测
+
+验收：
+
+- 双head为 c3f1a9b2e6d4 / 020_workflow_run_account
+- 数据差异符合预审、破坏性数据有处置决定、耗时记录
+
+证据：`evidence/V03/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## V04 · 向量库副本演练
+
+- 前置：V03；负责人：向量验证负责人；建议模型：Luna/high。
+- 授权：`implementation_isolated_runtime`；资源锁：`vector_clone`。
+- 写入范围：隔离向量数据副本。
+
+执行：
+
+1. Weaviate 按真实版本逐minor演练至目标；低于1.27先专项方案
+2. 每站验证schema/对象/向量/检索/备份恢复；必要时逻辑导出重建
+3. 非Weaviate不升级无关引擎，记录驱动读写检索验证
+4. 禁止修改生产数据卷，记录gRPC/TLS及与Dify客户端适配
+
+验收：
+
+- 实际数据可写可检索，和基线查询集可比
+- 恢复路径与耗时有证据；其他向量库分支也必须通过
+
+证据：`evidence/V04/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## V05 · 真实业务与权限验收
+
+- 前置：V03, V04；负责人：业务验收负责人；建议模型：Luna/high。
+- 授权：`implementation_isolated_runtime`；资源锁：`test_environment`。
+- 写入范围：隔离部署及verification-matrix证据。
+
+执行：
+
+1. 使用目标 fork 镜像，按 verification-matrix 全部必测场景验收
+2. 验证真实模型返回/计费、SSO、WebApp、知识库、系统管理、worker/beat/插件
+3. Agent/协同/归档启用态真实验证；关闭态记录未启用和关闭有效
+4. 禁止用HTTP200、fixture或build成功替代业务通过
+
+验收：
+
+- 矩阵每项有请求/结果/数据库对账证据
+- 缺真实账号或凭据记blocked，不宣称生产就绪
+
+证据：`evidence/V05/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## V06 · 整套恢复演练
+
+- 前置：V05；负责人：运维验证负责人；建议模型：Luna/high。
+- 授权：`implementation_isolated_runtime`；资源锁：`test_environment`。
+- 写入范围：隔离回滚快照与恢复日志。
+
+执行：
+
+1. 新版本先产生样本写入；停止所有写入者再恢复同一旧静止点数据与旧镜像
+2. 验证旧双head、解密、文件/向量、登录/工作流/计费
+3. 避免Redis恢复导致旧任务重放；记录清算/暂停/去重策略与RPO损失
+4. 记录RTO与操作负责人；禁止image-only downgrade
+
+验收：
+
+- 旧版可真实运行，数据来自同一恢复点
+- RTO/RPO可接受且无不受控任务重放
+
+证据：`evidence/V06/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## R02 · 版本文档与环境上线操作包
+
+- 前置：V06；负责人：发布负责人；建议模型：Sol/high。
+- 授权：`implementation`；资源锁：`git_index`。
+- 写入范围：docs/dify-plus/** 本轮升级文档；受控发布清单。
+
+执行：
+
+1. 核验 M01 已对齐的版本字段，更新十挂点新坐标、运行手册、AGENTS baseline 与所有验证证据
+2. 修订旧强制WebApp登录/旧migration018/旧前端路径；P4/P6仅标后续重定基线
+3. 根据 V03–V06 实际结果定稿此前演练使用的环境操作草案，填 runbook 环境表、备份恢复命令、镜像 digest、维护窗口与阈值
+4. 提交本轮明确路径；code候选通过后生成 fork-merged-1.17.1 留档tag，不覆盖已有tag
+5. 源码或依赖若在文档收尾变化，返回对应验证节点
+
+验收：
+
+- 可执行环境包无占位符，演练证据完整
+- tag对应已验证代码，明确不代表生产已上线
+
+证据：`evidence/R02/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## D00 · 生产变更授权与放行
+
+- 前置：R02；负责人：发布负责人；建议模型：Sol/high。
+- 授权：`explicit_user_production`；资源锁：`发布负责人`。
+- 写入范围：生产审批记录。
+
+执行：
+
+1. 提交精确版本、停机窗口、数据删除影响、备份恢复点、RPO/RTO给用户确认
+2. 确认所需镜像已可拉取、备份容量与责任人在线；超阈值则延期
+
+验收：
+
+- 取得明确生产执行授权且全部前置通过
+
+证据：`evidence/D00/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## D01 · 封入口、停写与一致快照
+
+- 前置：D00；负责人：运维负责人；建议模型：Sol/high。
+- 授权：`explicit_user_production`；资源锁：`production_window`。
+- 写入范围：生产入口/调度/队列/全套备份。
+
+执行：
+
+1. 按runbook停新请求、触发器/beat，按截止时间排空或冻结在途任务，再停worker/API/Agent/plugin等写入者
+2. 核实无外部写入者，记录DB/向量/文件/Redis同一静止点
+3. 备份并验证可读取恢复，记录所有版本与密钥受控引用
+
+验收：
+
+- 写入静止，备份完整可恢复
+- 在途任务和恢复后重投策略已记录
+
+证据：`evidence/D01/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## D02 · 执行环境向量路径
+
+- 前置：D01；负责人：向量负责人；建议模型：Sol/high。
+- 授权：`explicit_user_production`；资源锁：`production_window`。
+- 写入范围：生产向量引擎。
+
+执行：
+
+1. 仅执行V04已演练同版本同拓扑路径，逐站验证后推进
+2. 其他向量库分支执行健康/兼容确认，不更换无关镜像
+3. 任一步异常停止；恢复当前站配对快照，后续不得启动
+
+验收：
+
+- 实际版本/schema/检索与演练一致
+
+证据：`evidence/D02/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## D03 · 执行单一双链迁移
+
+- 前置：D02；负责人：数据库负责人；建议模型：Sol/high。
+- 授权：`explicit_user_production`；资源锁：`production_window`。
+- 写入范围：生产DB主链与extend链。
+
+执行：
+
+1. 仅启动必要中间件，用目标 fork API 单job先db upgrade再extend_db upgrade
+2. 核对两head与破坏性迁移审计，不盲目stamp或重试
+3. 失败保留现场，查已提交revision/残留索引再执行已批准恢复路线
+
+验收：
+
+- 双head、数据对账、模型凭据读回满足目标
+- 所有业务容器自动迁移关闭后才允许启动
+
+证据：`evidence/D03/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+## D04 · 启动、业务放行与观察
+
+- 前置：D03；负责人：发布与业务负责人；建议模型：Sol/high。
+- 授权：`explicit_user_production`；资源锁：`production_window`。
+- 写入范围：生产服务/入口/观察记录。
+
+执行：
+
+1. 用配对 digest 启动 API/Web/必要中间件及受控 worker/必要队列，beat/trigger 继续暂停；在封闭入口完成登录/模型/异步工作流/真实扣费/知识库 smoke
+2. 必测通过后逐步开放入口，按既定策略开放其余任务消费并恢复 beat/trigger 调度
+3. 按窗口监控5xx/登录/扣费偏差/任务堆积/检索；超阈值封入口并整套恢复
+4. 保存最终时间线、版本和结果；旧快照保留期结束另行处理
+
+验收：
+
+- 真实业务负责人签收与观察通过，才标 deployed
+- 任何恢复后的新写入损失按RPO记录，绝不自动删除旧快照
+
+证据：`evidence/D04/result.json` 与日志；附源 commit、环境/digest、退出码、断言和已知债务。失败：停止本节点及全部后继；记录失败输入与输出，修复后使受影响证据失效并重跑。生产节点按 runbook.md 恢复，迁移不盲目重试。
+
+
+## N00–N06 当前节点
+
+详见execution-graph.json完整steps/acceptance、tasks29和逐场景台账。每次完成绑定当前源码/镜像及实际运行证据；修复代码使受影响证据失效，按hash复用未改变部分。N06通过才可报告已授权本地新安装范围完成；原生产/历史升级尚未通过时不能报告原合并DAG全部完成。
+
+
+N02仅消费N01已通过的源码里程碑（六文件manifest、52定向测试、独立review），不等待依赖新镜像的N01真实页面最终验收；N05汇总要求N01最终通过。避免以源码passed冒充用户页面passed或造成镜像/页面循环等待。
+
+
+## 最新N07候选关闭
+
+15路径完整context `1a805b0e…eecb3d8`、canonical API镜像 `51347867…108619`已满足N07独立源码/完整镜像/同used分页UI编辑读回恢复/Key JSON number、默认-1与7位精度实际验收。N02/N03旧3c历史证据保留；当前交付以N07最新镜像为准。该段为N07当时checkpoint；本轮最终本地矩阵/原23000最新UI/一致恢复已通过，其外部条件见当前machineledger。详见 `evidence/N07/result.json`。
+
+N09新增confirmed Context varchar/UUID类型门槛已关闭：源码review/80focused、完整445d canonicalimage、PGMySQL真实正向与跨租户读删、原23000最新组件/UI均通过。N08历史passed、N06一致快照两clone/API恢复passed保留。N05/N06最终依赖N09。
+
+最新原入口UI条件已解除：2026-09-30T13:52:27Z真实重新导航刷新卡片、打开同一installed应用标题/输入正常并返回中心，绑定当前445d三服务/47源码hash且无source overlay，见N06/latest-ui-2026-09-30.json与独立review。此前锁屏记录仅历史观察，不能当当前未验条件。当前可执行工作0，剩11外部实际配置/行为与旧库升级/旧版本恢复、生产门槛；tag不移动。
+
+历史可执行范围重分类checkpoint：原租户已有成功调用的模型，B05实际12组合（3拒绝/9生成）及B11真实多轮retention不要求positive pricing，改为本地pending两项；此前隔离provider0不代表原租户不可执行。见`evidence/original-provider-generation-plan-2026-09-30.json`。源码/tag不变，最多16请求含拒绝、无自动重试、每次8输出tokens、累计输出≤128、prompt累计≤4000字符；原配置/密钥/价格不改，before私有基线与精确fixture清理由执行者负责。当前机器汇总本地2、外部9（8场景），尚未完成整体目标。
+
+O02 本轮实际阶段：5 个专用服务 running、API 容器内部 health200、4 个内部依赖 TCP 可达、内部认证字段相等及原密钥文件 hash 相等布尔成立；主机端口映射仍为空，合法 sidecar owner/tenant 门槛未过。加入原共享 access network 的动作被自动审批拒绝，等待明确人类授权，未执行或换网绕过；Agent0/上传0/模型调用0。文件挂载已采用 owned RW 根加原 privkeys 目录 RO subpath，完整 Agent 工具/记忆/压缩仍本地待验。见 original-generation-runtime/independent-o02-runtime-health-review.json。
+
+O02 新仪器 checkpoint：严格 JSON bool 的 v2 支持 SDK summary 的 `stream=false`，24 个真实无模型 HTTP 测试通过；独立 exact-diff 与 repo/tmp 字节核对通过，旧 v1/18 证据保留为历史。实际已部署 SDK 模块 hash/版本及 settings 继承链已只读核对。原指定 published workflow 唯一 LLM 节点为 DeepSeek flash，schema context size 1,000,000、当前 workflow cap64；这不代表租户所有 configured models 的唯一性。拟新 Agent cap8 的源合同输入目标算例为 800,000 tokens，Summary keep20 还需超过20条真实 ModelMessages 且安全切点为正。尚无活动 Agent/压缩配置，未执行生成/压缩；现512字符仪器限制甚至不足844字符 summary 模板及101字符 instructions，须另审真实输入规模或合法已配置较小窗口模型。pricing schema 缺字段，不将历史价0扩大为财务通过。共享网络与精确3 fixture 清理仍各待人类授权；本轮 O02 探针0模型调用不抹去此前B05/B11/B09实际生成。见 `evidence/original-generation-runtime/independent-o02-guard-v2-review.json` 与 `independent-o02-compaction-contract-review.json`。

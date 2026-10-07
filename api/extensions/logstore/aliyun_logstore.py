@@ -6,6 +6,7 @@ import socket
 import threading
 import time
 from collections.abc import Sequence
+from copy import copy
 from typing import Any
 
 import sqlalchemy as sa
@@ -198,7 +199,7 @@ class AliyunLogStore:
         )
 
         # Append Dify identification to the existing user agent
-        original_user_agent = self.client._user_agent  # pyright: ignore[reportPrivateUsage]
+        original_user_agent = self.client._user_agent
         dify_version = dify_config.project.version
         enhanced_user_agent = f"Dify,Dify-{dify_version},{original_user_agent}"
         self.client.set_user_agent(enhanced_user_agent)
@@ -280,9 +281,9 @@ class AliyunLogStore:
             else:
                 logger.info("Using SDK mode for project %s", self.project_name)
                 return False
-        except Exception as e:
+        except Exception:
             logger.info("Using SDK mode for project %s", self.project_name)
-            logger.debug("PG connection details: %s", str(e))
+            logger.debug("PG connection details", exc_info=True)
             self._use_pg_protocol = False
             return False
 
@@ -489,6 +490,14 @@ class AliyunLogStore:
             token_list=self.DEFAULT_TOKEN_LIST,
             chinese=True,
         )  # Maps to 'created_at' in PG
+        # Fork account attribution is stored outside WorkflowRun but supports analytics in Logstore.
+        index_keys["from_account_id"] = IndexKeyConfig(
+            index_type="text",
+            case_sensitive=False,
+            doc_value=True,
+            token_list=self.DEFAULT_TOKEN_LIST,
+            chinese=True,
+        )
 
         logger.info("Generated %d index keys for workflow_execution from WorkflowRun model", len(index_keys))
         return index_keys
@@ -565,14 +574,16 @@ class AliyunLogStore:
         Intelligently merge existing index config with Dify's required field indexes.
 
         This method:
-        1. Preserves all existing field indexes in logstore (including custom fields)
+        1. Preserves existing top-level options and field indexes (including custom fields)
         2. Adds missing Dify-required fields
         3. Updates fields where type doesn't match (with json/text compatibility)
         4. Corrects case mismatches (e.g., if Dify needs 'status' but logstore has 'Status')
+        5. Ensures workflow_execution.from_account_id is text with doc_value enabled for analytics
 
         Type compatibility rules:
         - json and text types are considered compatible (users can manually choose either)
         - All other type mismatches will be corrected to match Dify requirements
+        - workflow_execution.from_account_id requires text and doc_value=True, preserving user text options
 
         Note: Logstore is case-sensitive and doesn't allow duplicate fields with different cases.
         Case mismatch means: existing field name differs from required name only in case.
@@ -625,6 +636,17 @@ class AliyunLogStore:
                 # Special case: json and text are interchangeable for JSON content fields
                 # Allow users to manually configure text instead of json (or vice versa) without forcing updates
                 is_compatible = existing_type == required_type or ({existing_type, required_type} == {"json", "text"})
+                if logstore_name == self.workflow_execution_logstore and required_name == "from_account_id":
+                    # Account filtering and grouping require a scalar text index with analytics enabled.
+                    is_compatible = existing_type == required_type
+                    # Only repair the required attributes; keep user tokenization, case and other options.
+                    required_config = copy(existing_keys[required_name])
+                    required_config.index_type = required_type
+                    required_config.doc_value = True
+                    if not existing_keys[required_name].doc_value:
+                        existing_keys[required_name] = required_config
+                        needs_update = True
+                        logger.info("Logstore %s: Enabling analytics for from_account_id", logstore_name)
 
                 if not is_compatible:
                     type_mismatches.append((required_name, existing_type, required_type))
@@ -665,15 +687,10 @@ class AliyunLogStore:
                 + ("..." if len(case_corrections) > 5 else ""),
             )
 
-        # Create merged config
-        # key_config_list should be a dict, not a list
-        # Preserve the original scan_index value - don't force it to True
-        merged_config = IndexConfig(
-            line_config=existing_config.line_config
-            or IndexLineConfig(token_list=self.DEFAULT_TOKEN_LIST, case_sensitive=False, chinese=True),
-            key_config_list=existing_keys,
-            scan_index=existing_config.scan_index,
-        )
+        # update_index replaces the full configuration. Copy it to retain every SDK option,
+        # including an absent line index, without modifying the input or its field dictionary.
+        merged_config = copy(existing_config)
+        merged_config.key_config_list = existing_keys
 
         return merged_config, needs_update
 
@@ -686,7 +703,7 @@ class AliyunLogStore:
         2. If index exists:
            - Check if all Dify-required fields are present
            - Check if field types match requirements
-           - Only update if fields are missing or types are incorrect
+           - Update if fields are missing, types are incorrect, or account analytics are disabled
            - Preserve any additional custom index configurations
 
         This approach allows users to add their own custom indexes without being overwritten.

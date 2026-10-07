@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=80.10.2,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dify-vdb-myscale"
+version = "0.0.1"
+
+dependencies = [
+    "clickhouse-connect==0.15.1",
+]
+description = "Dify vector store backend (dify-vdb-myscale)."
+
+[project.entry-points."dify.vector_backends"]
+myscale = "dify_vdb_myscale.myscale_vector:MyScaleVectorFactory"
+
+[tool.setuptools.packages.find]
+where = ["src"]

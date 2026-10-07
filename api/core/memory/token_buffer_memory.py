@@ -1,12 +1,17 @@
+from collections import defaultdict
 from collections.abc import Sequence
 
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
 from core.app.app_config.features.file_upload.manager import FileUploadConfigManager
-from core.file import file_manager
+from core.app.file_access import DatabaseFileAccessController
 from core.model_manager import ModelInstance
-from core.model_runtime.entities import (
+from core.prompt.utils.extract_thread_messages import extract_thread_messages
+from extensions.ext_database import db
+from factories import file_factory
+from graphon.file import file_manager
+from graphon.model_runtime.entities import (
     AssistantPromptMessage,
     ImagePromptMessageContent,
     PromptMessage,
@@ -14,10 +19,7 @@ from core.model_runtime.entities import (
     TextPromptMessageContent,
     UserPromptMessage,
 )
-from core.model_runtime.entities.message_entities import PromptMessageContentUnionTypes
-from core.prompt.utils.extract_thread_messages import extract_thread_messages
-from extensions.ext_database import db
-from factories import file_factory
+from graphon.model_runtime.entities.message_entities import PromptMessageContentUnionTypes
 from models.model import AppMode, Conversation, Message, MessageFile
 
 # Extend: start messages context handling
@@ -25,6 +27,8 @@ from models.model_extend import MessageContextExtend
 from models.workflow import Workflow
 from repositories.api_workflow_run_repository import APIWorkflowRunRepository
 from repositories.factory import DifyAPIRepositoryFactory
+
+_file_access_controller = DatabaseFileAccessController()
 
 
 class TokenBufferMemory:
@@ -41,17 +45,24 @@ class TokenBufferMemory:
     def messages_context_handling(
         self,
         conversation_id: str,
-        prompt_messages: tuple[list[AssistantPromptMessage]],
-    ) -> tuple[list[AssistantPromptMessage]]:
+        prompt_messages: list[PromptMessage],
+    ) -> list[PromptMessage]:
+        """按会话的上下文分割记录裁剪历史消息；无论是否分割都会清掉 name 标记（name 携带 message.id 供匹配）。"""
         # check if there is a segmentation context
-        message_context = db.session.query(MessageContextExtend).filter(
-                MessageContextExtend.conversation_id == conversation_id).order_by(
-                MessageContextExtend.created_at.desc()).all()
+        message_context = (
+            db.session.query(MessageContextExtend)
+            .filter(MessageContextExtend.conversation_id == conversation_id)
+            .order_by(MessageContextExtend.created_at.desc())
+            .all()
+        )
         # Is there a split
         if not message_context:
+            # 无分割记录时也要清掉 name 标记，避免带 message.id 的 name 进入 LLM 上下文
+            for v in prompt_messages:
+                v.name = None
             return prompt_messages
         # for
-        messages = []
+        messages: list[PromptMessage] = []
         for v in prompt_messages:
             messages.append(v)
             if v.name is not None and len(v.name) > 0:
@@ -60,6 +71,7 @@ class TokenBufferMemory:
                         messages = []
             v.name = None
         return messages
+
     # Extend: stop messages context handling
 
     @property
@@ -86,34 +98,36 @@ class TokenBufferMemory:
         :param is_user_message: whether this is a user message
         :return: PromptMessage
         """
-        if self.conversation.mode in {AppMode.AGENT_CHAT, AppMode.COMPLETION, AppMode.CHAT}:
-            file_extra_config = FileUploadConfigManager.convert(self.conversation.model_config)
-        elif self.conversation.mode in {AppMode.ADVANCED_CHAT, AppMode.WORKFLOW}:
-            app = self.conversation.app
-            if not app:
-                raise ValueError("App not found for conversation")
+        match self.conversation.mode:
+            case AppMode.AGENT_CHAT | AppMode.COMPLETION | AppMode.CHAT:
+                file_extra_config = FileUploadConfigManager.convert(self.conversation.model_config)
+            case AppMode.ADVANCED_CHAT | AppMode.WORKFLOW:
+                app = self.conversation.app
+                if not app:
+                    raise ValueError("App not found for conversation")
 
-            if not message.workflow_run_id:
-                raise ValueError("Workflow run ID not found")
+                if not message.workflow_run_id:
+                    raise ValueError("Workflow run ID not found")
 
-            workflow_run = self.workflow_run_repo.get_workflow_run_by_id(
-                tenant_id=app.tenant_id, app_id=app.id, run_id=message.workflow_run_id
-            )
-            if not workflow_run:
-                raise ValueError(f"Workflow run not found: {message.workflow_run_id}")
-            workflow = db.session.scalar(select(Workflow).where(Workflow.id == workflow_run.workflow_id))
-            if not workflow:
-                raise ValueError(f"Workflow not found: {workflow_run.workflow_id}")
-            file_extra_config = FileUploadConfigManager.convert(workflow.features_dict, is_vision=False)
-        else:
-            raise AssertionError(f"Invalid app mode: {self.conversation.mode}")
+                workflow_run = self.workflow_run_repo.get_workflow_run_by_id(
+                    tenant_id=app.tenant_id, app_id=app.id, run_id=message.workflow_run_id
+                )
+                if not workflow_run:
+                    raise ValueError(f"Workflow run not found: {message.workflow_run_id}")
+                workflow = db.session.scalar(select(Workflow).where(Workflow.id == workflow_run.workflow_id))
+                if not workflow:
+                    raise ValueError(f"Workflow not found: {workflow_run.workflow_id}")
+                file_extra_config = FileUploadConfigManager.convert(workflow.features_dict, is_vision=False)
+            case _:
+                raise AssertionError(f"Invalid app mode: {self.conversation.mode}")
 
         detail = ImagePromptMessageContent.DETAIL.HIGH
         if file_extra_config and app_record:
-            # Build files directly without filtering by belongs_to
             file_objs = [
                 file_factory.build_from_message_file(
-                    message_file=message_file, tenant_id=app_record.tenant_id, config=file_extra_config
+                    message_file=message_file,
+                    tenant_id=app_record.tenant_id,
+                    access_controller=_file_access_controller,
                 )
                 for message_file in message_files
             ]
@@ -143,7 +157,9 @@ class TokenBufferMemory:
                 return AssistantPromptMessage(content=prompt_message_contents)
 
     def get_history_prompt_messages(
-        self, max_token_limit: int = 2000, message_limit: int | None = None,
+        self,
+        max_token_limit: int = 2000,
+        message_limit: int | None = None,
         control_registers: bool = True,  # Extend: messages context handling
     ) -> Sequence[PromptMessage]:
         """
@@ -178,16 +194,36 @@ class TokenBufferMemory:
 
         messages = list(reversed(thread_messages))
 
+        # Batch-load message files for the whole thread to avoid an N+1 query pattern.
+        # Previously each message issued two MessageFile queries (user + assistant),
+        # i.e. 2N+1 round-trips for N messages. We now use two batched queries keyed by
+        # message_id, preserving the exact filter semantics (user files include rows
+        # whose belongs_to is NULL).
+        message_ids = [message.id for message in messages]
+        user_files_by_message: dict[str, list[MessageFile]] = defaultdict(list)
+        assistant_files_by_message: dict[str, list[MessageFile]] = defaultdict(list)
+        if message_ids:
+            for message_file in db.session.scalars(
+                select(MessageFile).where(
+                    MessageFile.message_id.in_(message_ids),
+                    (MessageFile.belongs_to == "user") | (MessageFile.belongs_to.is_(None)),
+                )
+            ).all():
+                user_files_by_message[message_file.message_id].append(message_file)
+
+            for message_file in db.session.scalars(
+                select(MessageFile).where(
+                    MessageFile.message_id.in_(message_ids),
+                    MessageFile.belongs_to == "assistant",
+                )
+            ).all():
+                assistant_files_by_message[message_file.message_id].append(message_file)
+
         curr_message_tokens = 0
         prompt_messages: list[PromptMessage] = []
         for message in messages:
             # Process user message with files
-            user_files = db.session.scalars(
-                select(MessageFile).where(
-                    MessageFile.message_id == message.id,
-                    (MessageFile.belongs_to == "user") | (MessageFile.belongs_to.is_(None)),
-                )
-            ).all()
+            user_files = user_files_by_message.get(message.id, [])
 
             if user_files:
                 user_prompt_message = self._build_prompt_message_with_files(
@@ -202,9 +238,7 @@ class TokenBufferMemory:
                 prompt_messages.append(UserPromptMessage(content=message.query))
 
             # Process assistant message with files
-            assistant_files = db.session.scalars(
-                select(MessageFile).where(MessageFile.message_id == message.id, MessageFile.belongs_to == "assistant")
-            ).all()
+            assistant_files = assistant_files_by_message.get(message.id, [])
 
             if assistant_files:
                 assistant_prompt_message = self._build_prompt_message_with_files(
@@ -216,10 +250,9 @@ class TokenBufferMemory:
                 )
                 prompt_messages.append(assistant_prompt_message)
             else:
-                prompt_messages.append(AssistantPromptMessage(content=message.answer))
-
-            # Extend Contextual dividing line
-            prompt_messages.append(AssistantPromptMessage(name=message.id, content=message.answer))
+                # Extend Contextual dividing line：assistant 消息携带 name=message.id 供上下文分割匹配，
+                # messages_context_handling 处理后会把 name 置回 None（修复合并前重复追加同内容消息的问题）
+                prompt_messages.append(AssistantPromptMessage(name=message.id, content=message.answer))
 
         # Extend: start messages context handling
         if control_registers:
@@ -271,10 +304,11 @@ class TokenBufferMemory:
             if isinstance(m.content, list):
                 inner_msg = ""
                 for content in m.content:
-                    if isinstance(content, TextPromptMessageContent):
-                        inner_msg += f"{content.data}\n"
-                    elif isinstance(content, ImagePromptMessageContent):
-                        inner_msg += "[image]\n"
+                    match content:
+                        case TextPromptMessageContent():
+                            inner_msg += f"{content.data}\n"
+                        case ImagePromptMessageContent():
+                            inner_msg += "[image]\n"
 
                 string_messages.append(f"{role}: {inner_msg.strip()}")
             else:

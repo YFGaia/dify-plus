@@ -1,0 +1,96 @@
+[p2 "Dify" | space "Dify Plus 合并验收应用中心"(9): 2 managed, 0 untracked — p1 "访问点 · Quota smoke chat - Dify", p2* "Dify"]
+root
+  container
+    container
+      container
+        container
+          anchor "Dify" [ref=1, loc=css:a[aria-label="Dify"], url=http://localhost:23010/]
+            image
+          button "搜索任何内容" [ref=2, loc=css:button[aria-label="搜索任何内容"]]
+            text "⌘"
+            text "K"
+        button [ref=3]
+          text "A"
+          text "Acceptance Owner's Workspace"
+        container "主菜单"
+          anchor [ref=4, url=http://localhost:23010/]
+            text "主页"
+          anchor [ref=5, loc=href:/explore/apps-center-extend, url=http://localhost:23010/explore/apps-center-extend]
+            text "应用中心"
+          anchor [ref=6, loc=href:/apps, url=http://localhost:23010/apps]
+            text "工作室"
+          anchor [ref=7, loc=href:/datasets, url=http://localhost:23010/datasets]
+            text "知识库"
+          anchor [ref=8, loc=href:/skills, url=http://localhost:23010/skills]
+            text "Skills"
+          anchor [ref=9, loc=href:/integrations/model-provider, url=http://localhost:23010/integrations/model-provider]
+            text "集成"
+          anchor [ref=10, loc=href:/marketplace, url=http://localhost:23010/marketplace]
+            text "Marketplace"
+          anchor [ref=11, loc=href:/system-manage-extend/system-integration, url=http://localhost:23010/system-manage-extend/system-integration]
+            text "系统管理"
+        container
+          button [ref=12]
+            text "WEB APPS"
+          button "搜索" [ref=13, loc=css:button[aria-label="搜索"]]
+          navigation "WEB APPS" [ref=14, loc=role:navigation[name="WEB APPS"]]
+            unordered_list
+              list_item
+                anchor [ref=15, loc=href:/installed/e0cbad51-01b3-4918-9b76-941ad7b32a4c, url=http://localhost:23010/installed/e0cbad51-01b3-4918-9b76-941ad7b32a4c]
+                  text "🤖"
+                  text "Acceptance Center Published With Stats 2026-09-30"
+                button "Acceptance Center Published With Stats 2026-09-30 的更多操作" [ref=16, loc=css:button[aria-label="Acceptance Center Published With Stats 2026-09-30 的更多操作"]]
+              list_item
+                anchor [ref=17, loc=href:/installed/edfc85c1-c7d4-4f14-a64c-0009ded90b65, url=http://localhost:23010/installed/edfc85c1-c7d4-4f14-a64c-0009ded90b65]
+                  text "🤖"
+                  text "Acceptance Center Published Missing Stats 2026-09-30"
+                button "Acceptance Center Published Missing Stats 2026-09-30 的更多操作" [ref=18, loc=css:button[aria-label="Acceptance Center Published Missing Stats 2026-09-30 的更多操作"]]
+      container
+        status "额度"
+          text "额度"
+          container
+            text "已用:"
+            container
+              text "¥"
+              text "0.00"
+            text "/"
+            container
+              text "¥"
+              text "104.25"
+        container
+          button [ref=19]
+            text "A"
+            text "Acceptance Owner"
+          button "打开帮助菜单" [ref=20, loc=css:button[aria-label="打开帮助菜单"]]
+            svg_root
+    container [ref=21]
+      container
+        radiogroup "分类"
+          radiobutton [ref=22]
+            text "所有"
+          radiobutton [ref=23]
+            text "未分类"
+        container
+          comboboxgrouping "标签" [ref=24, loc=css:button[aria-label="标签"]]
+            text "标签"
+          searchbox "搜索" [ref=25, loc=css:input[name="query"]]
+            text "搜索"
+      container
+        container
+          container
+            container
+              text "🤖"
+              svg_root
+            container
+              text "Acceptance Center Published With Stats 2026-09-30"
+              text "工作流"
+          text "Synthetic acceptance fixture"
+        container
+          container
+            container
+              text "🤖"
+              svg_root
+            container
+              text "Acceptance Center Published Missing Stats 2026-09-30"
+              text "工作流"
+          text "Synthetic N01 missing statistics acceptance fixture"

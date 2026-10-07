@@ -9,10 +9,14 @@ const tools = [
       ja_JP: 'NOTION_ADD_PAGE_CONTENT',
     },
     description: {
-      en_US: 'Adds a single content block to a notion page. multiple calls needed for multiple blocks. note: only supports adding to notion pages. blocks that can contain children: - page (any block type) - toggle (any nested content) - to-do (nested to-dos/blocks) - bulleted list (nested lists/blocks) - numbered list (nested lists/blocks) - callout (child blocks) - quote (nested blocks)',
-      zh_Hans: 'Adds a single content block to a notion page. multiple calls needed for multiple blocks. note: only supports adding to notion pages. blocks that can contain children: - page (any block type) - toggle (any nested content) - to-do (nested to-dos/blocks) - bulleted list (nested lists/blocks) - numbered list (nested lists/blocks) - callout (child blocks) - quote (nested blocks)',
-      pt_BR: 'Adds a single content block to a notion page. multiple calls needed for multiple blocks. note: only supports adding to notion pages. blocks that can contain children: - page (any block type) - toggle (any nested content) - to-do (nested to-dos/blocks) - bulleted list (nested lists/blocks) - numbered list (nested lists/blocks) - callout (child blocks) - quote (nested blocks)',
-      ja_JP: 'Adds a single content block to a notion page. multiple calls needed for multiple blocks. note: only supports adding to notion pages. blocks that can contain children: - page (any block type) - toggle (any nested content) - to-do (nested to-dos/blocks) - bulleted list (nested lists/blocks) - numbered list (nested lists/blocks) - callout (child blocks) - quote (nested blocks)',
+      en_US:
+        'Adds a single content block to a notion page. multiple calls needed for multiple blocks. note: only supports adding to notion pages. blocks that can contain children: - page (any block type) - toggle (any nested content) - to-do (nested to-dos/blocks) - bulleted list (nested lists/blocks) - numbered list (nested lists/blocks) - callout (child blocks) - quote (nested blocks)',
+      zh_Hans:
+        'Adds a single content block to a notion page. multiple calls needed for multiple blocks. note: only supports adding to notion pages. blocks that can contain children: - page (any block type) - toggle (any nested content) - to-do (nested to-dos/blocks) - bulleted list (nested lists/blocks) - numbered list (nested lists/blocks) - callout (child blocks) - quote (nested blocks)',
+      pt_BR:
+        'Adds a single content block to a notion page. multiple calls needed for multiple blocks. note: only supports adding to notion pages. blocks that can contain children: - page (any block type) - toggle (any nested content) - to-do (nested to-dos/blocks) - bulleted list (nested lists/blocks) - numbered list (nested lists/blocks) - callout (child blocks) - quote (nested blocks)',
+      ja_JP:
+        'Adds a single content block to a notion page. multiple calls needed for multiple blocks. note: only supports adding to notion pages. blocks that can contain children: - page (any block type) - toggle (any nested content) - to-do (nested to-dos/blocks) - bulleted list (nested lists/blocks) - numbered list (nested lists/blocks) - callout (child blocks) - quote (nested blocks)',
     },
     parameters: [
       {
@@ -35,13 +39,18 @@ const tools = [
         options: [],
         type: 'string',
         human_description: {
-          en_US: 'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
-          zh_Hans: 'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
-          pt_BR: 'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
-          ja_JP: 'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
+          en_US:
+            'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
+          zh_Hans:
+            'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
+          pt_BR:
+            'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
+          ja_JP:
+            'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
         },
         form: 'llm',
-        llm_description: 'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
+        llm_description:
+          'The ID of the existing block that the new block should be appended after. If not provided, content will be appended at the end of the page.',
       },
       {
         name: 'content_block',

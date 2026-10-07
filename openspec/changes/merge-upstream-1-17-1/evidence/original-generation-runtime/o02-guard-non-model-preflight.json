@@ -1,0 +1,125 @@
+{
+  "instrument": "acceptance-only local HTTP guard",
+  "model_calls": 0,
+  "provider_requests": 0,
+  "fake_model_responses": 0,
+  "sink_semantics": "explicit transport_probe SSE only, no LLM output or usage",
+  "cases": [
+    {
+      "case": "two_forwards_third_denied",
+      "passed": true,
+      "statuses": [
+        200,
+        200,
+        429
+      ],
+      "sink_receives": 2,
+      "slots": 2
+    },
+    {
+      "case": "raw_stream_and_headers_preserved",
+      "passed": true,
+      "response_sha256": "87abd081c278e9496679856cae0855ee5890f8249bcfa70ff77293a28b394ffb"
+    },
+    {
+      "case": "original_request_bytes_key_headers_preserved",
+      "passed": true
+    },
+    {
+      "case": "progressive_stream_before_upstream_completion",
+      "passed": true,
+      "status": 200
+    },
+    {
+      "case": "progressive_stream_full_hash_matches",
+      "passed": true
+    },
+    {
+      "case": "durable_restart_budget_unchanged",
+      "passed": true,
+      "slots": 2
+    },
+    {
+      "case": "immutable_policy_hash",
+      "passed": true
+    },
+    {
+      "case": "foreign_caller",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "foreign_agent",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "different_model",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "cap_above_eight",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "alternate_token_parameter",
+      "passed": true,
+      "status": 403,
+      "additional_sink_receives": 0
+    },
+    {
+      "case": "wrong_transport_key_zero_forward",
+      "passed": true,
+      "status": 403
+    },
+    {
+      "case": "negative_requests_do_not_reserve_slots",
+      "passed": true,
+      "slots": 0
+    },
+    {
+      "case": "duplicate_invocation_not_replayed",
+      "passed": true,
+      "statuses": [
+        200,
+        409
+      ],
+      "sink_receives": 1
+    },
+    {
+      "case": "atomic_concurrent_budget",
+      "passed": true,
+      "statuses": [
+        200,
+        200,
+        429,
+        429
+      ],
+      "sink_receives": 2
+    },
+    {
+      "case": "unknown_send_never_releases_slot",
+      "passed": true,
+      "statuses": [
+        502,
+        502,
+        429
+      ],
+      "slots": 2,
+      "sink_receives": 0
+    },
+    {
+      "case": "unknown_outcomes_persisted",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "private_ledger_directory": "/private/tmp/dify-o02-guard-instrument-20260930/preflight-ledgers-__eeqzzy",
+  "guard_sha256": "60c44a5bb2a4a007d2166137d877d21d6aefd7c339caabfe1d6025a58563a8a0"
+}

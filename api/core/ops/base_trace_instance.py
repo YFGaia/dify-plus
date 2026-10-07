@@ -14,10 +14,9 @@ class BaseTraceInstance(ABC):
     Base trace instance for ops trace services
     """
 
-    @abstractmethod
     def __init__(self, trace_config: BaseTracingConfig):
         """
-        Abstract initializer for the trace instance.
+        Initializer for the trace instance.
         Distribute trace tasks by matching entities
         """
         self.trace_config = trace_config
@@ -57,11 +56,13 @@ class BaseTraceInstance(ABC):
             if not service_account:
                 raise ValueError(f"Creator account with id {app.created_by} not found for app {app_id}")
 
-            current_tenant = (
-                session.query(TenantAccountJoin).filter_by(account_id=service_account.id, current=True).first()
+            current_tenant = session.scalar(
+                select(TenantAccountJoin)
+                .where(TenantAccountJoin.account_id == service_account.id, TenantAccountJoin.current.is_(True))
+                .limit(1)
             )
             if not current_tenant:
                 raise ValueError(f"Current tenant not found for account {service_account.id}")
-            service_account.set_tenant_id(current_tenant.tenant_id)
+            service_account.set_tenant_id_with_session(current_tenant.tenant_id, session=session)
 
             return service_account

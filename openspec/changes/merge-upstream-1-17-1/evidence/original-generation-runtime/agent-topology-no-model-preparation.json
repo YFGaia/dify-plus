@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "boundary": "read-only preparation; no new Agent, no generation, no provider/key/config/source changes",
+  "actual_original_api": {
+    "AGENT_SHELL_ENABLED": true,
+    "AGENT_BACKEND_USE_FAKE": false,
+    "agent_backend_url_present": true,
+    "agent_backend_token_present": false,
+    "configured_backend_health": {
+      "http": null,
+      "error_class": "URLError",
+      "reason_class": "gaierror",
+      "model_calls": 0
+    }
+  },
+  "proposed_product_fixture": {
+    "create_path": "POST /console/api/agent",
+    "configure_path": "PUT /console/api/agent/{owned_agent_id}/composer",
+    "variant": "agent_app",
+    "save_strategy": "save_to_current_version",
+    "model_reference": {
+      "plugin_id": "langgenius/deepseek",
+      "model_provider": "deepseek",
+      "model": "deepseek-flash",
+      "model_settings": {
+        "max_tokens": 8
+      }
+    },
+    "empty_declarations": [
+      "tools.dify_tools",
+      "tools.cli_tools",
+      "knowledge.sets",
+      "human.tools",
+      "human.contacts",
+      "env.variables",
+      "env.secret_refs",
+      "config_skills",
+      "config_files"
+    ],
+    "not_executed": true
+  },
+  "source_contracts": [
+    {
+      "path": "api/core/workflow/nodes/agent_v2/runtime_request_builder.py",
+      "line": 906,
+      "claim": "config layer is intentionally always present for CLI/help even when no config assets"
+    },
+    {
+      "path": "api/clients/agent_backend/request_builder.py",
+      "line": 332,
+      "claim": "include_shell is input flag OR config layer exists; shell enters before config to share asset filesystem"
+    },
+    {
+      "path": "dify-agent/src/dify_agent/layers/shell/layer.py",
+      "line": 259,
+      "claim": "shell layer exposes shell_run/wait/input/interrupt even with empty declared cli_tools"
+    }
+  ],
+  "required_before_product_create": [
+    "approve exact synthetic Agent fixture scope",
+    "resolve configured Agent backend service DNS/network and verify legitimate caller topology without displaying tokens",
+    "perform actual no-model runtime request/layer/toolset construction before any full Agent generation approval"
+  ],
+  "runtime_request_limit_boundary": "existing Agent runner request_limit500 is not a per-request two-model-call override; no new model run approved or dispatched",
+  "cleanup_destructive_pending_user_authorization": true
+}

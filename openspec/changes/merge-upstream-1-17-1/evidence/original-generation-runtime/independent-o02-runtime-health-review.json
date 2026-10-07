@@ -1,0 +1,31 @@
+{
+  "reviewed_at_utc": "2026-09-30T16:52:17.766158+00:00",
+  "timezone": "Asia/Shanghai",
+  "input_file": "o02-sidecar-runtime-health.json",
+  "input_sha256_at_review": "b961436a142fa0236cbf47c797fe5a4262d25195009e2e529716d47f26c49644",
+  "verdict": "partial no-model service/internal-readiness accepted; published host transport and legal owner/tenant product gate unpassed",
+  "passed_actual": [
+    "five exactservices running immutableimages match expected candidate",
+    "container-local API health200",
+    "backend to API/sandbox/proxy/dedicatedRedis4TCP reachable",
+    "inner/plugin/API/sandbox privatekey equality booleans true",
+    "effective signing matches original resolution source",
+    "original .dify_secret_key/selected tenant RSA private-file hashes unchanged equality true",
+    "0Agentcreated/0uploads/0modelinvokes/0workerbeat/migrationsdisabled"
+  ],
+  "not_proven": [
+    "hostloopback25452 active publish: Ports empty andhoststatus0",
+    "lawful sidecarownerTenant ordinaryConsole summary unavailable",
+    "Agentmetadata/JWE/files or generatedrun/tool/memory/compaction",
+    "TCP alone is not end-to-end HTTP inner auth business success",
+    "current tracked proposal fragmenthash must not be mistaken for deployed accessnetwork join; deniedoperation unexecuted"
+  ],
+  "current_approval_block": {
+    "action": "sidecarAPI joins existing sharedaccess network and recreate",
+    "automatic_review_rejected": true,
+    "human_answer_pending": true,
+    "no_workaround": true
+  },
+  "whole_O02_passed": false,
+  "source_tag_user_locks_unchanged": true
+}

@@ -1,137 +1,125 @@
-from unittest.mock import ANY, MagicMock, call, patch
+import logging
+from datetime import UTC, datetime
+from unittest.mock import MagicMock, call, patch
+from uuid import uuid4
 
 import pytest
+from sqlalchemy.orm import Session
 
+import tasks.remove_app_and_related_data_task as remove_app_task_module
+from enums import DeploymentEdition
+from graphon.enums import WorkflowExecutionStatus
 from libs.archive_storage import ArchiveStorageNotConfiguredError
+from models import AppStar
+from models.agent import WorkflowAgentBindingType, WorkflowAgentNodeBinding
+from models.enums import CreatorUserRole, WorkflowRunTriggeredFrom
 from models.workflow import WorkflowArchiveLog
 from tasks.remove_app_and_related_data_task import (
+    _delete_app_stars,
     _delete_app_workflow_archive_logs,
     _delete_archived_workflow_run_files,
     _delete_draft_variable_offload_data,
     _delete_draft_variables,
+    _delete_workflow_agent_node_bindings,
     delete_draft_variables_batch,
 )
+from tests.unit_tests.config_override import apply_config_overrides
+
+
+def test_delete_workflow_agent_node_bindings_is_scoped_to_tenant_and_app(sqlite_session: Session) -> None:
+    target = WorkflowAgentNodeBinding(
+        tenant_id="tenant-1",
+        app_id="app-1",
+        workflow_id="workflow-1",
+        workflow_version="draft",
+        node_id="node-1",
+        binding_type=WorkflowAgentBindingType.INLINE_AGENT,
+        agent_id="agent-1",
+        current_snapshot_id="snapshot-1",
+        node_job_config={},
+    )
+    kept = WorkflowAgentNodeBinding(
+        tenant_id="tenant-1",
+        app_id="app-2",
+        workflow_id="workflow-2",
+        workflow_version="draft",
+        node_id="node-2",
+        binding_type=WorkflowAgentBindingType.INLINE_AGENT,
+        agent_id="agent-2",
+        current_snapshot_id="snapshot-2",
+        node_job_config={},
+    )
+    other_tenant = WorkflowAgentNodeBinding(
+        tenant_id="tenant-2",
+        app_id="app-1",
+        workflow_id="workflow-3",
+        workflow_version="draft",
+        node_id="node-3",
+        binding_type=WorkflowAgentBindingType.INLINE_AGENT,
+        agent_id="agent-3",
+        current_snapshot_id="snapshot-3",
+        node_job_config={},
+    )
+    sqlite_session.add_all([target, kept, other_tenant])
+    sqlite_session.commit()
+    target_id = target.id
+    kept_id = kept.id
+    other_tenant_id = other_tenant.id
+
+    _delete_workflow_agent_node_bindings("tenant-1", "app-1")
+
+    sqlite_session.expire_all()
+    assert sqlite_session.get(WorkflowAgentNodeBinding, target_id) is None
+    assert sqlite_session.get(WorkflowAgentNodeBinding, kept_id) is not None
+    assert sqlite_session.get(WorkflowAgentNodeBinding, other_tenant_id) is not None
+
+
+def test_app_cleanup_removes_agent_bindings_before_workflows(monkeypatch: pytest.MonkeyPatch) -> None:
+    events: list[str] = []
+    apply_config_overrides(monkeypatch, DEPLOYMENT_EDITION=DeploymentEdition.COMMUNITY)
+    other_cleanup_names = (
+        "_delete_app_model_configs",
+        "_delete_app_site",
+        "_delete_app_mcp_servers",
+        "_delete_app_api_tokens",
+        "_delete_installed_apps",
+        "_delete_app_stars",
+        "_delete_recommended_apps",
+        "_delete_app_annotation_data",
+        "_delete_app_dataset_joins",
+        "_delete_app_workflow_runs",
+        "_delete_app_workflow_node_executions",
+        "_delete_app_workflow_app_logs",
+        "_delete_app_conversations",
+        "_delete_app_messages",
+        "_delete_workflow_tool_providers",
+        "_delete_app_tag_bindings",
+        "_delete_end_users",
+        "_delete_trace_app_configs",
+        "_delete_conversation_variables",
+        "_delete_draft_variables",
+        "_delete_app_triggers",
+        "_delete_workflow_plugin_triggers",
+        "_delete_workflow_webhook_triggers",
+        "_delete_workflow_schedule_plans",
+        "_delete_workflow_trigger_logs",
+    )
+    for name in other_cleanup_names:
+        monkeypatch.setattr(remove_app_task_module, name, MagicMock())
+
+    delete_bindings = MagicMock(side_effect=lambda *_args: events.append("bindings"))
+    delete_workflows = MagicMock(side_effect=lambda *_args: events.append("workflows"))
+    monkeypatch.setattr(remove_app_task_module, "_delete_workflow_agent_node_bindings", delete_bindings)
+    monkeypatch.setattr(remove_app_task_module, "_delete_app_workflows", delete_workflows)
+
+    remove_app_task_module.remove_app_and_related_data_task.run(tenant_id="tenant-1", app_id="app-1")
+
+    assert events == ["bindings", "workflows"]
+    delete_bindings.assert_called_once_with("tenant-1", "app-1")
+    delete_workflows.assert_called_once_with("tenant-1", "app-1")
 
 
 class TestDeleteDraftVariablesBatch:
-    @patch("tasks.remove_app_and_related_data_task._delete_draft_variable_offload_data")
-    @patch("tasks.remove_app_and_related_data_task.session_factory")
-    def test_delete_draft_variables_batch_success(self, mock_sf, mock_offload_cleanup):
-        """Test successful deletion of draft variables in batches."""
-        app_id = "test-app-id"
-        batch_size = 100
-
-        # Mock session via session_factory
-        mock_session = MagicMock()
-        mock_context_manager = MagicMock()
-        mock_context_manager.__enter__.return_value = mock_session
-        mock_context_manager.__exit__.return_value = None
-        mock_sf.create_session.return_value = mock_context_manager
-
-        # Mock two batches of results, then empty
-        batch1_data = [(f"var-{i}", f"file-{i}" if i % 2 == 0 else None) for i in range(100)]
-        batch2_data = [(f"var-{i}", f"file-{i}" if i % 3 == 0 else None) for i in range(100, 150)]
-
-        batch1_ids = [row[0] for row in batch1_data]
-        batch1_file_ids = [row[1] for row in batch1_data if row[1] is not None]
-
-        batch2_ids = [row[0] for row in batch2_data]
-        batch2_file_ids = [row[1] for row in batch2_data if row[1] is not None]
-
-        # Setup side effects for execute calls in the correct order:
-        # 1. SELECT (returns batch1_data with id, file_id)
-        # 2. DELETE (returns result with rowcount=100)
-        # 3. SELECT (returns batch2_data)
-        # 4. DELETE (returns result with rowcount=50)
-        # 5. SELECT (returns empty, ends loop)
-
-        # Create mock results with actual integer rowcount attributes
-        class MockResult:
-            def __init__(self, rowcount):
-                self.rowcount = rowcount
-
-        # First SELECT result
-        select_result1 = MagicMock()
-        select_result1.__iter__.return_value = iter(batch1_data)
-
-        # First DELETE result
-        delete_result1 = MockResult(rowcount=100)
-
-        # Second SELECT result
-        select_result2 = MagicMock()
-        select_result2.__iter__.return_value = iter(batch2_data)
-
-        # Second DELETE result
-        delete_result2 = MockResult(rowcount=50)
-
-        # Third SELECT result (empty, ends loop)
-        select_result3 = MagicMock()
-        select_result3.__iter__.return_value = iter([])
-
-        # Configure side effects in the correct order
-        mock_session.execute.side_effect = [
-            select_result1,  # First SELECT
-            delete_result1,  # First DELETE
-            select_result2,  # Second SELECT
-            delete_result2,  # Second DELETE
-            select_result3,  # Third SELECT (empty)
-        ]
-
-        # Mock offload data cleanup
-        mock_offload_cleanup.side_effect = [len(batch1_file_ids), len(batch2_file_ids)]
-
-        # Execute the function
-        result = delete_draft_variables_batch(app_id, batch_size)
-
-        # Verify the result
-        assert result == 150
-
-        # Verify database calls
-        assert mock_session.execute.call_count == 5  # 3 selects + 2 deletes
-
-        # Verify offload cleanup was called for both batches with file_ids
-        expected_offload_calls = [call(mock_session, batch1_file_ids), call(mock_session, batch2_file_ids)]
-        mock_offload_cleanup.assert_has_calls(expected_offload_calls)
-
-        # Simplified verification - check that the right number of calls were made
-        # and that the SQL queries contain the expected patterns
-        actual_calls = mock_session.execute.call_args_list
-        for i, actual_call in enumerate(actual_calls):
-            sql_text = str(actual_call[0][0])
-            normalized = " ".join(sql_text.split())
-            if i % 2 == 0:  # SELECT calls (even indices: 0, 2, 4)
-                assert "SELECT id, file_id FROM workflow_draft_variables" in normalized
-                assert "WHERE app_id = :app_id" in normalized
-                assert "LIMIT :batch_size" in normalized
-            else:  # DELETE calls (odd indices: 1, 3)
-                assert "DELETE FROM workflow_draft_variables" in normalized
-                assert "WHERE id IN :ids" in normalized
-
-    @patch("tasks.remove_app_and_related_data_task._delete_draft_variable_offload_data")
-    @patch("tasks.remove_app_and_related_data_task.session_factory")
-    def test_delete_draft_variables_batch_empty_result(self, mock_sf, mock_offload_cleanup):
-        """Test deletion when no draft variables exist for the app."""
-        app_id = "nonexistent-app-id"
-        batch_size = 1000
-
-        # Mock session via session_factory
-        mock_session = MagicMock()
-        mock_context_manager = MagicMock()
-        mock_context_manager.__enter__.return_value = mock_session
-        mock_context_manager.__exit__.return_value = None
-        mock_sf.create_session.return_value = mock_context_manager
-
-        # Mock empty result
-        empty_result = MagicMock()
-        empty_result.__iter__.return_value = iter([])
-        mock_session.execute.return_value = empty_result
-
-        result = delete_draft_variables_batch(app_id, batch_size)
-
-        assert result == 0
-        assert mock_session.execute.call_count == 1  # Only one select query
-        mock_offload_cleanup.assert_not_called()  # No files to clean up
-
     def test_delete_draft_variables_batch_invalid_batch_size(self):
         """Test that invalid batch size raises ValueError."""
         app_id = "test-app-id"
@@ -141,66 +129,6 @@ class TestDeleteDraftVariablesBatch:
 
         with pytest.raises(ValueError, match="batch_size must be positive"):
             delete_draft_variables_batch(app_id, 0)
-
-    @patch("tasks.remove_app_and_related_data_task._delete_draft_variable_offload_data")
-    @patch("tasks.remove_app_and_related_data_task.session_factory")
-    @patch("tasks.remove_app_and_related_data_task.logger")
-    def test_delete_draft_variables_batch_logs_progress(self, mock_logging, mock_sf, mock_offload_cleanup):
-        """Test that batch deletion logs progress correctly."""
-        app_id = "test-app-id"
-        batch_size = 50
-
-        # Mock session via session_factory
-        mock_session = MagicMock()
-        mock_context_manager = MagicMock()
-        mock_context_manager.__enter__.return_value = mock_session
-        mock_context_manager.__exit__.return_value = None
-        mock_sf.create_session.return_value = mock_context_manager
-
-        # Mock one batch then empty
-        batch_data = [(f"var-{i}", f"file-{i}" if i % 3 == 0 else None) for i in range(30)]
-        batch_ids = [row[0] for row in batch_data]
-        batch_file_ids = [row[1] for row in batch_data if row[1] is not None]
-
-        # Create properly configured mocks
-        select_result = MagicMock()
-        select_result.__iter__.return_value = iter(batch_data)
-
-        # Create simple object with rowcount attribute
-        class MockResult:
-            def __init__(self, rowcount):
-                self.rowcount = rowcount
-
-        delete_result = MockResult(rowcount=30)
-
-        empty_result = MagicMock()
-        empty_result.__iter__.return_value = iter([])
-
-        mock_session.execute.side_effect = [
-            # Select query result
-            select_result,
-            # Delete query result
-            delete_result,
-            # Empty select result (end condition)
-            empty_result,
-        ]
-
-        # Mock offload cleanup
-        mock_offload_cleanup.return_value = len(batch_file_ids)
-
-        result = delete_draft_variables_batch(app_id, batch_size)
-
-        assert result == 30
-
-        # Verify offload cleanup was called with file_ids
-        if batch_file_ids:
-            mock_offload_cleanup.assert_called_once_with(mock_session, batch_file_ids)
-
-        # Verify logging calls
-        assert mock_logging.info.call_count == 2
-        mock_logging.info.assert_any_call(
-            ANY  # click.style call
-        )
 
     @patch("tasks.remove_app_and_related_data_task.delete_draft_variables_batch")
     def test_delete_draft_variables_calls_batch_function(self, mock_batch_delete):
@@ -218,58 +146,6 @@ class TestDeleteDraftVariablesBatch:
 class TestDeleteDraftVariableOffloadData:
     """Test the Offload data cleanup functionality."""
 
-    @patch("extensions.ext_storage.storage")
-    def test_delete_draft_variable_offload_data_success(self, mock_storage):
-        """Test successful deletion of offload data."""
-
-        # Mock connection
-        mock_conn = MagicMock()
-        file_ids = ["file-1", "file-2", "file-3"]
-
-        # Mock query results: (variable_file_id, storage_key, upload_file_id)
-        query_results = [
-            ("file-1", "storage/key/1", "upload-1"),
-            ("file-2", "storage/key/2", "upload-2"),
-            ("file-3", "storage/key/3", "upload-3"),
-        ]
-
-        mock_result = MagicMock()
-        mock_result.__iter__.return_value = iter(query_results)
-        mock_conn.execute.return_value = mock_result
-
-        # Execute function
-        result = _delete_draft_variable_offload_data(mock_conn, file_ids)
-
-        # Verify return value
-        assert result == 3
-
-        # Verify storage deletion calls
-        expected_storage_calls = [call("storage/key/1"), call("storage/key/2"), call("storage/key/3")]
-        mock_storage.delete.assert_has_calls(expected_storage_calls, any_order=True)
-
-        # Verify database calls - should be 3 calls total
-        assert mock_conn.execute.call_count == 3
-
-        # Verify the queries were called
-        actual_calls = mock_conn.execute.call_args_list
-
-        # First call should be the SELECT query
-        select_call_sql = " ".join(str(actual_calls[0][0][0]).split())
-        assert "SELECT wdvf.id, uf.key, uf.id as upload_file_id" in select_call_sql
-        assert "FROM workflow_draft_variable_files wdvf" in select_call_sql
-        assert "JOIN upload_files uf ON wdvf.upload_file_id = uf.id" in select_call_sql
-        assert "WHERE wdvf.id IN :file_ids" in select_call_sql
-
-        # Second call should be DELETE upload_files
-        delete_upload_call_sql = " ".join(str(actual_calls[1][0][0]).split())
-        assert "DELETE FROM upload_files" in delete_upload_call_sql
-        assert "WHERE id IN :upload_file_ids" in delete_upload_call_sql
-
-        # Third call should be DELETE workflow_draft_variable_files
-        delete_variable_files_call_sql = " ".join(str(actual_calls[2][0][0]).split())
-        assert "DELETE FROM workflow_draft_variable_files" in delete_variable_files_call_sql
-        assert "WHERE id IN :file_ids" in delete_variable_files_call_sql
-
     def test_delete_draft_variable_offload_data_empty_file_ids(self):
         """Test handling of empty file_ids list."""
         mock_conn = MagicMock()
@@ -279,61 +155,26 @@ class TestDeleteDraftVariableOffloadData:
         assert result == 0
         mock_conn.execute.assert_not_called()
 
-    @patch("extensions.ext_storage.storage")
-    @patch("tasks.remove_app_and_related_data_task.logging")
-    def test_delete_draft_variable_offload_data_storage_failure(self, mock_logging, mock_storage):
-        """Test handling of storage deletion failures."""
-        mock_conn = MagicMock()
-        file_ids = ["file-1", "file-2"]
-
-        # Mock query results
-        query_results = [
-            ("file-1", "storage/key/1", "upload-1"),
-            ("file-2", "storage/key/2", "upload-2"),
-        ]
-
-        mock_result = MagicMock()
-        mock_result.__iter__.return_value = iter(query_results)
-        mock_conn.execute.return_value = mock_result
-
-        # Make storage.delete fail for the first file
-        mock_storage.delete.side_effect = [Exception("Storage error"), None]
-
-        # Execute function
-        result = _delete_draft_variable_offload_data(mock_conn, file_ids)
-
-        # Should still return 2 (both files processed, even if one storage delete failed)
-        assert result == 1  # Only one storage deletion succeeded
-
-        # Verify warning was logged
-        mock_logging.exception.assert_called_once_with("Failed to delete storage object %s", "storage/key/1")
-
-        # Verify both database cleanup calls still happened
-        assert mock_conn.execute.call_count == 3
-
-    @patch("tasks.remove_app_and_related_data_task.logging")
-    def test_delete_draft_variable_offload_data_database_failure(self, mock_logging):
+    def test_delete_draft_variable_offload_data_database_failure(self, caplog: pytest.LogCaptureFixture):
         """Test handling of database operation failures."""
         mock_conn = MagicMock()
         file_ids = ["file-1"]
-
-        # Make execute raise an exception
         mock_conn.execute.side_effect = Exception("Database error")
 
-        # Execute function - should not raise, but log error
-        result = _delete_draft_variable_offload_data(mock_conn, file_ids)
+        with caplog.at_level(logging.ERROR):
+            result = _delete_draft_variable_offload_data(mock_conn, file_ids)
 
-        # Should return 0 when error occurs
         assert result == 0
-
-        # Verify error was logged
-        mock_logging.exception.assert_called_once_with("Error deleting draft variable offload data:")
+        assert "Error deleting draft variable offload data:" in caplog.text
 
 
 class TestDeleteWorkflowArchiveLogs:
+    @pytest.mark.parametrize("sqlite_session", [(WorkflowArchiveLog,)], indirect=True)
     @patch("tasks.remove_app_and_related_data_task._delete_records")
     @patch("tasks.remove_app_and_related_data_task.db")
-    def test_delete_app_workflow_archive_logs_calls_delete_records(self, mock_db, mock_delete_records):
+    def test_delete_app_workflow_archive_logs_calls_delete_records(
+        self, mock_db, mock_delete_records, sqlite_session: Session
+    ):
         tenant_id = "tenant-1"
         app_id = "app-1"
 
@@ -345,51 +186,98 @@ class TestDeleteWorkflowArchiveLogs:
         assert params == {"tenant_id": tenant_id, "app_id": app_id}
         assert name == "workflow archive log"
 
-        mock_query = MagicMock()
-        mock_delete_query = MagicMock()
-        mock_query.where.return_value = mock_delete_query
-        mock_db.session.query.return_value = mock_query
+        archive_log = WorkflowArchiveLog(
+            tenant_id=str(uuid4()),
+            app_id=str(uuid4()),
+            workflow_id=str(uuid4()),
+            workflow_run_id=str(uuid4()),
+            created_by_role=CreatorUserRole.ACCOUNT,
+            created_by=str(uuid4()),
+            log_id=None,
+            log_created_at=None,
+            log_created_from=None,
+            run_version="1",
+            run_status=WorkflowExecutionStatus.SUCCEEDED,
+            run_triggered_from=WorkflowRunTriggeredFrom.APP_RUN,
+            run_error=None,
+            run_elapsed_time=0,
+            run_total_tokens=0,
+            run_total_steps=1,
+            run_created_at=datetime.now(UTC),
+            run_finished_at=datetime.now(UTC),
+            run_exceptions_count=0,
+            trigger_metadata=None,
+        )
+        sqlite_session.add(archive_log)
+        sqlite_session.commit()
 
-        delete_func(mock_db.session, "log-1")
+        delete_func(sqlite_session, archive_log.id)
+        sqlite_session.commit()
+        sqlite_session.expunge_all()
 
-        mock_db.session.query.assert_called_once_with(WorkflowArchiveLog)
-        mock_query.where.assert_called_once()
-        mock_delete_query.delete.assert_called_once_with(synchronize_session=False)
+        assert sqlite_session.get(WorkflowArchiveLog, archive_log.id) is None
+
+
+class TestDeleteAppStars:
+    @pytest.mark.parametrize("sqlite_session", [(AppStar,)], indirect=True)
+    @patch("tasks.remove_app_and_related_data_task._delete_records")
+    def test_delete_app_stars_calls_delete_records(self, mock_delete_records, sqlite_session: Session):
+        tenant_id = "tenant-1"
+        app_id = "app-1"
+
+        _delete_app_stars(tenant_id, app_id)
+
+        mock_delete_records.assert_called_once()
+        query_sql, params, delete_func, name = mock_delete_records.call_args[0]
+        assert "app_stars" in query_sql
+        assert params == {"tenant_id": tenant_id, "app_id": app_id}
+        assert name == "app star"
+
+        app_star = AppStar(tenant_id=str(uuid4()), app_id=str(uuid4()), account_id=str(uuid4()))
+        sqlite_session.add(app_star)
+        sqlite_session.commit()
+
+        delete_func(sqlite_session, app_star.id)
+        sqlite_session.commit()
+        sqlite_session.expunge_all()
+
+        assert sqlite_session.get(AppStar, app_star.id) is None
 
 
 class TestDeleteArchivedWorkflowRunFiles:
     @patch("tasks.remove_app_and_related_data_task.get_archive_storage")
-    @patch("tasks.remove_app_and_related_data_task.logger")
-    def test_delete_archived_workflow_run_files_not_configured(self, mock_logger, mock_get_storage):
+    def test_delete_archived_workflow_run_files_not_configured(
+        self, mock_get_storage, caplog: pytest.LogCaptureFixture
+    ):
         mock_get_storage.side_effect = ArchiveStorageNotConfiguredError("missing config")
 
-        _delete_archived_workflow_run_files("tenant-1", "app-1")
+        with caplog.at_level(logging.INFO, logger="tasks.remove_app_and_related_data_task"):
+            _delete_archived_workflow_run_files("tenant-1", "app-1")
 
-        assert mock_logger.info.call_count == 1
-        assert "Archive storage not configured" in mock_logger.info.call_args[0][0]
+        assert caplog.text.count("Archive storage not configured") == 1
 
     @patch("tasks.remove_app_and_related_data_task.get_archive_storage")
-    @patch("tasks.remove_app_and_related_data_task.logger")
-    def test_delete_archived_workflow_run_files_list_failure(self, mock_logger, mock_get_storage):
+    def test_delete_archived_workflow_run_files_list_failure(self, mock_get_storage, caplog: pytest.LogCaptureFixture):
         storage = MagicMock()
         storage.list_objects.side_effect = Exception("list failed")
         mock_get_storage.return_value = storage
 
-        _delete_archived_workflow_run_files("tenant-1", "app-1")
+        with caplog.at_level(logging.ERROR, logger="tasks.remove_app_and_related_data_task"):
+            _delete_archived_workflow_run_files("tenant-1", "app-1")
 
         storage.list_objects.assert_called_once_with("tenant-1/app_id=app-1/")
         storage.delete_object.assert_not_called()
-        mock_logger.exception.assert_called_once_with("Failed to list archive files for app %s", "app-1")
+        assert "Failed to list archive files for app app-1" in caplog.text
 
     @patch("tasks.remove_app_and_related_data_task.get_archive_storage")
-    @patch("tasks.remove_app_and_related_data_task.logger")
-    def test_delete_archived_workflow_run_files_success(self, mock_logger, mock_get_storage):
+    def test_delete_archived_workflow_run_files_success(self, mock_get_storage, caplog: pytest.LogCaptureFixture):
         storage = MagicMock()
         storage.list_objects.return_value = ["key-1", "key-2"]
         mock_get_storage.return_value = storage
 
-        _delete_archived_workflow_run_files("tenant-1", "app-1")
+        with caplog.at_level(logging.INFO, logger="tasks.remove_app_and_related_data_task"):
+            _delete_archived_workflow_run_files("tenant-1", "app-1")
 
         storage.list_objects.assert_called_once_with("tenant-1/app_id=app-1/")
         storage.delete_object.assert_has_calls([call("key-1"), call("key-2")], any_order=False)
-        mock_logger.info.assert_called_with("Deleted %s archive objects for app %s", 2, "app-1")
+        assert "Deleted 2 archive objects for app app-1" in caplog.text

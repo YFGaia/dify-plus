@@ -1,0 +1,87 @@
+=== web/contract/console/system.ts (fork diff vs 1.14.2) ===
+diff --git a/web/contract/console/system.ts b/web/contract/console/system.ts
+index 73e920b804..c5b928fe9f 100644
+--- a/web/contract/console/system.ts
++++ b/web/contract/console/system.ts
+@@ -8,3 +8,21 @@ export const systemFeaturesContract = base
+     method: 'GET',
+   })
+   .output(type<SystemFeatures>())
++
++// extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的
++export const loginConfigBootstrapContract = base
++  .route({
++    path: '/login_config_bootstrap',
++    method: 'GET',
++  })
++  .input(type<unknown>())
++  .output(type<{ ok: boolean, token: string }>())
++
++// extend: CVE-2025-63387未授权访问 虽然这个api实际上就是个登录用的 — 路径改为 login_config，需先请求 login_config_bootstrap 写入 cookie
++export const loginConfigContract = base
++  .route({
++    path: '/login_config',
++    method: 'GET',
++  })
++  .input(type<unknown>())
++  .output(type<SystemFeatures>())
+=== web/service/system-features.ts (fork diff vs 1.14.2) ===
+diff --git a/web/service/system-features.ts b/web/service/system-features.ts
+index 4bf79a16fd..4c0b6a6b4d 100644
+--- a/web/service/system-features.ts
++++ b/web/service/system-features.ts
+@@ -1,7 +1,7 @@
+ import type { SystemFeatures } from '@/types/feature'
+ import { queryOptions } from '@tanstack/react-query'
+ import { defaultSystemFeatures } from '@/types/feature'
+-import { consoleClient, consoleQuery } from './client'
++import { consoleClient, consoleQuery, setLoginConfigToken } from './client'
+ 
+ /**
+  * Soft-fallback to defaults so the dashboard stays usable when /system-features fails.
+@@ -23,7 +23,11 @@ export const systemFeaturesQueryOptions = () =>
+     queryKey: consoleQuery.systemFeatures.queryKey(),
+     queryFn: async () => {
+       try {
+-        return await consoleClient.systemFeatures()
++        // extend: CVE-2025-63387未授权访问 — 先请求 bootstrap 拿 JWT（cookie + body），跨域时用 Header 带 token 请求 login_config
++        const bootstrapRes = await consoleClient.loginConfigBootstrap()
++        if (bootstrapRes?.token)
++          setLoginConfigToken(bootstrapRes.token)
++        return await consoleClient.loginConfig()
+       }
+       catch (err) {
+         console.error('[systemFeatures] fetch failed, using defaults', err)
+=== web/types/feature.ts (fork diff vs 1.14.2) ===
+diff --git a/web/types/feature.ts b/web/types/feature.ts
+index 77d4045318..6074715ffd 100644
+--- a/web/types/feature.ts
++++ b/web/types/feature.ts
+@@ -67,6 +67,14 @@ export type SystemFeatures = {
+   enable_creators_platform: boolean
+   enable_trial_app: boolean
+   enable_explore_banner: boolean
++  // Extend: start 钉钉和OAuth2登录字段
++  is_custom_auth2: string // extend: Customizing AUTH2
++  is_custom_auth2_button: string // extend: Customizing AUTH2 button text
++  is_custom_auth2_logout: string // extend: AUTH2 logout url
++  ding_talk_client_id: string // Extend: DingTalk third-party login
++  ding_talk_corp_id: string // Extend: DingTalk sidebar login
++  ding_talk: boolean // Extend: switch DingTalk sidebar login
++  // Extend: end
+ }
+ 
+ export const defaultSystemFeatures: SystemFeatures = {
+@@ -112,4 +120,12 @@ export const defaultSystemFeatures: SystemFeatures = {
+   enable_creators_platform: false,
+   enable_trial_app: false,
+   enable_explore_banner: false,
++  // Extend: start 钉钉和OAuth2登录字段默认值
++  is_custom_auth2: '', // extend: Customizing AUTH2
++  is_custom_auth2_button: '', // extend: Customizing AUTH2 button text
++  is_custom_auth2_logout: '', // extend: Customizing AUTH2 logout url
++  ding_talk_client_id: '', // Extend: DingTalk third-party login
++  ding_talk_corp_id: '', // Extend: DingTalk sidebar login
++  ding_talk: false, // Extend: switch DingTalk sidebar login
++  // Extend: end
+ }

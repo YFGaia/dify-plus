@@ -64,6 +64,13 @@ const data = {
       supported: true,
     },
     {
+      value: 'lo-LA',
+      name: 'ລາວ (ລາວ)',
+      prompt_name: 'Lao',
+      example: 'ສະບາຍດີ, Dify!',
+      supported: true,
+    },
+    {
       value: 'ru-RU',
       name: 'Русский (Россия)',
       prompt_name: 'Russian',
@@ -145,6 +152,13 @@ const data = {
       name: 'Bahasa Indonesia',
       prompt_name: 'Indonesian',
       example: 'Halo, Dify!',
+      supported: true,
+    },
+    {
+      value: 'nl-NL',
+      name: 'Nederlands (Nederland)',
+      prompt_name: 'Dutch',
+      example: 'Hallo, Dify!',
       supported: true,
     },
     {

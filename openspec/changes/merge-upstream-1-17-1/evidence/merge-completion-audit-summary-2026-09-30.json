@@ -1,0 +1,54 @@
+{
+  "scene_count": 29,
+  "locally_progressable_count": 24,
+  "locally_progressable_ids": [
+    "G01",
+    "G02",
+    "B01",
+    "B02",
+    "B03",
+    "B04",
+    "B05",
+    "B06",
+    "B07",
+    "B08",
+    "B09",
+    "B10",
+    "B11",
+    "K01",
+    "F01",
+    "F02",
+    "F03",
+    "F04",
+    "F05",
+    "D01",
+    "D05",
+    "O01",
+    "O02",
+    "O03"
+  ],
+  "historical_deferred_count": 4,
+  "historical_deferred_ids": [
+    "D02",
+    "D03",
+    "D04",
+    "O04"
+  ],
+  "production_count": 1,
+  "production_ids": [
+    "O05"
+  ],
+  "external_subcheck_candidates": [
+    "B03 real SSO providers without configured credentials",
+    "F04 external integration tests without configured accounts",
+    "O01 private registry supply"
+  ],
+  "rule": "locally_progressable is not passed and external subchecks cannot be accepted from local fixtures",
+  "planning_checks": {
+    "openspec_strict_exit_code": 0,
+    "json_dag": "35 nodes; acyclic; historical N02/N03accepted3c; latestcandidateN07gate",
+    "passed_evidence_references": "all existing; actual roots handled",
+    "scene_ids": "spec ledger and task29/30 inventory exactly29",
+    "git_diff_check_exit_code": 0
+  }
+}

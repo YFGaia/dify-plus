@@ -1,0 +1,58 @@
+{
+  "reviewed_at_utc": "2026-09-30T17:14:05.670744+00:00",
+  "timezone": "Asia/Shanghai",
+  "review_scope": "Independent source and safe deployed SDK/schema evidence review; no runtime request, model call, resource mutation or product-code change",
+  "source_note": "o02-compaction-static-contract.json",
+  "deployed_note": "sdk-compaction-schema-readonly.json",
+  "listed_source_hashes_match": {
+    "dify-agent/src/dify_agent/runtime/compaction.py": true,
+    "dify-agent/src/dify_agent/runtime/runner.py": true,
+    "dify-agent/src/dify_agent/adapters/llm/model.py": true,
+    "dify-agent/src/dify_agent/adapters/llm/provider.py": true,
+    "api/services/agent_llm_inner_service.py": true,
+    "api/core/app/llm/model_access.py": true,
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai_harness/compaction/_summarizing_compaction.py": true,
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai_harness/compaction/_tiered_compaction.py": true,
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai_harness/compaction/_shared.py": true,
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai/models/__init__.py": true,
+    "api/.venv/lib/python3.12/site-packages/pydantic_ai/settings.py": true
+  },
+  "deployed_module_hashes_equal_reviewed_source": true,
+  "verdict": "Accepted source and configured-model facts; full live Agent/tool/compaction acceptance remains pending",
+  "accepted_contract": [
+    "Summary uses context model without settings overrides; deployed adapter and settings merge forward inherited max_tokens",
+    "Legitimate summary non-stream SDK request carries target.stream=false while authoritative inner API returns genuine SSE",
+    "Tiered input target=min(window*4//5,window-positive max_tokens); target800000 for proposed cap8 and actual schema window1000000",
+    "Summary keep20 needs more than20 real ModelMessages plus positive safe cutoff; clear-tool/no-op is not summarization",
+    "Configured original published workflow cap64 is not active owned Agent cap8; no such Agent exists yet",
+    "Provider schema pricing absent; historical zero-cost usage cannot prove vendor pricing/quota completeness"
+  ],
+  "unverified_gates": [
+    "Host/owner access needs exact shared-network human authorization",
+    "Owned Agent metadata/files and real rendered prompts remain unexecuted",
+    "Actual generated tool execution and compaction receipt/history rewrite remain unexecuted",
+    "Real compaction needs authorized existing smaller-window model or separately reviewed genuine-history/input-scale budget; no schema override or seeded assistant history"
+  ],
+  "budget_boundary": "At least roughly11 ordinary request/response pairs to exceed20 messages is only a history lower bound, not sufficient to cross800000-token estimate. Heuristic four chars/token implies millions of text characters, but actual provider usage anchoring is authoritative; no large-input package is authorized. Summary template alone844chars plus101 instruction chars already exceeds current512 instrumentation limit. No requests executed.",
+  "scope_counts_unchanged": {
+    "local_required_missing": 1,
+    "external_required_missing": 8
+  },
+  "automatic_review_blocks": [
+    "exact shared-access-network join/recreate",
+    "exact3owned generation-fixture association cleanup"
+  ],
+  "no_bypass": true,
+  "deployed_note_sha256": "ce87c24e95581fab75a6ade191eb474a6eff2bcff948fb85ca70c981c6aa5fe1",
+  "inventory_note": "configured-model-inventory-readonly.json",
+  "inventory_note_sha256": "f47f398586b6f4c85b76d522fc217a43702d43f4d53fc718bd7a5e2c5d774bab",
+  "inventory_review": {
+    "explicit_default_models": 1,
+    "explicit_default_model": "DeepSeek Flash LLM",
+    "provider_model_records": 0,
+    "disabled_model_settings": 2,
+    "default_embedding_or_dataset_embedding_bindings": 0,
+    "custom_provider_credential_present": true,
+    "scope_boundary": "Explicit tenant/default bindings only; does not prove catalog contains no other usable models. Do not invent a model/price or copy/export credentials. Existing selected schema window1m/pricing absent does not unblock small-budget compaction or positive billing."
+  }
+}

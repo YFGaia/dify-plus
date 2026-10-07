@@ -1,0 +1,85 @@
+M07 read-only pre-analysis registration
+Branch: codex/merge-upstream-1.17.1
+Source commit: ef55de14766ce2aba660c379f7b9b507cfc5561e
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Analysis model: gpt-6-sol
+Analysis agent: /root/m07_deploy_analysis
+
+Commands run by coordinator:
+- openspec status --change merge-upstream-1-17-1 --json: exit 0
+- openspec instructions apply --change merge-upstream-1-17-1 --json: exit 0
+- git rev-parse HEAD: ef55de14766ce2aba660c379f7b9b507cfc5561e
+- git rev-parse refs/tags/1.17.1^{commit}: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+- docker and docker-compose executable presence: found; no Compose validation run before implementation
+
+Result: read-only analysis and exact path registration complete. No deployment code changed, no containers started, no live environment accessed, and no M07 implementation tasks marked complete. M07 code work is blocked pending resolution of the unavailable required karpathy-guidelines SKILL.md.
+- jq JSON parsing of execution graph and M07 evidence: exit 0
+- exact registered path existence check: exit 0
+- conflict-ownership.tsv six-column check: exit 0; M07 additional registered paths: 15
+- openspec validate merge-upstream-1-17-1 --strict: exit 0 (valid)
+
+Resumption: 2026-09-29
+The current available-skills catalog no longer lists karpathy-guidelines. Root AGENTS.md was rechecked. M07 13.1 resumes under the active repository and OpenSpec instructions. A new Astra task is assigned for core Compose alignment; 13.2-13.6 remain pending.
+
+M07 13.1 implementation and coordinator review: 2026-09-29
+Branch: codex/merge-upstream-1.17.1
+Source commit before subtask: 3681a3fed24805cdc4a0fdde09798985c2d92796
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Implementation model: gpt-6-astra
+Implementation task: /root/m07_13_1_core_compose
+
+Result: updated docker/docker-compose.dify-plus.yaml only. All six fork API image references and the fork Web image tag now target 1.17.1 while preserving private image names. Added 36 upstream environment entries, aligned three execution/scaling defaults, and added API/worker/beat healthchecks; worker and beat checks remain disabled by default. Fork worker-gaia, worker-dataset, sandbox-full, retention, feature switches, volumes, ports, networks, dependencies, and commands remain present.
+
+Coordinator checks:
+- git diff --check -- docker/docker-compose.dify-plus.yaml: exit 0
+- empty-environment default and all-profile docker compose config --quiet: exit 0 for both; only unset DB/CERTBOT warnings
+- all-profile JSON assertions for private image tags, fork services, upstream defaults, Agent v2 switch, and retention: exit 0
+- source audit against exact upstream 1.17.1 env examples: 39 added/changed keys, 0 missing
+- openspec validate merge-upstream-1-17-1 --strict: valid
+- docker compose version: 2.36.2-desktop.1
+
+13.1 passed. No private image pull, digest, container runtime, or real environment verification was performed. Subtasks 13.2-13.6 remain pending; M07 remains in progress and is not deployable.
+
+M07 13.2 implementation and coordinator review: 2026-09-29
+Branch: codex/merge-upstream-1.17.1
+Source commit before subtask: 4f16d29b011bca49b46ee59d810de98eb26b6ada
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Implementation task: /root/m07_13_2_migration
+
+Result: docker/docker-compose.dify-plus.yaml forces MIGRATION_ENABLED=false in shared business-service environment and adds one explicit migration-profile service using the private 1.17.1 API image, one replica, and restart=no. It executes flask db upgrade, flask extend_db upgrade, and both current-revision checks in order. Failure exits nonzero and instructs operators to preserve logs and inspect state before retry. Business services remain stopped until both migration heads and data are verified. The deployment comment warns against scaling or launching concurrent jobs.
+
+Coordinator checks:
+- git diff --check -- docker/docker-compose.dify-plus.yaml: exit 0
+- default and all-profile docker compose config --quiet in empty environment: exit 0; unset DB/CERTBOT warnings only
+- agent assertions for default, all-profile, and external MIGRATION_ENABLED=true configurations: pass
+- agent mock Flask command execution: success and four injected failure points passed; later commands are skipped and failure exit code 23 is preserved
+- source inspection confirmed Flask workdir /app/api, extend_db command registration in api/extensions/ext_commands.py and api/commands/extend.py, plus upgrade-db lock contention can skip migration with success
+
+13.2 passed for Compose implementation and command flow. No live database/container/image was used. The single-executor guard is an operator/release-topology constraint, not a distributed lock; concurrent manual jobs outside this Compose project are not prevented. 13.3-13.6 remain pending; M07 remains in progress and is not deployable.
+
+M07 13.3 implementation and coordinator review: 2026-09-29
+Branch: codex/merge-upstream-1.17.1
+Source commit before subtask: 21bdeec37cacaac22f9f9c3308de381041ceab9b
+Upstream target: 8387590ace4a094de812b7847fc6a4c3a27cd52b
+Implementation task: /root/m07_13_3_agent_plugin_ingress (gpt-6-astra)
+
+Result: only docker/docker-compose.dify-plus.yaml changed. The API/worker and Agent backend now use the same DIFY_AGENT_API_TOKEN; local sandbox accepts the new auth variable and preserves the old shellctl fallback. Agent backend and local sandbox images are 1.17.1. Added dedicated Agent SSRF proxy, isolated sandbox/proxy networks, shared Squid template mounts, and persistent home/workspace volumes. Private plugin daemon now targets 0.6.10-local and joins required networks. Web environment includes Turnstile and Vinext settings with updated upstream defaults and no obsolete PM2 setting. Fork Agent disabled policy, private API/Web images, fork queues, and 259200-second retention remain.
+
+Exact upstream template/env examples and Agent settings source are in evidence/M07/result.json. API/Web entrypoints, Dockerfile, ingress, Squid configs, and Squid entrypoints already match the pinned upstream and were not changed.
+
+Coordinator checks:
+- python3 /private/tmp/m07-13-3-check.py: exit 0, 83 assertions; no container/image/network/credential use.
+- default and all-profile docker compose config --quiet: exit 0; unset DB/CERTBOT warnings in empty environment only.
+- git diff --check -- docker/docker-compose.dify-plus.yaml: exit 0.
+- Agent-reported SSRF allowlist unit and four entrypoint bash -n checks: exit 0.
+
+Environment limit: macOS Bash 3.2 could not execute the upstream Bash 4 worker script; queue behavior was checked statically against the exact upstream script. No image pull, container start, live proxy/Agent, or real environment verification was performed. 13.4 and 13.5 have since passed with itemized env and CI evidence; 13.6 remains pending. M07 is partial/non-deployable.
+
+2026-09-29 M07 13.4: Compared ten env samples against fork-merged-1.16.0 and upstream 1.17.1; retained 900-row itemized audit in env-variable-audit.tsv. 52 assertions, five isolated Compose renders, and diff-check passed. No image/container/private env/credential access.
+2026-09-29 M07 13.5: Sol read-only audit confirmed registered GitHub workflows byte-identical to upstream and documented fork GitLab private image supply separately; no workflow or release pipeline ran. Static manifest artifact/collision risk remains unverified.
+2026-09-29 M07 13.6 initial Luna review: Static source/matrix and default/all-profile Compose checks passed, with no P1 findings; node acceptance held pending a read-only analysis of optional root .env.example variables against repository AGENTS.md. Deployability remains blocked pending real private image/runtime evidence and explicit Agent secret configuration.
+
+M07 13.4 exact startup-scope analysis: 2026-09-29
+Sol read-only audit at source commit abe3b9ae33d21fcb3ebc6abfaeef1946591fd456 classified all 244 unique root sample variables. Keep only COMPOSE_PROFILES and DIFY_AGENT_SERVER_SECRET_KEY in docker/.env.example; classify the other 242 as optional. Of the optional variables, 237 already have a core service sample destination and five need documentation added: SERVER_CONSOLE_API_URL (web), FILES_URL and INTERNAL_FILES_URL (shared), PLUGIN_MAX_FILE_SIZE (shared, though fork Compose currently has no mapping), and MARKETPLACE_URL (web).
+Before removing four root assignments, update fork Compose fallbacks to preserve current effective values: CELERY_WORKER_AMOUNT=4, POSTGRES_MAX_CONNECTIONS=200, WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=true, NGINX_SOCKET_IO_UPSTREAM=api_websocket:5001. Change SECRET_KEY's hard-coded development fallback to empty so api/configs/secret_key.py can generate and persist the key in shared storage, matching the current root sample's documented behavior.
+Fork Compose contains no env_file declarations; service examples alone do not feed its explicit environment mappings. Upstream Compose has service env_file plus ./.env, but explicit mappings can mask service example values. No environment, credential, container, or private-image access was used. Implementation and isolated Compose validation are in progress; 13.4 and 13.6 remain open.

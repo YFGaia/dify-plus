@@ -1,0 +1,13 @@
+[
+  {
+    "case": "persisted_null_auth_defaults_enabled",
+    "status": 200,
+    "auth": true,
+    "retention": 17
+  },
+  {
+    "case": "persisted_null_auth_anonymous_generation_rejected_before_llm",
+    "status": 401,
+    "code": "unauthorized"
+  }
+]

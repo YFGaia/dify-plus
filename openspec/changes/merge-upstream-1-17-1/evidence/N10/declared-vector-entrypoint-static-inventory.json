@@ -1,0 +1,198 @@
+{
+  "stage": "static only; installed/load must be actual canonicalimage",
+  "entrypoint_count": 32,
+  "rows": [
+    {
+      "package": "dify-vdb-vastbase",
+      "name": "vastbase",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-opengauss",
+      "name": "opengauss",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-relyt",
+      "name": "relyt",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-hologres",
+      "name": "hologres",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-oceanbase",
+      "name": "oceanbase",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-oceanbase",
+      "name": "seekdb",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-elasticsearch",
+      "name": "elasticsearch",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-elasticsearch",
+      "name": "elasticsearch-ja",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-tidb-on-qdrant",
+      "name": "tidb_on_qdrant",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-tablestore",
+      "name": "tablestore",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-chroma",
+      "name": "chroma",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-oracle",
+      "name": "oracle",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-baidu",
+      "name": "baidu",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-tidb-vector",
+      "name": "tidb_vector",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-analyticdb",
+      "name": "analyticdb",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-pgvector",
+      "name": "pgvector",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-vikingdb",
+      "name": "vikingdb",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-alibabacloud-mysql",
+      "name": "alibabacloud_mysql",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-qdrant",
+      "name": "qdrant",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-myscale",
+      "name": "myscale",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-couchbase",
+      "name": "couchbase",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-matrixone",
+      "name": "matrixone",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-tencent",
+      "name": "tencent",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-clickzetta",
+      "name": "clickzetta",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-huawei-cloud",
+      "name": "huawei_cloud",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-opensearch",
+      "name": "opensearch",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-pgvecto-rs",
+      "name": "pgvecto-rs",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-lindorm",
+      "name": "lindorm",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-weaviate",
+      "name": "weaviate",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-upstash",
+      "name": "upstash",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-milvus",
+      "name": "milvus",
+      "target_source_exists": true,
+      "factory_declared": true
+    },
+    {
+      "package": "dify-vdb-iris",
+      "name": "iris",
+      "target_source_exists": true,
+      "factory_declared": true
+    }
+  ]
+}

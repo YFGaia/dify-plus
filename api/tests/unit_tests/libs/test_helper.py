@@ -1,6 +1,8 @@
+from datetime import datetime
+
 import pytest
 
-from libs.helper import escape_like_pattern, extract_tenant_id
+from libs.helper import OptionalTimestampField, alphanumeric, email, escape_like_pattern, extract_tenant_id
 from models.account import Account
 from models.model import EndUser
 
@@ -65,6 +67,19 @@ class TestExtractTenantId:
             extract_tenant_id(dict_user)
 
 
+class TestOptionalTimestampField:
+    def test_format_returns_none_for_none(self):
+        field = OptionalTimestampField()
+
+        assert field.format(None) is None
+
+    def test_format_returns_unix_timestamp_for_datetime(self):
+        field = OptionalTimestampField()
+        value = datetime(2024, 1, 2, 3, 4, 5)
+
+        assert field.format(value) == int(value.timestamp())
+
+
 class TestEscapeLikePattern:
     """Test cases for the escape_like_pattern utility function."""
 
@@ -111,3 +126,74 @@ class TestEscapeLikePattern:
         result = escape_like_pattern("test\\%_value")
         # Should be: test\\\%\_value
         assert result == "test\\\\\\%\\_value"
+
+
+class TestEmailValidator:
+    """Tests for the email() validator — regression for #39234."""
+
+    def test_valid_email_accepted(self):
+        assert email("user@example.com") == "user@example.com"
+
+    def test_trailing_newline_rejected(self):
+        with pytest.raises(ValueError, match="not a valid email"):
+            email("user@example.com\n")
+
+    def test_trailing_carriage_return_newline_rejected(self):
+        with pytest.raises(ValueError, match="not a valid email"):
+            email("user@example.com\r\n")
+
+    def test_multiple_newlines_rejected(self):
+        with pytest.raises(ValueError, match="not a valid email"):
+            email("user@example.com\n\n")
+
+    def test_empty_string_rejected(self):
+        with pytest.raises(ValueError, match="not a valid email"):
+            email("")
+
+    def test_invalid_email_rejected(self):
+        with pytest.raises(ValueError, match="not a valid email"):
+            email("not-an-email")
+
+
+class TestAlphanumericValidator:
+    """Tests for the alphanumeric() validator — regression for #39666."""
+
+    def test_valid_alphanumeric_accepted(self):
+        assert alphanumeric("tool_name") == "tool_name"
+        assert alphanumeric("Tool123") == "Tool123"
+        assert alphanumeric("_underscore_start") == "_underscore_start"
+        assert alphanumeric("a") == "a"
+
+    def test_trailing_newline_rejected(self):
+        # re.match with $ accepts a trailing \n in Python; re.fullmatch does not.
+        # This was the pre-fix behaviour: alphanumeric("tool\n") returned "tool\n".
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("tool_name\n")
+
+    def test_trailing_carriage_return_rejected(self):
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("tool_name\r")
+
+    def test_trailing_crlf_rejected(self):
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("tool_name\r\n")
+
+    def test_leading_newline_rejected(self):
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("\ntool_name")
+
+    def test_embedded_whitespace_rejected(self):
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("tool name")
+
+    def test_empty_string_rejected(self):
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("")
+
+    def test_special_characters_rejected(self):
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("tool-name")
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("tool.name")
+        with pytest.raises(ValueError, match="not a valid alphanumeric value"):
+            alphanumeric("tool/name")

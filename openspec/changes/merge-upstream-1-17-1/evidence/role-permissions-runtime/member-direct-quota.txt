@@ -1,0 +1,37 @@
+[p2 "Dify" | space "Dify Plus 合并验收应用中心"(9): 2 managed, 0 untracked — p1 "访问点 · Quota smoke chat - Dify", p2* "Dify"]
+root
+  container
+    container
+      container
+        container
+          anchor "Dify" [ref=1, loc=css:a[aria-label="Dify"], url=http://localhost:23010/]
+            image
+          button "搜索任何内容" [ref=2, loc=css:button[aria-label="搜索任何内容"]]
+            text "⌘"
+            text "K"
+        button [ref=3]
+          text "A"
+          text "Acceptance Owner's Workspace"
+        container "主菜单"
+          anchor [ref=4, url=http://localhost:23010/]
+            text "主页"
+          anchor [ref=5, loc=href:/explore/apps-center-extend, url=http://localhost:23010/explore/apps-center-extend]
+            text "应用中心"
+          anchor [ref=6, loc=href:/apps, url=http://localhost:23010/apps]
+            text "工作室"
+          anchor [ref=7, loc=href:/datasets, url=http://localhost:23010/datasets]
+            text "知识库"
+          anchor [ref=8, loc=href:/skills, url=http://localhost:23010/skills]
+            text "Skills"
+          anchor [ref=9, loc=href:/integrations/model-provider, url=http://localhost:23010/integrations/model-provider]
+            text "集成"
+          anchor [ref=10, loc=href:/marketplace, url=http://localhost:23010/marketplace]
+            text "Marketplace"
+      container
+        button [ref=11]
+          text "A"
+          text "Acceptance Member 01"
+        button "打开帮助菜单" [ref=12, loc=css:button[aria-label="打开帮助菜单"]]
+          svg_root
+    container [ref=13]
+      text "无权限访问"

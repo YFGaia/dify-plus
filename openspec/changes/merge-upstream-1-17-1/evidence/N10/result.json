@@ -1,0 +1,25 @@
+{
+  "node": "N10",
+  "status": "passed",
+  "candidate": {
+    "tag": "difyplus-acceptance-api:953cf1c-n10-headlock-3cf5bfa6",
+    "image_id": "sha256:445d59dbbab0f377a63c0b6a731ca25b00c35a2ba4019f1846881ba247a65172",
+    "context_sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+    "head_lock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+    "archive_base_commit": "953cf1c1ef88258197c72b98e89fcd1dab85ac39",
+    "final_owned_commit": "pending exact scoped commit binding"
+  },
+  "evidence": [
+    "evidence/N10/independent-build-source-audit.json",
+    "evidence/N10/independent-source-review.json",
+    "evidence/provider-packaging-regression/latest-source-manifest.json",
+    "evidence/provider-packaging-regression/frozen-sync-results.json",
+    "evidence/provider-packaging-regression/trace-runtime-imports.json",
+    "evidence/N10/independent-final-context-review.json",
+    "evidence/N10/head-lock-full-image-runtime-2026-09-30.json",
+    "evidence/N10/independent-full-image-runtime-review.json",
+    "evidence/N06/original-23000-n10-headlock-final-update-2026-09-30.json",
+    "evidence/N06/independent-final-delivery-restore-review.json"
+  ],
+  "boundary": "Scoped sourceadvance fullimage/affected actualruntime/originalcomponent deployment gate. LatestoriginalUI desktopcondition and generatedAgent/SSO/nonzero/embedding/oldinstall/production gates remain unpassed."
+}

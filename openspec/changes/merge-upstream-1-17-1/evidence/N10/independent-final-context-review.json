@@ -1,0 +1,31 @@
+{
+  "verdict": "No issues found.",
+  "scope": "Independent read-only complete source-context inventory; no Docker/runtime verification by reviewer",
+  "contexts": [
+    {
+      "context": "dirty",
+      "actual_context_sha256": "fea860dd967412c1bf00ab013735ffb6674ba708dcd3b9f8f16c2a0a9f2ed5f1",
+      "file_count": 4318,
+      "frozen_owned_source_count": 55,
+      "all_owned_source_hashes_match": true,
+      "uvlock_sha256": "3d1b58d109585d9498e757734a7fef6a24fa972c8b17128ce12e4019331f7dbc",
+      "unchanged_N08_archive_file_count": 4262,
+      "unchanged_files_match": true
+    },
+    {
+      "context": "headlock",
+      "actual_context_sha256": "3cf5bfa660806d4306dae0558b7a9b8a6797898a449274c60180e901f6ed02f9",
+      "file_count": 4318,
+      "frozen_owned_source_count": 55,
+      "all_owned_source_hashes_match": true,
+      "uvlock_sha256": "842bcab778b2605bfd6fb0b8546d7a8d7093008e0b59e0c72cc52f8351d22d07",
+      "unchanged_N08_archive_file_count": 4262,
+      "unchanged_files_match": true
+    }
+  ],
+  "dirty_release_context_difference": [
+    "api/uv.lock"
+  ],
+  "commit_parity": "HEAD-lock context contains55 frozen ownedsource paths and original committedHEADlock. Userfull lock overlay remains separate unstaged. Base953 archive identity is not resulting final sourcecommitlabel.",
+  "boundary": "Actual image47prod hashes/449packages38providers32entrypoints8trace/Qdrant and final HTTP/original23000 proof required from runtime."
+}

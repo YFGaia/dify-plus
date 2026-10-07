@@ -1,5 +1,3 @@
-import type { LLMNodeType } from '@/app/components/workflow/nodes/llm/types'
-import type { ToolNodeType } from '@/app/components/workflow/nodes/tool/types'
 import type { TryAppInfo } from '@/service/try-app'
 import type { AgentTool } from '@/types/app'
 import { uniqBy } from 'es-toolkit/compat'
@@ -16,8 +14,90 @@ type RequirementItem = {
   name: string
   iconUrl: string
 }
-const getIconUrl = (provider: string, tool: string) => {
-  return `${MARKETPLACE_API_PREFIX}/plugins/${provider}/${tool}/icon`
+
+type ProviderType = 'model' | 'tool'
+
+type ProviderInfo = {
+  organization: string
+  providerName: string
+}
+
+const PROVIDER_PLUGIN_ALIASES: Record<ProviderType, Record<string, string>> = {
+  model: {
+    google: 'gemini',
+  },
+  tool: {
+    stepfun: 'stepfun_tool',
+    jina: 'jina_tool',
+    siliconflow: 'siliconflow_tool',
+    gitee_ai: 'gitee_ai_tool',
+  },
+}
+
+const parseProviderId = (providerId: string): ProviderInfo | null => {
+  const segments = providerId.split('/').filter(Boolean)
+  if (!segments.length) return null
+
+  if (segments.length === 1) {
+    return {
+      organization: 'langgenius',
+      providerName: segments[0]!,
+    }
+  }
+
+  return {
+    organization: segments[0]!,
+    providerName: segments[1]!,
+  }
+}
+
+const getPluginName = (providerName: string, type: ProviderType) => {
+  return PROVIDER_PLUGIN_ALIASES[type][providerName] || providerName
+}
+
+const getIconUrl = (providerId: string, type: ProviderType) => {
+  const parsed = parseProviderId(providerId)
+  if (!parsed) return ''
+
+  const organization = encodeURIComponent(parsed.organization)
+  const pluginName = encodeURIComponent(getPluginName(parsed.providerName, type))
+  return `${MARKETPLACE_API_PREFIX}/plugins/${organization}/${pluginName}/icon`
+}
+
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+const getGraphNodes = (graph: unknown): unknown[] => {
+  if (!isRecord(graph) || !Array.isArray(graph.nodes)) return []
+
+  return graph.nodes
+}
+
+const isAgentTool = (value: unknown): value is AgentTool => {
+  if (!isRecord(value)) return false
+
+  return (
+    typeof value.provider_id === 'string' &&
+    typeof value.tool_label === 'string' &&
+    value.enabled === true
+  )
+}
+
+const hasLLMRequirementData = (
+  value: unknown,
+): value is { model: { name: string; provider: string } } => {
+  if (!isRecord(value) || !isRecord(value.model)) return false
+
+  return typeof value.model.name === 'string' && typeof value.model.provider === 'string'
+}
+
+const hasToolRequirementData = (
+  value: unknown,
+): value is { provider_id: string; tool_label: string } => {
+  if (!isRecord(value)) return false
+
+  return typeof value.provider_id === 'string' && typeof value.tool_label === 'string'
 }
 
 const useGetRequirements = ({ appDetail, appId }: Params) => {
@@ -27,45 +107,53 @@ const useGetRequirements = ({ appDetail, appId }: Params) => {
   const { data: flowData } = useGetTryAppFlowPreview(appId, isBasic)
 
   const requirements: RequirementItem[] = []
-  if (isBasic) {
-    const modelProviderAndName = appDetail.model_config.model.provider.split('/')
-    const name = appDetail.model_config.model.provider.split('/').pop() || ''
+  const modelConfig = appDetail.model_config
+  const model = modelConfig?.model
+  if (isBasic && model) {
+    const modelProvider = model.provider
+    const name = model.provider.split('/').pop() || ''
     requirements.push({
       name,
-      iconUrl: getIconUrl(modelProviderAndName[0], modelProviderAndName[1]),
+      iconUrl: getIconUrl(modelProvider, 'model'),
     })
   }
-  if (isAgent) {
-    requirements.push(...appDetail.model_config.agent_mode.tools.filter(data => (data as AgentTool).enabled).map((data) => {
-      const tool = data as AgentTool
-      const modelProviderAndName = tool.provider_id.split('/')
-      return {
+  if (isAgent && modelConfig?.agent_mode?.tools) {
+    requirements.push(
+      ...modelConfig.agent_mode.tools.filter(isAgentTool).map((tool) => ({
         name: tool.tool_label,
-        iconUrl: getIconUrl(modelProviderAndName[0], modelProviderAndName[1]),
-      }
-    }))
+        iconUrl: getIconUrl(tool.provider_id, 'tool'),
+      })),
+    )
   }
-  if (isAdvanced && flowData && flowData?.graph?.nodes?.length > 0) {
-    const nodes = flowData.graph.nodes
-    const llmNodes = nodes.filter(node => node.data.type === BlockEnum.LLM)
-    requirements.push(...llmNodes.map((node) => {
-      const data = node.data as LLMNodeType
-      const modelProviderAndName = data.model.provider.split('/')
-      return {
-        name: data.model.name,
-        iconUrl: getIconUrl(modelProviderAndName[0], modelProviderAndName[1]),
-      }
-    }))
+  const nodes = getGraphNodes(flowData?.graph)
+  if (isAdvanced && nodes.length > 0) {
+    requirements.push(
+      ...nodes.flatMap((node) => {
+        const data = isRecord(node) && isRecord(node.data) ? node.data : null
+        if (data?.type !== BlockEnum.LLM || !hasLLMRequirementData(data)) return []
 
-    const toolNodes = nodes.filter(node => node.data.type === BlockEnum.Tool)
-    requirements.push(...toolNodes.map((node) => {
-      const data = node.data as ToolNodeType
-      const toolProviderAndName = data.provider_id.split('/')
-      return {
-        name: data.tool_label,
-        iconUrl: getIconUrl(toolProviderAndName[0], toolProviderAndName[1]),
-      }
-    }))
+        return [
+          {
+            name: data.model.name,
+            iconUrl: getIconUrl(data.model.provider, 'model'),
+          },
+        ]
+      }),
+    )
+
+    requirements.push(
+      ...nodes.flatMap((node) => {
+        const data = isRecord(node) && isRecord(node.data) ? node.data : null
+        if (data?.type !== BlockEnum.Tool || !hasToolRequirementData(data)) return []
+
+        return [
+          {
+            name: data.tool_label,
+            iconUrl: getIconUrl(data.provider_id, 'tool'),
+          },
+        ]
+      }),
+    )
   }
 
   const uniqueRequirements = uniqBy(requirements, 'name')

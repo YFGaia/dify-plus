@@ -1,10 +1,12 @@
+from sqlalchemy.orm import Session
+
 from events.app_event import app_was_created
-from extensions.ext_database import db
+from models.enums import CustomizeTokenStrategy
 from models.model import Site
 
 
 @app_was_created.connect
-def handle(sender, **kwargs):
+def handle(sender, *, session: Session, **kwargs) -> None:
     """Create site record when an app is created."""
     app = sender
     account = kwargs.get("account")
@@ -16,11 +18,10 @@ def handle(sender, **kwargs):
             icon=app.icon,
             icon_background=app.icon_background,
             default_language=account.interface_language,
-            customize_token_strategy="not_allow",
-            code=Site.generate_code(16),
+            customize_token_strategy=CustomizeTokenStrategy.NOT_ALLOW,
+            code=Site.generate_code(16, session=session),
             created_by=app.created_by,
             updated_by=app.updated_by,
         )
-
-        db.session.add(site)
-        db.session.commit()
+        session.add(site)
+        session.flush()

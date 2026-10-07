@@ -27,7 +27,7 @@ class DingTalk(Resource):
             raise DingTalkNotExist(err)
         if token_pair is None:
             raise DingTalkNotExist("Failed to get token pair")
-        
+
         response = redirect(redirect_url)
         set_access_token_to_cookie(request, response, token_pair.access_token)
         set_refresh_token_to_cookie(request, response, token_pair.refresh_token)
@@ -49,7 +49,7 @@ class DingTalkThirdParty(Resource):
             raise DingTalkNotExist(err)
         if token_pair is None:
             raise DingTalkNotExist("Failed to get token pair")
-        
+
         response = redirect(redirect_url)
         set_access_token_to_cookie(request, response, token_pair.access_token)
         set_refresh_token_to_cookie(request, response, token_pair.refresh_token)

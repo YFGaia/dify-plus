@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=80.10.2,<81"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dify-vdb-milvus"
+version = "0.0.1"
+
+dependencies = [
+    "pymilvus~=2.6.12",
+]
+description = "Dify vector store backend (dify-vdb-milvus)."
+
+[project.entry-points."dify.vector_backends"]
+milvus = "dify_vdb_milvus.milvus_vector:MilvusVectorFactory"
+
+[tool.setuptools.packages.find]
+where = ["src"]

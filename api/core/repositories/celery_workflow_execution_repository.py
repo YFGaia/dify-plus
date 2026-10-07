@@ -6,14 +6,13 @@ providing improved performance by offloading database operations to background w
 """
 
 import logging
-from typing import Union
+from typing import override
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
-from core.workflow.entities.workflow_execution import WorkflowExecution
-from core.workflow.repositories.workflow_execution_repository import WorkflowExecutionRepository
-from libs.helper import extract_tenant_id
+from core.repositories.factory import WorkflowExecutionRepository
+from graphon.entities import WorkflowExecution
 from models import Account, CreatorUserRole, EndUser
 from models.enums import WorkflowRunTriggeredFrom
 from tasks.workflow_execution_tasks import (
@@ -47,37 +46,41 @@ class CeleryWorkflowExecutionRepository(WorkflowExecutionRepository):
     def __init__(
         self,
         session_factory: sessionmaker | Engine,
-        user: Union[Account, EndUser],
+        tenant_id: str,
+        user: Account | EndUser,
         app_id: str | None,
         triggered_from: WorkflowRunTriggeredFrom | None,
+        from_account_id: str | None = None,
     ):
         """
         Initialize the repository with Celery task configuration and context information.
 
         Args:
             session_factory: SQLAlchemy sessionmaker or engine for fallback operations
-            user: Account or EndUser object containing tenant_id, user ID, and role information
+            tenant_id: Tenant that owns the workflow execution
+            user: Account or EndUser used for creator attribution
             app_id: App ID for filtering by application (can be None)
             triggered_from: Source of the execution trigger (DEBUGGING or APP_RUN)
+            from_account_id: Validated WebApp Console actor; ignored for already persisted ownership
         """
         # Store session factory for fallback operations
-        if isinstance(session_factory, Engine):
-            self._session_factory = sessionmaker(bind=session_factory, expire_on_commit=False)
-        elif isinstance(session_factory, sessionmaker):
-            self._session_factory = session_factory
-        else:
-            raise ValueError(
-                f"Invalid session_factory type {type(session_factory).__name__}; expected sessionmaker or Engine"
-            )
+        match session_factory:
+            case Engine():
+                self._session_factory = sessionmaker(bind=session_factory, expire_on_commit=False)
+            case sessionmaker():
+                self._session_factory = session_factory
+            case _:
+                raise ValueError(
+                    f"Invalid session_factory type {type(session_factory).__name__}; expected sessionmaker or Engine"
+                )
 
-        # Extract tenant_id from user
-        tenant_id = extract_tenant_id(user)
         if not tenant_id:
-            raise ValueError("User must have a tenant_id or current_tenant_id")
+            raise ValueError("tenant_id is required")
         self._tenant_id = tenant_id
 
         # Store app context
         self._app_id = app_id
+        self._from_account_id = from_account_id
 
         # Extract user context
         self._triggered_from = triggered_from
@@ -93,6 +96,7 @@ class CeleryWorkflowExecutionRepository(WorkflowExecutionRepository):
             self._triggered_from,
         )
 
+    @override
     def save(self, execution: WorkflowExecution):
         """
         Save or update a WorkflowExecution instance asynchronously using Celery.
@@ -115,6 +119,7 @@ class CeleryWorkflowExecutionRepository(WorkflowExecutionRepository):
                 triggered_from=self._triggered_from.value if self._triggered_from else "",
                 creator_user_id=self._creator_user_id,
                 creator_user_role=self._creator_user_role.value,
+                from_account_id=self._from_account_id,
             )
 
             logger.debug("Queued async save for workflow execution: %s", execution.id_)

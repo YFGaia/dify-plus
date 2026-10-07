@@ -1,0 +1,34 @@
+[
+  {
+    "case": "same_app",
+    "requested_app_id": "14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1",
+    "passport_app_id": "14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1",
+    "status": 200,
+    "returned_app_id": "14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1",
+    "code": null
+  },
+  {
+    "case": "cross_app",
+    "requested_app_id": "d5ad5804-7921-41d4-9b48-816da837f4e3",
+    "passport_app_id": "14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1",
+    "status": 200,
+    "returned_app_id": "14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1",
+    "code": null
+  },
+  {
+    "case": "same_app",
+    "requested_app_id": "d5ad5804-7921-41d4-9b48-816da837f4e3",
+    "passport_app_id": "d5ad5804-7921-41d4-9b48-816da837f4e3",
+    "status": 200,
+    "returned_app_id": "d5ad5804-7921-41d4-9b48-816da837f4e3",
+    "code": null
+  },
+  {
+    "case": "cross_app",
+    "requested_app_id": "14ae9a9a-3796-4b58-9c5c-f0d09d85a4b1",
+    "passport_app_id": "d5ad5804-7921-41d4-9b48-816da837f4e3",
+    "status": 200,
+    "returned_app_id": "d5ad5804-7921-41d4-9b48-816da837f4e3",
+    "code": null
+  }
+]

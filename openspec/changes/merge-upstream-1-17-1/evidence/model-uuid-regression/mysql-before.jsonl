@@ -1,0 +1,5 @@
+{"engine": "mysql", "model": "AppStatisticsExtend", "omitted_id": true, "before_rows": 0, "flush": "failed", "error_type": "FlushError", "null_identity": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "EndUserAccountJoinsExtend", "omitted_id": true, "before_rows": 0, "flush": "failed", "error_type": "FlushError", "null_identity": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "AppExtend", "omitted_id": true, "before_rows": 0, "flush": "failed", "error_type": "FlushError", "null_identity": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "model": "MessageContextExtend", "omitted_id": true, "before_rows": 0, "flush": "failed", "error_type": "FlushError", "null_identity": true, "after_rollback_rows": 0, "rollback_preserved_count": true}
+{"engine": "mysql", "overall": "failed"}

@@ -1,0 +1,21 @@
+{
+  "node": "N04",
+  "kind": "independent_read_only_four_model_source_review",
+  "date": "2026-09-30",
+  "verdict": "No issues found.",
+  "source_sha256": {
+    "api/models/model_extend.py": "2b6e43808f9a313c8183c6079cd23dbc98f0c6c81786cc8e8b80b20379674190",
+    "api/tests/unit_tests/models/test_model_extend_uuid_defaults.py": "ca89fd7377bf776f5e3da3caa2b617f70179acd06c27c91fad02040dd0f1feb0"
+  },
+  "AST_diff_assertion": "After removing only added uuid4 import and four id client default kwargs, new AST equals HEAD exactly; server defaults/schema/indexes/payload unchanged.",
+  "reviewed_tests": "omitted ID generates two distinct UUIDv4s, expunge/readback, rollback0 rows; explicit ID preserved for each of4 classes",
+  "developer_test_evidence": "evidence/model-uuid-regression/targeted-tests.log; observed60passed2warnings3.19s; not independently rerun",
+  "actual_runtime_evidence": [
+    "evidence/model-uuid-regression/postgres-before.jsonl",
+    "evidence/model-uuid-regression/mysql-before.jsonl",
+    "evidence/model-uuid-regression/postgres-after.jsonl",
+    "evidence/model-uuid-regression/mysql-after.jsonl"
+  ],
+  "runtime_interpretation": "PG old4passed; MySQL old4NULLidentity; repaired both engines4omitted+4explicit ID readback/rollback passed. Existing-image exact model overlay; final complete image still required.",
+  "final_release_gate": "N02 final archive includes model/test currenthash and existing6ownedpaths+uv.lock; N03 final image rebuild must not accept prior unpatched intermediate image."
+}

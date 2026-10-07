@@ -1,10 +1,12 @@
 import logging
-from typing import Any
 
-from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 from werkzeug.exceptions import InternalServerError
 
-from controllers.common.schema import register_schema_models
+from controllers.common.controller_schemas import WorkflowRunPayload
+from controllers.common.fields import GeneratedAppResponse, SimpleResultResponse
+from controllers.common.schema import register_response_schema_models, register_schema_models
+from controllers.console.app.wraps import with_session
 from controllers.web import web_ns
 from controllers.web.error import (
     CompletionRequestError,
@@ -12,6 +14,7 @@ from controllers.web.error import (
     ProviderModelCurrentlyNotSupportError,
     ProviderNotInitializeError,
     ProviderQuotaExceededError,
+    TriggerWorkflowServiceModeUnavailableError,
 )
 from controllers.web.error import InvokeRateLimitError as InvokeRateLimitHttpError
 from controllers.web.wraps import WebApiResource
@@ -22,18 +25,16 @@ from core.errors.error import (
     ProviderTokenNotInitError,
     QuotaExceededError,
 )
-from core.model_runtime.errors.invoke import InvokeError
-from core.workflow.graph_engine.manager import GraphEngineManager
+from extensions.ext_redis import redis_client
+from graphon.graph_engine.manager import GraphEngineManager
+from graphon.model_runtime.errors.invoke import InvokeError
 from libs import helper
 from models.model import App, AppMode, EndUser
 from services.app_generate_service import AppGenerateService
+from services.errors.app import (
+    TriggerWorkflowServiceModeUnavailableError as TriggerWorkflowServiceModeUnavailableServiceError,
+)
 from services.errors.llm import InvokeRateLimitError
-
-
-class WorkflowRunPayload(BaseModel):
-    inputs: dict[str, Any] = Field(description="Input variables for the workflow")
-    files: list[dict[str, Any]] | None = Field(default=None, description="Files to be processed by the workflow")
-
 
 logger = logging.getLogger(__name__)
 
@@ -44,10 +45,12 @@ from controllers.web.error_extend import (
     WebAuthRequiredErrorExtend,
 )
 from services.app_generate_service_extend import AppGenerateServiceExtend
+from services.webapp_auth_service_extend import WebAppAuthExtendService
 
 # extend: stop 您必须登录才能访问您的帐户扩展功能
 
 register_schema_models(web_ns, WorkflowRunPayload)
+register_response_schema_models(web_ns, GeneratedAppResponse, SimpleResultResponse)
 
 
 @web_ns.route("/workflows/run")
@@ -65,7 +68,9 @@ class WorkflowRunApi(WebApiResource):
             500: "Internal Server Error",
         }
     )
-    def post(self, app_model: App, end_user: EndUser):
+    @web_ns.response(200, "Success", web_ns.models[GeneratedAppResponse.__name__])
+    @with_session
+    def post(self, session: Session, app_model: App, end_user: EndUser):
         """
         Run workflow
         """
@@ -74,8 +79,9 @@ class WorkflowRunApi(WebApiResource):
             raise NotWorkflowAppError()
 
         # ----------------- start You must log in to access your account extend ---------------
-        # no login
-        if is_end_login(end_user) is None:
+        # no login（per-app 认证开关关闭时允许匿名访问；已登录用户短路跳过开关查询）
+        user_info = is_end_login(end_user)
+        if user_info is None and WebAppAuthExtendService.is_webapp_auth_enabled(app_model.id):
             raise WebAuthRequiredErrorExtend()
         # ----------------- stop You must log in to access your account extend ---------------
 
@@ -84,15 +90,10 @@ class WorkflowRunApi(WebApiResource):
             raise AccountNoMoneyErrorExtend()
         # ----------------- 二开部分End - 余额判断-----------------
 
-        parser = (
-            reqparse.RequestParser()
-            .add_argument("inputs", type=dict, required=True, nullable=False, location="json")
-            .add_argument("files", type=list, required=False, location="json")
-        )
-        args = parser.parse_args()
+        payload = WorkflowRunPayload.model_validate(web_ns.payload or {})
+        args = payload.model_dump(exclude_none=True)
 
-        # extend: 获取 Console 用户 ID，直接作为 from_account_id 传递
-        user_info = is_end_login(end_user)
+        # Only the Console cookie admitted for this request may supply account attribution.
         if user_info:
             args["account_id"] = user_info.id
 
@@ -103,10 +104,18 @@ class WorkflowRunApi(WebApiResource):
             )  # Extend: App
             # Center - Recommended list sorted by usage frequency
             response = AppGenerateService.generate(
-                app_model=app_model, user=end_user, args=args, invoke_from=InvokeFrom.WEB_APP, streaming=True
+                session=session,
+                app_model=app_model,
+                user=end_user,
+                args=args,
+                invoke_from=InvokeFrom.WEB_APP,
+                streaming=True,
             )
 
+            # response-contract:ignore compact_generate_response
             return helper.compact_generate_response(response)
+        except TriggerWorkflowServiceModeUnavailableServiceError:
+            raise TriggerWorkflowServiceModeUnavailableError()
         except ProviderTokenNotInitError as ex:
             raise ProviderNotInitializeError(ex.description)
         except QuotaExceededError:
@@ -143,6 +152,7 @@ class WorkflowTaskStopApi(WebApiResource):
             500: "Internal Server Error",
         }
     )
+    @web_ns.response(200, "Success", web_ns.models[SimpleResultResponse.__name__])
     def post(self, app_model: App, end_user: EndUser, task_id: str):
         """
         Stop workflow task
@@ -156,6 +166,6 @@ class WorkflowTaskStopApi(WebApiResource):
         AppQueueManager.set_stop_flag_no_user_check(task_id)
 
         # New graph engine command channel mechanism
-        GraphEngineManager.send_stop_command(task_id)
+        GraphEngineManager(redis_client).send_stop_command(task_id)
 
-        return {"result": "success"}
+        return SimpleResultResponse(result="success").model_dump(mode="json")

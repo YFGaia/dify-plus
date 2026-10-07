@@ -6,5 +6,4 @@ export type Workspace = {
   name: string
   /** tenant_id */
   tenant_id: string
-
 }

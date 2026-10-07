@@ -8,6 +8,7 @@ language_timezone_mapping = {
     "de-DE": "Europe/Berlin",
     "ja-JP": "Asia/Tokyo",
     "ko-KR": "Asia/Seoul",
+    "lo-LA": "Asia/Vientiane",
     "ru-RU": "Europe/Moscow",
     "it-IT": "Europe/Rome",
     "uk-UA": "Europe/Kyiv",
@@ -21,6 +22,7 @@ language_timezone_mapping = {
     "th-TH": "Asia/Bangkok",
     "id-ID": "Asia/Jakarta",
     "ar-TN": "Africa/Tunis",
+    "nl-NL": "Europe/Amsterdam",
 }
 
 languages = list(language_timezone_mapping.keys())

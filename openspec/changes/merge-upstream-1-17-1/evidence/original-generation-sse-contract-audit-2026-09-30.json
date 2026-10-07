@@ -1,0 +1,28 @@
+{
+  "scope": "static source audit, no model calls or product writes",
+  "finding": "Built-in completion/chat simple SSE response intentionally strips usage metadata; missing SSE usage is not proof of zero tokens or a confirmed regression.",
+  "source_chain": [
+    "CompletionAppGenerateResponseConverter.convert_stream_simple_response MessageEnd -> AppGenerateResponseConverter._get_simple_metadata -> del metadata usage",
+    "ModelConfigManager.convert model.completion_params -> ModelConfigEntity.parameters",
+    "ModelConfigConverter.convert parameters passthrough",
+    "CompletionAppRunner model_conf.parameters -> ModelInstance.invoke_llm -> plugin dispatch model_parameters"
+  ],
+  "recalc_boundary": "AppRunner.recalc_llm_max_tokens only changes max_tokens when prompt_tokens+max_tokens exceeds model context size, choosing max(context-prompt,16); actual prompt/context must be checked if cap differs. No general 8-to64 clamp found in this app chain.",
+  "actual_execution_reported": "First positive completion SSEterminal200 but no usage field; caller stopped at cumulative7 generation HTTP (six401 including duplicated phase, one success), output tokens unknown until actual Message DB readback. Character length alone does not equal token count.",
+  "required_independent_readback": [
+    "Exact fixture app/message/tenant/actor chain",
+    "Actual persisted answer_tokens/message_tokens/price/currency",
+    "Stored answer char count/hash compared with SSE concat char count (no body saved)",
+    "Actual saved model_config completion_params.max_tokens and selected model schema context-limit condition"
+  ],
+  "pending": "Do not resume or mark full B05 passed based solely on terminal200; preserve successful cell without retry and keep hard request/output budget accounting via actual DB usage.",
+  "active_config_contract": {
+    "stored_parameter_path": "json.loads(AppModelConfig.model)[completion_params][max_tokens]",
+    "configs_column": "Nullable legacy field not read by this classic app chain; NULL is normal",
+    "save": "POST /apps/{id}/model-config creates a new AppModelConfig row and replaces App.app_model_config_id; initial create row remains",
+    "new_completion_generation": "MessageBasedAppGenerator._get_app_model_config(conversation=None) loads App.app_model_config_id",
+    "continued_chat_generation": "Loads Conversation.app_model_config_id",
+    "independent_query_required": "Select both exact pointers, verify AppModelConfig.app_id matches fixture app, compare max_tokens8 from both actual rows. app_id.first()/created_at ordering is not authoritative active config.",
+    "actual_reported_usage": "runtime reports first Message prompt41/answer8/price0; independently selecting active rows is still required before resume."
+  }
+}

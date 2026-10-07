@@ -1,133 +1,61 @@
 import type { App, AppCategory } from '@/models/explore'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useGlobalPublicStore } from '@/context/global-public-context'
-import { AccessMode } from '@/models/access-control'
-import {
-  fetchAppList,
-  fetchBanners,
-  fetchInstalledAppList,
-  fetchOpenInstalledAppList,
-  getAppAccessModeByAppId,
-  uninstallApp,
-  updatePinStatus,
-} from './explore'
-import { AppSourceType, fetchAppMeta, fetchAppParams } from './share'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useLocale } from '@/context/i18n'
+import { consoleQuery } from '@/service/console'
+import { fetchAppList, fetchLearnDifyAppList, fetchOpenInstalledAppList } from './explore'
 
-const NAME_SPACE = 'explore'
+export const useInstalledAppList = () =>
+  useQuery(
+    queryOptions({
+      // The app center caches validated, adapted rows, not the generated raw record.
+      queryKey: [...consoleQuery.installed.apps.get.queryKey(), 'app-center'],
+      queryFn: async () => {
+        const { categories, recommended_apps } = await fetchOpenInstalledAppList()
+        // The backend orders by usage; position is unrelated to that order.
+        return { categories, allList: recommended_apps }
+      },
+    }),
+  )
 
 type ExploreAppListData = {
   categories: AppCategory[]
   allList: App[]
 }
 
-export const useExploreAppList = () => {
+export const useExploreAppList = (options: { enabled?: boolean } = {}) => {
+  const locale = useLocale()
+  const exploreAppsInput = locale ? { query: { language: locale } } : {}
+  const exploreAppsLanguage = exploreAppsInput?.query?.language
+
   return useQuery<ExploreAppListData>({
-    queryKey: [NAME_SPACE, 'appList'],
+    queryKey: [
+      ...consoleQuery.explore.apps.get.queryKey({ input: exploreAppsInput }),
+      exploreAppsLanguage,
+    ],
     queryFn: async () => {
-      const { categories, recommended_apps } = await fetchAppList()
+      const { categories, recommended_apps } = await fetchAppList(exploreAppsLanguage)
       return {
         categories,
         allList: [...recommended_apps].sort((a, b) => a.position - b.position),
       }
     },
+    enabled: options.enabled,
   })
 }
 
-// Extend: start Installed app list sorted by usage
-export const useInstalledAppList = () => {
-  return useQuery<ExploreAppListData>({
-    queryKey: [NAME_SPACE, 'installedAppList'],
+export const useLearnDifyAppList = () => {
+  const locale = useLocale()
+  const learnDifyAppsInput = locale ? { query: { language: locale } } : {}
+  const learnDifyAppsLanguage = learnDifyAppsInput?.query?.language
+
+  return useQuery({
+    queryKey: [
+      ...consoleQuery.explore.apps.learnDify.get.queryKey({ input: learnDifyAppsInput }),
+      learnDifyAppsLanguage,
+    ],
     queryFn: async () => {
-      const { categories, recommended_apps } = await fetchOpenInstalledAppList()
-      // Backend already sorts by AppStatisticsExtend.number.desc(), so we keep the order
-      return {
-        categories,
-        allList: recommended_apps,
-      }
-    },
-  })
-}
-// Extend: stop Installed app list sorted by usage
-
-export const useGetInstalledApps = () => {
-  return useQuery({
-    queryKey: [NAME_SPACE, 'installedApps'],
-    queryFn: () => {
-      return fetchInstalledAppList()
-    },
-  })
-}
-
-export const useUninstallApp = () => {
-  const client = useQueryClient()
-  return useMutation({
-    mutationKey: [NAME_SPACE, 'uninstallApp'],
-    mutationFn: (appId: string) => uninstallApp(appId),
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: [NAME_SPACE, 'installedApps'] })
-    },
-  })
-}
-
-export const useUpdateAppPinStatus = () => {
-  const client = useQueryClient()
-  return useMutation({
-    mutationKey: [NAME_SPACE, 'updateAppPinStatus'],
-    mutationFn: ({ appId, isPinned }: { appId: string, isPinned: boolean }) => updatePinStatus(appId, isPinned),
-    onSuccess: () => {
-      client.invalidateQueries({ queryKey: [NAME_SPACE, 'installedApps'] })
-    },
-  })
-}
-
-export const useGetInstalledAppAccessModeByAppId = (appId: string | null) => {
-  const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
-  return useQuery({
-    queryKey: [NAME_SPACE, 'appAccessMode', appId, systemFeatures.webapp_auth.enabled],
-    queryFn: () => {
-      if (systemFeatures.webapp_auth.enabled === false) {
-        return {
-          accessMode: AccessMode.PUBLIC,
-        }
-      }
-      if (!appId || appId.length === 0)
-        return Promise.reject(new Error('App code is required to get access mode'))
-
-      return getAppAccessModeByAppId(appId)
-    },
-    enabled: !!appId,
-  })
-}
-
-export const useGetInstalledAppParams = (appId: string | null) => {
-  return useQuery({
-    queryKey: [NAME_SPACE, 'appParams', appId],
-    queryFn: () => {
-      if (!appId || appId.length === 0)
-        return Promise.reject(new Error('App ID is required to get app params'))
-      return fetchAppParams(AppSourceType.installedApp, appId)
-    },
-    enabled: !!appId,
-  })
-}
-
-export const useGetInstalledAppMeta = (appId: string | null) => {
-  return useQuery({
-    queryKey: [NAME_SPACE, 'appMeta', appId],
-    queryFn: () => {
-      if (!appId || appId.length === 0)
-        return Promise.reject(new Error('App ID is required to get app meta'))
-      return fetchAppMeta(AppSourceType.installedApp, appId)
-    },
-    enabled: !!appId,
-  })
-}
-
-export const useGetBanners = (locale?: string) => {
-  return useQuery({
-    queryKey: [NAME_SPACE, 'banners', locale],
-    queryFn: () => {
-      return fetchBanners(locale)
+      const { recommended_apps } = await fetchLearnDifyAppList(learnDifyAppsLanguage)
+      return [...recommended_apps].sort((a, b) => a.position - b.position)
     },
   })
 }

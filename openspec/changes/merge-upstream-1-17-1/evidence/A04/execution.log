@@ -1,0 +1,8 @@
+2026-09-28T15:49:19Z A04 begin on codex/merge-upstream-1.17.1; source HEAD=2a2482c330091755be23da2ec35788bddb82751c tree=ec94659769330e7ae253add9127534af099f5b83 target tag 1.17.1=8387590ace4a094de812b7847fc6a4c3a27cd52b.
+Read AGENTS.md, OpenSpec apply status/instructions, proposal, design D3-D7, fork-extension compatibility and execution-graph specs, A00/A02 evidence, research backend/frontend analysis, current fork source and git show 1.17.1 target source.
+Created research/contract-matrix.md with C01-C14; recorded target source locations, unique implementation owner, explicit protocol/security/transaction/cache/acceptance per row.
+Updated proposal.md final Impact authorization bullet to reflect A00; no business scope change. Updated tasks.md 5.1-5.5 and execution-graph JSON/Markdown A04 passed, M00 ready; A03 stays blocked.
+No external owner signature claimed. No real environment read, business code edit, formal merge, migration or publication executed.
+PASS python3 matrix structural and graph/source SHA assertions: C01-C14 present, four required fields per row, exactly one M02-M06 owner per row; A04 passed/M00 ready/A03 blocked; tasks 5.1-5.5 checked; input HEAD/tree and target tag match.
+PASS python3 -m json.tool for result.json and execution-graph.json; git diff --check reports no whitespace errors.
+PASS openspec validate merge-upstream-1-17-1 --strict: Change 'merge-upstream-1-17-1' is valid.
