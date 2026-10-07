@@ -1,42 +1,40 @@
-# docker-compose override for local build verification
-# Usage: docker compose -f docker-compose.dify-plus.yaml -f docker-compose.local-build.yaml --env-file .env.local-test <cmd>
-#
-# Overrides the pre-built registry images with locally built images from the current source.
-# Since 1.16.0 both Dockerfiles use the repository root as build context
-# (api/Dockerfile copies api/ + dify-agent/, web/Dockerfile copies the pnpm workspace),
-# so `context` points at the repo root and `dockerfile` is the in-repo path.
-#
-# The images contain the full source; for live source iteration additionally apply
-# docker-compose.source-mount.yaml on top of this file.
-# Host ports for db/redis are configured via POSTGRES_HOST_PORT/REDIS_HOST_PORT in .env.local-test
-
+# Local build verification for the current checkout.
+# From docker/: docker compose -f docker-compose.dify-plus.yaml -f docker-compose.local-build.yaml build
+# API, Web and Agent backend use the repository root; local sandbox uses
+# dify-agent-runtime because its Dockerfile copies go.mod from that directory.
+# All eight API consumers share the locally built image, including initialization.
 services:
+  init_secret_key:
+    image: dify-plus-api:local
+  migration:
+    image: dify-plus-api:local
   api:
-    image: dify-plus-api:casdoor-live-20261003
+    image: dify-plus-api:local
     build:
       context: ..
       dockerfile: api/Dockerfile
-
   api_websocket:
-    image: dify-plus-api:casdoor-live-20261003
-
+    image: dify-plus-api:local
   worker:
-    image: dify-plus-api:casdoor-live-20261003
-
+    image: dify-plus-api:local
   worker-gaia:
-    image: dify-plus-api:casdoor-live-20261003
-
+    image: dify-plus-api:local
   worker-dataset:
-    image: dify-plus-api:casdoor-live-20261003
-
+    image: dify-plus-api:local
   worker_beat:
-    image: dify-plus-api:casdoor-live-20261003
-
-  migration:
-    image: dify-plus-api:casdoor-live-20261003
-
+    image: dify-plus-api:local
   web:
-    image: dify-plus-web:casdoor-live-20261003
+    image: dify-plus-web:local
     build:
       context: ..
       dockerfile: web/Dockerfile
+  agent_backend:
+    image: dify-plus-agent-backend:local
+    build:
+      context: ..
+      dockerfile: dify-agent/Dockerfile
+  local_sandbox:
+    image: dify-plus-agent-local-sandbox:local
+    build:
+      context: ../dify-agent-runtime
+      dockerfile: docker/Dockerfile

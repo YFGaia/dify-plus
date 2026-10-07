@@ -1,4 +1,4 @@
-> **Dify-Plus 部署入口**：本 fork 使用 `docker/docker-compose.dify-plus.yaml` 和匹配的 fork 镜像，执行上游与扩展两条迁移链。请先阅读[当前部署与运维指南](../docs/dify-plus/二开部署配置与运维说明.md)。下文是上游通用参考，不替代 fork 部署要求。
+> **Dify-Plus 部署入口**：本 fork 使用 `docker/docker-compose.dify-plus.yaml`，默认配置 GHCR 的 `1.17.1-plus.2` 四组件镜像，构建目标为 `linux/amd64` / `linux/arm64`。标签是否已验证可用见[容器镜像发布与多架构部署](../docs/dify-plus/容器镜像发布与多架构部署.md)。执行上游与扩展两条迁移链；完整沙箱由 `full-sandbox` profile 单独启用，旧 Weaviate 卷先完成逐 minor 升级演练。请先阅读[当前部署与运维指南](../docs/dify-plus/二开部署配置与运维说明.md)。下文是上游通用参考，不替代 fork 部署要求。
 
 ## README for docker Deployment
 

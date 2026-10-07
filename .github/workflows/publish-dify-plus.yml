@@ -1,0 +1,204 @@
+name: Publish Dify-Plus to GHCR
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Fork version to publish (an existing different digest is never overwritten)'
+        required: true
+        default: '1.17.1-plus.2'
+        type: string
+  push:
+    tags:
+      - '*.*.*-plus.*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-dify-plus
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'YFGaia/dify-plus'
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      revision: ${{ steps.release.outputs.revision }}
+      prefix: ${{ steps.release.outputs.prefix }}
+    steps:
+      - name: Validate release identity
+        id: release
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version || github.ref_name }}
+          SOURCE_REVISION: ${{ github.sha }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          version = os.environ['RELEASE_VERSION']
+          revision = os.environ['SOURCE_REVISION']
+          assert re.fullmatch(r'\d+\.\d+\.\d+-plus\.[1-9]\d*', version), 'Invalid Dify-Plus release version'
+          assert re.fullmatch(r'[0-9a-f]{40}', revision), 'Full source commit required'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'version={version}\nrevision={revision}\nprefix=ghcr.io/{os.environ["REPOSITORY_OWNER"].lower()}/dify-plus\n')
+          PY
+
+  build:
+    needs: prepare
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        component: [api, web, agent-backend, agent-local-sandbox]
+        architecture: [amd64, arm64]
+        include:
+          - architecture: amd64
+            runner: ubuntu-24.04
+          - architecture: arm64
+            runner: ubuntu-24.04-arm
+          - component: api
+            context: .
+            file: api/Dockerfile
+          - component: web
+            context: .
+            file: web/Dockerfile
+          - component: agent-backend
+            context: .
+            file: dify-agent/Dockerfile
+          - component: agent-local-sandbox
+            context: dify-agent-runtime
+            file: dify-agent-runtime/docker/Dockerfile
+    env:
+      IMAGE: ${{ needs.prepare.outputs.prefix }}-${{ matrix.component }}
+      SOURCE_REVISION: ${{ needs.prepare.outputs.revision }}
+      ARCHITECTURE: ${{ matrix.architecture }}
+      COMPONENT: ${{ matrix.component }}
+    steps:
+      - name: Checkout exact release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.revision }}
+          persist-credentials: false
+
+      - name: Reserve space for complete dependency images
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          df -h /
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Build native candidate without publishing release tags
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          platforms: linux/${{ matrix.architecture }}
+          load: true
+          push: false
+          provenance: false
+          sbom: false
+          build-args: COMMIT_SHA=${{ needs.prepare.outputs.revision }}
+          tags: ${{ env.IMAGE }}:sha-${{ needs.prepare.outputs.revision }}-${{ matrix.architecture }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ needs.prepare.outputs.revision }}
+            org.opencontainers.image.version=${{ needs.prepare.outputs.version }}
+
+      - name: Smoke native image and disposable API migrations
+        run: bash scripts/image-smoke.sh "$COMPONENT" "$IMAGE:sha-$SOURCE_REVISION-$ARCHITECTURE" "$ARCHITECTURE" "$SOURCE_REVISION"
+
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push smoke-tested architecture candidate
+        run: docker push "$IMAGE:sha-$SOURCE_REVISION-$ARCHITECTURE"
+
+      - name: Verify remote image identity and record evidence
+        env:
+          GHCR_ACTOR: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/image-release.py record --component "$COMPONENT" --architecture "$ARCHITECTURE" \
+            --image "$IMAGE" --revision "$SOURCE_REVISION" --output "image-evidence/$COMPONENT-$ARCHITECTURE.json"
+
+      - name: Upload native image evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: image-evidence-${{ matrix.component }}-${{ matrix.architecture }}
+          path: image-evidence/*.json
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    needs: [prepare, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    env:
+      RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
+      SOURCE_REVISION: ${{ needs.prepare.outputs.revision }}
+      IMAGE_PREFIX: ${{ needs.prepare.outputs.prefix }}
+    steps:
+      - name: Checkout exact release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.revision }}
+          persist-credentials: false
+
+      - name: Download all native image evidence
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: image-evidence-*
+          path: image-evidence
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      - name: Login to GHCR
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify eight native images and promote complete release
+        env:
+          GHCR_ACTOR: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/image-release.py promote --version "$RELEASE_VERSION" --revision "$SOURCE_REVISION" \
+            --prefix "$IMAGE_PREFIX" --evidence image-evidence --output release-evidence/release-manifest.json
+
+      - name: Upload verified release manifest
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-evidence
+          path: release-evidence/release-manifest.json
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Summarize published image evidence
+        run: |
+          python3 - <<'PY'
+          import json, os
+          release = json.load(open('release-evidence/release-manifest.json'))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write(f'Published Dify-Plus `{release["release_version"]}` from `{release["source_revision"]}`. Eight native smoke checks passed.\n\n')
+              for image in release['images']:
+                  output.write(f'- `{image["image"]}@{image["digest"]}` (`linux/amd64`, `linux/arm64`)\n')
+              output.write('\nProduction business acceptance is separate from image publication.\n')
+          PY

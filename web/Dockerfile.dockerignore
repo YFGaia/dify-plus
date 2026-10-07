@@ -7,7 +7,7 @@
 !e2e/
 !e2e/package.json
 !packages/
-!packages/**/
+!packages/**
 !packages/**/package.json
 !sdks/
 !sdks/nodejs-client/
@@ -33,3 +33,14 @@ web/*.iws
 web/*.ipr
 e2e/node_modules
 sdks/nodejs-client/node_modules
+
+# Keep workspace source while excluding host dependencies, builds and secrets.
+**/node_modules
+**/.pnpm-store
+**/.next
+**/dist
+**/.turbo
+**/.cache
+**/.env
+**/.env.*
+**/*.log

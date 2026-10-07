@@ -80,6 +80,8 @@ x-shared-env: &shared-api-worker-env
   NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX: ${NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX:-false}
   NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW: ${NEXT_PUBLIC_ENABLE_FEATURE_PREVIEW:-false}
   ENABLE_AGENT_V2: ${NEXT_PUBLIC_ENABLE_AGENT_V2:-${ENABLE_AGENT_V2:-false}}
+  ENABLE_COLLABORATION_MODE: ${ENABLE_COLLABORATION_MODE:-true}
+  WEBSOCKET_MAX_HTTP_BUFFER_SIZE: ${WEBSOCKET_MAX_HTTP_BUFFER_SIZE:-10485760}
   DB_TYPE: ${DB_TYPE:-postgresql}
   DB_USERNAME: ${DB_USERNAME:-postgres}
   DB_PASSWORD: ${DB_PASSWORD:-difyai123456}
@@ -93,6 +95,7 @@ x-shared-env: &shared-api-worker-env
   SQLALCHEMY_POOL_PRE_PING: ${SQLALCHEMY_POOL_PRE_PING:-false}
   SQLALCHEMY_POOL_USE_LIFO: ${SQLALCHEMY_POOL_USE_LIFO:-false}
   SQLALCHEMY_POOL_TIMEOUT: ${SQLALCHEMY_POOL_TIMEOUT:-30}
+  SQLALCHEMY_POOL_RESET_ON_RETURN: ${SQLALCHEMY_POOL_RESET_ON_RETURN:-rollback}
   POSTGRES_MAX_CONNECTIONS: ${POSTGRES_MAX_CONNECTIONS:-200}
   POSTGRES_SHARED_BUFFERS: ${POSTGRES_SHARED_BUFFERS:-128MB}
   POSTGRES_WORK_MEM: ${POSTGRES_WORK_MEM:-4MB}
@@ -124,6 +127,16 @@ x-shared-env: &shared-api-worker-env
   REDIS_CLUSTERS: ${REDIS_CLUSTERS:-}
   REDIS_CLUSTERS_PASSWORD: ${REDIS_CLUSTERS_PASSWORD:-}
   REDIS_MAX_CONNECTIONS: ${REDIS_MAX_CONNECTIONS:-}
+  REDIS_KEY_PREFIX: ${REDIS_KEY_PREFIX:-}
+  REDIS_RETRY_RETRIES: ${REDIS_RETRY_RETRIES:-3}
+  REDIS_RETRY_BACKOFF_BASE: ${REDIS_RETRY_BACKOFF_BASE:-1.0}
+  REDIS_RETRY_BACKOFF_CAP: ${REDIS_RETRY_BACKOFF_CAP:-10.0}
+  REDIS_SOCKET_TIMEOUT: ${REDIS_SOCKET_TIMEOUT:-5.0}
+  REDIS_SOCKET_CONNECT_TIMEOUT: ${REDIS_SOCKET_CONNECT_TIMEOUT:-5.0}
+  REDIS_HEALTH_CHECK_INTERVAL: ${REDIS_HEALTH_CHECK_INTERVAL:-30}
+  EVENT_BUS_REDIS_URL: ${EVENT_BUS_REDIS_URL:-}
+  EVENT_BUS_REDIS_CHANNEL_TYPE: ${EVENT_BUS_REDIS_CHANNEL_TYPE:-pubsub}
+  EVENT_BUS_REDIS_USE_CLUSTERS: ${EVENT_BUS_REDIS_USE_CLUSTERS:-false}
   # 上游 1.16.0 新增：Redis TCP keepalive（长连接稳定性）
   REDIS_KEEPALIVE: ${REDIS_KEEPALIVE:-true}
   REDIS_KEEPALIVE_IDLE: ${REDIS_KEEPALIVE_IDLE:-30}
@@ -159,6 +172,7 @@ x-shared-env: &shared-api-worker-env
   S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
   S3_SECRET_KEY: ${S3_SECRET_KEY:-}
   S3_USE_AWS_MANAGED_IAM: ${S3_USE_AWS_MANAGED_IAM:-false}
+  S3_ADDRESS_STYLE: ${S3_ADDRESS_STYLE:-auto}
   ARCHIVE_STORAGE_ENABLED: ${ARCHIVE_STORAGE_ENABLED:-false}
   ARCHIVE_STORAGE_ENDPOINT: ${ARCHIVE_STORAGE_ENDPOINT:-}
   ARCHIVE_STORAGE_ARCHIVE_BUCKET: ${ARCHIVE_STORAGE_ARCHIVE_BUCKET:-}
@@ -570,7 +584,7 @@ x-shared-env: &shared-api-worker-env
   SANDBOX_PORT: ${SANDBOX_PORT:-8194}
   WEAVIATE_PERSISTENCE_DATA_PATH: ${WEAVIATE_PERSISTENCE_DATA_PATH:-/var/lib/weaviate}
   WEAVIATE_QUERY_DEFAULTS_LIMIT: ${WEAVIATE_QUERY_DEFAULTS_LIMIT:-25}
-  WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: ${WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED:-true}
+  WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: ${WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED:-false}
   WEAVIATE_DEFAULT_VECTORIZER_MODULE: ${WEAVIATE_DEFAULT_VECTORIZER_MODULE:-none}
   WEAVIATE_CLUSTER_HOSTNAME: ${WEAVIATE_CLUSTER_HOSTNAME:-node1}
   WEAVIATE_AUTHENTICATION_APIKEY_ENABLED: ${WEAVIATE_AUTHENTICATION_APIKEY_ENABLED:-true}
@@ -653,6 +667,9 @@ x-shared-env: &shared-api-worker-env
   PLUGIN_DAEMON_PORT: ${PLUGIN_DAEMON_PORT:-5002}
   PLUGIN_DAEMON_KEY: ${PLUGIN_DAEMON_KEY:-lYkiYYT6owG+71oLerGzA7GXCgOT++6ovaezWAjpCjf+Sjc3ZtU+qUEi}
   PLUGIN_DAEMON_URL: ${PLUGIN_DAEMON_URL:-http://plugin_daemon:5002}
+  PLUGIN_MAX_FILE_SIZE: ${PLUGIN_MAX_FILE_SIZE:-52428800}
+  PLUGIN_MODEL_SCHEMA_CACHE_TTL: ${PLUGIN_MODEL_SCHEMA_CACHE_TTL:-3600}
+  PLUGIN_MODEL_PROVIDERS_CACHE_ENABLED: ${PLUGIN_MODEL_PROVIDERS_CACHE_ENABLED:-true}
   PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
   PLUGIN_MODEL_PROVIDERS_CACHE_TTL: ${PLUGIN_MODEL_PROVIDERS_CACHE_TTL:-86400}
   PLUGIN_PPROF_ENABLED: ${PLUGIN_PPROF_ENABLED:-false}
@@ -773,18 +790,23 @@ x-shared-env: &shared-api-worker-env
   AGENT_BACKEND_STREAM_MAX_RECONNECTS: ${AGENT_BACKEND_STREAM_MAX_RECONNECTS:-3}
   AGENT_BACKEND_HOME_SNAPSHOT_TIMEOUT_SECONDS: ${AGENT_BACKEND_HOME_SNAPSHOT_TIMEOUT_SECONDS:-45}
   AGENT_BACKEND_BINDING_FILE_DOWNLOAD_TIMEOUT_SECONDS: ${AGENT_BACKEND_BINDING_FILE_DOWNLOAD_TIMEOUT_SECONDS:-240}
+  # Shared by API and every worker executing authorized code nodes.
+  FULL_CODE_EXECUTION_ENDPOINT: ${FULL_CODE_EXECUTION_ENDPOINT:-http://sandbox-full:8194}
   # 二开配置
   EMAIL_DOMAIN: ${EMAIL_DOMAIN:-}
   RMB_TO_USD_RATE: ${RMB_TO_USD_RATE:-6.95}
   NEXT_PUBLIC_DEFAULT_DOMAIN: ${EMAIL_DOMAIN:-}
   NEXT_PUBLIC_AUTH0_LOGOUT_URL: ${NEXT_PUBLIC_AUTH0_LOGOUT_URL:-}
   ENABLE_EMAIL_PASSWORD_LOGIN: ${ENABLE_EMAIL_PASSWORD_LOGIN:-true}
+  TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
+  TURNSTILE_ALLOWED_HOSTNAMES: ${TURNSTILE_ALLOWED_HOSTNAMES:-}
+  TURNSTILE_EMAIL_CODE_VERIFY_REQUIRED: ${TURNSTILE_EMAIL_CODE_VERIFY_REQUIRED:-false}
   HOSTED_FETCH_APP_TEMPLATES_MODE: ${HOSTED_FETCH_APP_TEMPLATES_MODE:-db}
 
 services:
   # Init container to fix permissions
   init_permissions:
-    image: busybox:latest
+    image: busybox:1.37.0
     command:
       - sh
       - -c
@@ -806,7 +828,7 @@ services:
   # first. Serialize startup across Compose projects sharing storage; this gate
   # does not provide a distributed lock. Never scale or run concurrent seed jobs.
   init_secret_key:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
     restart: "no"
     deploy:
       replicas: 1
@@ -842,7 +864,7 @@ services:
   # Use this single service via `up`, never scale it or launch concurrent `run`
   # jobs (including from another Compose project) against the same database.
   migration:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
     profiles:
       - migration
     restart: "no"
@@ -892,7 +914,7 @@ services:
 
   # API service
   api:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -907,7 +929,6 @@ services:
       PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
       PLUGIN_DAEMON_TIMEOUT: ${PLUGIN_DAEMON_TIMEOUT:-600.0}
       INNER_API_KEY_FOR_PLUGIN: ${PLUGIN_DIFY_INNER_API_KEY:-QaHbTe77CtuXmsfyhR7+vRjI/+XbV1AaFy691iy+kGDv2Jvy0/eAh8Y1}
-      FULL_CODE_EXECUTION_ENDPOINT: ${FULL_CODE_EXECUTION_ENDPOINT:-http://sandbox-full:8194}
       ALLOW_REGISTER: ${ALLOW_REGISTER:-True}
     depends_on:
       init_secret_key:
@@ -948,7 +969,7 @@ services:
   # Enabled via the `collaboration` compose profile; nginx routes /socket.io/
   # here through NGINX_SOCKET_IO_UPSTREAM (default api_websocket:5001).
   api_websocket:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
     restart: always
     profiles:
       - collaboration
@@ -983,13 +1004,14 @@ services:
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
   worker:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
     restart: always
     environment:
       # Use the shared environment variables.
       <<: *shared-api-worker-env
       # Startup mode, 'worker' starts the Celery worker for processing all queues.
       MODE: worker
+      CELERY_QUEUES: ${CELERY_QUEUES:-}
       SENTRY_DSN: ${API_SENTRY_DSN:-}
       SENTRY_TRACES_SAMPLE_RATE: ${API_SENTRY_TRACES_SAMPLE_RATE:-1.0}
       SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
@@ -1034,7 +1056,7 @@ services:
   # worker-gaia service
   # The Celery worker-gaia for processing the queue.
   worker-gaia:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -1042,7 +1064,7 @@ services:
       # Startup mode, 'worker-gaia' starts the Celery worker-gaia for processing the queue.
       MODE: worker
       SENTRY_DSN: ${API_SENTRY_DSN:-}
-      CELERY_QUEUES: ${CELERY_QUEUES:-extend_high,extend_low}
+      CELERY_QUEUES: ${DIFY_PLUS_EXTEND_CELERY_QUEUES:-extend_high,extend_low}
       SENTRY_TRACES_SAMPLE_RATE: ${API_SENTRY_TRACES_SAMPLE_RATE:-1.0}
       SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
       PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
@@ -1051,7 +1073,17 @@ services:
       init_secret_key:
         condition: service_completed_successfully
       db_postgres:
-        condition: service_started
+        condition: service_healthy
+        required: false
+      db_mysql:
+        condition: service_healthy
+        required: false
+      oceanbase:
+        condition: service_healthy
+        required: false
+      seekdb:
+        condition: service_healthy
+        required: false
       redis:
         condition: service_started
     volumes:
@@ -1064,7 +1096,7 @@ services:
   # worker-dataset service
   # The Celery worker-dataset for processing the queue.
   worker-dataset:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -1072,7 +1104,7 @@ services:
       # Startup mode, 'worker-dataset' starts the Celery worker-dataset for processing the queue.
       MODE: worker
       SENTRY_DSN: ${API_SENTRY_DSN:-}
-      CELERY_QUEUES: ${CELERY_QUEUES:-dataset,priority_dataset}
+      CELERY_QUEUES: ${DIFY_PLUS_DATASET_CELERY_QUEUES:-dataset,priority_dataset}
       SENTRY_TRACES_SAMPLE_RATE: ${API_SENTRY_TRACES_SAMPLE_RATE:-1.0}
       SENTRY_PROFILES_SAMPLE_RATE: ${API_SENTRY_PROFILES_SAMPLE_RATE:-1.0}
       PLUGIN_MAX_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
@@ -1081,7 +1113,17 @@ services:
       init_secret_key:
         condition: service_completed_successfully
       db_postgres:
-        condition: service_started
+        condition: service_healthy
+        required: false
+      db_mysql:
+        condition: service_healthy
+        required: false
+      oceanbase:
+        condition: service_healthy
+        required: false
+      seekdb:
+        condition: service_healthy
+        required: false
       redis:
         condition: service_started
     volumes:
@@ -1094,7 +1136,7 @@ services:
   # worker_beat service
   # Celery beat for scheduling periodic tasks.
   worker_beat:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-api:1.17.1
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -1135,7 +1177,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-web:1.17.1
+    image: ${DIFY_PLUS_WEB_IMAGE:-ghcr.io/yfgaia/dify-plus-web:1.17.1-plus.2}
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -1143,6 +1185,13 @@ services:
       APP_API_URL: ${APP_API_URL:-}
       AMPLITUDE_API_KEY: ${AMPLITUDE_API_KEY:-}
       TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:-}
+      COOKIEYES_SITE_KEY: ${COOKIEYES_SITE_KEY:-}
+      ALLOW_INLINE_STYLES: ${ALLOW_INLINE_STYLES:-false}
+      MARKDOWN_FORM_FIELD_NAME_EXTRA_CHARS: ${MARKDOWN_FORM_FIELD_NAME_EXTRA_CHARS:-}
+      MARKDOWN_FORM_FIELD_NAME_MAX_LENGTH: ${MARKDOWN_FORM_FIELD_NAME_MAX_LENGTH:-128}
+      NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX: ${NEXT_PUBLIC_ENABLE_SINGLE_DOLLAR_LATEX:-false}
+      NEXT_PUBLIC_BATCH_CONCURRENCY: ${NEXT_PUBLIC_BATCH_CONCURRENCY:-5}
+      NEXT_PUBLIC_ENABLE_AGENT_V2_IN_CHATFLOW: ${NEXT_PUBLIC_ENABLE_AGENT_V2_IN_CHATFLOW:-false}
       NEXT_PUBLIC_COOKIE_DOMAIN: ${NEXT_PUBLIC_COOKIE_DOMAIN:-}
       SENTRY_DSN: ${WEB_SENTRY_DSN:-}
       NEXT_TELEMETRY_DISABLED: ${NEXT_TELEMETRY_DISABLED:-0}
@@ -1175,7 +1224,7 @@ services:
 
   # The PostgreSQL database.
   db_postgres:
-    image: ccr.ccs.tencentyun.com/yfgaia/postgres:15-alpine
+    image: postgres:15-alpine
     restart: always
     environment:
       POSTGRES_USER: ${DB_USERNAME:-postgres}
@@ -1242,7 +1291,7 @@ services:
 
   # The redis cache.
   redis:
-    image: ccr.ccs.tencentyun.com/yfgaia/redis:6-alpine
+    image: redis:6-alpine
     restart: always
     environment:
       REDISCLI_AUTH: ${REDIS_PASSWORD:-difyai123456}
@@ -1262,7 +1311,7 @@ services:
 
   # The DifySandbox
   sandbox:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-sandbox:0.2.15
+    image: langgenius/dify-sandbox:0.2.15
     restart: always
     environment:
       # The DifySandbox configurations
@@ -1285,12 +1334,13 @@ services:
       - ssrf_proxy_network
 
   # Agent v2 local sandbox (shellctl), isolated from the default service network.
-  # 镜像暂用上游官方源，如需内网加速可自行镜像到私有仓库。
+  # Release images are built from the same source revision as API and Web.
   local_sandbox:
-    image: langgenius/dify-agent-local-sandbox:1.17.1
+    image: ${DIFY_PLUS_LOCAL_SANDBOX_IMAGE:-ghcr.io/yfgaia/dify-plus-agent-local-sandbox:1.17.1-plus.2}
     restart: always
     environment:
       SHELLCTL_AUTH_TOKEN: ${DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN:-${DIFY_AGENT_SHELLCTL_AUTH_TOKEN:-}}
+      SHELLCTL_ENABLE_PATH_ISOLATION: ${SHELLCTL_ENABLE_PATH_ISOLATION:-true}
       HTTP_PROXY: http://agent_ssrf_proxy:3128
       HTTPS_PROXY: http://agent_ssrf_proxy:3128
       NO_PROXY: localhost,127.0.0.1
@@ -1308,9 +1358,9 @@ services:
       - local_sandbox_proxy_network
 
   # Dify Agent backend (api/worker call AGENT_BACKEND_BASE_URL).
-  # 镜像暂用上游官方源，如需内网加速可自行镜像到私有仓库。
+  # Release images are built from the same source revision as API and Web.
   agent_backend:
-    image: langgenius/dify-agent-backend:1.17.1
+    image: ${DIFY_PLUS_AGENT_IMAGE:-ghcr.io/yfgaia/dify-plus-agent-backend:1.17.1-plus.2}
     restart: always
     environment:
       DIFY_AGENT_REDIS_URL: ${DIFY_AGENT_REDIS_URL:-redis://:${REDIS_PASSWORD:-difyai123456}@redis:6379/2}
@@ -1333,6 +1383,19 @@ services:
       DIFY_AGENT_SHUTDOWN_GRACE_SECONDS: ${DIFY_AGENT_SHUTDOWN_GRACE_SECONDS:-30}
       DIFY_AGENT_RUN_RETENTION_SECONDS: ${DIFY_AGENT_RUN_RETENTION_SECONDS:-259200}
       DIFY_AGENT_RUN_TIMEOUT_SECONDS: ${DIFY_AGENT_RUN_TIMEOUT_SECONDS:-3600}
+      DIFY_AGENT_RUN_EVENT_STREAM_MAX_LENGTH: ${DIFY_AGENT_RUN_EVENT_STREAM_MAX_LENGTH:-5000}
+      DIFY_AGENT_STREAM_TEXT_DELTA_COALESCING_ENABLED: ${DIFY_AGENT_STREAM_TEXT_DELTA_COALESCING_ENABLED:-true}
+      DIFY_AGENT_STREAM_TEXT_DELTA_FLUSH_INTERVAL_MS: ${DIFY_AGENT_STREAM_TEXT_DELTA_FLUSH_INTERVAL_MS:-100}
+      DIFY_AGENT_STREAM_TEXT_DELTA_MAX_CHARS: ${DIFY_AGENT_STREAM_TEXT_DELTA_MAX_CHARS:-4096}
+      DIFY_AGENT_BINDING_FILE_DOWNLOAD_COMMAND_TIMEOUT_SECONDS: ${DIFY_AGENT_BINDING_FILE_DOWNLOAD_COMMAND_TIMEOUT_SECONDS:-210}
+      DIFY_AGENT_OUTBOUND_HTTP_CONNECT_TIMEOUT: ${DIFY_AGENT_OUTBOUND_HTTP_CONNECT_TIMEOUT:-10}
+      DIFY_AGENT_OUTBOUND_HTTP_READ_TIMEOUT: ${DIFY_AGENT_OUTBOUND_HTTP_READ_TIMEOUT:-600}
+      DIFY_AGENT_OUTBOUND_HTTP_WRITE_TIMEOUT: ${DIFY_AGENT_OUTBOUND_HTTP_WRITE_TIMEOUT:-30}
+      DIFY_AGENT_OUTBOUND_HTTP_POOL_TIMEOUT: ${DIFY_AGENT_OUTBOUND_HTTP_POOL_TIMEOUT:-10}
+      DIFY_AGENT_OUTBOUND_HTTP_MAX_CONNECTIONS: ${DIFY_AGENT_OUTBOUND_HTTP_MAX_CONNECTIONS:-100}
+      DIFY_AGENT_OUTBOUND_HTTP_MAX_KEEPALIVE_CONNECTIONS: ${DIFY_AGENT_OUTBOUND_HTTP_MAX_KEEPALIVE_CONNECTIONS:-20}
+      DIFY_AGENT_OUTBOUND_HTTP_KEEPALIVE_EXPIRY: ${DIFY_AGENT_OUTBOUND_HTTP_KEEPALIVE_EXPIRY:-30}
+      DIFY_AGENT_STUB_UPLOAD_FILE_SIZE_LIMIT: ${DIFY_AGENT_STUB_UPLOAD_FILE_SIZE_LIMIT:-50}
     depends_on:
       redis:
         condition: service_started
@@ -1346,7 +1409,7 @@ services:
 
   # plugin daemon
   plugin_daemon:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plugin-daemon:0.6.10-local
+    image: langgenius/dify-plugin-daemon:0.6.10-local
     restart: always
     networks:
       - ssrf_proxy_network
@@ -1355,6 +1418,7 @@ services:
       # Use the shared environment variables.
       <<: *shared-api-worker-env
       DB_DATABASE: ${DB_PLUGIN_DATABASE:-dify_plugin}
+      DB_SSL_MODE: ${DB_SSL_MODE:-disable}
       SERVER_PORT: ${PLUGIN_DAEMON_PORT:-5002}
       SERVER_KEY: ${PLUGIN_DAEMON_KEY:-lYkiYYT6owG+71oLerGzA7GXCgOT++6ovaezWAjpCjf+Sjc3ZtU+qUEi}
       MAX_PLUGIN_PACKAGE_SIZE: ${PLUGIN_MAX_PACKAGE_SIZE:-52428800}
@@ -1420,7 +1484,7 @@ services:
 
   # Dedicated SSRF proxy for the Agent sandbox; keep the private allowlist explicit.
   agent_ssrf_proxy:
-    image: ccr.ccs.tencentyun.com/yfgaia/ubuntu-squid:latest
+    image: ubuntu/squid:6.6-24.04_edge
     restart: always
     volumes:
       - ./ssrf_proxy/squid-agent.conf.template:/etc/squid/squid.conf.template
@@ -1445,7 +1509,7 @@ services:
   # for more information, please refer to
   # https://docs.dify.ai/learn-more/faq/install-faq#18-why-is-ssrf-proxy-needed%3F
   ssrf_proxy:
-    image: ccr.ccs.tencentyun.com/yfgaia/ubuntu-squid:latest
+    image: ubuntu/squid:6.6-24.04_edge
     restart: always
     volumes:
       - ./ssrf_proxy/squid.conf.template:/etc/squid/squid.conf.template
@@ -1490,7 +1554,7 @@ services:
   # The nginx reverse proxy.
   # used for reverse proxying the API service and Web service.
   nginx:
-    image: ccr.ccs.tencentyun.com/yfgaia/nginx:latest
+    image: nginx:1.28.0
     restart: always
     volumes:
       - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template
@@ -1536,9 +1600,12 @@ services:
       - "${EXPOSE_NGINX_PORT:-80}:${NGINX_PORT:-80}"
       - "${EXPOSE_NGINX_SSL_PORT:-443}:${NGINX_SSL_PORT:-443}"
 
+  # New installations use the server version paired with upstream 1.17.1.
+  # Existing Weaviate volumes require the staged migration in the runbook;
+  # never launch 1.39.2 directly against an unverified older data directory.
   # The Weaviate vector store.
   weaviate:
-    image: ccr.ccs.tencentyun.com/yfgaia/semitechnologies-weaviate:1.19.0
+    image: cr.weaviate.io/semitechnologies/weaviate:1.39.2
     profiles:
       - weaviate
     restart: always
@@ -1550,7 +1617,7 @@ services:
       # You can refer to the [Weaviate](https://weaviate.io/developers/weaviate/config-refs/env-vars) documentation for more information.
       PERSISTENCE_DATA_PATH: ${WEAVIATE_PERSISTENCE_DATA_PATH:-/var/lib/weaviate}
       QUERY_DEFAULTS_LIMIT: ${WEAVIATE_QUERY_DEFAULTS_LIMIT:-25}
-      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: ${WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED:-true}
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: ${WEAVIATE_AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED:-false}
       DEFAULT_VECTORIZER_MODULE: ${WEAVIATE_DEFAULT_VECTORIZER_MODULE:-none}
       CLUSTER_HOSTNAME: ${WEAVIATE_CLUSTER_HOSTNAME:-node1}
       AUTHENTICATION_APIKEY_ENABLED: ${WEAVIATE_AUTHENTICATION_APIKEY_ENABLED:-true}
@@ -2021,7 +2088,11 @@ services:
 
   # Extend - sandbox-full
   sandbox-full:
-    image: ccr.ccs.tencentyun.com/yfgaia/dify-plus-sandbox-full:1.2.2
+    # Supplied separately; this repository has no full-sandbox Dockerfile.
+    # Enable only after verifying this image for the target CPU architecture.
+    image: ${DIFY_PLUS_FULL_SANDBOX_IMAGE:-ccr.ccs.tencentyun.com/yfgaia/dify-plus-sandbox-full:1.2.2}
+    profiles:
+      - full-sandbox
     restart: always
     environment:
       # The DifySandbox configurations

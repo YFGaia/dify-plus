@@ -1,0 +1,85 @@
+{
+  "verified_on": "2026-10-07",
+  "method": "docker buildx imagetools inspect IMAGE --format {{json .Manifest}}",
+  "scope": "registry manifest architecture only; no claim of business runtime acceptance",
+  "images": [
+    {
+      "image": "busybox:1.37.0",
+      "index_digest": "sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "postgres:15-alpine",
+      "index_digest": "sha256:f7d23353e1b15400d22ebe31189f4d314b87a4c129cc400c8c2d8d4ca127bf81",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "redis:6-alpine",
+      "index_digest": "sha256:b362b5dff9d14d961dc3352db4776aba6a8c53ca2661d7c74ad2c121f82cdaea",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "nginx:1.28.0",
+      "index_digest": "sha256:552e7481ca93ffccd046aa658dbbed22caefbc09c66fa7cd247cbb90b8a5c609",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "ubuntu/squid:6.6-24.04_edge",
+      "index_digest": "sha256:8a3baed477e2c282ab8aa5edad442f69873246964f225c5c2ae8364b6610963c",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "langgenius/dify-sandbox:0.2.15",
+      "index_digest": "sha256:750e1111426ef31a9217b81c98cccfb750f17b182af3221102e420afa9f0928e",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "langgenius/dify-plugin-daemon:0.6.10-local",
+      "index_digest": "sha256:34412a22d1e1d1a6c73727fef88cffbcdd9be7a21bf9ad3076b4bf5c1b88fd9b",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "cr.weaviate.io/semitechnologies/weaviate:1.39.2",
+      "index_digest": "sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    {
+      "image": "ccr.ccs.tencentyun.com/yfgaia/dify-plus-sandbox-full:1.2.2",
+      "index_digest": "sha256:b641687d6f3673633218e3e0fd6be0cbe0a49bb9d6f20085b1c170fbaae41170",
+      "required_platforms_found": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    }
+  ],
+  "notes": [
+    "Nginx Debian flavor is required by existing bash entrypoint; Alpine lacks bash.",
+    "Full sandbox is separately supplied; no Dockerfile exists in this checkout.",
+    "Weaviate default is for fresh installation or completed staged migration only.",
+    "Postgres15-alpine and Redis6-alpine track their declared release lines; deployments should record digests."
+  ]
+}

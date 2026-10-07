@@ -4,7 +4,7 @@ Dify-Plus 是基于 Dify 的企业 AI 应用平台，提供可视化工作流、
 
 本仓库保留 Dify 的应用开发能力，去除了 gin-vue-admin（GVA）独立后台，使用 Dify 原生前端、后端和权限体系承载系统管理，无需另行部署管理后台。
 
-[正式发布 1.17.1-plus.1](https://github.com/YFGaia/dify-plus/releases/tag/1.17.1-plus.1) · [功能与配置文档](docs/dify-plus/README.md) · [部署与运维](docs/dify-plus/二开部署配置与运维说明.md) · [架构](docs/dify-plus/整体架构图.md) · [开发指引](AGENTS.md) · [上游 Dify 文档](https://docs.dify.ai)
+[源码发布 1.17.1-plus.1](https://github.com/YFGaia/dify-plus/releases/tag/1.17.1-plus.1) · [功能与配置文档](docs/dify-plus/README.md) · [部署与运维](docs/dify-plus/二开部署配置与运维说明.md) · [架构](docs/dify-plus/整体架构图.md) · [开发指引](AGENTS.md) · [上游 Dify 文档](https://docs.dify.ai)
 
 ## 核心二开功能
 
@@ -99,16 +99,16 @@ WebApp 登录控制独立于服务 API 密钥鉴权。已安装工作流应用�
 
 ## 部署
 
-使用本仓库维护的 [`docker/docker-compose.dify-plus.yaml`](docker/docker-compose.dify-plus.yaml)。部署前准备 Docker Compose v2、数据库与持久存储，并为 API、worker、migration、密钥初始化服务与 Web 准备一致的 Dify-Plus 镜像。直接使用上游镜像不能获得本页二开能力。
+使用本仓库维护的 [`docker/docker-compose.dify-plus.yaml`](docker/docker-compose.dify-plus.yaml)。部署前准备 Docker Compose v2、数据库与持久存储。容器发布版本为 `1.17.1-plus.2`，API、Web、Agent 后端及 Agent 本地沙箱使用 `ghcr.io/yfgaia/dify-plus-*` 镜像，构建目标为 `linux/amd64` 和 `linux/arm64`；正式标签须通过构建、冒烟和 manifest 验证后才可部署。当前发布与验收状态见[容器镜像发布与多架构部署](docs/dify-plus/容器镜像发布与多架构部署.md)。所有 API 消费者使用同一发布镜像，直接使用上游镜像不能获得本页二开能力。
 
 ```bash
 cd docker
 cp .env.example .env
 ```
 
-在 `.env` 中设置 `DIFY_AGENT_SERVER_SECRET_KEY`，按环境配置数据库、域名、存储和服务密钥，并按[部署说明](docs/dify-plus/二开部署配置与运维说明.md)准备 fork 镜像覆盖文件。可选参数参考 `docker/envs/*.env.example`；fork Compose 中实际生效的参数须写入 `.env` 或显式覆盖文件，不能假定所有示例文件会自动加载。
+在 `.env` 中设置 `DIFY_AGENT_SERVER_SECRET_KEY`，按环境配置数据库、域名、存储和服务密钥，并按[部署说明](docs/dify-plus/二开部署配置与运维说明.md)选择已验证镜像，可通过 `DIFY_PLUS_API_IMAGE`、`DIFY_PLUS_WEB_IMAGE`、`DIFY_PLUS_AGENT_IMAGE`、`DIFY_PLUS_LOCAL_SANDBOX_IMAGE` 固定版本或 digest。可选参数参考 `docker/envs/*.env.example`；fork Compose 中实际生效的参数须写入 `.env` 或显式覆盖文件，不能假定所有示例文件会自动加载。
 
-部署使用单一迁移执行者，依次执行 `flask db upgrade` 和 `flask extend_db upgrade`。应用服务自动迁移关闭；数据库双链升级成功后再启动业务服务。完整的新装、升级、备份与恢复步骤见[部署与运维](docs/dify-plus/二开部署配置与运维说明.md)。
+部署使用单一迁移执行者，依次执行 `flask db upgrade` 和 `flask extend_db upgrade`。应用服务自动迁移关闭；数据库双链升级成功后再启动业务服务。完整代码沙箱需单独启用 `full-sandbox` profile，并核验供应镜像的目标架构。旧 Weaviate 数据必须先演练逐 minor 升级，不能直接用新默认镜像启动旧卷。完整的新装、升级、备份与恢复步骤见[部署与运维](docs/dify-plus/二开部署配置与运维说明.md)。
 
 初次安装访问部署域名的 `/install` 创建管理员和初始化空间。首次管理员应保留可用的本地登录方式，随后在初始化空间配置系统集成。
 

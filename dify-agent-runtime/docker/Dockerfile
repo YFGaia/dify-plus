@@ -23,10 +23,12 @@ FROM python:3.12-slim-bookworm AS production
 ARG NODE_VERSION=24.20.0
 ARG PNPM_VERSION=11.9.0
 ARG UV_VERSION=0.8.9
+ARG COMMIT_SHA
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
+ENV COMMIT_SHA=${COMMIT_SHA}
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \

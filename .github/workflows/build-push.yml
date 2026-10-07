@@ -141,7 +141,8 @@ jobs:
           retention-days: 1
 
   fork-build-validate:
-    if: github.repository != 'langgenius/dify'
+    # Dify-Plus release tags have their own native GHCR build/smoke workflow.
+    if: github.repository != 'langgenius/dify' && !(github.repository == 'YFGaia/dify-plus' && startsWith(github.ref, 'refs/tags/') && contains(github.ref_name, '-plus.'))
     runs-on: ubuntu-24.04
     strategy:
       matrix:
