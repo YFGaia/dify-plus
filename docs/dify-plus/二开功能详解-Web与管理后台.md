@@ -1,403 +1,124 @@
-# Dify-Plus Web 与管理后台二开功能详解
+# Dify-Plus Web 与原生管理后台
 
-本文基于当前分支 `HEAD` 相对 `upstream-1.12.1` 的差异整理，重点覆盖 Web 端、管理后台、认证链路、额度体系、应用中心、模型管理和批量工作流能力。
+Dify-Plus 的应用使用、应用开发和系统管理共用 Dify Web 与 Flask API。系统管理直接位于 Console 中，不需要 GVA 管理前端、Go 管理服务或独立管理账号。
 
-## 1. 基线与范围
+本文介绍当前用户可访问的二开功能。后端计费、身份规则和接口语义见[后端与数据层说明](./二开功能详解-后端与数据层.md)，运行配置见[部署配置与运维说明](./二开部署配置与运维说明.md)。
 
-- 基线仓库：`upstream-1.12.1`
-- 当前分支：`codex/switch-1.12.1-docs`
-- 核心改动集中在：
-  - `web/`
-  - `admin/`
-  - `docker/`
-  - `api/` 中与前端交互有关的二开接口
+## 应用中心与模板共享
 
-本说明只聚焦 Web 与管理后台，不展开 Docker 部署细节和后端数据库迁移实现的完整清单。
+应用中心位于 `/explore/apps-center-extend`，提供统一的已安装应用入口。应用卡片展示名称、图标、类型与说明，用户可通过“新建对话”进入对应的已安装应用。列表保持服务端的使用量排序，支持分类、标签、名称或说明关键词筛选；同一个应用具有多个标签时，筛选后的卡片按应用 ID 去重。
 
-## 2. 总体架构
+应用开发者可在工作室应用卡片菜单中“同步到应用模板”或“取消同步”，供模板发现与安装使用。此操作要求当前用户具有工作区管理权限，同时满足二开管理与工作区权限，且已取得应用的同步状态；普通应用使用者不具有模板发布权限。
 
-```mermaid
-graph LR
-  U["用户"] --> W["Web 前台<br/>web/"]
-  U --> A["管理后台<br/>admin/web/"]
+| 能力 | 当前源码入口 |
+| --- | --- |
+| 应用中心页面 | `web/app/(commonLayout)/explore/apps-center-extend/page.tsx` |
+| 分类、标签、关键词筛选 | `web/app/components/explore/app-list-center-extend/index.tsx` |
+| 应用卡片、新建对话 | `web/app/components/explore/app-card-extend/index.tsx` |
+| 已安装应用查询与排序保留 | `web/service/use-explore.ts`、`web/service/explore.ts` |
+| 模板同步操作与确认 | `web/app/components/apps/app-card/interactions.tsx` |
+| 应用目录同步状态 | `web/app/components/apps/app-list-catalog.tsx` |
+| 主导航与个人余额 | `web/app/components/main-nav/index.tsx` |
 
-  W --> WC["Web 前台服务层<br/>web/service/*"]
-  W --> WP["Web 页面层<br/>web/app/*"]
-  A --> AC["Admin 前端 API<br/>admin/web/src/api/*"]
-  A --> AV["Admin 页面层<br/>admin/web/src/view/*"]
+## 企业 SSO 与登录
 
-  WC --> API["Dify 后端 API<br/>api/"]
-  AC --> SVC["管理端后端服务<br/>admin/server/"]
-  SVC --> DB["数据库 / Redis"]
-  API --> DB
+### Casdoor 统一身份认证
 
-  W -.-> SVC
-  W -.-> API
-  A -.-> API
-```
-
-### 2.1 Web 端职责
-
-- 对外承接应用浏览、登录、会话和应用配置。
-- 把应用中心设为默认落点，降低首次进入成本。
-- 对二开能力提供可视化入口：额度、应用模板同步、记忆上下文、登录鉴权、API Key 限额。
-
-### 2.2 管理端职责
-
-- 管理二开功能的“运营控制台”。
-- 提供额度排行、用户额度编辑、钉钉/OAuth2 集成、模型提供商管理、版本发布管理和批量工作流处理。
+登录页通过服务端公开的 Casdoor 展示接口判断入口是否可用，使用配置的按钮名称发起企业 SSO 登录。授权和回调由后端承接，Web 不读取 Client Secret，也不把授权码或访问令牌作为结果页的展示内容。登录结果页 `/signin/casdoor-result` 提供登录结果与必要提示。
 
-## 3. Web 端二开功能
-
-### 3.1 应用中心改造
-
-相关文件：
-
-- `web/app/components/header/index.tsx`
-- `web/app/components/header/explore-nav/index.tsx`
-- `web/app/components/explore/sidebar/index.tsx`
-- `web/app/(commonLayout)/explore/apps-center-extend/page.tsx`
-- `web/app/components/explore/app-list-center-extend/index.tsx`
-- `web/app/components/explore/app-card-extend/index.tsx`
-- `web/service/use-explore.ts`
-
-核心变化：
-
-- 顶部 Logo 和 `Explore` 导航默认跳到 `/explore/apps-center-extend`。
-- 应用中心的列表数据来自 `useInstalledAppList()`，不再只显示原始探索页的推荐应用，而是展示已安装应用并按使用情况排序。
-- 支持分类、标签和关键字筛选。
-- 支持从应用中心直接进入已安装应用对话页。
+Casdoor SSO 配置支持工作区角色映射，让通过企业认证的用户进入对应工作区。角色映射按工作区选择目标，支持 `admin`、`editor`、`normal`，单份配置最多 100 条映射，不能通过映射赋予 `owner`。
 
-用户体验上，应用中心已经从“静态展示页”变成“可筛选、可进入、可排序”的主入口。
+| 能力 | 当前源码入口 |
+| --- | --- |
+| 普通登录入口 | `web/app/signin/normal-form.tsx`、`web/features/casdoor/signin/entry.tsx` |
+| SSO 授权与回调 | `api/controllers/console/auth/casdoor_extend.py` |
+| 登录结果 | `web/features/casdoor/signin-result/index.tsx` |
+| 工作区角色映射 | `web/features/casdoor/configuration-form/workspace-mappings.tsx` |
 
-```mermaid
-flowchart TD
-  A["/explore/apps-center-extend"] --> B["AppListCenter<br/>web/app/components/explore/app-list-center-extend/index.tsx"]
-  B --> C["useInstalledAppList()<br/>web/service/use-explore.ts"]
-  C --> D["fetchOpenInstalledAppList()<br/>web/service/explore.ts"]
-  B --> E["SearchInput / TagFilter"]
-  B --> F["AppCard 进入会话"]
-  F --> G["/explore/installed/{installed_id}"]
-```
+### Web App 访问认证
 
-### 3.2 应用模板同步
+应用的 Web App 访问卡片提供“访问认证”开关，默认开启。拥有编辑权限且 Web App 已运行时可切换；界面只提交 `webapp_auth_enabled_extend` 字段并更新应用详情。
 
-相关文件：
+开启时，访问遵循平台账号和应用访问权限要求；关闭可允许匿名访问，但仍需满足 Web App 已发布、可运行等条件。组织成员、指定成员组与外部成员 SSO 采用对应的 Web App 登录流程。登录回跳目标经过校验后才用于导航。
 
-- `web/app/components/explore/app-card.tsx`
-- `web/service/apps.ts`
-- `web/app/components/apps/list.tsx`
+源码：`web/app/components/app/access-point/built-in-access-points/web-app-card.tsx`、`web/service/webapp-auth.ts`、`web/app/(shareLayout)/webapp-signin/page.tsx`。
 
-核心变化：
+## 个人余额与应用 API Key 限额
 
-- 在应用卡片的操作区增加“同步到应用模板”和“取消同步”。
-- 对应接口：
-  - `PUT /apps/{appId}/sync`
-  - `DELETE /apps/{appId}/sync`
-- 同步动作完成后会刷新列表和计划信息，保持前台、模板中心和管理侧状态一致。
+主导航展示个人已用额度、总额度与余额。金额来自 `/account/money`，按系统配置的汇率换算成人民币显示，并对余额较低等情况提示。未取得有效账号、额度或汇率，或者总额度为零时不展示余额组件。
 
-这是典型的 fork 特性：把原本单一应用的编辑能力扩展成“应用 -> 模板中心”的双向流转。
+个人额度是 Dify-Plus 的使用余额，不是 Dify 订阅计划额度。管理员设置的是总额度，已用额度保留；余额为总额度减去已用额度。
 
-### 3.3 登录与鉴权链路
-
-相关文件：
-
-- `web/app/signin/page.tsx`
-- `web/app/signin/normal-form.tsx`
-- `web/app/signin/components/dingtalk-auth.tsx`
-- `web/app/signin/components/oauth2.tsx`
-- `web/app/signin/components/sso-auth.tsx`
-- `web/app/(shareLayout)/webapp-signin/page.tsx`
-- `web/app/(shareLayout)/webapp-signin/normalForm.tsx`
-- `web/app/(shareLayout)/webapp-signin/components/external-member-sso-auth.tsx`
-- `web/service/webapp-auth.ts`
-- `web/service/share.ts`
-- `web/context/global-public-context.tsx`
+应用 API Key 弹窗支持：
 
-核心变化：
+- 创建密钥时填写用途描述和日、月限额；描述最多 50 个字符。
+- 编辑现有应用密钥的描述和限额。
+- 查看累计用量、当日用量、当月用量及相应限额。
+- 复制或删除密钥，按应用权限控制可用操作。
 
-- 登录页新增钉钉和 OAuth2 快捷入口。
-- 普通邮箱密码登录成功后，默认跳转到 `/explore/apps-center-extend`。
-- 如果本地存在 `redirect_url`，优先回跳到原目标页面。
-- WebApp 公开页 `/webapp-signin` 会先检查 Console 登录态，再根据访问模式决定走邮箱登录、外部成员 SSO，还是直接提示不可用。
-- 全局系统特性从 `/login_config_bootstrap` + `/login_config` 两段式获取，避免跨域时 cookie/JWT 丢失。
-- WebApp 强制登录支持 per-app 开关（默认开启）：`authenticated-layout.tsx` 经 `checkWebAppConsoleAuthStatus(shareCode)`（`GET /login/status?app_code=`）读取 `webapp_auth_enabled_extend`，为 `false` 时不再强制跳 `/signin`，任何人可匿名访问；开关位于 Console 应用概览页的 Web App 卡片（`web/app/components/app/overview/app-card.tsx`「访问认证」Switch，附悬停帮助 Tooltip），切换后只提交 `webapp_auth_enabled_extend` 单字段到 `POST /apps/{id}/site` 并刷新应用详情，Web App 未运行或无编辑权限时开关置灰。
+日、月限额接受非负数，`-1` 表示不限额；`0` 是零额度限制。累计用量 `accumulated_quota` 仅作统计，不是终身消费上限。日、月限额表单适用于应用密钥，不应套用到知识库或环境密钥。
 
-```mermaid
-flowchart TD
-  A["/signin"] --> B["NormalForm"]
-  B --> C["邮箱/密码登录"]
-  B --> D["钉钉登录"]
-  B --> E["OAuth2 登录"]
-  C --> F["成功后跳转"]
-  D --> G["DingTalk 回调"]
-  E --> H["OAuth2 回调"]
-  F --> I["/explore/apps-center-extend"]
-  G --> I
-  H --> I
+源码：`web/app/components/main-nav/components/account-money-extend.tsx`、`web/app/components/api-key/api-key-modal.tsx`、`web/app/components/api-key/api-key-table.tsx`、`web/app/components/base/param-item/day-limit-item-extend.tsx`、`web/app/components/base/param-item/month-limit-item-extend.tsx`。
 
-  J["/webapp-signin"] --> K["checkConsoleLoginStatus()"]
-  K --> L["NormalForm / ExternalMemberSsoAuth"]
-```
+## 会话上下文控制
 
-### 3.4 应用配置页的二开能力
+经典聊天应用配置提供记忆上下文数量控制，可用滑杆或数字输入设置保留数量。默认 5，最小 1，最大 20，分别由 `NEXT_CONTEXT_RETENTION_DEFAULT_COUNT`、`NEXT_CONTEXT_RETENTION_MIN_COUNT`、`NEXT_CONTEXT_RETENTION_MAX_COUNT` 控制。界面关闭数量控制时使用后端约定值 `999`。
 
-相关文件：
+会话中显示已清除上下文的分界标记，用户可恢复对应分界。上下文记录通过当前 Console 会话查询，匿名 Web App 没有 Console 会话时不会发起受保护的上下文读写。
 
-- `web/app/components/app/configuration/index.tsx`
-- `web/app/components/app/configuration/config/index.tsx`
-- `web/app/components/app/configuration/retention-number-extend/index.tsx`
-- `web/app/components/header/account-money-extend/index.tsx`
-- `web/app/components/header/account-setting/model-provider-page/model-parameter-modal/parameter-item-extend.tsx`
-- `web/app/components/develop/secret-key/secret-key-quota-set-modal-extend.tsx`
+源码：`web/app/components/app/configuration/retention-number-extend/index.tsx`、`web/app/components/base/chat/chat/index.tsx`、`web/service/message-context-extend.ts`。
 
-核心变化：
+## 原生系统管理
 
-- 增加“记忆上下文”配置，默认值通过环境变量控制：
-  - `NEXT_CONTEXT_RETENTION_DEFAULT_COUNT`
-  - `NEXT_CONTEXT_RETENTION_MAX_COUNT`
-  - `NEXT_CONTEXT_RETENTION_MIN_COUNT`
-- 顶部栏展示当前账户额度，随账户数据变化刷新。
-- 模型参数编辑器扩展了更多参数类型展示能力，能直接承接二开后的模型参数规则。
-- API Key 创建/编辑弹窗增加日限额、月限额与用途描述。
+系统管理位于 `/system-manage-extend`，默认进入系统集成页。系统管理权限由服务端认定：当前工作区必须是数据库固定关联的初始化工作区，且当前用户在该工作区的实际角色是 `owner` 或 `admin`。其他工作区的 owner/admin 不自动获得全局管理权限。导航、页面布局和后端接口共同检查权限；Casdoor 配置还需要服务端授予 `can_manage_casdoor`。
 
-这些能力把原本“应用配置”进一步延伸成“面向企业的运行参数控制台”。
+权限源码：`web/features/system-management/access.ts`、`web/features/casdoor/management-access/use-casdoor-management-access.ts`、`web/app/(commonLayout)/system-manage-extend/layout.tsx`、`api/controllers/console/system_manage_extend.py`、`api/services/system_management_access_service_extend.py`。
 
-### 3.5 公共认证与系统特性拉取
+### 系统集成
 
-相关文件：
+`/system-manage-extend/system-integration` 包含 Casdoor、钉钉和 OAuth2 标签页，标签保存在 URL 的 `tab` 参数中。
 
-- `web/context/global-public-context.tsx`
-- `web/service/webapp-auth.ts`
-- `web/service/common.ts`
-- `web/service/client.ts`
+| 集成 | 配置与交互 | 当前源码入口 |
+| --- | --- | --- |
+| Casdoor | 浏览器访问地址、组织、应用、Client ID、Secret；高级后端地址与 issuer；工作区角色映射；保存、测试登录和启用/停用 | `web/features/casdoor/configuration-form/` |
+| 钉钉 | 启用状态、Corp ID、Agent ID、App Key、App Secret；保存与连接测试 | `web/app/(commonLayout)/system-manage-extend/system-integration/dingtalk-config.tsx` |
+| 钉钉邮箱查询 | 可选查询 URL、GET/POST、用户 ID 参数名、结果路径、认证方式、请求头与请求体；使用指定测试用户 ID 测试邮箱查询 | 同上 |
+| OAuth2 | 启用状态、Client ID/Secret、服务器/授权/Token/用户信息/退出地址、scope、按钮名称和回调地址；保存与连接测试 | `web/app/(commonLayout)/system-manage-extend/system-integration/oauth2-config.tsx` |
 
-核心变化：
+Casdoor 配置区分草稿和生效版本。保存草稿后可测试登录；启用需要服务端确认指定版本的验证与测试结果。并发修改、保存结果无法确认或读取失败时，页面要求刷新重新核对。Secret 输入为空表示保留既有 Secret，已保存 Secret 不回填到表单。
 
-- 系统特性不再只依赖单一接口返回，而是先拿 bootstrap token，再拉取完整特性。
-- 认证态在不同页面间共享，避免 `localhost` / `127.0.0.1` 同源和 cookie 丢失问题。
-- 公开页登录态检查支持 Console / WebApp 双层状态。
+SSO 回调地址由配置区提供，需与 Casdoor 应用登记的回调地址一致。工作区角色映射为登录用户指定可进入的目标工作区和角色。
 
-## 4. 管理后台二开功能
+### 用户额度管理
 
-> **迁移进度概览**：系统集成（钉钉 SSO、OAuth2、邮箱 API、转发 Token）和用户额度管理已迁移到 Dify 原生技术栈，可通过 Console 顶部菜单"系统管理"直接访问（仅 workspace owner 可见）。批量工作流已按决策点 D2（2026-07-05，方案 A）删除前端能力，Dify 前端不再有任何 GVA 运行时依赖；Go 侧实现与数据表处置见[批量工作流数据表冷备归档说明](./批量工作流数据表冷备归档说明.md)。完整迁移状态见 [admin迁移状态总表](./admin迁移状态总表.md)。
+`/system-manage-extend/quota-management` 提供按成员名或邮箱搜索的用户列表，展示使用排名、头像、成员、邮箱、已用额度、总额度和余额，金额单位为 USD。支持分页和 10/30/50/100 条每页选择。
 
-### 4.1 运营总览和额度看板
+管理员可修改用户总额度为非负数，提交成功后刷新列表。额度管理面向账号个人余额，不能理解为工作区订阅计划管理。
 
-相关文件：
+源码：`web/app/(commonLayout)/system-manage-extend/quota-management/page.tsx`、`web/service/system-manage-extend.ts`。
 
-- `admin/web/src/view/dashboard/index.vue`
-- `admin/web/src/view/gaia/dashboard/index.vue`
-- `admin/web/src/view/gaia/dashboard/components/*.vue`
-- `admin/web/src/api/gaia/dashboard.js`
-- `admin/server/router/gaia/dashboard.go`
-- `admin/server/service/gaia/dashboard.go`
+### 代码执行控制
 
-功能点：
+`/system-manage-extend/code-execution-control` 管理代码节点完整执行环境授权名单。管理员通过工作区 owner 邮箱新增授权项，查看邮箱和创建时间，并通过确认弹窗删除授权项。后端以运行工作区的 owner 邮箱匹配名单，并据此选择 `sandbox-full` 完整执行端点；页面保存失败或缓存投影未同步时会给出相应提示。
 
-- 成员使用分析。
-- 应用使用分析。
-- 密钥使用分析。
-- 每日密钥额度花费图表。
+此功能依赖部署中实际配置完整执行环境，添加名单本身不会部署或启动 `sandbox-full`。
 
-接口维度：
+源码：`web/app/(commonLayout)/system-manage-extend/code-execution-control/page.tsx`、`web/contract/console/system-manage.ts`、`api/core/workflow/nodes/code/control_extend.py`。
 
-- `GET /gaia/dashboard/getAccountQuotaRankingData`
-- `GET /gaia/dashboard/getAppQuotaRankingData`
-- `GET /gaia/dashboard/getAppTokenQuotaRankingData`
-- `GET /gaia/dashboard/getAppTokenDailyQuotaData`
-- `GET /gaia/dashboard/getAiImageQuotaRankingData`
+## 功能截图与维护
 
-这里的核心价值不是“看板展示”，而是把多个二开表和 Dify 原生数据统一汇总成运营视角。
+![应用中心](./images/apps-center.png)
 
-### 4.2 用户额度管理
+![应用 API 密钥日/月限额](./images/api-key-quota.png)
 
-> **迁移状态**：✅ 已迁移到 Dify 原生技术栈，详见 [admin迁移状态总表](./admin迁移状态总表.md)。
+![Casdoor SSO 配置（已脱敏）](./images/casdoor-configuration.png)
 
-原 GVA 文件：
+![用户额度管理（已脱敏）](./images/account-quota.png)
 
-- `admin/web/src/view/quota/index.vue`
-- `admin/web/src/api/user.js`
-- `admin/server/router/gaia/quota.go`
-- `admin/server/service/gaia/quota.go`
-- `admin/server/model/gaia/response/quota.go`
+![Web App 访问认证（已脱敏）](./images/webapp-access.png)
 
-**Dify 原生实现**：
+![代码执行控制（已脱敏）](./images/code-execution-control.png)
 
-- 后端：`api/controllers/console/system_manage_extend.py` (`QuotaManageResource` / `QuotaSetResource`)
-- 服务层：`api/services/system_manage_extend.py` (`QuotaManageService`)
-- 前端页面：`web/app/(commonLayout)/system-manage-extend/quota-management/page.tsx`
-- 入口菜单：`web/app/components/header/system-manage-nav-extend/index.tsx`
+功能截图随根目录 [README](../../README.md) 的功能展示维护。截图应来自真实页面，使用演示数据或不可逆遮挡；Casdoor/OAuth2 地址、组织、Client ID、账号、邮箱、密码、Secret、Token 与密钥都需要检查。密码输入框的圆点遮罩不能代替对页面其他敏感字段的检查。
 
-Dify 原生接口：
-
-- `GET /console/api/system-manage-extend/quota-management`
-- `POST /console/api/system-manage-extend/quota-management/set`
-
-### 4.3 钉钉集成
-
-相关文件：
-
-- `admin/web/src/view/systemIntegrated/dingTalk/index.vue`
-- `admin/web/src/api/gaia/system.js`
-- `admin/server/router/gaia/system.go`
-- `admin/server/api/v1/gaia/system.go`
-- `admin/server/service/gaia/system.go`
-
-功能点：
-
-- 配置回调域名并支持一键复制。
-- 配置 `CorpID`、`AppID`、`AgentID`、`AppKey`、`AppSecret`。
-- 配置第三方邮箱 API，用于登录后补充用户邮箱信息。
-- 支持测试连接与启用状态切换。
-
-> **迁移说明**：钉钉集成（含邮箱 API 配置、转发 Token 管理）已迁移到 Dify 原生 Flask API。后端见 `api/controllers/console/system_manage_extend.py`，前端入口在 `/system-manage-extend/system-integration`。详见 [admin迁移状态总表](./admin迁移状态总表.md)。
-
-### 4.4 OAuth2 集成
-
-> **迁移说明**：OAuth2 集成已迁移到 Dify 原生 Flask API（`OAuth2IntegrationResource`），前端与钉钉集成共用同一页面。详见 [admin迁移状态总表](./admin迁移状态总表.md)。
-
-原 GVA 文件：
-
-- `admin/web/src/view/systemIntegrated/oauth2/index.vue`
-- `admin/web/src/api/gaia/system.js`
-- `admin/server/api/v1/gaia/system_oauth2.go`
-- `admin/server/service/gaia/system.go`
-
-功能点：
-
-- 配置 OAuth2 服务器地址、授权地址、Token 地址、用户信息地址、退出地址、OIDC discovery 地址。
-- 配置 `Client ID` / `Client Secret`。
-- 配置用户名、邮箱、用户唯一标识映射字段。
-- 支持测试连接与启用状态切换。
-
-### 4.5 模型管理
-
-相关文件：
-
-- `admin/web/src/view/systemIntegrated/modelManagement/index.vue`
-- `admin/web/src/api/modelProvider.js`
-- `admin/server/router/gaia/system.go`
-- `admin/server/api/v1/gaia/model_provider.go`
-- `admin/server/service/gaia/model_provider.go`
-- `admin/server/model/gaia/response/model_provider.go`
-
-功能点：
-
-- 按提供商展示模型配置。
-- 支持启用 / 关闭提供商。
-- 支持选择可用模型，允许手工补充自定义模型 ID。
-- 支持测试凭证。
-- 支持拉取可用模型列表和代理日志。
-
-页面上只展示逻辑提供商，不直接暴露底层实现细节，便于把 Dify 的 provider 能力抽象成管理侧的运营对象。
-
-### 4.6 版本发布与下载管理
-
-相关文件：
-
-- `admin/web/src/view/gaia/appVersion/index.vue`
-- `admin/web/src/api/gaia/appVersion.js`
-- `admin/server/router/gaia/app_version.go`
-- `admin/server/service/gaia/app_version.go`
-- `admin/server/model/gaia/response/app_version.go`
-
-功能点：
-
-- 版本列表管理。
-- 全局链接 Token 配置。
-- 版本说明编辑。
-- 安装包拖拽上传与平台/架构自动识别。
-- 指定平台/架构包删除。
-
-这块更像一个独立的“第三方软件发布中心”，但与当前 fork 的二开管理平台放在一起，说明该仓库已经不只是 Dify 运行时外壳。
-
-### 4.7 登录与回调
-
-相关文件：
-
-- `admin/web/src/view/login/index.vue`
-- `admin/web/src/view/login/callback.vue`
-- `admin/web/src/api/user_extend.js`
-- `admin/web/src/permission.js`
-
-功能点：
-
-- 管理后台支持钉钉登录和 OAuth2 登录。
-- `login/callback.vue` 负责接收第三方 code / access_token / state，并换取后台 token。
-- 登录成功后会优先回跳第三方应用，否则进入管理后台默认首页。
-
-## 5. 关键调用链
-
-### 5.1 应用中心
-
-```mermaid
-sequenceDiagram
-  participant U as 用户
-  participant H as Header/Sidebar
-  participant P as Page
-  participant S as use-explore
-  participant API as 后端接口
-
-  U->>H: 点击“应用中心”
-  H->>P: 跳转 /explore/apps-center-extend
-  P->>S: useInstalledAppList()
-  S->>API: fetchOpenInstalledAppList()
-  API-->>S: categories + recommended_apps
-  S-->>P: 过滤/去重/排序后的列表
-  U->>P: 搜索 / 标签过滤 / 点击新会话
-```
-
-### 5.2 登录与重定向
-
-```mermaid
-sequenceDiagram
-  participant U as 用户
-  participant L as /signin
-  participant A as 认证服务
-  participant C as /explore/apps-center-extend
-
-  U->>L: 账号密码 / 钉钉 / OAuth2 登录
-  L->>A: 保存 token / 交换 code
-  A-->>L: access_token / refresh_token
-  L->>C: 默认跳转到应用中心
-```
-
-### 5.3 管理端额度调整
-
-```mermaid
-sequenceDiagram
-  participant U as 运营/管理员
-  participant V as /system-manage-extend/quota-management
-  participant B as Dify API /system-manage-extend/quota-management
-  participant DB as 数据库
-
-  U->>V: 搜索成员并点击修改额度
-  V->>B: POST /system-manage-extend/quota-management/set
-  B->>DB: 更新 account_money_extend.total_quota
-  DB-->>B: 写入成功
-  B-->>V: 返回成功
-```
-
-## 6. 相对 upstream 的主要差异
-
-以下是从前端/管理端视角最重要的 fork 差异：
-
-- 默认落点从原始探索页调整为 `/explore/apps-center-extend`。
-- 新增应用中心搜索、标签过滤、按使用情况排序和一键新会话。
-- 新增钉钉与 OAuth2 登录入口，并把第三方回调纳入标准登录流。
-- 新增 WebApp 公开页登录鉴权、redirect_url 回跳和外部成员 SSO。
-- 新增记忆上下文开关与上下文窗口大小控制。
-- 新增 API Key 的日/月限额编辑能力。
-- 新增顶部账户额度展示。
-- 新增管理后台的额度总览、用户额度编辑、模型管理、系统集成和版本发布管理。
-- ~~新增批量工作流处理入口，支持上传文件、进度轮询、暂停、恢复、重试~~（已按决策点 D2 于 2026-07-05 删除，前端恢复上游原生 run-batch；见[批量工作流数据表冷备归档说明](./批量工作流数据表冷备归档说明.md)）。
-
-## 7. 维护要点
-
-- 应用中心相关改动分散在 header、sidebar、页面容器、服务层和国际化中，改 UI 时必须同步检查跳转路径和排序逻辑。
-- 登录链路涉及 `web/context/global-public-context.tsx`、`web/service/client.ts`、`web/service/webapp-auth.ts` 和两套登录页面，改 token 逻辑时不能只改一个入口。
-- 管理后台的钉钉/OAuth2 配置和前端登录按钮是强耦合的，配置页面、登录页和 callback 页必须一起看。
-- 模型管理页面目前按逻辑提供商展示，新增 provider 时要同步服务端 `SupportedProviders`、前端显示名和可用模型拉取逻辑。
-- 额度相关功能同时读写多个扩展表，新增报表字段时要先确认数据库表、服务层聚合和前端列定义是否一致。
-
+新增功能说明时，应先核对实际路由、生产挂载点和后端权限。仅存在源码文件的旧组件或未挂载组件不构成可用页面。本文以当前可访问入口为范围，Casdoor 说明聚焦 SSO 集成。

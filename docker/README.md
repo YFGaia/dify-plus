@@ -1,3 +1,5 @@
+> **Dify-Plus 部署入口**：本 fork 使用 `docker/docker-compose.dify-plus.yaml` 和匹配的 fork 镜像，执行上游与扩展两条迁移链。请先阅读[当前部署与运维指南](../docs/dify-plus/二开部署配置与运维说明.md)。下文是上游通用参考，不替代 fork 部署要求。
+
 ## README for docker Deployment
 
 Welcome to the new `docker` directory for deploying Dify using Docker Compose. This README outlines the updates, deployment instructions, and migration details for existing users.
