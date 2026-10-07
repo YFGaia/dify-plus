@@ -6,6 +6,7 @@ from unittest import mock
 import pytest
 from flask import Flask, Response, request
 from sqlalchemy.orm import Session
+from werkzeug.exceptions import Unauthorized
 
 from constants import COOKIE_NAME_ACCESS_TOKEN
 from core.logging.context import clear_request_context, get_identity_context
@@ -87,6 +88,92 @@ def test_on_user_logged_in_logs_unsupported_user_type(caplog: pytest.LogCaptureF
 
     assert get_identity_context() == ("", "", "")
     assert "Failed to set logging identity context" in caplog.text
+
+
+@pytest.mark.parametrize("token_transport", ["cookie", "header"])
+def test_console_path_without_blueprint_loads_account_from_valid_session(
+    sqlite_session: Session, config_overrides: Callable[..., None], token_transport: str
+) -> None:
+    app = Flask(__name__)
+    config_overrides(
+        SECRET_KEY="console-path-auth-regression-test-key",
+        ADMIN_API_KEY_ENABLE=False,
+        CONSOLE_WEB_URL="http://console.example.com",
+        CONSOLE_API_URL="http://api.example.com",
+        COOKIE_DOMAIN="",
+    )
+    account = ext_login.Account(name="Test Account", email="test@example.com")
+    tenant = ext_login.Tenant(name="Test Tenant")
+    sqlite_session.add_all([account, tenant])
+    sqlite_session.flush()
+    sqlite_session.add(
+        ext_login.TenantAccountJoin(
+            tenant_id=tenant.id, account_id=account.id, role=TenantAccountRole.OWNER, current=True
+        )
+    )
+    sqlite_session.commit()
+    token = ext_login.AccountService.get_account_jwt_token(account)
+    headers = (
+        {"Cookie": f"{COOKIE_NAME_ACCESS_TOKEN}={token}"}
+        if token_transport == "cookie"
+        else {"Authorization": f"Bearer {token}"}
+    )
+
+    with app.test_request_context("/console/api/test", headers=headers):
+        assert request.blueprint is None
+        result = ext_login._load_user_from_request(request, sqlite_session)
+
+    assert result is account
+    assert result.current_tenant_id == tenant.id
+    assert result.current_role == TenantAccountRole.OWNER
+
+
+def test_console_path_without_blueprint_rejects_missing_token(
+    sqlite_session: Session, config_overrides: Callable[..., None]
+) -> None:
+    config_overrides(ADMIN_API_KEY_ENABLE=False)
+    app = Flask(__name__)
+
+    with app.test_request_context("/console/api/test"):
+        assert request.blueprint is None
+        with pytest.raises(Unauthorized, match="Invalid Authorization token"):
+            ext_login._load_user_from_request(request, sqlite_session)
+
+
+@pytest.mark.parametrize(
+    "claims",
+    [
+        {"user_id": "account-id", "token_source": "webapp"},
+        {"end_user_id": "end-user-id", "token_source": "webapp"},
+        {"end_user_id": "end-user-id"},
+        {},
+        {"user_id": ""},
+    ],
+    ids=["account-with-token-source", "webapp-end-user", "end-user-only", "missing-user-id", "empty-user-id"],
+)
+def test_console_path_without_blueprint_rejects_non_account_claims(
+    sqlite_session: Session, config_overrides: Callable[..., None], claims: dict[str, str]
+) -> None:
+    config_overrides(SECRET_KEY="console-path-auth-regression-test-key", ADMIN_API_KEY_ENABLE=False)
+    app = Flask(__name__)
+    token = ext_login.PassportService().issue(claims)
+
+    with app.test_request_context("/console/api/test", headers={"Authorization": f"Bearer {token}"}):
+        assert request.blueprint is None
+        with pytest.raises(Unauthorized, match="Invalid Authorization token"):
+            ext_login._load_user_from_request(request, sqlite_session)
+
+
+@pytest.mark.parametrize("path", ["/api/test", "/console/api", "/console/api-other/test", "/"])
+def test_non_console_path_without_blueprint_does_not_use_console_authentication(
+    sqlite_session: Session, config_overrides: Callable[..., None], path: str
+) -> None:
+    config_overrides(ADMIN_API_KEY_ENABLE=False)
+    app = Flask(__name__)
+
+    with app.test_request_context(path, headers={"Authorization": "Bearer invalid-console-token"}):
+        assert request.blueprint is None
+        assert ext_login._load_user_from_request(request, sqlite_session) is None
 
 
 def test_admin_api_key_header_takes_precedence_over_console_cookie(

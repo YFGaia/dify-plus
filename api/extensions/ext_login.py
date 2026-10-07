@@ -88,7 +88,9 @@ def _load_user_from_request(request_from_flask_login: Request, session: Session)
                     account.set_current_tenant_with_session(tenant, session=session)
                     return account
 
-    if request.blueprint in {"console", "inner_api"}:
+    # Console routes registered outside blueprints use the same session authentication.
+    is_console_path = request.blueprint is None and request.path.startswith("/console/api/")
+    if request.blueprint in {"console", "inner_api"} or is_console_path:
         if not auth_token:
             raise Unauthorized("Invalid Authorization token.")
         decoded = PassportService().verify(auth_token)
