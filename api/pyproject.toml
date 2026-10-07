@@ -49,7 +49,7 @@ dependencies = [
     "httpx-sse==0.4.3",
     "json-repair==0.60.1",
     # Fork-specific dependencies (dify-plus extensions)
-    "alibabacloud_dingtalk>=2.1.99",  # DingTalk login integration
+    "alibabacloud_dingtalk>=2.2.60",  # DingTalk login integration
     # casdoor 1.17.2 omits Requires-Dist; declare its imports at existing lock versions.
     "aiohttp==3.14.3",
     "casdoor==1.17.2",
