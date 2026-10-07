@@ -1,0 +1,118 @@
+{
+  "release_version": "1.17.1-plus.2",
+  "verified_on": "2026-10-07",
+  "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+  "workflow_run": "https://github.com/YFGaia/dify-plus/actions/runs/37580573077",
+  "workflow_conclusion": "success",
+  "native_evidence": [
+    {
+      "component": "agent-backend",
+      "architecture": "amd64",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-backend",
+      "digest": "sha256:cc85fc996832256dfa9cc5b592779f6489f3d4e11df10ba4dd224fa991ce093b",
+      "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "agent-backend",
+      "architecture": "arm64",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-backend",
+      "digest": "sha256:1a2b572b6213f7cd89919aabaa8f98360392778ca4247994eabd585846aae166",
+      "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "agent-local-sandbox",
+      "architecture": "amd64",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-local-sandbox",
+      "digest": "sha256:bbcc2a0738b53ae4a8b467ab2f279abd61ad28d792ae79aa83f44d609d35fe0e",
+      "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "agent-local-sandbox",
+      "architecture": "arm64",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-local-sandbox",
+      "digest": "sha256:1b3cebda6c01357757613379e9e8322ba7b53db7385801453e600817c73a2a79",
+      "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "api",
+      "architecture": "amd64",
+      "image": "ghcr.io/yfgaia/dify-plus-api",
+      "digest": "sha256:648da00fc24435c706343a5d2b92df3e54b87191991231124fe32630aa2ba9e2",
+      "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "api",
+      "architecture": "arm64",
+      "image": "ghcr.io/yfgaia/dify-plus-api",
+      "digest": "sha256:ec5d4df032d4c4e45aa50ae690a9a8ce366fd4c90b2bc6f8aa36bd93d85aa0d8",
+      "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "web",
+      "architecture": "amd64",
+      "image": "ghcr.io/yfgaia/dify-plus-web",
+      "digest": "sha256:95c37b862faf73abe08c208a5119ed9abbe98b893528648e7e67cb75d40d5716",
+      "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "web",
+      "architecture": "arm64",
+      "image": "ghcr.io/yfgaia/dify-plus-web",
+      "digest": "sha256:dc891eb9d37cc1c45386e37a266a3909a764c7cabc972f878f2bd95e204e87d0",
+      "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    }
+  ],
+  "postgresql_empty_database_migrations": {
+    "architectures": [
+      "amd64",
+      "arm64"
+    ],
+    "upstream_head": "c3f1a9b2e6d4",
+    "extension_head": "026_system_management_scope",
+    "api_http_checks": [
+      "/health",
+      "/console/api/system-features"
+    ]
+  },
+  "anonymous_registry_readback": [
+    {
+      "image": "ghcr.io/yfgaia/dify-plus-api",
+      "anonymous_pull": "blocked",
+      "http_status": 401
+    },
+    {
+      "image": "ghcr.io/yfgaia/dify-plus-web",
+      "anonymous_pull": "blocked",
+      "http_status": 401
+    },
+    {
+      "image": "ghcr.io/yfgaia/dify-plus-agent-backend",
+      "anonymous_pull": "blocked",
+      "http_status": 401
+    },
+    {
+      "image": "ghcr.io/yfgaia/dify-plus-agent-local-sandbox",
+      "anonymous_pull": "blocked",
+      "http_status": 401
+    }
+  ],
+  "public_access": "blocked by organization package visibility policy; requires organization owner action",
+  "production_acceptance": "not performed",
+  "excluded_parallel_work": "uncommitted changes created after the pinned release commit are not included"
+}

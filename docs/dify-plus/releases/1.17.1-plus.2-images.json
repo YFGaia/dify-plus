@@ -1,0 +1,49 @@
+{
+  "release_version": "1.17.1-plus.2",
+  "source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+  "registry": "ghcr.io",
+  "native_smoke": "8/8 passed",
+  "images": [
+    {
+      "component": "api",
+      "image": "ghcr.io/yfgaia/dify-plus-api",
+      "candidate": "ghcr.io/yfgaia/dify-plus-api:sha-7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "digest": "sha256:a5297d6eac80544af23952caab2c21244a2df53791c1a911d728cb4b46baa158",
+      "platforms": {
+        "amd64": "sha256:648da00fc24435c706343a5d2b92df3e54b87191991231124fe32630aa2ba9e2",
+        "arm64": "sha256:ec5d4df032d4c4e45aa50ae690a9a8ce366fd4c90b2bc6f8aa36bd93d85aa0d8"
+      }
+    },
+    {
+      "component": "web",
+      "image": "ghcr.io/yfgaia/dify-plus-web",
+      "candidate": "ghcr.io/yfgaia/dify-plus-web:sha-7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "digest": "sha256:3c0df1f1095db419351df2afe05af2c765c65538050f3e1108e75714f2e1a2c6",
+      "platforms": {
+        "arm64": "sha256:dc891eb9d37cc1c45386e37a266a3909a764c7cabc972f878f2bd95e204e87d0",
+        "amd64": "sha256:95c37b862faf73abe08c208a5119ed9abbe98b893528648e7e67cb75d40d5716"
+      }
+    },
+    {
+      "component": "agent-backend",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-backend",
+      "candidate": "ghcr.io/yfgaia/dify-plus-agent-backend:sha-7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "digest": "sha256:8c5b87f18a21f3341e8be30a9e88c8727543ecabbf9c9e0edf2b811ceae1d8e3",
+      "platforms": {
+        "amd64": "sha256:cc85fc996832256dfa9cc5b592779f6489f3d4e11df10ba4dd224fa991ce093b",
+        "arm64": "sha256:1a2b572b6213f7cd89919aabaa8f98360392778ca4247994eabd585846aae166"
+      }
+    },
+    {
+      "component": "agent-local-sandbox",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-local-sandbox",
+      "candidate": "ghcr.io/yfgaia/dify-plus-agent-local-sandbox:sha-7daa117e86cb6a64df719d69a5afac038c628aa7",
+      "digest": "sha256:2ea53da9ceae47fea4a0d663d5ef14998fdb5e979eb35f3dcae5209625d7411d",
+      "platforms": {
+        "arm64": "sha256:1b3cebda6c01357757613379e9e8322ba7b53db7385801453e600817c73a2a79",
+        "amd64": "sha256:bbcc2a0738b53ae4a8b467ab2f279abd61ad28d792ae79aa83f44d609d35fe0e"
+      }
+    }
+  ],
+  "production_acceptance": "not asserted"
+}
