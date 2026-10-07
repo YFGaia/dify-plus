@@ -9,7 +9,7 @@ provider URLs containing Tokens. CSRF, ETag CAS and capability proofs belong to
 their owners and are not established by constructing a DTO.
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -35,6 +35,8 @@ from pydantic import (
     model_validator,
 )
 
+from controllers.console.casdoor_configuration_input_extend import CasdoorConfigurationInput
+
 ETag = Annotated[int, Field(strict=True, ge=0)]
 
 
@@ -45,6 +47,18 @@ class CasdoorPayload(BaseModel):
 class CasdoorResponse(ResponseModel):
     # Fail closed on accidental fields instead of silently dropping PII or tokens.
     model_config = ConfigDict(extra="forbid", hide_input_in_errors=True, validate_default=True)
+
+    @field_validator("*", mode="after")
+    @classmethod
+    def response_time_utc(cls, value: object) -> object:
+        """Persisted naive times are UTC; JSON date-times require a timezone.
+
+        Keep request policy windows unchanged. Normalize only response fields so
+        generated ISO date-time consumers accept DB-backed selection and status.
+        """
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+        return value
 
 
 class CasdoorLocalMembershipTarget(CasdoorPayload):
@@ -127,7 +141,7 @@ class CasdoorPermissionsResponse(CasdoorResponse):
 
 class CasdoorSaveConfigurationPayload(CasdoorPayload):
     etag: ETag
-    configuration: CasdoorConfiguration
+    configuration: CasdoorConfigurationInput
     secret: SecretStr | None = Field(
         default=None, exclude=True, repr=False, json_schema_extra={"x-max-utf8-bytes": 4096}
     )
@@ -261,7 +275,7 @@ class CasdoorStaticValidationResponse(CasdoorResponse):
     status: Literal["passed"] = "passed"
     static_only: Literal[True] = True
     checked_at: datetime
-    certificate_summaries: tuple[CasdoorCertificateSummaryResponse, ...] = Field(min_length=1, max_length=2)
+    certificate_summaries: tuple[CasdoorCertificateSummaryResponse, ...] = Field(default=(), max_length=2)
 
 
 class CasdoorTestLoginResponse(CasdoorResponse):

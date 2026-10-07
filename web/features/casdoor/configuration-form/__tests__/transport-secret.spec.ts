@@ -1,11 +1,12 @@
-import type { CasdoorConfiguration } from '@dify/contracts/api/console/system-manage-extend/types.gen'
+import type { CasdoorConfigurationInput } from '@dify/contracts/api/console/system-manage-extend/types.gen'
 import {
   zCasdoorConfigurationResponse,
   zCasdoorSaveConfigurationPayloadWritable,
 } from '@dify/contracts/api/console/system-manage-extend/zod.gen'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
-const configuration: CasdoorConfiguration = {
+const configuration: CasdoorConfigurationInput = {
+  schema_version: 2,
   application: 'synthetic-app',
   backend_api_url: 'https://idp.example.test',
   browser_frontend_url: 'https://idp.example.test',

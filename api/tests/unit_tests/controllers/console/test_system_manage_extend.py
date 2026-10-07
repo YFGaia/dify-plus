@@ -21,7 +21,7 @@ from controllers.console.system_manage_extend import (
     CodeExecutionControlListExtend,
     system_admin_required_extend,
 )
-from models.account import AccountStatus
+from models.account import AccountStatus, TenantAccountRole
 
 
 def _make_record(email: str = "user@example.com") -> SimpleNamespace:
@@ -44,6 +44,12 @@ def admin_account(monkeypatch: pytest.MonkeyPatch) -> MagicMock:
     account.status = AccountStatus.ACTIVE
     account.is_authenticated = True
     account.is_admin_or_owner = True
+    account.current_role = TenantAccountRole.ADMIN
+    monkeypatch.setattr(
+        controller_module.SystemManagementAccessService,
+        "can_manage",
+        lambda candidate, session: candidate.current_role in {TenantAccountRole.OWNER, TenantAccountRole.ADMIN},
+    )
 
     monkeypatch.setattr(wraps_module.dify_config, "DEPLOYMENT_EDITION", "CLOUD")
     monkeypatch.setattr("libs.login.dify_config.LOGIN_DISABLED", True)
@@ -58,6 +64,8 @@ class TestSystemAdminRequiredExtendDecorator:
 
         member = MagicMock()
         member.is_admin_or_owner = False
+        member.current_role = TenantAccountRole.NORMAL
+        monkeypatch.setattr(controller_module.SystemManagementAccessService, "can_manage", lambda *args, **kwargs: False)
         monkeypatch.setattr(controller_module, "current_user", member)
 
         @system_admin_required_extend
@@ -72,6 +80,8 @@ class TestSystemAdminRequiredExtendDecorator:
 
         admin = MagicMock()
         admin.is_admin_or_owner = True
+        admin.current_role = TenantAccountRole.ADMIN
+        monkeypatch.setattr(controller_module.SystemManagementAccessService, "can_manage", lambda *args, **kwargs: True)
         monkeypatch.setattr(controller_module, "current_user", admin)
 
         @system_admin_required_extend
@@ -80,12 +90,34 @@ class TestSystemAdminRequiredExtendDecorator:
 
         assert protected() == "ok"
 
+    @pytest.mark.parametrize(
+        "role", [TenantAccountRole.NORMAL, TenantAccountRole.EDITOR, TenantAccountRole.DATASET_OPERATOR]
+    )
+    @pytest.mark.usefixtures("app")
+    def test_rbac_enabled_does_not_promote_workspace_members(self, monkeypatch: pytest.MonkeyPatch, role):
+        import controllers.console.system_manage_extend as controller_module
+        from controllers.console import wraps as wraps_module
+
+        member = MagicMock()
+        member.is_admin_or_owner = True
+        member.current_role = role
+        monkeypatch.setattr(wraps_module.dify_config, "RBAC_ENABLED", True)
+        monkeypatch.setattr(controller_module, "current_user", member)
+
+        @system_admin_required_extend
+        def protected() -> str:
+            return "ok"
+
+        with pytest.raises(Forbidden):
+            protected()
+
 
 class TestCodeExecutionControlEndpoints:
     def test_non_admin_list_endpoint_returns_403(
         self, app: Flask, admin_account: MagicMock, monkeypatch: pytest.MonkeyPatch
     ):
         admin_account.is_admin_or_owner = False
+        admin_account.current_role = TenantAccountRole.NORMAL
 
         with app.test_request_context("/console/api/system-manage-extend/code-execution-control", method="GET"):
             with pytest.raises(Forbidden):

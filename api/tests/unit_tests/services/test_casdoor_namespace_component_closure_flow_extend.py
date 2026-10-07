@@ -1,8 +1,8 @@
 """Original saved unused namespaces and an independent current manager's closure."""
 
-from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
+from types import SimpleNamespace
 
 import pytest
 import sqlalchemy as sa
@@ -41,11 +41,9 @@ def independent_native_manager(d, monkeypatch):
         session.add(manager)
         session.flush()
         session.add(TenantAccountJoin(
-            tenant_id=str(UUID(int=100)), account_id=manager.id, role=TenantAccountRole.NORMAL, current=True,
+            tenant_id=str(UUID(int=100)), account_id=manager.id, role=TenantAccountRole.OWNER, current=True,
         ))
-    policy = d.services.casdoor_configuration._management_policy
-    monkeypatch.setattr(d.services.casdoor_configuration, "_management_policy",
-                        replace(policy, account_ids=policy.account_ids | {manager.id}))
+    manager._current_tenant = SimpleNamespace(id=str(UUID(int=100)))
     token = "8" * 128
     d.source["refresh_token:" + token] = manager.id.encode()
     access = PassportService().issue({

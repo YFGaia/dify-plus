@@ -37,6 +37,7 @@ RESOURCE_MODULES = (
     "controllers.console.auth.casdoor_rp_logout_extend",
     "controllers.console.auth.casdoor_display_extend",
     "controllers.console.casdoor_config_extend",
+    "controllers.console.system_management_permissions_extend",
     "controllers.console.explore.audio",
     "controllers.console.explore.completion",
     "controllers.console.explore.conversation",

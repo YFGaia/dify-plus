@@ -8,6 +8,7 @@ and recheck fences before commit. I19 owns invitation/permission finalization an
 session issuance. This module performs none of those operations.
 """
 
+import hashlib
 import math
 import re
 from dataclasses import dataclass, fields
@@ -31,6 +32,7 @@ from core.casdoor.claims import (
     VerifiedOnlineUser,
     VerifiedProfile,
     VerifiedTokenBundle,
+    _legal_email,
 )
 from core.casdoor.errors import CasdoorErrorCode
 
@@ -238,6 +240,40 @@ def _legal_verified_email(profile: VerifiedProfile) -> str:
         raise AdmissionError() from None
 
 
+def local_account_email(context: AdmissionContext, online: VerifiedOnlineUser, profile: VerifiedProfile) -> str:
+    """Choose a local creation address, never an identity or verified-email claim.
+
+    A legal provider email is preserved regardless of its verification flag.
+    Missing email uses a bounded ASCII account-name slug and a namespace/subject
+    digest in the reserved .invalid domain. Existing malformed emails still deny.
+    This address must drive collision reads, leases and NEW persistence together;
+    it never selects an existing account or changes the remote profile snapshot.
+    Invitation admission keeps its separate verified real-email requirement.
+    """
+    if (
+        not _projection(context, AdmissionContext)
+        or type(context.namespace_id) is not UUID
+        or not _text(context.subject)
+        or not _projection(online, VerifiedOnlineUser)
+        or not _projection(online.user_ref, StructuredUserRef)
+        or (online.user_ref.owner, online.subject) != (context.organization, context.subject)
+        or not _text(online.user_ref.name)
+        or not _projection(profile, VerifiedProfile)
+        or profile.subject != context.subject
+    ):
+        raise AdmissionError(CasdoorErrorCode.INVALID_TRANSACTION)
+    if profile.email is not None:
+        if not _legal_email(profile.email):
+            raise AdmissionError()
+        try:
+            return validate_email(profile.email)
+        except (ValueError, TypeError):
+            raise AdmissionError() from None
+    slug = re.sub(r"[^a-z0-9]+", "-", online.user_ref.name.lower()).strip("-")[:31].rstrip("-") or "user"
+    digest = hashlib.sha256(context.namespace_id.bytes + b"\x00" + context.subject.encode("utf-8")).hexdigest()[:32]
+    return validate_email(f"{slug}-{digest}@casdoor.invalid")
+
+
 def resolve_initial_setup(
     profile: VerifiedProfile,
     *,
@@ -370,7 +406,7 @@ def decide_admission(
     if binding is None and invitation is None:
         if account is not None or email_collision_account_ids:
             raise AdmissionError()
-        creation_email = _legal_verified_email(profile)
+        creation_email = local_account_email(context, online, profile)
         setup = resolve_initial_setup(
             profile, local_email=creation_email, request_language=request_language, request_timezone=request_timezone
         )

@@ -43,6 +43,18 @@ import { createSystemFeaturesFixture } from '@/test/console/system-features'
 import { AppModeEnum } from '@/types/app'
 import { MainNav } from '../index'
 
+// This suite owns navigation composition; the real authorization transport is
+// exercised by features/casdoor/management-access/__tests__/navigation.spec.tsx.
+vi.mock('@/features/system-management/access', async () => {
+  const { useAtomValue } = await import('jotai')
+  const { isCurrentWorkspaceManagerAtom } = await import('@/context/workspace-state')
+  return {
+    useSystemManagementAccess: () => ({
+      canManageSystem: useAtomValue(isCurrentWorkspaceManagerAtom),
+    }),
+  }
+})
+
 const balanceMocks = vi.hoisted(() => ({ money: vi.fn(), loginConfig: vi.fn() }))
 
 const onPricingUrlUpdate = vi.hoisted(() => vi.fn())
@@ -1056,24 +1068,30 @@ describe('MainNav', () => {
     },
   )
 
-  it('shows the owner system management entry and all three destination links', () => {
-    renderMainNav(undefined, {
-      extra: <SystemManageLayout>System management content</SystemManageLayout>,
-    })
+  it.each(['owner', 'admin'] as const)(
+    'shows the %s system management entry and all three destination links',
+    (role) => {
+      mockConsoleState.current = createSystemManageConsoleState(role)
+      renderMainNav(undefined, {
+        extra: <SystemManageLayout>System management content</SystemManageLayout>,
+      })
 
-    const primaryNavigation = screen.getByRole('navigation', { name: 'common.navigation.primary' })
-    const systemManageLink = within(primaryNavigation).getByRole('link', {
-      name: 'extend.systemManage.title',
-    })
-    expect(systemManageLink).toHaveAttribute('href', '/system-manage-extend/system-integration')
-    expect(systemManageLink).not.toHaveAttribute('aria-current')
-    for (const { name, href } of systemManageRoutes) {
-      expect(screen.getByRole('link', { name })).toHaveAttribute('href', href)
-    }
-    expect(screen.getByText('System management content')).toBeInTheDocument()
-  })
+      const primaryNavigation = screen.getByRole('navigation', {
+        name: 'common.navigation.primary',
+      })
+      const systemManageLink = within(primaryNavigation).getByRole('link', {
+        name: 'extend.systemManage.title',
+      })
+      expect(systemManageLink).toHaveAttribute('href', '/system-manage-extend/system-integration')
+      expect(systemManageLink).not.toHaveAttribute('aria-current')
+      for (const { name, href } of systemManageRoutes) {
+        expect(screen.getByRole('link', { name })).toHaveAttribute('href', href)
+      }
+      expect(screen.getByText('System management content')).toBeInTheDocument()
+    },
+  )
 
-  it.each(['admin', 'normal'] as const)(
+  it.each(['editor', 'normal', 'dataset_operator'] as const)(
     'hides system management links and direct page content from %s even with extension flags',
     (role) => {
       mockPathname = '/system-manage-extend/system-integration'
@@ -1125,7 +1143,7 @@ describe('MainNav', () => {
         seedRegisteredConsoleStateFixture(store)
       })
 
-      if (role === 'owner') {
+      if (role === 'owner' || role === 'admin') {
         expect(screen.getByRole('link', { name: 'extend.systemManage.title' })).toBeInTheDocument()
         for (const { name } of systemManageRoutes) {
           expect(screen.getByRole('link', { name })).toBeInTheDocument()

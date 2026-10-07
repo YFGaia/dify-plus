@@ -122,11 +122,9 @@ describe('independent native generated Casdoor auth contract', () => {
     ]
 
     expect(casdoor).toHaveLength(5)
-    expect(
-      casdoor
-        .map(({ '~orpc': { route } }) => route.operationId)
-        .sort(),
-    ).toEqual(expectedCasdoor.map((route) => route.operationId).sort())
+    expect(casdoor.map(({ '~orpc': { route } }) => route.operationId).sort()).toEqual(
+      expectedCasdoor.map((route) => route.operationId).sort(),
+    )
     for (const expected of expectedCasdoor) {
       const operation = casdoor.find(
         ({ '~orpc': { route } }) => route.operationId === expected.operationId,
@@ -297,11 +295,9 @@ describe('independent native generated Casdoor auth contract', () => {
 
     expect(operations).toHaveLength(15)
     expect(oldOperations).toHaveLength(10)
-    expect(
-      oldOperations
-        .map(({ '~orpc': { route } }) => route.operationId)
-        .sort(),
-    ).toEqual(expectedOldRoutes.map((route) => route.operationId).sort())
+    expect(oldOperations.map(({ '~orpc': { route } }) => route.operationId).sort()).toEqual(
+      expectedOldRoutes.map((route) => route.operationId).sort(),
+    )
     for (const expected of expectedOldRoutes) {
       const operation = oldOperations.find(
         ({ '~orpc': { route } }) => route.operationId === expected.operationId,
@@ -375,11 +371,9 @@ describe('independent native generated Casdoor auth contract', () => {
     expect(new Set(operations.map(({ '~orpc': { route } }) => route.operationId)).size).toBe(30)
     expect(priorOperations).toHaveLength(22)
     expect(addedOperations).toHaveLength(8)
-    expect(
-      addedOperations
-        .map(({ '~orpc': { route } }) => route.operationId)
-        .sort(),
-    ).toEqual([...additiveIds].sort())
+    expect(addedOperations.map(({ '~orpc': { route } }) => route.operationId).sort()).toEqual(
+      [...additiveIds].sort(),
+    )
     for (const expected of additions) {
       const operation = addedOperations.find(
         ({ '~orpc': { route } }) => route.operationId === expected.operationId,

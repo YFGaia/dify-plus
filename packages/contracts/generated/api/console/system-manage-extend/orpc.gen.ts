@@ -21,6 +21,7 @@ import {
   zGetSystemManageExtendIntegrationDingtalkResponse,
   zGetSystemManageExtendIntegrationDingtalkTestResponse,
   zGetSystemManageExtendIntegrationOauth2Response,
+  zGetSystemManageExtendPermissionsResponse,
   zGetSystemManageExtendQuotaManagementResponse,
   zPostSystemManageExtendForwardTokensResponse,
   zPostSystemManageExtendIntegrationCasdoorActivateBody,
@@ -49,8 +50,10 @@ import {
   zPostSystemManageExtendIntegrationCasdoorTestRpLogoutResponse,
   zPostSystemManageExtendIntegrationCasdoorValidateBody,
   zPostSystemManageExtendIntegrationCasdoorValidateResponse,
+  zPostSystemManageExtendIntegrationDingtalkBody,
   zPostSystemManageExtendIntegrationDingtalkResponse,
   zPostSystemManageExtendIntegrationDingtalkTestCallbackResponse,
+  zPostSystemManageExtendIntegrationEmailApiTestBody,
   zPostSystemManageExtendIntegrationEmailApiTestResponse,
   zPostSystemManageExtendIntegrationOauth2Response,
   zPostSystemManageExtendIntegrationOauth2TestResponse,
@@ -513,6 +516,7 @@ export const post16 = oc
     summary: '保存钉钉配置',
     tags: ['default'],
   })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationDingtalkBody }))
   .output(zPostSystemManageExtendIntegrationDingtalkResponse)
 
 export const dingtalk = {
@@ -523,7 +527,7 @@ export const dingtalk = {
 }
 
 /**
- * 测试邮箱 API 连通性
+ * 使用草稿配置和钉钉用户 ID 查询邮箱，不创建账号。
  */
 export const post17 = oc
   .route({
@@ -531,9 +535,10 @@ export const post17 = oc
     method: 'POST',
     operationId: 'postSystemManageExtendIntegrationEmailApiTest',
     path: '/system-manage-extend/integration/email-api/test',
-    summary: '测试邮箱 API 连通性',
+    summary: '使用草稿配置和钉钉用户 ID 查询邮箱，不创建账号。',
     tags: ['default'],
   })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationEmailApiTestBody }))
   .output(zPostSystemManageExtendIntegrationEmailApiTestResponse)
 
 export const test2 = {
@@ -603,6 +608,20 @@ export const integration = {
   oauth2,
 }
 
+export const get12 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
+    operationId: 'getSystemManageExtendPermissions',
+    path: '/system-manage-extend/permissions',
+    tags: ['console'],
+  })
+  .output(zGetSystemManageExtendPermissionsResponse)
+
+export const permissions2 = {
+  get: get12,
+}
+
 /**
  * 设置指定用户的总额度（UPSERT）
  */
@@ -624,7 +643,7 @@ export const set = {
 /**
  * 获取用户额度分页列表，支持按 name/email 搜索
  */
-export const get12 = oc
+export const get13 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -636,13 +655,14 @@ export const get12 = oc
   .output(zGetSystemManageExtendQuotaManagementResponse)
 
 export const quotaManagement = {
-  get: get12,
+  get: get13,
   set,
 }
 
 export const systemManageExtend = {
   forwardTokens,
   integration,
+  permissions: permissions2,
   quotaManagement,
 }
 

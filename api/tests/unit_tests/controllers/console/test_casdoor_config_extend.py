@@ -1,6 +1,6 @@
 """Actual Flask routes/login decorator/CSRF with synthetic JWTs and SQLite only."""
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from functools import partial
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -11,13 +11,12 @@ from configs import dify_config
 from constants import COOKIE_NAME_CSRF_TOKEN, HEADER_NAME_CSRF_TOKEN
 from controllers.console import bp
 from controllers.console import casdoor_config_extend as controller
-from core.casdoor.permissions import CasdoorManagementPolicy
 from enums import DeploymentEdition
 from extensions import ext_application_services
 from flask import Flask, g, jsonify
 from libs.passport import PassportService
 from libs.token import generate_csrf_token
-from models.account import TenantAccountRole
+from models.account import Tenant, TenantAccountJoin, TenantAccountRole
 from models.casdoor_extend import CasdoorIntegrationExtend, CasdoorValidationExtend
 
 from tests.unit_tests.services import test_casdoor_configuration_service_extend as fixtures
@@ -31,8 +30,8 @@ def database():
 
 
 @pytest.fixture
-def actor():
-    return fixtures.actor.__wrapped__()
+def actor(database):
+    return fixtures.actor.__wrapped__(database)
 
 
 @pytest.fixture(scope="module")
@@ -93,6 +92,24 @@ def request(harness, method, suffix="", *, payload=None, headers=None):
     )
 
 
+def set_membership_role(harness, role):
+    with harness.factory.begin() as session:
+        membership = session.scalar(
+            sa.select(TenantAccountJoin).where(
+                TenantAccountJoin.account_id == harness.actor.id,
+                TenantAccountJoin.tenant_id == harness.workspace_id,
+            )
+        )
+        membership.role = role
+
+
+def automatic_configuration(workspace_id):
+    configuration = fixtures.automatic_foundation.automatic(workspace_id).model_dump(mode="json")
+    configuration.pop("certificates")
+    configuration.pop("signing_key_mode")
+    return configuration
+
+
 METHODS = [
     ("GET", "/permissions"),
     ("GET", ""),
@@ -101,9 +118,13 @@ METHODS = [
     ("POST", "/disable"),
     ("POST", "/activate"),
     ("POST", "/test-login"),
+    ("POST", "/test-rp-logout"),
+    ("POST", "/test-reauth"),
+    ("GET", "/rp-logout-status"),
     ("POST", "/validate"),
     ("GET", "/workspaces"),
 ]
+PRIVILEGED_METHODS = METHODS[1:]
 
 
 @pytest.mark.parametrize(("method", "suffix"), METHODS)
@@ -139,32 +160,86 @@ def test_real_csrf_owner_rejects_every_management_method(harness, method, suffix
         assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorIntegrationExtend)) == 0
 
 
-@pytest.mark.parametrize(("method", "suffix"), METHODS[1:])
-@pytest.mark.parametrize("allowlist", ["", "malformed", "20000000-0000-4000-8000-000000000002"])
-def test_privileged_guard_before_payload_owner_never_bypasses_allowlist(harness, method, suffix, allowlist):
-    harness.actor.role = TenantAccountRole.OWNER
-    harness.owner._management_policy = CasdoorManagementPolicy.from_deployment(allowlist)
+@pytest.mark.parametrize(("method", "suffix"), PRIVILEGED_METHODS)
+@pytest.mark.parametrize(
+    "role", [TenantAccountRole.NORMAL, TenantAccountRole.EDITOR, TenantAccountRole.DATASET_OPERATOR]
+)
+@pytest.mark.parametrize("rbac_enabled", [False, True])
+def test_privileged_guard_denies_non_manager_before_payload_or_side_effect(
+    harness, monkeypatch, method, suffix, role, rbac_enabled
+):
+    harness.actor.role = role
+    set_membership_role(harness, role)
+    monkeypatch.setattr(dify_config, "RBAC_ENABLED", rbac_enabled)
+    monkeypatch.setattr(dify_config, "CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS", harness.actor.id)
     response = request(harness, method, suffix, payload={"synthetic-private-extra-field": "synthetic-value"})
     assert response.status_code == 403
     assert response.json["code"] == "casdoor_management_forbidden"
     assert response.headers["Cache-Control"] == "no-store"
     assert "synthetic" not in response.get_data(as_text=True)
+    with harness.factory() as session:
+        assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorIntegrationExtend)) == 0
 
 
-def test_permission_is_bool_only_and_normal_allowlisted_account_works(harness):
+def test_permission_is_bool_only_and_tracks_current_workspace_role(harness):
     response = request(harness, "GET", "/permissions")
     assert response.json == {"can_manage_casdoor": True}
     assert response.headers["Cache-Control"] == "no-store"
     response = request(harness, "GET")
     assert response.status_code == 200
     assert response.json["etag"] == 0
-    harness.owner._management_policy = CasdoorManagementPolicy.from_deployment("")
+    harness.actor.role = TenantAccountRole.NORMAL
+    set_membership_role(harness, TenantAccountRole.NORMAL)
     assert request(harness, "GET", "/permissions").json == {"can_manage_casdoor": False}
+    denied = request(harness, "GET")
+    assert denied.status_code == 403
+    assert denied.json["code"] == "casdoor_management_forbidden"
 
 
-def test_http_save_blank_keep_clear_static_and_safe_response(harness, certificate, monkeypatch):
+def test_http_missing_workspace_binds_current_account_workspace(harness):
+    harness.actor._current_tenant = type("WorkspaceRef", (), {"id": harness.workspace_id})()
+    configuration = automatic_configuration(harness.workspace_id)
+    configuration.pop("default_workspace_id")
+    saved = request(harness, "PUT", payload={"etag": 0, "configuration": configuration})
+    assert saved.status_code == 200
+    resolved = saved.json["draft"]["configuration"]
+    assert resolved["default_workspace_id"] == harness.workspace_id
+    loaded = request(harness, "GET")
+    assert loaded.status_code == 200
+    assert loaded.json["draft"]["configuration"]["default_workspace_id"] == harness.workspace_id
+
+
+def test_http_missing_workspace_rejects_account_without_current_workspace(harness):
+    configuration = automatic_configuration(harness.workspace_id)
+    configuration.pop("default_workspace_id")
+    harness.actor._current_tenant = None
+    assert harness.actor.current_tenant_id is None
+    failed = request(harness, "PUT", payload={"etag": 0, "configuration": configuration})
+    assert failed.status_code == 400
+    assert failed.json["code"] == "workspace_unavailable"
+    assert failed.headers["Cache-Control"] == "no-store"
+    assert request(harness, "GET").json["draft"] is None
+
+
+def test_http_basic_save_returns_complete_resolved_configuration(harness):
+    configuration = automatic_configuration(harness.workspace_id)
+    configuration.pop("backend_api_url")
+    configuration.pop("expected_issuer")
+    saved = request(harness, "PUT", payload={"etag": 0, "configuration": configuration})
+    assert saved.status_code == 200
+    resolved = saved.json["draft"]["configuration"]
+    assert resolved["backend_api_url"] == configuration["browser_frontend_url"]
+    assert resolved["expected_issuer"] == configuration["browser_frontend_url"]
+    assert resolved["certificates"] == []
+    assert resolved["signing_key_mode"] == "automatic"
+    loaded = request(harness, "GET")
+    assert loaded.status_code == 200
+    assert loaded.json["draft"]["configuration"] == resolved
+
+
+def test_http_save_blank_keep_clear_static_and_safe_response(harness, monkeypatch):
     monkeypatch.setattr(harness.owner, "validate_static", partial(harness.owner.validate_static, now=fixtures.NOW))
-    configuration = fixtures.foundation.config(harness.workspace_id, certificate).model_dump(mode="json")
+    configuration = automatic_configuration(harness.workspace_id)
     secret = "synthetic-http-client-secret-private"
     saved = request(harness, "PUT", payload={"etag": 0, "configuration": configuration, "secret": secret})
     assert saved.status_code == 200
@@ -179,9 +254,9 @@ def test_http_save_blank_keep_clear_static_and_safe_response(harness, certificat
     assert validated.status_code == 200
     assert validated.json["kind"] == "static"
     assert validated.json["static_only"] is True
+    assert validated.json["checked_at"].endswith("Z")
     assert validated.json["revision_id"] == first["draft_revision_id"]
-    assert len(validated.json["certificate_summaries"][0]["fingerprint"]) == 64
-    assert "pem" not in validated.json["certificate_summaries"][0]
+    assert validated.json["certificate_summaries"] == []
     second = request(harness, "PUT", payload={"etag": 1, "configuration": configuration, "secret": ""})
     assert second.status_code == 200
     assert second.json["draft"]["secret_configured"]
@@ -201,11 +276,16 @@ def test_http_save_blank_keep_clear_static_and_safe_response(harness, certificat
     for response in [saved, validated, second, stale, cleared, invalid]:
         assert response.headers["Cache-Control"] == "no-store"
     with harness.factory() as session:
-        assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorValidationExtend)) == 0
+        checks = session.scalars(sa.select(CasdoorValidationExtend)).all()
+        assert {(row.revision_id, row.kind, row.status) for row in checks} == {
+            (first["draft_revision_id"], "static", "passed"),
+            (cleared.json["draft_revision_id"], "static", "failed"),
+        }
+        assert len(checks) == 2
 
 
-def test_http_disable_uses_csrf_guard_and_returns_namespace_reconciliation_state(harness, certificate):
-    configuration = fixtures.foundation.config(harness.workspace_id, certificate).model_dump(mode="json")
+def test_http_disable_uses_csrf_guard_and_returns_namespace_reconciliation_state(harness):
+    configuration = automatic_configuration(harness.workspace_id)
     saved = request(
         harness,
         "PUT",
@@ -221,10 +301,10 @@ def test_http_disable_uses_csrf_guard_and_returns_namespace_reconciliation_state
     assert disabled.headers["Cache-Control"] == "no-store"
 
 
-def test_activate_requires_deployment_proof_and_diagnostic_requires_actual_source_access(
-    harness, certificate, monkeypatch
+def test_activate_requires_current_diagnostic_and_diagnostic_requires_actual_source_access(
+    harness, monkeypatch
 ):
-    configuration = fixtures.foundation.config(harness.workspace_id, certificate).model_dump(mode="json")
+    configuration = automatic_configuration(harness.workspace_id)
     saved = request(
         harness,
         "PUT",
@@ -238,7 +318,9 @@ def test_activate_requires_deployment_proof_and_diagnostic_requires_actual_sourc
     tested = request(harness, "POST", "/test-login", payload=body)
     assert activated.status_code == 409
     assert activated.json["code"] == "config_conflict"
-    assert activated.json["reason"] == "deployment_proof_missing"
+    # Missing actual current-revision validation still blocks activation after
+    # removing the external signed-manifest gate; internal reasons stay private.
+    assert activated.json["reason"] is None
     # A CSRF-authenticated management stub without request access/refresh is
     # insufficient for the independently browser-bound DIAGNOSTIC transaction.
     assert tested.status_code == 400
@@ -288,15 +370,43 @@ def test_workspace_http_serialization_created_at_pagination_metadata(harness):
     assert response.status_code == 200
     assert response.json["total"] == 1
     assert response.json["limit"] == 100
-    assert response.json["workspaces"][0]["created_at"]
+    created = response.json["workspaces"][0]["created_at"]
+    assert created.endswith("Z")
+    assert datetime.fromisoformat(created).utcoffset() == timedelta(0)
+    assert response.json["earliest_created_workspace"]["created_at"] == created
     assert response.json["earliest_created_workspace"]["workspace_id"] == harness.workspace_id
     assert not response.json["earliest_created_ambiguous"]
     assert response.headers["Cache-Control"] == "no-store"
 
 
-def test_factory_injects_actual_config_policy_key_and_rbac(harness, monkeypatch):
-    monkeypatch.setattr(dify_config, "CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS", harness.actor.id)
-    monkeypatch.setattr(dify_config, "RBAC_ENABLED", True)
+@pytest.mark.parametrize("offset", [None, UTC, timezone(timedelta(hours=8))])
+def test_response_status_times_use_utc_iso_contract(offset):
+    from uuid import UUID
+
+    from controllers.console.casdoor_schemas_extend import CasdoorValidationSummaryResponse
+
+    value = datetime(2026, 10, 6, 8, 30, tzinfo=offset)
+    response = CasdoorValidationSummaryResponse(
+        kind="validation",
+        status="passed",
+        revision_id=UUID(int=1),
+        checked_at=value,
+        expires_at=value + timedelta(minutes=15),
+    ).model_dump(mode="json")
+    expected = value.replace(tzinfo=UTC) if offset is None else value.astimezone(UTC)
+    assert response["checked_at"].endswith("Z")
+    assert datetime.fromisoformat(response["checked_at"]) == expected
+    assert datetime.fromisoformat(response["expires_at"]) == expected + timedelta(minutes=15)
+
+
+@pytest.mark.parametrize("rbac_enabled", [False, True])
+@pytest.mark.parametrize("legacy_admin_ids", ["", "malformed", "20000000-0000-4000-8000-000000000002"])
+def test_factory_uses_current_workspace_role_and_ignores_deprecated_allowlist(
+    harness, monkeypatch, rbac_enabled, legacy_admin_ids
+):
+    harness.actor.role = TenantAccountRole.ADMIN
+    monkeypatch.setattr(dify_config, "CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS", legacy_admin_ids)
+    monkeypatch.setattr(dify_config, "RBAC_ENABLED", rbac_enabled)
     with patch.object(ext_application_services.SystemFeatureService, "is_trial_app_enabled", return_value=False):
         services = ext_application_services.build_application_services(
             database_client=harness.factory,
@@ -309,12 +419,13 @@ def test_factory_injects_actual_config_policy_key_and_rbac(harness, monkeypatch)
     assert owner.can_manage(harness.actor)
     with harness.factory() as session:
         repository = owner._repository(session)
-        assert repository.rbac_mode == "on"
+        assert repository.rbac_mode == ("on" if rbac_enabled else "off")
         assert repository.deployment_proof_fingerprint is None
         assert repository.crypto.key_version == "v1"
 
 
-def test_swagger_registered_actual_pydantic_models_and_query_docs(harness):
+@pytest.mark.usefixtures("harness")
+def test_swagger_registered_actual_pydantic_models_and_query_docs():
     namespace = controller.console_ns
     schema = namespace.models["CasdoorSaveConfigurationPayload"]._schema
     assert schema["properties"]["secret"]["anyOf"][0]["writeOnly"] is True
@@ -355,7 +466,7 @@ def test_actual_openapi_endpoint_documents_management_operations(harness):
 
 
 def test_unexpected_error_boundary_omits_driver_values_and_cache(harness, monkeypatch):
-    def private_driver_failure(account):
+    def private_driver_failure(_account):
         raise RuntimeError("synthetic-driver-secret-input")
 
     monkeypatch.setattr(harness.owner, "get", private_driver_failure)

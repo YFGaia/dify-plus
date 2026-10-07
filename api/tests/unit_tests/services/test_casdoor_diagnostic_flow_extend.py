@@ -37,6 +37,8 @@ def diagnostic(production, monkeypatch):
     actor = Account(name="Synthetic diagnostic administrator", email="diag@example.test")
     actor.id = str(UUID(int=811))
     actor.status = AccountStatus.ACTIVE
+    actor.initialized_at = datetime.now(UTC).replace(tzinfo=None)
+    actor.role = TenantAccountRole.ADMIN
     actor.last_active_at = datetime.now(UTC).replace(tzinfo=None)
     with f.service._session_factory() as session, session.begin():
         session.expire_on_commit = False
@@ -45,8 +47,16 @@ def diagnostic(production, monkeypatch):
             TenantAccountJoin(
                 tenant_id=str(f.local.config.default_workspace_id),
                 account_id=actor.id,
-                role=TenantAccountRole.NORMAL,
+                role=TenantAccountRole.ADMIN,
                 current=True,
+            )
+        )
+        session.add(
+            TenantAccountJoin(
+                tenant_id=str(UUID(int=200)),
+                account_id=actor.id,
+                role=TenantAccountRole.ADMIN,
+                current=False,
             )
         )
     token = "7" * 128
@@ -493,11 +503,21 @@ def test_revoked_source_cannot_write_static_or_pass(diagnostic):
     assert not rows(d) and not d.f.control.requests
 
 
-def test_no_manifest_does_not_bypass_management_allowlist(diagnostic):
+def test_no_manifest_does_not_bypass_current_workspace_role(diagnostic):
     d = diagnostic
     d.production.authority.unlink()
     snapshot = d.services.casdoor_configuration.get(d.actor)
-    d.services.casdoor_configuration._management_policy = CasdoorManagementPolicy.from_deployment("")
+    d.actor.role = TenantAccountRole.NORMAL
+    with d.f.service._session_factory() as session, session.begin():
+        membership = session.scalar(
+            sa.select(TenantAccountJoin).where(
+                TenantAccountJoin.account_id == d.actor.id,
+                TenantAccountJoin.current.is_(True),
+            )
+        )
+        assert membership is not None
+        membership.role = TenantAccountRole.NORMAL
+    d.services.casdoor_configuration._management_policy = CasdoorManagementPolicy()
 
     response = send(
         d,

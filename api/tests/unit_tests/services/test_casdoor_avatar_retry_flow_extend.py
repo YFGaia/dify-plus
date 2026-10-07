@@ -44,7 +44,7 @@ def test_normal_authenticated_account_is_not_a_manager(mounted):
     s = mounted
     produce(s)
     s.services.casdoor_configuration._management_policy = (
-        CasdoorManagementPolicy.from_deployment("")
+        CasdoorManagementPolicy()
     )
     before = row(s)
     assert s.send(BASE + "/retry-targets").status_code == 403

@@ -4,32 +4,10 @@ import re
 from typing import Literal
 from uuid import UUID, uuid4
 
-from core.casdoor.auth_transactions import (
-    SCOPE_COOKIE_NAME,
-    AuthMode,
-    AuthTransactionError,
-    source_initialization_cookie_name,
-)
-from core.casdoor.errors import CasdoorErrorCode
-from core.casdoor.request_safety import (
-    LocalReferences,
-    RequestAction,
-    SafetyEvent,
-    SafetyResultCode,
-    format_public_error,
-    record_safety_event,
-)
-from extensions.ext_application_services import application_services
-from fields.base import ResponseModel
 from flask import Response, jsonify, make_response, request
 from flask_restx import Resource
-from libs.helper import dump_response
-from libs.login import login_required
-from libs.token import extract_refresh_token
-from machinery.context import RequestContext
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
-from repositories.casdoor_self_identity_repository_extend import CasdoorSelfReadConflict
-from services.casdoor_identity_action_service_extend import PROOF_COOKIE_NAME, PROOF_SCOPE_COOKIE_NAME
+from werkzeug.exceptions import HTTPException
 
 from controllers.common.schema import (
     query_params_from_model,
@@ -44,6 +22,7 @@ from controllers.console.auth.casdoor_extend import (
     _exact_directives,
     _security_cookie,
 )
+from controllers.console.casdoor_config_extend import CasdoorManagementResource, casdoor_management_required
 from controllers.console.casdoor_schemas_extend import (
     CasdoorIdentityActionsResponse,
     CasdoorIdentityUnlinkedResponse,
@@ -54,6 +33,30 @@ from controllers.console.casdoor_schemas_extend import (
     CasdoorUnlinkIdentityPayload,
 )
 from controllers.console.flask_admission import console_account_admission
+from core.casdoor.auth_transactions import (
+    SCOPE_COOKIE_NAME,
+    AuthMode,
+    AuthTransactionError,
+    source_initialization_cookie_name,
+)
+from core.casdoor.errors import CasdoorErrorCode
+from core.casdoor.permissions import CasdoorManagementForbiddenError
+from core.casdoor.request_safety import (
+    LocalReferences,
+    RequestAction,
+    SafetyEvent,
+    SafetyResultCode,
+    format_public_error,
+    record_safety_event,
+)
+from extensions.ext_application_services import application_services
+from fields.base import ResponseModel
+from libs.helper import dump_response
+from libs.login import login_required
+from libs.token import extract_refresh_token
+from machinery.context import RequestContext
+from repositories.casdoor_self_identity_repository_extend import CasdoorSelfReadConflict
+from services.casdoor_identity_action_service_extend import PROOF_COOKIE_NAME, PROOF_SCOPE_COOKIE_NAME
 
 PATH = "/console/api/account/casdoor-identity"
 
@@ -305,7 +308,7 @@ register_response_schema_models(
 
 
 class CasdoorIdentityActionResource(Resource):
-    method_decorators = [login_required]
+    method_decorators = [casdoor_management_required, login_required]
     safety_action = RequestAction.START
 
     def dispatch_request(self, *args, **kwargs):
@@ -315,19 +318,32 @@ class CasdoorIdentityActionResource(Resource):
             response = make_response(super().dispatch_request(*args, **kwargs))
             references = getattr(self, "_source_references", references)
             code = SafetyResultCode.SUCCESS if response.status_code < 400 else CasdoorErrorCode.INVALID_TRANSACTION
-        except Exception as error:
-            public = format_public_error(
-                CasdoorErrorCode.INVALID_TRANSACTION
-                if isinstance(error, (AuthTransactionError, ValueError))
-                else error,
-                correlation_id=correlation,
-            )
-            response = jsonify(dump_response(CasdoorResultResponse, public.payload()))
-            response.status_code = public.status
+        except CasdoorManagementForbiddenError:
+            response = CasdoorManagementResource._error("casdoor_management_forbidden", 403)
             response._casdoor_action_error = True
-            if public.retry_after_seconds is not None:
-                response.headers["Retry-After"] = str(public.retry_after_seconds)
-            code = public.code
+            code = CasdoorErrorCode.INVALID_TRANSACTION
+        except Exception as error:
+            if isinstance(error, HTTPException) and request.path.startswith(
+                "/console/api/system-manage-extend/integration/casdoor"
+            ):
+                response = CasdoorManagementResource._error(
+                    "unauthorized" if error.code == 401 else "invalid_transaction", error.code or 500
+                )
+                response._casdoor_action_error = True
+                code = CasdoorErrorCode.INVALID_TRANSACTION
+            else:
+                public = format_public_error(
+                    CasdoorErrorCode.INVALID_TRANSACTION
+                    if isinstance(error, (AuthTransactionError, ValueError))
+                    else error,
+                    correlation_id=correlation,
+                )
+                response = jsonify(dump_response(CasdoorResultResponse, public.payload()))
+                response.status_code = public.status
+                response._casdoor_action_error = True
+                if public.retry_after_seconds is not None:
+                    response.headers["Retry-After"] = str(public.retry_after_seconds)
+                code = public.code
         try:
             record_safety_event(SafetyEvent(self.safety_action, code, correlation, references=references))
         except Exception:

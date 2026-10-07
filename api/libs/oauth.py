@@ -316,6 +316,19 @@ class GoogleOAuth(OAuth):
 
 # Extend Start: OAuth2
 class OaOAuth(OAuth):
+    def _resolve_redirect_uri(self, config: dict) -> str:
+        """Use the configured callback for both OAuth requests, preserving the legacy default."""
+        redirect_uri = config.get("redirect_uri")
+        if redirect_uri is None or (isinstance(redirect_uri, str) and not redirect_uri.strip()):
+            return dify_config.CONSOLE_API_URL.rstrip("/") + "/console/api/oauth/authorize/oauth2"
+        if not isinstance(redirect_uri, str):
+            raise ValueError("OAuth2 redirect_uri must be an absolute HTTP(S) URL without a fragment")
+        redirect_uri = redirect_uri.strip()
+        parsed = urllib.parse.urlsplit(redirect_uri)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc or "#" in redirect_uri:
+            raise ValueError("OAuth2 redirect_uri must be an absolute HTTP(S) URL without a fragment")
+        return redirect_uri
+
     def _is_absolute_url(self, url: str) -> bool:
         return isinstance(url, str) and (url.startswith("http://") or url.startswith("https://"))
 
@@ -430,7 +443,7 @@ class OaOAuth(OAuth):
         config = auto2_conf.get("config")
         params = {
             "response_type": "code",
-            "redirect_uri": dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/oauth2",
+            "redirect_uri": self._resolve_redirect_uri(config),
             "client_id": integration.app_id,
             "scope": config.get("scope"),
         }
@@ -463,7 +476,7 @@ class OaOAuth(OAuth):
         data = {
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/oauth2",
+            "redirect_uri": self._resolve_redirect_uri(config),
         }
         headers = {"Accept": "application/json"}
         if use_basic:

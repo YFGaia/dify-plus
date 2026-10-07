@@ -247,17 +247,54 @@ def test_unknown_kid_and_kid_key_mismatch(keys: tuple[rsa.RSAPrivateKey, rsa.RSA
             store.verify_rs256(b"synthetic.jws-signing-input", sign(keys[0]), kid=kid, now=NOW)
 
 
-def test_no_kid_accepts_only_unique_success(keys: tuple[rsa.RSAPrivateKey, rsa.RSAPrivateKey]) -> None:
+def test_unlabelled_pinned_certificate_verifies_standard_provider_jwt_kid(
+    keys: tuple[rsa.RSAPrivateKey, rsa.RSAPrivateKey],
+) -> None:
+    trusted = pin(issue_certificate(keys[0]))
+    header = base64.urlsafe_b64encode(json.dumps({"alg": "RS256", "kid": "cert-built-in"}).encode()).rstrip(b"=")
+    payload = base64.urlsafe_b64encode(b'{"sub":"synthetic-user"}').rstrip(b"=")
+    signing_input = header + b"." + payload
+    store = CertificateTrustStore([trusted])
+    assert store.verify_rs256(signing_input, sign(keys[0], signing_input), kid="cert-built-in", now=NOW) is trusted
+    with pytest.raises(CryptoError, match="casdoor_signature_invalid"):
+        store.verify_rs256(signing_input, sign(keys[1], signing_input), kid="cert-built-in", now=NOW)
+
+
+def test_explicit_kid_mismatch_is_not_bypassed_by_an_unlabelled_other_pin(
+    keys: tuple[rsa.RSAPrivateKey, rsa.RSAPrivateKey],
+) -> None:
+    labelled = pin(issue_certificate(keys[0]), "configured-key")
+    unlabelled = pin(issue_certificate(keys[1]))
+    store = CertificateTrustStore([labelled, unlabelled])
+    with pytest.raises(CryptoError, match="casdoor_signature_invalid"):
+        store.verify_rs256(b"synthetic.jws-signing-input", sign(keys[0]), kid="cert-built-in", now=NOW)
+    assert store.verify_rs256(b"synthetic.jws-signing-input", sign(keys[1]), kid="cert-built-in", now=NOW) is unlabelled
+
+
+@pytest.mark.parametrize("kid", [None, "cert-built-in"])
+def test_unlabelled_pins_accept_only_unique_success(
+    kid: str | None, keys: tuple[rsa.RSAPrivateKey, rsa.RSAPrivateKey]
+) -> None:
     old, new = pin(issue_certificate(keys[0])), pin(issue_certificate(keys[1]))
     store = CertificateTrustStore([old, new])
-    assert store.verify_rs256(b"synthetic.jws-signing-input", sign(keys[0]), kid=None, now=NOW) is old
-    assert store.verify_rs256(b"synthetic.jws-signing-input", sign(keys[1]), kid=None, now=NOW) is new
+    assert store.verify_rs256(b"synthetic.jws-signing-input", sign(keys[0]), kid=kid, now=NOW) is old
+    assert store.verify_rs256(b"synthetic.jws-signing-input", sign(keys[1]), kid=kid, now=NOW) is new
     with pytest.raises(CryptoError):
-        store.verify_rs256(b"tampered", sign(keys[0]), kid=None, now=NOW)
+        store.verify_rs256(b"tampered", sign(keys[0]), kid=kid, now=NOW)
     # Distinct certificate DER sharing one public key creates ambiguous success.
     same_key = CertificateTrustStore([old, pin(issue_certificate(keys[0], serial=2))])
     with pytest.raises(CryptoError):
-        same_key.verify_rs256(b"synthetic.jws-signing-input", sign(keys[0]), kid=None, now=NOW)
+        same_key.verify_rs256(b"synthetic.jws-signing-input", sign(keys[0]), kid=kid, now=NOW)
+
+
+def test_provider_kid_does_not_extend_unlabelled_pin_trust_window(
+    keys: tuple[rsa.RSAPrivateKey, rsa.RSAPrivateKey],
+) -> None:
+    trusted = pin(issue_certificate(keys[0]), accept_until=NOW)
+    with pytest.raises(CryptoError, match="casdoor_signature_invalid"):
+        CertificateTrustStore([trusted]).verify_rs256(
+            b"synthetic.jws-signing-input", sign(keys[0]), kid="cert-built-in", now=NOW
+        )
 
 
 @pytest.mark.parametrize("algorithm", ["HS256", "RS512", "none", "PS256"])

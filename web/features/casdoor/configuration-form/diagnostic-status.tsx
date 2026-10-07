@@ -102,6 +102,9 @@ export function DiagnosticStatus({
                   {t(($) => $['systemManage.casdoor.correlation'], { id: summary.correlation_id })}
                 </p>
               )}
+              {summary?.status === 'failed' && kind === 'diagnostic' && (
+                <p>{t(($) => $['systemManage.casdoor.verificationHelp'])}</p>
+              )}
               {summary?.code && <p>{summary.code}</p>}
             </div>
           )

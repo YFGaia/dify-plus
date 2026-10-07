@@ -1,10 +1,10 @@
-import type { CasdoorConfiguration } from '@dify/contracts/api/console/system-manage-extend/types.gen'
+import type { CasdoorConfigurationInput } from '@dify/contracts/api/console/system-manage-extend/types.gen'
 import { zPostSystemManageExtendIntegrationCasdoorValidateResponse } from '@dify/contracts/api/console/system-manage-extend/zod.gen'
 import { dehydrate, MutationObserver, onlineManager, QueryClient } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 const revisionId = '11111111-1111-4111-8111-111111111111'
-const configuration: CasdoorConfiguration = {
+const configuration: CasdoorConfigurationInput = {
   application: 'synthetic-app',
   backend_api_url: 'https://idp.example.test',
   browser_frontend_url: 'https://idp.example.test',

@@ -117,7 +117,7 @@ describe('read-only diagnostic preview', () => {
     act(() => {
       vi.advanceTimersByTime(1000)
     })
-    expect(screen.getByText('Test sign-in: Expired')).toBeInTheDocument()
+    expect(screen.getByText('Test login: Expired')).toBeInTheDocument()
     expect(
       screen.queryByRole('region', { name: 'Sign-in diagnostic preview' }),
     ).not.toBeInTheDocument()
@@ -149,7 +149,7 @@ describe('read-only diagnostic preview', () => {
     const data = revision()
     Object.assign(data.validation![0]!, overrides)
     render(<DiagnosticStatus revision={data} />)
-    expect(screen.getByText('Test sign-in: Unknown')).toBeInTheDocument()
+    expect(screen.getByText('Test login: Unknown')).toBeInTheDocument()
     expect(
       screen.queryByRole('region', { name: 'Sign-in diagnostic preview' }),
     ).not.toBeInTheDocument()

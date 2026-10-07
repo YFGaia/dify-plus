@@ -26,14 +26,11 @@ from core.casdoor.auth_transactions import (
     CookiePolicy,
     CurrentAuthContext,
 )
-from core.casdoor.claims import ClaimsValidator
 from core.casdoor.configuration import CasdoorConfiguration
 from core.casdoor.crypto import (
     CasdoorCrypto,
-    CertificateTrustStore,
     EncryptionContext,
     EncryptionPurpose,
-    TrustedCertificate,
 )
 from core.casdoor.deployment_evidence import (
     AcceptedDeploymentPolicy,
@@ -47,7 +44,10 @@ from repositories.casdoor_rp_logout_repository_extend import (
     canonical_opaque,
 )
 
+from services.casdoor_signing_validator_service_extend import create_claims_validator
+
 RP_CALLBACK_PATH = "/console/api/auth/casdoor/logout/callback"
+
 RP_HANDOFF_PATH = "/console/api/auth/casdoor/logout/"
 RP_RETRY_PATH = "/console/api/auth/casdoor/logout/retry"
 _OPTIONAL_SECONDS = 2.0
@@ -348,14 +348,12 @@ class CasdoorRPLogoutService:
                 raise RPLogoutUnavailable()
             self._guard_diagnostic(binding, source)
             operation._check()
-            validator = ClaimsValidator(
-                trust_store=CertificateTrustStore(
-                    [TrustedCertificate(**pin.model_dump()) for pin in configuration.certificates]
-                ),
-                expected_issuer=configuration.expected_issuer,
-                organization=configuration.organization,
-                application=configuration.application,
-                client_id=configuration.client_id,
+            validator = create_claims_validator(
+                operation,
+                namespace_id=UUID(binding.namespace_id),
+                revision_id=UUID(binding.revision_id),
+                diagnostic=False,
+                redis_client=None,
             )
             bundle = validator.verify_token_bundle(
                 raw_tokens,

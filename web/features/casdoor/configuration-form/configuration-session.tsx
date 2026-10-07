@@ -1,42 +1,37 @@
 import type {
+  CasdoorConfiguration,
   CasdoorConfigurationResponse,
-  CasdoorStaticValidationResponse,
-  CasdoorTestLoginResponse,
 } from '@dify/contracts/api/console/system-manage-extend/types.gen'
 import type { DraftErrors } from './configuration-draft'
 import {
   zCasdoorDisableResponse,
   zCasdoorStaticValidationResponse,
 } from '@dify/contracts/api/console/system-manage-extend/zod.gen'
-import {
-  AlertDialog,
-  AlertDialogActions,
-  AlertDialogCancelButton,
-  AlertDialogConfirmButton,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-} from '@langgenius/dify-ui/alert-dialog'
 import { Button } from '@langgenius/dify-ui/button'
+import { Field, FieldLabel } from '@langgenius/dify-ui/field'
+import { Switch } from '@langgenius/dify-ui/switch'
 import { useMutation } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from '#i18n'
 import { consoleQuery } from '@/service/console'
-import { parseIdentityNavigation } from '../identity-navigation'
 import { CallbackReference } from './callback-reference'
-import { CertificateFields } from './certificate-fields'
 import {
+  configurationInput,
+  inheritRoleOrganization,
   initialConfiguration,
   parseServerConfiguration,
   validateConfiguration,
 } from './configuration-draft'
 import { ConnectionFields } from './connection-fields'
 import { parseDiagnosticStart } from './diagnostic-navigation'
+import { LoginTestStatus } from './login-test-status'
 import { ManagementError } from './management-error'
+import { safeManagementError } from './management-error-details'
 import { ProfileFields } from './profile-fields'
-import { SavedStatus } from './saved-status'
 import { WorkspaceMappings } from './workspace-mappings'
-import { WorkspaceSelector } from './workspace-selector'
+
+type ServerConfiguration = CasdoorConfigurationResponse & { etag: number }
+type Action = 'save' | 'test' | 'toggle' | 'refresh'
 
 export function ConfigurationSession({
   response,
@@ -44,521 +39,374 @@ export function ConfigurationSession({
   refreshing,
   refreshError,
 }: {
-  response: CasdoorConfigurationResponse & { etag: number }
-  onRefresh: () => void
+  response: ServerConfiguration
+  onRefresh: () => Promise<ServerConfiguration | null>
   refreshing: boolean
   refreshError: unknown
 }) {
   const { t } = useTranslation('extend')
-  const [baseline, setBaseline] = useState<CasdoorConfigurationResponse & { etag: number }>(
-    response,
-  )
+  const [baseline, setBaseline] = useState(response)
   const [configuration, setConfiguration] = useState(() => initialConfiguration(response))
-  const [certificateIds, setCertificateIds] = useState<string[]>(() =>
-    (initialConfiguration(response).certificates ?? []).map(() => crypto.randomUUID()),
-  )
-  const [mappingIds, setMappingIds] = useState<string[]>(() =>
+  const [mappingIds, setMappingIds] = useState(() =>
     (initialConfiguration(response).workspace_mappings ?? []).map(() => crypto.randomUUID()),
   )
   const [secret, setSecret] = useState('')
+  const [advanced, setAdvanced] = useState(false)
   const [errors, setErrors] = useState<DraftErrors>({})
   const [notice, setNotice] = useState<
-    'saved' | 'cleared' | 'disabled' | 'activated' | 'secretReset' | null
+    'saved' | 'disabled' | 'activated' | 'enableNeedsTest' | null
   >(null)
-  const [reconciliationRequired, setReconciliationRequired] = useState(false)
   const [requestError, setRequestError] = useState<unknown>(null)
-  const [staticResult, setStaticResult] = useState<CasdoorStaticValidationResponse | null>(null)
-  const [testLoginResult, setTestLoginResult] = useState<CasdoorTestLoginResponse | null>(null)
-  const [confirmation, setConfirmation] = useState<
-    'clear' | 'disable' | 'activate' | 'reedit' | null
-  >(null)
   const [writeUnconfirmed, setWriteUnconfirmed] = useState(false)
+  const [reconciliationRequired, setReconciliationRequired] = useState(false)
+  const [action, setAction] = useState<Action | null>(null)
+  const actionLockRef = useRef(false)
   const casdoor = consoleQuery.systemManageExtend.integration.casdoor
+  const save = useMutation(
+    casdoor.put.mutationOptions({ context: { silent: true }, retry: false, gcTime: 0 }),
+  )
+  const validate = useMutation(
+    casdoor.validate.post.mutationOptions({ context: { silent: true }, retry: false }),
+  )
+  const testLogin = useMutation(
+    casdoor.testLogin.post.mutationOptions({ context: { silent: true }, retry: false }),
+  )
+  const activate = useMutation(
+    casdoor.activate.post.mutationOptions({ context: { silent: true }, retry: false }),
+  )
+  const disable = useMutation(
+    casdoor.disable.post.mutationOptions({ context: { silent: true }, retry: false }),
+  )
+  const needsAutomaticDraft = baseline.draft?.configuration.schema_version !== 2
+  const legacyConfiguration =
+    (baseline.draft?.configuration ?? baseline.active?.configuration)?.schema_version === 1
   const dirty =
+    needsAutomaticDraft ||
     secret !== '' ||
     JSON.stringify(configuration) !== JSON.stringify(initialConfiguration(baseline))
   const latest = response.etag >= baseline.etag ? response : baseline
   const stale =
     latest.etag !== baseline.etag || latest.draft_revision_id !== baseline.draft_revision_id
+  const busy = action !== null
+  const unavailable = stale || writeUnconfirmed || refreshing || Boolean(refreshError)
 
-  const acceptSaved = (data: CasdoorConfigurationResponse, message: 'saved' | 'cleared') => {
+  const updateConfiguration = (next: CasdoorConfiguration) =>
+    setConfiguration(inheritRoleOrganization(next))
+
+  const acceptConfiguration = (current: ServerConfiguration) => {
+    const next = initialConfiguration(current)
+    setBaseline(current)
+    setConfiguration(next)
+    setMappingIds((next.workspace_mappings ?? []).map(() => crypto.randomUUID()))
     setSecret('')
+    setErrors({})
+    setWriteUnconfirmed(false)
+  }
+
+  const run = async (nextAction: Action, operation: () => Promise<void>) => {
+    if (actionLockRef.current) return
+    actionLockRef.current = true
+    setAction(nextAction)
+    setRequestError(null)
+    setNotice(null)
+    try {
+      await operation()
+    } catch (error) {
+      if (safeManagementError(error).code === 'config_conflict') setWriteUnconfirmed(true)
+      setRequestError(error)
+    } finally {
+      actionLockRef.current = false
+      setAction(null)
+    }
+  }
+
+  const saveConfiguration = async () => {
+    const nextErrors = validateConfiguration(configuration)
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length) {
+      if (
+        Object.keys(nextErrors).some(
+          (key) =>
+            !['browser_frontend_url', 'organization', 'application', 'client_id'].includes(key) &&
+            !key.startsWith('workspace_mappings'),
+        )
+      )
+        setAdvanced(true)
+      return null
+    }
+    const payload = {
+      configuration: configurationInput(configuration),
+      etag: baseline.etag,
+      ...(secret === '' ? {} : { secret }),
+    }
+    setSecret('')
+    let data: CasdoorConfigurationResponse
+    try {
+      data = await save.mutateAsync({ body: payload })
+    } catch (error) {
+      setWriteUnconfirmed(true)
+      throw error
+    } finally {
+      save.reset()
+    }
     const parsed = parseServerConfiguration(data)
     if (!parsed?.draft || parsed.etag <= baseline.etag) {
       setWriteUnconfirmed(true)
-      setRequestError({})
-      setConfirmation(null)
+      throw new Error('Configuration save could not be confirmed.')
+    }
+    acceptConfiguration(parsed)
+    return parsed
+  }
+
+  const validateSaved = async (current: ServerConfiguration) => {
+    if (!current.draft || current.draft.revision_id !== current.draft_revision_id)
+      throw new Error('Configuration unavailable.')
+    const data = await validate.mutateAsync({
+      body: { etag: current.etag, revision_id: current.draft.revision_id },
+    })
+    const parsed = zCasdoorStaticValidationResponse.safeParse(data)
+    if (
+      !parsed.success ||
+      parsed.data.kind !== 'static' ||
+      parsed.data.static_only !== true ||
+      parsed.data.status !== 'passed' ||
+      parsed.data.etag !== current.etag ||
+      parsed.data.revision_id !== current.draft.revision_id
+    )
+      throw new Error('Configuration check could not be confirmed.')
+  }
+
+  const enableConfiguration = async (current: ServerConfiguration) => {
+    if (!current.draft || current.draft.revision_id !== current.draft_revision_id) {
+      setNotice('enableNeedsTest')
       return
     }
-    setBaseline(parsed)
-    setConfiguration(initialConfiguration(parsed))
-    setCertificateIds(
-      (parsed.draft.configuration.certificates ?? []).map(() => crypto.randomUUID()),
-    )
-    setMappingIds(
-      (parsed.draft.configuration.workspace_mappings ?? []).map(() => crypto.randomUUID()),
-    )
-    setErrors({})
-    setStaticResult(null)
-    setTestLoginResult(null)
-    setRequestError(null)
-    setNotice(message)
-    setConfirmation(null)
-    setWriteUnconfirmed(false)
+    let data: CasdoorConfigurationResponse
+    try {
+      data = await activate.mutateAsync({
+        body: { etag: current.etag, revision_id: current.draft.revision_id },
+      })
+    } catch (error) {
+      if (safeManagementError(error).code === 'config_conflict') {
+        const refreshed = await onRefresh()
+        if (
+          refreshed &&
+          (refreshed.etag !== current.etag ||
+            refreshed.draft_revision_id !== current.draft_revision_id)
+        )
+          setWriteUnconfirmed(true)
+        else setNotice('enableNeedsTest')
+        return
+      }
+      if (!safeManagementError(error).code) setWriteUnconfirmed(true)
+      throw error
+    }
+    const parsed = parseServerConfiguration(data)
+    if (
+      !parsed?.enabled ||
+      parsed.etag <= current.etag ||
+      parsed.active_revision_id !== current.draft.revision_id ||
+      parsed.draft_revision_id !== current.draft.revision_id
+    ) {
+      setWriteUnconfirmed(true)
+      throw new Error('Enabling Casdoor could not be confirmed.')
+    }
+    acceptConfiguration(parsed)
+    setNotice('activated')
   }
-  const fail = (error: unknown) => {
-    setSecret('')
-    setNotice('secretReset')
-    setWriteUnconfirmed(true)
-    setRequestError(error)
-    setConfirmation(null)
+
+  const submit = async (testing: boolean) => {
+    if (unavailable) return
+    await run(testing ? 'test' : 'save', async () => {
+      const savedEdits = dirty || !baseline.draft
+      const current = savedEdits ? await saveConfiguration() : baseline
+      if (!current) return
+      if (!testing) {
+        await validateSaved(current)
+        if (current.enabled && current.active_revision_id !== current.draft_revision_id) {
+          if (savedEdits) setNotice('enableNeedsTest')
+          else await enableConfiguration(current)
+        } else setNotice('saved')
+        return
+      }
+      if (!current.draft) return
+      const data = await testLogin.mutateAsync({
+        body: { etag: current.etag, revision_id: current.draft.revision_id },
+      })
+      const parsed = parseDiagnosticStart(data)
+      if (parsed.response.status === 'blocked') {
+        setRequestError({ reason: parsed.response.reason })
+        return
+      }
+      if (parsed.destination) window.location.assign(parsed.destination)
+    })
   }
-  const save = useMutation(
-    casdoor.put.mutationOptions({
-      context: { silent: true },
-      onSuccess: (data) => acceptSaved(data, 'saved'),
-      onError: fail,
-    }),
-  )
-  const clear = useMutation(
-    casdoor.clearSecret.post.mutationOptions({
-      context: { silent: true },
-      onSuccess: (data) => acceptSaved(data, 'cleared'),
-      onError: fail,
-    }),
-  )
-  const disable = useMutation(
-    casdoor.disable.post.mutationOptions({
-      context: { silent: true },
-      onSuccess: (data, variables) => {
+
+  const toggleEnabled = async (enabled: boolean) => {
+    if (unavailable) return
+    await run('toggle', async () => {
+      if (enabled) {
+        if (dirty || !baseline.draft || baseline.draft.revision_id !== baseline.draft_revision_id) {
+          setNotice('enableNeedsTest')
+          return
+        }
+        await enableConfiguration(baseline)
+      } else {
+        let data
+        try {
+          data = await disable.mutateAsync({ body: { etag: baseline.etag } })
+        } catch (error) {
+          if (!safeManagementError(error).code) setWriteUnconfirmed(true)
+          throw error
+        }
         const result = zCasdoorDisableResponse.safeParse(data)
-        const parsed = result.success ? parseServerConfiguration(data.configuration) : null
-        if (!parsed || parsed.enabled !== false || parsed.etag <= variables.body.etag) {
-          fail({})
-          return
+        const parsed = result.success ? parseServerConfiguration(result.data.configuration) : null
+        if (!parsed || parsed.enabled !== false || parsed.etag <= baseline.etag) {
+          setWriteUnconfirmed(true)
+          throw new Error('Disabling Casdoor could not be confirmed.')
         }
-        setSecret('')
+        // Turning off sign-in does not discard fields being edited.
         setBaseline(parsed)
-        setConfiguration(initialConfiguration(parsed))
-        setCertificateIds(
-          (initialConfiguration(parsed).certificates ?? []).map(() => crypto.randomUUID()),
-        )
-        setMappingIds(
-          (initialConfiguration(parsed).workspace_mappings ?? []).map(() => crypto.randomUUID()),
-        )
-        setErrors({})
-        setStaticResult(null)
-        setTestLoginResult(null)
-        setRequestError(null)
-        setNotice('disabled')
         setReconciliationRequired(data.reconciliation_required)
-        setConfirmation(null)
-        setWriteUnconfirmed(false)
-      },
-      onError: fail,
-    }),
-  )
-  const activate = useMutation(
-    casdoor.activate.post.mutationOptions({
-      context: { silent: true },
-      onSuccess: (data, variables) => {
-        const parsed = parseServerConfiguration(data)
-        if (
-          !parsed ||
-          parsed.enabled !== true ||
-          parsed.etag <= variables.body.etag ||
-          parsed.active_revision_id !== variables.body.revision_id ||
-          parsed.draft_revision_id !== variables.body.revision_id
-        ) {
-          fail({})
-          return
-        }
-        setBaseline(parsed)
-        setConfiguration(initialConfiguration(parsed))
-        setSecret('')
-        setStaticResult(null)
-        setTestLoginResult(null)
-        setRequestError(null)
-        setNotice('activated')
-        setConfirmation(null)
-        setWriteUnconfirmed(false)
-      },
-      onError: fail,
-    }),
-  )
-  const testLogin = useMutation(
-    casdoor.testLogin.post.mutationOptions({
-      context: { silent: true },
-      onSuccess: (data) => {
-        try {
-          const parsed = parseDiagnosticStart(data)
-          setRequestError(null)
-          setTestLoginResult(parsed.response)
-          if (parsed.destination) window.location.assign(parsed.destination)
-        } catch {
-          setTestLoginResult(null)
-          setRequestError({})
-        }
-      },
-      onError: (error) => setRequestError(error),
-    }),
-  )
-  const validate = useMutation(
-    casdoor.validate.post.mutationOptions({
-      context: { silent: true },
-      onSuccess: (data) => {
-        const parsed = zCasdoorStaticValidationResponse.safeParse(data)
-        if (
-          !parsed.success ||
-          data.kind !== 'static' ||
-          data.static_only !== true ||
-          data.status !== 'passed' ||
-          parsed.data.etag !== baseline.etag ||
-          parsed.data.revision_id !== baseline.draft_revision_id
-        ) {
-          setStaticResult(null)
-          setRequestError({})
-          return
-        }
-        setStaticResult(parsed.data)
-        setRequestError(null)
-      },
-      onError: (error) => setRequestError(error),
-    }),
-  )
-  const testReauth = useMutation(
-    casdoor.testReauth.post.mutationOptions({
-      context: { silent: true },
-      retry: false,
-      gcTime: 0,
-      onSuccess: (data) => {
-        try {
-          window.location.assign(parseIdentityNavigation(data))
-        } catch {
-          setRequestError({})
-        }
-      },
-      onError: (error) => setRequestError(error),
-    }),
-  )
-  const busy =
-    save.isPending ||
-    clear.isPending ||
-    disable.isPending ||
-    validate.isPending ||
-    activate.isPending ||
-    testLogin.isPending ||
-    testReauth.isPending
-  const exactDraft =
-    baseline.draft && baseline.draft_revision_id === baseline.draft.revision_id
-      ? baseline.draft
-      : null
-  const actionsUnavailable =
-    busy || dirty || stale || writeUnconfirmed || refreshing || Boolean(refreshError) || !exactDraft
-  const reedit = () => {
-    setBaseline(latest)
-    setConfiguration(initialConfiguration(latest))
-    setCertificateIds(
-      (initialConfiguration(latest).certificates ?? []).map(() => crypto.randomUUID()),
-    )
-    setMappingIds(
-      (initialConfiguration(latest).workspace_mappings ?? []).map(() => crypto.randomUUID()),
-    )
-    setSecret('')
-    setErrors({})
-    setRequestError(null)
-    setNotice(null)
-    setStaticResult(null)
-    setTestLoginResult(null)
-    setConfirmation(null)
-    setWriteUnconfirmed(false)
-    save.reset()
-    clear.reset()
-    disable.reset()
-    validate.reset()
-    activate.reset()
-    testLogin.reset()
+        setNotice('disabled')
+      }
+    })
   }
+
   return (
-    <div className="space-y-4">
-      <SavedStatus response={latest} onExpire={onRefresh} />
-      <form
-        noValidate
-        className="space-y-6"
-        onSubmit={(event) => {
-          event.preventDefault()
-          if (busy || stale || writeUnconfirmed || refreshing || refreshError) return
-          const nextErrors = validateConfiguration(configuration)
-          setErrors(nextErrors)
-          if (Object.keys(nextErrors).length) return
-          setRequestError(null)
-          setNotice(null)
-          save.mutate(
-            { body: { configuration, etag: baseline.etag, ...(secret === '' ? {} : { secret }) } },
-            { onSettled: () => save.reset() },
-          )
-        }}
-      >
-        <fieldset disabled={busy} className="space-y-6">
-          <ConnectionFields
-            configuration={configuration}
-            onChange={setConfiguration}
-            secret={secret}
-            onSecretChange={setSecret}
-            errors={errors}
-          />
-          <CertificateFields
-            certificates={configuration.certificates ?? []}
-            rowIds={certificateIds}
-            onChange={(certificates, ids) => {
-              setConfiguration({ ...configuration, certificates })
-              setCertificateIds(ids)
-            }}
-            errors={errors}
-          />
-          <CallbackReference />
-          <WorkspaceSelector
-            name="default_workspace_id"
-            label={t(($) => $['systemManage.casdoor.defaultWorkspace'])}
-            value={configuration.default_workspace_id}
-            onChange={(default_workspace_id) =>
-              setConfiguration({ ...configuration, default_workspace_id })
-            }
-            invalid={Boolean(errors.default_workspace_id)}
-            showHistory
-          />
-          <p className="text-sm text-text-secondary">
-            {t(($) => $['systemManage.casdoor.fallback'])}
-          </p>
-          <WorkspaceMappings
-            mappings={configuration.workspace_mappings ?? []}
-            rowIds={mappingIds}
-            onChange={(workspace_mappings, ids) => {
-              setConfiguration({ ...configuration, workspace_mappings })
-              setMappingIds(ids)
-            }}
-            errors={errors}
-          />
-          <ProfileFields configuration={configuration} onChange={setConfiguration} />
-        </fieldset>
-        {dirty && <p role="status">{t(($) => $['systemManage.casdoor.dirty'])}</p>}
-        {stale && <p role="status">{t(($) => $['systemManage.casdoor.stale'])}</p>}
-        {writeUnconfirmed && <p role="status">{t(($) => $['systemManage.casdoor.conflict'])}</p>}
-        {Boolean(requestError) && <ManagementError error={requestError} />}
-        {Boolean(refreshError) && <ManagementError error={refreshError} />}
-        {notice && (
-          <p role="status">
-            {notice === 'saved'
-              ? t(($) => $['systemManage.casdoor.saved'])
-              : notice === 'cleared'
-                ? t(($) => $['systemManage.casdoor.cleared'])
-                : notice === 'disabled'
-                  ? t(($) => $['systemManage.casdoor.disabled'])
-                  : notice === 'activated'
-                    ? t(($) => $['systemManage.casdoor.activated'])
-                    : t(($) => $['systemManage.casdoor.secretReset'])}
-          </p>
-        )}
-        {reconciliationRequired && (
-          <p role="alert">{t(($) => $['systemManage.casdoor.disableReconciliation'])}</p>
-        )}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="submit"
-            variant="primary"
-            loading={save.isPending}
-            disabled={
-              stale ||
-              writeUnconfirmed ||
-              refreshing ||
-              Boolean(refreshError) ||
-              (busy && !save.isPending)
+    <form
+      noValidate
+      className="space-y-6"
+      onSubmit={(event) => {
+        event.preventDefault()
+        void submit(false)
+      }}
+    >
+      <Field name="casdoor-enabled" className="flex items-center justify-between">
+        <FieldLabel>{t(($) => $['systemManage.common.enable'])}</FieldLabel>
+        <div className="flex items-center gap-3">
+          <span
+            className={
+              latest.enabled
+                ? 'text-xs font-medium text-text-accent'
+                : 'text-xs font-medium text-text-tertiary'
             }
           >
-            {t(($) => $['systemManage.casdoor.save'])}
-          </Button>
-          <Button type="button" loading={refreshing} disabled={busy} onClick={onRefresh}>
+            {latest.enabled
+              ? t(($) => $['systemManage.common.enabled'])
+              : t(($) => $['systemManage.common.disabled'])}
+          </span>
+          <Switch
+            checked={latest.enabled === true}
+            loading={action === 'toggle'}
+            disabled={unavailable || (busy && action !== 'toggle')}
+            onCheckedChange={(enabled) => {
+              void toggleEnabled(enabled)
+            }}
+          />
+        </div>
+      </Field>
+      <fieldset disabled={busy} className="space-y-6">
+        <ConnectionFields
+          configuration={configuration}
+          onChange={updateConfiguration}
+          secret={secret}
+          onSecretChange={setSecret}
+          errors={errors}
+        />
+        <div className="space-y-1 text-sm text-text-secondary">
+          <p>{t(($) => $['systemManage.casdoor.automaticVerification'])}</p>
+          {legacyConfiguration && (
+            <p>{t(($) => $['systemManage.casdoor.legacyVerificationHelp'])}</p>
+          )}
+        </div>
+        <CallbackReference />
+        <WorkspaceMappings
+          organization={configuration.organization}
+          mappings={configuration.workspace_mappings ?? []}
+          rowIds={mappingIds}
+          onChange={(workspace_mappings, ids) => {
+            updateConfiguration({ ...configuration, workspace_mappings })
+            setMappingIds(ids)
+          }}
+          errors={errors}
+        />
+        <details open={advanced} onToggle={(event) => setAdvanced(event.currentTarget.open)}>
+          <summary className="cursor-pointer text-sm font-medium text-text-secondary focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-state-accent-solid">
+            {t(($) => $['systemManage.casdoor.advancedMode'])}
+          </summary>
+          {advanced && (
+            <div className="mt-4 space-y-6">
+              <ConnectionFields
+                configuration={configuration}
+                onChange={updateConfiguration}
+                secret={secret}
+                onSecretChange={setSecret}
+                errors={errors}
+                advancedOnly
+              />
+              <ProfileFields configuration={configuration} onChange={updateConfiguration} />
+            </div>
+          )}
+        </details>
+      </fieldset>
+      {(stale || writeUnconfirmed || Boolean(refreshError)) && (
+        <div className="space-y-2">
+          <p role="status">{t(($) => $['systemManage.casdoor.reloadHelp'])}</p>
+          <Button
+            type="button"
+            loading={action === 'refresh' || refreshing}
+            disabled={busy && action !== 'refresh'}
+            onClick={() => {
+              void run('refresh', async () => {
+                const current = await onRefresh()
+                if (current) acceptConfiguration(current)
+              })
+            }}
+          >
             {t(($) => $['systemManage.casdoor.refresh'])}
           </Button>
-          <Button
-            type="button"
-            disabled={busy || refreshing || Boolean(refreshError)}
-            onClick={() => {
-              if (dirty) setConfirmation('reedit')
-              else reedit()
-            }}
-          >
-            {t(($) => $['systemManage.casdoor.reedit'])}
-          </Button>
-          <Button
-            type="button"
-            loading={validate.isPending}
-            disabled={actionsUnavailable}
-            onClick={() => {
-              if (!exactDraft || actionsUnavailable) return
-              validate.mutate({
-                body: { etag: baseline.etag, revision_id: exactDraft.revision_id },
-              })
-            }}
-          >
-            {t(($) => $['systemManage.casdoor.staticCheck'])}
-          </Button>
-          <Button
-            type="button"
-            loading={clear.isPending}
-            disabled={actionsUnavailable || !exactDraft?.secret_configured}
-            onClick={() => setConfirmation('clear')}
-          >
-            {t(($) => $['systemManage.casdoor.clearSecret'])}
-          </Button>
-          <Button
-            type="button"
-            loading={testLogin.isPending}
-            disabled={actionsUnavailable}
-            onClick={() => {
-              if (!exactDraft || actionsUnavailable) return
-              setRequestError(null)
-              setTestLoginResult(null)
-              testLogin.mutate({
-                body: { etag: baseline.etag, revision_id: exactDraft.revision_id },
-              })
-            }}
-          >
-            {t(($) => $['systemManage.casdoor.testLogin'])}
-          </Button>
-          <Button
-            type="button"
-            loading={testReauth.isPending}
-            disabled={actionsUnavailable}
-            onClick={() => {
-              if (!exactDraft || actionsUnavailable) return
-              setRequestError(null)
-              testReauth.mutate({
-                body: { etag: baseline.etag, revision_id: exactDraft.revision_id },
-              })
-            }}
-          >
-            {t(($) => $['systemManage.casdoor.testReauth'])}
-          </Button>
-          {(!latest.enabled || latest.active_revision_id !== latest.draft_revision_id) && (
-            <Button
-              type="button"
-              loading={activate.isPending}
-              disabled={actionsUnavailable}
-              onClick={() => setConfirmation('activate')}
-            >
-              {t(($) => $['systemManage.casdoor.activate'])}
-            </Button>
-          )}
-          {latest.enabled && (
-            <Button
-              type="button"
-              loading={disable.isPending}
-              disabled={busy || stale || writeUnconfirmed || refreshing || Boolean(refreshError)}
-              onClick={() => setConfirmation('disable')}
-            >
-              {t(($) => $['systemManage.casdoor.disable'])}
-            </Button>
-          )}
         </div>
-      </form>
-      {testLoginResult?.status === 'blocked' && (
+      )}
+      {Boolean(requestError) && <ManagementError error={requestError} />}
+      {Boolean(refreshError) && <ManagementError error={refreshError} />}
+      {notice && (
         <p role="status">
-          {testLoginResult.reason === 'deployment_proof_missing'
-            ? t(($) => $['systemManage.casdoor.deploymentProofMissing'])
-            : t(($) => $['systemManage.casdoor.liveTestNotWired'])}
+          {notice === 'saved'
+            ? t(($) => $['systemManage.casdoor.saved'])
+            : notice === 'disabled'
+              ? t(($) => $['systemManage.casdoor.disabled'])
+              : notice === 'activated'
+                ? t(($) => $['systemManage.casdoor.activated'])
+                : t(($) => $['systemManage.casdoor.enableNeedsTest'])}
         </p>
       )}
-      {staticResult && (
-        <div role="status" className="space-y-1">
-          <p>
-            {t(($) => $['systemManage.casdoor.staticPassed'], {
-              id: staticResult.revision_id,
-              etag: staticResult.etag,
-              time: staticResult.checked_at,
-            })}
-          </p>
-          {(staticResult.revision_id !== latest.draft_revision_id ||
-            staticResult.etag !== latest.etag) && (
-            <p>{t(($) => $['systemManage.casdoor.staticExpired'])}</p>
-          )}
-        </div>
+      {reconciliationRequired && (
+        <p role="alert">{t(($) => $['systemManage.casdoor.disableReconciliation'])}</p>
       )}
-      <AlertDialog
-        open={confirmation !== null}
-        onOpenChange={(open) => {
-          if (!open && !busy) setConfirmation(null)
-        }}
-      >
-        <AlertDialogContent>
-          <div className="space-y-2 p-6">
-            <AlertDialogTitle>
-              {confirmation === 'clear'
-                ? t(($) => $['systemManage.casdoor.clearTitle'])
-                : confirmation === 'disable'
-                  ? t(($) => $['systemManage.casdoor.disableTitle'])
-                  : confirmation === 'activate'
-                    ? t(($) => $['systemManage.casdoor.activateTitle'])
-                    : t(($) => $['systemManage.casdoor.reeditTitle'])}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmation === 'clear'
-                ? t(($) => $['systemManage.casdoor.clearHelp'])
-                : confirmation === 'disable'
-                  ? t(($) => $['systemManage.casdoor.disableHelp'])
-                  : confirmation === 'activate'
-                    ? t(($) => $['systemManage.casdoor.activateHelp'])
-                    : t(($) => $['systemManage.casdoor.reeditHelp'])}
-            </AlertDialogDescription>
-          </div>
-          <AlertDialogActions>
-            <AlertDialogCancelButton type="button" disabled={busy}>
-              {t(($) => $['systemManage.casdoor.cancel'])}
-            </AlertDialogCancelButton>
-            <AlertDialogConfirmButton
-              type="button"
-              loading={clear.isPending || disable.isPending || activate.isPending}
-              disabled={
-                (confirmation === 'clear' && actionsUnavailable) ||
-                (confirmation === 'disable' &&
-                  (busy || stale || writeUnconfirmed || refreshing || Boolean(refreshError))) ||
-                (confirmation === 'activate' && actionsUnavailable)
-              }
-              onClick={() => {
-                if (busy) return
-                if (confirmation === 'reedit') {
-                  if (refreshing || refreshError) return
-                  reedit()
-                  return
-                }
-                if (confirmation === 'disable') {
-                  if (stale || writeUnconfirmed || refreshing || refreshError) return
-                  disable.mutate(
-                    { body: { etag: baseline.etag } },
-                    { onSettled: () => disable.reset() },
-                  )
-                  return
-                }
-                if (confirmation === 'activate') {
-                  if (!exactDraft || actionsUnavailable) return
-                  activate.mutate(
-                    { body: { etag: baseline.etag, revision_id: exactDraft.revision_id } },
-                    { onSettled: () => activate.reset() },
-                  )
-                  return
-                }
-                if (!exactDraft || actionsUnavailable) return
-                clear.mutate(
-                  { body: { etag: baseline.etag, revision_id: exactDraft.revision_id } },
-                  { onSettled: () => clear.reset() },
-                )
-              }}
-            >
-              {t(($) => $['systemManage.casdoor.confirm'])}
-            </AlertDialogConfirmButton>
-          </AlertDialogActions>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+      {!dirty && !stale && !writeUnconfirmed && latest.draft && (
+        <LoginTestStatus revision={latest.draft} />
+      )}
+      <div className="flex gap-3 pt-2">
+        <Button
+          type="submit"
+          variant="primary"
+          loading={action === 'save'}
+          disabled={unavailable || (busy && action !== 'save')}
+        >
+          {t(($) => $['systemManage.casdoor.save'])}
+        </Button>
+        <Button
+          type="button"
+          loading={action === 'test'}
+          disabled={unavailable || (busy && action !== 'test')}
+          onClick={() => {
+            void submit(true)
+          }}
+        >
+          {t(($) => $['systemManage.casdoor.testLogin'])}
+        </Button>
+      </div>
+    </form>
   )
 }

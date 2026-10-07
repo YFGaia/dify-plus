@@ -14,7 +14,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, Protocol, override
-from urllib.parse import quote_plus, urlsplit
+from urllib.parse import quote, quote_plus, urlsplit
 
 from casdoor import CasdoorSDK
 
@@ -42,12 +42,28 @@ class GatewayError(Exception):
         super().__init__(f"casdoor_gateway_{reason}")
 
 
+class _SigningDiscoveryUnsupported(Exception):
+    """Only an absent application discovery route permits global fallback."""
+
+
 def _text(value: object, limit: int = 255) -> bool:
     try:
         return (
             isinstance(value, str)
             and bool(value.strip())
             and len(value.encode("utf-8")) <= limit
+            and not any(ord(c) < 32 or ord(c) == 127 for c in value)
+        )
+    except UnicodeError:
+        return False
+
+
+def _directory_metadata_text(value: object) -> bool:
+    """Bounded Casdoor envelope labels, including the provider's empty defaults."""
+    try:
+        return (
+            isinstance(value, str)
+            and len(value.encode("utf-8")) <= 255
             and not any(ord(c) < 32 or ord(c) == 127 for c in value)
         )
     except UnicodeError:
@@ -236,6 +252,10 @@ class GatewayOperation:
         if time.monotonic() >= self.deadline:
             self.fail("deadline")
 
+    def remaining_seconds(self) -> float:
+        self._check()
+        return self.deadline - time.monotonic()
+
     def _request(
         self,
         method: str,
@@ -246,6 +266,8 @@ class GatewayOperation:
         params: dict[str, str] | None = None,
         data: dict[str, str] | None = None,
         authorization: str | None = None,
+        signing_keys: bool = False,
+        missing_route: bool = False,
     ) -> dict[str, Any]:
         self._check()
         code = CasdoorErrorCode.ROLE_SNAPSHOT_UNKNOWN if directory else CasdoorErrorCode.PROVIDER_UNAVAILABLE
@@ -258,6 +280,17 @@ class GatewayOperation:
             "/api/get-roles": ("GET", {"owner"}),
             "/api/get-organization": ("GET", {"id"}),
         }
+        if signing_keys:
+            app = quote(self.config.application, safe="")
+            allowed.update(
+                {
+                    f"/.well-known/{app}/openid-configuration": ("GET", set()),
+                    f"/.well-known/{app}/jwks": ("GET", set()),
+                    _JWKS_PATH: ("GET", set()),
+                }
+            )
+            if authorization is not None or data is not None or params:
+                self.fail("request_policy", code)
         if path not in allowed or (method, set(params or {})) != allowed[path]:
             self.fail("request_policy", code)
         if params and (
@@ -291,9 +324,17 @@ class GatewayOperation:
         except ssrf_proxy.ResponseLimitError:
             self.fail("response_bounds", code)
         except Exception:
+            if signing_keys:
+                # A confirmed transient GET failure may use a bounded trusted
+                # cache. Do not latch the rest of this authentication operation.
+                raise GatewayError(code, "signing_keys_transport") from None
             self.fail("transport", code)
         self._check()
+        if missing_route and signing_keys and response.status_code in (404, 405):
+            raise _SigningDiscoveryUnsupported()
         if response.status_code != 200:
+            if signing_keys and 500 <= response.status_code <= 599:
+                raise GatewayError(code, "signing_keys_temporary")
             self.fail("http_status", code)
         if response.headers.get("content-encoding", "").strip().lower() not in ("", "identity"):
             self.fail("response_encoding", code)
@@ -317,8 +358,55 @@ class GatewayOperation:
         self._check()
         return raw
 
+    def _discover_signing_metadata(self, profile: str | None = None) -> tuple[str, dict[str, Any], str]:
+        """Select only fixed application/global metadata and public key routes.
+
+        A persisted profile never falls back. No credentials accompany these
+        requests; Token headers and discovery-provided arbitrary URLs are ignored.
+        """
+        if profile not in (None, "application", "global"):
+            self.fail("discovery_profile", CasdoorErrorCode.CONFIG_CONFLICT)
+        app = quote(self.config.application, safe="")
+        selected = profile or "application"
+        path = (
+            f"/.well-known/{app}/openid-configuration"
+            if selected == "application"
+            else "/.well-known/openid-configuration"
+        )
+        try:
+            raw = self._request("GET", path, signing_keys=True, missing_route=profile is None)
+        except _SigningDiscoveryUnsupported:
+            selected = "global"
+            raw = self._request("GET", "/.well-known/openid-configuration", signing_keys=True)
+        if raw.get("issuer") != self.config.expected_issuer:
+            self.fail("discovery_issuer")
+        expected = {
+            "authorization_endpoint": self._frontend + _AUTHORIZE_PATH,
+            "token_endpoint": self._backend + _TOKEN_PATH,
+            "userinfo_endpoint": self._backend + _USERINFO_PATH,
+        }
+        if any(raw.get(key) != expected[key] for key in ("authorization_endpoint", "token_endpoint")) or (
+            "userinfo_endpoint" in raw and raw["userinfo_endpoint"] != expected["userinfo_endpoint"]
+        ):
+            self.fail("discovery_endpoint")
+        key_path = f"/.well-known/{app}/jwks" if selected == "application" else _JWKS_PATH
+        source = self._backend + key_path
+        if raw.get("jwks_uri") != source:
+            self.fail("discovery_endpoint")
+        return source, raw, selected
+
+    def discover_signing_keys(self, profile: str | None = None) -> tuple[str, dict[str, Any], str]:
+        source, _, selected = self._discover_signing_metadata(profile)
+        keys = self._request("GET", source[len(self._backend) :], signing_keys=True)
+        return source, keys, selected
+
     def discover(self) -> ValidatedEndpoints:
         """Metadata is advisory, never a source of arbitrary dispatch URLs."""
+        if self.config.schema_version == 2:
+            source, raw, _ = self._discover_signing_metadata()
+            return ValidatedEndpoints(
+                raw["authorization_endpoint"], raw["token_endpoint"], raw.get("userinfo_endpoint"), source
+            )
         raw = self._request("GET", "/.well-known/openid-configuration")
         if raw.get("issuer") != self.config.expected_issuer:
             self.fail("discovery_issuer")
@@ -421,6 +509,8 @@ class CasdoorDirectoryGateway:
 
     This facade checks envelope integrity and online user fields only; it never
     declares graph/visibility complete or interprets missing relation defaults.
+    Casdoor's optional sub/name envelope labels are metadata, never identity or
+    authorization inputs. Additional data2/data3 payloads must remain absent/null.
     """
 
     def __init__(
@@ -461,11 +551,13 @@ class CasdoorDirectoryGateway:
             op.fail("directory_credential_invalid", CasdoorErrorCode.ROLE_SNAPSHOT_UNKNOWN)
         raw = op._request("GET", path, params=params, limit=limit, directory=True, authorization=authorization)
         if (
-            set(raw) - {"status", "msg", "data", "data2"}
+            set(raw) - {"status", "msg", "sub", "name", "data", "data2", "data3"}
             or raw.get("status") != "ok"
             or "data" not in raw
             or raw.get("data2") is not None
+            or raw.get("data3") is not None
             or ("msg" in raw and not isinstance(raw["msg"], str))
+            or any(key in raw and not _directory_metadata_text(raw[key]) for key in ("sub", "name"))
         ):
             op.fail("directory_envelope", CasdoorErrorCode.ROLE_SNAPSHOT_UNKNOWN)
         return raw["data"]

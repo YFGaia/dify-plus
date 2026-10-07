@@ -159,7 +159,7 @@ def consumer(avatar_fixture, monkeypatch):
     monkeypatch.setattr(CasdoorCrypto, "decrypt", decrypt)
     configuration = CasdoorConfigurationService(
         session_factory=s.maker,
-        management_policy=CasdoorManagementPolicy.from_deployment(""),
+        management_policy=CasdoorManagementPolicy(),
         secret_key="synthetic-profile-key",
         rbac_enabled=False,
     )

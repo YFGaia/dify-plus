@@ -64,6 +64,52 @@ Deprecated. Use PATCH /account/profile instead.
 | 409 | Read conflict | **application/json**: [CasdoorSelfErrorResponse](#casdoorselferrorresponse)<br> |
 | 503 | Read unavailable | **application/json**: [CasdoorSelfErrorResponse](#casdoorselferrorresponse)<br> |
 
+### [GET] /account/casdoor-identity/actions
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Current source-session identity actions | **application/json**: [CasdoorIdentityActionsResponse](#casdooridentityactionsresponse)<br> |
+
+### [POST] /account/casdoor-identity/link
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorLinkIdentityPayload](#casdoorlinkidentitypayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Local identity handoff | **application/json**: [CasdoorNavigationResponse](#casdoornavigationresponse)<br> |
+
+### [POST] /account/casdoor-identity/reauthenticate
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorUnlinkIdentityPayload](#casdoorunlinkidentitypayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Local reauthentication handoff | **application/json**: [CasdoorNavigationResponse](#casdoornavigationresponse)<br> |
+
+### [POST] /account/casdoor-identity/unlink
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorUnlinkIdentityPayload](#casdoorunlinkidentitypayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Identity unlinked; original session preserved | **application/json**: [CasdoorIdentityUnlinkedResponse](#casdooridentityunlinkedresponse)<br> |
+
 ### [POST] /account/change-email
 #### Request Body
 
@@ -4877,6 +4923,20 @@ Restore a published workflow version into the draft workflow
 | 429 | Rate limited | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
 | 503 | Unavailable | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
 
+### [GET] /auth/casdoor/diagnostic/{handle}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| handle | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 302 | Draft diagnostic authorization navigation |  |
+| 400 | Invalid transaction | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
+
 ### [GET] /auth/casdoor/display
 #### Responses
 
@@ -4894,12 +4954,27 @@ Restore a published workflow version into the draft workflow
 | ---- | ----------- | ------ |
 | 405 | Method not allowed | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
 
+### [GET] /auth/casdoor/identity/{handle}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| handle | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 302 | Source-bound identity authorization navigation |  |
+| 400 | Invalid transaction | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
+
 ### [GET] /auth/casdoor/login
 #### Parameters
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ------ |
 | init | query |  | No | string |
+| invite_token | query |  | No | string |
 | locale | query |  | No | string |
 | return_path | query |  | No | string |
 | timezone | query |  | No | string |
@@ -4914,6 +4989,42 @@ Restore a published workflow version into the draft workflow
 | 409 | Configuration conflict | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
 | 429 | Rate limited | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
 | 503 | Unavailable | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
+
+### [GET] /auth/casdoor/logout/callback
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| error | query |  | No | string |
+| error_description | query |  | No | string |
+| error_uri | query |  | No | string |
+| state | query |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 303 | Fixed logout result; no new Dify session |
+
+### [POST] /auth/casdoor/logout/retry
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Anonymous browser-bound logout continuation | **application/json**: [CasdoorLogoutResponse](#casdoorlogoutresponse)<br> |
+
+### [GET] /auth/casdoor/logout/{handle}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| handle | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 303 | Reviewed provider logout navigation |
 
 ### [GET] /auth/casdoor/result
 #### Parameters
@@ -4932,6 +5043,13 @@ Restore a published workflow version into the draft workflow
 | 409 | Configuration conflict | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
 | 429 | Rate limited | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
 | 503 | Unavailable | **application/json**: [CasdoorResultResponse](#casdoorresultresponse)<br> |
+
+### [GET] /auth/casdoor/session
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Current session provenance | **application/json**: [CasdoorSessionResponse](#casdoorsessionresponse)<br> |
 
 ### [GET] /auth/plugin/datasource/default-list
 #### Responses
@@ -7332,7 +7450,7 @@ Get instruction generation template
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Success | **application/json**: [SimpleResultResponse](#simpleresultresponse)<br> |
+| 200 | Success | **application/json**: [CasdoorConsoleLogoutResponse](#casdoorconsolelogoutresponse)<br> |
 
 ### [GET] /mcp/oauth/callback
 #### Parameters
@@ -9397,7 +9515,7 @@ system-features endpoint.
 | ---- | ----------- | ------ |
 | 200 | Configuration | **application/json**: [CasdoorConfigurationResponse](#casdoorconfigurationresponse)<br> |
 | 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
-| 403 | Instance management denied | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 
@@ -9414,7 +9532,24 @@ system-features endpoint.
 | ---- | ----------- | ------ |
 | 200 | New immutable draft | **application/json**: [CasdoorConfigurationResponse](#casdoorconfigurationresponse)<br> |
 | 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
-| 403 | Instance management denied | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/activate
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorRevisionPayload](#casdoorrevisionpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Activated configuration | **application/json**: [CasdoorConfigurationResponse](#casdoorconfigurationresponse)<br> |
+| 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 
@@ -9431,9 +9566,94 @@ system-features endpoint.
 | ---- | ----------- | ------ |
 | 200 | Draft Secret cleared | **application/json**: [CasdoorConfigurationResponse](#casdoorconfigurationresponse)<br> |
 | 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
-| 403 | Instance management denied | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/disable
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorDisablePayload](#casdoordisablepayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Casdoor disabled and namespace fenced | **application/json**: [CasdoorDisableResponse](#casdoordisableresponse)<br> |
+| 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [GET] /system-manage-extend/integration/casdoor/local-membership
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| identity_id | query |  | Yes | string (uuid) |
+| workspace_id | query |  | Yes | string (uuid) |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Exact local membership inspection | **application/json**: [CasdoorLocalMembershipInspectionResponse](#casdoorlocalmembershipinspectionresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/local-membership/adopt
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorLocalMembershipMutationPayload](#casdoorlocalmembershipmutationpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Reviewed current target applied and managed | **application/json**: [CasdoorLocalMembershipMutationResponse](#casdoorlocalmembershipmutationresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/local-membership/release
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorLocalMembershipMutationPayload](#casdoorlocalmembershipmutationpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Permissions retained; management released | **application/json**: [CasdoorLocalMembershipMutationResponse](#casdoorlocalmembershipmutationresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/local-membership/review
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorLocalMembershipReviewPayload](#casdoorlocalmembershipreviewpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | One-use source-bound review | **application/json**: [CasdoorLocalMembershipReviewResponse](#casdoorlocalmembershipreviewresponse)<br> |
+
+### [GET] /system-manage-extend/integration/casdoor/local-membership/targets
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| after_identity_id | query |  | No | string (uuid) |
+| after_workspace_id | query |  | No | string (uuid) |
+| limit | query |  | No | integer, <br>**Default:** 20 |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Manager target navigation | **application/json**: [CasdoorLocalMembershipListResponse](#casdoorlocalmembershiplistresponse)<br> |
 
 ### [GET] /system-manage-extend/integration/casdoor/permissions
 #### Responses
@@ -9442,7 +9662,132 @@ system-features endpoint.
 | ---- | ----------- | ------ |
 | 200 | Current account permission | **application/json**: [CasdoorPermissionsResponse](#casdoorpermissionsresponse)<br> |
 | 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
-| 403 | Instance management denied | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/reset-namespace
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorNamespaceResetMutationPayload](#casdoornamespaceresetmutationpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Archived old namespace; fresh disabled draft | **application/json**: [CasdoorConfigurationResponse](#casdoorconfigurationresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/reset-namespace/review
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorResetNamespacePayload](#casdoorresetnamespacepayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | One-use clean LOCAL review; credential format only | **application/json**: [CasdoorNamespaceResetReviewResponse](#casdoornamespaceresetreviewresponse)<br> |
+
+### [GET] /system-manage-extend/integration/casdoor/rp-logout-status
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| revision_id | query |  | Yes | string (uuid) |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Actual optional RP protocol observation | **application/json**: [CasdoorRPLogoutDiagnosticResponse](#casdoorrplogoutdiagnosticresponse)<br> |
+| 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/sync/retry
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorRetrySyncPayload](#casdoorretrysyncpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Retry pending, no execution authority | **application/json**: [CasdoorAvatarRetryResponse](#casdooravatarretryresponse)<br> |
+| 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [GET] /system-manage-extend/integration/casdoor/sync/retry-targets
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| after | query |  | No | string (uuid) |
+| limit | query |  | No | integer, <br>**Default:** 20 |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Manager retry targets | **application/json**: [CasdoorAvatarRetryTargetsResponse](#casdooravatarretrytargetsresponse)<br> |
+| 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/test-login
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorRevisionPayload](#casdoorrevisionpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Draft diagnostic browser navigation or deployment block | **application/json**: [CasdoorTestLoginResponse](#casdoortestloginresponse)<br> |
+| 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/test-reauth
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorRevisionPayload](#casdoorrevisionpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Local reviewed reauthentication diagnostic handoff | **application/json**: [CasdoorNavigationResponse](#casdoornavigationresponse)<br> |
+
+### [POST] /system-manage-extend/integration/casdoor/test-rp-logout
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [CasdoorRevisionPayload](#casdoorrevisionpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Draft diagnostic browser navigation or deployment block | **application/json**: [CasdoorTestLoginResponse](#casdoortestloginresponse)<br> |
+| 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 
@@ -9459,7 +9804,7 @@ system-features endpoint.
 | ---- | ----------- | ------ |
 | 200 | Local static checks only | **application/json**: [CasdoorStaticValidationResponse](#casdoorstaticvalidationresponse)<br> |
 | 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
-| 403 | Instance management denied | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 
@@ -9477,9 +9822,16 @@ system-features endpoint.
 | ---- | ----------- | ------ |
 | 200 | Global workspace selection | **application/json**: [CasdoorWorkspacesResponse](#casdoorworkspacesresponse)<br> |
 | 400 | Invalid management request | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
-| 403 | Instance management denied | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+| 403 | Workspace administrator required | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 409 | Configuration conflict | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
 | 500 | Management request failed | **application/json**: [CasdoorManagementErrorResponse](#casdoormanagementerrorresponse)<br> |
+
+### [GET] /system-manage-extend/permissions
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Current global management permission | **application/json**: [SystemManagementPermissionsResponse](#systemmanagementpermissionsresponse)<br> |
 
 ### [POST] /tag-bindings
 #### Request Body
@@ -13719,27 +14071,33 @@ Default namespace
 
 #### Responses
 
-| Code | Description |
-| ---- | ----------- |
-| 200 | Success |
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | DingTalk configuration | **application/json**: [DingTalkConfigResponse](#dingtalkconfigresponse)<br> |
 
 ### [POST] /system-manage-extend/integration/dingtalk
 **保存钉钉配置**
 
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [DingTalkConfigPayload](#dingtalkconfigpayload)<br> |
+
 #### Responses
 
-| Code | Description |
-| ---- | ----------- |
-| 200 | Success |
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Configuration saved | **application/json**: [IntegrationTestResponse](#integrationtestresponse)<br> |
 
 ### [GET] /system-manage-extend/integration/dingtalk/test
 **测试钉钉 AppKey/AppSecret 是否有效**
 
 #### Responses
 
-| Code | Description |
-| ---- | ----------- |
-| 200 | Success |
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | DingTalk connection test | **application/json**: [IntegrationTestResponse](#integrationtestresponse)<br> |
 
 ### [POST] /system-manage-extend/integration/dingtalk/test-callback
 **处理钉钉测试回调**
@@ -13751,13 +14109,19 @@ Default namespace
 | 200 | Success |
 
 ### [POST] /system-manage-extend/integration/email-api/test
-**测试邮箱 API 连通性**
+**使用草稿配置和钉钉用户 ID 查询邮箱，不创建账号。**
+
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [EmailLookupTestPayload](#emaillookuptestpayload)<br> |
 
 #### Responses
 
-| Code | Description |
-| ---- | ----------- |
-| 200 | Success |
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Enterprise email lookup test | **application/json**: [IntegrationTestResponse](#integrationtestresponse)<br> |
 
 ### [GET] /system-manage-extend/integration/oauth2
 **获取 OAuth2 配置**
@@ -16852,6 +17216,38 @@ Button styles for user actions.
 | ---- | ---- | ----------- | -------- |
 | ButtonStyle | string | Button styles for user actions. |  |
 
+#### CasdoorAvatarRetryResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| intent_id | string (uuid) |  | Yes |
+| status | string |  | Yes |
+
+#### CasdoorAvatarRetryTarget
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| account_id | string (uuid) |  | Yes |
+| identity_id | string (uuid) |  | Yes |
+| intent_id | string (uuid) |  | Yes |
+| reason | string, <br>**Available values:** "fetch_failed", "fetch_rejected", "image_rejected" | *Enum:* `"fetch_failed"`, `"fetch_rejected"`, `"image_rejected"` | Yes |
+| retry_eligible | boolean |  | Yes |
+
+#### CasdoorAvatarRetryTargetsQuery
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| after | string |  | No |
+| limit | integer, <br>**Default:** 20 |  | No |
+
+#### CasdoorAvatarRetryTargetsResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| has_more | boolean |  | Yes |
+| next_after | string |  | Yes |
+| targets | [ [CasdoorAvatarRetryTarget](#casdooravatarretrytarget) ] |  | Yes |
+
 #### CasdoorCallbackQuery
 
 | Name | Type | Description | Required |
@@ -16897,7 +17293,30 @@ Explicit draft-only action; empty Secret in save means retain, not clear.
 | name_sync | string, <br>**Available values:** "fill_empty", "managed", "off", <br>**Default:** fill_empty | *Enum:* `"fill_empty"`, `"managed"`, `"off"` | No |
 | organization | string |  | Yes |
 | rp_logout | boolean |  | No |
-| schema_version | integer, <br>**Default:** 1 |  | No |
+| schema_version | integer, <br>**Available values:** 1, 2, <br>**Default:** 1 | *Enum:* `1`, `2` | No |
+| scope | string, <br>**Default:** openid email profile |  | No |
+| self_unlink | boolean |  | No |
+| signing_key_mode | string |  | No |
+| workspace_mappings | [ [WorkspaceRoleMapping](#workspacerolemapping) ], <br>**Default:**  |  | No |
+
+#### CasdoorConfigurationInput
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| application | string |  | Yes |
+| avatar_mode | string, <br>**Available values:** "fill_empty", "managed", <br>**Default:** fill_empty | *Enum:* `"fill_empty"`, `"managed"` | No |
+| avatar_sync | boolean |  | No |
+| backend_api_url | string |  | No |
+| browser_frontend_url | string |  | Yes |
+| button_text | string, <br>**Default:** Casdoor |  | No |
+| client_id | string |  | Yes |
+| default_normal_fallback | boolean, <br>**Default:** true |  | No |
+| default_workspace_id | string |  | No |
+| expected_issuer | string |  | No |
+| name_sync | string, <br>**Available values:** "fill_empty", "managed", "off", <br>**Default:** fill_empty | *Enum:* `"fill_empty"`, `"managed"`, `"off"` | No |
+| organization | string |  | Yes |
+| rp_logout | boolean |  | No |
+| schema_version | integer, <br>**Default:** 2 |  | No |
 | scope | string, <br>**Default:** openid email profile |  | No |
 | self_unlink | boolean |  | No |
 | workspace_mappings | [ [WorkspaceRoleMapping](#workspacerolemapping) ], <br>**Default:**  |  | No |
@@ -16913,6 +17332,42 @@ Explicit draft-only action; empty Secret in save means retain, not clear.
 | enabled | boolean |  | No |
 | etag | integer |  | No |
 
+#### CasdoorConsoleLogoutResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| casdoor_logout | [CasdoorLogoutResponse](#casdoorlogoutresponse) |  | No |
+| result | string, <br>**Default:** success |  | No |
+
+#### CasdoorDecisionReason
+
+Successful authorization decisions, deliberately separate from error codes.
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| CasdoorDecisionReason | string | Successful authorization decisions, deliberately separate from error codes. |  |
+
+#### CasdoorDiagnosticStageResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| code | [CasdoorErrorCode](#casdoorerrorcode) |  | No |
+| stage | string, <br>**Available values:** "configuration", "identity", "online_status", "protocol", "rbac", "role_snapshot", "workspace" | *Enum:* `"configuration"`, `"identity"`, `"online_status"`, `"protocol"`, `"rbac"`, `"role_snapshot"`, `"workspace"` | Yes |
+| status | string, <br>**Available values:** "failed", "not_run", "passed", "unknown" | *Enum:* `"failed"`, `"not_run"`, `"passed"`, `"unknown"` | Yes |
+
+#### CasdoorDisablePayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| etag | integer |  | Yes |
+
+#### CasdoorDisableResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| configuration | [CasdoorConfigurationResponse](#casdoorconfigurationresponse) |  | Yes |
+| reconciliation_required | boolean |  | Yes |
+
 #### CasdoorDisplayResponse
 
 | Name | Type | Description | Required |
@@ -16921,20 +17376,153 @@ Explicit draft-only action; empty Secret in save means retain, not clear.
 | enabled | boolean |  | No |
 | start_path | string, <br>**Default:** /console/api/auth/casdoor/login |  | No |
 
+#### CasdoorDraftDiagnosticPreviewResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| correlation_id | string (uuid) |  | Yes |
+| effective_role_count | integer |  | Yes |
+| namespace_id | string (uuid) |  | Yes |
+| revision_id | string (uuid) |  | Yes |
+| stages | [ [CasdoorDiagnosticStageResponse](#casdoordiagnosticstageresponse) ] |  | Yes |
+| targets | [ [CasdoorDraftWorkspaceTargetResponse](#casdoordraftworkspacetargetresponse) ] |  | Yes |
+
+#### CasdoorDraftWorkspaceTargetResponse
+
+Desired permission preview; never claims local membership or a grant.
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| reason | [CasdoorDecisionReason](#casdoordecisionreason) |  | Yes |
+| target_role | string, <br>**Available values:** "admin", "editor", "normal" | *Enum:* `"admin"`, `"editor"`, `"normal"` | Yes |
+| workspace_id | string (uuid) |  | Yes |
+
 #### CasdoorErrorCode
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | CasdoorErrorCode | string |  |  |
 
+#### CasdoorIdentityActionsResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| link | boolean |  | Yes |
+| reason | string, <br>**Available values:** "managed_history_requires_release", "other_login_unavailable", "reauthentication_required", "reauthentication_unavailable" |  | No |
+| reauthenticate | boolean |  | Yes |
+| unlink | boolean |  | Yes |
+
+#### CasdoorIdentityUnlinkedResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| status | string |  | Yes |
+
+#### CasdoorLinkIdentityPayload
+
+Empty request: source account comes only from the current session owner.
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+
+#### CasdoorLocalMembershipCandidateResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| account_id | string (uuid) |  | Yes |
+| account_name | string |  | Yes |
+| current_role | string, <br>**Available values:** "admin", "dataset_operator", "editor", "normal", "owner" | *Enum:* `"admin"`, `"dataset_operator"`, `"editor"`, `"normal"`, `"owner"` | Yes |
+| identity_id | string (uuid) |  | Yes |
+| workspace_id | string (uuid) |  | Yes |
+| workspace_name | string |  | Yes |
+
+#### CasdoorLocalMembershipInspectionResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| account_id | string (uuid) |  | Yes |
+| current_role | string, <br>**Available values:** "admin", "editor", "normal" | *Enum:* `"admin"`, `"editor"`, `"normal"` | Yes |
+| etag | integer |  | Yes |
+| identity_id | string (uuid) |  | Yes |
+| local_no_intent | boolean |  | Yes |
+| ownership | string, <br>**Available values:** "local_override", "managed", "released", "unmanaged" | *Enum:* `"local_override"`, `"managed"`, `"released"`, `"unmanaged"` | Yes |
+| workspace_id | string (uuid) |  | Yes |
+
+#### CasdoorLocalMembershipListQuery
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| after_identity_id | string |  | No |
+| after_workspace_id | string |  | No |
+| limit | integer, <br>**Default:** 20 |  | No |
+
+#### CasdoorLocalMembershipListResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| has_more | boolean |  | Yes |
+| items | [ [CasdoorLocalMembershipCandidateResponse](#casdoorlocalmembershipcandidateresponse) ] |  | Yes |
+| next_identity_id | string |  | Yes |
+| next_workspace_id | string |  | Yes |
+
+#### CasdoorLocalMembershipMutationPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| etag | integer |  | Yes |
+| review_id | string |  | Yes |
+
+#### CasdoorLocalMembershipMutationResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| membership_id | string (uuid) |  | Yes |
+| ownership_epoch | integer |  | Yes |
+| status | string, <br>**Available values:** "adopted", "released" | *Enum:* `"adopted"`, `"released"` | Yes |
+
+#### CasdoorLocalMembershipReviewPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| etag | integer |  | Yes |
+| identity_id | string (uuid) |  | Yes |
+| operation | string, <br>**Available values:** "adopt", "release" | *Enum:* `"adopt"`, `"release"` | Yes |
+| workspace_id | string (uuid) |  | Yes |
+
+#### CasdoorLocalMembershipReviewResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| current_role | string, <br>**Available values:** "admin", "editor", "normal" | *Enum:* `"admin"`, `"editor"`, `"normal"` | Yes |
+| etag | integer |  | Yes |
+| expires_in | integer |  | Yes |
+| operation | string, <br>**Available values:** "adopt", "release" | *Enum:* `"adopt"`, `"release"` | Yes |
+| review_id | string |  | Yes |
+| target_role | string, <br>**Available values:** "admin", "editor", "normal" | *Enum:* `"admin"`, `"editor"`, `"normal"` | Yes |
+
+#### CasdoorLocalMembershipTarget
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| identity_id | string (uuid) |  | Yes |
+| workspace_id | string (uuid) |  | Yes |
+
 #### CasdoorLoginQuery
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | init | string |  | No |
+| invite_token | string |  | No |
 | locale | string |  | No |
 | return_path | string |  | No |
 | timezone | string |  | No |
+
+#### CasdoorLogoutResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| handoff | [CasdoorNavigationResponse](#casdoornavigationresponse) |  | No |
+| status | string, <br>**Available values:** "handoff_ready", "local_only" | *Enum:* `"handoff_ready"`, `"local_only"` | Yes |
 
 #### CasdoorManagementErrorResponse
 
@@ -16943,12 +17531,72 @@ Explicit draft-only action; empty Secret in save means retain, not clear.
 | code | string |  | Yes |
 | correlation_id | string (uuid) |  | Yes |
 | message | string, <br>**Default:** Casdoor management request failed. |  | No |
+| reason | string, <br>**Available values:** "deployment_proof_missing", "live_test_not_wired" |  | No |
+
+#### CasdoorNamespaceResetMutationPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| etag | integer |  | Yes |
+| review_id | string |  | Yes |
+
+#### CasdoorNamespaceResetReviewResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| credential_check | string |  | Yes |
+| etag | integer |  | Yes |
+| expires_in | integer |  | Yes |
+| namespace_id | string (uuid) |  | Yes |
+| review_id | string |  | Yes |
+
+#### CasdoorNavigationResponse
+
+Opaque local handler path; the server validates/consumes the handoff.
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| handoff_path | string |  | Yes |
 
 #### CasdoorPermissionsResponse
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | can_manage_casdoor | boolean |  | Yes |
+
+#### CasdoorRPLogoutCallbackQuery
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| error | string |  | No |
+| error_description | string |  | No |
+| error_uri | string |  | No |
+| state | string |  | Yes |
+
+#### CasdoorRPLogoutDiagnosticResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| checked_at | string |  | No |
+| expires_at | string |  | No |
+| namespace_id | string (uuid) |  | Yes |
+| profile_available | boolean |  | No |
+| revision_id | string (uuid) |  | Yes |
+| status | string, <br>**Available values:** "not_run", "passed", "unknown", <br>**Default:** unknown | *Enum:* `"not_run"`, `"passed"`, `"unknown"` | No |
+
+#### CasdoorRPLogoutStatusQuery
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| revision_id | string (uuid) |  | Yes |
+
+#### CasdoorResetNamespacePayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| confirm_management_review | boolean |  | Yes |
+| etag | integer |  | Yes |
+| namespace_id | string (uuid) |  | Yes |
 
 #### CasdoorRestrictedResultResponse
 
@@ -16974,6 +17622,12 @@ Anonymous, consumed display result; never a session or retry grant.
 | correlation_id | string (uuid) |  | Yes |
 | retry_allowed | boolean |  | Yes |
 
+#### CasdoorRetrySyncPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| intent_id | string (uuid) |  | Yes |
+
 #### CasdoorRevisionPayload
 
 | Name | Type | Description | Required |
@@ -16987,6 +17641,7 @@ Anonymous, consumed display result; never a session or retry grant.
 | ---- | ---- | ----------- | -------- |
 | certificate_summaries | [ [CasdoorCertificateSummaryResponse](#casdoorcertificatesummaryresponse) ], <br>**Default:**  |  | No |
 | configuration | [CasdoorConfiguration](#casdoorconfiguration) |  | Yes |
+| diagnostic | [CasdoorDraftDiagnosticPreviewResponse](#casdoordraftdiagnosticpreviewresponse) |  | No |
 | namespace_id | string (uuid) |  | Yes |
 | revision_id | string (uuid) |  | Yes |
 | secret_configured | boolean |  | Yes |
@@ -16996,7 +17651,7 @@ Anonymous, consumed display result; never a session or retry grant.
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| configuration | [CasdoorConfiguration](#casdoorconfiguration) |  | Yes |
+| configuration | [CasdoorConfigurationInput](#casdoorconfigurationinput) |  | Yes |
 | etag | integer |  | Yes |
 | secret | string |  | No |
 
@@ -17043,7 +17698,12 @@ Anonymous, consumed display result; never a session or retry grant.
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | activity | string, <br>**Available values:** "active", "inactive", "unknown" | *Enum:* `"active"`, `"inactive"`, `"unknown"` | Yes |
-| avatar_status | string |  | Yes |
+| avatar_consistency | string, <br>**Available values:** "current", "historical", "unknown" | *Enum:* `"current"`, `"historical"`, `"unknown"` | Yes |
+| avatar_current_local_differs_from_last_applied | boolean |  | Yes |
+| avatar_last_reason | string, <br>**Available values:** "attachment_lost", "commit_unknown", "fetch_cancelled", "fetch_failed", "fetch_rejected", "fetch_unknown", "image_rejected", "lease_expired", "storage_unknown" |  | Yes |
+| avatar_recorded_at | string | UTC operation record time. DB attachment readback does not prove physical storage synchronization. | Yes |
+| avatar_recorded_generation | integer |  | Yes |
+| avatar_status | string, <br>**Available values:** "failed_before_storage", "failed_storage_cleaned", "historical", "in_flight", "local_attachment_recorded", "local_override", "no_record", "off", "pending", "source_expired", "unknown" | *Enum:* `"failed_before_storage"`, `"failed_storage_cleaned"`, `"historical"`, `"in_flight"`, `"local_attachment_recorded"`, `"local_override"`, `"no_record"`, `"off"`, `"pending"`, `"source_expired"`, `"unknown"` | Yes |
 | email | [CasdoorSelfEmailResponse](#casdoorselfemailresponse) |  | Yes |
 | id | string |  | Yes |
 | lifecycle | string, <br>**Available values:** "active", "archived", "fencing", "unknown" | *Enum:* `"active"`, `"archived"`, `"fencing"`, `"unknown"` | Yes |
@@ -17099,17 +17759,41 @@ Anonymous, consumed display result; never a session or retry grant.
 | last_sync_at | string |  | Yes |
 | recorded_generation | integer |  | Yes |
 
+#### CasdoorSessionResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| expires_at | string |  | No |
+| rp_logout_available | boolean |  | No |
+| source | string, <br>**Available values:** "casdoor", "local_only" | *Enum:* `"casdoor"`, `"local_only"` | Yes |
+| verified | boolean |  | Yes |
+
 #### CasdoorStaticValidationResponse
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| certificate_summaries | [ [CasdoorCertificateSummaryResponse](#casdoorcertificatesummaryresponse) ] |  | Yes |
+| certificate_summaries | [ [CasdoorCertificateSummaryResponse](#casdoorcertificatesummaryresponse) ], <br>**Default:**  |  | No |
 | checked_at | dateTime |  | Yes |
 | etag | integer |  | Yes |
 | kind | string, <br>**Default:** static |  | No |
 | revision_id | string (uuid) |  | Yes |
 | static_only | boolean, <br>**Default:** true |  | No |
 | status | string, <br>**Default:** passed |  | No |
+
+#### CasdoorTestLoginResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| handoff | [CasdoorNavigationResponse](#casdoornavigationresponse) |  | No |
+| reason | string, <br>**Available values:** "deployment_proof_missing", "live_test_not_wired" |  | No |
+| status | string, <br>**Available values:** "blocked", "started" | *Enum:* `"blocked"`, `"started"` | Yes |
+
+#### CasdoorUnlinkIdentityPayload
+
+Proof is bound server-side to the current account, identity and action.
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
 
 #### CasdoorValidationSummaryResponse
 
@@ -18610,6 +19294,30 @@ Enum representing the deployment edition of the platform.
 | ---- | ---- | ----------- | -------- |
 | DeploymentEdition | string | Enum representing the deployment edition of the platform. |  |
 
+#### DingTalkConfigPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| agent_id | string |  | No |
+| app_id | string |  | No |
+| app_key | string |  | No |
+| app_secret | string |  | No |
+| config | object |  | No |
+| corp_id | string |  | No |
+| status | boolean |  | No |
+
+#### DingTalkConfigResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| agent_id | string |  | No |
+| app_id | string |  | No |
+| app_key | string |  | No |
+| app_secret | string |  | No |
+| config | object |  | No |
+| corp_id | string |  | No |
+| status | boolean |  | No |
+
 #### DismissNotificationPayload
 
 | Name | Type | Description | Required |
@@ -18928,6 +19636,15 @@ Portable DSL reference that could not be restored in the target workspace.
 | email | string |  | Yes |
 | language | string |  | No |
 | turnstile_token | string | Cloudflare Turnstile token. Required at runtime for Dify Cloud. | No |
+
+#### EmailLookupTestPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| config | object |  | No |
+| key | string |  | No |
+| url | string |  | No |
+| user_id | string |  | No |
 
 #### EmailPayload
 
@@ -19996,6 +20713,15 @@ Input field definition for snippet parameters.
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
 | type | string | Instruction template type | Yes |
+
+#### IntegrationTestResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| email | string |  | No |
+| message | string |  | No |
+| result | string |  | Yes |
+| status_code | integer |  | No |
 
 #### IterationNodeRunPayload
 
@@ -23909,6 +24635,14 @@ Non-sensitive bootstrap snapshot exposed before Console or Web authentication.
 | sso_enforced_for_signin | boolean |  | Yes |
 | sso_enforced_for_signin_protocol | [SSOProtocol](#ssoprotocol) |  | Yes |
 | webapp_auth | [WebAppAuthModel](#webappauthmodel) |  | Yes |
+
+#### SystemManagementPermissionsResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| account_id | string (uuid) |  | Yes |
+| can_manage_system | boolean |  | Yes |
+| workspace_id | string |  | Yes |
 
 #### SystemParameters
 

@@ -18,32 +18,27 @@ export function SavedStatus({
           ? t(($) => $['systemManage.casdoor.enabled'])
           : t(($) => $['systemManage.casdoor.disabled'])}
       </p>
-      <p>
-        {t(($) => $['systemManage.casdoor.activeRevision'], {
-          id: response.active_revision_id ?? t(($) => $['systemManage.casdoor.noRevision']),
-        })}
-      </p>
-      <p>
-        {t(($) => $['systemManage.casdoor.draftRevision'], {
-          id: response.draft_revision_id ?? t(($) => $['systemManage.casdoor.noRevision']),
-        })}
-      </p>
-      <p>{t(($) => $['systemManage.casdoor.etag'], { etag: response.etag })}</p>
-      <p>
-        {response.draft?.secret_configured
-          ? t(($) => $['systemManage.casdoor.secretConfigured'])
-          : t(($) => $['systemManage.casdoor.secretMissing'])}
-      </p>
-      {(response.draft?.certificate_summaries ?? []).map((certificate) => (
-        <p key={certificate.fingerprint} className="text-sm wrap-anywhere">
-          {t(($) => $['systemManage.casdoor.certificateSummary'], {
-            fingerprint: certificate.fingerprint,
-            kid: certificate.kid ?? t(($) => $['systemManage.casdoor.noRevision']),
-            from: certificate.not_before,
-            until: certificate.accept_until,
+      <details>
+        <summary className="cursor-pointer text-sm text-text-secondary">
+          {t(($) => $['systemManage.casdoor.details'])}
+        </summary>
+        <p>
+          {t(($) => $['systemManage.casdoor.activeRevision'], {
+            id: response.active_revision_id ?? t(($) => $['systemManage.casdoor.noRevision']),
           })}
         </p>
-      ))}
+        <p>
+          {t(($) => $['systemManage.casdoor.draftRevision'], {
+            id: response.draft_revision_id ?? t(($) => $['systemManage.casdoor.noRevision']),
+          })}
+        </p>
+        <p>{t(($) => $['systemManage.casdoor.etag'], { etag: response.etag })}</p>
+        <p>
+          {response.draft?.secret_configured
+            ? t(($) => $['systemManage.casdoor.secretConfigured'])
+            : t(($) => $['systemManage.casdoor.secretMissing'])}
+        </p>
+      </details>
       {response.draft && <DiagnosticStatus revision={response.draft} onExpire={onExpire} />}
     </section>
   )

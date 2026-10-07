@@ -1,39 +1,20 @@
 """Casdoor management transport; local static validation is not activation proof.
 
-Current Account identity comes from the existing login/CSRF owner. Instance
-authorization belongs to the deployment allowlist service, with no workspace-role
-or IdP claim fallback. Errors never serialize request values, validation locations,
+Current Account identity comes from the existing login/CSRF owner. Management
+authorization requires the actual current workspace owner/admin role; deployment
+account lists and IdP claims cannot grant access. Errors never serialize request values, validation locations,
 provider messages, encrypted envelopes or credentials.
 """
 
 import re
 from datetime import UTC
+from functools import wraps
 from typing import Any
 from uuid import uuid4
 
-from core.casdoor.auth_transactions import (
-    COOKIE_PATH,
-    SCOPE_COOKIE_NAME,
-    AuthTransactionError,
-    CookieDirective,
-    diagnostic_initialization_cookie_name,
-)
-from core.casdoor.crypto import CryptoError
-from core.casdoor.permissions import CasdoorManagementForbiddenError
-from extensions.ext_application_services import application_services
 from flask import Response, jsonify, make_response, request
 from flask_restx import Resource
-from libs.helper import dump_response
-from libs.login import current_user, login_required
-from libs.token import extract_access_token, extract_refresh_token, is_admin_api_key_request
-from models.account import Account
-from models.casdoor_extend import CasdoorValidationKind
 from pydantic import ValidationError
-from repositories.casdoor_configuration_repository_extend import (
-    CasdoorConfigurationError,
-    ConfigurationSnapshot,
-    RevisionSnapshot,
-)
 from werkzeug.exceptions import HTTPException
 
 from controllers.common.schema import query_params_from_model, register_response_schema_models, register_schema_models
@@ -53,6 +34,27 @@ from controllers.console.casdoor_schemas_extend import (
     CasdoorTestLoginResponse,
     CasdoorWorkspacesQuery,
     CasdoorWorkspacesResponse,
+)
+from core.casdoor.auth_transactions import (
+    COOKIE_PATH,
+    SCOPE_COOKIE_NAME,
+    AuthTransactionError,
+    CookieDirective,
+    diagnostic_initialization_cookie_name,
+)
+from core.casdoor.crypto import CryptoError
+from core.casdoor.errors import CasdoorErrorCode
+from core.casdoor.permissions import CasdoorManagementForbiddenError
+from extensions.ext_application_services import application_services
+from libs.helper import dump_response
+from libs.login import current_user, login_required
+from libs.token import extract_access_token, extract_refresh_token, is_admin_api_key_request
+from models.account import Account
+from models.casdoor_extend import CasdoorValidationKind
+from repositories.casdoor_configuration_repository_extend import (
+    CasdoorConfigurationError,
+    ConfigurationSnapshot,
+    RevisionSnapshot,
 )
 
 PREFIX = "/system-manage-extend/integration/casdoor"
@@ -92,6 +94,19 @@ register_response_schema_models(
 def _account() -> Account | None:
     account = current_user._get_current_object()
     return account if isinstance(account, Account) else None
+
+
+def casdoor_management_required(f):
+    """Authenticate first, then reject management requests before parsing input."""
+
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        path = "/console/api" + PREFIX
+        if (request.path == path or request.path.startswith(path + "/")) and request.path != path + "/permissions":
+            application_services().casdoor_configuration.require_management(_account())
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 def _configuration_response(snapshot: ConfigurationSnapshot) -> dict[str, Any]:
@@ -154,11 +169,13 @@ def _validation_summaries(revision: RevisionSnapshot):
 
 
 @console_ns.response(400, "Invalid management request", console_ns.models[CasdoorManagementErrorResponse.__name__])
-@console_ns.response(403, "Instance management denied", console_ns.models[CasdoorManagementErrorResponse.__name__])
+@console_ns.response(
+    403, "Workspace administrator required", console_ns.models[CasdoorManagementErrorResponse.__name__]
+)
 @console_ns.response(409, "Configuration conflict", console_ns.models[CasdoorManagementErrorResponse.__name__])
 @console_ns.response(500, "Management request failed", console_ns.models[CasdoorManagementErrorResponse.__name__])
 class CasdoorManagementResource(Resource):
-    method_decorators = [login_required]
+    method_decorators = [casdoor_management_required, login_required]
 
     def dispatch_request(self, *args: Any, **kwargs: Any) -> Response:
         try:
@@ -223,8 +240,17 @@ class CasdoorConfigurationApi(CasdoorManagementResource):
         account = _account()
         service.require_management(account)
         payload = CasdoorSaveConfigurationPayload.model_validate(request.get_json())
+        assert account is not None
+        current_workspace_id = account.current_tenant_id
+        if payload.configuration.default_workspace_id is None and current_workspace_id is None:
+            raise CasdoorConfigurationError(CasdoorErrorCode.WORKSPACE_UNAVAILABLE, "current_workspace_unavailable")
         return _configuration_response(
-            service.save(account, configuration=payload.configuration, etag=payload.etag, secret=payload.secret)
+            service.save(
+                account,
+                configuration=payload.configuration.to_configuration(current_workspace_id=current_workspace_id),
+                etag=payload.etag,
+                secret=payload.secret,
+            )
         )
 
 

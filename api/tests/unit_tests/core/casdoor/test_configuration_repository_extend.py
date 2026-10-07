@@ -367,16 +367,18 @@ def test_unbound_core_change_uses_new_namespace_without_disturbing_active(storag
     )
 
 
-def test_default_missing_real_deployment_proof_blocks_activation(storage, pin):
+def test_local_activation_requires_real_protocol_and_diagnostic_without_external_manifest(storage, pin):
     session, workspace = storage
     snapshot = save(session, config(workspace, pin))
     with session.begin():
         proofs(session, snapshot.draft_revision_id)
-    with pytest.raises(CasdoorConfigurationError), session.begin():
-        repo(session, proof=None).activate(
+    # Existing Community contract gates real exact-revision records, with no
+    # external reviewer manifest prerequisite; synthetic rows test only policy.
+    with session.begin():
+        active = repo(session, proof=None).activate(
             etag=1, revision_id=snapshot.draft_revision_id, actor_account_id=ACTOR, now=NOW
         )
-    assert not repo(session).get().enabled
+    assert active.enabled
 
 
 @pytest.mark.parametrize(
@@ -436,6 +438,11 @@ def test_exact_fresh_server_record_gate_algorithm_accepts_synthetic_fixture(stor
     session, workspace = storage
     repository = repo(session, rbac=rbac)
     snapshot = save(session, config(workspace, pin), repository=repository)
+    if rbac:
+        with pytest.raises(CasdoorConfigurationError) as caught:
+            activate(session, snapshot.draft_revision_id, repository=repository)
+        assert caught.value.reason == "local_mode_required"
+        return
     active = activate(session, snapshot.draft_revision_id, repository=repository)
     assert active.enabled
     assert active.active_revision_id == snapshot.draft_revision_id
@@ -606,46 +613,42 @@ def test_disable_fences_without_falsely_terminating_intents(storage, pin, operat
         )
 
 
-@pytest.mark.parametrize(
-    "raw",
-    [
-        "",
-        " ",
-        "not-a-uuid",
-        str(ACTOR) + ",bad",
-        str(ACTOR) + ",",
-        "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA",
-        "{" + str(ACTOR) + "}",
-    ],
-)
-def test_management_empty_invalid_deployment_allowlist_denies_everyone(raw):
-    policy = CasdoorManagementPolicy.from_deployment(raw)
-    account = SimpleNamespace(id=str(ACTOR), status="active", is_admin_or_owner=True, is_admin=True)
+@pytest.mark.parametrize("role", ["normal", "editor", "dataset_operator", None])
+@pytest.mark.parametrize("rbac", [False, True])
+def test_management_rejects_non_manager_roles_even_with_legacy_admin_flags(role, rbac):
+    policy = CasdoorManagementPolicy()
+    account = SimpleNamespace(
+        id=str(ACTOR),
+        status="active",
+        current_role=role,
+        is_admin_or_owner=True,
+        is_admin=True,
+        rbac_enabled=rbac,
+    )
     assert not policy.can_manage_casdoor(account)
+    assert policy.can_manage_casdoor(account, system_management_allowed=True)
     with pytest.raises(CasdoorManagementForbiddenError):
         policy.require_management(account)
 
 
 @pytest.mark.parametrize("status", ["pending", "uninitialized", "banned", "closed"])
 def test_management_requires_active_local_account(status):
-    policy = CasdoorManagementPolicy.from_deployment(str(ACTOR))
+    policy = CasdoorManagementPolicy()
     assert not policy.can_manage_casdoor(SimpleNamespace(id=str(ACTOR), status=status))
 
 
 @pytest.mark.parametrize(("rbac", "role"), [(False, "owner"), (False, "admin"), (True, "owner"), (True, "admin")])
-def test_management_workspace_owner_rbac_admin_cannot_bypass_exact_account_id(rbac, role):
-    policy = CasdoorManagementPolicy.from_deployment(str(ACTOR))
-    assert not policy.can_manage_casdoor(
-        SimpleNamespace(
-            id=str(uuid4()),
-            status="active",
-            current_role=role,
-            is_admin=True,
-            is_admin_or_owner=True,
-            rbac_enabled=rbac,
-        )
+def test_management_accepts_current_workspace_owner_and_admin_without_deployment_allowlist(rbac, role):
+    policy = CasdoorManagementPolicy()
+    account = SimpleNamespace(
+        id=str(uuid4()),
+        status="active",
+        current_role=role,
+        is_admin=False,
+        is_admin_or_owner=False,
+        rbac_enabled=rbac,
     )
-    ordinary = SimpleNamespace(id=str(ACTOR), status="active", current_role="normal", is_admin=False)
-    assert policy.can_manage_casdoor(ordinary)
-    policy.require_management(ordinary)
+    assert not policy.can_manage_casdoor(account)
+    assert policy.can_manage_casdoor(account, system_management_allowed=True)
+    policy.require_management(account, system_management_allowed=True)
     assert not policy.can_manage_casdoor(None)

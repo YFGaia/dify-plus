@@ -65,6 +65,62 @@ def test_authorization_preserves_state_and_config_snapshot(gateway, config_overr
 
 
 @pytest.mark.parametrize(
+    ("redirect_uri", "expected"),
+    [
+        (None, "https://api.invalid/console/api/oauth/authorize/oauth2"),
+        ("", "https://api.invalid/console/api/oauth/authorize/oauth2"),
+        ("  ", "https://api.invalid/console/api/oauth/authorize/oauth2"),
+        ("https://public.invalid/sso/callback?tenant=a", "https://public.invalid/sso/callback?tenant=a"),
+        (" https://public.invalid/sso/callback ", "https://public.invalid/sso/callback"),
+    ],
+)
+def test_callback_configuration_is_used_in_authorization_and_exchange(
+    gateway, sqlite_session_factory, config_overrides, monkeypatch, redirect_uri, expected
+):
+    config_overrides(CONSOLE_API_URL="https://api.invalid/")
+    with sqlite_session_factory() as session:
+        row = session.get(SystemIntegrationExtend, 1)
+        config = json.loads(row.config)
+        if redirect_uri is not None:
+            config["redirect_uri"] = redirect_uri
+        row.config = json.dumps(config)
+        session.commit()
+
+    query = parse_qs(urlsplit(gateway.get_authorization_url(OAuthAuthorizationRequest())).query)
+    assert query["redirect_uri"] == [expected]
+
+    calls = []
+
+    def post(url, **kwargs):
+        calls.append(kwargs["data"])
+        return SimpleNamespace(status_code=200, json=lambda: {"access_token": "provider-token"})
+
+    monkeypatch.setattr("libs.oauth.requests.post", post)
+    monkeypatch.setattr(OaOAuth, "get_raw_user_info", lambda _self, _token: {"sub": "id", "email": "a@example.com"})
+    gateway.get_identity("code")
+    assert calls[0]["redirect_uri"] == expected
+
+
+@pytest.mark.parametrize("redirect_uri", ["/callback", "javascript:alert(1)", "https://public.invalid/cb#x", 123])
+def test_invalid_callback_configuration_is_rejected(gateway, sqlite_session_factory, monkeypatch, redirect_uri):
+    with sqlite_session_factory() as session:
+        row = session.get(SystemIntegrationExtend, 1)
+        config = json.loads(row.config)
+        config["redirect_uri"] = redirect_uri
+        row.config = json.dumps(config)
+        session.commit()
+    with pytest.raises(OAuthProviderAuthorizationError, match="Invalid OAuth2 configuration"):
+        gateway.get_authorization_url(OAuthAuthorizationRequest())
+
+    def post(*_args, **_kwargs):
+        pytest.fail("Invalid callback must not reach token endpoint")
+
+    monkeypatch.setattr("libs.oauth.requests.post", post)
+    with pytest.raises(OAuthProviderAuthorizationError):
+        gateway.get_identity("code")
+
+
+@pytest.mark.parametrize(
     "token_response", ["provider-token", {"access_token": "provider-token", "id_token": "casdoor-id"}]
 )
 def test_real_oa_exchange_and_userinfo_mapping(gateway, monkeypatch, token_response):

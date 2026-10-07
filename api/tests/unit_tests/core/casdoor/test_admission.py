@@ -14,6 +14,7 @@ from core.casdoor.admission import (
     InvitationObservation,
     SharedOwnerRequirement,
     decide_admission,
+    local_account_email,
 )
 from core.casdoor.auth_transactions import AuthMode, SourceSessionContext
 from core.casdoor.claims import (
@@ -97,11 +98,51 @@ def test_new_account_desired_initialized_active_without_global_registration_poli
     assert not any(hasattr(plan, v) for v in ("authenticated", "checked", "persisted", "session_allowed", "is_setup"))
 
 
-@pytest.mark.parametrize("email", [None, "not-mail", "a@localhost", "a..b@example.test", "a@-bad.test", "a@é.test"])
+@pytest.mark.parametrize("email", ["not-mail", "a@localhost", "a..b@example.test", "a@-bad.test", "a@é.test"])
 @pytest.mark.parametrize("verified", [True, False, None])
-def test_new_requires_verified_legal_email(email, verified):
+def test_new_rejects_present_malformed_email(email, verified):
     with pytest.raises(AdmissionError):
         decide(profile=replace(PROFILE, email=email, email_verified=verified))
+
+
+@pytest.mark.parametrize("verified", [True, False, None])
+def test_new_uses_legal_provider_email_without_changing_verification(verified):
+    profile = replace(PROFILE, email_verified=verified)
+    assert decide(profile=profile).creation_email == profile.email
+    assert profile.email_verified is verified
+
+
+@pytest.mark.parametrize("verified", [True, False, None])
+@pytest.mark.parametrize("name", ["on_ccc2d78352150d14cf19299d66491b27", "名 字", "___", "A" * 255, "a.+b@x"])
+def test_missing_email_creates_bounded_deterministic_local_address(name, verified):
+    profile = replace(PROFILE, email=None, email_verified=verified)
+    online = replace(ONLINE, user_ref=replace(ONLINE.user_ref, name=name))
+    plan = decide(profile=profile, online=online)
+    address = plan.creation_email
+    assert address == local_account_email(CONTEXT, online, profile)
+    assert address.endswith("@casdoor.invalid")
+    assert address.isascii()
+    assert len(address.split("@", 1)[0]) <= 64
+    assert len(address) <= 254
+    assert validate_email(address) == address
+    assert profile.email is None
+    assert profile.email_verified is verified
+    other_namespace = replace(CONTEXT, namespace_id=OTHER)
+    assert local_account_email(other_namespace, online, profile) != address
+    other_subject = replace(CONTEXT, subject="another-sub")
+    assert local_account_email(
+        other_subject, replace(online, subject=other_subject.subject), replace(profile, subject=other_subject.subject)
+    ) != address
+
+
+def test_generated_email_collision_never_links_existing_account():
+    with pytest.raises(AdmissionError):
+        decide(profile=replace(PROFILE, email=None), email_collision_account_ids=(ACCOUNT,))
+
+
+def test_missing_email_cannot_use_generated_address_as_invitation_mailbox():
+    with pytest.raises(AdmissionError):
+        decide(account=account(), invitation=invite(), profile=replace(PROFILE, email=None))
 
 
 @pytest.mark.parametrize("status", list(AccountStatus))
@@ -279,7 +320,7 @@ def test_link_source_selects_exact_eligible_account_without_login_or_email_claim
 
 @pytest.mark.parametrize("mode", [AuthMode.DIAGNOSTIC, AuthMode.REAUTH_UNLINK])
 def test_non_admission_modes_have_no_persistence_plan(mode):
-    plan = decide(mode=mode, source=source(management=True))
+    plan = decide(mode=mode, source=source(management=True), profile=replace(PROFILE, email=None, email_verified=None))
     assert plan.action is AdmissionAction.NO_ACCOUNT_ADMISSION
     assert plan.account_id is None and plan.setup is None and plan.creation_email is None
     assert plan.required_shared_owners == ()

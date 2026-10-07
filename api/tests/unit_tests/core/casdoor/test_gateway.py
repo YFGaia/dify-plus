@@ -519,3 +519,48 @@ def test_unknown_directory_envelope_metadata_is_not_discarded_as_complete(dispat
     replies.append(response({"status": "ok", "data": [], **extra}))
     with pytest.raises(GatewayError, match="directory_envelope"):
         directory(op).get_complete_roles()
+
+
+@pytest.mark.parametrize("label", ["", "synthetic-envelope-label", "密" * 85])
+def test_documented_directory_metadata_is_accepted_without_replacing_payload_identity(dispatch, label) -> None:
+    _, replies = dispatch
+    op = operation()
+    gateway = directory(op)
+    metadata = {"sub": label, "name": label, "data2": None, "data3": None}
+    role = {"owner": op.config.organization, "name": "synthetic-role"}
+    organization = {"owner": "admin", "name": op.config.organization, "viewRule": "public"}
+    replies.extend(
+        response({"status": "ok", "msg": "", "data": payload, **metadata})
+        for payload in (user(), [role], organization)
+    )
+    assert gateway.get_verified_user() == user()
+    assert gateway.get_complete_roles() == [role]
+    assert gateway.get_organization_visibility() == organization
+
+
+@pytest.mark.parametrize("field", ["sub", "name"])
+@pytest.mark.parametrize("value", [None, 42, {}, [], True, "x" * 256, "密" * 86, "bad\nlabel", "\ud800"])
+def test_documented_directory_metadata_must_be_bounded_strings(dispatch, field, value) -> None:
+    _, replies = dispatch
+    op = operation()
+    replies.append(response({"status": "ok", "data": [], field: value}))
+    with pytest.raises(GatewayError, match="directory_envelope"):
+        directory(op).get_complete_roles()
+
+
+@pytest.mark.parametrize("field", ["data2", "data3"])
+@pytest.mark.parametrize("value", [False, 0, "", [], {"next": "cursor"}])
+def test_directory_additional_payloads_are_rejected_even_with_documented_metadata(dispatch, field, value) -> None:
+    _, replies = dispatch
+    op = operation()
+    replies.append(response({"status": "ok", "data": [], "sub": "", "name": "", field: value}))
+    with pytest.raises(GatewayError, match="directory_envelope"):
+        directory(op).get_complete_roles()
+
+
+def test_directory_metadata_does_not_authorize_a_different_payload_subject(dispatch) -> None:
+    _, replies = dispatch
+    op = operation()
+    replies.append(response({"status": "ok", "data": user(id="another-user"), "sub": SUBJECT, "name": ""}))
+    with pytest.raises(GatewayError, match="user_schema"):
+        directory(op).get_verified_user()

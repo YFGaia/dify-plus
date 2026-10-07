@@ -14,11 +14,10 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from configs import dify_config
-from core.casdoor.admission import AdmissionContext, decide_admission
+from core.casdoor.admission import AdmissionContext, decide_admission, local_account_email
 from core.casdoor.auth_transactions import AuthMode, ConsumedAuthTransaction
-from core.casdoor.claims import ClaimsValidator, NativeTokenContract, NativeTokenSchema, VerifiedOnlineUser
+from core.casdoor.claims import NativeTokenContract, NativeTokenSchema, VerifiedOnlineUser
 from core.casdoor.configuration import CasdoorConfiguration
-from core.casdoor.crypto import CertificateTrustStore, TrustedCertificate
 from core.casdoor.deployment_evidence import AcceptedDeploymentPolicy
 from core.casdoor.errors import CasdoorErrorCode
 from core.casdoor.gateway import (
@@ -47,6 +46,7 @@ from services.casdoor_local_membership_service_extend import LocalMembershipPers
 from services.casdoor_login_account_service_extend import CasdoorLoginAccountService
 from services.casdoor_rp_logout_service_extend import RPLogoutTokenSnapshot
 from services.casdoor_session_service_extend import SessionProvenanceSeed
+from services.casdoor_signing_validator_service_extend import create_claims_validator
 from services.entities.account_login_entities import AuthTokenPair
 
 
@@ -153,7 +153,11 @@ class CasdoorLocalLoginCoordinatorService:
         with self._session_factory() as session, session.begin():
             owner = self._configuration_service._repository(session)
             integration = owner._integration()
-            if integration is None or integration.enabled is not True or integration.active_revision_id != expected_revision:
+            if (
+                integration is None
+                or integration.enabled is not True
+                or integration.active_revision_id != expected_revision
+            ):
                 raise _CoordinationConflict("configuration_changed")
             revision = owner._revision(integration.id, expected_revision)
             namespace = session.get(CasdoorNamespaceExtend, revision.namespace_id)
@@ -238,9 +242,13 @@ class CasdoorLocalLoginCoordinatorService:
 
     def _admission(self, context, consumed, bundle, online, profile):
         key = VerifiedIdentityKey(context.namespace_id, context.issuer, context.organization, context.subject)
+        # Existing exact bindings retain their snapshot-only email policy. NEW
+        # admission validates a present email; only absence needs a local value
+        # before the preflight can perform its complete collision scan.
+        collision_email = profile.email if profile.email is not None else local_account_email(context, online, profile)
         with self._session_factory() as session, session.begin():
             preflight = CasdoorAccountPreflightRepository(session).reconstruct(
-                context, key, collision_email=profile.email
+                context, key, collision_email=collision_email
             )
             plan = decide_admission(
                 context=context,
@@ -348,14 +356,12 @@ class CasdoorLocalLoginCoordinatorService:
                         or credential_strategy != CasdoorBasicDirectoryCredentialStrategy(config.client_id)
                     ):
                         raise _CoordinationConflict("directory_contract_binding")
-                validator = ClaimsValidator(
-                    trust_store=CertificateTrustStore(
-                        [TrustedCertificate(**pin.model_dump()) for pin in config.certificates]
-                    ),
-                    expected_issuer=config.expected_issuer,
-                    organization=config.organization,
-                    application=config.application,
-                    client_id=config.client_id,
+                validator = create_claims_validator(
+                    operation,
+                    namespace_id=consumed.context.namespace_id,
+                    revision_id=consumed.context.revision_id,
+                    diagnostic=False,
+                    redis_client=self._redis_client,
                 )
                 bundle = validator.verify_token_bundle(
                     raw_tokens,
@@ -376,7 +382,10 @@ class CasdoorLocalLoginCoordinatorService:
                     operation, verified_subject=bundle.identity.subject, credential_strategy=credential_strategy
                 )
                 if self._production_binding is not None:
-                    if contract != DirectorySnapshotContract(organization=config.organization) or directory.deployment_proof is not None:
+                    if (
+                        contract != DirectorySnapshotContract(organization=config.organization)
+                        or directory.deployment_proof is not None
+                    ):
                         raise _CoordinationConflict("directory_contract_binding")
                 elif (
                     contract.deployment_proof is None
@@ -543,12 +552,15 @@ class CasdoorLocalLoginCoordinatorService:
                 or policy.rp_logout is None
                 or not configuration.rp_logout
                 or policy.binding.configuration_digest != configuration.config_digest()
-                or (policy.binding.namespace_id, policy.binding.revision_id) != (
-                    str(consumed.context.namespace_id), str(consumed.context.revision_id)
-                )
+                or (policy.binding.namespace_id, policy.binding.revision_id)
+                != (str(consumed.context.namespace_id), str(consumed.context.revision_id))
             ):
                 return None
-            return RPLogoutTokenSnapshot(policy.binding, policy.proof_fingerprint,
-                                         raw_tokens.payload["id_token"], float(bundle.identity.expires_at))
+            return RPLogoutTokenSnapshot(
+                policy.binding,
+                policy.proof_fingerprint,
+                raw_tokens.payload["id_token"],
+                float(bundle.identity.expires_at),
+            )
         except Exception:
             return None

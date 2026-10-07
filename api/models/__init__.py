@@ -130,6 +130,7 @@ from .skill import AgentSkillBinding, Skill, SkillDraftFile, SkillFileKind, Skil
 from .snippet import CustomizedSnippet, SnippetType
 from .source import DataSourceApiKeyAuthBinding, DataSourceOauthBinding
 from .system_extend import SystemIntegrationExtend
+from .system_management_scope_extend import SystemManagementScopeExtend
 from .task import CeleryTask, CeleryTaskSet
 from .tools import (
     ApiToolProvider,
@@ -284,6 +285,7 @@ __all__ = [
     "SkillVersion",
     "SnippetType",
     "SystemIntegrationExtend",
+    "SystemManagementScopeExtend",
     "Tag",
     "TagBinding",
     "Tenant",

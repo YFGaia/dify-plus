@@ -1,5 +1,4 @@
 import type {
-  DingTalkConfig,
   ForwardToken,
   OAuth2Config,
   QuotaListResponse,
@@ -9,15 +8,6 @@ import type {
 import { del, get, post } from '@/service/base'
 
 // ==================== 钉钉 ====================
-export const getDingTalkConfig = () =>
-  get<DingTalkConfig>('/system-manage-extend/integration/dingtalk')
-
-export const setDingTalkConfig = (data: Partial<DingTalkConfig>) =>
-  post<{ result: string }>('/system-manage-extend/integration/dingtalk', { body: data })
-
-export const testDingTalkConnection = () =>
-  get<TestResult>('/system-manage-extend/integration/dingtalk/test')
-
 export const dingtalkTestCallback = (code: string) =>
   post<TestResult>('/system-manage-extend/integration/dingtalk/test-callback', { body: { code } })
 
@@ -29,10 +19,6 @@ export const setOAuth2Config = (data: Partial<OAuth2Config>) =>
 
 export const testOAuth2Connection = (data: Partial<OAuth2Config>) =>
   post<TestResult>('/system-manage-extend/integration/oauth2/test', { body: data })
-
-// ==================== 邮箱 API ====================
-export const testEmailApi = (url: string, key: string) =>
-  post<TestResult>('/system-manage-extend/integration/email-api/test', { body: { url, key } })
 
 // ==================== 转发 Token ====================
 export const getForwardTokens = () =>

@@ -126,133 +126,16 @@ class DingTalkService:
         Returns:
             邮箱地址，获取失败返回空字符串
         """
+        from services.dingtalk_email_lookup_extend import lookup_email
+
         try:
-            # 解析config字段
-            if not integration.config:
+            config = json.loads(integration.config or "{}").get("email_api", {})
+            if not config.get("enabled", False):
                 return ""
-
-            config_data = json.loads(integration.config)
-            email_api_config = config_data.get("email_api", {})
-
-            # 检查是否启用
-            if not email_api_config.get("enabled", False):
-                return ""
-
-            # 获取配置参数
-            api_url = email_api_config.get("url", "")
-            method = email_api_config.get("method", "GET").upper()
-            param_field = email_api_config.get("request_param_field", "userId")
-            email_field = email_api_config.get("response_email_field", "data[0].userName")
-            body_type = email_api_config.get("body_type", "raw")
-            headers = email_api_config.get("headers", {})
-            authorization = email_api_config.get("authorization", {})
-            body_data = email_api_config.get("body_data", {})
-
-            if not api_url:
-                logger.warning("Third-party email API URL is not configured")
-                return ""
-
-            # 准备请求头
-            request_headers = dict(headers) if headers else {}
-
-            # 处理Authorization
-            auth = None
-            auth_type = authorization.get("type", "none")
-            if auth_type == "bearer":
-                token = authorization.get("token", "")
-                if token:
-                    request_headers["Authorization"] = f"Bearer {token}"
-            elif auth_type == "basic":
-                username = authorization.get("username", "")
-                password = authorization.get("password", "")
-                if username and password:
-                    from requests.auth import HTTPBasicAuth
-
-                    auth = HTTPBasicAuth(username, password)
-
-            # 构建请求数据
-            request_data = {}
-
-            # 处理Body数据（仅POST/PUT/DELETE）
-            if method in ["POST", "PUT", "DELETE"]:
-                if body_type == "form-data":
-                    # form-data: 合并body_data中的form_data
-                    form_data_items = body_data.get("form_data", [])
-                    for item in form_data_items:
-                        if isinstance(item, dict) and "key" in item and "value" in item:
-                            key = item.get("key", "").strip()
-                            value = item.get("value", "").strip()
-                            if key:
-                                request_data[key] = value
-                    # 确保主请求字段的值始终是userid（覆盖body_data中的值）
-                    request_data[param_field] = userid
-                    # form-data使用data参数
-                    response = requests.request(
-                        method, api_url, data=request_data, headers=request_headers, auth=auth, timeout=10
-                    )
-                elif body_type == "x-www-form-urlencoded":
-                    # x-www-form-urlencoded: 合并body_data中的urlencoded
-                    urlencoded_items = body_data.get("urlencoded", [])
-                    for item in urlencoded_items:
-                        if isinstance(item, dict) and "key" in item and "value" in item:
-                            key = item.get("key", "").strip()
-                            value = item.get("value", "").strip()
-                            if key:
-                                request_data[key] = value
-                    # 确保主请求字段的值始终是userid（覆盖body_data中的值）
-                    request_data[param_field] = userid
-                    # 确保Content-Type正确
-                    if "Content-Type" not in request_headers:
-                        request_headers["Content-Type"] = "application/x-www-form-urlencoded"
-                    response = requests.request(
-                        method, api_url, data=request_data, headers=request_headers, auth=auth, timeout=10
-                    )
-                else:  # raw (JSON)
-                    # raw: 合并body_data中的raw JSON
-                    raw_json = body_data.get("raw", "")
-                    if raw_json:
-                        try:
-                            raw_data = json.loads(raw_json)
-                            if isinstance(raw_data, dict):
-                                request_data.update(raw_data)
-                        except json.JSONDecodeError:
-                            logger.warning("Failed to parse raw JSON body: %s", raw_json)
-                    # 确保主请求字段的值始终是userid（覆盖raw JSON中的值）
-                    request_data[param_field] = userid
-                    # 确保Content-Type正确
-                    if "Content-Type" not in request_headers:
-                        request_headers["Content-Type"] = "application/json"
-                    response = requests.request(
-                        method, api_url, json=request_data, headers=request_headers, auth=auth, timeout=10
-                    )
-            else:  # GET请求
-                # GET请求：所有数据作为URL参数
-                response = requests.get(api_url, params=request_data, headers=request_headers, auth=auth, timeout=10)
-
-            # 检查响应
-            if response.status_code != 200:
-                logger.error("Third-party email API returned status code: %s", response.status_code)
-                return ""
-
-            # 解析响应
-            response_data = response.json()
-            email = cls.extract_data(response_data, email_field)
-
-            if email and isinstance(email, str) and "@" in email:
-                logger.info("Successfully retrieved email from third-party API for userid: %s", userid)
-                return email
-            else:
-                logger.warning("Failed to extract valid email from response using path: %s", email_field)
-                return ""
-
-        except json.JSONDecodeError:
-            logger.exception("Failed to parse email API config")
-            return ""
-        except requests.exceptions.RequestException:
-            logger.exception("Failed to call third-party email API")
-            return ""
+            result = lookup_email(userid, config)
+            return result.get("email", "") if result["result"] == "success" else ""
         except Exception:
-            logger.exception("Unexpected error in get_email_from_third_party_api")
+            logger.warning("Enterprise email lookup failed; using DingTalk email fallback")
             return ""
 
     @classmethod

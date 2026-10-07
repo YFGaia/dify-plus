@@ -278,6 +278,8 @@ class CertificateTrustStore:
     """At most two pins; select only a uniquely successful RS256 signature.
 
     The caller supplies the exact JWS signing input/signature and protected kid.
+    A configured kid constrains selection when the token supplies one. A pin
+    without a kid trusts its public key independently of the provider's label.
     This is not an OIDC claims validator and must not itself authorize a login.
     """
 
@@ -307,7 +309,7 @@ class CertificateTrustStore:
         candidates = [
             pin
             for pin in self._certificates
-            if pin.not_before <= checked_at < pin.accept_until and (kid is None or pin.kid == kid)
+            if pin.not_before <= checked_at < pin.accept_until and (kid is None or pin.kid is None or pin.kid == kid)
         ]
         verified = []
         for pin in candidates:

@@ -15,6 +15,8 @@ from functools import partial, wraps
 from urllib.parse import urlencode
 from uuid import UUID, uuid4
 
+from sqlalchemy.orm import Session
+
 from configs import dify_config
 from constants.languages import supported_language
 from core.casdoor.admission import AdmissionError
@@ -76,8 +78,6 @@ from repositories.casdoor_configuration_repository_extend import (
 )
 from repositories.casdoor_identity_repository_extend import CasdoorIdentityConflict
 from repositories.casdoor_login_scope_repository_extend import CasdoorLoginScopeConflict
-from sqlalchemy.orm import Session
-
 from services.account_activation_service import AccountActivationService
 from services.account_adapters import RedisInvitationTokenStore
 from services.casdoor_configuration_service_extend import CasdoorConfigurationService
@@ -108,7 +108,7 @@ def _record_event(event: SafetyEvent) -> None:
 
 
 def _request_runtime(method):
-    """G0 first, then a private service/coordinator binding and a close gate.
+    """Deployment mode first, then private coordinator binding and a close gate.
 
     SQL/token phase facts survive a failed close. Suppressing delivery does not
     roll back SQL, revoke a token or establish physical 45-second completion.
@@ -121,6 +121,9 @@ def _request_runtime(method):
         scope = None
         candidate = None
         try:
+            # Reject unsupported deployment/role modes before reconstructing
+            # the coordinator or opening its database owner transaction.
+            self._check(deadline)
             request = copy(self)
             request._request_deadline, request._request_correlation = deadline, correlation
             coordinator = request._coordinator_for_request()

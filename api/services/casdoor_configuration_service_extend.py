@@ -11,14 +11,17 @@ from datetime import UTC, datetime
 from typing import Literal
 from uuid import UUID, uuid4
 
+from pydantic import SecretStr
+from sqlalchemy.orm import Session, object_session, sessionmaker
+
 from core.casdoor.configuration import CasdoorConfiguration
 from core.casdoor.crypto import CasdoorCrypto
 from core.casdoor.deployment_evidence import DeploymentEvidenceError
 from core.casdoor.errors import CasdoorErrorCode
 from core.casdoor.permissions import CasdoorManagementPolicy, LocalAccount
 from core.casdoor.rp_logout_activation import RPLogoutActivationAdmission
+from models.account import Account
 from models.casdoor_extend import CasdoorNamespaceExtend, CasdoorValidationKind, CasdoorValidationStatus
-from pydantic import SecretStr
 from repositories.casdoor_configuration_repository_extend import (
     CasdoorConfigurationError,
     CasdoorConfigurationRepository,
@@ -30,7 +33,7 @@ from repositories.casdoor_configuration_repository_extend import (
 )
 from repositories.casdoor_public_display_repository_extend import CasdoorPublicDisplayRepository
 from repositories.casdoor_validation_repository_extend import CasdoorValidationRepository, ValidationBinding
-from sqlalchemy.orm import Session, sessionmaker
+from services.system_management_access_service_extend import SystemManagementAccessService
 
 
 class CasdoorConfigurationService:
@@ -43,6 +46,7 @@ class CasdoorConfigurationService:
         rbac_enabled: bool,
         deployment_policy_service=None,
         rp_logout_service=None,
+        activation_signing_keys_resolver=None,
     ) -> None:
         self._session_factory = session_factory
         self._management_policy = management_policy
@@ -52,12 +56,25 @@ class CasdoorConfigurationService:
         self._rbac_enabled = rbac_enabled
         self._deployment_policy_service = deployment_policy_service
         self._rp_logout_service = rp_logout_service
+        self._activation_signing_keys_resolver = activation_signing_keys_resolver
+
+    def _global_management_allowed(self, account: LocalAccount | None) -> bool:
+        # Long operations recheck in their fresh, locked caller transaction.
+        # Detached request accounts use a short independent database read.
+        if isinstance(account, Account) and (session := object_session(account)) is not None:
+            return SystemManagementAccessService.can_manage(account, session=session)
+        with self._session_factory() as session:
+            return SystemManagementAccessService.can_manage(account, session=session)
 
     def can_manage(self, account: LocalAccount | None) -> bool:
-        return self._management_policy.can_manage_casdoor(account)
+        return self._management_policy.can_manage_casdoor(
+            account, system_management_allowed=self._global_management_allowed(account)
+        )
 
     def require_management(self, account: LocalAccount | None) -> None:
-        self._management_policy.require_management(account)
+        self._management_policy.require_management(
+            account, system_management_allowed=self._global_management_allowed(account)
+        )
 
     def _repository(self, session: Session) -> CasdoorConfigurationRepository:
         return CasdoorConfigurationRepository(
@@ -188,6 +205,7 @@ class CasdoorConfigurationService:
         """Activate only after current static checks and matching real diagnostics."""
         self.require_management(account)
         assert account is not None
+        signing_key_snapshot = self._activation_signing_keys(etag=etag, revision_id=revision_id, now=now)
         admission = self._rp_activation_admission(etag=etag, revision_id=revision_id)
         with self._session_factory() as session, session.begin():
             owner = self._repository(session)
@@ -216,6 +234,7 @@ class CasdoorConfigurationService:
                 actor_account_id=UUID(account.id),
                 now=now,
                 rp_logout_admission=admission,
+                signing_key_snapshot=signing_key_snapshot,
             )
             if policy is not None:
                 assert result.active_revision_id is not None
@@ -249,6 +268,53 @@ class CasdoorConfigurationService:
                     ):
                         raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "optional_capability_unknown")
             return result
+
+    def _activation_signing_keys(self, *, etag: int, revision_id: UUID, now: datetime | None = None):
+        """Read the diagnosed source then resolve current keys outside SQL locks."""
+        with self._session_factory() as session:
+            owner = self._repository(session)
+            integration = owner._integration()
+            if integration is None:
+                return None
+            if integration.etag != etag or integration.draft_revision_id != str(revision_id):
+                raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "draft_pointer_mismatch")
+            revision = owner._revision(integration.id, str(revision_id))
+            configuration = owner._configuration(revision)
+            if configuration.schema_version == 1:
+                return None
+            latest, ambiguous = owner._latest_validations(revision.id)
+            protocol = latest.get(CasdoorValidationKind.PROTOCOL)
+            if (
+                protocol is None
+                or CasdoorValidationKind.PROTOCOL in ambiguous
+                or protocol.status is not CasdoorValidationStatus.PASSED
+                or not owner._fresh(protocol, owner._now(now))
+                or owner._record_capabilities(protocol, revision) is None
+                or revision.encrypted_secret is None
+            ):
+                raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "signing_key_diagnostic_required")
+            source_metadata = json.loads(protocol.summary_json).get("signing_keys")
+            if not isinstance(source_metadata, dict):
+                raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "signing_key_diagnostic_required")
+            source_metadata = dict(source_metadata, config_digest=configuration.config_digest())
+            namespace_id = UUID(revision.namespace_id)
+            secret = SecretStr(
+                owner.crypto.decrypt(
+                    revision.encrypted_secret, context=owner._secret_context(revision.namespace_id, revision.id)
+                )
+            )
+        resolver = self._activation_signing_keys_resolver
+        if resolver is None:
+            from services.casdoor_signing_validator_service_extend import resolve_activation_signing_keys
+
+            resolver = resolve_activation_signing_keys
+        return resolver(
+            configuration=configuration,
+            namespace_id=namespace_id,
+            revision_id=revision_id,
+            client_secret=secret,
+            source_metadata=source_metadata,
+        )
 
     def _rp_activation_admission(self, *, etag, revision_id):
         """Read optional Redis outside write locks; its reader confirms cleanup."""

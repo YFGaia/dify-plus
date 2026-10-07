@@ -1,5 +1,6 @@
 """Independent offline checks for the Casdoor management API composition."""
 
+from datetime import datetime
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
@@ -14,33 +15,50 @@ from enums import DeploymentEdition
 from extensions import ext_application_services
 from flask import Flask, g
 from libs.token import generate_csrf_token
-from models.account import Account, AccountStatus, Tenant, TenantAccountRole
+from models.account import Account, AccountStatus, Tenant, TenantAccountJoin, TenantAccountRole
 from models.base import Base
 from models.casdoor_extend import CasdoorIntegrationExtend
+from models.system_management_scope_extend import SystemManagementScopeExtend
 from services.casdoor_configuration_service_extend import CasdoorConfigurationService
 from sqlalchemy.orm import sessionmaker
 
 ROOT = "/console/api" + controller.PREFIX
 ACTOR_ID = "20000000-0000-4000-8000-000000000011"
-OTHER_ID = "20000000-0000-4000-8000-000000000012"
 
 
 @pytest.fixture
 def setup_api(monkeypatch):
     engine = sa.create_engine("sqlite://")
-    Base.metadata.create_all(engine, tables=[Tenant.__table__, CasdoorIntegrationExtend.__table__])
+    Base.metadata.create_all(
+        engine,
+        tables=[Tenant.__table__, Account.__table__, TenantAccountJoin.__table__,
+                SystemManagementScopeExtend.__table__, CasdoorIntegrationExtend.__table__],
+    )
     factory = sessionmaker(engine, expire_on_commit=False)
     with factory.begin() as session:
         workspace = Tenant(name="Independent synthetic workspace")
         session.add(workspace)
         session.flush()
+        session.add(SystemManagementScopeExtend(tenant_id=workspace.id))
     actor = Account(name="Independent synthetic actor", email="actor@example.test")
     actor.id = ACTOR_ID
     actor.status = AccountStatus.ACTIVE
-    actor.role = TenantAccountRole.NORMAL
+    actor.initialized_at = datetime(2026, 10, 7)
+    actor.role = TenantAccountRole.ADMIN
+    actor._current_tenant = type("WorkspaceRef", (), {"id": workspace.id})()
+    with factory.begin() as session:
+        session.add(actor)
+        session.add(
+            TenantAccountJoin(
+                tenant_id=workspace.id,
+                account_id=actor.id,
+                role=TenantAccountRole.ADMIN,
+                current=True,
+            )
+        )
     owner = CasdoorConfigurationService(
         session_factory=factory,
-        management_policy=CasdoorManagementPolicy.from_deployment(ACTOR_ID),
+        management_policy=CasdoorManagementPolicy(),
         secret_key="independent synthetic deployment key",
         rbac_enabled=False,
     )
@@ -114,29 +132,37 @@ def test_real_route_guard_rejects_anonymous_and_invalid_csrf(setup_api):
         assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorIntegrationExtend)) == 0
 
 
+@pytest.mark.parametrize("rbac_enabled", [False, True])
 @pytest.mark.parametrize(
-    ("role", "allowlist"),
+    ("role", "allowed"),
     [
-        (TenantAccountRole.NORMAL, ""),
-        (TenantAccountRole.NORMAL, "malformed"),
-        (TenantAccountRole.OWNER, ""),
-        (TenantAccountRole.OWNER, "malformed"),
-        (TenantAccountRole.ADMIN, OTHER_ID),
+        (TenantAccountRole.OWNER, True),
+        (TenantAccountRole.ADMIN, True),
+        (TenantAccountRole.NORMAL, False),
+        (TenantAccountRole.EDITOR, False),
+        (TenantAccountRole.DATASET_OPERATOR, False),
     ],
 )
-def test_actual_service_allowlist_denies_empty_invalid_or_nonmatching_account(setup_api, role, allowlist):
+def test_actual_service_uses_current_workspace_role_not_rbac_flags(setup_api, monkeypatch, role, allowed, rbac_enabled):
     harness = setup_api
     harness.actor.role = role
-    harness.owner._management_policy = CasdoorManagementPolicy.from_deployment(allowlist)
-    denied = call(harness, "GET", "/workspaces")
-    assert denied.status_code == 403
-    assert denied.json["code"] == "casdoor_management_forbidden"
-    assert denied.headers["Cache-Control"] == "no-store"
-
-    harness.owner._management_policy = CasdoorManagementPolicy.from_deployment(ACTOR_ID)
-    allowed = call(harness, "GET", "/workspaces")
-    assert allowed.status_code == 200
-    assert allowed.json["total"] == 1
+    with harness.factory.begin() as session:
+        membership = session.scalar(
+            sa.select(TenantAccountJoin).where(
+                TenantAccountJoin.tenant_id == harness.workspace_id,
+                TenantAccountJoin.account_id == harness.actor.id,
+            )
+        )
+        membership.role = role
+    monkeypatch.setattr(dify_config, "RBAC_ENABLED", rbac_enabled)
+    monkeypatch.setattr(dify_config, "CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS", ACTOR_ID)
+    response = call(harness, "GET", "/workspaces")
+    assert response.status_code == (200 if allowed else 403)
+    if allowed:
+        assert response.json["total"] == 1
+    else:
+        assert response.json["code"] == "casdoor_management_forbidden"
+        assert response.headers["Cache-Control"] == "no-store"
 
 
 def test_routing_failure_is_uncached_and_regular_route_keeps_its_policy(setup_api):
@@ -149,11 +175,13 @@ def test_routing_failure_is_uncached_and_regular_route_keeps_its_policy(setup_ap
 
 
 @pytest.mark.parametrize("rbac_enabled", [False, True])
-def test_actual_factory_wires_deployment_allowlist_and_disables_unproven_activation(
-    setup_api, monkeypatch, rbac_enabled
+@pytest.mark.parametrize("legacy_admin_ids", ["", "malformed", ACTOR_ID])
+def test_actual_factory_wires_current_role_and_ignores_deprecated_allowlist(
+    setup_api, monkeypatch, rbac_enabled, legacy_admin_ids
 ):
     harness = setup_api
-    monkeypatch.setattr(dify_config, "CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS", ACTOR_ID)
+    harness.actor.role = TenantAccountRole.ADMIN
+    monkeypatch.setattr(dify_config, "CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS", legacy_admin_ids)
     monkeypatch.setattr(dify_config, "RBAC_ENABLED", rbac_enabled)
     with patch.object(ext_application_services.SystemFeatureService, "is_trial_app_enabled", return_value=False):
         registry = ext_application_services.build_application_services(
@@ -174,22 +202,26 @@ def test_actual_factory_wires_deployment_allowlist_and_disables_unproven_activat
         assert repo.crypto.key_version == "v1"
 
 
+@pytest.mark.parametrize("rbac_enabled", [False, True])
 @pytest.mark.parametrize(
-    ("role", "allowlist"),
-    [
-        (TenantAccountRole.NORMAL, ""),
-        (TenantAccountRole.NORMAL, "malformed"),
-        (TenantAccountRole.OWNER, OTHER_ID),
-        (TenantAccountRole.ADMIN, OTHER_ID),
-    ],
+    "role", [TenantAccountRole.NORMAL, TenantAccountRole.EDITOR, TenantAccountRole.DATASET_OPERATOR]
 )
-def test_factory_enforces_empty_or_nonmatching_allowlist_against_every_workspace_role(
-    setup_api, monkeypatch, role, allowlist
-):
+def test_factory_rejects_members_even_when_deprecated_allowlist_matches(setup_api, monkeypatch, role, rbac_enabled):
     harness = setup_api
     harness.actor.role = role
-    monkeypatch.setattr(dify_config, "CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS", allowlist)
-    monkeypatch.setattr(dify_config, "RBAC_ENABLED", True)
+    with harness.factory.begin() as session:
+        membership = session.scalar(
+            sa.select(TenantAccountJoin).where(
+                TenantAccountJoin.tenant_id == harness.workspace_id,
+                TenantAccountJoin.account_id == harness.actor.id,
+            )
+        )
+        if role is None:
+            session.delete(membership)
+        else:
+            membership.role = role
+    monkeypatch.setattr(dify_config, "CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS", ACTOR_ID)
+    monkeypatch.setattr(dify_config, "RBAC_ENABLED", rbac_enabled)
     with patch.object(ext_application_services.SystemFeatureService, "is_trial_app_enabled", return_value=False):
         registry = ext_application_services.build_application_services(
             database_client=harness.factory,

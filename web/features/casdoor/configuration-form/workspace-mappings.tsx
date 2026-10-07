@@ -1,7 +1,4 @@
-import type {
-  RoleRef,
-  WorkspaceRoleMapping,
-} from '@dify/contracts/api/console/system-manage-extend/types.gen'
+import type { WorkspaceRoleMapping } from '@dify/contracts/api/console/system-manage-extend/types.gen'
 import type { DraftErrors } from './configuration-draft'
 import { Button } from '@langgenius/dify-ui/button'
 import { Field, FieldError, FieldLabel } from '@langgenius/dify-ui/field'
@@ -13,11 +10,13 @@ import { WorkspaceSelector } from './workspace-selector'
 
 export function WorkspaceMappings({
   mappings,
+  organization,
   onChange,
   errors,
   rowIds,
 }: {
   mappings: WorkspaceRoleMapping[]
+  organization: string
   rowIds: string[]
   onChange: (mappings: WorkspaceRoleMapping[], rowIds: string[]) => void
   errors: DraftErrors
@@ -37,11 +36,12 @@ export function WorkspaceMappings({
     index: number,
     mapping: WorkspaceRoleMapping,
     role: (typeof targetRoles)[number],
-    key: keyof RoleRef,
     value: string,
   ) => {
-    const ref = { organization: '', name: '', ...mapping[role], [key]: value }
-    update(index, { ...mapping, [role]: ref.organization === '' && ref.name === '' ? null : ref })
+    update(index, {
+      ...mapping,
+      [role]: value === '' ? null : { organization, name: value },
+    })
   }
   return (
     <Fieldset className="space-y-3">
@@ -73,25 +73,19 @@ export function WorkspaceMappings({
               return (
                 <Fieldset key={role} className="space-y-2">
                   <FieldsetLegend>{labels[role]}</FieldsetLegend>
-                  {(['organization', 'name'] as const).map((key) => (
-                    <Field key={key} name={`${prefix}.${key}`} invalid={invalid}>
-                      <FieldLabel>
-                        {key === 'organization'
-                          ? t(($) => $['systemManage.casdoor.roleOrganization'])
-                          : t(($) => $['systemManage.casdoor.roleName'])}
-                      </FieldLabel>
-                      <Input
-                        autoComplete="off"
-                        value={mapping[role]?.[key] ?? ''}
-                        onValueChange={(value) => updateRole(index, mapping, role, key, value)}
-                      />
-                      {invalid && (
-                        <FieldError match>
-                          {t(($) => $['systemManage.casdoor.invalidMapping'])}
-                        </FieldError>
-                      )}
-                    </Field>
-                  ))}
+                  <Field name={`${prefix}.name`} invalid={invalid}>
+                    <FieldLabel>{t(($) => $['systemManage.casdoor.roleName'])}</FieldLabel>
+                    <Input
+                      autoComplete="off"
+                      value={mapping[role]?.name ?? ''}
+                      onValueChange={(value) => updateRole(index, mapping, role, value)}
+                    />
+                    {invalid && (
+                      <FieldError match>
+                        {t(($) => $['systemManage.casdoor.invalidMapping'])}
+                      </FieldError>
+                    )}
+                  </Field>
                 </Fieldset>
               )
             })}

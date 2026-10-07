@@ -35,7 +35,7 @@ def test_final_original_refresh_get_revocation_rolls_back_mounted_release(lifecy
     response = lifecycle_owner.send(d, lifecycle_owner.PATH + "/release", method="POST", json=proof)
 
     assert response.status_code != 200, response.json
-    assert inside_uow_reads == ["refresh_token:" + d.token]
+    assert inside_uow_reads == ["refresh_token:" + d.management_token]
     with d.f.service._session_factory() as session:
         assert session.scalar(sa.select(CasdoorManagedMembershipExtend.ownership)) is CasdoorMembershipOwnership.MANAGED
         assert (
@@ -113,7 +113,12 @@ def test_actual_reauth_unlink_rejects_release_receipt_tampered_after_success(lif
     with d.f.service._session_factory() as session:
         assert session.scalar(sa.select(CasdoorIdentityExtend.id).where(CasdoorIdentityExtend.account_id == d.actor.id))
         assert (
-            session.scalar(sa.select(TenantAccountJoin.role).where(TenantAccountJoin.account_id == d.actor.id))
+            session.scalar(
+                sa.select(TenantAccountJoin.role).where(
+                    TenantAccountJoin.account_id == d.actor.id,
+                    TenantAccountJoin.tenant_id == str(d.f.local.config.default_workspace_id),
+                )
+            )
             is TenantAccountRole.NORMAL
         )
         assert (

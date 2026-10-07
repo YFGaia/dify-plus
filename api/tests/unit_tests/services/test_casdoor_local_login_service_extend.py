@@ -14,6 +14,7 @@ from uuid import UUID
 import pytest
 import sqlalchemy as sa
 from configs import dify_config
+from enums import DeploymentEdition
 from core.casdoor.admission import AdmissionAction as Action
 from core.casdoor.claims import StructuredUserRef
 from core.casdoor.configuration import CasdoorConfiguration, RoleRef, WorkspaceRoleMapping
@@ -22,6 +23,7 @@ from core.casdoor.leases import CasdoorLeaseError, CasdoorLeases
 from core.casdoor.role_graph import EffectiveRoleSnapshot
 from models.account import Account, AccountStatus, Tenant, TenantAccountRole
 from models.account import TenantAccountJoin as Join
+from models.system_management_scope_extend import SystemManagementScopeExtend
 from models.account_money_extend import AccountMoneyExtend as Quota
 from models.casdoor_extend import (
     CasdoorConfigRevisionExtend as Revision,
@@ -66,7 +68,7 @@ def config_factory(session):
 def local(login_env, monkeypatch):
     session, c, *_ = login_env
     engine = session.get_bind()
-    for model in (Tenant, Join, History, Intent, InvitationAuthorityLifecycleExtend):
+    for model in (Tenant, Join, SystemManagementScopeExtend, History, Intent, InvitationAuthorityLifecycleExtend):
         model.__table__.create(engine)
 
     @sa.event.listens_for(engine, "begin")
@@ -76,6 +78,7 @@ def local(login_env, monkeypatch):
     with engine.connect() as connection:
         connection.exec_driver_sql("PRAGMA foreign_keys=ON")
     monkeypatch.setattr(dify_config, "RBAC_ENABLED", False)
+    monkeypatch.setattr(dify_config, "DEPLOYMENT_EDITION", DeploymentEdition.COMMUNITY)
     ref = RoleRef(organization="Org", name="operators")
     configuration = CasdoorConfiguration(
         browser_frontend_url=c.issuer,
@@ -92,6 +95,8 @@ def local(login_env, monkeypatch):
             space = Tenant(name=f"Space {n}")
             space.id = str(UUID(int=n))
             session.add(space)
+        session.flush()
+        session.add(SystemManagementScopeExtend(tenant_id=str(UUID(int=100))))
         revision = session.get(Revision, str(c.revision_id))
         data = json.loads(configuration.canonical_json())
         policy_fields = (

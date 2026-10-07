@@ -15,6 +15,8 @@ import requests
 from Crypto.Cipher import Blowfish
 from Crypto.Util.Padding import pad, unpad
 
+from core.helper import ssrf_proxy
+from services.dingtalk_email_lookup_extend import validate_email_lookup
 from configs import dify_config
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
@@ -103,6 +105,13 @@ class SystemIntegrationManageService:
     @staticmethod
     def set_config(classify: int, data: dict) -> None:
         """保存指定分类的集成配置"""
+        config = data.get("config")
+        if classify == SystemIntegrationClassify.SYSTEM_INTEGRATION_DINGTALK and isinstance(config, dict):
+            email_api = config.get("email_api")
+            if email_api is not None:
+                if not isinstance(email_api, dict):
+                    raise ValueError("Email lookup configuration must be a JSON object.")
+                validate_email_lookup(email_api)
         record = SystemIntegrationManageService._get_or_create_record(classify)
 
         # 处理 status
@@ -234,14 +243,14 @@ class SystemIntegrationManageService:
             headers = {}
             if api_key:
                 headers["Authorization"] = f"Bearer {api_key}"
-            resp = requests.get(api_url, headers=headers, timeout=10)
+            resp = ssrf_proxy.get(api_url, headers=headers, timeout=10, max_retries=0)
             return {
                 "result": "success" if resp.status_code < 400 else "failed",
                 "status_code": resp.status_code,
                 "message": f"API 响应状态码: {resp.status_code}",
             }
-        except requests.RequestException as e:
-            raise ValueError(f"邮箱 API 连接失败: {e}")
+        except Exception:
+            raise ValueError("Email API connection failed.") from None
 
     @staticmethod
     def get_forward_tokens() -> list:

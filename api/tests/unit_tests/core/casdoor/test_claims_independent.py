@@ -6,7 +6,6 @@ from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from casdoor import CasdoorSDK
 from core.casdoor.claims import (
     MAX_PAYLOAD_BYTES,
     ClaimsError,
@@ -163,30 +162,25 @@ def test_each_required_claim_is_missing_rejected(verifier, keypair, field):
         _verify_id(verifier, _jwt(keypair, claims))
 
 
-def test_sdk_signature_issuer_audience_and_required_contract_is_preserved(verifier, keypair, monkeypatch):
-    calls = []
-    original = CasdoorSDK.parse_jwt_token
+def test_pinned_validator_checks_signature_issuer_audience_and_required_without_sdk(verifier, keypair, monkeypatch):
+    from casdoor import CasdoorSDK
 
-    def capture(sdk, token, **kwargs):
-        calls.append((sdk, kwargs))
-        return original(sdk, token, **kwargs)
+    def no_sdk(*args, **kwargs):
+        pytest.fail("claim verification must use the selected trusted public key only")
 
-    monkeypatch.setattr(CasdoorSDK, "parse_jwt_token", capture)
-    good = _jwt(keypair, _id())
-    assert _verify_id(verifier, good).subject == SUB
-    sdk, kwargs = calls[-1]
-    assert sdk.client_id == CLIENT and sdk.client_secret == ""
-    assert kwargs["issuer"] == ISSUER
-    assert "audience" not in kwargs
-    assert kwargs["options"]["require"] == ["iss", "sub", "aud", "exp", "iat", "nonce"]
-    assert kwargs["options"]["verify_exp"] is False
-    assert kwargs["options"]["verify_iat"] is False
-    assert kwargs["options"]["verify_nbf"] is False
-    # Expiry is owned by strict UTC checks after the real SDK signature/issuer/audience parse.
-    with pytest.raises(ClaimsError):
-        _verify_id(verifier, _jwt(keypair, _id(exp=NOW.timestamp() - 100)))
+    monkeypatch.setattr(CasdoorSDK, "parse_jwt_token", no_sdk)
+    assert _verify_id(verifier, _jwt(keypair, _id())).subject == SUB
     with pytest.raises(ClaimsError):
         _verify_id(verifier, _jwt(keypair, _id(iss=ISSUER + "/wrong")))
+    with pytest.raises(ClaimsError):
+        _verify_id(verifier, _jwt(keypair, _id(aud="different-client")))
+    missing = _id()
+    del missing["nonce"]
+    with pytest.raises(ClaimsError):
+        _verify_id(verifier, _jwt(keypair, missing))
+    with pytest.raises(ClaimsError) as error:
+        _verify_id(verifier, _jwt(rsa.generate_private_key(public_exponent=65537, key_size=2048), _id()))
+    assert error.value.reason == "signature_invalid"
 
 
 def test_two_pins_select_signature_with_or_without_kid(keypair):

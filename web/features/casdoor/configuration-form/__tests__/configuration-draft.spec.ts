@@ -1,6 +1,8 @@
 import type { CasdoorConfiguration } from '@dify/contracts/api/console/system-manage-extend/types.gen'
 import { describe, expect, it } from 'vite-plus/test'
 import {
+  configurationInput,
+  initialConfiguration,
   parseServerConfiguration,
   plannedCallback,
   validateConfiguration,
@@ -9,6 +11,8 @@ import { safeManagementError } from '../management-error-details'
 
 const workspace = '11111111-1111-4111-8111-111111111111'
 const configuration: CasdoorConfiguration = {
+  schema_version: 2,
+  signing_key_mode: 'automatic',
   organization: 'exact-org',
   application: 'app',
   client_id: 'client',
@@ -33,7 +37,7 @@ describe('Casdoor draft rules', () => {
       'workspace_mappings.1.workspace_id': 'invalidMapping',
     })
   })
-  it('preserves exact role strings while requiring the configured organization', () => {
+  it('preserves exact role strings and inherits the configured organization for submission', () => {
     expect(
       validateConfiguration({
         ...configuration,
@@ -46,40 +50,91 @@ describe('Casdoor draft rules', () => {
         ],
       }),
     ).toEqual({})
+    const draft = {
+      ...configuration,
+      workspace_mappings: [
+        {
+          workspace_id: workspace,
+          admin: { organization: 'old-org', name: 'CaseSensitive/role' },
+          editor: { organization: '', name: 'editor' },
+          normal: null,
+        },
+      ],
+    }
+    expect(validateConfiguration(draft)).toEqual({})
+    expect(configurationInput(draft).workspace_mappings).toEqual([
+      {
+        workspace_id: workspace,
+        admin: { organization: 'exact-org', name: 'CaseSensitive/role' },
+        editor: { organization: 'exact-org', name: 'editor' },
+        normal: null,
+      },
+    ])
+    expect(draft.workspace_mappings[0]?.admin.organization).toBe('old-org')
+  })
+
+  it('rejects duplicate roles after inheriting the sign-in organization', () => {
     expect(
       validateConfiguration({
         ...configuration,
         workspace_mappings: [
-          { workspace_id: workspace, admin: { organization: 'EXACT-org', name: 'role' } },
+          {
+            workspace_id: workspace,
+            admin: { organization: 'old-org', name: 'same-role' },
+            editor: { organization: 'exact-org', name: 'same-role' },
+          },
         ],
       }),
-    ).toHaveProperty('workspace_mappings.0.admin', 'invalidMapping')
+    ).toHaveProperty('workspace_mappings.0.editor', 'invalidMapping')
   })
-  it('rejects private keys, duplicate kid and non-UTC or reversed certificate windows', () => {
-    expect(
-      validateConfiguration({
-        ...configuration,
-        certificates: [
-          {
-            pem: '-----BEGIN PRIVATE KEY-----',
-            kid: 'shared',
-            not_before: '2026-10-02T00:00:00Z',
-            accept_until: '2026-10-01T00:00:00Z',
-          },
-          {
-            pem: '-----BEGIN CERTIFICATE-----\nsynthetic\n-----END CERTIFICATE-----',
-            kid: 'shared',
-            not_before: '2026-10-01T00:00:00+08:00',
-            accept_until: '2026-11-01T00:00:00Z',
-          },
-        ],
-      }),
-    ).toMatchObject({
-      'certificates.0.pem': 'invalidCertificate',
-      'certificates.0.accept_until': 'invalidCertificate',
-      'certificates.1.kid': 'invalidCertificate',
-      'certificates.1.not_before': 'invalidCertificate',
+  it('converts legacy configuration into an automatic draft without retaining certificate input', () => {
+    const draft = initialConfiguration({
+      enabled: true,
+      etag: 3,
+      active_revision_id: workspace,
+      active: {
+        revision_id: workspace,
+        namespace_id: workspace,
+        secret_configured: true,
+        configuration: {
+          ...configuration,
+          schema_version: 1,
+          certificates: [
+            {
+              pem: 'legacy-certificate',
+              kid: 'legacy-key',
+              not_before: '',
+              accept_until: '',
+            },
+          ],
+        },
+      },
     })
+    expect(draft.schema_version).toBe(2)
+    expect(draft).not.toHaveProperty('certificates')
+    expect(draft.organization).toBe(configuration.organization)
+    expect(validateConfiguration(draft)).toEqual({})
+    const input = configurationInput(draft)
+    expect(input).not.toHaveProperty('certificates')
+    expect(input).not.toHaveProperty('signing_key_mode')
+    expect(input).not.toHaveProperty('default_workspace_id')
+    expect(input.schema_version).toBe(2)
+  })
+  it('ignores legacy certificate metadata when shaping a new automatic write', () => {
+    const legacy = {
+      ...configuration,
+      schema_version: 1 as const,
+      certificates: [
+        {
+          pem: 'legacy-certificate',
+          kid: null,
+          not_before: '',
+          accept_until: '',
+        },
+      ],
+    }
+    expect(configurationInput(legacy)).not.toHaveProperty('certificates')
+    expect(validateConfiguration(legacy)).toEqual({})
   })
   it('does not manufacture server ETag or revision completeness from schema defaults', () => {
     expect(parseServerConfiguration({ enabled: false, draft: null })).toBeNull()

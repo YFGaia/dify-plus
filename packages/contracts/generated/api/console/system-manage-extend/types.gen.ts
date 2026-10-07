@@ -21,7 +21,7 @@ export type CasdoorManagementErrorResponse = {
 }
 
 export type CasdoorSaveConfigurationPayload = {
-  configuration: CasdoorConfiguration
+  configuration: CasdoorConfigurationInput
   etag: number
   secret?: null
 }
@@ -147,7 +147,7 @@ export type CasdoorNavigationResponse = {
 }
 
 export type CasdoorStaticValidationResponse = {
-  certificate_summaries: Array<CasdoorCertificateSummaryResponse>
+  certificate_summaries?: Array<CasdoorCertificateSummaryResponse>
   checked_at: string
   etag: number
   kind?: 'static'
@@ -166,6 +166,52 @@ export type CasdoorWorkspacesResponse = {
   workspaces: Array<CasdoorWorkspaceSelectionResponse>
 }
 
+export type DingTalkConfigResponse = {
+  agent_id?: string
+  app_id?: string
+  app_key?: string
+  app_secret?: string
+  config?: {
+    [key: string]: unknown
+  }
+  corp_id?: string
+  status?: boolean
+}
+
+export type DingTalkConfigPayload = {
+  agent_id?: string | null
+  app_id?: string | null
+  app_key?: string | null
+  app_secret?: string | null
+  config?: {
+    [key: string]: unknown
+  } | null
+  corp_id?: string | null
+  status?: boolean | null
+}
+
+export type IntegrationTestResponse = {
+  email?: string | null
+  message?: string | null
+  result: string
+  status_code?: number | null
+}
+
+export type EmailLookupTestPayload = {
+  config?: {
+    [key: string]: unknown
+  } | null
+  key?: string
+  url?: string
+  user_id?: string
+}
+
+export type SystemManagementPermissionsResponse = {
+  account_id: string
+  can_manage_system: boolean
+  workspace_id: string | null
+}
+
 export type CasdoorRevisionResponse = {
   certificate_summaries?: Array<CasdoorCertificateSummaryResponse>
   configuration: CasdoorConfiguration
@@ -176,22 +222,21 @@ export type CasdoorRevisionResponse = {
   validation?: Array<CasdoorValidationSummaryResponse>
 }
 
-export type CasdoorConfiguration = {
+export type CasdoorConfigurationInput = {
   application: string
   avatar_mode?: 'fill_empty' | 'managed'
   avatar_sync?: boolean
-  backend_api_url: string
+  backend_api_url?: string | null
   browser_frontend_url: string
   button_text?: string
-  certificates?: Array<PublicCertificatePolicy>
   client_id: string
   default_normal_fallback?: true
-  default_workspace_id: string
-  expected_issuer: string
+  default_workspace_id?: string | null
+  expected_issuer?: string | null
   name_sync?: 'fill_empty' | 'managed' | 'off'
   organization: string
   rp_logout?: boolean
-  schema_version?: 1
+  schema_version?: 2
   scope?: 'openid email profile'
   self_unlink?: boolean
   workspace_mappings?: Array<WorkspaceRoleMapping>
@@ -228,6 +273,28 @@ export type CasdoorWorkspaceSelectionResponse = {
   workspace_id: string
 }
 
+export type CasdoorConfiguration = {
+  application: string
+  avatar_mode?: 'fill_empty' | 'managed'
+  avatar_sync?: boolean
+  backend_api_url: string
+  browser_frontend_url: string
+  button_text?: string
+  certificates?: Array<PublicCertificatePolicy>
+  client_id: string
+  default_normal_fallback?: true
+  default_workspace_id: string
+  expected_issuer: string
+  name_sync?: 'fill_empty' | 'managed' | 'off'
+  organization: string
+  rp_logout?: boolean
+  schema_version?: 1 | 2
+  scope?: 'openid email profile'
+  self_unlink?: boolean
+  signing_key_mode?: 'automatic' | null
+  workspace_mappings?: Array<WorkspaceRoleMapping>
+}
+
 export type CasdoorDraftDiagnosticPreviewResponse = {
   correlation_id: string
   effective_role_count: number
@@ -247,18 +314,18 @@ export type CasdoorValidationSummaryResponse = {
   status: 'expired' | 'failed' | 'not_run' | 'passed' | 'unknown'
 }
 
-export type PublicCertificatePolicy = {
-  accept_until: string
-  kid?: string | null
-  not_before: string
-  pem: string
-}
-
 export type WorkspaceRoleMapping = {
   admin?: RoleRef | null
   editor?: RoleRef | null
   normal?: RoleRef | null
   workspace_id: string
+}
+
+export type PublicCertificatePolicy = {
+  accept_until: string
+  kid?: string | null
+  not_before: string
+  pem: string
 }
 
 export type CasdoorDiagnosticStageResponse = {
@@ -300,7 +367,7 @@ export type RoleRef = {
 export type CasdoorDecisionReason = 'default_normal_fallback' | 'role_mapping'
 
 export type CasdoorSaveConfigurationPayloadWritable = {
-  configuration: CasdoorConfiguration
+  configuration: CasdoorConfigurationInput
   etag: number
   secret?: string | null
 }
@@ -802,25 +869,21 @@ export type GetSystemManageExtendIntegrationDingtalkData = {
 }
 
 export type GetSystemManageExtendIntegrationDingtalkResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: DingTalkConfigResponse
 }
 
 export type GetSystemManageExtendIntegrationDingtalkResponse =
   GetSystemManageExtendIntegrationDingtalkResponses[keyof GetSystemManageExtendIntegrationDingtalkResponses]
 
 export type PostSystemManageExtendIntegrationDingtalkData = {
-  body?: never
+  body: DingTalkConfigPayload
   path?: never
   query?: never
   url: '/system-manage-extend/integration/dingtalk'
 }
 
 export type PostSystemManageExtendIntegrationDingtalkResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: IntegrationTestResponse
 }
 
 export type PostSystemManageExtendIntegrationDingtalkResponse =
@@ -834,9 +897,7 @@ export type GetSystemManageExtendIntegrationDingtalkTestData = {
 }
 
 export type GetSystemManageExtendIntegrationDingtalkTestResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: IntegrationTestResponse
 }
 
 export type GetSystemManageExtendIntegrationDingtalkTestResponse =
@@ -859,16 +920,14 @@ export type PostSystemManageExtendIntegrationDingtalkTestCallbackResponse =
   PostSystemManageExtendIntegrationDingtalkTestCallbackResponses[keyof PostSystemManageExtendIntegrationDingtalkTestCallbackResponses]
 
 export type PostSystemManageExtendIntegrationEmailApiTestData = {
-  body?: never
+  body: EmailLookupTestPayload
   path?: never
   query?: never
   url: '/system-manage-extend/integration/email-api/test'
 }
 
 export type PostSystemManageExtendIntegrationEmailApiTestResponses = {
-  200: {
-    [key: string]: unknown
-  }
+  200: IntegrationTestResponse
 }
 
 export type PostSystemManageExtendIntegrationEmailApiTestResponse =
@@ -921,6 +980,20 @@ export type PostSystemManageExtendIntegrationOauth2TestResponses = {
 
 export type PostSystemManageExtendIntegrationOauth2TestResponse =
   PostSystemManageExtendIntegrationOauth2TestResponses[keyof PostSystemManageExtendIntegrationOauth2TestResponses]
+
+export type GetSystemManageExtendPermissionsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/system-manage-extend/permissions'
+}
+
+export type GetSystemManageExtendPermissionsResponses = {
+  200: SystemManagementPermissionsResponse
+}
+
+export type GetSystemManageExtendPermissionsResponse =
+  GetSystemManageExtendPermissionsResponses[keyof GetSystemManageExtendPermissionsResponses]
 
 export type GetSystemManageExtendQuotaManagementData = {
   body?: never

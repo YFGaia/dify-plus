@@ -1575,6 +1575,7 @@ class TestRegisterService:
             with (
                 patch("services.account_service.TenantService.create_owner_tenant_if_not_exist") as mock_create_tenant,
                 patch("services.account_service.CommunityTelemetryService.report_install") as mock_report_install,
+                patch("services.account_service.SystemManagementAccessService.record_initialization") as mock_record_scope,
             ):
                 with sqlite_session_factory() as service_session:
                     RegisterService.setup(
@@ -1601,6 +1602,7 @@ class TestRegisterService:
                         session=service_session,
                     )
                     mock_report_install.assert_called_once_with(session=service_session)
+                    mock_record_scope.assert_called_once_with(mock_account, session=service_session)
 
         with sqlite_session_factory() as assertion_session:
             dify_setup = assertion_session.scalar(select(DifySetup))
@@ -1622,6 +1624,7 @@ class TestRegisterService:
         with (
             patch("services.account_service.AccountService.create_account", return_value=mock_account),
             patch("services.account_service.TenantService.create_owner_tenant_if_not_exist"),
+            patch("services.account_service.SystemManagementAccessService.record_initialization"),
             patch(
                 "services.account_service.CommunityTelemetryService.report_install",
                 side_effect=RuntimeError("telemetry unavailable"),

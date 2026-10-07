@@ -31,6 +31,7 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
+from enums import DeploymentEdition
 from extensions.ext_redis import RedisClientWrapper
 from models.account import Account, AccountStatus, Tenant, TenantAccountJoin
 from models.account_money_extend import AccountMoneyExtend
@@ -115,7 +116,7 @@ def chain(local_fixture, signing, monkeypatch):
 
     configuration_service = CasdoorConfigurationService(
         session_factory=TrackedSession,
-        management_policy=CasdoorManagementPolicy.from_deployment(""),
+        management_policy=CasdoorManagementPolicy(),
         secret_key="offline-coordinator-key",
         rbac_enabled=False,
     )
@@ -335,6 +336,18 @@ def test_actual_chain_commits_one_generation_and_keeps_pending(chain, bound):
         chain.store.consume(chain.created.state, **chain.consume_args)
 
 
+def test_exact_bound_login_preserves_existing_optional_email_validation(chain):
+    seed(chain.local.env, AccountStatus.ACTIVE, datetime(2025, 1, 1))
+    # The existing local validator accepts this snapshot. A stricter NEW mailbox
+    # policy must not become an additional gate for an already bound identity.
+    chain.profile.update(email="a..b@example.test", email_verified=False)
+    assert chain.invoke().local_outcome == "committed"
+    with Session(chain.local.engine) as reader:
+        assert reader.scalar(sa.select(Account.email)) == "bound@example.test"
+        assert reader.scalar(sa.select(CasdoorIdentityExtend.remote_email)) == "a..b@example.test"
+        assert reader.scalar(sa.select(CasdoorIdentityExtend.email_verified)) is False
+
+
 @pytest.mark.parametrize("kind", ["nonce", "issuer", "audience", "signature", "native_org", "native_subject"])
 def test_signed_negative_zero_business(chain, kind):
     before = rows(chain)
@@ -359,7 +372,6 @@ def test_signed_negative_zero_business(chain, kind):
     "kind",
     [
         "userinfo_subject",
-        "missing_email",
         "disabled",
         "deleted",
         "organization",
@@ -375,8 +387,6 @@ def test_online_unknown_denies_without_business_fallback(chain, kind):
     args = {}
     if kind == "userinfo_subject":
         chain.profile["sub"] = "other"
-    elif kind == "missing_email":
-        chain.profile.pop("email")
     elif kind == "disabled":
         chain.user["isForbidden"] = True
     elif kind == "deleted":
@@ -393,7 +403,7 @@ def test_online_unknown_denies_without_business_fallback(chain, kind):
         args["directory_contract"] = None
     else:
         args["credential_strategy"] = None
-    with pytest.raises(ValueError if kind == "missing_email" else Exception) as failure:
+    with pytest.raises(Exception) as failure:
         chain.invoke(**args)
     assert failure.value.local_outcome == "not_started"
     assert failure.value.cleanup_released
@@ -551,17 +561,29 @@ def test_after_commit_ack_unknown_is_not_rollback(chain):
     assert rows(chain)[Account] and not chain.redis.data and len(chain.prepared) == 1
 
 
-def test_production_factory_missing_proof_zero_io():
+def test_production_factory_without_manifest_reads_active_configuration_only(chain, monkeypatch):
+    monkeypatch.setattr(dify_config, "DEPLOYMENT_EDITION", DeploymentEdition.COMMUNITY)
+
     class Deny:
         def __getattribute__(self, name):
-            pytest.fail("production factory accessed a dependency")
+            pytest.fail("configuration preflight accessed account/Redis side effects")
 
+    def forbidden_provider(*args, **kwargs):
+        pytest.fail("configuration preflight called the provider")
+
+    monkeypatch.setattr(ssrf_proxy, "make_request_with_deadline", forbidden_provider)
     deny = Deny()
-    with pytest.raises(ValueError) as error:
-        CasdoorLocalLoginCoordinatorService.for_production(
-            session_factory=deny, configuration_service=deny, account_owner=deny, redis_client=deny
-        )
-    assert error.value.reason == "deployment_proof_missing"
+    before = rows(chain)
+    owner = CasdoorLocalLoginCoordinatorService.for_production(
+        session_factory=chain.coordinator._session_factory,
+        configuration_service=chain.configuration_service,
+        account_owner=deny,
+        redis_client=deny,
+    )
+    assert owner._production_configuration == chain.local.config
+    assert owner._require_production_policy() is None
+    assert rows(chain) == before
+    assert not chain.prepared
     with pytest.raises(TypeError):
         CasdoorLocalLoginCoordinatorService.for_production(
             session_factory=deny,

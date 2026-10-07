@@ -15,7 +15,7 @@ class ExtendInfo(BaseSettings):
     )
 
     CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS: str = Field(
-        description="Comma-separated exact local account UUIDs allowed to manage only Casdoor; empty denies access.",
+        description="Deprecated and ignored. Global management requires initialization workspace owner/admin.",
         default="",
     )
 

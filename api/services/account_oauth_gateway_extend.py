@@ -70,12 +70,15 @@ class ForkOAuthProviderGateway:
         return _ConfiguredOAuth(snapshot)
 
     def get_authorization_url(self, request: OAuthAuthorizationRequest) -> str:
-        url = self._client().get_authorization_url(
-            invite_token=request.invite_token,
-            timezone=request.timezone,
-            language=request.language,
-            redirect_url=request.redirect_url,
-        )
+        try:
+            url = self._client().get_authorization_url(
+                invite_token=request.invite_token,
+                timezone=request.timezone,
+                language=request.language,
+                redirect_url=request.redirect_url,
+            )
+        except ValueError as exc:
+            raise OAuthProviderAuthorizationError("Invalid OAuth2 configuration") from exc
         if not isinstance(url, str) or not url:
             raise InvalidOAuthProviderError
         return url

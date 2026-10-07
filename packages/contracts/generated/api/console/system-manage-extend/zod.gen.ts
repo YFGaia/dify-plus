@@ -173,6 +173,61 @@ export const zCasdoorTestLoginResponse = z.object({
 })
 
 /**
+ * DingTalkConfigResponse
+ */
+export const zDingTalkConfigResponse = z.object({
+  agent_id: z.string().optional().default(''),
+  app_id: z.string().optional().default(''),
+  app_key: z.string().optional().default(''),
+  app_secret: z.string().optional().default(''),
+  config: z.record(z.string(), z.unknown()).optional(),
+  corp_id: z.string().optional().default(''),
+  status: z.boolean().optional().default(false),
+})
+
+/**
+ * DingTalkConfigPayload
+ */
+export const zDingTalkConfigPayload = z.object({
+  agent_id: z.string().nullish(),
+  app_id: z.string().nullish(),
+  app_key: z.string().nullish(),
+  app_secret: z.string().nullish(),
+  config: z.record(z.string(), z.unknown()).nullish(),
+  corp_id: z.string().nullish(),
+  status: z.boolean().nullish(),
+})
+
+/**
+ * IntegrationTestResponse
+ */
+export const zIntegrationTestResponse = z.object({
+  email: z.string().nullish(),
+  message: z.string().nullish(),
+  result: z.string(),
+  status_code: z.int().nullish(),
+})
+
+/**
+ * EmailLookupTestPayload
+ */
+export const zEmailLookupTestPayload = z.object({
+  config: z.record(z.string(), z.unknown()).nullish(),
+  key: z.string().optional().default(''),
+  url: z.string().optional().default(''),
+  user_id: z.string().optional().default(''),
+})
+
+/**
+ * SystemManagementPermissionsResponse
+ */
+export const zSystemManagementPermissionsResponse = z.object({
+  account_id: z.uuid(),
+  can_manage_system: z.boolean(),
+  workspace_id: z.uuid().nullable(),
+})
+
+/**
  * CasdoorLocalMembershipCandidateResponse
  */
 export const zCasdoorLocalMembershipCandidateResponse = z.object({
@@ -228,7 +283,7 @@ export const zCasdoorCertificateSummaryResponse = z.object({
  * CasdoorStaticValidationResponse
  */
 export const zCasdoorStaticValidationResponse = z.object({
-  certificate_summaries: z.array(zCasdoorCertificateSummaryResponse).min(1).max(2),
+  certificate_summaries: z.array(zCasdoorCertificateSummaryResponse).max(2).optional().default([]),
   checked_at: z.iso.datetime(),
   etag: z.int().gte(0),
   kind: z.literal('static').optional().default('static'),
@@ -341,6 +396,38 @@ export const zWorkspaceRoleMapping = z.object({
 })
 
 /**
+ * CasdoorConfigurationInput
+ */
+export const zCasdoorConfigurationInput = z.object({
+  application: z.string().min(1).max(255),
+  avatar_mode: z.enum(['fill_empty', 'managed']).optional().default('fill_empty'),
+  avatar_sync: z.boolean().optional().default(false),
+  backend_api_url: z.string().min(1).max(2048).nullish(),
+  browser_frontend_url: z.string().min(1).max(2048),
+  button_text: z.string().min(1).max(120).optional().default('Casdoor'),
+  client_id: z.string().min(1).max(255),
+  default_normal_fallback: z.literal(true).optional().default(true),
+  default_workspace_id: z.uuid().nullish(),
+  expected_issuer: z.string().min(1).max(2048).nullish(),
+  name_sync: z.enum(['fill_empty', 'managed', 'off']).optional().default('fill_empty'),
+  organization: z.string().min(1).max(255),
+  rp_logout: z.boolean().optional().default(false),
+  schema_version: z.literal(2).optional().default(2),
+  scope: z.literal('openid email profile').optional().default('openid email profile'),
+  self_unlink: z.boolean().optional().default(false),
+  workspace_mappings: z.array(zWorkspaceRoleMapping).max(100).optional().default([]),
+})
+
+/**
+ * CasdoorSaveConfigurationPayload
+ */
+export const zCasdoorSaveConfigurationPayload = z.object({
+  configuration: zCasdoorConfigurationInput,
+  etag: z.int().gte(0),
+  secret: z.null().optional(),
+})
+
+/**
  * CasdoorConfiguration
  */
 export const zCasdoorConfiguration = z.object({
@@ -358,19 +445,14 @@ export const zCasdoorConfiguration = z.object({
   name_sync: z.enum(['fill_empty', 'managed', 'off']).optional().default('fill_empty'),
   organization: z.string().min(1).max(255),
   rp_logout: z.boolean().optional().default(false),
-  schema_version: z.literal(1).optional().default(1),
+  schema_version: z
+    .union([z.literal(1), z.literal(2)])
+    .optional()
+    .default(1),
   scope: z.literal('openid email profile').optional().default('openid email profile'),
   self_unlink: z.boolean().optional().default(false),
+  signing_key_mode: z.literal('automatic').nullish(),
   workspace_mappings: z.array(zWorkspaceRoleMapping).max(100).optional().default([]),
-})
-
-/**
- * CasdoorSaveConfigurationPayload
- */
-export const zCasdoorSaveConfigurationPayload = z.object({
-  configuration: zCasdoorConfiguration,
-  etag: z.int().gte(0),
-  secret: z.null().optional(),
 })
 
 /**
@@ -440,7 +522,7 @@ export const zCasdoorDisableResponse = z.object({
  * CasdoorSaveConfigurationPayload
  */
 export const zCasdoorSaveConfigurationPayloadWritable = z.object({
-  configuration: zCasdoorConfiguration,
+  configuration: zCasdoorConfigurationInput,
   etag: z.int().gte(0),
   secret: z.string().nullish(),
 })
@@ -644,22 +726,21 @@ export const zGetSystemManageExtendIntegrationCasdoorWorkspacesQuery = z.object(
 export const zGetSystemManageExtendIntegrationCasdoorWorkspacesResponse = zCasdoorWorkspacesResponse
 
 /**
- * Success
+ * DingTalk configuration
  */
-export const zGetSystemManageExtendIntegrationDingtalkResponse = z.record(z.string(), z.unknown())
+export const zGetSystemManageExtendIntegrationDingtalkResponse = zDingTalkConfigResponse
+
+export const zPostSystemManageExtendIntegrationDingtalkBody = zDingTalkConfigPayload
 
 /**
- * Success
+ * Configuration saved
  */
-export const zPostSystemManageExtendIntegrationDingtalkResponse = z.record(z.string(), z.unknown())
+export const zPostSystemManageExtendIntegrationDingtalkResponse = zIntegrationTestResponse
 
 /**
- * Success
+ * DingTalk connection test
  */
-export const zGetSystemManageExtendIntegrationDingtalkTestResponse = z.record(
-  z.string(),
-  z.unknown(),
-)
+export const zGetSystemManageExtendIntegrationDingtalkTestResponse = zIntegrationTestResponse
 
 /**
  * Success
@@ -669,13 +750,12 @@ export const zPostSystemManageExtendIntegrationDingtalkTestCallbackResponse = z.
   z.unknown(),
 )
 
+export const zPostSystemManageExtendIntegrationEmailApiTestBody = zEmailLookupTestPayload
+
 /**
- * Success
+ * Enterprise email lookup test
  */
-export const zPostSystemManageExtendIntegrationEmailApiTestResponse = z.record(
-  z.string(),
-  z.unknown(),
-)
+export const zPostSystemManageExtendIntegrationEmailApiTestResponse = zIntegrationTestResponse
 
 /**
  * Success
@@ -694,6 +774,11 @@ export const zPostSystemManageExtendIntegrationOauth2TestResponse = z.record(
   z.string(),
   z.unknown(),
 )
+
+/**
+ * Current global management permission
+ */
+export const zGetSystemManageExtendPermissionsResponse = zSystemManagementPermissionsResponse
 
 /**
  * Success

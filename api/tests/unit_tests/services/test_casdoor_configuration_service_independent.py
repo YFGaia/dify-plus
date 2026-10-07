@@ -9,8 +9,9 @@ import pytest
 import sqlalchemy as sa
 from core.casdoor.crypto import CasdoorCrypto, CryptoError, EncryptionContext, EncryptionPurpose
 from core.casdoor.permissions import CasdoorManagementPolicy
-from models.account import Account, AccountStatus, Tenant, TenantAccountRole, TenantStatus
+from models.account import Account, AccountStatus, Tenant, TenantAccountJoin, TenantAccountRole, TenantStatus
 from models.base import Base
+from models.system_management_scope_extend import SystemManagementScopeExtend
 from models.casdoor_extend import (
     CasdoorAuditExtend,
     CasdoorConfigRevisionExtend,
@@ -31,24 +32,41 @@ DEPLOYMENT_KEY = "independent-synthetic-deployment-key"
 @pytest.fixture
 def storage():
     engine = sa.create_engine("sqlite://")
-    tables = [Tenant.__table__, *[table for table in Base.metadata.sorted_tables if table.name.startswith("casdoor_")]]
+    tables = [
+        Tenant.__table__, Account.__table__, TenantAccountJoin.__table__, SystemManagementScopeExtend.__table__,
+        *[table for table in Base.metadata.sorted_tables if table.name.startswith("casdoor_")]
+    ]
     Base.metadata.create_all(engine, tables=tables)
     factory = sessionmaker(engine, expire_on_commit=False)
     with factory.begin() as session:
         workspace = Tenant(name="Independent synthetic initial workspace")
         session.add(workspace)
         session.flush()
+        session.add(SystemManagementScopeExtend(tenant_id=workspace.id))
         workspace_id = workspace.id
     yield factory, workspace_id
     engine.dispose()
 
 
 @pytest.fixture
-def actor():
+def actor(storage):
+    factory, workspace_id = storage
     account = Account(name="Independent synthetic account", email="independent@example.test")
     account.id = str(ACTOR_ID)
     account.status = AccountStatus.ACTIVE
-    account.role = TenantAccountRole.NORMAL
+    account.initialized_at = synthetic.NOW.replace(tzinfo=None)
+    account.role = TenantAccountRole.ADMIN
+    account._current_tenant = type("WorkspaceRef", (), {"id": workspace_id})()
+    with factory.begin() as session:
+        session.add(account)
+        session.add(
+            TenantAccountJoin(
+                tenant_id=workspace_id,
+                account_id=account.id,
+                role=TenantAccountRole.ADMIN,
+                current=True,
+            )
+        )
     return account
 
 
@@ -57,10 +75,10 @@ def cert_pin():
     return synthetic.pin.__wrapped__()
 
 
-def service(factory, *, allowlist=str(ACTOR_ID), key=DEPLOYMENT_KEY):
+def service(factory, *, key=DEPLOYMENT_KEY):
     return CasdoorConfigurationService(
         session_factory=factory,
-        management_policy=CasdoorManagementPolicy.from_deployment(allowlist),
+        management_policy=CasdoorManagementPolicy(),
         secret_key=key,
         rbac_enabled=False,
     )
@@ -136,7 +154,7 @@ def test_static_validation_is_read_only_and_does_not_supply_activation_proof(sto
         with session.begin():
             with pytest.raises(CasdoorConfigurationError):
                 repo.activate(etag=1, revision_id=saved.draft_revision_id, actor_account_id=ACTOR_ID, now=synthetic.NOW)
-        assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorValidationExtend)) == 0
+        assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorValidationExtend)) == 1
         assert session.scalar(sa.select(sa.func.count()).select_from(CasdoorAuditExtend)) == 1
 
 

@@ -1,22 +1,5 @@
 // Extend: 系统管理功能类型定义
 
-export type DingTalkConfig = {
-  status: boolean
-  corp_id: string
-  agent_id: string
-  app_key: string
-  app_secret: string
-  config: {
-    email_api?: {
-      url: string
-      key: string
-    }
-    forward_config?: {
-      tokens: ForwardToken[]
-    }
-  }
-}
-
 export type OAuth2Config = {
   status: boolean
   app_id: string

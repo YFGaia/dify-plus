@@ -1,9 +1,9 @@
-import type { CasdoorConfiguration } from '@dify/contracts/api/console/system-manage-extend/types.gen'
+import type { CasdoorConfigurationInput } from '@dify/contracts/api/console/system-manage-extend/types.gen'
 import { dehydrate, MutationObserver, onlineManager, QueryClient } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 const revisionId = '22222222-2222-4222-8222-222222222222'
-const configuration: CasdoorConfiguration = {
+const configuration: CasdoorConfigurationInput = {
   application: 'independent-app',
   backend_api_url: 'https://casdoor.example.test',
   browser_frontend_url: 'https://casdoor.example.test',

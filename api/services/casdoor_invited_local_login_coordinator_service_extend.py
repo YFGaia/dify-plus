@@ -11,8 +11,8 @@ other non-avatar intent; mixed, unknown and RBAC-enabled scopes stay pending.
 from copy import copy
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
-from ipaddress import ip_address as parse_ip_address
 from hashlib import sha256
+from ipaddress import ip_address as parse_ip_address
 from uuid import UUID, uuid4
 from weakref import WeakSet
 
@@ -20,14 +20,14 @@ import sqlalchemy as sa
 from configs import dify_config
 from core.casdoor.admission import AdmissionAction, InvitationObservation, decide_admission
 from core.casdoor.auth_transactions import AuthMode, ConsumedAuthTransaction
-from core.casdoor.claims import ClaimsValidator, VerifiedOnlineUser
-from core.casdoor.crypto import CertificateTrustStore, TrustedCertificate
+from core.casdoor.claims import VerifiedOnlineUser
 from core.casdoor.gateway import CasdoorDirectoryGateway, GatewayOperation, RawTokens
 from core.casdoor.leases import CasdoorLeases
 from core.casdoor.mapping import MappingIdentityContext
 from core.casdoor.request_safety import ProfileAuditResult, ProfileNameReason
 from core.casdoor.role_graph import OnlineRoleSnapshotLoader, _contract
 from enums import DeploymentEdition
+from libs.helper import email as validate_email
 from models.account import (
     Account,
     AccountIntegrate,
@@ -37,21 +37,28 @@ from models.account import (
     TenantStatus,
 )
 from models.account_money_extend import AccountMoneyExtend
+from models.casdoor_extend import CasdoorAuditExtend as Audit
 from models.casdoor_extend import CasdoorIdentityExtend as Identity
 from models.casdoor_extend import CasdoorManagedMembershipExtend as History
 from models.casdoor_extend import CasdoorOperationState, CasdoorTerminationState
-from models.casdoor_extend import CasdoorAuditExtend as Audit
 from models.casdoor_extend import CasdoorSyncIntentExtend as Intent
 from models.invitation_authority_extend import InvitationAuthorityIssuanceExtend as Issuance
 from models.invitation_authority_extend import InvitationAuthorityLifecycleExtend as Lifecycle
+from repositories.casdoor_account_preflight_repository_extend import (
+    CasdoorAccountPreflightRepository,
+)
 from repositories.casdoor_avatar_repository_extend import CasdoorAvatarRepository
+from repositories.casdoor_identity_repository_extend import VerifiedIdentityKey
 from repositories.casdoor_invitation_finalization_repository_extend import (
     CasdoorInvitationFinalizationRepository,
 )
-from repositories.casdoor_invited_write_receipt_repository_extend import CasdoorInvitedWriteReceiptRepository
 from repositories.casdoor_invited_finalization_receipt_repository_extend import (
     CasdoorInvitedFinalizationReceiptRepository,
 )
+from repositories.casdoor_invited_login_scope_repository_extend import (
+    CasdoorInvitedLoginScopeRepository,
+)
+from repositories.casdoor_invited_write_receipt_repository_extend import CasdoorInvitedWriteReceiptRepository
 from repositories.casdoor_login_scope_repository_extend import (
     CasdoorLoginScopeRepository,
 )
@@ -63,14 +70,7 @@ from repositories.casdoor_profile_repository_extend import (
     _parse_time,
     _snapshot,
 )
-from libs.helper import email as validate_email
-from repositories.casdoor_account_preflight_repository_extend import (
-    CasdoorAccountPreflightRepository,
-)
-from repositories.casdoor_identity_repository_extend import VerifiedIdentityKey
-from repositories.casdoor_invited_login_scope_repository_extend import (
-    CasdoorInvitedLoginScopeRepository,
-)
+
 from services.account_activation_service import AccountActivationService
 from services.account_adapters import RedisInvitationTokenStore
 from services.account_login_adapters import RedisAccountSessionGateway
@@ -80,24 +80,25 @@ from services.casdoor_invitation_finalization_service_extend import (
 from services.casdoor_invitation_operation_service_extend import (
     CasdoorInvitationOperationService,
 )
-from services.casdoor_invited_login_account_service_extend import (
-    CasdoorInvitedLoginAccountService,
-)
 from services.casdoor_invited_local_finalization_service_extend import (
     CasdoorInvitedLocalFinalizationService,
 )
 from services.casdoor_invited_local_membership_service_extend import (
     CasdoorInvitedLocalMembershipService,
 )
-from services.casdoor_local_login_finalization_service_extend import (
-    CasdoorLocalLoginFinalizationService,
+from services.casdoor_invited_login_account_service_extend import (
+    CasdoorInvitedLoginAccountService,
 )
 from services.casdoor_local_login_coordinator_service_extend import (
     CasdoorLocalLoginCoordinatorService,
     _CoordinationConflict,
 )
+from services.casdoor_local_login_finalization_service_extend import (
+    CasdoorLocalLoginFinalizationService,
+)
 from services.casdoor_login_account_service_extend import CasdoorLoginAccountService
 from services.casdoor_session_service_extend import SessionProvenanceSeed
+from services.casdoor_signing_validator_service_extend import create_claims_validator
 from services.entities.account_activation_entities import InvitationLookup
 from services.entities.account_login_entities import AuthTokenPair
 
@@ -151,10 +152,7 @@ class _InvitedOperationGuard:
     def ensure(self):
         self.operation._check()
         self.caller._base._require_production_policy()
-        if (
-            dify_config.RBAC_ENABLED is not False
-            or dify_config.DEPLOYMENT_EDITION != DeploymentEdition.COMMUNITY
-        ):
+        if dify_config.RBAC_ENABLED is not False or dify_config.DEPLOYMENT_EDITION != DeploymentEdition.COMMUNITY:
             raise _CoordinationConflict("local_mode_required")
         self.caller._leases.ensure_owned()
         self.operation._check()
@@ -165,17 +163,13 @@ class _InvitedOperationGuard:
         self.root = session.get_transaction()
         CasdoorInvitedLoginScopeRepository(
             session, self.caller._base._configuration_service._repository
-        ).prelock_unconsumed_invitation(
-            self.expected_scope, self.observation, remote_email=self.remote_email
-        )
+        ).prelock_unconsumed_invitation(self.expected_scope, self.observation, remote_email=self.remote_email)
 
     def _current(self, session):
         a = self.discovered.attempt
         return CasdoorInvitedLoginScopeRepository(
             session, self.caller._base._configuration_service._repository
-        ).discover_unconsumed_invitation(
-            a.context, a.key, self.observation, remote_email=self.remote_email
-        )
+        ).discover_unconsumed_invitation(a.context, a.key, self.observation, remote_email=self.remote_email)
 
     def recheck(self, session, pending):
         """Closed account/identity/intent delta; no policy DTO is trusted here."""
@@ -251,9 +245,7 @@ def _operation_guard(value, *, owner, attempt, prepared):
 
 
 def _invited_scope(caller, session, attempt, remote_email):
-    scope = CasdoorLoginScopeRepository(
-        session, caller._base._configuration_service._repository
-    )._project_scope(
+    scope = CasdoorLoginScopeRepository(session, caller._base._configuration_service._repository)._project_scope(
         attempt.context,
         attempt.key,
         attempt.account_id,
@@ -271,9 +263,7 @@ def _invited_scope(caller, session, attempt, remote_email):
 
 def _tail_rows(caller, session, attempt):
     """Bounded transient complete account lineage; never durable/public."""
-    owner = CasdoorLoginScopeRepository(
-        session, caller._base._configuration_service._repository
-    )
+    owner = CasdoorLoginScopeRepository(session, caller._base._configuration_service._repository)
     result = {}
     for name, model in (
         ("account", Account),
@@ -285,9 +275,7 @@ def _tail_rows(caller, session, attempt):
     ):
         column = model.id if model is Account else model.account_id
         result[name] = owner._rows(
-            sa.select(*model.__table__.columns)
-            .where(column == str(attempt.account_id))
-            .order_by(model.id),
+            sa.select(*model.__table__.columns).where(column == str(attempt.account_id)).order_by(model.id),
             cap=1 if model in (Account, AccountMoneyExtend) else 2048,
         )
     if len(result["account"]) != 1 or len(result["quota"]) != 1:
@@ -379,9 +367,7 @@ class _InvitedFinalizationGuard:
         self.upstream.ensure()
 
     def current(self, session):
-        return _invited_scope(
-            self.caller, session, self.attempt, self.upstream.remote_email
-        )
+        return _invited_scope(self.caller, session, self.attempt, self.upstream.remote_email)
 
     def prelock(self, session):
         root = session.get_transaction()
@@ -389,9 +375,7 @@ class _InvitedFinalizationGuard:
             raise _CoordinationConflict("invited_root_not_first")
         self.root = root
         self.check(session)
-        owner = CasdoorLoginScopeRepository(
-            session, self.caller._base._configuration_service._repository
-        )
+        owner = CasdoorLoginScopeRepository(session, self.caller._base._configuration_service._repository)
         owner._lock_invited_integration(self.attempt.context)
         self.check(session)
         owner._lock_invited_candidate_parents(self.attempt.context, self.expected)
@@ -399,10 +383,7 @@ class _InvitedFinalizationGuard:
         self.check(session)
 
     def check(self, session):
-        if (
-            session.get_transaction() is not self.root
-            or self.current(session) != self.expected
-        ):
+        if session.get_transaction() is not self.root or self.current(session) != self.expected:
             raise _CoordinationConflict("invited_finalization_drift")
         rows = _tail_rows(self.caller, session, self.attempt)
         if self.rows is None:
@@ -420,8 +401,7 @@ class _InvitedFinalizationGuard:
             or len(after.intents) != 1
             or after.intents[0].id != str(facts.snapshot.operation_id)
             or after.intents[0].operation_state is not CasdoorOperationState.APPLIED
-            or after.intents[0].termination_state
-            is not CasdoorTerminationState.CONFIRMED
+            or after.intents[0].termination_state is not CasdoorTerminationState.CONFIRMED
         ):
             raise _CoordinationConflict("invited_completion_delta")
         prior = {row.id: row for row in before.joins}
@@ -523,11 +503,19 @@ class _InvitedRecoveryFinalizationGuard:
             or after.legacy_links_sha256 != before.legacy_links_sha256
             or after.quota != before.quota
             or len(after.scope.intents) != 1
-            or next(row for row in fresh["intents"] if row.id == str(before.snapshot.operation_id)).proof_ref != completed.proof_ref
+            or next(row for row in fresh["intents"] if row.id == str(before.snapshot.operation_id)).proof_ref
+            != completed.proof_ref
         ):
             raise _CoordinationConflict("invitation_resume_completion_delta")
         changes = {
-            "intents": ("operation_state", "termination_state", "terminated_at", "updated_at", "termination_proof_kind", "proof_ref"),
+            "intents": (
+                "operation_state",
+                "termination_state",
+                "terminated_at",
+                "updated_at",
+                "termination_proof_kind",
+                "proof_ref",
+            ),
             "issuances": ("state", "consumption_receipt_json", "consumed_at", "updated_at"),
             "lifecycles": ("epoch", "updated_at"),
         }
@@ -542,10 +530,17 @@ class _InvitedRecoveryFinalizationGuard:
                 }[name]
                 old_target = tuple(row for row in rows[name] if getattr(row, field) == target)
                 new_target = tuple(row for row in fresh[name] if getattr(row, field) == target)
-                preserved = (tuple(row for row in rows[name] if getattr(row, field) != target)
-                             == tuple(row for row in fresh[name] if getattr(row, field) != target))
-                valid = len(old_target) == len(new_target) == 1 and preserved and _resume_same_rows(
-                    old_target, new_target, changed=changes[name],
+                preserved = tuple(row for row in rows[name] if getattr(row, field) != target) == tuple(
+                    row for row in fresh[name] if getattr(row, field) != target
+                )
+                valid = (
+                    len(old_target) == len(new_target) == 1
+                    and preserved
+                    and _resume_same_rows(
+                        old_target,
+                        new_target,
+                        changed=changes[name],
+                    )
                 )
             else:
                 valid = rows[name] == fresh[name]
@@ -571,7 +566,8 @@ class _InvitedRecoveryFinalizationGuard:
                 or type(join.created_at) is not datetime
                 or join.created_at.tzinfo is not None
                 or join.created_at < before.snapshot.created_at.replace(microsecond=0)
-                or join.created_at > next(row for row in fresh["intents"] if row.id == str(before.snapshot.operation_id)).terminated_at
+                or join.created_at
+                > next(row for row in fresh["intents"] if row.id == str(before.snapshot.operation_id)).terminated_at
             ):
                 raise _CoordinationConflict("invitation_resume_new_join_fields")
         elif new:
@@ -583,7 +579,10 @@ class _InvitedRecoveryFinalizationGuard:
             issuance.consumed_at != issuance.updated_at
             or lifecycle.epoch != completed.result_epoch
             or completed.result_epoch != before.lifecycle[0].epoch + int(completed.membership_created)
-            or (not completed.membership_created and next(row for row in rows["lifecycles"] if row.lifecycle_id == lifecycle.lifecycle_id) != lifecycle)
+            or (
+                not completed.membership_created
+                and next(row for row in rows["lifecycles"] if row.lifecycle_id == lifecycle.lifecycle_id) != lifecycle
+            )
             or lifecycle.updated_at < before.lifecycle[0].updated_at
             or lifecycle.updated_at > intent.terminated_at
             or intent.terminated_at != intent.updated_at
@@ -632,11 +631,7 @@ class CasdoorInvitedLocalLoginCoordinatorService:
             session_factory=ordinary._session_factory,
             store=self._store,
         )
-        self._session_gateway = (
-            ordinary._finalization._session_gateway
-            if ordinary._finalization is not None
-            else None
-        )
+        self._session_gateway = ordinary._finalization._session_gateway if ordinary._finalization is not None else None
 
     @classmethod
     def for_production(
@@ -664,16 +659,11 @@ class CasdoorInvitedLocalLoginCoordinatorService:
     def _with_request_redis(self, redis_client):
         activation = copy(self._activation)
         activation._tokens = RedisInvitationTokenStore(redis=redis_client)
-        return type(self)(
-            ordinary=self._base._with_request_redis(redis_client), activation=activation
-        )
+        return type(self)(ordinary=self._base._with_request_redis(redis_client), activation=activation)
 
     def _coordinate_local_login(self, **kwargs):
         consumed = kwargs.get("consumed")
-        if (
-            type(consumed) is ConsumedAuthTransaction
-            and consumed.context.invite is None
-        ):
+        if type(consumed) is ConsumedAuthTransaction and consumed.context.invite is None:
             return self._base._coordinate_local_login(**kwargs)
         return self._coordinate_invited_local_login(**kwargs)
 
@@ -681,9 +671,7 @@ class CasdoorInvitedLocalLoginCoordinatorService:
         with self._base._session_factory() as session, session.begin():
             return CasdoorInvitedLoginScopeRepository(
                 session, self._base._configuration_service._repository
-            ).discover_unconsumed_invitation(
-                context, key, observation, remote_email=profile.email
-            )
+            ).discover_unconsumed_invitation(context, key, observation, remote_email=profile.email)
 
     def _admission(self, consumed, bundle, online, profile, discovered):
         attempt = discovered.attempt
@@ -944,7 +932,8 @@ class CasdoorInvitedLocalLoginCoordinatorService:
         candidate = CasdoorInvitedLoginScopeRepository(
             session, self._base._configuration_service._repository
         )._discover_invitation_recovery(
-            attempt.context, attempt.key,
+            attempt.context,
+            attempt.key,
             token_digest=sha256(continuation.consumed.context.invite.encode()).hexdigest(),
             remote_email=continuation.profile.email,
         )
@@ -957,8 +946,12 @@ class CasdoorInvitedLocalLoginCoordinatorService:
         ):
             raise _CoordinationConflict("invitation_resume_scope_drift")
         self._recovery_admission(
-            continuation.consumed, continuation.bundle, continuation.online,
-            continuation.profile, candidate, session=session,
+            continuation.consumed,
+            continuation.bundle,
+            continuation.online,
+            continuation.profile,
+            candidate,
+            session=session,
         )
         rows = self._recovery_quota_rows(session, attempt)
         self._check_recovery(continuation)
@@ -1042,7 +1035,9 @@ class CasdoorInvitedLocalLoginCoordinatorService:
                 guard = _InvitedRecoveryFinalizationGuard(continuation, self._invitation_finalizer)
                 _ISSUED_RECOVERY_FINALIZATION_GUARDS.add(guard)
                 self._invitation_finalizer._finalize_invited_recovery(
-                    current.attempt, token=continuation.consumed.context.invite, caller_guard=guard,
+                    current.attempt,
+                    token=continuation.consumed.context.invite,
+                    caller_guard=guard,
                 )
                 # This replacement follows the original owner's acknowledged
                 # completion/readback, and carries no new authentication.
@@ -1054,8 +1049,10 @@ class CasdoorInvitedLocalLoginCoordinatorService:
                     session_factory=self._base._session_factory,
                     configuration_factory=self._base._configuration_service._repository,
                 ).persist_invited_local_memberships(
-                    current.attempt, roles=continuation.roles,
-                    leases=continuation.leases, deadline=continuation.operation.deadline,
+                    current.attempt,
+                    roles=continuation.roles,
+                    leases=continuation.leases,
+                    deadline=continuation.operation.deadline,
                 )
                 current, rows = self._resume_read(continuation, phase="memberships_written")
                 self._resume_membership_delta(before, (current, rows), finalizing=False)
@@ -1066,8 +1063,10 @@ class CasdoorInvitedLocalLoginCoordinatorService:
                     session_factory=self._base._session_factory,
                     configuration_factory=self._base._configuration_service._repository,
                 ).finalize_invited_local_memberships(
-                    current.attempt, roles=continuation.roles,
-                    leases=continuation.leases, deadline=continuation.operation.deadline,
+                    current.attempt,
+                    roles=continuation.roles,
+                    leases=continuation.leases,
+                    deadline=continuation.operation.deadline,
                 )
                 current, rows = self._resume_read(continuation, phase="finalized")
                 self._resume_membership_delta(before, (current, rows), finalizing=True)
@@ -1075,7 +1074,11 @@ class CasdoorInvitedLocalLoginCoordinatorService:
                 raise _CoordinationConflict("invitation_resume_incomplete")
             self._check_recovery(continuation)
             preflight, plan = self._recovery_admission(
-                continuation.consumed, continuation.bundle, continuation.online, continuation.profile, current,
+                continuation.consumed,
+                continuation.bundle,
+                continuation.online,
+                continuation.profile,
+                current,
             )
             bridge = replace(continuation, candidate=current, preflight=preflight, plan=plan)
             _ISSUED_RECOVERY_CONTINUATIONS.add(bridge)
@@ -1452,12 +1455,12 @@ class CasdoorInvitedLocalLoginCoordinatorService:
         ):
             raise _CoordinationConflict("directory_contract_binding")
         config, _ = self._base._configuration(consumed, operation, "")
-        validator = ClaimsValidator(
-            trust_store=CertificateTrustStore([TrustedCertificate(**p.model_dump()) for p in config.certificates]),
-            expected_issuer=config.expected_issuer,
-            organization=config.organization,
-            application=config.application,
-            client_id=config.client_id,
+        validator = create_claims_validator(
+            operation,
+            namespace_id=consumed.context.namespace_id,
+            revision_id=consumed.context.revision_id,
+            diagnostic=False,
+            redis_client=self._base._redis_client,
         )
         bundle = validator.verify_token_bundle(
             raw_tokens,
@@ -1495,7 +1498,10 @@ class CasdoorInvitedLocalLoginCoordinatorService:
                 operation._check()
                 candidate = self._discover_recovery(context, key, consumed, profile)
                 if candidate is not None:
-                    if candidate.phase not in ("pending", "invitation_completed", "memberships_written", "finalized") or self._session_gateway is None:
+                    if (
+                        candidate.phase not in ("pending", "invitation_completed", "memberships_written", "finalized")
+                        or self._session_gateway is None
+                    ):
                         raise _CoordinationConflict("invitation_recovery_phase_pending")
                     preflight, plan = self._recovery_admission(consumed, bundle, online, profile, candidate)
                     leases = CasdoorLeases(

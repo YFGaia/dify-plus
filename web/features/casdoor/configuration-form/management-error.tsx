@@ -8,10 +8,16 @@ export function ManagementError({ error }: { error: unknown }) {
     <div role="alert" className="space-y-1 text-text-destructive">
       <p>
         {safe.unauthorized
-          ? t(($) => $['systemManage.casdoor.unauthorized'])
+          ? t(($) => $['systemManage.common.noPermission'])
           : t(($) => $['systemManage.casdoor.requestFailed'])}
       </p>
       {safe.code && <p>{safe.code}</p>}
+      {safe.code === 'provider_unavailable' && (
+        <p>{t(($) => $['systemManage.casdoor.connectionRetryHelp'])}</p>
+      )}
+      {safe.code === 'invalid_transaction' && (
+        <p>{t(($) => $['systemManage.casdoor.loginRetryHelp'])}</p>
+      )}
       {safe.code === 'config_conflict' && <p>{t(($) => $['systemManage.casdoor.conflict'])}</p>}
       {safe.reason === 'deployment_proof_missing' && (
         <p>{t(($) => $['systemManage.casdoor.deploymentProofMissing'])}</p>

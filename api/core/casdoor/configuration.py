@@ -2,9 +2,9 @@
 
 No environment, database, URL fetching or certificate parsing occurs here. The
 deployment owner supplies the explicit development HTTP exception as validation
-context; it is never a field an administrator can enable in a payload. I02's
-TrustedCertificate/CertificateTrustStore must validate pins before validation or
-activation. Revision, namespace, ETag and encrypted Secret belong to storage.
+context; it is never a field an administrator can enable in a payload. Legacy
+pins are validated by their crypto owner; v2 keys are discovered by the service.
+Revision, namespace, ETag and encrypted Secret belong to storage.
 """
 
 import hashlib
@@ -104,7 +104,8 @@ class PublicCertificatePolicy(PolicyModel):
 
 
 class CasdoorConfiguration(PolicyModel):
-    schema_version: Literal[1] = 1
+    schema_version: Literal[1, 2] = 1
+    signing_key_mode: Literal["automatic"] | None = None
     browser_frontend_url: StrictStr = Field(max_length=2048, min_length=1)
     backend_api_url: StrictStr = Field(max_length=2048, min_length=1)
     expected_issuer: StrictStr = Field(max_length=2048, min_length=1)
@@ -175,6 +176,13 @@ class CasdoorConfiguration(PolicyModel):
 
     @model_validator(mode="after")
     def exact_mapping_scope(self) -> "CasdoorConfiguration":
+        if self.schema_version == 1 and self.signing_key_mode is not None:
+            raise ValueError("legacy configurations cannot select automatic keys")
+        if self.schema_version == 2:
+            if self.certificates:
+                raise ValueError("automatic configurations cannot contain certificate pins")
+            if self.signing_key_mode != "automatic":
+                raise ValueError("automatic configurations require the server signing key policy")
         workspace_ids = [mapping.workspace_id for mapping in self.workspace_mappings]
         if len(set(workspace_ids)) != len(workspace_ids):
             raise ValueError("workspace mappings must be unique")
@@ -192,6 +200,9 @@ class CasdoorConfiguration(PolicyModel):
     def canonical_json(self) -> str:
         """Stable JSON over typed policy only; semantically unordered rows are sorted."""
         data = self.model_dump(mode="json")
+        # Historical immutable revision digests must remain byte-for-byte stable.
+        if self.schema_version == 1:
+            data.pop("signing_key_mode")
         data["workspace_mappings"] = sorted(data["workspace_mappings"], key=itemgetter("workspace_id"))
         data["certificates"] = sorted(
             data["certificates"], key=lambda pin: (pin["kid"] or "", pin["pem"], pin["not_before"], pin["accept_until"])

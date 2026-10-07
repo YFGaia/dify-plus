@@ -1,12 +1,20 @@
 """Mounted LOCAL maintenance with actual SQL/source owners and offline bottom wires."""
 
 import time
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 import pytest
 import sqlalchemy as sa
+from test_casdoor_diagnostic_flow_extend import diagnostic as diagnostic
+from test_casdoor_identity_action_flow_extend import actions as actions
+from test_casdoor_identity_action_flow_extend import begin, complete, enable_unlink
+from test_casdoor_identity_action_flow_extend import send as action_send
+
 from core.casdoor.ownership import MembershipBackend, MembershipObservation, role_baseline_json, roles_fingerprint
-from models.account import TenantAccountJoin, TenantAccountRole
+from libs.passport import PassportService
+from libs.token import _real_cookie_name, generate_csrf_token
+from models.account import Account, AccountStatus, TenantAccountJoin, TenantAccountRole
 from models.casdoor_extend import (
     CasdoorAuditExtend,
     CasdoorFinalizationState,
@@ -17,22 +25,55 @@ from models.casdoor_extend import (
 )
 from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
 from services.casdoor_local_lifecycle_service_extend import _CONSUME_REVIEW
-from test_casdoor_diagnostic_flow_extend import diagnostic as diagnostic
-from test_casdoor_identity_action_flow_extend import actions as actions
-from test_casdoor_identity_action_flow_extend import begin, complete, enable_unlink
-from test_casdoor_identity_action_flow_extend import send as action_send
 
 pytest_plugins = ("test_casdoor_production_login_policy_extend",)
 PATH = "/console/api/system-manage-extend/integration/casdoor/local-membership"
 
 
 def send(d, path, **kwargs):
+    if path.startswith("/console/api/system-manage-extend/"):
+        return action_send(
+            d, path, client=d.management_client, headers={"X-CSRF-Token": d.management_csrf}, **kwargs
+        )
     return action_send(d, path, headers={"X-CSRF-Token": d.csrf}, **kwargs)
 
 
 @pytest.fixture
 def lifecycle(actions, monkeypatch):
     d = actions
+    # Management and the linked member are separate authenticated principals.
+    # Releasing the member's role must not revoke the operation's authorizer.
+    manager = Account(name="Independent global manager", email="lifecycle-manager@example.test")
+    manager.id = str(UUID(int=812))
+    manager.status = AccountStatus.ACTIVE
+    manager.initialized_at = datetime.now(UTC).replace(tzinfo=None)
+    with d.f.service._session_factory() as session, session.begin():
+        session.expire_on_commit = False
+        session.add(manager)
+        session.add(
+            TenantAccountJoin(
+                account_id=manager.id,
+                tenant_id=str(d.f.local.config.default_workspace_id),
+                role=TenantAccountRole.ADMIN,
+                current=True,
+            )
+        )
+    d.management_actor = manager
+    d.management_token = "8" * 128
+    d.source["refresh_token:" + d.management_token] = manager.id.encode()
+    d.management_csrf = generate_csrf_token(manager.id)
+    access = PassportService().issue(
+        {
+            "user_id": manager.id,
+            "exp": int((datetime.now(UTC) + timedelta(minutes=5)).timestamp()),
+            "iss": "COMMUNITY",
+            "sub": "Console API Passport",
+        }
+    )
+    d.management_client = d.app.test_client()
+    cookies = {"access_token": access, "refresh_token": d.management_token, "csrf_token": d.management_csrf}
+    for name, value in cookies.items():
+        d.management_client.set_cookie(_real_cookie_name(name), value, domain="console.example.test", path="/")
     service = d.services.casdoor_local_lifecycle
     service._redis_runtime_factory = d.f.service._redis_runtime_factory
     records = {}
@@ -66,9 +107,18 @@ def managed(d):
         identity = session.scalar(
             sa.select(CasdoorIdentityExtend).where(CasdoorIdentityExtend.account_id == d.actor.id)
         )
-        join = session.scalar(sa.select(TenantAccountJoin).where(TenantAccountJoin.account_id == d.actor.id))
+        join = session.scalar(
+            sa.select(TenantAccountJoin).where(
+                TenantAccountJoin.account_id == d.actor.id,
+                TenantAccountJoin.tenant_id == str(d.f.local.config.default_workspace_id),
+            )
+        )
         snapshot = d.services.casdoor_configuration._repository(session)
         revision = snapshot._revision(snapshot._integration().id, snapshot._integration().active_revision_id)
+        # The diagnostic fixture initially authorizes configuration setup. Once
+        # linked, this member is ordinary; the independent manager owns review.
+        join.role = TenantAccountRole.NORMAL
+        session.flush()
         view = MembershipObservation(
             UUID(join.tenant_id), UUID(d.actor.id), UUID(join.id), join.role, MembershipBackend.LOCAL
         )
@@ -135,7 +185,12 @@ def test_released_actual_receipt_allows_recent_auth_unlink_without_deleting_memb
             is None
         )
         assert (
-            session.scalar(sa.select(TenantAccountJoin.role).where(TenantAccountJoin.account_id == d.actor.id))
+            session.scalar(
+                sa.select(TenantAccountJoin.role).where(
+                    TenantAccountJoin.account_id == d.actor.id,
+                    TenantAccountJoin.tenant_id == str(d.f.local.config.default_workspace_id),
+                )
+            )
             is TenantAccountRole.NORMAL
         )
         assert (
@@ -156,10 +211,8 @@ def test_mounted_review_rejects_client_role_flags_and_revoked_original_refresh(l
         assert session.scalar(sa.select(CasdoorManagedMembershipExtend.ownership)) is CasdoorMembershipOwnership.MANAGED
 
 
-@pytest.mark.parametrize("failure", ["revoked", "get_failure", "deadline", "allowlist"])
+@pytest.mark.parametrize("failure", ["revoked", "get_failure", "deadline", "manager_revoked"])
 def test_release_last_write_window_source_failure_rolls_back_actual_receipt(lifecycle, monkeypatch, failure):
-    from dataclasses import replace
-
     d = lifecycle
     proof = review(d, managed(d), "release")
     original = CasdoorLocalLifecycleRepository.release
@@ -174,11 +227,13 @@ def test_release_last_write_window_source_failure_rolls_back_actual_receipt(life
                 raise TimeoutError("synthetic bounded original refresh read failure")
 
             monkeypatch.setattr(d.f.redis, "get", unavailable)
-        elif failure == "allowlist":
-            configuration = d.services.casdoor_configuration
-            monkeypatch.setattr(
-                configuration, "_management_policy", replace(configuration._management_policy, account_ids=frozenset())
+        elif failure == "manager_revoked":
+            owner.session.execute(
+                sa.update(TenantAccountJoin)
+                .where(TenantAccountJoin.account_id == d.management_actor.id, TenantAccountJoin.current.is_(True))
+                .values(role=TenantAccountRole.NORMAL)
             )
+            owner.session.flush()
         else:
             clock = time.monotonic
             monkeypatch.setattr("services.casdoor_local_lifecycle_service_extend.time.monotonic", lambda: clock() + 50)
@@ -186,7 +241,7 @@ def test_release_last_write_window_source_failure_rolls_back_actual_receipt(life
 
     monkeypatch.setattr(CasdoorLocalLifecycleRepository, "release", release)
     response = send(d, PATH + "/release", method="POST", json=proof)
-    expected = 503 if failure in ("get_failure", "allowlist") else 400
+    expected = 503 if failure == "get_failure" else 403 if failure == "manager_revoked" else 400
     assert response.status_code == expected, response.json
     with d.f.service._session_factory() as session:
         assert session.scalar(sa.select(CasdoorManagedMembershipExtend.ownership)) is CasdoorMembershipOwnership.MANAGED
@@ -210,9 +265,8 @@ def test_actual_target_navigation_has_original_source_csrf_closed_cursor_and_no_
     assert response.headers["Cache-Control"] == "no-store"
     for query in ({"limit": "true"}, {"after_identity_id": target["identity_id"]}, {"quiescent": "true"}):
         assert send(d, PATH + "/targets", query_string=query).status_code == 400
-    # The inherited source-action formatter closes original LoginManager CSRF
-    # failures as a safe unavailable response, with no manager data or writes.
-    assert action_send(d, PATH + "/targets", headers={}).status_code == 503
+    # Missing CSRF is rejected before management data or writes are exposed.
+    assert action_send(d, PATH + "/targets", client=d.management_client, headers={}).status_code == 401
 
 
 @pytest.mark.parametrize("failure", ["expired", "role_changed"])
@@ -227,7 +281,10 @@ def test_review_expiry_and_changed_actual_join_deny_mutation(lifecycle, failure)
         with d.f.service._session_factory() as session, session.begin():
             session.execute(
                 sa.update(TenantAccountJoin)
-                .where(TenantAccountJoin.account_id == d.actor.id)
+                .where(
+                    TenantAccountJoin.account_id == d.actor.id,
+                    TenantAccountJoin.tenant_id == str(d.f.local.config.default_workspace_id),
+                )
                 .values(role=TenantAccountRole.EDITOR)
             )
     assert send(d, PATH + "/release", method="POST", json=proof).status_code == 400

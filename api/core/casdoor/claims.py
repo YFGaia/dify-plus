@@ -15,11 +15,9 @@ import re
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from casdoor import CasdoorSDK
-
-from core.casdoor.crypto import CertificateTrustStore, CryptoError
+from core.casdoor.crypto import CryptoError
 from core.casdoor.errors import CasdoorErrorCode
 
 if TYPE_CHECKING:
@@ -206,7 +204,7 @@ class VerifiedProfile:
         return "VerifiedProfile(<redacted>)"
 
     def eligible_for_first_admission(self) -> bool:
-        """Necessary mailbox condition only; never grants account/login policy."""
+        """Verified mailbox condition for invitations; ordinary creation has its own policy."""
         return self.email_verified is True and _legal_email(self.email)
 
 
@@ -227,19 +225,26 @@ def _legal_email(value: str | None) -> bool:
     return len(labels) >= 2 and len(domain) <= 253 and all(_DOMAIN_LABEL.fullmatch(label) for label in labels)
 
 
+@runtime_checkable
+class RS256TrustStore(Protocol):
+    def verify_rs256(
+        self, signing_input: bytes, signature: bytes, *, kid: str | None, now: datetime, algorithm: str = "RS256"
+    ) -> Any: ...
+
+
 class ClaimsValidator:
     """Explicit trusted config, trust store and caller clock; never network or DB.
 
     The caller reconstructs auth_started_at/nonce from the consumed transaction.
-    The SDK re-verifies the selected public pin and issuer/client audience; strict
-    JSON/types and deterministic NumericDate checks are owned here, not coerced by
-    PyJWT. Only parse_jwt_token is called on the private public-certificate SDK.
+    The trust store verifies the signature using either legacy pinned public
+    certificates or a controlled JWKS snapshot. Required claims, strict types,
+    issuer/audience and deterministic NumericDate checks remain owned here.
     """
 
     def __init__(
         self,
         *,
-        trust_store: CertificateTrustStore,
+        trust_store: RS256TrustStore,
         expected_issuer: str,
         organization: str,
         application: str,
@@ -247,7 +252,7 @@ class ClaimsValidator:
         leeway: int = 60,
     ):
         if (
-            not isinstance(trust_store, CertificateTrustStore)
+            not isinstance(trust_store, RS256TrustStore)
             or not _text(expected_issuer, 2048)
             or not all(_text(v) for v in (organization, application, client_id))
             or type(leeway) is not int
@@ -260,6 +265,7 @@ class ClaimsValidator:
         self._application = application
         self._client_id = client_id
         self._leeway = leeway
+        self.verified_key_fingerprints: set[str] = set()
 
     def _clock(self, now: datetime, auth_started_at: datetime) -> tuple[float, float]:
         if any(not isinstance(t, datetime) or t.utcoffset() != timedelta(0) for t in (now, auth_started_at)):
@@ -291,25 +297,9 @@ class ClaimsValidator:
             )
         except CryptoError:
             _fail("signature_invalid")
-        # No secret and explicit frontend; this instance is never used for HTTP.
-        sdk = CasdoorSDK(
-            endpoint="https://unused.invalid",
-            front_endpoint="https://unused.invalid",
-            client_id=self._client_id,
-            client_secret="",
-            certificate=pin.pem,
-            org_name=self._organization,
-            application_name=self._application,
-        )
-        try:
-            sdk.parse_jwt_token(
-                token,
-                issuer=self._issuer,
-                leeway=self._leeway,
-                options={"require": required, "verify_exp": False, "verify_iat": False, "verify_nbf": False},
-            )
-        except Exception:
+        if any(name not in claims for name in required):
             _fail("token_invalid")
+        self.verified_key_fingerprints.add(pin.fingerprint)
         return claims
 
     def _standard(self, claims: dict[str, Any], *, current: float, started: float) -> None:

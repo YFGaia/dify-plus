@@ -13,6 +13,7 @@ mode, evidence_source, status or capabilities. Offline fixtures are not proof.
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
@@ -73,6 +74,16 @@ REQUIRED_CAPABILITIES = {
         {"online_status", "role_graph_complete", "account_items_visibility", "workspace_plan"}
     ),
 }
+
+
+def required_capabilities(kind: CasdoorValidationKind, schema_version: int) -> frozenset[str] | None:
+    """Proof requirements follow immutable configuration policy, not caller input."""
+    required = REQUIRED_CAPABILITIES.get(kind)
+    if required is not None and kind is CasdoorValidationKind.STATIC and schema_version == 2:
+        return (required - {"certificate_trust"}) | {"signing_key_policy"}
+    return required
+
+
 _OPTIONAL_CAPABILITIES = {
     "avatar_sync": (CasdoorValidationKind.STATIC, "avatar_sync"),
     "rp_logout": (CasdoorValidationKind.PROTOCOL, "rp_logout"),
@@ -90,6 +101,11 @@ def _sha(value: str) -> str:
 
 def _fingerprint(value: object) -> bool:
     return isinstance(value, str) and len(value) == 64 and all(char in "0123456789abcdef" for char in value)
+
+
+def signing_key_fingerprint(value: object) -> bool:
+    """RFC 7638 RSA thumbprints; historical X.509 fingerprints remain readable."""
+    return isinstance(value, str) and (_fingerprint(value) or re.fullmatch(r"[A-Za-z0-9_-]{43}", value) is not None)
 
 
 class CasdoorConfigurationError(ValueError):
@@ -233,9 +249,12 @@ class CasdoorConfigurationRepository:
             )
         }
         policy = json.loads(revision.policy_json)
+        policy_fields = set(_POLICY_FIELDS)
+        if revision.schema_version == 2:
+            policy_fields.add("signing_key_mode")
         if (
             not isinstance(policy, dict)
-            or set(policy) != set(_POLICY_FIELDS)
+            or set(policy) != policy_fields
             or policy["schema_version"] != revision.schema_version
         ):
             raise _conflict("revision_policy_invalid")
@@ -354,16 +373,23 @@ class CasdoorConfigurationRepository:
                 revision.encrypted_secret, context=self._secret_context(revision.namespace_id, revision.id)
             )
             checked_at = self._now(now)
-            pins = tuple(TrustedCertificate(**pin.model_dump()) for pin in configuration.certificates)
-            CertificateTrustStore(pins)
-            if len(pins) == 2 and max(pin.not_before for pin in pins) >= min(pin.accept_until for pin in pins):
-                raise CryptoError("casdoor_certificate_invalid")
-            if not any(
-                pin.not_before.replace(tzinfo=None) <= checked_at < pin.accept_until.replace(tzinfo=None)
-                for pin in pins
-            ):
-                raise CryptoError("casdoor_certificate_invalid")
+            pins = self._legacy_pins(configuration, checked_at)
             return StaticValidationSnapshot(UUID(revision.id), integration.etag, checked_at, pins)
+
+    @staticmethod
+    def _legacy_pins(configuration: CasdoorConfiguration, checked_at: datetime) -> tuple[TrustedCertificate, ...]:
+        """Automatic mode validates policy locally; discovery is never a static check."""
+        if configuration.schema_version == 2:
+            return ()
+        pins = tuple(TrustedCertificate(**pin.model_dump()) for pin in configuration.certificates)
+        CertificateTrustStore(pins)
+        if len(pins) == 2 and max(pin.not_before for pin in pins) >= min(pin.accept_until for pin in pins):
+            raise CryptoError("casdoor_certificate_invalid")
+        if not any(
+            pin.not_before.replace(tzinfo=None) <= checked_at < pin.accept_until.replace(tzinfo=None) for pin in pins
+        ):
+            raise CryptoError("casdoor_certificate_invalid")
+        return pins
 
     def _snapshot(
         self, integration: CasdoorIntegrationExtend, revision_id: str | None, now: datetime
@@ -574,7 +600,10 @@ class CasdoorConfigurationRepository:
             encrypted_secret=envelope,
             certificates_json=_json(data["certificates"]),
             mappings_json=_json(data["workspace_mappings"]),
-            policy_json=_json({field: data[field] for field in _POLICY_FIELDS}),
+            policy_json=_json(
+                {field: data[field] for field in _POLICY_FIELDS}
+                | ({"signing_key_mode": "automatic"} if configuration.schema_version == 2 else {})
+            ),
             config_digest="",
             created_by=str(actor_account_id),
         )
@@ -685,7 +714,7 @@ class CasdoorConfigurationRepository:
     def _record_capabilities(
         self, row: CasdoorValidationExtend, revision: CasdoorConfigRevisionExtend
     ) -> dict[str, str] | None:
-        required = REQUIRED_CAPABILITIES.get(row.kind)
+        required = required_capabilities(row.kind, revision.schema_version)
         if required is None:
             return None
         if row.kind == CasdoorValidationKind.DEPLOYMENT and self.rbac_mode == "on":
@@ -708,6 +737,13 @@ class CasdoorConfigurationRepository:
             not isinstance(summary, dict)
             or type(summary.get("schema_version")) is not int
             or summary.get("schema_version") != 1
+            or (
+                revision.schema_version == 2
+                and (
+                    type(summary.get("configuration_schema_version")) is not int
+                    or summary.get("configuration_schema_version") != 2
+                )
+            )
             or summary.get("namespace_id") != revision.namespace_id
             or summary.get("evidence_source") != "real"
             or not isinstance(summary.get("capabilities"), dict)
@@ -715,6 +751,43 @@ class CasdoorConfigurationRepository:
         ):
             return None
         return summary["capabilities"]
+
+    def _automatic_activation_keys(self, revision, configuration, snapshot, now: datetime) -> None:
+        """Accept only the service's bounded snapshot of the diagnosed source.
+
+        Tokens are never retained to reverify at activation. Both actual signing
+        fingerprints recorded by the protocol owner must remain in this source.
+        """
+        from core.casdoor.signing_keys import SigningKeySnapshot
+
+        latest, ambiguous = self._latest_validations(revision.id)
+        protocol = latest.get(CasdoorValidationKind.PROTOCOL)
+        if protocol is None or CasdoorValidationKind.PROTOCOL in ambiguous:
+            raise _conflict("signing_key_diagnostic_required")
+        try:
+            metadata = json.loads(protocol.summary_json)["signing_keys"]
+            used = metadata["fingerprints"]
+            timestamp = now.replace(tzinfo=UTC).timestamp()
+            valid = (
+                type(snapshot) is SigningKeySnapshot
+                and snapshot.namespace_id == UUID(revision.namespace_id)
+                and snapshot.revision_id == UUID(revision.id)
+                and snapshot.config_digest == configuration.config_digest()
+                and type(snapshot.fetched_at) in (int, float)
+                and 0 <= timestamp - snapshot.fetched_at <= 600
+                and snapshot.fingerprints == snapshot.trust_store.fingerprints
+                and metadata["profile"] in ("application", "global")
+                and metadata["profile"] == snapshot.profile
+                and metadata["source"] == snapshot.source_url
+                and isinstance(used, list)
+                and 1 <= len(used) <= 16
+                and all(signing_key_fingerprint(item) for item in used)
+                and set(used) <= set(snapshot.fingerprints)
+            )
+        except (ValueError, TypeError, KeyError, AttributeError):
+            valid = False
+        if not valid:
+            raise _conflict("signing_key_diagnostic_required")
 
     def activate(
         self,
@@ -724,6 +797,7 @@ class CasdoorConfigurationRepository:
         actor_account_id: UUID,
         now: datetime | None = None,
         rp_logout_admission=None,
+        signing_key_snapshot=None,
     ) -> ConfigurationSnapshot:
         self._require_transaction()
         self._etag(etag)
@@ -744,15 +818,10 @@ class CasdoorConfigurationRepository:
             raise _conflict("required_secret_missing")
         self.crypto.decrypt(revision.encrypted_secret, context=self._secret_context(revision.namespace_id, revision.id))
         checked_at = self._now(now)
-        pins = [TrustedCertificate(**pin.model_dump()) for pin in configuration.certificates]
-        CertificateTrustStore(pins)
-        if len(pins) == 2 and max(pin.not_before for pin in pins) >= min(pin.accept_until for pin in pins):
-            raise CryptoError("casdoor_certificate_invalid")
-        if not any(
-            pin.not_before.replace(tzinfo=None) <= checked_at < pin.accept_until.replace(tzinfo=None) for pin in pins
-        ):
-            raise CryptoError("casdoor_certificate_invalid")
+        self._legacy_pins(configuration, checked_at)
         self._activation_proof(revision, configuration, checked_at, rp_logout_admission)
+        if configuration.schema_version == 2:
+            self._automatic_activation_keys(revision, configuration, signing_key_snapshot, checked_at)
         self._cas(integration, etag, actor_account_id)
         integration.active_revision_id = revision.id
         integration.enabled = True
@@ -822,6 +891,7 @@ class CasdoorConfigurationRepository:
     def reset_namespace(self, namespace_id, *, etag, actor_account_id, scope_fingerprint):
         """Archive only a freshly locked, released zero-intent LOCAL scope."""
         from core.casdoor.auth_transactions import AuthTransactionError
+
         from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
 
         self._require_transaction()

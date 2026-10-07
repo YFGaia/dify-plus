@@ -1,7 +1,11 @@
 """Fresh independent checks for the C2 LOCAL choreography's failure edges."""
 
 import pytest
+import sqlalchemy as sa
+from configs import dify_config
 from core.casdoor.gateway import GatewayError
+from enums import DeploymentEdition
+from models.casdoor_extend import CasdoorIntegrationExtend
 from repositories.casdoor_configuration_repository_extend import CasdoorConfigurationError
 from services.casdoor_local_login_coordinator_service_extend import CasdoorLocalLoginCoordinatorService
 from test_casdoor_local_login_coordinator_service_extend import rows
@@ -39,21 +43,33 @@ def test_fresh_loader_rejects_remote_disable_under_complete_leases(chain):
     assert not chain.redis.data
 
 
-def test_production_factory_denies_synthetic_contract_without_dependency_io(chain):
+@pytest.mark.parametrize("state", ["disabled", "missing_active"])
+def test_production_factory_rejects_inactive_database_configuration_without_external_io(chain, monkeypatch, state):
+    monkeypatch.setattr(dify_config, "DEPLOYMENT_EDITION", DeploymentEdition.COMMUNITY)
+    with chain.local.session.begin():
+        integration = chain.local.session.scalar(sa.select(CasdoorIntegrationExtend))
+        if state == "disabled":
+            integration.enabled = False
+        else:
+            integration.active_revision_id = None
+
     class Deny:
         def __getattribute__(self, name):
-            pytest.fail("production factory accessed a dependency")
+            pytest.fail("inactive configuration accessed account/Redis side effects")
 
     deny = Deny()
     with pytest.raises(CasdoorConfigurationError) as error:
         CasdoorLocalLoginCoordinatorService.for_production(
-            session_factory=deny,
-            configuration_service=deny,
+            session_factory=chain.coordinator._session_factory,
+            configuration_service=chain.configuration_service,
             account_owner=deny,
             redis_client=deny,
         )
 
-    assert error.value.reason == "deployment_proof_missing"
+    assert error.value.reason == "inactive"
+    assert not chain.calls
+    assert not chain.prepared
+    assert not chain.redis.data
     with pytest.raises(TypeError):
         CasdoorLocalLoginCoordinatorService.for_production(
             session_factory=deny,

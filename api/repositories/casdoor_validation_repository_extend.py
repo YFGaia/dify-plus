@@ -23,9 +23,10 @@ from models.casdoor_extend import (
 )
 
 from repositories.casdoor_configuration_repository_extend import (
-    REQUIRED_CAPABILITIES,
     CasdoorConfigurationError,
     CasdoorConfigurationRepository,
+    required_capabilities,
+    signing_key_fingerprint,
 )
 
 
@@ -85,6 +86,7 @@ class CasdoorValidationRepository:
         policy: AcceptedDeploymentPolicy | None = None,
         now: datetime,
         preview: dict | None = None,
+        signing_keys: dict | None = None,
     ) -> None:
         self.require_current(binding)
         checked_at = now.astimezone(UTC).replace(tzinfo=None)
@@ -100,7 +102,10 @@ class CasdoorValidationRepository:
             ):
                 raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "deployment_proof_invalid")
             expires_at = min(expires_at, policy.expires_at.replace(tzinfo=None))
-        capabilities = REQUIRED_CAPABILITIES[kind]
+        revision = self.owner._revision(str(binding.integration_id), str(binding.revision_id))
+        capabilities = required_capabilities(kind, revision.schema_version)
+        if capabilities is None:
+            raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "validation_required")
         if kind is CasdoorValidationKind.DEPLOYMENT:
             if status is CasdoorValidationStatus.PASSED and (
                 policy is None or not capabilities <= policy.deployment_capabilities
@@ -110,8 +115,23 @@ class CasdoorValidationRepository:
             "schema_version": 1,
             "namespace_id": str(binding.namespace_id),
             "evidence_source": "real",
-            "capabilities": {capability: status.value for capability in sorted(capabilities)},
+            "capabilities": dict.fromkeys(sorted(capabilities), status.value),
         }
+        if revision.schema_version == 2:
+            summary["configuration_schema_version"] = 2
+            if kind is CasdoorValidationKind.PROTOCOL and status is CasdoorValidationStatus.PASSED:
+                if (
+                    not isinstance(signing_keys, dict)
+                    or set(signing_keys) != {"source", "profile", "fingerprints"}
+                    or not isinstance(signing_keys["source"], str)
+                    or not signing_keys["source"]
+                    or signing_keys["profile"] not in ("application", "global")
+                    or not isinstance(signing_keys["fingerprints"], list)
+                    or not 1 <= len(signing_keys["fingerprints"]) <= 16
+                    or any(not signing_key_fingerprint(item) for item in signing_keys["fingerprints"])
+                ):
+                    raise CasdoorConfigurationError(CasdoorErrorCode.CONFIG_CONFLICT, "signing_key_diagnostic_required")
+                summary["signing_keys"] = signing_keys
         if preview is not None and kind is CasdoorValidationKind.DIAGNOSTIC:
             summary["preview"] = preview
         self.session.add(

@@ -4,6 +4,8 @@
 
 原基于 gin-vue-admin 的独立管理后台（`admin/`）已随 `p5-admin-decommission` 废弃删除，管理能力由 Console `/system-manage-extend/*` 承接；早期文档中的 admin 内容仅作历史记录。
 
+系统管理（包括 Casdoor、钉钉、OAuth2、额度管理和代码执行控制）统一要求当前空间为实例初始化空间，且账号在该空间的真实角色为 `owner` 或 `admin`。初始化空间通过自动核验建立数据库关联，不按名字或代码固定 UUID 判断；新安装直接保存初始化创建的空间，已有安装通过扩展迁移回填。普通成员及其他空间管理员不显示系统管理菜单，直接访问页面或管理 API 也会被拒绝。切换空间即失效旧权限；固定初始化空间失效时不自动转移到其他空间。旧 `CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS` 不再授予权限，RBAC 开关和 Casdoor 默认登录目标不改变此边界。实施与验证见 [初始化空间全局权限变更](../../openspec/changes/bind-system-management-initial-workspace/design.md)。
+
 当前 fork 部署入口是 [`docker/docker-compose.dify-plus.yaml`](../../docker/docker-compose.dify-plus.yaml)，其中迁移服务依次执行上游与 Dify-Plus 扩展迁移链。升级方案与环境验收边界见[本轮 runbook](../../openspec/changes/merge-upstream-1-17-1/runbook.md)；它是操作包和验收模板，不代表已经完成环境或生产发布。
 
 ## 快速入口
@@ -20,6 +22,7 @@
 - [二开功能详解-后端与数据层](./二开功能详解-后端与数据层.md)
 - [二开数据库与迁移说明](./二开数据库与迁移说明.md)
 - [二开功能详解-Web与管理后台](./二开功能详解-Web与管理后台.md)
+- [钉钉企业邮箱查询配置指南](./钉钉企业邮箱查询配置指南.md)
 - [二开页面与交互清单](./二开页面与交互清单.md)
 - [二开部署配置与运维说明](./二开部署配置与运维说明.md)（历史 1.12.1 基线；当前升级按上方 Compose 与 runbook）
 - [SECRET_KEY 轮换 runbook](./SECRET_KEY轮换runbook.md)

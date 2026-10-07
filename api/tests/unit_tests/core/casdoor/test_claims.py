@@ -6,7 +6,6 @@ from dataclasses import FrozenInstanceError, replace
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from casdoor import CasdoorSDK
 from core.casdoor.claims import (
     MAX_HEADER_BYTES,
     MAX_PAYLOAD_BYTES,
@@ -284,33 +283,27 @@ def test_pinned_signature_kid_and_window(validator, key):
     assert error.value.reason == "signature_invalid"
 
 
-def test_sdk_bound_client_pin_no_network(validator, key, monkeypatch):
-    calls = []
-    parse = CasdoorSDK.parse_jwt_token
+def test_pinned_validation_is_pure_signature_and_claims_check(validator, key, monkeypatch):
+    from casdoor import CasdoorSDK
 
-    def inspect(sdk, token, **kwargs):
-        calls.append((sdk, kwargs))
-        return parse(sdk, token, **kwargs)
+    def no_sdk(*args, **kwargs):
+        pytest.fail("claims verification must not delegate to the Casdoor SDK")
 
-    def no_http(*args, **kwargs):
-        pytest.fail("SDK HTTP must not run")
+    monkeypatch.setattr(CasdoorSDK, "parse_jwt_token", no_sdk)
+    for method in ("get_auth_link", "get_oauth_token", "get_user", "get_roles", "get_organization"):
+        monkeypatch.setattr(CasdoorSDK, method, no_sdk)
 
-    monkeypatch.setattr(CasdoorSDK, "parse_jwt_token", inspect)
-    for method in [
-        "get_auth_link",
-        "get_oauth_token",
-        "get_user",
-        "get_roles",
-        "get_organization",
-        "_oauth_token_request",
-    ]:
-        monkeypatch.setattr(CasdoorSDK, method, no_http)
-    verify_id(validator, sign(key, id_claims()))
-    sdk, kwargs = calls[0]
-    assert sdk.client_id == CLIENT and sdk.client_secret == "" and sdk.front_endpoint == "https://unused.invalid"
-    assert sdk.certificate.startswith("-----BEGIN CERTIFICATE-----")
-    assert kwargs["issuer"] == ISSUER and "audience" not in kwargs and kwargs["leeway"] == 60
-    assert kwargs["options"]["require"] == ["iss", "sub", "aud", "exp", "iat", "nonce"]
+    assert verify_id(validator, sign(key, id_claims())).subject == SUB
+    for claims in (id_claims(iss=ISSUER + "/wrong"), id_claims(aud="other")):
+        with pytest.raises(ClaimsError):
+            verify_id(validator, sign(key, claims))
+    missing_required = id_claims()
+    del missing_required["nonce"]
+    with pytest.raises(ClaimsError):
+        verify_id(validator, sign(key, missing_required))
+    with pytest.raises(ClaimsError) as error:
+        verify_id(validator, sign(rsa.generate_private_key(public_exponent=65537, key_size=2048), id_claims()))
+    assert error.value.reason == "signature_invalid"
 
 
 def test_native_valid_nonce_roles_projection(validator, key):
@@ -561,7 +554,9 @@ def test_clock_and_huge_numeric_date(validator, key):
         verify_id(validator, sign(key, id_claims(exp=10**400)))
 
 
-def test_second_actual_pin_selected_for_sdk(key, monkeypatch):
+def test_second_actual_pin_is_selected_without_sdk_reverification(key, monkeypatch):
+    from casdoor import CasdoorSDK
+
     second_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     first = certificate(key)
     second_base = certificate(second_key)
@@ -575,19 +570,16 @@ def test_second_actual_pin_selected_for_sdk(key, monkeypatch):
         application=APP,
         client_id=CLIENT,
     )
-    seen = []
-    parse = CasdoorSDK.parse_jwt_token
+    def no_sdk(*args, **kwargs):
+        pytest.fail("signature selection must use the selected certificate public key directly")
 
-    def inspect(sdk, token, **kwargs):
-        seen.append(sdk.certificate)
-        return parse(sdk, token, **kwargs)
-
-    monkeypatch.setattr(CasdoorSDK, "parse_jwt_token", inspect)
+    monkeypatch.setattr(CasdoorSDK, "parse_jwt_token", no_sdk)
     verify_id(validator, sign(second_key, id_claims(), header={"alg": "RS256", "kid": "new-kid"}))
-    assert seen == [second.pem] and second.pem != first.pem
-    # No kid also selects the sole actually successful pin, not first configured.
+    assert validator.verified_key_fingerprints == {validator._trust_store._certificates[1].fingerprint}
+    validator.verified_key_fingerprints.clear()
+    # Without kid, the store still chooses the unique actually successful pin.
     verify_id(validator, sign(second_key, id_claims(), header={"alg": "RS256"}))
-    assert seen == [second.pem, second.pem]
+    assert validator.verified_key_fingerprints == {validator._trust_store._certificates[1].fingerprint}
 
 
 def test_expiry_leeway_exact_boundary(key):

@@ -1,7 +1,5 @@
 """Registered LOCAL recovery with real SQL/source/release owners and offline wires."""
 
-from dataclasses import replace
-
 import pytest
 import sqlalchemy as sa
 from test_casdoor_local_lifecycle_flow_extend import managed, review, send
@@ -234,10 +232,12 @@ def test_whole_root_rollback_after_archive_and_draft(resettable, monkeypatch, fa
             if failure == "source_after_write":
                 d.source.clear()
             elif failure == "manager_after_write":
-                config = d.services.casdoor_configuration
-                monkeypatch.setattr(
-                    config, "_management_policy", replace(config._management_policy, account_ids=frozenset())
+                owner.session.execute(
+                    sa.update(TenantAccountJoin)
+                    .where(TenantAccountJoin.account_id == d.actor.id, TenantAccountJoin.current.is_(True))
+                    .values(role=TenantAccountRole.NORMAL)
                 )
+                owner.session.flush()
             elif failure == "late_join":
                 owner.session.execute(
                     sa.update(TenantAccountJoin)

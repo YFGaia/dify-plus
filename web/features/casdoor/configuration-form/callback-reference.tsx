@@ -15,22 +15,24 @@ export function CallbackReference() {
       <FieldLabel>{t(($) => $['systemManage.casdoor.callback'])}</FieldLabel>
       {callback ? (
         <>
-          <Input value={callback} readOnly />
-          <Button
-            type="button"
-            onClick={() => {
-              if (!navigator.clipboard) {
-                setCopy('failed')
-                return
-              }
-              navigator.clipboard
-                .writeText(callback)
-                .then(() => setCopy('copied'))
-                .catch(() => setCopy('failed'))
-            }}
-          >
-            {t(($) => $['systemManage.casdoor.copyCallback'])}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Input value={callback} readOnly className="min-w-0 flex-1" />
+            <Button
+              type="button"
+              onClick={() => {
+                if (!navigator.clipboard) {
+                  setCopy('failed')
+                  return
+                }
+                navigator.clipboard
+                  .writeText(callback)
+                  .then(() => setCopy('copied'))
+                  .catch(() => setCopy('failed'))
+              }}
+            >
+              {t(($) => $['systemManage.casdoor.copyCallback'])}
+            </Button>
+          </div>
         </>
       ) : (
         <p>{t(($) => $['systemManage.casdoor.callbackUnavailable'])}</p>

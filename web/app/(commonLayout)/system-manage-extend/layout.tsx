@@ -2,13 +2,10 @@
 
 import type { ReactNode } from 'react'
 import { cn } from '@langgenius/dify-ui/cn'
-import { useAtomValue } from 'jotai'
 import { useTranslation } from 'react-i18next'
-// extend: 上游 1.16.0 删除 app-context，owner 判定改用 workspace-state 原子
-import { isCurrentWorkspaceOwnerAtom } from '@/context/workspace-state'
-import { useCasdoorManagementAccess } from '@/features/casdoor/management-access/use-casdoor-management-access'
+import { useSystemManagementAccess } from '@/features/system-management/access'
 import Link from '@/next/link'
-import { usePathname, useSelectedLayoutSegment } from '@/next/navigation'
+import { useSelectedLayoutSegment } from '@/next/navigation'
 
 type MenuItemType = {
   key: string
@@ -18,29 +15,15 @@ type MenuItemType = {
 
 const SystemManageLayout = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation()
-  const isCurrentWorkspaceOwner = useAtomValue(isCurrentWorkspaceOwnerAtom)
+  const { canManageSystem } = useSystemManagementAccess()
   const selectedSegment = useSelectedLayoutSegment()
-  const pathname = usePathname()
-  const { canManageCasdoor, isPending } = useCasdoorManagementAccess()
-  const isIntegrationRoute = pathname === '/system-manage-extend/system-integration'
 
-  // Instance permission admits only this exact page, never a management subtree.
-  if (!isCurrentWorkspaceOwner && (!canManageCasdoor || !isIntegrationRoute)) {
+  // Reject direct routes before mounting any privileged child.
+  if (!canManageSystem) {
     return (
       <div className="flex h-full items-center justify-center">
-        <div
-          role={isPending && isIntegrationRoute ? 'status' : 'alert'}
-          className="text-center text-text-tertiary"
-        >
-          {t(
-            ($) =>
-              $[
-                isPending && isIntegrationRoute
-                  ? 'systemManage.casdoor.loading'
-                  : 'systemManage.common.noPermission'
-              ],
-            { ns: 'extend' },
-          )}
+        <div role="alert" className="text-center text-text-tertiary">
+          {t(($) => $['systemManage.common.noPermission'], { ns: 'extend' })}
         </div>
       </div>
     )
@@ -50,9 +33,7 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
     {
       key: 'system-integration',
       label: t(($) => $['systemManage.menu.integration'], { ns: 'extend' }),
-      href: isCurrentWorkspaceOwner
-        ? '/system-manage-extend/system-integration'
-        : '/system-manage-extend/system-integration?tab=casdoor',
+      href: '/system-manage-extend/system-integration',
     },
     {
       key: 'quota-management',
@@ -77,23 +58,21 @@ const SystemManageLayout = ({ children }: { children: ReactNode }) => {
           aria-label={t(($) => $['systemManage.title'], { ns: 'extend' })}
           className="flex flex-col gap-0.5"
         >
-          {menuItems
-            .filter((item) => isCurrentWorkspaceOwner || item.key === 'system-integration')
-            .map((item) => (
-              <Link
-                key={item.key}
-                href={item.href}
-                aria-current={selectedSegment === item.key ? 'page' : undefined}
-                className={cn(
-                  'rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-state-accent-solid',
-                  selectedSegment === item.key
-                    ? 'bg-state-accent-active font-medium text-text-accent'
-                    : 'text-text-secondary hover:bg-state-base-hover',
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
+          {menuItems.map((item) => (
+            <Link
+              key={item.key}
+              href={item.href}
+              aria-current={selectedSegment === item.key ? 'page' : undefined}
+              className={cn(
+                'rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-state-accent-solid',
+                selectedSegment === item.key
+                  ? 'bg-state-accent-active font-medium text-text-accent'
+                  : 'text-text-secondary hover:bg-state-base-hover',
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
       </div>
 

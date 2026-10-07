@@ -9,32 +9,49 @@ from functools import wraps
 
 from flask import abort, request
 from flask_restx import Resource
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
+from controllers.common.schema import (
+    register_response_schema_models,
+    register_schema_models,
+)
 from controllers.console import api
+from controllers.console.dingtalk_schemas_extend import (
+    DingTalkConfigPayload,
+    DingTalkConfigResponse,
+    EmailLookupTestPayload,
+    IntegrationTestResponse,
+)
 from controllers.console.wraps import account_initialization_required, setup_required
+from extensions.ext_database import db
+from libs.helper import dump_response
 from libs.login import current_user, login_required
 from models.system_extend import CodeExecutionControlExtend
+from services.dingtalk_email_lookup_extend import lookup_email
 from services.system_manage_extend import (
     CodeExecutionControlService,
     QuotaManageService,
     SystemIntegrationManageService,
 )
+from services.system_management_access_service_extend import SystemManagementAccessService
 
 logger = logging.getLogger(__name__)
+
+register_schema_models(api, DingTalkConfigPayload, EmailLookupTestPayload)
+register_response_schema_models(api, DingTalkConfigResponse, IntegrationTestResponse)
 
 
 def system_admin_required_extend[**P, R](f: Callable[P, R]) -> Callable[P, R]:
     """
     确保当前用户有系统管理权限:
     1. 用户已登录（由外层 @login_required 保证）
-    2. 用户是当前 workspace 的 owner
-    3. 或用户是 admin 角色
+    2. 当前 workspace 是数据库固定关联的初始化空间
+    3. 用户在该空间的实际数据库角色是 owner/admin
     """
 
     @wraps(f)
     def decorated(*args: P.args, **kwargs: P.kwargs) -> R:
-        if not current_user.is_admin_or_owner:
+        if not SystemManagementAccessService.can_manage(current_user, session=db.session):
             abort(403, "System admin permission required.")
         return f(*args, **kwargs)
 
@@ -51,23 +68,29 @@ class DingTalkConfigExtend(Resource):
     @login_required
     @account_initialization_required
     @system_admin_required_extend
+    @api.response(200, "DingTalk configuration", api.models["DingTalkConfigResponse"])
     def get(self):
         """获取钉钉配置"""
         config = SystemIntegrationManageService.get_config(classify=1)
-        return config, 200
+        return dump_response(DingTalkConfigResponse, config), 200
 
     @setup_required
     @login_required
     @account_initialization_required
     @system_admin_required_extend
+    @api.expect(api.models["DingTalkConfigPayload"])
+    @api.response(200, "Configuration saved", api.models["IntegrationTestResponse"])
     def post(self):
         """保存钉钉配置"""
         data = request.get_json()
         if not data:
             abort(400, "Request body is required.")
         try:
-            SystemIntegrationManageService.set_config(classify=1, data=data)
+            payload = DingTalkConfigPayload.model_validate(data)
+            SystemIntegrationManageService.set_config(classify=1, data=payload.model_dump(exclude_none=True))
             return {"result": "success"}, 200
+        except ValidationError:
+            abort(400, "Invalid DingTalk configuration.")
         except ValueError as e:
             abort(400, str(e))
         except Exception as e:
@@ -82,6 +105,7 @@ class DingTalkTestExtend(Resource):
     @login_required
     @account_initialization_required
     @system_admin_required_extend
+    @api.response(200, "DingTalk connection test", api.models["IntegrationTestResponse"])
     def get(self):
         """测试钉钉 AppKey/AppSecret 是否有效"""
         try:
@@ -176,28 +200,29 @@ class OAuth2TestExtend(Resource):
 
 
 class EmailApiTestExtend(Resource):
-    """测试邮箱 API"""
+    """测试钉钉企业邮箱查询；兼容旧连通性测试请求。"""
 
     @setup_required
     @login_required
     @account_initialization_required
     @system_admin_required_extend
+    @api.expect(api.models["EmailLookupTestPayload"])
+    @api.response(200, "Enterprise email lookup test", api.models["IntegrationTestResponse"])
     def post(self):
-        """测试邮箱 API 连通性"""
-        data = request.get_json()
-        if not data:
-            abort(400, "Request body is required.")
+        """使用草稿配置和钉钉用户 ID 查询邮箱，不创建账号。"""
         try:
-            result = SystemIntegrationManageService.test_email_api(
-                api_url=data.get("url", ""),
-                api_key=data.get("key", ""),
-            )
-            return result, 200
+            payload = EmailLookupTestPayload.model_validate(request.get_json())
+            if payload.config is not None:
+                result = lookup_email(payload.user_id, payload.config)
+            else:
+                result = SystemIntegrationManageService.test_email_api(api_url=payload.url, api_key=payload.key)
+            return dump_response(IntegrationTestResponse, result), 200
+        except ValidationError:
+            abort(400, "Invalid email lookup test request.")
         except ValueError as e:
             abort(400, str(e))
-        except Exception as e:
-            logger.exception("Email API test failed")
-            abort(500, f"Test failed: {e}")
+        except Exception:
+            abort(500, "Email lookup test failed.")
 
 
 # ==================== 转发 Token ====================

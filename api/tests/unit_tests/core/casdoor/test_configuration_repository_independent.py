@@ -326,14 +326,43 @@ def test_independent_sessions_reject_a_lost_update_after_both_read_same_etag(db)
         competing.close()
 
 
-def test_allowlist_is_exact_active_local_account_boundary():
-    permitted = "20000000-0000-4000-8000-000000000002"
-    policy = CasdoorManagementPolicy.from_deployment(f" {permitted} ")
-    local_admin = SimpleNamespace(id=permitted, status="active", is_admin=True)
-    workspace_owner = SimpleNamespace(id="20000000-0000-4000-8000-000000000003", status="active", is_admin=True)
-    suspended = SimpleNamespace(id=permitted, status="banned", is_admin=True)
+@pytest.mark.parametrize("role", ["owner", "admin"])
+def test_current_workspace_owner_and_admin_are_authorized_without_allowlist(role):
+    policy = CasdoorManagementPolicy()
+    account = SimpleNamespace(
+        id="20000000-0000-4000-8000-000000000002",
+        status="active",
+        current_role=role,
+        is_admin=True,
+    )
 
-    assert policy.can_manage_casdoor(local_admin)
-    assert not policy.can_manage_casdoor(workspace_owner)
-    assert not policy.can_manage_casdoor(suspended)
-    assert not CasdoorManagementPolicy.from_deployment(f"{permitted},bad").can_manage_casdoor(local_admin)
+    assert not policy.can_manage_casdoor(account)
+    assert policy.can_manage_casdoor(account, system_management_allowed=True)
+
+
+@pytest.mark.parametrize("role", ["normal", "editor", "dataset_operator"])
+def test_legacy_admin_flags_do_not_grant_management_to_workspace_members(role):
+    policy = CasdoorManagementPolicy()
+    member = SimpleNamespace(
+        id="20000000-0000-4000-8000-000000000002",
+        status="active",
+        current_role=role,
+        is_admin=True,
+        is_admin_or_owner=True,
+    )
+    assert not policy.can_manage_casdoor(member)
+    assert policy.can_manage_casdoor(member, system_management_allowed=True)
+
+
+def test_management_requires_active_local_account_and_exact_uuid():
+    policy = CasdoorManagementPolicy()
+    assert not policy.can_manage_casdoor(
+        SimpleNamespace(id="not-a-uuid", status="active", current_role="owner"),
+        system_management_allowed=True,
+    )
+    assert not policy.can_manage_casdoor(
+        SimpleNamespace(
+            id="20000000-0000-4000-8000-000000000002", status="banned", current_role="owner"
+        ),
+        system_management_allowed=True,
+    )

@@ -31,8 +31,7 @@ from core.casdoor.auth_transactions import (
     source_action_cookie_name,
     source_initialization_cookie_name,
 )
-from core.casdoor.claims import ClaimsValidator, NativeTokenContract, NativeTokenSchema
-from core.casdoor.crypto import CertificateTrustStore, TrustedCertificate
+from core.casdoor.claims import NativeTokenContract, NativeTokenSchema
 from core.casdoor.deployment_evidence import DeploymentEvidenceError
 from core.casdoor.gateway import CasdoorBasicDirectoryCredentialStrategy, CasdoorTokenGateway
 from core.casdoor.leases import CasdoorLeases, CasdoorLeaseScope
@@ -60,6 +59,7 @@ from services.casdoor_diagnostic_service_extend import (
     _Draft,
     _ReadGuard,
 )
+from services.casdoor_signing_validator_service_extend import create_claims_validator
 
 PROOF_COOKIE_NAME = "casdoor_unlink_proof"
 PROOF_SCOPE_COOKIE_NAME = "casdoor_unlink_scope"
@@ -248,9 +248,7 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
             self._charge_action(client, action, server_ip=server_ip, deadline=deadline)
             source = self._source(account, refresh_token, client, management=diagnostic)
             self._charge_action(client, action, account_id=source.account_id, deadline=deadline)
-            snapshot = (
-                self._reauth_draft(revision_id, etag) if diagnostic else self._active()
-            )
+            snapshot = self._reauth_draft(revision_id, etag) if diagnostic else self._active()
             identity = self._identity(snapshot, source.account_id) if mode == AuthMode.REAUTH_UNLINK else None
             if mode != AuthMode.LINK and snapshot.policy.reauthentication is None:
                 raise AuthTransactionError("reauthentication_unavailable")
@@ -337,7 +335,9 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
             from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
 
             CasdoorLocalLifecycleRepository(session)._unlink_parent_union(
-                account_id=account_id, namespace_id=snapshot.binding.namespace_id, identity_id=identity[0],
+                account_id=account_id,
+                namespace_id=snapshot.binding.namespace_id,
+                identity_id=identity[0],
             )
             self._locked_binding(session, snapshot)
             repo = CasdoorIdentityLifecycleRepository(session)
@@ -356,22 +356,30 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
     def _identity_action_leases(self, client, namespace_id, subject, account_id, *, lifecycle, deadline):
         """One original acquire/cleanup owner over all retained subject/member keys."""
         if not lifecycle:
-            return CasdoorLeases(client, self._identity_lease_scope(namespace_id, subject, account_id), deadline=deadline)
+            return CasdoorLeases(
+                client, self._identity_lease_scope(namespace_id, subject, account_id), deadline=deadline
+            )
         from core.casdoor.leases import WorkspaceMemberScope
-        from models.casdoor_extend import CasdoorIdentityExtend as Identity, CasdoorManagedMembershipExtend as History
+        from models.casdoor_extend import CasdoorIdentityExtend as Identity
+        from models.casdoor_extend import CasdoorManagedMembershipExtend as History
         from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
 
         with self._session_factory() as session, session.begin():
             owner = CasdoorLocalLifecycleRepository(session)
             identities = owner._archived_rows(Identity, Identity.account_id == str(account_id))
-            histories = owner._archived_rows(History, sa.or_(
-                History.account_id == str(account_id), History.identity_id.in_([r["id"] for r in identities])))
+            histories = owner._archived_rows(
+                History,
+                sa.or_(History.account_id == str(account_id), History.identity_id.in_([r["id"] for r in identities])),
+            )
             if any(r["account_id"] != str(account_id) for r in histories):
                 raise AuthTransactionError("managed_history_requires_release")
             members = tuple(WorkspaceMemberScope(UUID(r["workspace_id"]), account_id) for r in histories)
             current = CasdoorLeaseScope(namespace_id, subject, account_ids=(account_id,), members=members)
-            subjects = tuple(CasdoorLeaseScope(UUID(r["namespace_id"]), r["subject"]) for r in identities
-                             if (r["namespace_id"], r["subject"]) != (str(namespace_id), subject))
+            subjects = tuple(
+                CasdoorLeaseScope(UUID(r["namespace_id"]), r["subject"])
+                for r in identities
+                if (r["namespace_id"], r["subject"]) != (str(namespace_id), subject)
+            )
         return CasdoorLeases.for_scopes(client, (current, *subjects), deadline=deadline)
 
     def _final_source(self, session, source, refresh_token, client, snapshot, deadline):
@@ -452,7 +460,7 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
             self._final_source(session, context.source, refresh_token, client, snapshot, deadline)
 
     def _record_reauth_diagnostic(
-        self, snapshot, context, account, refresh_token, client, deadline, correlation, guard, passed
+        self, snapshot, context, account, refresh_token, client, deadline, correlation, guard, passed, signing_keys=None
     ):
         guard()
         with self._session_factory() as session, session.begin():
@@ -470,6 +478,7 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
                 correlation_id=correlation,
                 policy=snapshot.policy,
                 now=datetime.now(UTC),
+                signing_keys=signing_keys,
             )
             # This optional capability is written only after actual prompt/PKCE/nonce/
             # claims/UserInfo/online directory and signed auth_time validation.
@@ -528,14 +537,12 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
                 operation = self._operation(snapshot, deadline)
                 tokens = CasdoorTokenGateway(operation).exchange_code(code, consumed.code_verifier)
                 config = snapshot.configuration
-                validator = ClaimsValidator(
-                    trust_store=CertificateTrustStore(
-                        tuple(TrustedCertificate(**pin.model_dump()) for pin in config.certificates)
-                    ),
-                    expected_issuer=config.expected_issuer,
-                    organization=config.organization,
-                    application=config.application,
-                    client_id=config.client_id,
+                validator = create_claims_validator(
+                    operation,
+                    namespace_id=snapshot.binding.namespace_id,
+                    revision_id=snapshot.binding.revision_id,
+                    diagnostic=context.reauth_diagnostic,
+                    redis_client=client,
                 )
                 bundle = validator.verify_token_bundle(
                     tokens,
@@ -547,8 +554,12 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
                 guard()
                 if not context.reauth_diagnostic:
                     leases = self._identity_action_leases(
-                        client, context.namespace_id, bundle.identity.subject, context.source.account_id,
-                        lifecycle=context.mode is AuthMode.REAUTH_UNLINK, deadline=deadline,
+                        client,
+                        context.namespace_id,
+                        bundle.identity.subject,
+                        context.source.account_id,
+                        lifecycle=context.mode is AuthMode.REAUTH_UNLINK,
+                        deadline=deadline,
                     )
                     leases.acquire()
                 snapshot_roles = OnlineRoleSnapshotLoader(
@@ -579,7 +590,16 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
                     guard()
                     if context.reauth_diagnostic:
                         self._record_reauth_diagnostic(
-                            snapshot, context, account, refresh_token, client, deadline, correlation, guard, True
+                            snapshot,
+                            context,
+                            account,
+                            refresh_token,
+                            client,
+                            deadline,
+                            correlation,
+                            guard,
+                            True,
+                            signing_keys=validator.signing_key_metadata(),
                         )
                     else:
                         identity = self._identity(snapshot, context.source.account_id)
@@ -663,8 +683,12 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
             store.consume_unlink_proof(proof, browser_scope=browser_scope, guard=guard)
             identity = self._identity(snapshot, context.source.account_id)
             leases = self._identity_action_leases(
-                client, snapshot.binding.namespace_id, identity[1], context.source.account_id,
-                lifecycle=True, deadline=deadline,
+                client,
+                snapshot.binding.namespace_id,
+                identity[1],
+                context.source.account_id,
+                lifecycle=True,
+                deadline=deadline,
             )
             try:
                 leases.acquire()
@@ -673,7 +697,9 @@ class CasdoorIdentityActionService(CasdoorDiagnosticService):
                     from repositories.casdoor_local_lifecycle_repository_extend import CasdoorLocalLifecycleRepository
 
                     CasdoorLocalLifecycleRepository(session)._unlink_parent_union(
-                        account_id=context.source.account_id, namespace_id=context.namespace_id, identity_id=context.identity_id,
+                        account_id=context.source.account_id,
+                        namespace_id=context.namespace_id,
+                        identity_id=context.identity_id,
                     )
                     self._locked_binding(session, snapshot)
                     repo = CasdoorIdentityLifecycleRepository(session)

@@ -80,7 +80,7 @@ def test_required_configuration_fields(missing: str) -> None:
     [
         {"default_workspace_id": "first"},
         {"schema_version": True},
-        {"schema_version": 2},
+        {"schema_version": 3},
         {"scope": "openid email profile roles"},
         {"default_normal_fallback": False},
         {"default_normal_fallback": 1},
@@ -293,7 +293,10 @@ def test_save_secret_is_synthetic_write_only_bounded_and_not_canonical() -> None
     assert payload.secret.get_secret_value() == synthetic
     assert payload.secret_action == "replace"
     assert "secret" not in payload.model_dump()
-    assert synthetic not in str(payload) + payload.model_dump_json() + payload.configuration.canonical_json()
+    assert (
+        synthetic
+        not in str(payload) + payload.model_dump_json() + payload.configuration.to_configuration().canonical_json()
+    )
     with pytest.raises(ValidationError) as error:
         schemas.CasdoorSaveConfigurationPayload.model_validate(
             {"etag": 0, "configuration": config_data(), "secret": synthetic + "x"}

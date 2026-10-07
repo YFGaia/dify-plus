@@ -85,7 +85,7 @@ def storage():
 
         config_owner = CasdoorConfigurationService(
             session_factory=None,
-            management_policy=CasdoorManagementPolicy.from_deployment(str(configuration.ACTOR)),
+            management_policy=CasdoorManagementPolicy(),
             secret_key="synthetic-profile-key",
             rbac_enabled=False,
         )._repository(session)

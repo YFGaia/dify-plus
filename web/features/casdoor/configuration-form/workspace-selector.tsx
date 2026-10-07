@@ -47,7 +47,7 @@ export function WorkspaceSelector({
   const selected = workspaces.data?.workspaces.find((workspace) => workspace.workspace_id === value)
   const items = (workspaces.data?.workspaces ?? []).map((workspace) => ({
     value: workspace.workspace_id,
-    label: `${workspace.name} · ${workspace.workspace_id}`,
+    label: showHistory ? `${workspace.name} · ${workspace.workspace_id}` : workspace.name,
   }))
   if (value && !selected) items.push({ value, label: value })
   const earliest = workspaces.data?.earliest_created_workspace
@@ -76,11 +76,16 @@ export function WorkspaceSelector({
               >
                 <div className="space-y-0.5">
                   <p>
-                    {workspace.name} · {workspace.workspace_id}
+                    {workspace.name}
+                    {showHistory && ` · ${workspace.workspace_id}`}
                   </p>
-                  <p>
-                    {t(($) => $['systemManage.casdoor.createdAt'], { time: workspace.created_at })}
-                  </p>
+                  {showHistory && (
+                    <p>
+                      {t(($) => $['systemManage.casdoor.createdAt'], {
+                        time: workspace.created_at,
+                      })}
+                    </p>
+                  )}
                   {!workspace.available && (
                     <p>{t(($) => $['systemManage.casdoor.workspaceUnavailable'])}</p>
                   )}
@@ -127,28 +132,32 @@ export function WorkspaceSelector({
           {workspaces.data.workspaces.length === 0 && (
             <p>{t(($) => $['systemManage.casdoor.workspaceEmpty'])}</p>
           )}
-          <p>
-            {t(($) => $['systemManage.casdoor.workspacePage'], {
-              page: workspaces.data.page,
-              total: workspaces.data.total,
-            })}
-          </p>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              disabled={page === 1 || workspaces.isFetching}
-              onClick={() => setPage((current) => current - 1)}
-            >
-              {t(($) => $['systemManage.casdoor.previousPage'])}
-            </Button>
-            <Button
-              type="button"
-              disabled={!workspaces.data.has_more || workspaces.isFetching}
-              onClick={() => setPage((current) => current + 1)}
-            >
-              {t(($) => $['systemManage.casdoor.nextPage'])}
-            </Button>
-          </div>
+          {(showHistory || page > 1 || workspaces.data.has_more) && (
+            <>
+              <p>
+                {t(($) => $['systemManage.casdoor.workspacePage'], {
+                  page: workspaces.data.page,
+                  total: workspaces.data.total,
+                })}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  disabled={page === 1 || workspaces.isFetching}
+                  onClick={() => setPage((current) => current - 1)}
+                >
+                  {t(($) => $['systemManage.casdoor.previousPage'])}
+                </Button>
+                <Button
+                  type="button"
+                  disabled={!workspaces.data.has_more || workspaces.isFetching}
+                  onClick={() => setPage((current) => current + 1)}
+                >
+                  {t(($) => $['systemManage.casdoor.nextPage'])}
+                </Button>
+              </div>
+            </>
+          )}
           {showHistory && (
             <div className="space-y-1 text-sm text-text-secondary">
               <p>

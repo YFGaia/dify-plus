@@ -29,9 +29,9 @@ from core.casdoor.auth_transactions import (
     diagnostic_initialization_cookie_name,
     new_browser_scope,
 )
-from core.casdoor.claims import ClaimsValidator, NativeTokenContract, NativeTokenSchema
+from core.casdoor.claims import NativeTokenContract, NativeTokenSchema
 from core.casdoor.configuration import CasdoorConfiguration
-from core.casdoor.crypto import CasdoorCrypto, CertificateTrustStore, TrustedCertificate
+from core.casdoor.crypto import CasdoorCrypto
 from core.casdoor.deployment_evidence import AcceptedDeploymentPolicy, DeploymentEvidenceError
 from core.casdoor.errors import CasdoorErrorCode
 from core.casdoor.gateway import CasdoorBasicDirectoryCredentialStrategy, CasdoorTokenGateway, GatewayOperation
@@ -58,6 +58,7 @@ from repositories.casdoor_validation_repository_extend import CasdoorValidationR
 
 from services.account_login_adapters import RedisAccountSessionGateway
 from services.casdoor_rp_logout_service_extend import RPLogoutHandoff, RPProtocolObservation
+from services.casdoor_signing_validator_service_extend import create_claims_validator
 
 RETURN_PATH = "/system-manage-extend/system-integration"
 
@@ -334,7 +335,19 @@ class CasdoorDiagnosticService:
         ):
             raise AuthTransactionError("source_session_invalid")
 
-    def _write(self, draft, account, correlation, rows, *, guard, final_refresh_check, deadline, preview=None):
+    def _write(
+        self,
+        draft,
+        account,
+        correlation,
+        rows,
+        *,
+        guard,
+        final_refresh_check,
+        deadline,
+        preview=None,
+        signing_keys=None,
+    ):
         # Refresh/Redis and the fresh full source guard run before SQL locks.
         # The final O(1) private Redis GET below is the documented consistency
         # exception to api/AGENTS.md's no-I/O rule. It observes source revocation
@@ -370,6 +383,7 @@ class CasdoorDiagnosticService:
                     policy=accepted,
                     now=now,
                     preview=preview if kind is CasdoorValidationKind.DIAGNOSTIC else None,
+                    signing_keys=signing_keys if kind is CasdoorValidationKind.PROTOCOL else None,
                 )
             final_refresh_check()
             fresh = session.scalar(
@@ -646,15 +660,12 @@ class CasdoorDiagnosticService:
                 guard()
                 operation = self._operation(draft, deadline)
                 tokens = CasdoorTokenGateway(operation).exchange_code(code, consumed.code_verifier)
-                config = draft.configuration
-                validator = ClaimsValidator(
-                    trust_store=CertificateTrustStore(
-                        tuple(TrustedCertificate(**pin.model_dump()) for pin in config.certificates)
-                    ),
-                    expected_issuer=config.expected_issuer,
-                    organization=config.organization,
-                    application=config.application,
-                    client_id=config.client_id,
+                validator = create_claims_validator(
+                    operation,
+                    namespace_id=draft.binding.namespace_id,
+                    revision_id=draft.binding.revision_id,
+                    diagnostic=True,
+                    redis_client=client,
                 )
                 bundle = validator.verify_token_bundle(
                     tokens,
@@ -685,6 +696,7 @@ class CasdoorDiagnosticService:
                     final_refresh_check=final_refresh_check,
                     deadline=deadline,
                     preview=preview,
+                    signing_keys=validator.signing_key_metadata(),
                 )
             except Exception as primary:
                 # Never persist raw provider errors. A changed draft rolls back

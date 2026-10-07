@@ -1,36 +1,27 @@
 'use client'
 
-import { zCasdoorPermissionsResponse } from '@dify/contracts/api/console/system-manage-extend/zod.gen'
 import { Button } from '@langgenius/dify-ui/button'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useTranslation } from '#i18n'
+import { useCasdoorManagementAccess } from '@/features/casdoor/management-access/use-casdoor-management-access'
 import { consoleQuery } from '@/service/console'
-import { AvatarRetry } from '../avatar-retry'
-import { LocalLifecycle } from '../local-lifecycle'
-import { RPLogoutDiagnostic } from '../logout/diagnostic'
-import { NamespaceReset } from '../namespace-reset'
 import { parseServerConfiguration } from './configuration-draft'
 import { ConfigurationSession } from './configuration-session'
 import { ManagementError } from './management-error'
 
 export function CasdoorConfigurationForm() {
   const { t } = useTranslation('extend')
-  const permissions = useQuery(
-    consoleQuery.systemManageExtend.integration.casdoor.permissions.get.queryOptions({
-      context: { silent: true },
-      retry: false,
-      select: (data) => {
-        const parsed = zCasdoorPermissionsResponse.safeParse(data)
-        if (!parsed.success) throw new Error('Casdoor permission response unavailable.')
-        return parsed.data
-      },
-    }),
-  )
+  const {
+    canManageCasdoor: canManage,
+    isPending: permissionPending,
+    error: permissionError,
+    refetch: refetchPermission,
+  } = useCasdoorManagementAccess()
   const configuration = useQuery(
     consoleQuery.systemManageExtend.integration.casdoor.get.queryOptions({
       context: { silent: true },
-      enabled: permissions.data?.can_manage_casdoor === true,
+      enabled: canManage,
       retry: false,
       staleTime: 0,
       refetchOnMount: 'always',
@@ -42,7 +33,6 @@ export function CasdoorConfigurationForm() {
       },
     }),
   )
-  const canManage = permissions.data?.can_manage_casdoor === true
   const refetch = configuration.refetch
   useEffect(() => {
     if (!canManage) return
@@ -52,23 +42,23 @@ export function CasdoorConfigurationForm() {
     window.addEventListener('pageshow', refreshOnReturn)
     return () => window.removeEventListener('pageshow', refreshOnReturn)
   }, [canManage, refetch])
-  if (permissions.isError)
+  if (permissionError)
     return (
       <>
-        <ManagementError error={permissions.error} />
+        <ManagementError error={permissionError} />
         <Button
           type="button"
           onClick={() => {
-            void permissions.refetch()
+            void refetchPermission()
           }}
         >
           {t(($) => $['systemManage.casdoor.retry'])}
         </Button>
       </>
     )
-  if (permissions.data && !permissions.data.can_manage_casdoor)
-    return <p role="alert">{t(($) => $['systemManage.casdoor.unauthorized'])}</p>
-  if (permissions.isPending || configuration.isPending)
+  if (!canManage && !permissionPending)
+    return <p role="alert">{t(($) => $['systemManage.common.noPermission'])}</p>
+  if (permissionPending || configuration.isPending)
     return (
       <div role="status" className="space-y-3">
         <p>{t(($) => $['systemManage.casdoor.loading'])}</p>
@@ -93,36 +83,15 @@ export function CasdoorConfigurationForm() {
     )
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-semibold">{t(($) => $['systemManage.casdoor.title'])}</h2>
-      <p className="text-sm text-text-secondary">
-        {t(($) => $['systemManage.casdoor.description'])}
-      </p>
       <ConfigurationSession
         response={configuration.data}
-        onRefresh={() => {
-          void configuration.refetch()
-        }}
-        refreshing={configuration.isFetching}
-        refreshError={configuration.error}
-      />
-      <LocalLifecycle />
-      <NamespaceReset
-        response={configuration.data}
-        refreshing={configuration.isFetching}
-        refreshError={configuration.error}
         onRefresh={async () => {
           const current = await configuration.refetch()
           return current.isSuccess ? current.data : null
         }}
+        refreshing={configuration.isFetching}
+        refreshError={configuration.error}
       />
-      <AvatarRetry />
-      {configuration.data.draft && (
-        <RPLogoutDiagnostic
-          key={`${configuration.data.draft.revision_id}:${configuration.data.etag}`}
-          revision={configuration.data.draft}
-          etag={configuration.data.etag}
-        />
-      )}
     </section>
   )
 }

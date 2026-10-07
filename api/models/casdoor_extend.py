@@ -167,7 +167,7 @@ class CasdoorConfigRevisionExtend(_CasdoorCreatedFields, Base):
     __table_args__ = (
         sa.UniqueConstraint("integration_id", "revision_number", name="casdoor_revision_number_key"),
         sa.CheckConstraint("revision_number > 0", name="revision_number_positive"),
-        sa.CheckConstraint("schema_version = 1", name="schema_version"),
+        sa.CheckConstraint("schema_version IN (1, 2)", name="schema_version"),
         sa.Index("casdoor_revision_namespace_idx", "namespace_id"),
     )
 

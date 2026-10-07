@@ -50,6 +50,7 @@ from models.account import (
 from models.account_money_extend import AccountMoneyExtend
 from models.dataset import Dataset
 from models.model import App, DifySetup
+from models.system_management_scope_extend import SystemManagementScopeExtend
 from repositories.invitation_authority_repository_extend import InvitationAuthorityRepository
 from services.account_email import normalize_email
 from services.account_forgot_password_service import (
@@ -91,6 +92,7 @@ from services.errors.workspace import WorkSpaceNotAllowedCreateError, Workspaces
 from services.invitation_issuance_service_extend import InvitationIssuer
 from services.plugin.plugin_auto_upgrade_service import PluginAutoUpgradeService
 from services.system_feature_service import SystemFeatureService
+from services.system_management_access_service_extend import SystemManagementAccessService
 from services.telemetry_service import CommunityTelemetryService
 from tasks.mail_change_mail_task import (
     send_change_mail_completed_notification_task,
@@ -1905,6 +1907,12 @@ class RegisterService:
         :param ip_address: ip address
         :param language: language
         """
+        # Reject before creating anything: an existing installation must never
+        # rebind its global workspace or enter initial-install cleanup.
+        if session.get(SystemManagementScopeExtend, "initialization") is not None or session.scalar(
+            select(DifySetup.version).limit(1)
+        ) is not None:
+            raise ValueError("Setup is already initialized")
         created_account_id: str | None = None
         try:
             account = AccountService.create_account(
@@ -1921,6 +1929,8 @@ class RegisterService:
             account.initialized_at = naive_utc_now()
 
             TenantService.create_owner_tenant_if_not_exist(account=account, is_setup=True, session=session)
+
+            SystemManagementAccessService.record_initialization(account, session=session)
 
             dify_setup = DifySetup(version=dify_config.project.version, instance_id=str(uuid.uuid4()))
             session.add(dify_setup)

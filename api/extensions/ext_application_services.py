@@ -10,6 +10,10 @@ from typing import cast
 from uuid import uuid4
 
 import httpx
+from flask import Flask, current_app
+from pydantic import ValidationError
+from sqlalchemy.orm import Session, sessionmaker
+
 from configs import dify_config
 from constants.dsl_version import CURRENT_APP_DSL_VERSION
 from constants.languages import languages
@@ -20,13 +24,13 @@ from core.helper.ssrf_proxy import ssrf_proxy
 from core.schemas.schema_manager import SchemaManager
 from core.tools.tool_file_manager import ToolFileManager
 from enums import DeploymentEdition, WebAppAccessMode
-from flask import Flask, current_app
+from extensions.ext_redis import RedisClientWrapper, redis_client
+from extensions.ext_storage import storage
 from libs.datetime_utils import naive_utc_now, utc_now
 from libs.helper import RateLimiter
 from libs.oauth import GitHubOAuth, GoogleOAuth
 from libs.oauth_bearer import invalidate_oauth_token_cache
 from libs.passport import PassportService
-from pydantic import ValidationError
 from repositories.account_activation_repository import SQLAlchemyAccountActivationRepository
 from repositories.account_integration_repository import SQLAlchemyAccountIntegrationRepository
 from repositories.account_oauth_repository import (
@@ -221,11 +225,7 @@ from services.workspace_member_query_service import WorkspaceMemberQueryService
 from services.workspace_member_role_resolver import DeploymentWorkspaceMemberRoleResolver
 from services.workspace_plan_gateway import DeploymentWorkspacePlanGateway
 from services.workspace_query_service import WorkspaceQueryService
-from sqlalchemy.orm import Session, sessionmaker
 from tasks.mail_inner_task import enqueue_inner_mail
-
-from extensions.ext_redis import RedisClientWrapper, redis_client
-from extensions.ext_storage import storage
 
 _EXTENSION_KEY = "application_services"
 
@@ -483,7 +483,7 @@ def build_application_services(
     )
     casdoor_configuration = CasdoorConfigurationService(
         session_factory=database_client,
-        management_policy=CasdoorManagementPolicy.from_deployment(dify_config.CASDOOR_CONFIG_ADMIN_ACCOUNT_IDS),
+        management_policy=CasdoorManagementPolicy(),
         secret_key=dify_config.SECRET_KEY,
         rbac_enabled=dify_config.RBAC_ENABLED,
         deployment_policy_service=casdoor_deployment_policy,

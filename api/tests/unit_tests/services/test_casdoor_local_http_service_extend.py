@@ -153,7 +153,7 @@ def http_flow(local_fixture, signing, monkeypatch):
 
     configuration = CasdoorConfigurationService(
         session_factory=TrackedSession,
-        management_policy=CasdoorManagementPolicy.from_deployment(""),
+        management_policy=CasdoorManagementPolicy(),
         secret_key="offline-http-key",
         rbac_enabled=False,
     )
@@ -321,7 +321,7 @@ def http_flow(local_fixture, signing, monkeypatch):
         def _coordinator_for_request(self):
             return coordinator
 
-        def _directory_inputs(self, operation):
+        def _directory_inputs(self, operation, *, reviewed=False):
             strategy = SyntheticStrategy(operation)
             return (
                 NativeTokenContract(
@@ -664,9 +664,12 @@ def test_fixed_429_and_503_not_masked_as_redirects(http_flow, failure):
 
 def test_production_factory_and_empty_key_are_lazy_zero_io(http_flow, monkeypatch):
     f = http_flow
+    from enums import DeploymentEdition
+
+    monkeypatch.setattr(dify_config, "DEPLOYMENT_EDITION", DeploymentEdition.CLOUD)
     configuration = CasdoorConfigurationService(
         session_factory=lambda: pytest.fail("production missing G0 touched SQL"),
-        management_policy=CasdoorManagementPolicy.from_deployment(""),
+        management_policy=CasdoorManagementPolicy(),
         secret_key="",
         rbac_enabled=False,
     )
@@ -753,11 +756,10 @@ def test_actual_signature_nonce_failure_stops_before_business(http_flow, caplog)
     assert "bad-current-nonce" not in caplog.text
 
 
-@pytest.mark.parametrize("failure", ["billing", "issuer1", "issuer2", "cleanup"])
+@pytest.mark.parametrize("failure", ["issuer1", "issuer2", "cleanup"])
 def test_real_pending_partial_issue_and_cleanup_never_deliver(http_flow, failure, caplog):
     f = http_flow
     scope, _ = begin(f)
-    f.control.fail_billing = failure == "billing"
     f.control.fail_token = {"issuer1": 1, "issuer2": 2}.get(failure)
     f.control.fail_release = failure == "cleanup"
     result = complete(f, scope)
@@ -778,15 +780,27 @@ def test_real_pending_partial_issue_and_cleanup_never_deliver(http_flow, failure
     assert len(f.control.consumed) == 1
     with Session(f.local.engine) as reader:
         actual = set(reader.scalars(sa.select(CasdoorManagedMembershipExtend.finalization)))
-    if failure == "billing":
-        assert actual == {CasdoorFinalizationState.PENDING}
-        assert result.phases.finalization_outcome == "not_started" and not f.control.tokens
-    else:
-        assert actual == {CasdoorFinalizationState.FINALIZED}
-        assert result.phases.finalization_outcome == "committed"
-        assert result.phases.token_outcome == ("issued" if failure == "cleanup" else "unknown")
+    assert actual == {CasdoorFinalizationState.FINALIZED}
+    assert result.phases.finalization_outcome == "committed"
+    assert result.phases.token_outcome == ("issued" if failure == "cleanup" else "unknown")
     assert result.phases.cleanup_released is (failure != "cleanup")
     assert "private" not in caplog.text
+
+
+def test_local_community_login_skips_cloud_billing_cache(http_flow):
+    f = http_flow
+    scope, _ = begin(f)
+
+    result = complete(f, scope)
+
+    assert result.tokens and result.error is None
+    assert result.phases.finalization_outcome == "committed"
+    assert result.phases.token_outcome == "issued"
+    assert not f.control.billing
+    with Session(f.local.engine) as reader:
+        assert set(reader.scalars(sa.select(CasdoorManagedMembershipExtend.finalization))) == {
+            CasdoorFinalizationState.FINALIZED
+        }
 
 
 def test_committed_i19_ack_failure_preserves_unknown_phase_no_delivery(http_flow):
