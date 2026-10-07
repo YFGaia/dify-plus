@@ -8,7 +8,7 @@ from sqlalchemy import event, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from enums import DeploymentEdition
-from models.account import Account, AccountStatus, Tenant, TenantAccountJoin
+from models.account import Account, AccountStatus, Tenant, TenantAccountJoin, TenantAccountRole
 from models.account_money_extend import AccountMoneyExtend
 from repositories.account_oauth_repository import AccountServiceOAuthAccountRegistrationGateway
 from services import account_service
@@ -30,7 +30,21 @@ def dependencies(monkeypatch, config_overrides):
     features.is_workspace_creation_allowed.return_value = False
     features.get_license.return_value.seats.is_available.return_value = True
     monkeypatch.setattr(account_service, "SystemFeatureService", features)
-    monkeypatch.setattr(TenantService, "create_owner_tenant_if_not_exist", lambda *_args, **_kwargs: None)
+
+    def create_owner_workspace(*, account, session, **_kwargs):
+        # Keep setup's real owner membership and initialization-scope contract;
+        # only unrelated workspace provisioning side effects stay offline.
+        tenant = Tenant(name=f"{account.name}'s Workspace")
+        session.add(tenant)
+        session.flush()
+        session.add(
+            TenantAccountJoin(account_id=account.id, tenant_id=tenant.id, role=TenantAccountRole.OWNER, current=True)
+        )
+        session.flush()
+        account.set_current_tenant_with_session(tenant, session=session)
+        session.commit()
+
+    monkeypatch.setattr(TenantService, "create_owner_tenant_if_not_exist", create_owner_workspace)
     monkeypatch.setattr(account_service.CommunityTelemetryService, "report_install", lambda **_kwargs: None)
     monkeypatch.setattr("libs.workspace_permission.check_workspace_member_invite_permission", lambda *_args: None)
     monkeypatch.setattr(TenantService, "check_member_permission", lambda *_args, **_kwargs: None)
