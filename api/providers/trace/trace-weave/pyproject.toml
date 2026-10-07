@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "dify-trace-weave"
 version = "0.0.1"
 dependencies = [
-    "weave==0.52.36",
+    "weave==0.53.11",
 ]
 description = "Dify ops tracing provider (Weave)."
 
