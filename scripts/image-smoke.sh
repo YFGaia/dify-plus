@@ -24,7 +24,7 @@ docker image inspect "$image" --format '{{json .Config.Env}}' | python3 -c \
   'import json, sys; assert "COMMIT_SHA=" + sys.argv[1] in json.load(sys.stdin)' "$revision"
 docker network create "$network" >/dev/null
 # Synthetic CI-only values. No deployed credentials or host volumes are used.
-secret_key=$(python3 -c 'import base64; print(base64.urlsafe_b64encode(bytes(range(32))).decode())')
+secret_key=$(python3 -c 'import base64; print(base64.urlsafe_b64encode(bytes(range(32))).decode().rstrip("="))')
 common_env=(-e "DIFY_AGENT_SERVER_SECRET_KEY=$secret_key" -e SECRET_KEY=ci-image-smoke-only -e MIGRATION_ENABLED=false)
 start_redis() {
   containers+=("${test_prefix}-redis")
@@ -39,10 +39,13 @@ wait_http() {
   local container=$1 port=$2 path=$3
   local host_port
   host_port=$(docker port "$container" "$port/tcp" | sed 's/.*://')
-  python3 - "$host_port" "$path" <<'PY'
-import json, sys, time, urllib.request
+  python3 - "$host_port" "$path" "$container" <<'PY'
+import json, subprocess, sys, time, urllib.request
 url = f"http://127.0.0.1:{sys.argv[1]}{sys.argv[2]}"
 for attempt in range(120):
+    state = subprocess.check_output(['docker', 'inspect', '--format', '{{.State.Status}}', sys.argv[3]], text=True).strip()
+    if state != 'running':
+        raise RuntimeError(f'Image smoke container exited before HTTP readiness: {state}')
     try:
         with urllib.request.urlopen(url, timeout=3) as response:
             assert response.status == 200
