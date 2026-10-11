@@ -93,6 +93,18 @@ const mockQueryResults = (
     if (key === JSON.stringify(['signin', 'invite-check', inviteToken])) return inviteResult
     if (key === JSON.stringify(consoleQuery.auth.casdoor.display.get.queryOptions().queryKey))
       return displayResult as unknown as ReturnType<typeof useQuery>
+    if (key === JSON.stringify(consoleQuery.auth.dingtalk.display.get.queryOptions().queryKey))
+      return {
+        isPending: false,
+        isFetching: false,
+        isError: false,
+        isSuccess: true,
+        data: {
+          enabled: false,
+          button_text: 'DingTalk',
+          start_path: '/console/api/auth/dingtalk/start',
+        },
+      } as unknown as ReturnType<typeof useQuery>
     throw new Error(`Unexpected query key: ${key}`)
   })
 }

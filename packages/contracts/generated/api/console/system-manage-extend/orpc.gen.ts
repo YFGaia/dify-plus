@@ -5,6 +5,8 @@ import * as z from 'zod'
 import {
   zDeleteSystemManageExtendForwardTokensBySeqPath,
   zDeleteSystemManageExtendForwardTokensBySeqResponse,
+  zDeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdPath,
+  zDeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdResponse,
   zGetSystemManageExtendForwardTokensResponse,
   zGetSystemManageExtendIntegrationCasdoorLocalMembershipQuery,
   zGetSystemManageExtendIntegrationCasdoorLocalMembershipResponse,
@@ -51,6 +53,13 @@ import {
   zPostSystemManageExtendIntegrationCasdoorValidateBody,
   zPostSystemManageExtendIntegrationCasdoorValidateResponse,
   zPostSystemManageExtendIntegrationDingtalkBody,
+  zPostSystemManageExtendIntegrationDingtalkDiagnosticsBody,
+  zPostSystemManageExtendIntegrationDingtalkDiagnosticsResponse,
+  zPostSystemManageExtendIntegrationDingtalkDisableResponse,
+  zPostSystemManageExtendIntegrationDingtalkEnableResponse,
+  zPostSystemManageExtendIntegrationDingtalkRegistrationPollBody,
+  zPostSystemManageExtendIntegrationDingtalkRegistrationPollResponse,
+  zPostSystemManageExtendIntegrationDingtalkRegistrationStartResponse,
   zPostSystemManageExtendIntegrationDingtalkResponse,
   zPostSystemManageExtendIntegrationDingtalkTestCallbackResponse,
   zPostSystemManageExtendIntegrationEmailApiTestBody,
@@ -454,16 +463,109 @@ export const casdoor = {
   workspaces,
 }
 
-/**
- * 测试钉钉 AppKey/AppSecret 是否有效
- */
+export const post15 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationDingtalkDiagnostics',
+    path: '/system-manage-extend/integration/dingtalk/diagnostics',
+    tags: ['default'],
+  })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationDingtalkDiagnosticsBody }))
+  .output(zPostSystemManageExtendIntegrationDingtalkDiagnosticsResponse)
+
+export const diagnostics = {
+  post: post15,
+}
+
+export const post16 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationDingtalkDisable',
+    path: '/system-manage-extend/integration/dingtalk/disable',
+    tags: ['default'],
+  })
+  .output(zPostSystemManageExtendIntegrationDingtalkDisableResponse)
+
+export const disable2 = {
+  post: post16,
+}
+
+export const post17 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationDingtalkEnable',
+    path: '/system-manage-extend/integration/dingtalk/enable',
+    tags: ['default'],
+  })
+  .output(zPostSystemManageExtendIntegrationDingtalkEnableResponse)
+
+export const enable = {
+  post: post17,
+}
+
+export const post18 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationDingtalkRegistrationPoll',
+    path: '/system-manage-extend/integration/dingtalk/registration/poll',
+    tags: ['default'],
+  })
+  .input(z.object({ body: zPostSystemManageExtendIntegrationDingtalkRegistrationPollBody }))
+  .output(zPostSystemManageExtendIntegrationDingtalkRegistrationPollResponse)
+
+export const poll = {
+  post: post18,
+}
+
+export const post19 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'POST',
+    operationId: 'postSystemManageExtendIntegrationDingtalkRegistrationStart',
+    path: '/system-manage-extend/integration/dingtalk/registration/start',
+    tags: ['default'],
+  })
+  .output(zPostSystemManageExtendIntegrationDingtalkRegistrationStartResponse)
+
+export const start = {
+  post: post19,
+}
+
+export const delete2 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'DELETE',
+    operationId: 'deleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionId',
+    path: '/system-manage-extend/integration/dingtalk/registration/{transaction_id}',
+    tags: ['default'],
+  })
+  .input(
+    z.object({
+      params: zDeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdPath,
+    }),
+  )
+  .output(zDeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdResponse)
+
+export const byTransactionId = {
+  delete: delete2,
+}
+
+export const registration = {
+  poll,
+  start,
+  byTransactionId,
+}
+
 export const get9 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getSystemManageExtendIntegrationDingtalkTest',
     path: '/system-manage-extend/integration/dingtalk/test',
-    summary: '测试钉钉 AppKey/AppSecret 是否有效',
     tags: ['default'],
   })
   .output(zGetSystemManageExtendIntegrationDingtalkTestResponse)
@@ -472,48 +574,36 @@ export const test = {
   get: get9,
 }
 
-/**
- * 处理钉钉测试回调
- */
-export const post15 = oc
+export const post20 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postSystemManageExtendIntegrationDingtalkTestCallback',
     path: '/system-manage-extend/integration/dingtalk/test-callback',
-    summary: '处理钉钉测试回调',
     tags: ['default'],
   })
   .output(zPostSystemManageExtendIntegrationDingtalkTestCallbackResponse)
 
 export const testCallback = {
-  post: post15,
+  post: post20,
 }
 
-/**
- * 获取钉钉配置
- */
 export const get10 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
     operationId: 'getSystemManageExtendIntegrationDingtalk',
     path: '/system-manage-extend/integration/dingtalk',
-    summary: '获取钉钉配置',
     tags: ['default'],
   })
   .output(zGetSystemManageExtendIntegrationDingtalkResponse)
 
-/**
- * 保存钉钉配置
- */
-export const post16 = oc
+export const post21 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
     operationId: 'postSystemManageExtendIntegrationDingtalk',
     path: '/system-manage-extend/integration/dingtalk',
-    summary: '保存钉钉配置',
     tags: ['default'],
   })
   .input(z.object({ body: zPostSystemManageExtendIntegrationDingtalkBody }))
@@ -521,7 +611,11 @@ export const post16 = oc
 
 export const dingtalk = {
   get: get10,
-  post: post16,
+  post: post21,
+  diagnostics,
+  disable: disable2,
+  enable,
+  registration,
   test,
   testCallback,
 }
@@ -529,7 +623,7 @@ export const dingtalk = {
 /**
  * 使用草稿配置和钉钉用户 ID 查询邮箱，不创建账号。
  */
-export const post17 = oc
+export const post22 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -542,7 +636,7 @@ export const post17 = oc
   .output(zPostSystemManageExtendIntegrationEmailApiTestResponse)
 
 export const test2 = {
-  post: post17,
+  post: post22,
 }
 
 export const emailApi = {
@@ -552,7 +646,7 @@ export const emailApi = {
 /**
  * 测试 OAuth2 连接
  */
-export const post18 = oc
+export const post23 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -564,7 +658,7 @@ export const post18 = oc
   .output(zPostSystemManageExtendIntegrationOauth2TestResponse)
 
 export const test3 = {
-  post: post18,
+  post: post23,
 }
 
 /**
@@ -584,7 +678,7 @@ export const get11 = oc
 /**
  * 保存 OAuth2 配置
  */
-export const post19 = oc
+export const post24 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -597,7 +691,7 @@ export const post19 = oc
 
 export const oauth2 = {
   get: get11,
-  post: post19,
+  post: post24,
   test: test3,
 }
 
@@ -625,7 +719,7 @@ export const permissions2 = {
 /**
  * 设置指定用户的总额度（UPSERT）
  */
-export const post20 = oc
+export const post25 = oc
   .route({
     inputStructure: 'detailed',
     method: 'POST',
@@ -637,7 +731,7 @@ export const post20 = oc
   .output(zPostSystemManageExtendQuotaManagementSetResponse)
 
 export const set = {
-  post: post20,
+  post: post25,
 }
 
 /**

@@ -13880,23 +13880,61 @@ Default namespace
 | ---- | ----------- |
 | 200 | Success |
 
-### [GET] /ding-talk/login
-**DingTalk login**
+### [GET] /auth/dingtalk/callback
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| authCode | query |  | Yes | string |
+| state | query |  | Yes | string |
 
 #### Responses
 
 | Code | Description |
 | ---- | ----------- |
-| 200 | Success |
+| 302 | Complete browser-bound login or diagnostic |
+
+### [GET] /auth/dingtalk/display
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Public login display | **application/json**: [DingTalkDisplayResponse](#dingtalkdisplayresponse)<br> |
+
+### [GET] /auth/dingtalk/start
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 302 | Navigate to DingTalk authorization |
+
+### [GET] /ding-talk/login
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| authCode | query |  | Yes | string |
+| state | query |  | Yes | string |
+
+#### Responses
+
+| Code | Description |
+| ---- | ----------- |
+| 302 | Complete browser-bound login or diagnostic |
 
 ### [GET] /ding-talk/third-party/login
-**DingTalk login**
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| authCode | query |  | Yes | string |
+| state | query |  | Yes | string |
 
 #### Responses
 
 | Code | Description |
 | ---- | ----------- |
-| 200 | Success |
+| 302 | Complete browser-bound login or diagnostic |
 
 ### [GET] /explore/banners
 **Get banner list**
@@ -14067,8 +14105,6 @@ Default namespace
 | 200 | Success |
 
 ### [GET] /system-manage-extend/integration/dingtalk
-**获取钉钉配置**
-
 #### Responses
 
 | Code | Description | Schema |
@@ -14076,8 +14112,6 @@ Default namespace
 | 200 | DingTalk configuration | **application/json**: [DingTalkConfigResponse](#dingtalkconfigresponse)<br> |
 
 ### [POST] /system-manage-extend/integration/dingtalk
-**保存钉钉配置**
-
 #### Request Body
 
 | Required | Schema |
@@ -14088,20 +14122,76 @@ Default namespace
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | Configuration saved | **application/json**: [IntegrationTestResponse](#integrationtestresponse)<br> |
+| 200 | Draft saved | **application/json**: [DingTalkConfigResponse](#dingtalkconfigresponse)<br> |
 
-### [GET] /system-manage-extend/integration/dingtalk/test
-**测试钉钉 AppKey/AppSecret 是否有效**
+### [POST] /system-manage-extend/integration/dingtalk/diagnostics
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [DingTalkDiagnosticPayload](#dingtalkdiagnosticpayload)<br> |
 
 #### Responses
 
 | Code | Description | Schema |
 | ---- | ----------- | ------ |
-| 200 | DingTalk connection test | **application/json**: [IntegrationTestResponse](#integrationtestresponse)<br> |
+| 200 | Browser-bound diagnostic | **application/json**: [DingTalkDiagnosticResponse](#dingtalkdiagnosticresponse)<br> |
+
+### [POST] /system-manage-extend/integration/dingtalk/disable
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Login disabled | **application/json**: [DingTalkConfigResponse](#dingtalkconfigresponse)<br> |
+
+### [POST] /system-manage-extend/integration/dingtalk/enable
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Verified login enabled | **application/json**: [DingTalkConfigResponse](#dingtalkconfigresponse)<br> |
+
+### [POST] /system-manage-extend/integration/dingtalk/registration/poll
+#### Request Body
+
+| Required | Schema |
+| -------- | ------ |
+|  Yes | **application/json**: [DingTalkRegistrationPollPayload](#dingtalkregistrationpollpayload)<br> |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Registration status | **application/json**: [DingTalkRegistrationResponse](#dingtalkregistrationresponse)<br> |
+
+### [POST] /system-manage-extend/integration/dingtalk/registration/start
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Registration QR ready | **application/json**: [DingTalkRegistrationStartResponse](#dingtalkregistrationstartresponse)<br> |
+
+### [DELETE] /system-manage-extend/integration/dingtalk/registration/{transaction_id}
+#### Parameters
+
+| Name | Located in | Description | Required | Schema |
+| ---- | ---------- | ----------- | -------- | ------ |
+| transaction_id | path |  | Yes | string |
+
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Registration cancelled | **application/json**: [DingTalkRegistrationResponse](#dingtalkregistrationresponse)<br> |
+
+### [GET] /system-manage-extend/integration/dingtalk/test
+#### Responses
+
+| Code | Description | Schema |
+| ---- | ----------- | ------ |
+| 200 | Connection verified | **application/json**: [IntegrationTestResponse](#integrationtestresponse)<br> |
 
 ### [POST] /system-manage-extend/integration/dingtalk/test-callback
-**处理钉钉测试回调**
-
 #### Responses
 
 | Code | Description |
@@ -19304,6 +19394,7 @@ Enum representing the deployment edition of the platform.
 | app_secret | string |  | No |
 | config | object |  | No |
 | corp_id | string |  | No |
+| expected_revision | string |  | No |
 | status | boolean |  | No |
 
 #### DingTalkConfigResponse
@@ -19314,9 +19405,62 @@ Enum representing the deployment edition of the platform.
 | app_id | string |  | No |
 | app_key | string |  | No |
 | app_secret | string |  | No |
+| callback_url | string |  | No |
 | config | object |  | No |
+| connection_verified | boolean |  | No |
 | corp_id | string |  | No |
+| result | string |  | No |
+| revision | string |  | No |
+| secret_configured | boolean |  | No |
 | status | boolean |  | No |
+| verified | boolean |  | No |
+
+#### DingTalkDiagnosticPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| bind_current_account | boolean |  | No |
+
+#### DingTalkDiagnosticResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| authorization_url | string |  | Yes |
+
+#### DingTalkDisplayResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| button_text | string |  | Yes |
+| enabled | boolean |  | Yes |
+| start_path | string |  | Yes |
+
+#### DingTalkRegistrationPollPayload
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| transaction_id | string |  | Yes |
+
+#### DingTalkRegistrationResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| expires_in | integer |  | No |
+| interval | integer |  | No |
+| message | string |  | No |
+| status | string, <br>**Available values:** "CANCELLED", "EXPIRED", "FAIL", "SUCCESS", "WAITING" | *Enum:* `"CANCELLED"`, `"EXPIRED"`, `"FAIL"`, `"SUCCESS"`, `"WAITING"` | Yes |
+| transaction_id | string |  | Yes |
+| verification_uri_complete | string |  | No |
+
+#### DingTalkRegistrationStartResponse
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| expires_in | integer |  | Yes |
+| interval | integer |  | Yes |
+| status | string |  | Yes |
+| transaction_id | string |  | Yes |
+| verification_uri_complete | string |  | Yes |
 
 #### DismissNotificationPayload
 

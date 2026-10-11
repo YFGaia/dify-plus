@@ -1,3 +1,4 @@
+import { zDingTalkDisplayResponse } from '@dify/contracts/api/console/auth/zod.gen'
 import { zLicenseStatus } from '@dify/contracts/api/console/system-features/zod.gen'
 import { cn } from '@langgenius/dify-ui/cn'
 import { toast } from '@langgenius/dify-ui/toast'
@@ -12,9 +13,11 @@ import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import Link from '@/next/link'
 import { useRouter, useSearchParams } from '@/next/navigation'
 import { invitationCheck } from '@/service/common'
+import { consoleQuery } from '@/service/console'
 import { replaceLoginRedirect } from '@/utils/login-redirect.client'
 import { basePath } from '@/utils/var'
 import Loading from '../components/base/loading'
+import DingTalkAuth from './components/dingtalk-auth'
 import MailAndCodeAuth from './components/mail-and-code-auth'
 import MailAndPasswordAuth from './components/mail-and-password-auth'
 import SocialAuth from './components/social-auth'
@@ -54,6 +57,17 @@ function NormalForm() {
 
   const isInviteLink = Boolean(inviteToken && inviteToken !== 'null')
   const casdoorDisplay = useQuery(casdoorDisplayQueryOptions(true))
+  const dingtalkDisplay = useQuery(
+    consoleQuery.auth.dingtalk.display.get.queryOptions({
+      retry: false,
+      select: (data) => zDingTalkDisplayResponse.strict().parse(data),
+      staleTime: 0,
+      gcTime: 0,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: false,
+      context: { silent: true },
+    }),
+  )
   const {
     data: invitationCheckResp,
     isPending: isInviteCheckLoading,
@@ -85,6 +99,11 @@ function NormalForm() {
     !casdoorDisplay.isFetching &&
     casdoorDisplay.data.enabled === true
 
+  const hasDingTalk =
+    !isInviteCheckError &&
+    dingtalkDisplay.isSuccess &&
+    !dingtalkDisplay.isFetching &&
+    dingtalkDisplay.data.enabled === true
   const workspaceName = invitationCheckResp?.data?.workspace_name || ''
   const isInvitationForCurrentAccount = isInvitationForAccount(
     invitationCheckResp?.data?.email,
@@ -103,12 +122,15 @@ function NormalForm() {
       : selectedAuthType === 'code' && hasEmailCodeLogin
         ? 'code'
         : defaultAuthType
-  const showORLine = (hasSocialLogin || hasSsoLogin || hasCasdoor) && hasEmailLogin
+  const showORLine = (hasSocialLogin || hasSsoLogin || hasCasdoor || hasDingTalk) && hasEmailLogin
   const noLoginMethodsConfigured =
     !hasSocialLogin && !hasEmailCodeLogin && !hasEmailPasswordLogin && !hasSsoLogin
   const allMethodsAreDisabled =
     (noLoginMethodsConfigured &&
       !hasCasdoor &&
+      !hasDingTalk &&
+      dingtalkDisplay.isSuccess &&
+      !dingtalkDisplay.isFetching &&
       casdoorDisplay.isSuccess &&
       !casdoorDisplay.isFetching) ||
     (isInviteCheckError && !casdoorRecoveryOnly)
@@ -235,6 +257,9 @@ function NormalForm() {
           <div className="mt-6 flex flex-col gap-3">
             {(!isInviteCheckError || casdoorRecoveryOnly) && (
               <CasdoorSigninEntry query={casdoorDisplay} />
+            )}
+            {!casdoorRecoveryOnly && !isInviteCheckError && (
+              <DingTalkAuth query={dingtalkDisplay} />
             )}
             {!casdoorRecoveryOnly && hasSocialLogin && <SocialAuth />}
             {!casdoorRecoveryOnly && hasSsoLogin && (

@@ -36,6 +36,15 @@ export const zCasdoorSessionResponse = z.object({
 })
 
 /**
+ * DingTalkDisplayResponse
+ */
+export const zDingTalkDisplayResponse = z.object({
+  button_text: z.string(),
+  enabled: z.boolean(),
+  start_path: z.string(),
+})
+
+/**
  * DatasourceCredentialPayload
  */
 export const zDatasourceCredentialPayload = z.object({
@@ -287,6 +296,11 @@ export const zGetAuthCasdoorResultResponse = zCasdoorRestrictedResultResponse
  * Current session provenance
  */
 export const zGetAuthCasdoorSessionResponse = zCasdoorSessionResponse
+
+/**
+ * Public login display
+ */
+export const zGetAuthDingtalkDisplayResponse = zDingTalkDisplayResponse
 
 /**
  * Default datasource credentials retrieved successfully

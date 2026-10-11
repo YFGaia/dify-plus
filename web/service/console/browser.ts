@@ -78,6 +78,7 @@ function createBrowserLink(contract: AnyContractRouter): ClientLink<ConsoleClien
       let normalizedRequest =
         normalizedURL === input.url ? input : new Request(normalizedURL, input)
       const casdoorOperation = publicCasdoorOperation(path)
+      const dingtalkDisplay = path.length === 4 && path.join('/') === 'auth/dingtalk/display/get'
       if (anonymousRPLogoutOperation(path)) {
         const prefix = new URL(API_PREFIX, window.location.origin)
         const target = new URL(normalizedRequest.url)
@@ -102,14 +103,15 @@ function createBrowserLink(contract: AnyContractRouter): ClientLink<ConsoleClien
           throw new Error('Unexpected logout continuation redirect.')
         return response
       }
-      if (casdoorOperation) {
+      if (casdoorOperation || dingtalkDisplay) {
+        const provider = dingtalkDisplay ? 'dingtalk' : 'casdoor'
+        const operation = dingtalkDisplay ? 'display' : casdoorOperation
         const prefix = new URL(API_PREFIX, window.location.origin)
         const target = new URL(normalizedRequest.url)
         if (
           normalizedRequest.method !== 'GET' ||
           target.origin !== prefix.origin ||
-          target.pathname !==
-            `${prefix.pathname.replace(/\/$/, '')}/auth/casdoor/${casdoorOperation}`
+          target.pathname !== `${prefix.pathname.replace(/\/$/, '')}/auth/${provider}/${operation}`
         )
           throw new Error('Invalid public sign-in request.')
         const dispatchRequest = new Request(normalizedRequest, {
@@ -129,6 +131,8 @@ function createBrowserLink(contract: AnyContractRouter): ClientLink<ConsoleClien
           throw new Error('Unexpected public sign-in redirect.')
         return response
       }
+      if (path[0] === 'systemManageExtend' && path[1] === 'integration' && path[2] === 'dingtalk')
+        requestInit = { ...requestInit, cache: 'no-store' }
       if (path[0] === 'loginConfigBootstrap' || path[0] === 'loginConfig')
         requestInit = { ...requestInit, credentials: 'include', cache: 'no-store' }
       if (path[0] === 'loginConfig') {

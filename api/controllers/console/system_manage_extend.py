@@ -7,9 +7,22 @@ import logging
 from collections.abc import Callable
 from functools import wraps
 
-from flask import abort, request
+from extensions.ext_database import db
+from flask import abort, make_response, request
 from flask_restx import Resource
+from libs.helper import dump_response
+from libs.login import current_user, login_required
+from libs.token import extract_refresh_token
+from models.system_extend import CodeExecutionControlExtend
 from pydantic import BaseModel, ValidationError
+from services.dingtalk_auth_service_extend import DingTalkAuthError, DingTalkAuthService
+from services.dingtalk_email_lookup_extend import lookup_email
+from services.system_manage_extend import (
+    CodeExecutionControlService,
+    QuotaManageService,
+    SystemIntegrationManageService,
+)
+from services.system_management_access_service_extend import SystemManagementAccessService
 
 from controllers.common.schema import (
     register_response_schema_models,
@@ -19,26 +32,29 @@ from controllers.console import api
 from controllers.console.dingtalk_schemas_extend import (
     DingTalkConfigPayload,
     DingTalkConfigResponse,
+    DingTalkDiagnosticPayload,
+    DingTalkDiagnosticResponse,
+    DingTalkRegistrationPollPayload,
+    DingTalkRegistrationResponse,
+    DingTalkRegistrationStartResponse,
     EmailLookupTestPayload,
     IntegrationTestResponse,
 )
 from controllers.console.wraps import account_initialization_required, setup_required
-from extensions.ext_database import db
-from libs.helper import dump_response
-from libs.login import current_user, login_required
-from models.system_extend import CodeExecutionControlExtend
-from services.dingtalk_email_lookup_extend import lookup_email
-from services.system_manage_extend import (
-    CodeExecutionControlService,
-    QuotaManageService,
-    SystemIntegrationManageService,
-)
-from services.system_management_access_service_extend import SystemManagementAccessService
 
 logger = logging.getLogger(__name__)
 
-register_schema_models(api, DingTalkConfigPayload, EmailLookupTestPayload)
-register_response_schema_models(api, DingTalkConfigResponse, IntegrationTestResponse)
+register_schema_models(
+    api, DingTalkConfigPayload, EmailLookupTestPayload, DingTalkDiagnosticPayload, DingTalkRegistrationPollPayload
+)
+register_response_schema_models(
+    api,
+    DingTalkConfigResponse,
+    IntegrationTestResponse,
+    DingTalkDiagnosticResponse,
+    DingTalkRegistrationResponse,
+    DingTalkRegistrationStartResponse,
+)
 
 
 def system_admin_required_extend[**P, R](f: Callable[P, R]) -> Callable[P, R]:
@@ -61,83 +77,165 @@ def system_admin_required_extend[**P, R](f: Callable[P, R]) -> Callable[P, R]:
 # ==================== 钉钉配置 ====================
 
 
-class DingTalkConfigExtend(Resource):
-    """钉钉 SSO 配置管理"""
+def _dingtalk_call(operation):
+    """Translate fixed domain failures without logging input/provider exceptions."""
+    try:
+        return operation()
+    except DingTalkAuthError as error:
+        abort(error.status, error.code)
+    except ValidationError:
+        abort(400, "invalid_dingtalk_request")
+    except Exception:
+        abort(500, "dingtalk_operation_failed")
 
+
+class DingTalkConfigExtend(Resource):
     @setup_required
     @login_required
     @account_initialization_required
     @system_admin_required_extend
     @api.response(200, "DingTalk configuration", api.models["DingTalkConfigResponse"])
     def get(self):
-        """获取钉钉配置"""
-        config = SystemIntegrationManageService.get_config(classify=1)
-        return dump_response(DingTalkConfigResponse, config), 200
+        return _dingtalk_call(
+            lambda: dump_response(DingTalkConfigResponse, DingTalkAuthService().get(current_user))
+        ), 200
 
     @setup_required
     @login_required
     @account_initialization_required
     @system_admin_required_extend
     @api.expect(api.models["DingTalkConfigPayload"])
-    @api.response(200, "Configuration saved", api.models["IntegrationTestResponse"])
+    @api.response(200, "Draft saved", api.models["DingTalkConfigResponse"])
     def post(self):
-        """保存钉钉配置"""
-        data = request.get_json()
-        if not data:
-            abort(400, "Request body is required.")
-        try:
-            payload = DingTalkConfigPayload.model_validate(data)
-            SystemIntegrationManageService.set_config(classify=1, data=payload.model_dump(exclude_none=True))
-            return {"result": "success"}, 200
-        except ValidationError:
-            abort(400, "Invalid DingTalk configuration.")
-        except ValueError as e:
-            abort(400, str(e))
-        except Exception as e:
-            logger.exception("Failed to save DingTalk config")
-            abort(500, f"Failed to save config: {e}")
+        def save():
+            payload = DingTalkConfigPayload.model_validate(request.get_json() or {})
+            result = DingTalkAuthService().save(current_user, payload.model_dump(exclude_none=True))
+            return dump_response(DingTalkConfigResponse, result)
+
+        return _dingtalk_call(save), 200
 
 
 class DingTalkTestExtend(Resource):
-    """测试钉钉连接"""
-
     @setup_required
     @login_required
     @account_initialization_required
     @system_admin_required_extend
-    @api.response(200, "DingTalk connection test", api.models["IntegrationTestResponse"])
+    @api.response(200, "Connection verified", api.models["IntegrationTestResponse"])
     def get(self):
-        """测试钉钉 AppKey/AppSecret 是否有效"""
-        try:
-            result = SystemIntegrationManageService.test_dingtalk_connection()
-            return result, 200
-        except ValueError as e:
-            abort(400, str(e))
-        except Exception as e:
-            logger.exception("DingTalk test failed")
-            abort(500, f"Test failed: {e}")
+        return _dingtalk_call(lambda: DingTalkAuthService().test(current_user)), 200
 
 
 class DingTalkTestCallbackExtend(Resource):
-    """钉钉测试回调"""
-
     @setup_required
     @login_required
     @account_initialization_required
     @system_admin_required_extend
     def post(self):
-        """处理钉钉测试回调"""
-        data = request.get_json()
-        if not data or "code" not in data:
-            abort(400, "Auth code is required.")
-        try:
-            result = SystemIntegrationManageService.dingtalk_test_callback(data["code"])
-            return result, 200
-        except ValueError as e:
-            abort(400, str(e))
-        except Exception as e:
-            logger.exception("DingTalk test callback failed")
-            abort(500, f"Callback failed: {e}")
+        # The legacy arbitrary-code diagnostic is no longer an admission owner.
+        abort(400, "browser_bound_diagnostic_required")
+
+
+class DingTalkRegistrationStartExtend(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    @api.response(200, "Registration QR ready", api.models["DingTalkRegistrationStartResponse"])
+    def post(self):
+        return _dingtalk_call(
+            lambda: dump_response(
+                DingTalkRegistrationStartResponse, DingTalkAuthService().registration_start(current_user)
+            )
+        ), 200
+
+
+class DingTalkRegistrationPollExtend(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    @api.expect(api.models["DingTalkRegistrationPollPayload"])
+    @api.response(200, "Registration status", api.models["DingTalkRegistrationResponse"])
+    def post(self):
+        def poll():
+            payload = DingTalkRegistrationPollPayload.model_validate(request.get_json() or {})
+            return dump_response(
+                DingTalkRegistrationResponse,
+                DingTalkAuthService().registration_poll(current_user, payload.transaction_id),
+            )
+
+        return _dingtalk_call(poll), 200
+
+
+class DingTalkRegistrationCancelExtend(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    @api.response(200, "Registration cancelled", api.models["DingTalkRegistrationResponse"])
+    def delete(self, transaction_id):
+        return _dingtalk_call(
+            lambda: dump_response(
+                DingTalkRegistrationResponse,
+                DingTalkAuthService().registration_poll(current_user, transaction_id, cancel=True),
+            )
+        ), 200
+
+
+class DingTalkDiagnosticExtend(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    @api.expect(api.models["DingTalkDiagnosticPayload"])
+    @api.response(200, "Browser-bound diagnostic", api.models["DingTalkDiagnosticResponse"])
+    def post(self):
+        def start():
+            payload = DingTalkDiagnosticPayload.model_validate(request.get_json() or {})
+            service = DingTalkAuthService()
+            uri, state, cookie = service.authorization_start(
+                account=current_user,
+                refresh_token=extract_refresh_token(request),
+                bind=payload.bind_current_account,
+                server_ip=request.remote_addr or "",
+            )
+            response = make_response(dump_response(DingTalkDiagnosticResponse, {"authorization_url": uri}))
+            response.set_cookie(
+                service.cookie_name(state),
+                cookie,
+                max_age=300,
+                httponly=True,
+                secure=service.callback_url().startswith("https://"),
+                samesite="Lax",
+                path="/console/api",
+            )
+            return response
+
+        return _dingtalk_call(start)
+
+
+class DingTalkEnableExtend(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    @api.response(200, "Verified login enabled", api.models["DingTalkConfigResponse"])
+    def post(self):
+        return _dingtalk_call(
+            lambda: dump_response(DingTalkConfigResponse, DingTalkAuthService().enable(current_user))
+        ), 200
+
+
+class DingTalkDisableExtend(Resource):
+    @setup_required
+    @login_required
+    @account_initialization_required
+    @system_admin_required_extend
+    @api.response(200, "Login disabled", api.models["DingTalkConfigResponse"])
+    def post(self):
+        return _dingtalk_call(
+            lambda: dump_response(DingTalkConfigResponse, DingTalkAuthService().disable(current_user))
+        ), 200
 
 
 # ==================== OAuth2 配置 ====================
@@ -213,7 +311,10 @@ class EmailApiTestExtend(Resource):
         try:
             payload = EmailLookupTestPayload.model_validate(request.get_json())
             if payload.config is not None:
-                result = lookup_email(payload.user_id, payload.config)
+                if payload.config.get("credentials_configured") is True:
+                    result = DingTalkAuthService().test_email(current_user, payload.user_id, payload.config)
+                else:
+                    result = lookup_email(payload.user_id, payload.config)
             else:
                 result = SystemIntegrationManageService.test_email_api(api_url=payload.url, api_key=payload.key)
             return dump_response(IntegrationTestResponse, result), 200
@@ -287,6 +388,14 @@ class ForwardTokenDetailExtend(Resource):
 api.add_resource(DingTalkConfigExtend, "/system-manage-extend/integration/dingtalk")
 api.add_resource(DingTalkTestExtend, "/system-manage-extend/integration/dingtalk/test")
 api.add_resource(DingTalkTestCallbackExtend, "/system-manage-extend/integration/dingtalk/test-callback")
+api.add_resource(DingTalkRegistrationStartExtend, "/system-manage-extend/integration/dingtalk/registration/start")
+api.add_resource(DingTalkRegistrationPollExtend, "/system-manage-extend/integration/dingtalk/registration/poll")
+api.add_resource(
+    DingTalkRegistrationCancelExtend, "/system-manage-extend/integration/dingtalk/registration/<string:transaction_id>"
+)
+api.add_resource(DingTalkDiagnosticExtend, "/system-manage-extend/integration/dingtalk/diagnostics")
+api.add_resource(DingTalkEnableExtend, "/system-manage-extend/integration/dingtalk/enable")
+api.add_resource(DingTalkDisableExtend, "/system-manage-extend/integration/dingtalk/disable")
 api.add_resource(OAuth2ConfigExtend, "/system-manage-extend/integration/oauth2")
 api.add_resource(OAuth2TestExtend, "/system-manage-extend/integration/oauth2/test")
 api.add_resource(EmailApiTestExtend, "/system-manage-extend/integration/email-api/test")

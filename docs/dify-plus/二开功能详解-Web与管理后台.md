@@ -83,7 +83,7 @@ Casdoor SSO 配置支持工作区角色映射，让通过企业认证的用户�
 | 集成 | 配置与交互 | 当前源码入口 |
 | --- | --- | --- |
 | Casdoor | 浏览器访问地址、组织、应用、Client ID、Secret；高级后端地址与 issuer；工作区角色映射；保存、测试登录和启用/停用 | `web/features/casdoor/configuration-form/` |
-| 钉钉 | 启用状态、Corp ID、Agent ID、App Key、App Secret；保存与连接测试 | `web/app/(commonLayout)/system-manage-extend/system-integration/dingtalk-config.tsx` |
+| 钉钉 | 扫码创建或授权、手动凭证两个入口；连接测试、真实登录诊断、显式账号绑定与验证后启用 | `web/app/(commonLayout)/system-manage-extend/system-integration/dingtalk-config.tsx` |
 | 钉钉邮箱查询 | 可选查询 URL、GET/POST、用户 ID 参数名、结果路径、认证方式、请求头与请求体；使用指定测试用户 ID 测试邮箱查询 | 同上 |
 | OAuth2 | 启用状态、Client ID/Secret、服务器/授权/Token/用户信息/退出地址、scope、按钮名称和回调地址；保存与连接测试 | `web/app/(commonLayout)/system-manage-extend/system-integration/oauth2-config.tsx` |
 

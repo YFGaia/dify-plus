@@ -105,6 +105,12 @@ beforeEach(() => {
   vi.stubGlobal('Request', NativeRequest)
   vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
     const request = new Request(input, init)
+    if (new URL(request.url).pathname.endsWith('/auth/dingtalk/display'))
+      return response({
+        enabled: false,
+        button_text: 'DingTalk',
+        start_path: '/console/api/auth/dingtalk/start',
+      })
     requests.push(request)
     if (!new URL(request.url).pathname.endsWith('/auth/casdoor/display'))
       throw new Error(`Unexpected request: ${request.url}`)

@@ -24,7 +24,6 @@ export const contractLoaders = {
   compliance: () => import('./compliance/orpc.gen').then(({ compliance }) => ({ compliance })),
   dataSource: () => import('./data-source/orpc.gen').then(({ dataSource }) => ({ dataSource })),
   datasets: () => import('./datasets/orpc.gen').then(({ datasets }) => ({ datasets })),
-  dingTalk: () => import('./ding-talk/orpc.gen').then(({ dingTalk }) => ({ dingTalk })),
   emailCodeLogin: () =>
     import('./email-code-login/orpc.gen').then(({ emailCodeLogin }) => ({ emailCodeLogin })),
   emailRegister: () =>

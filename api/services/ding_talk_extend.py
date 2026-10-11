@@ -8,7 +8,6 @@ starting, because most deployments do not enable this login path.
 import json
 import logging
 import secrets
-import time
 from typing import Any
 
 import requests
@@ -39,11 +38,11 @@ from extensions.ext_database import db
 from libs.helper import extract_remote_ip
 from models.account import Account
 from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend
+
 from services.account_service import AccountService, RegisterService, TenantService
 from services.account_service_extend import TenantExtendService
 
 logger = logging.getLogger(__name__)
-DINGTALK_ACCOUNT_TOKEN = {"time": 0, "token": ""}
 
 
 class DingTalkService:
@@ -171,13 +170,10 @@ class DingTalkService:
 
     @classmethod
     def get_access_token(cls) -> (str, str):
-        global DINGTALK_ACCOUNT_TOKEN
         dependency_error = cls._get_sdk_unavailable_error()
         if dependency_error:
             return "", dependency_error
 
-        if DINGTALK_ACCOUNT_TOKEN["time"] > time.time():
-            return DINGTALK_ACCOUNT_TOKEN["token"], ""
         integration: SystemIntegrationExtend = (
             db.session.query(SystemIntegrationExtend)
             .filter(
@@ -197,8 +193,6 @@ class DingTalkService:
         try:
             token_request = client.get_access_token(get_access_token_request)
             if token_request.status_code == 200:
-                DINGTALK_ACCOUNT_TOKEN["token"] = token_request.body.access_token
-                DINGTALK_ACCOUNT_TOKEN["time"] = int(time.time()) + 3600
                 return token_request.body.access_token, ""
             else:
                 return "", token_request.body

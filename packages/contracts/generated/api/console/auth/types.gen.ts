@@ -34,6 +34,12 @@ export type CasdoorSessionResponse = {
   verified: boolean
 }
 
+export type DingTalkDisplayResponse = {
+  button_text: string
+  enabled: boolean
+  start_path: string
+}
+
 export type DatasourceProviderAuthListResponse = {
   result: Array<DatasourceProviderAuthResponse>
 }
@@ -271,6 +277,20 @@ export type GetAuthCasdoorSessionResponses = {
 
 export type GetAuthCasdoorSessionResponse =
   GetAuthCasdoorSessionResponses[keyof GetAuthCasdoorSessionResponses]
+
+export type GetAuthDingtalkDisplayData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/auth/dingtalk/display'
+}
+
+export type GetAuthDingtalkDisplayResponses = {
+  200: DingTalkDisplayResponse
+}
+
+export type GetAuthDingtalkDisplayResponse =
+  GetAuthDingtalkDisplayResponses[keyof GetAuthDingtalkDisplayResponses]
 
 export type GetAuthPluginDatasourceDefaultListData = {
   body?: never

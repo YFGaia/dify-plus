@@ -9,6 +9,7 @@ import {
   zGetAuthCasdoorResultQuery,
   zGetAuthCasdoorResultResponse,
   zGetAuthCasdoorSessionResponse,
+  zGetAuthDingtalkDisplayResponse,
   zGetAuthPluginDatasourceByProviderIdPath,
   zGetAuthPluginDatasourceByProviderIdResponse,
   zGetAuthPluginDatasourceDefaultListResponse,
@@ -115,6 +116,24 @@ export const get4 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
+    operationId: 'getAuthDingtalkDisplay',
+    path: '/auth/dingtalk/display',
+    tags: ['default'],
+  })
+  .output(zGetAuthDingtalkDisplayResponse)
+
+export const display2 = {
+  get: get4,
+}
+
+export const dingtalk = {
+  display: display2,
+}
+
+export const get5 = oc
+  .route({
+    inputStructure: 'detailed',
+    method: 'GET',
     operationId: 'getAuthPluginDatasourceDefaultList',
     path: '/auth/plugin/datasource/default-list',
     tags: ['console'],
@@ -122,10 +141,10 @@ export const get4 = oc
   .output(zGetAuthPluginDatasourceDefaultListResponse)
 
 export const defaultList = {
-  get: get4,
+  get: get5,
 }
 
-export const get5 = oc
+export const get6 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -136,7 +155,7 @@ export const get5 = oc
   .output(zGetAuthPluginDatasourceListResponse)
 
 export const list = {
-  get: get5,
+  get: get6,
 }
 
 export const delete_ = oc
@@ -252,7 +271,7 @@ export const updateName = {
   post: post6,
 }
 
-export const get6 = oc
+export const get7 = oc
   .route({
     inputStructure: 'detailed',
     method: 'GET',
@@ -280,7 +299,7 @@ export const post7 = oc
   .output(zPostAuthPluginDatasourceByProviderIdResponse)
 
 export const byProviderId = {
-  get: get6,
+  get: get7,
   post: post7,
   customClient,
   default: default_,
@@ -301,6 +320,7 @@ export const plugin = {
 
 export const auth = {
   casdoor,
+  dingtalk,
   plugin,
 }
 

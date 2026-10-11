@@ -2,19 +2,20 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
-from flask import Flask
-from pydantic import ValidationError
-from werkzeug.exceptions import BadRequest, Forbidden
-
 from controllers.console.dingtalk_schemas_extend import (
     DingTalkConfigPayload,
     EmailLookupTestPayload,
 )
 from controllers.console.system_manage_extend import DingTalkConfigExtend, EmailApiTestExtend
+from flask import Flask
 from models.account import TenantAccountRole
+from pydantic import ValidationError
+from services.dingtalk_auth_service_extend import DingTalkAuthError
+from werkzeug.exceptions import BadRequest, Forbidden
 
 
 @pytest.fixture
@@ -72,8 +73,8 @@ def test_email_test_payload_accepts_config_and_legacy_url_shape():
 def test_dingtalk_post_persists_config_under_integration(monkeypatch, app, system_admin):
     import controllers.console.system_manage_extend as controller_module
 
-    save = MagicMock()
-    monkeypatch.setattr(controller_module.SystemIntegrationManageService, "set_config", save)
+    save = MagicMock(return_value={"result": "success", "revision": "new-revision"})
+    monkeypatch.setattr(controller_module, "DingTalkAuthService", lambda: SimpleNamespace(save=save))
     config = {
         "email_api": {
             "enabled": True,
@@ -87,19 +88,21 @@ def test_dingtalk_post_persists_config_under_integration(monkeypatch, app, syste
     with app.test_request_context(
         "/console/api/system-manage-extend/integration/dingtalk",
         method="POST",
-        json={"status": True, "app_key": "synthetic-app", "config": config},
+        json={"app_key": "synthetic-app", "config": config},
     ):
         body, status = DingTalkConfigExtend().post()
 
-    assert (body, status) == ({"result": "success"}, 200)
-    save.assert_called_once_with(classify=1, data={"status": True, "app_key": "synthetic-app", "config": config})
+    assert status == 200
+    assert body["result"] == "success"
+    assert body["revision"] == "new-revision"
+    save.assert_called_once_with(system_admin, {"app_key": "synthetic-app", "config": config})
 
 
 def test_dingtalk_post_rejects_invalid_email_lookup_configuration(monkeypatch, app, system_admin):
     import controllers.console.system_manage_extend as controller_module
 
-    save = MagicMock(side_effect=ValueError("Email lookup requires an HTTP(S) API URL."))
-    monkeypatch.setattr(controller_module.SystemIntegrationManageService, "set_config", save)
+    save = MagicMock(side_effect=DingTalkAuthError("invalid_email_lookup"))
+    monkeypatch.setattr(controller_module, "DingTalkAuthService", lambda: SimpleNamespace(save=save))
     with app.test_request_context(
         "/console/api/system-manage-extend/integration/dingtalk",
         method="POST",

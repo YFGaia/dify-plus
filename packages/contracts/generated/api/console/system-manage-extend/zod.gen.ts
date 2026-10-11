@@ -180,9 +180,15 @@ export const zDingTalkConfigResponse = z.object({
   app_id: z.string().optional().default(''),
   app_key: z.string().optional().default(''),
   app_secret: z.string().optional().default(''),
+  callback_url: z.string().optional().default(''),
   config: z.record(z.string(), z.unknown()).optional(),
+  connection_verified: z.boolean().optional().default(false),
   corp_id: z.string().optional().default(''),
+  result: z.string().nullish(),
+  revision: z.string().optional().default(''),
+  secret_configured: z.boolean().optional().default(false),
   status: z.boolean().optional().default(false),
+  verified: z.boolean().optional().default(false),
 })
 
 /**
@@ -195,7 +201,55 @@ export const zDingTalkConfigPayload = z.object({
   app_secret: z.string().nullish(),
   config: z.record(z.string(), z.unknown()).nullish(),
   corp_id: z.string().nullish(),
+  expected_revision: z.string().nullish(),
   status: z.boolean().nullish(),
+})
+
+/**
+ * DingTalkDiagnosticPayload
+ */
+export const zDingTalkDiagnosticPayload = z.object({
+  bind_current_account: z.boolean().optional().default(false),
+})
+
+/**
+ * DingTalkDiagnosticResponse
+ */
+export const zDingTalkDiagnosticResponse = z.object({
+  authorization_url: z.string(),
+})
+
+/**
+ * DingTalkRegistrationPollPayload
+ */
+export const zDingTalkRegistrationPollPayload = z.object({
+  transaction_id: z
+    .string()
+    .length(43)
+    .regex(/^[A-Za-z0-9_-]+$/),
+})
+
+/**
+ * DingTalkRegistrationResponse
+ */
+export const zDingTalkRegistrationResponse = z.object({
+  expires_in: z.int().nullish(),
+  interval: z.int().nullish(),
+  message: z.string().nullish(),
+  status: z.enum(['CANCELLED', 'EXPIRED', 'FAIL', 'SUCCESS', 'WAITING']),
+  transaction_id: z.string(),
+  verification_uri_complete: z.string().nullish(),
+})
+
+/**
+ * DingTalkRegistrationStartResponse
+ */
+export const zDingTalkRegistrationStartResponse = z.object({
+  expires_in: z.int(),
+  interval: z.int(),
+  status: z.literal('WAITING'),
+  transaction_id: z.string(),
+  verification_uri_complete: z.string(),
 })
 
 /**
@@ -733,12 +787,57 @@ export const zGetSystemManageExtendIntegrationDingtalkResponse = zDingTalkConfig
 export const zPostSystemManageExtendIntegrationDingtalkBody = zDingTalkConfigPayload
 
 /**
- * Configuration saved
+ * Draft saved
  */
-export const zPostSystemManageExtendIntegrationDingtalkResponse = zIntegrationTestResponse
+export const zPostSystemManageExtendIntegrationDingtalkResponse = zDingTalkConfigResponse
+
+export const zPostSystemManageExtendIntegrationDingtalkDiagnosticsBody = zDingTalkDiagnosticPayload
 
 /**
- * DingTalk connection test
+ * Browser-bound diagnostic
+ */
+export const zPostSystemManageExtendIntegrationDingtalkDiagnosticsResponse =
+  zDingTalkDiagnosticResponse
+
+/**
+ * Login disabled
+ */
+export const zPostSystemManageExtendIntegrationDingtalkDisableResponse = zDingTalkConfigResponse
+
+/**
+ * Verified login enabled
+ */
+export const zPostSystemManageExtendIntegrationDingtalkEnableResponse = zDingTalkConfigResponse
+
+export const zPostSystemManageExtendIntegrationDingtalkRegistrationPollBody =
+  zDingTalkRegistrationPollPayload
+
+/**
+ * Registration status
+ */
+export const zPostSystemManageExtendIntegrationDingtalkRegistrationPollResponse =
+  zDingTalkRegistrationResponse
+
+/**
+ * Registration QR ready
+ */
+export const zPostSystemManageExtendIntegrationDingtalkRegistrationStartResponse =
+  zDingTalkRegistrationStartResponse
+
+export const zDeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdPath = z.object(
+  {
+    transaction_id: z.string(),
+  },
+)
+
+/**
+ * Registration cancelled
+ */
+export const zDeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdResponse =
+  zDingTalkRegistrationResponse
+
+/**
+ * Connection verified
  */
 export const zGetSystemManageExtendIntegrationDingtalkTestResponse = zIntegrationTestResponse
 

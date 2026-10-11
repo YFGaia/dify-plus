@@ -171,11 +171,17 @@ export type DingTalkConfigResponse = {
   app_id?: string
   app_key?: string
   app_secret?: string
+  callback_url?: string
   config?: {
     [key: string]: unknown
   }
+  connection_verified?: boolean
   corp_id?: string
+  result?: string | null
+  revision?: string
+  secret_configured?: boolean
   status?: boolean
+  verified?: boolean
 }
 
 export type DingTalkConfigPayload = {
@@ -187,7 +193,37 @@ export type DingTalkConfigPayload = {
     [key: string]: unknown
   } | null
   corp_id?: string | null
+  expected_revision?: string | null
   status?: boolean | null
+}
+
+export type DingTalkDiagnosticPayload = {
+  bind_current_account?: boolean
+}
+
+export type DingTalkDiagnosticResponse = {
+  authorization_url: string
+}
+
+export type DingTalkRegistrationPollPayload = {
+  transaction_id: string
+}
+
+export type DingTalkRegistrationResponse = {
+  expires_in?: number | null
+  interval?: number | null
+  message?: string | null
+  status: 'CANCELLED' | 'EXPIRED' | 'FAIL' | 'SUCCESS' | 'WAITING'
+  transaction_id: string
+  verification_uri_complete?: string | null
+}
+
+export type DingTalkRegistrationStartResponse = {
+  expires_in: number
+  interval: number
+  status: 'WAITING'
+  transaction_id: string
+  verification_uri_complete: string
 }
 
 export type IntegrationTestResponse = {
@@ -883,11 +919,97 @@ export type PostSystemManageExtendIntegrationDingtalkData = {
 }
 
 export type PostSystemManageExtendIntegrationDingtalkResponses = {
-  200: IntegrationTestResponse
+  200: DingTalkConfigResponse
 }
 
 export type PostSystemManageExtendIntegrationDingtalkResponse =
   PostSystemManageExtendIntegrationDingtalkResponses[keyof PostSystemManageExtendIntegrationDingtalkResponses]
+
+export type PostSystemManageExtendIntegrationDingtalkDiagnosticsData = {
+  body: DingTalkDiagnosticPayload
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/dingtalk/diagnostics'
+}
+
+export type PostSystemManageExtendIntegrationDingtalkDiagnosticsResponses = {
+  200: DingTalkDiagnosticResponse
+}
+
+export type PostSystemManageExtendIntegrationDingtalkDiagnosticsResponse =
+  PostSystemManageExtendIntegrationDingtalkDiagnosticsResponses[keyof PostSystemManageExtendIntegrationDingtalkDiagnosticsResponses]
+
+export type PostSystemManageExtendIntegrationDingtalkDisableData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/dingtalk/disable'
+}
+
+export type PostSystemManageExtendIntegrationDingtalkDisableResponses = {
+  200: DingTalkConfigResponse
+}
+
+export type PostSystemManageExtendIntegrationDingtalkDisableResponse =
+  PostSystemManageExtendIntegrationDingtalkDisableResponses[keyof PostSystemManageExtendIntegrationDingtalkDisableResponses]
+
+export type PostSystemManageExtendIntegrationDingtalkEnableData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/dingtalk/enable'
+}
+
+export type PostSystemManageExtendIntegrationDingtalkEnableResponses = {
+  200: DingTalkConfigResponse
+}
+
+export type PostSystemManageExtendIntegrationDingtalkEnableResponse =
+  PostSystemManageExtendIntegrationDingtalkEnableResponses[keyof PostSystemManageExtendIntegrationDingtalkEnableResponses]
+
+export type PostSystemManageExtendIntegrationDingtalkRegistrationPollData = {
+  body: DingTalkRegistrationPollPayload
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/dingtalk/registration/poll'
+}
+
+export type PostSystemManageExtendIntegrationDingtalkRegistrationPollResponses = {
+  200: DingTalkRegistrationResponse
+}
+
+export type PostSystemManageExtendIntegrationDingtalkRegistrationPollResponse =
+  PostSystemManageExtendIntegrationDingtalkRegistrationPollResponses[keyof PostSystemManageExtendIntegrationDingtalkRegistrationPollResponses]
+
+export type PostSystemManageExtendIntegrationDingtalkRegistrationStartData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/system-manage-extend/integration/dingtalk/registration/start'
+}
+
+export type PostSystemManageExtendIntegrationDingtalkRegistrationStartResponses = {
+  200: DingTalkRegistrationStartResponse
+}
+
+export type PostSystemManageExtendIntegrationDingtalkRegistrationStartResponse =
+  PostSystemManageExtendIntegrationDingtalkRegistrationStartResponses[keyof PostSystemManageExtendIntegrationDingtalkRegistrationStartResponses]
+
+export type DeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdData = {
+  body?: never
+  path: {
+    transaction_id: string
+  }
+  query?: never
+  url: '/system-manage-extend/integration/dingtalk/registration/{transaction_id}'
+}
+
+export type DeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdResponses = {
+  200: DingTalkRegistrationResponse
+}
+
+export type DeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdResponse =
+  DeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdResponses[keyof DeleteSystemManageExtendIntegrationDingtalkRegistrationByTransactionIdResponses]
 
 export type GetSystemManageExtendIntegrationDingtalkTestData = {
   body?: never
