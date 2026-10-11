@@ -7,22 +7,9 @@ import logging
 from collections.abc import Callable
 from functools import wraps
 
-from extensions.ext_database import db
 from flask import abort, make_response, request
 from flask_restx import Resource
-from libs.helper import dump_response
-from libs.login import current_user, login_required
-from libs.token import extract_refresh_token
-from models.system_extend import CodeExecutionControlExtend
 from pydantic import BaseModel, ValidationError
-from services.dingtalk_auth_service_extend import DingTalkAuthError, DingTalkAuthService
-from services.dingtalk_email_lookup_extend import lookup_email
-from services.system_manage_extend import (
-    CodeExecutionControlService,
-    QuotaManageService,
-    SystemIntegrationManageService,
-)
-from services.system_management_access_service_extend import SystemManagementAccessService
 
 from controllers.common.schema import (
     register_response_schema_models,
@@ -41,6 +28,19 @@ from controllers.console.dingtalk_schemas_extend import (
     IntegrationTestResponse,
 )
 from controllers.console.wraps import account_initialization_required, setup_required
+from extensions.ext_database import db
+from libs.helper import dump_response
+from libs.login import current_user, login_required
+from libs.token import extract_refresh_token
+from models.system_extend import CodeExecutionControlExtend
+from services.dingtalk_auth_service_extend import DingTalkAuthError, DingTalkAuthService
+from services.dingtalk_email_lookup_extend import lookup_email
+from services.system_manage_extend import (
+    CodeExecutionControlService,
+    QuotaManageService,
+    SystemIntegrationManageService,
+)
+from services.system_management_access_service_extend import SystemManagementAccessService
 
 logger = logging.getLogger(__name__)
 

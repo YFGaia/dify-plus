@@ -38,7 +38,6 @@ from extensions.ext_database import db
 from libs.helper import extract_remote_ip
 from models.account import Account
 from models.system_extend import SystemIntegrationClassify, SystemIntegrationExtend
-
 from services.account_service import AccountService, RegisterService, TenantService
 from services.account_service_extend import TenantExtendService
 

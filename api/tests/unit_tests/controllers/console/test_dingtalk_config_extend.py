@@ -6,20 +6,22 @@ from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
+from flask import Flask
+from pydantic import ValidationError
+from werkzeug.exceptions import BadRequest, Forbidden
+
 from controllers.console.dingtalk_schemas_extend import (
     DingTalkConfigPayload,
     EmailLookupTestPayload,
 )
 from controllers.console.system_manage_extend import DingTalkConfigExtend, EmailApiTestExtend
-from flask import Flask
 from models.account import TenantAccountRole
-from pydantic import ValidationError
 from services.dingtalk_auth_service_extend import DingTalkAuthError
-from werkzeug.exceptions import BadRequest, Forbidden
 
 
 @pytest.fixture
 def system_admin(app: Flask, monkeypatch: pytest.MonkeyPatch):
+    del app  # Keep the Flask app fixture initialized before this fixture.
     import controllers.console.system_manage_extend as controller_module
     from controllers.console import wraps as wraps_module
 
@@ -31,7 +33,12 @@ def system_admin(app: Flask, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr("libs.login.dify_config.LOGIN_DISABLED", True)
     monkeypatch.setattr(wraps_module, "current_account_with_tenant", lambda: (account, "tenant-1"))
     monkeypatch.setattr(controller_module, "current_user", account)
-    monkeypatch.setattr(controller_module.SystemManagementAccessService, "can_manage", lambda actor, session: True)
+
+    def can_manage(actor, session):
+        del actor, session
+        return True
+
+    monkeypatch.setattr(controller_module.SystemManagementAccessService, "can_manage", can_manage)
     return account
 
 
@@ -98,7 +105,8 @@ def test_dingtalk_post_persists_config_under_integration(monkeypatch, app, syste
     save.assert_called_once_with(system_admin, {"app_key": "synthetic-app", "config": config})
 
 
-def test_dingtalk_post_rejects_invalid_email_lookup_configuration(monkeypatch, app, system_admin):
+@pytest.mark.usefixtures("system_admin")
+def test_dingtalk_post_rejects_invalid_email_lookup_configuration(monkeypatch, app):
     import controllers.console.system_manage_extend as controller_module
 
     save = MagicMock(side_effect=DingTalkAuthError("invalid_email_lookup"))
@@ -112,7 +120,8 @@ def test_dingtalk_post_rejects_invalid_email_lookup_configuration(monkeypatch, a
             DingTalkConfigExtend().post()
 
 
-def test_email_test_endpoint_uses_draft_config_and_user_id(monkeypatch, app, system_admin):
+@pytest.mark.usefixtures("system_admin")
+def test_email_test_endpoint_uses_draft_config_and_user_id(monkeypatch, app):
     import controllers.console.system_manage_extend as controller_module
 
     lookup = MagicMock(
@@ -142,7 +151,12 @@ def test_dingtalk_endpoint_permission_is_enforced(app, system_admin, monkeypatch
     import controllers.console.system_manage_extend as controller_module
 
     system_admin.current_role = TenantAccountRole.NORMAL
-    monkeypatch.setattr(controller_module.SystemManagementAccessService, "can_manage", lambda actor, session: False)
+
+    def cannot_manage(actor, session):
+        del actor, session
+        return False
+
+    monkeypatch.setattr(controller_module.SystemManagementAccessService, "can_manage", cannot_manage)
     with app.test_request_context("/console/api/system-manage-extend/integration/dingtalk", method="GET"):
         with pytest.raises(Forbidden):
             DingTalkConfigExtend().get()

@@ -2,8 +2,9 @@
 
 from typing import Any, Literal
 
-from fields.base import ResponseModel
 from pydantic import BaseModel, ConfigDict, Field
+
+from fields.base import ResponseModel
 
 
 class DingTalkConfigPayload(BaseModel):

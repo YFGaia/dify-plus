@@ -2,9 +2,14 @@
 
 from urllib.parse import urlencode
 
-from configs import dify_config
 from flask import make_response, redirect, request
 from flask_restx import Resource
+from pydantic import ValidationError
+
+from configs import dify_config
+from controllers.common.schema import query_params_from_model, register_response_schema_models
+from controllers.console.dingtalk_schemas_extend import DingTalkCallbackQuery, DingTalkDisplayResponse
+from controllers.console.wraps import setup_required
 from libs.helper import dump_response
 from libs.login import current_user
 from libs.token import (
@@ -13,12 +18,7 @@ from libs.token import (
     set_csrf_token_to_cookie,
     set_refresh_token_to_cookie,
 )
-from pydantic import ValidationError
 from services.dingtalk_auth_service_extend import DingTalkAuthError, DingTalkAuthService
-
-from controllers.common.schema import query_params_from_model, register_response_schema_models
-from controllers.console.dingtalk_schemas_extend import DingTalkCallbackQuery, DingTalkDisplayResponse
-from controllers.console.wraps import setup_required
 
 from .. import api
 

@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
+
 from controllers.console.app import ding_talk_extend as controller
 from services.dingtalk_auth_service_extend import DingTalkAuthError
 

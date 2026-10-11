@@ -17,9 +17,13 @@ from dataclasses import dataclass
 from urllib.parse import urlencode, urlsplit
 from uuid import uuid4
 
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import sessionmaker
+
 from configs import dify_config
 from core.helper import ssrf_proxy
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client
 from libs.datetime_utils import naive_utc_now
@@ -27,10 +31,6 @@ from libs.sensitive_redis import sensitive_redis_call
 from models.account import Account, AccountIntegrate, AccountStatus, Tenant, TenantAccountJoin, TenantStatus
 from models.system_extend import SystemIntegrationExtend
 from models.system_management_scope_extend import SystemManagementScopeExtend
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import sessionmaker
-
 from services.account_service import AccountService, TenantService
 from services.dingtalk_email_lookup_extend import lookup_email, validate_email_lookup
 from services.system_manage_extend import _decrypt_blowfish, _encrypt_blowfish
@@ -309,10 +309,7 @@ class DingTalkAuthService:
                 record.app_secret = _encrypt_blowfish(secret, self.settings.SECRET_KEY)
                 changed = True
         meta = self._meta(previous)
-        if changed or not meta.get("revision"):
-            meta = {"revision": str(uuid4())}
-            record.status = False
-        elif payload.get("status") is False:
+        if changed or not meta.get("revision") or payload.get("status") is False:
             meta = {"revision": str(uuid4())}
             record.status = False
         new_config[_META] = meta

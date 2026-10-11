@@ -12,13 +12,14 @@ from unittest.mock import Mock
 
 import pytest
 import sqlalchemy as sa
+from sqlalchemy.orm import sessionmaker
+
 from models.account import Account, AccountIntegrate, AccountStatus, Tenant, TenantAccountJoin, TenantAccountRole
 from models.system_extend import SystemIntegrationExtend
 from models.system_management_scope_extend import SystemManagementScopeExtend
 from services.account_service import AccountService
 from services.dingtalk_auth_service_extend import DingTalkAuthError, DingTalkAuthService, DingTalkIdentity
 from services.system_manage_extend import _encrypt_blowfish
-from sqlalchemy.orm import sessionmaker
 
 
 class MemoryRedis:
@@ -37,6 +38,7 @@ class MemoryRedis:
         return True
 
     def eval(self, script, count, key, value, *update):
+        del script, count
         if self.get(key) != value:
             return 0
         if update:
@@ -260,7 +262,9 @@ def test_registration_success_saves_unverified_and_terminal_replay_does_not_writ
     assert "private-" not in json.dumps(result)
     view = service.get(owner)
     assert view["app_key"] == "new-client"
-    assert view["secret_configured"] and not view["status"] and not view["verified"]
+    assert view["secret_configured"]
+    assert not view["status"]
+    assert not view["verified"]
     revision = view["revision"]
     assert service.registration_poll(owner, qr["transaction_id"])["status"] == "SUCCESS"
     assert service.get(owner)["revision"] == revision
@@ -315,7 +319,8 @@ def test_registration_transient_fails_at_retry_deadline(system, monkeypatch, tra
     assert service.get(owner)["app_key"] == "synthetic-client"
     assert redis.values[key][1] <= deadline
     stored = service._open(redis.get(key), key)
-    assert "device_code" not in stored and "retry_started_at" not in stored
+    assert "device_code" not in stored
+    assert "retry_started_at" not in stored
 
 
 def test_registration_waiting_resets_continuous_transient_window(system, monkeypatch):
@@ -367,7 +372,7 @@ def test_registration_poll_response_after_ttl_cannot_save_credentials(system, mo
     service, owner, _, _, _, clock = system
     qr, request = registration(system, monkeypatch)
 
-    def expired_during_provider(*args, **kwargs):
+    def expired_during_provider(*_args, **_kwargs):
         clock[0] += 301
         return {"status": "SUCCESS", "client_id": "expired-client", "client_secret": "private-expired-secret"}
 
@@ -422,7 +427,8 @@ def test_registration_success_maps_provider_metadata(system, monkeypatch, unifie
     assert result["status"] == "SUCCESS"
     view = service.get(owner)
     assert (view["corp_id"], view["agent_id"], view["app_id"]) == ("new-corp", "new-agent", expected)
-    assert view["app_key"] == "new-client" and view["secret_configured"]
+    assert view["app_key"] == "new-client"
+    assert view["secret_configured"]
     assert "private-" not in json.dumps(view)
     with factory() as session:
         assert "private-user-id" not in session.get(SystemIntegrationExtend, 1).config
@@ -434,7 +440,7 @@ def test_registration_retry_cannot_overwrite_cancellation_after_lock_expiry(syst
     qr, request = registration(system, monkeypatch)
     key = service._registration_key(qr["transaction_id"])
 
-    def cancelled_during_provider(*args, **kwargs):
+    def cancelled_during_provider(*_args, **_kwargs):
         clock[0] += 31
         assert service.registration_poll(owner, qr["transaction_id"], cancel=True)["status"] == "CANCELLED"
         return {"status": "UNKNOWN"}
@@ -453,7 +459,7 @@ def test_registration_retry_rechecks_configuration_and_authority_after_provider(
     key = service._registration_key(qr["transaction_id"])
     before = redis.get(key)
 
-    def changed_during_provider(*args, **kwargs):
+    def changed_during_provider(*_args, **_kwargs):
         if change == "revision":
             service.save(owner, {"app_key": "replacement"})
         else:
@@ -543,8 +549,10 @@ def test_existing_owner_role_preserved_and_current_tenant_uses_anchor(system, mo
 def test_diagnostic_binds_only_explicit_current_account_without_issuing_session(system, monkeypatch):
     service, owner, _, factory, *_ = system
     monkeypatch.setattr(service, "_redis", lambda operation: operation())
-    monkeypatch.setattr(AccountService, "resolve_refresh_token", lambda token: owner.id)
-    monkeypatch.setattr(service, "_identity", lambda snapshot, code: DingTalkIdentity("subject", owner.email, "Remote"))
+    monkeypatch.setattr(AccountService, "resolve_refresh_token", lambda _token: owner.id)
+    monkeypatch.setattr(
+        service, "_identity", lambda _snapshot, _code: DingTalkIdentity("subject", owner.email, "Remote")
+    )
     issue = Mock()
     monkeypatch.setattr(AccountService, "issue_token_pair", issue)
     _, state, cookie = service.authorization_start(
@@ -556,7 +564,8 @@ def test_diagnostic_binds_only_explicit_current_account_without_issuing_session(
         assert session.scalar(sa.select(sa.func.count()).select_from(Account)) == 1
         assert session.scalar(sa.select(AccountIntegrate.account_id)) == owner.id
         assert session.scalar(sa.select(TenantAccountJoin.role)) == TenantAccountRole.OWNER
-    assert service.get(owner)["verified"] and not service.get(owner)["status"]
+    assert service.get(owner)["verified"]
+    assert not service.get(owner)["status"]
     issue.assert_not_called()
 
 
@@ -595,8 +604,10 @@ def test_registration_other_administrator_cannot_poll(system, monkeypatch):
 
 def test_diag_no_checkbox_does_not_bind_and_fresh_config_change_prevents_success(system, monkeypatch):
     service, owner, _, factory, *_ = system
-    monkeypatch.setattr(AccountService, "resolve_refresh_token", lambda token: owner.id)
-    monkeypatch.setattr(service, "_identity", lambda snapshot, code: DingTalkIdentity("subject", owner.email, "Remote"))
+    monkeypatch.setattr(AccountService, "resolve_refresh_token", lambda _token: owner.id)
+    monkeypatch.setattr(
+        service, "_identity", lambda _snapshot, _code: DingTalkIdentity("subject", owner.email, "Remote")
+    )
     _, state, cookie = service.authorization_start(account=owner, refresh_token="local-session", server_ip="a")
     assert (
         service.complete(service.consume(state, cookie), "code", account=owner, refresh_token="local-session") is None
@@ -606,7 +617,7 @@ def test_diag_no_checkbox_does_not_bind_and_fresh_config_change_prevents_success
     _, state, cookie = service.authorization_start(account=owner, refresh_token="local-session", server_ip="b")
     transaction = service.consume(state, cookie)
 
-    def mutate(snapshot, code):
+    def mutate(_snapshot, _code):
         service.save(owner, {"app_key": "changed-mid-diagnostic"})
         return DingTalkIdentity("subject", owner.email, "Remote")
 
@@ -655,10 +666,13 @@ def test_new_account_binding_member_and_quota_are_atomic(system, monkeypatch):
     )
     with factory() as session:
         new = session.scalar(sa.select(Account).where(Account.email == "new@example.test"))
-        assert new.status == AccountStatus.ACTIVE and new.initialized_at is not None
+        assert new.status == AccountStatus.ACTIVE
+        assert new.initialized_at is not None
         assert session.scalar(sa.select(AccountIntegrate.account_id)) == new.id
         join = session.scalar(sa.select(TenantAccountJoin).where(TenantAccountJoin.account_id == new.id))
-        assert join.tenant_id == tenant_id and join.role == TenantAccountRole.NORMAL and join.current
+        assert join.tenant_id == tenant_id
+        assert join.role == TenantAccountRole.NORMAL
+        assert join.current
         assert session.scalar(sa.select(AccountMoneyExtend.account_id)) == new.id
 
 
@@ -685,7 +699,8 @@ def test_identity_uses_enterprise_directory_email_and_rejects_subject_mismatch(s
     monkeypatch.setattr(service, "_request", request)
     identity = service._identity(snapshot, "auth-code")
     assert identity.email == "real@example.test"
-    assert len(identity.subject) == 64 and "union" not in identity.subject
+    assert len(identity.subject) == 64
+    assert "union" not in identity.subject
     assert request.call_args_list[0].kwargs["json"]["grantType"] == "authorization_code"
     responses[-1]["result"]["unionid"] = "other"
     request.side_effect = responses
@@ -732,7 +747,8 @@ def test_legacy_email_credentials_are_migrated_on_management_read(system):
             }
         )
     view = service.get(owner)
-    assert view["revision"] and not view["status"]
+    assert view["revision"]
+    assert not view["status"]
     assert "private-" not in json.dumps(view)
     with factory() as session:
         record = session.get(SystemIntegrationExtend, 1)
