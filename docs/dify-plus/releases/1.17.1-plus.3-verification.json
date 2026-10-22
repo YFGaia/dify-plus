@@ -617,7 +617,8 @@
     "production deployment or external identity-provider acceptance",
     "production-data or multi-node Weaviate migration",
     "Weaviate logical backup-module restoration",
-    "Qdrant or other deferred vector-client upgrades"
+    "Qdrant or other deferred vector-client upgrades",
+    "repository-wide vulnerability remediation or production security approval"
   ],
   "native_image_validation": [
     {
@@ -716,5 +717,87 @@
       "api/migrations",
       "api/migrations_extend"
     ]
+  },
+  "repository_security_snapshot": {
+    "checked_date": "2026-10-23",
+    "source": "GitHub REST Dependabot open alerts",
+    "open_alert_records": 200,
+    "severity_counts": {
+      "high": 92,
+      "medium": 87,
+      "critical": 15,
+      "low": 6
+    },
+    "count_scope": "Alert records can repeat an advisory across manifests; not a unique vulnerability count.",
+    "critical_packages": [
+      "Pillow",
+      "PyJWT",
+      "anyio",
+      "certifi",
+      "chromadb"
+    ],
+    "deferred_dependency_direct_matches": [
+      {
+        "ghsa": "GHSA-36p7-vc44-83pf",
+        "html_url": "https://github.com/YFGaia/dify-plus/security/dependabot/759",
+        "manifest": "api/providers/vdb/vdb-chroma/pyproject.toml",
+        "number": 759,
+        "package": "chromadb",
+        "patched": null,
+        "severity": "critical"
+      },
+      {
+        "ghsa": "GHSA-xph7-9rjv-w5fr",
+        "html_url": "https://github.com/YFGaia/dify-plus/security/dependabot/758",
+        "manifest": "api/providers/vdb/vdb-chroma/pyproject.toml",
+        "number": 758,
+        "package": "chromadb",
+        "patched": null,
+        "severity": "high"
+      },
+      {
+        "ghsa": "GHSA-2wm9-hf6c-p5cr",
+        "html_url": "https://github.com/YFGaia/dify-plus/security/dependabot/757",
+        "manifest": "api/providers/vdb/vdb-chroma/pyproject.toml",
+        "number": 757,
+        "package": "chromadb",
+        "patched": null,
+        "severity": "high"
+      },
+      {
+        "ghsa": "GHSA-36p7-vc44-83pf",
+        "html_url": "https://github.com/YFGaia/dify-plus/security/dependabot/646",
+        "manifest": "api/uv.lock",
+        "number": 646,
+        "package": "chromadb",
+        "patched": null,
+        "severity": "critical"
+      },
+      {
+        "ghsa": "GHSA-2wm9-hf6c-p5cr",
+        "html_url": "https://github.com/YFGaia/dify-plus/security/dependabot/645",
+        "manifest": "api/uv.lock",
+        "number": 645,
+        "package": "chromadb",
+        "patched": null,
+        "severity": "high"
+      },
+      {
+        "ghsa": "GHSA-xph7-9rjv-w5fr",
+        "html_url": "https://github.com/YFGaia/dify-plus/security/dependabot/644",
+        "manifest": "api/uv.lock",
+        "number": 644,
+        "package": "chromadb",
+        "patched": null,
+        "severity": "high"
+      }
+    ],
+    "chroma_current_sdk_and_compose_server": "0.5.20",
+    "chroma_original_pr134_sdk_target": "1.5.9",
+    "chroma_original_target_fixes_reported_advisories": false,
+    "chroma_first_patched_version_listed": null,
+    "chroma_deployment_scope": "Default Weaviate profile does not start Chroma. Optional Chroma uses token authentication with a public example default and no direct host port. Historical dataset index type can override VECTOR_STORE. Chroma SDK remains installed in API images.",
+    "chroma_exploit_validation": "Read-only advisory and source analysis only; no exploit reproduced. Normal Dify adapter does not submit malicious model/trust_remote_code configuration.",
+    "remaining_work": "Assess and remediate repository alerts separately; Chroma requires actual deployment, credentials, network, server/SDK and authorization checks."
   }
 }
