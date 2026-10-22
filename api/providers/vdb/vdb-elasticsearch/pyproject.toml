@@ -7,7 +7,7 @@ name = "dify-vdb-elasticsearch"
 version = "0.0.1"
 
 dependencies = [
-    "elasticsearch==9.5.1",
+    "elasticsearch==8.14.0",
 ]
 description = "Dify vector store backend (dify-vdb-elasticsearch)."
 
