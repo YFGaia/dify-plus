@@ -2402,7 +2402,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "weaviate-client", specifier = "==4.22.0" }]
+requires-dist = [{ name = "weaviate-client", specifier = "==4.23.1" }]
 
 [[package]]
 name = "diskcache-weave"
@@ -7709,7 +7709,7 @@ wheels = [
 
 [[package]]
 name = "weaviate-client"
-version = "4.22.0"
+version = "4.23.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "authlib", marker = "python_full_version == '3.12.*' or platform_system == 'Windows'" },
@@ -7720,9 +7720,9 @@ dependencies = [
     { name = "pydantic", marker = "python_full_version == '3.12.*' or platform_system == 'Windows'" },
     { name = "validators", marker = "python_full_version == '3.12.*' or platform_system == 'Windows'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/34/2a/73cf7d6c7c6aa638738dfcb0d318e0404aab3c0673f82a1a4d89455b21a5/weaviate_client-4.22.0.tar.gz", hash = "sha256:0c50fbef546a522262a87d1138cde0509c7a8a48e702e967be33472e9f7fbae3", size = 860126 }
+sdist = { url = "https://files.pythonhosted.org/packages/fc/19/71453c55e78bd971b7b0ce5c1bc35c85e0daa80dce09102f80cf21044e2e/weaviate_client-4.23.1.tar.gz", hash = "sha256:0c0f249b5a5b813d7e98d9eb33e17a0eb06a3bff047de23a3e41311aa82feb0d", size = 880709 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e1/a3/27353ea3fbf9e7d4f03375176a838c632d009f5167d801adcbb5f6d3bd07/weaviate_client-4.22.0-py3-none-any.whl", hash = "sha256:ff2dbc8d1fc25739942402c22d1aba2350a16ba4a6b6ed0ba140689c70adf1d9", size = 652691 },
+    { url = "https://files.pythonhosted.org/packages/a1/4f/d427adf3bcb3c2859bd047e5b7a50b87065d48a0c9260f7dcc47745d1edd/weaviate_client-4.23.1-py3-none-any.whl", hash = "sha256:d1e0c86ff86dfb4c3a483a4f58deec438274acc94f5c77570534c5572e44a53a", size = 660496 },
 ]
 
 [[package]]
