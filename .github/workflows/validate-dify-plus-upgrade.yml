@@ -46,7 +46,7 @@ jobs:
           - architecture: arm64
             runner: ubuntu-24.04-arm
     env:
-      UV_CACHE_DIR: ${{ runner.temp }}/upgrade-uv-cache
+      UV_CACHE_DIR: /tmp/dify-plus-upgrade-uv-cache
       EVIDENCE_DIR: ${{ github.workspace }}/upgrade-evidence
     steps:
       - name: Validate source identity
