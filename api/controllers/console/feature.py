@@ -76,7 +76,9 @@ def _verify_login_config_token(token: str | None) -> bool:
         )
     except jwt.PyJWTError:
         return False
-    return payload["type"] == "login_config" and payload["ip"] == extract_remote_ip(request)
+    # This token authorizes pre-login configuration, not an account session.
+    # Proxy chains and dual-stack networks can change the request IP.
+    return payload["type"] == "login_config"
 
 
 @console_ns.route("/login_config_bootstrap")
