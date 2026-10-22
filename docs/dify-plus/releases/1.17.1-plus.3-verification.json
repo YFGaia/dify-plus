@@ -1,0 +1,720 @@
+{
+  "release_version": "1.17.1-plus.3",
+  "checked_date": "2026-10-23",
+  "image_source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+  "image_publication": {
+    "status": "success",
+    "run_id": 39828043463,
+    "run_url": "https://github.com/YFGaia/dify-plus/actions/runs/39828043463",
+    "manifest": "1.17.1-plus.3-images.json",
+    "native_smoke": "8/8 passed",
+    "authenticated_registry_readback": "all four stable tags, eight native configs, source revision and digests verified by the release workflow",
+    "anonymous_access": {
+      "checked_date": "2026-10-23",
+      "scope": "Explicit anonymous requests; no Docker or GitHub credentials used. Authenticated publication/readback is recorded by the successful release workflow.",
+      "images": [
+        {
+          "image": "ghcr.io/yfgaia/dify-plus-api",
+          "tag": "1.17.1-plus.3",
+          "credentials_used": false,
+          "stage": "anonymous_token",
+          "status": "not_anonymously_accessible",
+          "http_status": 401
+        },
+        {
+          "image": "ghcr.io/yfgaia/dify-plus-web",
+          "tag": "1.17.1-plus.3",
+          "credentials_used": false,
+          "stage": "anonymous_token",
+          "status": "not_anonymously_accessible",
+          "http_status": 401
+        },
+        {
+          "image": "ghcr.io/yfgaia/dify-plus-agent-backend",
+          "tag": "1.17.1-plus.3",
+          "credentials_used": false,
+          "stage": "anonymous_token",
+          "status": "not_anonymously_accessible",
+          "http_status": 401
+        },
+        {
+          "image": "ghcr.io/yfgaia/dify-plus-agent-local-sandbox",
+          "tag": "1.17.1-plus.3",
+          "credentials_used": false,
+          "stage": "anonymous_token",
+          "status": "not_anonymously_accessible",
+          "http_status": 401
+        }
+      ]
+    }
+  },
+  "pull_requests": {
+    "142": {
+      "merge_commit": "708ee172cad9a3912269fa9a792353f8bd84639b"
+    },
+    "134": {
+      "merge_commit": "bff19f5521212bb61c89066e34085f0695db6146",
+      "scope": "weaviate-client 4.22.0 to 4.23.1 only; all other locked packages retained",
+      "deferred_original_dependency_updates": [
+        "alibabacloud-dingtalk",
+        "alibabacloud-tea-openapi",
+        "chromadb",
+        "clickzetta-connector-python",
+        "couchbase",
+        "elasticsearch",
+        "intersystems-irispython",
+        "opensearch-py",
+        "pymilvus",
+        "pyobvector",
+        "oracledb",
+        "pgvector",
+        "qdrant-client"
+      ]
+    }
+  },
+  "reviewed_code_tree": "a3455893e9fe1ca15562a0eb01a44b8679162c3a",
+  "local_regression": {
+    "source_revision": "8aa884d26f821b9f505910dcf956f1a5364248fe",
+    "backend": {
+      "passed": 174,
+      "scope": "login configuration, DingTalk authentication/configuration/email lookup, Casdoor mapped regrant and request safety",
+      "casdoor_test_pythonpath": [
+        "api",
+        "api/tests/unit_tests/services",
+        "api/tests/unit_tests/core/casdoor"
+      ]
+    },
+    "frontend": {
+      "passed": 150,
+      "files": 5,
+      "scope": "console client, system features, DingTalk/Casdoor sign-in, DingTalk integration configuration"
+    },
+    "target_sdk_unit": {
+      "sdk": "weaviate-client==4.23.1",
+      "passed": 54
+    },
+    "notes": [
+      "Local checks reused the existing virtual environment without a full sync. Native CI below used clean frozen installs.",
+      "Casdoor tests require the listed explicit paths for existing fixture imports.",
+      "No local integration services or production data were used."
+    ]
+  },
+  "native_vector_validation": [
+    {
+      "pull_request": 142,
+      "run_id": 39825544323,
+      "run_url": "https://github.com/YFGaia/dify-plus/actions/runs/39825544323",
+      "scope": "single-node synthetic data; graceful-stop filesystem snapshots; existing SDK integration",
+      "platforms": {
+        "amd64": {
+          "status": "passed",
+          "source_revision": "1cbb19f2dda3322d426ad666bd1ed5fc1e52f176",
+          "harness_revision": "c0b47e14455bccabfaaf60bf91d2349fd8d31f42",
+          "sdk": "weaviate-client=4.22.0",
+          "tests": {
+            "unit": {
+              "tests": 98,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "integration": {
+              "tests": 1,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          "images": {
+            "cr.weaviate.io/semitechnologies/weaviate:1.39.2": {
+              "tag": "cr.weaviate.io/semitechnologies/weaviate:1.39.2",
+              "requested_reference": "cr.weaviate.io/semitechnologies/weaviate:1.39.2@sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362",
+              "id": "sha256:63b16b7783ae63f990f5b1388b2e77fe501407d4583732a50bf65ff4973f3c41",
+              "repo_digests": [
+                "cr.weaviate.io/semitechnologies/weaviate@sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362"
+              ],
+              "architecture": "amd64",
+              "go_version": "1.26.7",
+              "binary_sha256": "025e41ced61c0fa83133b7c6d008babb992f5ad365b6404268e90bff69b064eb"
+            },
+            "cr.weaviate.io/semitechnologies/weaviate:1.39.13": {
+              "tag": "cr.weaviate.io/semitechnologies/weaviate:1.39.13",
+              "requested_reference": "cr.weaviate.io/semitechnologies/weaviate:1.39.13@sha256:ad2b986bbe4666fbd5302a5ee0cc6c74a048c4c769198d46147ea232d46a2dd8",
+              "id": "sha256:2ed81ef44918eeed77725502367fbb2fb8dbba57a7510b8c4bf57a1be3c9ebbb",
+              "repo_digests": [
+                "cr.weaviate.io/semitechnologies/weaviate@sha256:ad2b986bbe4666fbd5302a5ee0cc6c74a048c4c769198d46147ea232d46a2dd8"
+              ],
+              "architecture": "amd64",
+              "go_version": "1.26.10",
+              "binary_sha256": "b97f7f8b84993bba8b31282ccf2523722a7314107f1c9f4897ebfa3d5dfd0865"
+            }
+          },
+          "stages": [
+            {
+              "stage": "old-baseline",
+              "status": "passed"
+            },
+            {
+              "stage": "upgraded-existing-data",
+              "status": "passed"
+            },
+            {
+              "stage": "target-write",
+              "status": "passed"
+            },
+            {
+              "stage": "target-restart",
+              "status": "passed"
+            },
+            {
+              "stage": "target-filesystem-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "old-image-baseline-filesystem-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "target-final-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "existing-sdk-integration",
+              "status": "passed"
+            }
+          ],
+          "snapshots": [
+            {
+              "label": "old-baseline",
+              "bytes": 9645,
+              "sha256": "73378981affa6e50bfa989cb54f65260331c6383af3335a5a9e0f3b88fada9be",
+              "consistent_graceful_stop": true
+            },
+            {
+              "label": "upgraded-data",
+              "bytes": 15446,
+              "sha256": "0f8ad38479f19efd23d59b9269dbd1ff9fbde566c8511e0c4197c6d9a3b02cdb",
+              "consistent_graceful_stop": true
+            }
+          ],
+          "shutdowns": [
+            {
+              "stage": "old-baseline",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-write",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-restart",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-filesystem-restore",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "old-image-baseline-filesystem-restore",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "existing-sdk-integration",
+              "exit_code": 0,
+              "oom_killed": false
+            }
+          ]
+        },
+        "arm64": {
+          "status": "passed",
+          "source_revision": "1cbb19f2dda3322d426ad666bd1ed5fc1e52f176",
+          "harness_revision": "c0b47e14455bccabfaaf60bf91d2349fd8d31f42",
+          "sdk": "weaviate-client=4.22.0",
+          "tests": {
+            "unit": {
+              "tests": 98,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "integration": {
+              "tests": 1,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          "images": {
+            "cr.weaviate.io/semitechnologies/weaviate:1.39.2": {
+              "tag": "cr.weaviate.io/semitechnologies/weaviate:1.39.2",
+              "requested_reference": "cr.weaviate.io/semitechnologies/weaviate:1.39.2@sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362",
+              "id": "sha256:8047a2b5e349f74551abfbd1759b18cab537939840cef61af804eb32fcd998c9",
+              "repo_digests": [
+                "cr.weaviate.io/semitechnologies/weaviate@sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362"
+              ],
+              "architecture": "arm64",
+              "go_version": "1.26.7",
+              "binary_sha256": "5a916653d28011e3b2a8320492933151f23d4dd25c35a3b035d6d7fca956c232"
+            },
+            "cr.weaviate.io/semitechnologies/weaviate:1.39.13": {
+              "tag": "cr.weaviate.io/semitechnologies/weaviate:1.39.13",
+              "requested_reference": "cr.weaviate.io/semitechnologies/weaviate:1.39.13@sha256:ad2b986bbe4666fbd5302a5ee0cc6c74a048c4c769198d46147ea232d46a2dd8",
+              "id": "sha256:eb4fd238830ab003ce17a7d2d26f2e2f38c01393ab2c096fc12b2f2a89828fed",
+              "repo_digests": [
+                "cr.weaviate.io/semitechnologies/weaviate@sha256:ad2b986bbe4666fbd5302a5ee0cc6c74a048c4c769198d46147ea232d46a2dd8"
+              ],
+              "architecture": "arm64",
+              "go_version": "1.26.10",
+              "binary_sha256": "1045de5b45b6e6a1975597d00176905018159539426784b63fb4551c4ffac2da"
+            }
+          },
+          "stages": [
+            {
+              "stage": "old-baseline",
+              "status": "passed"
+            },
+            {
+              "stage": "upgraded-existing-data",
+              "status": "passed"
+            },
+            {
+              "stage": "target-write",
+              "status": "passed"
+            },
+            {
+              "stage": "target-restart",
+              "status": "passed"
+            },
+            {
+              "stage": "target-filesystem-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "old-image-baseline-filesystem-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "target-final-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "existing-sdk-integration",
+              "status": "passed"
+            }
+          ],
+          "snapshots": [
+            {
+              "label": "old-baseline",
+              "bytes": 9645,
+              "sha256": "d5891ebc3cc81a4dc72f177236c08690cc8f83a11825125f14542caa0f8188cd",
+              "consistent_graceful_stop": true
+            },
+            {
+              "label": "upgraded-data",
+              "bytes": 15442,
+              "sha256": "d0006e0d4912d487a466ddae8bfe3ed23a40bbd0bcc26c70b1fab8e05f2584aa",
+              "consistent_graceful_stop": true
+            }
+          ],
+          "shutdowns": [
+            {
+              "stage": "old-baseline",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-write",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-restart",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-filesystem-restore",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "old-image-baseline-filesystem-restore",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "existing-sdk-integration",
+              "exit_code": 0,
+              "oom_killed": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "pull_request": 134,
+      "run_id": 39826386294,
+      "run_url": "https://github.com/YFGaia/dify-plus/actions/runs/39826386294",
+      "scope": "single-node synthetic data; graceful-stop filesystem snapshots; existing SDK integration",
+      "platforms": {
+        "amd64": {
+          "status": "passed",
+          "source_revision": "8ac043abde9124617748cd0e44f13af6bb5c0f27",
+          "harness_revision": "708ee172cad9a3912269fa9a792353f8bd84639b",
+          "sdk": "weaviate-client=4.23.1",
+          "tests": {
+            "unit": {
+              "tests": 98,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "integration": {
+              "tests": 1,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          "images": {
+            "cr.weaviate.io/semitechnologies/weaviate:1.39.2": {
+              "tag": "cr.weaviate.io/semitechnologies/weaviate:1.39.2",
+              "requested_reference": "cr.weaviate.io/semitechnologies/weaviate:1.39.2@sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362",
+              "id": "sha256:63b16b7783ae63f990f5b1388b2e77fe501407d4583732a50bf65ff4973f3c41",
+              "repo_digests": [
+                "cr.weaviate.io/semitechnologies/weaviate@sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362"
+              ],
+              "architecture": "amd64",
+              "go_version": "1.26.7",
+              "binary_sha256": "025e41ced61c0fa83133b7c6d008babb992f5ad365b6404268e90bff69b064eb"
+            },
+            "cr.weaviate.io/semitechnologies/weaviate:1.39.13": {
+              "tag": "cr.weaviate.io/semitechnologies/weaviate:1.39.13",
+              "requested_reference": "cr.weaviate.io/semitechnologies/weaviate:1.39.13@sha256:ad2b986bbe4666fbd5302a5ee0cc6c74a048c4c769198d46147ea232d46a2dd8",
+              "id": "sha256:2ed81ef44918eeed77725502367fbb2fb8dbba57a7510b8c4bf57a1be3c9ebbb",
+              "repo_digests": [
+                "cr.weaviate.io/semitechnologies/weaviate@sha256:ad2b986bbe4666fbd5302a5ee0cc6c74a048c4c769198d46147ea232d46a2dd8"
+              ],
+              "architecture": "amd64",
+              "go_version": "1.26.10",
+              "binary_sha256": "b97f7f8b84993bba8b31282ccf2523722a7314107f1c9f4897ebfa3d5dfd0865"
+            }
+          },
+          "stages": [
+            {
+              "stage": "old-baseline",
+              "status": "passed"
+            },
+            {
+              "stage": "upgraded-existing-data",
+              "status": "passed"
+            },
+            {
+              "stage": "target-write",
+              "status": "passed"
+            },
+            {
+              "stage": "target-restart",
+              "status": "passed"
+            },
+            {
+              "stage": "target-filesystem-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "old-image-baseline-filesystem-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "target-final-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "existing-sdk-integration",
+              "status": "passed"
+            }
+          ],
+          "snapshots": [
+            {
+              "label": "old-baseline",
+              "bytes": 9626,
+              "sha256": "baf5a4ac9333c57b64bfd6ca7e7893db7b330c1004ddc29671993aead63369f6",
+              "consistent_graceful_stop": true
+            },
+            {
+              "label": "upgraded-data",
+              "bytes": 15449,
+              "sha256": "5568f3ebb3f205eba9cb5cf49a2571454dea7de88289eb6efbf5bda36e9a44f7",
+              "consistent_graceful_stop": true
+            }
+          ],
+          "shutdowns": [
+            {
+              "stage": "old-baseline",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-write",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-restart",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-filesystem-restore",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "old-image-baseline-filesystem-restore",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "existing-sdk-integration",
+              "exit_code": 0,
+              "oom_killed": false
+            }
+          ]
+        },
+        "arm64": {
+          "status": "passed",
+          "source_revision": "8ac043abde9124617748cd0e44f13af6bb5c0f27",
+          "harness_revision": "708ee172cad9a3912269fa9a792353f8bd84639b",
+          "sdk": "weaviate-client=4.23.1",
+          "tests": {
+            "unit": {
+              "tests": 98,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "integration": {
+              "tests": 1,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            }
+          },
+          "images": {
+            "cr.weaviate.io/semitechnologies/weaviate:1.39.2": {
+              "tag": "cr.weaviate.io/semitechnologies/weaviate:1.39.2",
+              "requested_reference": "cr.weaviate.io/semitechnologies/weaviate:1.39.2@sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362",
+              "id": "sha256:8047a2b5e349f74551abfbd1759b18cab537939840cef61af804eb32fcd998c9",
+              "repo_digests": [
+                "cr.weaviate.io/semitechnologies/weaviate@sha256:5c62e5cbce4c48fc770abcee71099d9de32aad3b44d12299611f8135ee412362"
+              ],
+              "architecture": "arm64",
+              "go_version": "1.26.7",
+              "binary_sha256": "5a916653d28011e3b2a8320492933151f23d4dd25c35a3b035d6d7fca956c232"
+            },
+            "cr.weaviate.io/semitechnologies/weaviate:1.39.13": {
+              "tag": "cr.weaviate.io/semitechnologies/weaviate:1.39.13",
+              "requested_reference": "cr.weaviate.io/semitechnologies/weaviate:1.39.13@sha256:ad2b986bbe4666fbd5302a5ee0cc6c74a048c4c769198d46147ea232d46a2dd8",
+              "id": "sha256:eb4fd238830ab003ce17a7d2d26f2e2f38c01393ab2c096fc12b2f2a89828fed",
+              "repo_digests": [
+                "cr.weaviate.io/semitechnologies/weaviate@sha256:ad2b986bbe4666fbd5302a5ee0cc6c74a048c4c769198d46147ea232d46a2dd8"
+              ],
+              "architecture": "arm64",
+              "go_version": "1.26.10",
+              "binary_sha256": "1045de5b45b6e6a1975597d00176905018159539426784b63fb4551c4ffac2da"
+            }
+          },
+          "stages": [
+            {
+              "stage": "old-baseline",
+              "status": "passed"
+            },
+            {
+              "stage": "upgraded-existing-data",
+              "status": "passed"
+            },
+            {
+              "stage": "target-write",
+              "status": "passed"
+            },
+            {
+              "stage": "target-restart",
+              "status": "passed"
+            },
+            {
+              "stage": "target-filesystem-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "old-image-baseline-filesystem-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "target-final-restore",
+              "status": "passed"
+            },
+            {
+              "stage": "existing-sdk-integration",
+              "status": "passed"
+            }
+          ],
+          "snapshots": [
+            {
+              "label": "old-baseline",
+              "bytes": 9615,
+              "sha256": "bf15ecb82ab77361860313d75e4a9515669c6c43bf17dc8b0ce6f54609573dfc",
+              "consistent_graceful_stop": true
+            },
+            {
+              "label": "upgraded-data",
+              "bytes": 15446,
+              "sha256": "9df72a956371304e75b607ed525bbb18e195557fd699e85fb5f315fe98727492",
+              "consistent_graceful_stop": true
+            }
+          ],
+          "shutdowns": [
+            {
+              "stage": "old-baseline",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-write",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-restart",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "target-filesystem-restore",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "old-image-baseline-filesystem-restore",
+              "exit_code": 0,
+              "oom_killed": false
+            },
+            {
+              "stage": "existing-sdk-integration",
+              "exit_code": 0,
+              "oom_killed": false
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "not_asserted": [
+    "production deployment or external identity-provider acceptance",
+    "production-data or multi-node Weaviate migration",
+    "Weaviate logical backup-module restoration",
+    "Qdrant or other deferred vector-client upgrades"
+  ],
+  "native_image_validation": [
+    {
+      "component": "agent-backend",
+      "architecture": "amd64",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-backend",
+      "digest": "sha256:ca79ebf79be7c0d25bfb4b70a1c08f17420d6a20a13c67379887553acd5451fb",
+      "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "agent-backend",
+      "architecture": "arm64",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-backend",
+      "digest": "sha256:93db65f0954a93f2faf7c600592770cc31b8bddb4376bcbbf72759c767f7f2bd",
+      "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "agent-local-sandbox",
+      "architecture": "amd64",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-local-sandbox",
+      "digest": "sha256:c97f6f6bc52b60bd72ea2adb71386967a7d03df330ef3759efe5ee461fc26a95",
+      "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "agent-local-sandbox",
+      "architecture": "arm64",
+      "image": "ghcr.io/yfgaia/dify-plus-agent-local-sandbox",
+      "digest": "sha256:b707aac4a5e6036e861b4d5fcaf06849ebf036fc0bbae12c63367ee4cd2d9edc",
+      "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "api",
+      "architecture": "amd64",
+      "image": "ghcr.io/yfgaia/dify-plus-api",
+      "digest": "sha256:21d929471b225cfbc3cbd5324a3393540dd69f08ddd7ce0ccab14efa4057c135",
+      "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "api",
+      "architecture": "arm64",
+      "image": "ghcr.io/yfgaia/dify-plus-api",
+      "digest": "sha256:b01eb53edec9eb3def37865587c99cb41028eb4c7e647a12130564299830c86b",
+      "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "web",
+      "architecture": "amd64",
+      "image": "ghcr.io/yfgaia/dify-plus-web",
+      "digest": "sha256:b89499ab0758464d06d6e49c3c5c65e4e44664cc046b09d61886fe85d43674d6",
+      "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    },
+    {
+      "component": "web",
+      "architecture": "arm64",
+      "image": "ghcr.io/yfgaia/dify-plus-web",
+      "digest": "sha256:9778805e29ac79e5b2d0b0291f5596a6667a0895e27d7dbdd85f0ad74587159d",
+      "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5",
+      "smoke": "passed",
+      "scope": "native image startup and dependencies; API includes disposable PostgreSQL dual migrations"
+    }
+  ],
+  "api_image_smoke": {
+    "platforms": [
+      "amd64",
+      "arm64"
+    ],
+    "provider_metadata_count": 38,
+    "vector_entrypoint_count": 32,
+    "database": "disposable PostgreSQL",
+    "main_migration_head": "c3f1a9b2e6d4",
+    "extension_migration_head": "026_system_management_scope",
+    "http_checks": [
+      "/health",
+      "/console/api/system-features"
+    ],
+    "source_revision": "7baea00d32cc8c96b34a7b079829818981a912e5"
+  },
+  "database_migrations_since_previous_image_source": {
+    "previous_source_revision": "7daa117e86cb6a64df719d69a5afac038c628aa7",
+    "changed_files": 0,
+    "paths": [
+      "api/migrations",
+      "api/migrations_extend"
+    ]
+  }
+}
