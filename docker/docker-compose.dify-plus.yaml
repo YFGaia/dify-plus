@@ -828,7 +828,7 @@ services:
   # first. Serialize startup across Compose projects sharing storage; this gate
   # does not provide a distributed lock. Never scale or run concurrent seed jobs.
   init_secret_key:
-    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.3}
     restart: "no"
     deploy:
       replicas: 1
@@ -864,7 +864,7 @@ services:
   # Use this single service via `up`, never scale it or launch concurrent `run`
   # jobs (including from another Compose project) against the same database.
   migration:
-    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.3}
     profiles:
       - migration
     restart: "no"
@@ -914,7 +914,7 @@ services:
 
   # API service
   api:
-    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.3}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -969,7 +969,7 @@ services:
   # Enabled via the `collaboration` compose profile; nginx routes /socket.io/
   # here through NGINX_SOCKET_IO_UPSTREAM (default api_websocket:5001).
   api_websocket:
-    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.3}
     restart: always
     profiles:
       - collaboration
@@ -1004,7 +1004,7 @@ services:
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
   worker:
-    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.3}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -1056,7 +1056,7 @@ services:
   # worker-gaia service
   # The Celery worker-gaia for processing the queue.
   worker-gaia:
-    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.3}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -1096,7 +1096,7 @@ services:
   # worker-dataset service
   # The Celery worker-dataset for processing the queue.
   worker-dataset:
-    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.3}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -1136,7 +1136,7 @@ services:
   # worker_beat service
   # Celery beat for scheduling periodic tasks.
   worker_beat:
-    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.2}
+    image: ${DIFY_PLUS_API_IMAGE:-ghcr.io/yfgaia/dify-plus-api:1.17.1-plus.3}
     restart: always
     environment:
       # Use the shared environment variables.
@@ -1177,7 +1177,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ${DIFY_PLUS_WEB_IMAGE:-ghcr.io/yfgaia/dify-plus-web:1.17.1-plus.2}
+    image: ${DIFY_PLUS_WEB_IMAGE:-ghcr.io/yfgaia/dify-plus-web:1.17.1-plus.3}
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -1336,7 +1336,7 @@ services:
   # Agent v2 local sandbox (shellctl), isolated from the default service network.
   # Release images are built from the same source revision as API and Web.
   local_sandbox:
-    image: ${DIFY_PLUS_LOCAL_SANDBOX_IMAGE:-ghcr.io/yfgaia/dify-plus-agent-local-sandbox:1.17.1-plus.2}
+    image: ${DIFY_PLUS_LOCAL_SANDBOX_IMAGE:-ghcr.io/yfgaia/dify-plus-agent-local-sandbox:1.17.1-plus.3}
     restart: always
     environment:
       SHELLCTL_AUTH_TOKEN: ${DIFY_AGENT_LOCAL_SANDBOX_AUTH_TOKEN:-${DIFY_AGENT_SHELLCTL_AUTH_TOKEN:-}}
@@ -1360,7 +1360,7 @@ services:
   # Dify Agent backend (api/worker call AGENT_BACKEND_BASE_URL).
   # Release images are built from the same source revision as API and Web.
   agent_backend:
-    image: ${DIFY_PLUS_AGENT_IMAGE:-ghcr.io/yfgaia/dify-plus-agent-backend:1.17.1-plus.2}
+    image: ${DIFY_PLUS_AGENT_IMAGE:-ghcr.io/yfgaia/dify-plus-agent-backend:1.17.1-plus.3}
     restart: always
     environment:
       DIFY_AGENT_REDIS_URL: ${DIFY_AGENT_REDIS_URL:-redis://:${REDIS_PASSWORD:-difyai123456}@redis:6379/2}

@@ -109,7 +109,7 @@ WebApp 登录控制独立于服务 API 密钥鉴权。已安装工作流应用�
 
 ## 部署
 
-使用本仓库维护的 [`docker/docker-compose.dify-plus.yaml`](docker/docker-compose.dify-plus.yaml)。部署前准备 Docker Compose v2、数据库与持久存储。容器发布版本为 `1.17.1-plus.2`，API、Web、Agent 后端及 Agent 本地沙箱使用 `ghcr.io/yfgaia/dify-plus-*` 镜像，构建目标为 `linux/amd64` 和 `linux/arm64`；正式标签须通过构建、冒烟和 manifest 验证后才可部署。当前发布与验收状态见[容器镜像发布与多架构部署](docs/dify-plus/容器镜像发布与多架构部署.md)。所有 API 消费者使用同一发布镜像，直接使用上游镜像不能获得本页二开能力。
+使用本仓库维护的 [`docker/docker-compose.dify-plus.yaml`](docker/docker-compose.dify-plus.yaml)。部署前准备 Docker Compose v2、数据库与持久存储。本轮容器发布目标为 `1.17.1-plus.3`，API、Web、Agent 后端及 Agent 本地沙箱使用 `ghcr.io/yfgaia/dify-plus-*` 镜像，构建目标为 `linux/amd64` 和 `linux/arm64`；正式标签须通过构建、冒烟和 manifest 验证后才可部署。当前发布与验收状态见[容器镜像发布与多架构部署](docs/dify-plus/容器镜像发布与多架构部署.md)。所有 API 消费者使用同一发布镜像，直接使用上游镜像不能获得本页二开能力。
 
 ```bash
 cd docker

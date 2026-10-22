@@ -6,7 +6,7 @@ on:
       release_version:
         description: 'Fork version to publish (an existing different digest is never overwritten)'
         required: true
-        default: '1.17.1-plus.2'
+        default: '1.17.1-plus.3'
         type: string
   push:
     tags:
