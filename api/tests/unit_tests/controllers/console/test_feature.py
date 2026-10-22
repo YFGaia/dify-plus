@@ -238,7 +238,51 @@ class TestForkLoginConfig:
         assert header_result.json == cookie_result.json
         assert queries.get_license.call_count == 0
 
-    @pytest.mark.parametrize("invalid", ["missing", "signature", "expired", "ip", "purpose", "no-exp"])
+    @pytest.mark.parametrize("transport", ["cookie", "header"])
+    @pytest.mark.parametrize(
+        ("ip_header", "bootstrap_ip", "config_ip"),
+        [
+            ("X-Forwarded-For", "192.0.2.1, 198.51.100.1", "192.0.2.1, 198.51.100.2"),
+            ("X-Forwarded-For", "192.0.2.1", "2001:db8::1"),
+            ("X-Forwarded-For", "2001:db8::1", "192.0.2.1"),
+            ("CF-Connecting-IP", "192.0.2.1", "2001:db8::1"),
+            ("CF-Connecting-IP", "2001:db8::1", "192.0.2.1"),
+        ],
+        ids=["proxy-chain", "xff-ipv4-to-ipv6", "xff-ipv6-to-ipv4", "cf-ipv4-to-ipv6", "cf-ipv6-to-ipv4"],
+    )
+    def test_bootstrap_survives_ip_changes(
+        self, transport, ip_header, bootstrap_ip, config_ip, feature_http, mocker: MockerFixture
+    ):
+        from constants import COOKIE_NAME_LOGIN_CONFIG_TOKEN, HEADER_NAME_LOGIN_CONFIG_TOKEN
+
+        queries = _install_application_services(mocker)
+        queries.get_public_system_features.return_value = SystemFeatureModel(
+            deployment_edition=DeploymentEdition.COMMUNITY,
+            license=LicenseModel(status=LicenseStatus.ACTIVE, expired_at="2099-01-01"),
+        )
+        client = feature_http.test_client()
+        bootstrap = client.get("/console/api/login_config_bootstrap", headers={ip_header: bootstrap_ip})
+        assert bootstrap.status_code == 200
+        assert bootstrap.json["ok"] is True
+        assert bootstrap.headers["Cache-Control"] == "no-store"
+        headers = {ip_header: config_ip}
+        if transport == "header":
+            client.delete_cookie(COOKIE_NAME_LOGIN_CONFIG_TOKEN)
+            headers[HEADER_NAME_LOGIN_CONFIG_TOKEN] = bootstrap.json["token"]
+
+        response = client.get("/console/api/login_config", headers=headers)
+
+        assert response.status_code == 200
+        assert response.json["license"] == {"status": "active"}
+        assert "branding" in response.json
+        assert response.headers["Cache-Control"] == "no-store"
+        queries.get_public_system_features.assert_called_once_with()
+        queries.get_license.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "invalid",
+        ["missing", "signature", "expired", "purpose", "no-exp", "no-ip", "no-type", "malformed", "algorithm"],
+    )
     def test_rejects_invalid_bootstrap(self, invalid, feature_http, mocker: MockerFixture):
         from datetime import UTC, datetime, timedelta
 
@@ -253,13 +297,12 @@ class TestForkLoginConfig:
             payload["exp"] = datetime.now(UTC) - timedelta(seconds=1)
         elif invalid == "signature":
             key = "wrong-secret-key-with-at-least-32-characters"
-        elif invalid == "ip":
-            payload["ip"] = "192.0.2.1"
         elif invalid == "purpose":
             payload["type"] = "access"
-        elif invalid == "no-exp":
-            payload.pop("exp")
-        token = jwt.encode(payload, key, algorithm="HS256")
+        elif invalid.startswith("no-"):
+            payload.pop(invalid.removeprefix("no-"))
+        algorithm = "HS384" if invalid == "algorithm" else "HS256"
+        token = "not-a-jwt" if invalid == "malformed" else jwt.encode(payload, key, algorithm=algorithm)
         queries = _install_application_services(mocker)
         headers = {} if invalid == "missing" else {HEADER_NAME_LOGIN_CONFIG_TOKEN: token}
         response = feature_http.test_client().get("/console/api/login_config", headers=headers)
