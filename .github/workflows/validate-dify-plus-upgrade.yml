@@ -1,0 +1,126 @@
+name: Validate Dify-Plus Weaviate Upgrade
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_revision:
+        description: 'Reviewed full 40-character commit SHA (empty uses this run SHA)'
+        required: false
+        default: ''
+        type: string
+  pull_request:
+    paths:
+      - 'api/providers/vdb/vdb-weaviate/**'
+      - 'api/uv.lock'
+      - 'api/tests/unit_tests/services/test_login_config_service_extend.py'
+      - 'api/tests/unit_tests/controllers/console/test_feature.py'
+      - 'docker/docker-compose.yaml'
+      - 'docker/docker-compose.dify-plus.yaml'
+      - 'docker/docker-compose.middleware.yaml'
+      - 'docker/docker-compose-template.yaml'
+      - '.github/workflows/validate-dify-plus-upgrade.yml'
+      - 'scripts/validate-weaviate-upgrade.py'
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: validate-weaviate-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  upgrade:
+    name: Upgrade, restore and SDK (${{ matrix.architecture }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: amd64
+            runner: ubuntu-24.04
+          - architecture: arm64
+            runner: ubuntu-24.04-arm
+    env:
+      UV_CACHE_DIR: /tmp/dify-plus-upgrade-uv-cache
+      EVIDENCE_DIR: ${{ github.workspace }}/upgrade-evidence
+    steps:
+      - name: Validate source identity
+        id: source
+        env:
+          SOURCE_REVISION: ${{ inputs.source_revision || github.sha }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          revision = os.environ['SOURCE_REVISION']
+          if not re.fullmatch(r'[0-9a-fA-F]{40}', revision):
+              raise SystemExit('source_revision must be a full 40-character commit SHA')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'revision={revision.lower()}\n')
+          PY
+
+      # Test code can come from a PR. The harness always comes from trusted base/main.
+      - name: Checkout trusted validation harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
+          path: validation
+          persist-credentials: false
+
+      - name: Checkout exact source under test
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ steps.source.outputs.revision }}
+          path: source
+          persist-credentials: false
+
+      - name: Setup isolated UV and Python
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: false
+          python-version: '3.12'
+
+      - name: Reserve space for clean backend dependencies
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc
+          df -h /
+
+      - name: Install frozen source dependencies
+        run: |
+          mkdir -p "$EVIDENCE_DIR"
+          git -C source rev-parse HEAD > "$EVIDENCE_DIR/source-revision.txt"
+          git -C validation rev-parse HEAD > "$EVIDENCE_DIR/harness-revision.txt"
+          uv lock --project source/api --check
+          uv sync --project source/api --dev --frozen
+          uv run --project source/api --frozen --no-sync python -c \
+            'from importlib.metadata import version; print("weaviate-client=" + version("weaviate-client"))' \
+            | tee "$EVIDENCE_DIR/sdk-version.txt"
+
+      - name: Run focused Weaviate and login configuration unit tests
+        working-directory: source
+        run: |
+          uv run --project api --frozen --no-sync pytest -p no:benchmark --no-cov --timeout 180 \
+            --junitxml="$EVIDENCE_DIR/unit-tests.xml" \
+            api/providers/vdb/vdb-weaviate/tests/unit_tests \
+            api/tests/unit_tests/services/test_login_config_service_extend.py \
+            api/tests/unit_tests/controllers/console/test_feature.py \
+            2>&1 | tee "$EVIDENCE_DIR/unit-tests.log"
+
+      - name: Validate native upgrade, restart, filesystem restore and SDK integration
+        run: |
+          python3 validation/scripts/validate-weaviate-upgrade.py \
+            --source "$GITHUB_WORKSPACE/source" --evidence "$EVIDENCE_DIR" \
+            --architecture '${{ matrix.architecture }}'
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: weaviate-upgrade-${{ matrix.architecture }}-${{ github.run_id }}
+          path: upgrade-evidence/
+          if-no-files-found: warn
+          retention-days: 30
