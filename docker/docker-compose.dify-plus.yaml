@@ -1602,10 +1602,10 @@ services:
 
   # New installations use the server version paired with upstream 1.17.1.
   # Existing Weaviate volumes require the staged migration in the runbook;
-  # never launch 1.39.2 directly against an unverified older data directory.
+  # never launch 1.39.13 directly against an unverified older data directory.
   # The Weaviate vector store.
   weaviate:
-    image: cr.weaviate.io/semitechnologies/weaviate:1.39.2
+    image: cr.weaviate.io/semitechnologies/weaviate:1.39.13
     profiles:
       - weaviate
     restart: always
