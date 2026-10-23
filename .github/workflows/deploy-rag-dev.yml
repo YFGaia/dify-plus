@@ -19,7 +19,7 @@ jobs:
       github.event.workflow_run.head_branch == 'deploy/rag-dev'
     steps:
       - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.8
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.RAG_SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
