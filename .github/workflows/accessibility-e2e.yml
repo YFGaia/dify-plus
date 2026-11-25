@@ -52,7 +52,7 @@ jobs:
         uses: ./.github/actions/setup-web
 
       - name: Setup UV and Python
-        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           enable-cache: true
           python-version: '3.12'
